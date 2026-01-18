@@ -11,16 +11,18 @@
     .layerStack {
       position: relative;
       width: min(92vw, 420px);
-      height: min(88vw, 380px);
+      height: min(88vw, 420px);
       transform-style: preserve-3d;
       transform: rotateX(var(--rotX, 26deg)) rotateY(var(--rotY, -28deg));
       transition: transform 180ms ease;
+      --layerZ: 120px;
+      --layerY: 68px;
     }
     .layer {
       position: absolute;
       left: 50%;
       top: 50%;
-      width: min(70vw, 320px);
+      width: min(70vw, 340px);
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 10px;
@@ -61,7 +63,7 @@
   <main>
     <section class="card">
       <h1>3D 三子棋（3×3×3）</h1>
-      <p class="lead">三層 3×3 立體棋盤，任何方向的三連線都能獲勝。提供同機對戰與簡易 AI。</p>
+      <p class="lead">三層 3×3 立體棋盤，任何方向的三連線都能獲勝。提供同機對戰與簡易 AI，視角可旋轉避免遮蔽。</p>
 
       <div class="stack">
         <div class="scene">
