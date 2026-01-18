@@ -1,0 +1,1068 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>軌道棋 Track Game - FuLab 版</title>
+  <link rel="stylesheet" href="fulab-theme.css">
+  <style>
+    :root {
+      --cell: clamp(56px, 20vw, 88px);
+      --gap: 10px;
+      --piece: clamp(40px, 14vw, 54px);
+    }
+
+    .hero h1 {
+      margin-bottom: 4px;
+    }
+
+    .boardWrap {
+      display: flex;
+      justify-content: center;
+      margin: 12px 0 16px;
+    }
+
+    .boardFrame {
+      border: 1px solid var(--fulab-silver);
+      border-radius: var(--fulab-radius);
+      padding: 12px;
+      background: var(--fulab-bg-secondary);
+    }
+
+    .board {
+      width: calc(var(--cell) * 4 + var(--gap) * 3);
+      height: calc(var(--cell) * 4 + var(--gap) * 3);
+      display: grid;
+      grid-template-columns: repeat(4, var(--cell));
+      grid-template-rows: repeat(4, var(--cell));
+      gap: var(--gap);
+      position: relative;
+    }
+
+    .cell {
+      appearance: none;
+      border: 1px solid var(--fulab-silver);
+      border-radius: 12px;
+      background: var(--fulab-paper);
+      cursor: pointer;
+      padding: 0;
+      transition: background-color 120ms ease, border-color 120ms ease;
+      position: relative;
+    }
+
+    .cell:focus-visible {
+      outline: 2px solid var(--fulab-tint-teal);
+      outline-offset: 2px;
+    }
+
+    .cell:disabled {
+      background: var(--fulab-bg-secondary);
+      color: var(--fulab-slate);
+      cursor: not-allowed;
+    }
+
+    .cell.previewBlack::after,
+    .cell.previewWhite::after {
+      content: "";
+      width: calc(var(--piece) - 10px);
+      height: calc(var(--piece) - 10px);
+      border-radius: 50%;
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      opacity: 0.5;
+      pointer-events: none;
+    }
+
+    .cell.previewBlack::after {
+      background: var(--fulab-graphite);
+    }
+
+    .cell.previewWhite::after {
+      background: var(--fulab-paper);
+      border: 2px solid var(--fulab-silver);
+    }
+
+    .cell.outerRing {
+      border-color: var(--fulab-indigo);
+    }
+
+    .cell.innerRing {
+      border-color: var(--fulab-plum);
+    }
+
+    .cell.nextRotateOuter {
+      outline: 2px solid var(--fulab-tint-indigo);
+    }
+
+    .cell.nextRotateInner {
+      outline: 2px solid var(--fulab-tint-plum);
+    }
+
+    .cell.hint {
+      background: var(--fulab-tint-teal);
+      border-color: var(--fulab-teal);
+    }
+
+    .cell.win {
+      background: var(--fulab-tint-emerald);
+      border-color: var(--fulab-emerald);
+    }
+
+    .pieceLayer {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    .pieceLayer.noTrans .piece {
+      transition: none !important;
+    }
+
+    .piece {
+      width: var(--piece);
+      height: var(--piece);
+      border-radius: 50%;
+      position: absolute;
+      left: 0;
+      top: 0;
+      transform: translate(0px, 0px) translate(-50%, -55%);
+      transition: transform 260ms ease;
+      border: 2px solid var(--fulab-silver);
+      background: var(--fulab-graphite);
+    }
+
+    .piece.black {
+      background: var(--fulab-graphite);
+      border-color: var(--fulab-graphite);
+    }
+
+    .piece.white {
+      background: var(--fulab-paper);
+      border-color: var(--fulab-silver);
+    }
+
+    .controls {
+      display: grid;
+      gap: 12px;
+    }
+
+    #aiRow {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: flex-end;
+    }
+
+    .buttonRow {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .statusText {
+      margin-top: 8px;
+      font-weight: 650;
+      color: var(--fulab-graphite);
+    }
+
+    .ruleNote {
+      margin-top: 12px;
+      color: var(--fulab-slate);
+    }
+
+    .kpi {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin: 8px 0 4px;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <section class="card hero">
+      <h1>軌道棋 Track Game</h1>
+      <p class="lead">4×4 內外同轉；單機雙人或 AI 對戰。落子後內外圈同步旋轉一步。</p>
+      <div class="boardWrap">
+        <div class="boardFrame">
+          <div id="board" class="board" role="grid" aria-label="Track Game board"></div>
+        </div>
+      </div>
+      <div class="kpi pillRow">
+        <span class="pill">回合：<strong id="turnKpi">0</strong></span>
+        <span class="pill">目前：<strong id="playerKpi">黑</strong></span>
+        <span class="pill">旋轉：<strong id="ringKpi">內外同時</strong></span>
+      </div>
+      <div id="statusText" class="statusText" aria-live="polite"></div>
+    </section>
+
+    <section class="card">
+      <h2 class="sectionTitle">設定</h2>
+      <div class="controls">
+        <div class="fieldGrid">
+          <div class="field">
+            <label for="mode">模式</label>
+            <select id="mode">
+              <option value="pvp">雙人（同機）</option>
+              <option value="ai">對戰 AI</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="dir">旋轉方向</label>
+            <select id="dir">
+              <option value="cw">順時針</option>
+              <option value="ccw">逆時針</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="fieldGrid" id="aiRow">
+          <div class="field">
+            <label for="aiPlayer">AI 顏色</label>
+            <select id="aiPlayer">
+              <option value="2">白（後手）</option>
+              <option value="1">黑（先手）</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="aiLevel">AI 難度</label>
+            <select id="aiLevel">
+              <option value="easy">簡單（隨機）</option>
+              <option value="medium">中等（4-ply + αβ）</option>
+              <option value="hard">困難（迭代加深，較快）</option>
+              <option value="expert" selected>專家（迭代加深，較長時間）</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="buttonRow">
+          <button class="btn primary" id="newGame">新局</button>
+          <button class="btn secondary" id="undo">悔棋</button>
+          <button class="btn secondary" id="hint">提示</button>
+          <button class="btn danger" id="reset">清空</button>
+        </div>
+        <p class="text-small">提示：落子後外圈與內圈會同步旋轉一步，再立即判定勝負。</p>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2 class="sectionTitle">規則</h2>
+      <ul class="list">
+        <li>棋盤 4×4，目標是連成四點一線（橫、直或對角）。</li>
+        <li>每回合：落子 → 內外兩圈同時沿軌道位移一格（依旋轉方向）。</li>
+        <li>旋轉後立即判定勝負；若雙方同時連線，視為本回合落子方獲勝。</li>
+        <li>AI 模式可切換先後手與難度；提示鍵會用當前玩家的搜尋結果標示建議落點。</li>
+      </ul>
+    </section>
+  </main>
+
+<script>
+  (() => {
+    "use strict";
+
+    // ===== Board model =====
+    // Indices (row-major):
+    //  0  1  2  3
+    //  4  5  6  7
+    //  8  9 10 11
+    // 12 13 14 15
+
+    const OUTER_RING = [0,1,2,3,7,11,15,14,13,12,8,4];
+    const INNER_RING = [5,6,10,9];
+    const OUTER_SET = new Set(OUTER_RING);
+    const INNER_SET = new Set(INNER_RING);
+
+    const WIN_LINES = [
+      [0,1,2,3], [4,5,6,7], [8,9,10,11], [12,13,14,15],
+      [0,4,8,12], [1,5,9,13], [2,6,10,14], [3,7,11,15],
+      [0,5,10,15], [3,6,9,12]
+    ];
+
+    const pow3 = (() => {
+      const arr = new Array(16);
+      let v = 1;
+      for (let i=0;i<16;i++){ arr[i]=v; v*=3; }
+      return arr;
+    })();
+
+    function otherPlayer(p){ return p === 1 ? 2 : 1; }
+
+    function boardId(board){
+      let id = 0;
+      for (let i=0;i<16;i++) id += board[i] * pow3[i];
+      return id;
+    }
+
+    function rotateRing(board, ring, dir){
+      // dir: +1 clockwise (advance along ring list), -1 counterclockwise
+      const len = ring.length;
+      const next = board.slice();
+      for (let i=0;i<len;i++){
+        const from = ring[i];
+        const to = ring[(i + dir + len) % len];
+        next[to] = board[from];
+      }
+      return next;
+    }
+
+    function rotateBoth(board, dir){
+      // Outer + inner rotate simultaneously. Rings are disjoint, so sequential application is safe.
+      let next = rotateRing(board, OUTER_RING, dir);
+      next = rotateRing(next, INNER_RING, dir);
+      return next;
+    }
+
+    function buildRotMap(ring){
+      const len = ring.length;
+      const cw = new Map();
+      const ccw = new Map();
+      for (let i=0;i<len;i++){
+        cw.set(ring[i], ring[(i+1)%len]);
+        ccw.set(ring[i], ring[(i-1+len)%len]);
+      }
+      return { cw, ccw };
+    }
+
+    const ROT_OUTER = buildRotMap(OUTER_RING);
+    const ROT_INNER = buildRotMap(INNER_RING);
+
+    function rotateIndex(idx, dir){
+      if (OUTER_SET.has(idx)) return (dir === 1 ? ROT_OUTER.cw : ROT_OUTER.ccw).get(idx);
+      if (INNER_SET.has(idx)) return (dir === 1 ? ROT_INNER.cw : ROT_INNER.ccw).get(idx);
+      return idx;
+    }
+
+    function checkWinnerRaw(board){
+      // returns 0 none, 1 black, 2 white, 3 both
+      let black = false;
+      let white = false;
+      for (const line of WIN_LINES){
+        const a = board[line[0]];
+        if (a === 0) continue;
+        if (a === board[line[1]] && a === board[line[2]] && a === board[line[3]]){
+          if (a === 1) black = true;
+          if (a === 2) white = true;
+        }
+      }
+      if (black && white) return 3;
+      if (black) return 1;
+      if (white) return 2;
+      return 0;
+    }
+
+    function resolveWinner(boardAfterRotation, justMovedPlayer){
+      // Determine winner after a move + required rotation.
+      // Rule (default):
+      //  - If only one side has 4-in-line -> that side wins.
+      //  - If both have 4-in-line -> justMovedPlayer wins.
+      const raw = checkWinnerRaw(boardAfterRotation);
+      if (raw === 0) return 0;
+      if (raw === 3) return justMovedPlayer;
+      return raw;
+    }
+
+    function findWinCells(board, winner){
+      const cells = new Set();
+      if (winner !== 1 && winner !== 2) return cells;
+      for (const line of WIN_LINES){
+        const a = board[line[0]];
+        if (a !== winner) continue;
+        if (a === board[line[1]] && a === board[line[2]] && a === board[line[3]]){
+          line.forEach(i => cells.add(i));
+        }
+      }
+      return cells;
+    }
+
+    function emptyCells(board){
+      const res = [];
+      for (let i=0;i<16;i++) if (board[i] === 0) res.push(i);
+      return res;
+    }
+
+    function boardFromPieces(pieces){
+      const b = new Array(16).fill(0);
+      for (const pc of pieces){
+        b[pc.idx] = pc.player;
+      }
+      return b;
+    }
+
+    // ===== Heuristic for AI =====
+
+    const WEIGHT = [0, 2, 14, 85, 100000];
+    const WIN_SCORE = 100000;
+
+    function heuristic(board, aiPlayer){
+      const opp = otherPlayer(aiPlayer);
+      let score = 0;
+      for (const line of WIN_LINES){
+        let aiCount = 0;
+        let oppCount = 0;
+        for (const idx of line){
+          if (board[idx] === aiPlayer) aiCount++;
+          else if (board[idx] === opp) oppCount++;
+        }
+        if (aiCount > 0 && oppCount > 0) continue; // blocked
+        if (aiCount > 0) score += WEIGHT[aiCount];
+        if (oppCount > 0) score -= WEIGHT[oppCount];
+      }
+      return score;
+    }
+
+    function moveOrdering(moves, preferFirst = null){
+      // Prefer center squares and optionally place a preferred move first (PV ordering).
+      const center = [5,6,9,10];
+      const centerSet = new Set(center);
+      const ordered = moves.slice().sort((a,b) => {
+        const aC = centerSet.has(a) ? 0 : 1;
+        const bC = centerSet.has(b) ? 0 : 1;
+        if (aC !== bC) return aC - bC;
+        return a - b;
+      });
+      if (preferFirst != null){
+        const k = ordered.indexOf(preferFirst);
+        if (k > 0){
+          ordered.splice(k, 1);
+          ordered.unshift(preferFirst);
+        }
+      }
+      return ordered;
+    }
+
+    function simulateMove(board, player, idx, dir){
+      const placed = board.slice();
+      placed[idx] = player;
+      const rotated = rotateBoth(placed, dir);
+      const winner = resolveWinner(rotated, player);
+      return { board: rotated, winner };
+    }
+
+    function minimax(board, playerToMove, depth, alpha, beta, ctx){
+      const { aiPlayer, dir, cache, rootDepth, deadline } = ctx;
+
+      if (deadline != null && performance.now() > deadline){
+        ctx.timedOut = true;
+        return heuristic(board, aiPlayer);
+      }
+
+      // Terminal: if board is already winning, it must have been decided on the previous move.
+      const prev = otherPlayer(playerToMove);
+      const winnerNow = resolveWinner(board, prev);
+      if (winnerNow !== 0){
+        const ply = rootDepth - depth;
+        const fastBonus = (WIN_SCORE - ply);
+        return (winnerNow === aiPlayer) ? fastBonus : -fastBonus;
+      }
+
+      const empties = emptyCells(board);
+      if (empties.length === 0) return 0; // draw
+      if (depth === 0) return heuristic(board, aiPlayer);
+
+      // Transposition table
+      // key packs boardId + player + depth
+      const key = ((boardId(board) * 2 + (playerToMove - 1)) * 20 + depth);
+      const cached = cache.get(key);
+      if (cached !== undefined) return cached;
+
+      const ordered = moveOrdering(empties);
+
+      let best;
+      if (playerToMove === aiPlayer){
+        best = -Infinity;
+        for (const mv of ordered){
+          const sim = simulateMove(board, playerToMove, mv, dir);
+          let val;
+          if (sim.winner !== 0){
+            const ply = rootDepth - depth;
+            const fastBonus = (WIN_SCORE - ply);
+            val = (sim.winner === aiPlayer) ? fastBonus : -fastBonus;
+          } else {
+            val = minimax(sim.board, otherPlayer(playerToMove), depth-1, alpha, beta, ctx);
+            if (ctx.timedOut) break;
+          }
+          if (val > best) best = val;
+          if (best > alpha) alpha = best;
+          if (alpha >= beta) break;
+        }
+      } else {
+        best = Infinity;
+        for (const mv of ordered){
+          const sim = simulateMove(board, playerToMove, mv, dir);
+          let val;
+          if (sim.winner !== 0){
+            const ply = rootDepth - depth;
+            const fastBonus = (WIN_SCORE - ply);
+            val = (sim.winner === aiPlayer) ? fastBonus : -fastBonus;
+          } else {
+            val = minimax(sim.board, otherPlayer(playerToMove), depth-1, alpha, beta, ctx);
+            if (ctx.timedOut) break;
+          }
+          if (val < best) best = val;
+          if (best < beta) beta = best;
+          if (alpha >= beta) break;
+        }
+      }
+
+      cache.set(key, best);
+      return best;
+    }
+
+    function bestMoveFixedDepth(board, playerToMove, opts){
+      const { aiPlayer, depth, dir, deadline, cache, preferFirst } = opts;
+      const empties = emptyCells(board);
+      if (empties.length === 0) return { move: null, complete: true };
+
+      // 1) Immediate win
+      for (const mv of empties){
+        const sim = simulateMove(board, playerToMove, mv, dir);
+        if (sim.winner === aiPlayer) return { move: mv, complete: true };
+      }
+
+      // 2) Candidate pruning: avoid moves that instantly lose (if possible)
+      const safe = [];
+      for (const mv of empties){
+        const sim = simulateMove(board, playerToMove, mv, dir);
+        if (sim.winner === otherPlayer(aiPlayer)) continue;
+        safe.push(mv);
+      }
+      const candidates = (safe.length > 0) ? safe : empties;
+
+      const ctx = {
+        aiPlayer,
+        dir,
+        cache,
+        rootDepth: depth,
+        deadline,
+        timedOut: false
+      };
+
+      let best = null;
+      let bestScore = -Infinity;
+      let alpha = -Infinity;
+      let beta = Infinity;
+
+      const ordered = moveOrdering(candidates, preferFirst);
+
+      for (const mv of ordered){
+        const sim = simulateMove(board, playerToMove, mv, dir);
+        let val;
+        if (sim.winner !== 0){
+          const fastBonus = WIN_SCORE;
+          val = (sim.winner === aiPlayer) ? fastBonus : -fastBonus;
+        } else {
+          val = minimax(sim.board, otherPlayer(playerToMove), depth-1, alpha, beta, ctx);
+        }
+        if (ctx.timedOut) return { move: null, complete: false };
+
+        if (val > bestScore){
+          bestScore = val;
+          best = mv;
+        }
+        if (bestScore > alpha) alpha = bestScore;
+      }
+
+      return { move: best ?? candidates[0], complete: true };
+    }
+
+    function bestMove(board, playerToMove, opts){
+      const { aiPlayer, level, dir } = opts;
+      const empties = emptyCells(board);
+      if (empties.length === 0) return null;
+
+      if (level === "easy"){
+        return empties[Math.floor(Math.random() * empties.length)];
+      }
+
+      if (level === "medium"){
+        const cache = new Map();
+        const r = bestMoveFixedDepth(board, playerToMove, {
+          aiPlayer,
+          depth: 4,
+          dir,
+          deadline: null,
+          cache,
+          preferFirst: null
+        });
+        return r.move ?? empties[0];
+      }
+
+      // Hard / Expert: iterative deepening with a time budget
+      const timeMs = (level === "hard") ? 260 : 680;
+      const maxDepth = (level === "hard") ? 8 : 10;
+      const deadline = performance.now() + timeMs;
+
+      const cache = new Map();
+      let lastBest = null;
+
+      for (let depth = 2; depth <= maxDepth; depth++){
+        const r = bestMoveFixedDepth(board, playerToMove, {
+          aiPlayer,
+          depth,
+          dir,
+          deadline,
+          cache,
+          preferFirst: lastBest
+        });
+
+        if (!r.complete) break;
+        if (r.move != null) lastBest = r.move;
+
+        // If we're very close to the deadline, stop after a completed depth.
+        if (performance.now() + 12 > deadline) break;
+      }
+
+      return lastBest ?? empties[0];
+    }
+
+    // ===== UI =====
+
+    const ANIM_MS = 260;
+
+    const elBoard = document.getElementById("board");
+    const elMode = document.getElementById("mode");
+    const elDir = document.getElementById("dir");
+    const elAiRow = document.getElementById("aiRow");
+    const elAiPlayer = document.getElementById("aiPlayer");
+    const elAiLevel = document.getElementById("aiLevel");
+    const elNew = document.getElementById("newGame");
+    const elUndo = document.getElementById("undo");
+    const elHint = document.getElementById("hint");
+    const elReset = document.getElementById("reset");
+
+    const elTurnKpi = document.getElementById("turnKpi");
+    const elPlayerKpi = document.getElementById("playerKpi");
+    const elRingKpi = document.getElementById("ringKpi");
+    const elStatus = document.getElementById("statusText");
+
+    const state = {
+      board: new Array(16).fill(0),
+      pieces: [],
+      nextPieceId: 1,
+      turn: 0,
+      player: 1,
+      winner: 0,
+      gameOver: false,
+      locked: false,
+      animating: false,
+      aiThinking: false,
+      history: [],
+      mode: "pvp",
+      aiPlayer: 2,
+      aiLevel: "expert",
+      dir: 1,
+      winCells: new Set(),
+      lastHint: null
+    };
+
+    function uiPlayerName(p){ return p === 1 ? "黑" : "白"; }
+
+    // ===== Pieces animation layer =====
+
+    const cellEls = [];
+    const pieceEls = new Map();
+    let pieceLayer = null;
+    let cellCenters = new Array(16).fill(null);
+
+    function computeCellCenters(){
+      const boardRect = elBoard.getBoundingClientRect();
+      for (let i=0;i<16;i++){
+        const r = cellEls[i].getBoundingClientRect();
+        cellCenters[i] = {
+          x: (r.left - boardRect.left) + (r.width / 2),
+          y: (r.top  - boardRect.top)  + (r.height / 2)
+        };
+      }
+    }
+
+    function pieceTransformForIdx(idx){
+      const p = cellCenters[idx];
+      if (!p) return "translate(0px, 0px) translate(-50%, -55%)";
+      return `translate(${p.x}px, ${p.y}px) translate(-50%, -55%)`;
+    }
+
+    function ensurePieceEl(piece){
+      let el = pieceEls.get(piece.id);
+      if (!el){
+        el = document.createElement("div");
+        el.className = `piece ${piece.player === 1 ? "black" : "white"}`;
+        el.dataset.pid = String(piece.id);
+        pieceLayer.appendChild(el);
+        pieceEls.set(piece.id, el);
+      }
+      return el;
+    }
+
+    function syncPieceLayer({ animate } = { animate: true }){
+      if (!pieceLayer) return;
+
+      if (!animate) pieceLayer.classList.add("noTrans");
+
+      const alive = new Set();
+      for (const pc of state.pieces){
+        alive.add(pc.id);
+        const el = ensurePieceEl(pc);
+        el.classList.toggle("black", pc.player === 1);
+        el.classList.toggle("white", pc.player === 2);
+        el.style.transform = pieceTransformForIdx(pc.idx);
+      }
+
+      for (const [id, el] of pieceEls){
+        if (!alive.has(id)){
+          el.remove();
+          pieceEls.delete(id);
+        }
+      }
+
+      if (!animate){
+        void pieceLayer.offsetWidth; // reflow
+        pieceLayer.classList.remove("noTrans");
+      }
+    }
+
+    function spawnPieceAt(idx, player, id){
+      const pc = { id, idx, player };
+      // Create DOM first at the placement position (no transition), so it can slide with the rotation.
+      state.pieces.push(pc);
+      pieceLayer.classList.add("noTrans");
+      const el = ensurePieceEl(pc);
+      el.className = `piece ${player === 1 ? "black" : "white"}`;
+      el.style.transform = pieceTransformForIdx(idx);
+      void pieceLayer.offsetWidth;
+      pieceLayer.classList.remove("noTrans");
+      return pc;
+    }
+
+    // ===== History =====
+
+    function snapshot(){
+      return {
+        board: state.board.slice(),
+        pieces: state.pieces.map(p => ({ id: p.id, idx: p.idx, player: p.player })),
+        nextPieceId: state.nextPieceId,
+        turn: state.turn,
+        player: state.player,
+        winner: state.winner,
+        gameOver: state.gameOver,
+        winCells: Array.from(state.winCells)
+      };
+    }
+
+    function restore(snap){
+      state.board = snap.board.slice();
+      state.pieces = snap.pieces.map(p => ({ id: p.id, idx: p.idx, player: p.player }));
+      state.nextPieceId = snap.nextPieceId;
+      state.turn = snap.turn;
+      state.player = snap.player;
+      state.winner = snap.winner;
+      state.gameOver = snap.gameOver;
+      state.winCells = new Set(snap.winCells);
+
+      state.locked = false;
+      state.animating = false;
+      state.aiThinking = false;
+
+      // Rebuild piece DOM in place (no animation)
+      pieceEls.clear();
+      if (pieceLayer) pieceLayer.innerHTML = "";
+      computeCellCenters();
+      syncPieceLayer({ animate: false });
+    }
+
+    function pushHistory(){
+      state.history.push(snapshot());
+      if (state.history.length > 200) state.history.shift();
+    }
+
+    // ===== Hint =====
+
+    function clearHint(){
+      if (state.lastHint == null) return;
+      const btn = cellEls[state.lastHint];
+      if (btn) btn.classList.remove("hint");
+      state.lastHint = null;
+    }
+
+    // ===== Game flow =====
+
+    function endIfOver(boardAfter, justMoved){
+      const winner = resolveWinner(boardAfter, justMoved);
+      if (winner !== 0){
+        state.gameOver = true;
+        state.winner = winner;
+        state.winCells = findWinCells(boardAfter, winner);
+        return true;
+      }
+      if (state.turn >= 16){
+        state.gameOver = true;
+        state.winner = 0;
+        state.winCells = new Set();
+        return true;
+      }
+      return false;
+    }
+
+    function applyMove(idx){
+      if (state.gameOver || state.locked) return;
+      if (state.board[idx] !== 0) return;
+
+      clearHint();
+      pushHistory();
+
+      const justMoved = state.player;
+
+      state.locked = true;
+      state.animating = true;
+      render();
+
+      // Place piece at chosen cell first (so the animation shows "place -> rotate")
+      const newId = state.nextPieceId++;
+      spawnPieceAt(idx, justMoved, newId);
+
+      // Compute simultaneous rotation targets
+      for (const pc of state.pieces){
+        pc.idx = rotateIndex(pc.idx, state.dir);
+      }
+
+      state.board = boardFromPieces(state.pieces);
+      state.turn += 1;
+
+      // Start smooth movement
+      computeCellCenters();
+      syncPieceLayer({ animate: true });
+
+      // Finalize after animation
+      setTimeout(() => {
+        state.animating = false;
+
+        if (!endIfOver(state.board, justMoved)){
+          state.player = otherPlayer(justMoved);
+        }
+
+        state.locked = false;
+        render();
+
+        if (state.mode === "ai" && !state.gameOver && state.player === state.aiPlayer){
+          aiTurn();
+        }
+      }, ANIM_MS + 20);
+    }
+
+    function aiTurn(){
+      state.aiThinking = true;
+      state.locked = true;
+      render();
+
+      setTimeout(() => {
+        const mv = bestMove(state.board, state.player, {
+          aiPlayer: state.aiPlayer,
+          level: state.aiLevel,
+          dir: state.dir
+        });
+
+        state.aiThinking = false;
+        state.locked = false;
+        render();
+
+        if (mv != null) applyMove(mv);
+      }, 10);
+    }
+
+    function newGame(){
+      state.board = new Array(16).fill(0);
+      state.pieces = [];
+      state.nextPieceId = 1;
+      state.turn = 0;
+      state.player = 1;
+      state.winner = 0;
+      state.gameOver = false;
+      state.locked = false;
+      state.animating = false;
+      state.aiThinking = false;
+      state.history = [];
+      state.winCells = new Set();
+      clearHint();
+
+      pieceEls.clear();
+      if (pieceLayer) pieceLayer.innerHTML = "";
+
+      computeCellCenters();
+      syncPieceLayer({ animate: false });
+
+      render();
+      if (state.mode === "ai" && state.player === state.aiPlayer){
+        aiTurn();
+      }
+    }
+
+    function undo(){
+      if (state.locked) return;
+      if (state.history.length === 0) return;
+      clearHint();
+      const snap = state.history.pop();
+      restore(snap);
+      render();
+    }
+
+    function hint(){
+      if (state.gameOver || state.locked) return;
+      clearHint();
+
+      const level = "medium";
+      const mv = bestMove(state.board, state.player, {
+        aiPlayer: state.player,
+        level,
+        dir: state.dir
+      });
+
+      if (mv == null) return;
+      const btn = cellEls[mv];
+      if (btn){
+        btn.classList.add("hint");
+        state.lastHint = mv;
+        setTimeout(() => clearHint(), 900);
+      }
+    }
+
+    // ===== Rendering =====
+
+    function render(){
+      elAiRow.style.display = (state.mode === "ai") ? "flex" : "none";
+
+      elTurnKpi.textContent = String(state.turn);
+      elPlayerKpi.textContent = uiPlayerName(state.player);
+      elRingKpi.textContent = "內外同時";
+
+      // status text
+      let msg = "";
+      if (state.gameOver){
+        if (state.winner === 0) msg = "平手：棋盤已滿。";
+        else msg = `勝利：${uiPlayerName(state.winner)}。`;
+      } else if (state.aiThinking){
+        msg = `請 ${uiPlayerName(state.player)} 落子。（AI 思考中）`;
+      } else if (state.animating){
+        msg = `已落子：${uiPlayerName(state.player)}。旋轉中…`;
+      } else {
+        msg = `請 ${uiPlayerName(state.player)} 落子。`;
+      }
+      elStatus.textContent = msg;
+
+      // disable buttons
+      elUndo.disabled = state.history.length === 0 || state.locked;
+      elHint.disabled = state.gameOver || state.locked;
+
+      const isAiTurn = (state.mode === "ai" && state.player === state.aiPlayer);
+      const canClick = (!state.gameOver && !state.locked && !isAiTurn);
+
+      for (let i=0;i<16;i++){
+        const cell = cellEls[i];
+        const v = state.board[i];
+
+        cell.classList.toggle("outerRing", OUTER_SET.has(i));
+        cell.classList.toggle("innerRing", INNER_SET.has(i));
+
+        // both rings rotate every turn: show both outlines
+        cell.classList.toggle("nextRotateOuter", !state.gameOver && OUTER_SET.has(i));
+        cell.classList.toggle("nextRotateInner", !state.gameOver && INNER_SET.has(i));
+
+        cell.classList.toggle("win", state.winCells.has(i));
+
+        cell.classList.remove("previewBlack","previewWhite");
+        if (canClick && v === 0){
+          cell.classList.add(state.player === 1 ? "previewBlack" : "previewWhite");
+        }
+
+        cell.disabled = !(canClick && v === 0);
+      }
+
+    }
+
+    // ===== Build board DOM =====
+
+    function buildBoard(){
+      elBoard.innerHTML = "";
+      cellEls.length = 0;
+
+      for (let i=0;i<16;i++){
+        const btn = document.createElement("button");
+        btn.className = "cell";
+        btn.type = "button";
+        btn.dataset.idx = String(i);
+        btn.setAttribute("role","gridcell");
+        btn.addEventListener("click", () => applyMove(i));
+        elBoard.appendChild(btn);
+        cellEls.push(btn);
+      }
+
+      pieceLayer = document.createElement("div");
+      pieceLayer.id = "pieceLayer";
+      pieceLayer.className = "pieceLayer";
+      pieceLayer.setAttribute("aria-hidden","true");
+      elBoard.appendChild(pieceLayer);
+
+      computeCellCenters();
+    }
+
+    // ===== Events =====
+
+    elMode.addEventListener("change", () => {
+      state.mode = elMode.value;
+      render();
+      if (state.mode === "ai" && !state.gameOver && state.player === state.aiPlayer){
+        aiTurn();
+      }
+    });
+
+    elDir.addEventListener("change", () => {
+      state.dir = (elDir.value === "cw") ? 1 : -1;
+      render();
+    });
+
+    elAiPlayer.addEventListener("change", () => {
+      state.aiPlayer = parseInt(elAiPlayer.value, 10);
+      render();
+      if (state.mode === "ai" && !state.gameOver && state.player === state.aiPlayer){
+        aiTurn();
+      }
+    });
+
+    elAiLevel.addEventListener("change", () => {
+      state.aiLevel = elAiLevel.value;
+      render();
+    });
+
+    elNew.addEventListener("click", () => newGame());
+    elReset.addEventListener("click", () => newGame());
+    elUndo.addEventListener("click", () => undo());
+    elHint.addEventListener("click", () => hint());
+
+    window.addEventListener("resize", () => {
+      // Recompute centers and snap pieces into place without animation.
+      if (!pieceLayer) return;
+      computeCellCenters();
+      syncPieceLayer({ animate: false });
+    });
+
+    // ===== init =====
+
+    buildBoard();
+
+    // sync initial UI values into state
+    state.mode = elMode.value;
+    state.dir = (elDir.value === "cw") ? 1 : -1;
+    state.aiPlayer = parseInt(elAiPlayer.value, 10);
+    state.aiLevel = elAiLevel.value;
+
+    // initial render without animation
+    computeCellCenters();
+    syncPieceLayer({ animate: false });
+    render();
+
+  })();
+  </script>
+</body>
+</html>

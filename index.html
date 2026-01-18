@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>FuGames - FuLab 棋盤遊戲集</title>
+  <link rel="stylesheet" href="fulab-theme.css">
+  <style>
+    .gameList {
+      display: grid;
+      gap: 12px;
+    }
+
+    .gameItem {
+      border: 1px solid var(--fulab-silver);
+      border-radius: var(--fulab-radius);
+      padding: 12px;
+      background: var(--fulab-bg-secondary);
+    }
+
+    .gameItem h3 {
+      margin: 0 0 6px;
+    }
+
+    .gameItem .text-small {
+      margin: 0 0 8px;
+    }
+
+    .gameActions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 6px;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <section class="card">
+      <h1>FuGames</h1>
+      <p class="lead">兩款單頁棋盤遊戲，採用 FuLab 色系與單欄版面，手機與桌機皆可直接遊玩。</p>
+    </section>
+
+    <section class="card">
+      <h2 class="sectionTitle">遊戲列表</h2>
+      <div class="gameList">
+        <div class="gameItem">
+          <h3>三子循環棋</h3>
+          <p class="text-small">3×3 棋盤，放滿三顆後需移動最早落下的棋子。玩家操控 X，AI 控制 O。</p>
+          <div class="gameActions">
+            <a class="btn primary" href="cyclic_tictactoe.html">開始遊玩</a>
+          </div>
+        </div>
+
+        <div class="gameItem">
+          <h3>軌道棋 Track Game</h3>
+          <p class="text-small">4×4 內外同轉版。支援同機雙人與 AI 對戰，落子後外內圈同步旋轉一步。</p>
+          <div class="gameActions">
+            <a class="btn primary" href="trackgame.html">開始遊玩</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

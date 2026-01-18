@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>三子循環棋 - FuLab 版</title>
+  <link rel="stylesheet" href="fulab-theme.css">
+  <style>
+    .gameCard h1 {
+      margin-bottom: 4px;
+    }
+
+    .boardWrap {
+      display: flex;
+      justify-content: center;
+    }
+
+    .board {
+      width: min(92vw, 360px);
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      position: relative;
+    }
+
+    .cell {
+      aspect-ratio: 1 / 1;
+      border: 1px solid var(--fulab-silver);
+      border-radius: 12px;
+      background: var(--fulab-bg-secondary);
+      font-size: clamp(42px, 12vw, 56px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background-color 120ms ease, border-color 120ms ease;
+    }
+
+    .cell:hover {
+      border-color: var(--fulab-teal);
+    }
+
+    .cell:active {
+      background: var(--fulab-tint-teal);
+    }
+
+    .cell.highlight {
+      background: var(--fulab-tint-emerald);
+      border-color: var(--fulab-emerald);
+    }
+
+    .info {
+      text-align: center;
+      margin: 12px 0;
+      font-weight: 600;
+    }
+
+    .actionRow {
+      display: flex;
+      justify-content: center;
+    }
+
+    @media (min-width: 540px) {
+      .board {
+        width: 360px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <section class="card gameCard">
+      <h1>三子循環棋</h1>
+      <p class="lead">3×3 棋盤，放滿三顆後依序移動最早落下的棋子。你是 X，AI 是 O。</p>
+      <div class="boardWrap">
+        <div class="board" id="board"></div>
+      </div>
+      <div class="info" id="info">您可以操作 X，AI 操作 O</div>
+      <div class="actionRow btnRow">
+        <button class="btn primary" onclick="resetGame()">重置遊戲</button>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2 class="sectionTitle">玩法</h2>
+      <ul class="list">
+        <li>輪流下子，先連成三子者獲勝。</li>
+        <li>每位玩家最多場上三顆棋；放滿後必須移動自己最早落下的那顆。</li>
+        <li>AI 控制 O。若 AI 無法移動，直接換你下。</li>
+      </ul>
+    </section>
+  </main>
+
+  <script>
+    // ==================================
+    // 基本遊戲邏輯
+    // ==================================
+
+    const boardElem = document.getElementById("board");
+    const infoElem = document.getElementById("info");
+
+    // 9格，每一格可以是 'X', 'O', 或空字串 ''
+    let board = Array(9).fill('');
+    // 假設使用者扮演 X，AI 扮演 O
+    let currentPlayer = 'X';
+    let placedPieces = { 'X': 0, 'O': 0 };
+    let placeOrder = { 'X': [], 'O': [] };
+
+    // 先假設只有 O 為 AI，X 由玩家手動操作
+    function isAI(player) {
+      return (player === 'O');
+    }
+
+    function resetGame() {
+      board = Array(9).fill('');
+      currentPlayer = 'X';
+      placedPieces = { 'X': 0, 'O': 0 };
+      placeOrder = { 'X': [], 'O': [] };
+      infoElem.textContent = '遊戲重新開始，輪到 X';
+      renderBoard();
+    }
+
+    function renderBoard(winLine = []) {
+      boardElem.innerHTML = '';
+      board.forEach((cell, i) => {
+        const cellDiv = document.createElement('div');
+        cellDiv.className = 'cell';
+        cellDiv.textContent = cell;
+        if (winLine.includes(i)) {
+          cellDiv.classList.add('highlight');
+        }
+        // 只有在 X 的回合才可點擊
+        if (!isAI(currentPlayer)) {
+          cellDiv.onclick = () => handleClick(i);
+        } else {
+          cellDiv.onclick = null;
+        }
+        boardElem.appendChild(cellDiv);
+      });
+    }
+
+    // 用於檢查是否有人連成三子
+    function checkWin(player, theBoard = board) {
+      const lines = [
+        [0,1,2],[3,4,5],[6,7,8],
+        [0,3,6],[1,4,7],[2,5,8],
+        [0,4,8],[2,4,6]
+      ];
+      for (let line of lines) {
+        if (line.every(i => theBoard[i] === player)) {
+          return line;
+        }
+      }
+      return null;
+    }
+
+    // 取得當前玩家所有可行走法 (from -> to)
+    // 若尚未放滿3個棋子，from=null 表示此回合是直接放子
+    function getAllMoves(player, b, pPieces, pOrder) {
+      let moves = [];
+      if (pPieces[player] < 3) {
+        // 可以放在任一空位
+        for (let i = 0; i < 9; i++) {
+          if (b[i] === '') {
+            moves.push({ from: null, to: i });
+          }
+        }
+      } else {
+        // 已放滿3顆，必須移動最先放入的那顆
+        if (pOrder[player].length > 0) {
+          const moveFrom = pOrder[player][0];
+          for (let i = 0; i < 9; i++) {
+            if (b[i] === '') {
+              moves.push({ from: moveFrom, to: i });
+            }
+          }
+        }
+      }
+      return moves;
+    }
+
+    // 對於 AI 來說，簡易向前看2層：
+    // 1. 嘗試所有自己的合法走法
+    //   a. 如果能直接贏，就選這步
+    //   b. 否則，模擬對方最好的回應
+    // 2. 選取評分最高的走法
+    function aiDecideMove() {
+      const moves = getAllMoves('O', board, placedPieces, placeOrder);
+      if (moves.length === 0) {
+        return null; // 無法移動
+      }
+
+      let bestScore = -Infinity;
+      let bestMove = moves[0];
+
+      for (let mv of moves) {
+        // 複製一份
+        const tmpBoard = board.slice();
+        const tmpPlaced = { 'X': placedPieces.X, 'O': placedPieces.O };
+        const tmpOrder = {
+          'X': placeOrder.X.slice(),
+          'O': placeOrder.O.slice()
+        };
+
+        // 執行 O 的此步
+        if (mv.from === null) {
+          // 放子
+          tmpBoard[mv.to] = 'O';
+          tmpPlaced['O']++;
+          tmpOrder['O'].push(mv.to);
+        } else {
+          // 移子
+          tmpBoard[mv.from] = '';
+          tmpBoard[mv.to] = 'O';
+          tmpOrder['O'].shift();
+          tmpOrder['O'].push(mv.to);
+        }
+
+        // 檢查是否直接贏
+        if (checkWin('O', tmpBoard)) {
+          // 如果能直接贏，給個超高分
+          return mv;
+        }
+
+        // 向前看一步，模擬 X 的可能走法
+        let score = simulateOpponent(tmpBoard, tmpPlaced, tmpOrder);
+
+        // 取最大的score
+        if (score > bestScore) {
+          bestScore = score;
+          bestMove = mv;
+        }
+      }
+
+      return bestMove;
+    }
+
+    // 模擬 X 的最佳回應(只看一步)
+    // 如果對方能贏，AI給負評分；否則就 0
+    function simulateOpponent(tmpBoard, tmpPlaced, tmpOrder) {
+      // 找 X 的所有走法
+      const movesX = getAllMoves('X', tmpBoard, tmpPlaced, tmpOrder);
+      if (movesX.length === 0) {
+        // 對方無法移動，就算是對AI有利
+        return 0;
+      }
+
+      // 如果任何一種走法能令 X 勝利，就很糟糕(給-1)；
+      // 如果都無法令 X 勝利，則 0
+      for (let mv of movesX) {
+        const b2 = tmpBoard.slice();
+        const p2 = { 'X': tmpPlaced.X, 'O': tmpPlaced.O };
+        const o2 = {
+          'X': tmpOrder.X.slice(),
+          'O': tmpOrder.O.slice()
+        };
+
+        if (mv.from === null) {
+          b2[mv.to] = 'X';
+          p2['X']++;
+          o2['X'].push(mv.to);
+        } else {
+          b2[mv.from] = '';
+          b2[mv.to] = 'X';
+          o2['X'].shift();
+          o2['X'].push(mv.to);
+        }
+
+        if (checkWin('X', b2)) {
+          return -1; // X 能贏，AI這條分數不利
+        }
+      }
+      // 如果 X 不能立即贏
+      return 0;
+    }
+
+    function handleClick(i) {
+      // 如果是 AI 回合，不允許手動點擊
+      if (isAI(currentPlayer)) {
+        return;
+      }
+
+      doMove(currentPlayer, i);
+    }
+
+    // 執行移動(玩家 or AI)
+    function doMove(player, targetIndex) {
+      // 放棋 or 移動棋
+      if (placedPieces[player] < 3) {
+        if (board[targetIndex] !== '') return; // 格子已被佔
+        board[targetIndex] = player;
+        placedPieces[player]++;
+        placeOrder[player].push(targetIndex);
+      } else {
+        // 按先入順序
+        const from = placeOrder[player][0];
+        // 清除
+        board[from] = '';
+        if (board[targetIndex] !== '') {
+          // 如果要放的位置不空，復原
+          board[from] = player;
+          return;
+        }
+        board[targetIndex] = player;
+        placeOrder[player].shift();
+        placeOrder[player].push(targetIndex);
+      }
+      checkAndNext(player);
+    }
+
+    function checkAndNext(player) {
+      const winLine = checkWin(player);
+      if (winLine) {
+        infoElem.textContent = player + " 贏了！";
+        renderBoard(winLine);
+        // 移除點擊事件
+        const cells = document.querySelectorAll('.cell');
+        cells.forEach(cell => cell.onclick = null);
+        return;
+      }
+      switchPlayer();
+    }
+
+    function switchPlayer() {
+      currentPlayer = (currentPlayer === 'X') ? 'O' : 'X';
+      infoElem.textContent = '輪到 ' + currentPlayer;
+      renderBoard();
+      if (isAI(currentPlayer)) {
+        // AI 執行二層搜索
+        const mv = aiDecideMove();
+        if (!mv) {
+          // AI 無法移動 => 直接跳回玩家
+          switchPlayer();
+          return;
+        }
+        // 執行移動
+        if (mv.from === null) {
+          doMove('O', mv.to);
+        } else {
+          doAIMoveFromTo(mv.from, mv.to);
+        }
+      }
+    }
+
+    // 給 AI 使用的移動 (不需再檢查 from 是否空、to 是否空)
+    function doAIMoveFromTo(f, t) {
+      board[f] = '';
+      board[t] = 'O';
+      placeOrder['O'].shift();
+      placeOrder['O'].push(t);
+      checkAndNext('O');
+    }
+
+    // 初始化
+    renderBoard();
+  </script>
+</body>
+</html>
