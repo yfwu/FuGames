@@ -60,6 +60,32 @@
       justify-content: center;
     }
 
+    .notice {
+      margin-top: 8px;
+    }
+
+    .pill input {
+      margin-right: 6px;
+    }
+
+    .cell.hint-x-next {
+      background: var(--fulab-tint-teal);
+      border-color: var(--fulab-teal);
+    }
+
+    .cell.hint-o-next {
+      background: var(--fulab-tint-plum);
+      border-color: var(--fulab-plum);
+    }
+
+    .cell.hint-x-next2 {
+      box-shadow: 0 0 0 2px var(--fulab-tint-indigo);
+    }
+
+    .cell.hint-o-next2 {
+      box-shadow: 0 0 0 2px var(--fulab-tint-amber);
+    }
+
     @media (min-width: 540px) {
       .board {
         width: 360px;
@@ -76,6 +102,18 @@
         <div class="board" id="board"></div>
       </div>
       <div class="info" id="info">您可以操作 X，AI 操作 O</div>
+      <div class="pillRow">
+        <span class="pill">步數：<strong id="moveCount">0</strong></span>
+        <label class="pill">
+          <input type="checkbox" id="toggleNext" checked>
+          顯示「下回合將移動」
+        </label>
+        <label class="pill">
+          <input type="checkbox" id="toggleNext2" checked>
+          顯示「下下回合將移動」
+        </label>
+      </div>
+      <div class="notice text-small" id="hintText"></div>
       <div class="actionRow btnRow">
         <button class="btn primary" onclick="resetGame()">重置遊戲</button>
       </div>
@@ -105,6 +143,26 @@
     let currentPlayer = 'X';
     let placedPieces = { 'X': 0, 'O': 0 };
     let placeOrder = { 'X': [], 'O': [] };
+    let moveCount = 0;
+    let showNextHint = true;
+    let showNext2Hint = true;
+
+    const moveCountElem = document.getElementById('moveCount');
+    const hintTextElem = document.getElementById('hintText');
+    const toggleNextElem = document.getElementById('toggleNext');
+    const toggleNext2Elem = document.getElementById('toggleNext2');
+
+    toggleNextElem.addEventListener('change', () => {
+      showNextHint = toggleNextElem.checked;
+      renderBoard();
+      updateHintText();
+    });
+
+    toggleNext2Elem.addEventListener('change', () => {
+      showNext2Hint = toggleNext2Elem.checked;
+      renderBoard();
+      updateHintText();
+    });
 
     // 先假設只有 O 為 AI，X 由玩家手動操作
     function isAI(player) {
@@ -116,18 +174,34 @@
       currentPlayer = 'X';
       placedPieces = { 'X': 0, 'O': 0 };
       placeOrder = { 'X': [], 'O': [] };
+      moveCount = 0;
+      updateMoveCount();
       infoElem.textContent = '遊戲重新開始，輪到 X';
       renderBoard();
+      updateHintText();
     }
 
     function renderBoard(winLine = []) {
       boardElem.innerHTML = '';
+      const hintTargets = {
+        X: getHintTargets('X'),
+        O: getHintTargets('O')
+      };
+
       board.forEach((cell, i) => {
         const cellDiv = document.createElement('div');
         cellDiv.className = 'cell';
         cellDiv.textContent = cell;
         if (winLine.includes(i)) {
           cellDiv.classList.add('highlight');
+        }
+        if (showNextHint) {
+          if (hintTargets.X.next === i) cellDiv.classList.add('hint-x-next');
+          if (hintTargets.O.next === i) cellDiv.classList.add('hint-o-next');
+        }
+        if (showNext2Hint) {
+          if (hintTargets.X.next2 === i) cellDiv.classList.add('hint-x-next2');
+          if (hintTargets.O.next2 === i) cellDiv.classList.add('hint-o-next2');
         }
         // 只有在 X 的回合才可點擊
         if (!isAI(currentPlayer)) {
@@ -137,6 +211,38 @@
         }
         boardElem.appendChild(cellDiv);
       });
+    }
+
+    function getHintTargets(player) {
+      if (placedPieces[player] < 3) return { next: null, next2: null };
+      const order = placeOrder[player];
+      return {
+        next: order[0] ?? null,
+        next2: order[1] ?? null
+      };
+    }
+
+    function coordLabel(idx) {
+      if (idx === null || idx === undefined) return '—';
+      const r = Math.floor(idx / 3) + 1;
+      const c = (idx % 3) + 1;
+      return `${r} 行 ${c} 列`;
+    }
+
+    function updateHintText() {
+      const hx = getHintTargets('X');
+      const ho = getHintTargets('O');
+      const xText = placedPieces.X < 3
+        ? 'X：未放滿三顆，暫無移動順序。'
+        : `X：下回合移動 ${coordLabel(hx.next)}；下下回合 ${coordLabel(hx.next2 ?? hx.next)}。`;
+      const oText = placedPieces.O < 3
+        ? 'O：未放滿三顆，暫無移動順序。'
+        : `O：下回合移動 ${coordLabel(ho.next)}；下下回合 ${coordLabel(ho.next2 ?? ho.next)}。`;
+      hintTextElem.textContent = `${xText} ${oText}`;
+    }
+
+    function updateMoveCount() {
+      moveCountElem.textContent = moveCount;
     }
 
     // 用於檢查是否有人連成三子
@@ -305,6 +411,9 @@
         placeOrder[player].shift();
         placeOrder[player].push(targetIndex);
       }
+      moveCount++;
+      updateMoveCount();
+      updateHintText();
       checkAndNext(player);
     }
 
@@ -348,10 +457,15 @@
       board[t] = 'O';
       placeOrder['O'].shift();
       placeOrder['O'].push(t);
+      moveCount++;
+      updateMoveCount();
+      updateHintText();
       checkAndNext('O');
     }
 
     // 初始化
+    updateMoveCount();
+    updateHintText();
     renderBoard();
   </script>
 </body>
