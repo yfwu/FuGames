@@ -97,7 +97,7 @@
   <main>
     <section class="card gameCard">
       <h1>三子循環棋</h1>
-      <p class="lead">3×3 棋盤，放滿三顆後依序移動最早落下的棋子。你是 X，AI 是 O。</p>
+      <p class="lead">3×3 棋盤，放滿三顆後依序移動最早放下的棋子。你是 X，AI 是 O。</p>
       <div class="boardWrap">
         <div class="board" id="board"></div>
       </div>
@@ -113,7 +113,6 @@
           顯示「下下回合將移動」
         </label>
       </div>
-      <div class="notice text-small" id="hintText"></div>
       <div class="actionRow btnRow">
         <button class="btn primary" onclick="resetGame()">重置遊戲</button>
       </div>
@@ -123,7 +122,7 @@
       <h2 class="sectionTitle">玩法</h2>
       <ul class="list">
         <li>輪流下子，先連成三子者獲勝。</li>
-        <li>每位玩家最多場上三顆棋；放滿後必須移動自己最早落下的那顆。</li>
+        <li>每位玩家最多場上三顆棋；放滿後必須移動自己最早放下的那顆。</li>
         <li>AI 控制 O。若 AI 無法移動，直接換你下。</li>
       </ul>
     </section>
@@ -148,20 +147,17 @@
     let showNext2Hint = true;
 
     const moveCountElem = document.getElementById('moveCount');
-    const hintTextElem = document.getElementById('hintText');
     const toggleNextElem = document.getElementById('toggleNext');
     const toggleNext2Elem = document.getElementById('toggleNext2');
 
     toggleNextElem.addEventListener('change', () => {
       showNextHint = toggleNextElem.checked;
       renderBoard();
-      updateHintText();
     });
 
     toggleNext2Elem.addEventListener('change', () => {
       showNext2Hint = toggleNext2Elem.checked;
       renderBoard();
-      updateHintText();
     });
 
     // 先假設只有 O 為 AI，X 由玩家手動操作
@@ -178,7 +174,6 @@
       updateMoveCount();
       infoElem.textContent = '遊戲重新開始，輪到 X';
       renderBoard();
-      updateHintText();
     }
 
     function renderBoard(winLine = []) {
@@ -227,18 +222,6 @@
       const r = Math.floor(idx / 3) + 1;
       const c = (idx % 3) + 1;
       return `${r} 行 ${c} 列`;
-    }
-
-    function updateHintText() {
-      const hx = getHintTargets('X');
-      const ho = getHintTargets('O');
-      const xText = placedPieces.X < 3
-        ? 'X：未放滿三顆，暫無移動順序。'
-        : `X：下回合移動 ${coordLabel(hx.next)}；下下回合 ${coordLabel(hx.next2 ?? hx.next)}。`;
-      const oText = placedPieces.O < 3
-        ? 'O：未放滿三顆，暫無移動順序。'
-        : `O：下回合移動 ${coordLabel(ho.next)}；下下回合 ${coordLabel(ho.next2 ?? ho.next)}。`;
-      hintTextElem.textContent = `${xText} ${oText}`;
     }
 
     function updateMoveCount() {
@@ -413,7 +396,6 @@
       }
       moveCount++;
       updateMoveCount();
-      updateHintText();
       checkAndNext(player);
     }
 
@@ -459,13 +441,11 @@
       placeOrder['O'].push(t);
       moveCount++;
       updateMoveCount();
-      updateHintText();
       checkAndNext('O');
     }
 
     // 初始化
     updateMoveCount();
-    updateHintText();
     renderBoard();
   </script>
 </body>
