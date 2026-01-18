@@ -50,7 +50,7 @@
   <main>
     <section class="card">
       <h1>環面直落四子</h1>
-      <p class="lead">經典 7×6 直落四子，加上「環面」判定：連線可繞過左右/上下邊界。玩法操作與原版一致。</p>
+      <p class="lead">經典 7×6 直落四子，加上「環面」判定：連線可繞過左右/上下邊界。棋子改為黑白。</p>
       <div class="boardWrap">
         <div class="board">
           <button class="colBtn" data-col="0">↓</button>
@@ -66,7 +66,7 @@
       <div class="info" id="statusText"></div>
       <div class="pillRow">
         <span class="pill">回合：<strong id="turnKpi">0</strong></span>
-        <span class="pill">玩家：<strong id="playerKpi">紅</strong></span>
+        <span class="pill">玩家：<strong id="playerKpi">黑</strong></span>
       </div>
       <div class="btnRow">
         <button class="btn primary" id="newGame">新局</button>
@@ -98,7 +98,7 @@
 
     function reset() {
       board = Array.from({length: ROWS}, () => Array(COLS).fill(''));
-      player = 'R'; // R / Y
+      player = 'B'; // B = 黑, W = 白
       turn = 0;
       over = false;
       winCells = new Set();
@@ -125,7 +125,7 @@
             render();
             return;
           }
-          player = (player === 'R') ? 'Y' : 'R';
+          player = (player === 'B') ? 'W' : 'B';
           render();
           return;
         }
@@ -144,7 +144,7 @@
           const cc = (c + dc * k + COLS) % COLS;
           cells.push(`${rr}-${cc}`);
         }
-        const val = cells.map(keyToVal).every(v => v === player);
+          const val = cells.map(keyToVal).every(v => v === player);
         if (val) return cells;
       }
       // also need to scan backwards start to catch other sequences
@@ -171,7 +171,7 @@
     function render() {
       gridEl.innerHTML = '';
       turnEl.textContent = String(turn);
-      playerEl.textContent = (player === 'R') ? '紅' : '黃';
+      playerEl.textContent = (player === 'B') ? '黑' : '白';
 
       const fullCols = new Set();
       for (let c = 0; c < COLS; c++) {
@@ -189,8 +189,17 @@
           cell.className = 'cell';
           const key = `${r}-${c}`;
           const v = board[r][c];
-          cell.textContent = v === 'R' ? '●' : v === 'Y' ? '○' : '';
-          cell.style.color = v === 'R' ? '#D08770' : '#5EBCBF';
+          cell.textContent = v ? symbol(v) : '';
+          if (v === 'B') {
+            cell.style.color = '#2E3440';
+            cell.style.textShadow = '';
+          } else if (v === 'W') {
+            cell.style.color = '#FFFFFF';
+            cell.style.textShadow = '0 0 2px #2E3440, 0 0 1px #2E3440';
+          } else {
+            cell.style.color = '';
+            cell.style.textShadow = '';
+          }
           if (winCells.has(key)) cell.classList.add('win');
           if (lastMove === key) cell.classList.add('last');
           gridEl.appendChild(cell);
@@ -199,18 +208,24 @@
 
       if (over) {
         if (winCells.size > 0) {
-          statusEl.textContent = `${playerEl.textContent} 連成四子！`;
-        } else {
-          statusEl.textContent = '平手，棋盤已滿。';
-        }
+        statusEl.textContent = `${playerEl.textContent} 連成四子！`;
       } else {
-        statusEl.textContent = `輪到 ${playerEl.textContent}`;
+        statusEl.textContent = '平手，棋盤已滿。';
       }
+    } else {
+      statusEl.textContent = `輪到 ${playerEl.textContent}`;
+    }
     }
 
     newBtn.addEventListener('click', reset);
     resetBtn.addEventListener('click', reset);
     reset();
+
+    function symbol(v) {
+      if (v === 'B') return '●';
+      if (v === 'W') return '○';
+      return '';
+    }
   </script>
 </body>
 </html>

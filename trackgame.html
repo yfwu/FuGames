@@ -61,29 +61,6 @@
       cursor: not-allowed;
     }
 
-    .cell.previewBlack::after,
-    .cell.previewWhite::after {
-      content: "";
-      width: calc(var(--piece) - 10px);
-      height: calc(var(--piece) - 10px);
-      border-radius: 50%;
-      position: absolute;
-      left: 50%;
-      top: 50%;
-      transform: translate(-50%, -50%);
-      opacity: 0.5;
-      pointer-events: none;
-    }
-
-    .cell.previewBlack::after {
-      background: var(--fulab-graphite);
-    }
-
-    .cell.previewWhite::after {
-      background: var(--fulab-paper);
-      border: 2px solid var(--fulab-silver);
-    }
-
     .cell.outerRing {
       border-color: var(--fulab-indigo);
     }
@@ -970,11 +947,6 @@
         cell.classList.toggle("nextRotateInner", !state.gameOver && INNER_SET.has(i));
 
         cell.classList.toggle("win", state.winCells.has(i));
-
-        cell.classList.remove("previewBlack","previewWhite");
-        if (canClick && v === 0){
-          cell.classList.add(state.player === 1 ? "previewBlack" : "previewWhite");
-        }
 
         cell.disabled = !(canClick && v === 0);
       }

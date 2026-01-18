@@ -97,11 +97,11 @@
   <main>
     <section class="card gameCard">
       <h1>三子循環棋</h1>
-      <p class="lead">3×3 棋盤，放滿三顆後依序移動最早放下的棋子。你是 X，AI 是 O。</p>
+      <p class="lead">3×3 棋盤，放滿三顆後依序移動最早放下的棋子。你是黑子，AI 是白子。</p>
       <div class="boardWrap">
         <div class="board" id="board"></div>
       </div>
-      <div class="info" id="info">您可以操作 X，AI 操作 O</div>
+      <div class="info" id="info">您操作黑子，AI 操作白子</div>
       <div class="pillRow">
         <span class="pill">步數：<strong id="moveCount">0</strong></span>
         <label class="pill">
@@ -123,7 +123,7 @@
       <ul class="list">
         <li>輪流下子，先連成三子者獲勝。</li>
         <li>每位玩家最多場上三顆棋；放滿後必須移動自己最早放下的那顆。</li>
-        <li>AI 控制 O。若 AI 無法移動，直接換你下。</li>
+        <li>黑子為玩家、白子為 AI；若 AI 無法移動，直接換你下。</li>
       </ul>
     </section>
   </main>
@@ -138,7 +138,7 @@
 
     // 9格，每一格可以是 'X', 'O', 或空字串 ''
     let board = Array(9).fill('');
-    // 假設使用者扮演 X，AI 扮演 O
+    // 假設使用者扮演黑子(X)，AI 扮演白子(O)
     let currentPlayer = 'X';
     let placedPieces = { 'X': 0, 'O': 0 };
     let placeOrder = { 'X': [], 'O': [] };
@@ -172,7 +172,7 @@
       placeOrder = { 'X': [], 'O': [] };
       moveCount = 0;
       updateMoveCount();
-      infoElem.textContent = '遊戲重新開始，輪到 X';
+      infoElem.textContent = '遊戲重新開始，輪到 黑子';
       renderBoard();
     }
 
@@ -186,7 +186,7 @@
       board.forEach((cell, i) => {
         const cellDiv = document.createElement('div');
         cellDiv.className = 'cell';
-        cellDiv.textContent = cell;
+        cellDiv.textContent = symbol(cell);
         if (winLine.includes(i)) {
           cellDiv.classList.add('highlight');
         }
@@ -402,7 +402,7 @@
     function checkAndNext(player) {
       const winLine = checkWin(player);
       if (winLine) {
-        infoElem.textContent = player + " 贏了！";
+        infoElem.textContent = playerName(player) + " 贏了！";
         renderBoard(winLine);
         // 移除點擊事件
         const cells = document.querySelectorAll('.cell');
@@ -414,7 +414,7 @@
 
     function switchPlayer() {
       currentPlayer = (currentPlayer === 'X') ? 'O' : 'X';
-      infoElem.textContent = '輪到 ' + currentPlayer;
+      infoElem.textContent = '輪到 ' + playerName(currentPlayer);
       renderBoard();
       if (isAI(currentPlayer)) {
         // AI 執行二層搜索
@@ -442,6 +442,16 @@
       moveCount++;
       updateMoveCount();
       checkAndNext('O');
+    }
+
+    function playerName(p) {
+      return p === 'X' ? '黑子' : '白子';
+    }
+
+    function symbol(p) {
+      if (p === 'X') return '●';
+      if (p === 'O') return '○';
+      return '';
     }
 
     // 初始化
