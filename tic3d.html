@@ -6,16 +6,15 @@
   <title>3D 三子棋 (3×3×3) - FuLab</title>
   <link rel="stylesheet" href="fulab-theme.css">
   <style>
-    .stack {
-      perspective: 900px;
-      display: flex;
-      justify-content: center;
-      padding: 12px 0 4px;
-    }
+    .stack { display: flex; justify-content: center; padding: 12px 0 4px; }
+    .scene { perspective: 1400px; width: 100%; display: flex; justify-content: center; }
     .layerStack {
       position: relative;
       width: min(92vw, 420px);
-      height: min(72vw, 320px);
+      height: min(88vw, 380px);
+      transform-style: preserve-3d;
+      transform: rotateX(var(--rotX, 26deg)) rotateY(var(--rotY, -28deg));
+      transition: transform 180ms ease;
     }
     .layer {
       position: absolute;
@@ -26,12 +25,10 @@
       grid-template-columns: repeat(3, 1fr);
       gap: 10px;
       transform-style: preserve-3d;
-      transform-origin: center;
-      transition: transform 160ms ease;
+      transform: translate(-50%, -50%)
+                 translateZ(calc((1 - var(--z, 1)) * var(--layerZ, 80px)))
+                 translateY(calc((var(--z, 1) - 1) * var(--layerY, 34px)));
     }
-    .layer[data-z="0"] { transform: translate(-50%, -50%) translateY(-36px) translateZ(40px) rotateX(22deg); }
-    .layer[data-z="1"] { transform: translate(-50%, -50%) rotateX(22deg); }
-    .layer[data-z="2"] { transform: translate(-50%, -50%) translateY(36px) translateZ(-40px) rotateX(22deg); }
 
     .cell {
       aspect-ratio: 1 / 1;
@@ -55,6 +52,9 @@
     .dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
     .dot.x { background: var(--fulab-graphite); }
     .dot.o { background: var(--fulab-teal); }
+
+    .orientationRow { display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end; }
+    .rotateBtns { display: flex; gap: 8px; flex-wrap: wrap; }
   </style>
 </head>
 <body>
@@ -64,13 +64,16 @@
       <p class="lead">三層 3×3 立體棋盤，任何方向的三連線都能獲勝。提供同機對戰與簡易 AI。</p>
 
       <div class="stack">
-        <div class="layerStack" id="layers"></div>
+        <div class="scene">
+          <div class="layerStack" id="layers"></div>
+        </div>
       </div>
 
       <div class="pillRow">
         <span class="pill">回合：<strong id="turnKpi">0</strong></span>
         <span class="pill">玩家：<strong id="playerKpi">X</strong></span>
         <span class="pill">模式：<strong id="modeKpi">同機</strong></span>
+        <span class="pill">視角：<strong id="faceKpi">Z 正面</strong></span>
       </div>
       <div class="info" id="statusText"></div>
 
@@ -82,6 +85,28 @@
             <option value="ai">對戰 AI（AI = O）</option>
           </select>
         </div>
+
+        <div class="field">
+          <label for="faceSelect">前方朝向</label>
+          <select id="faceSelect">
+            <option value="z+">Z 正面（預設）</option>
+            <option value="z-">Z 背面</option>
+            <option value="x+">X 正面</option>
+            <option value="x-">X 背面</option>
+            <option value="y+">Y 正面</option>
+            <option value="y-">Y 背面</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="orientationRow">
+        <div class="rotateBtns">
+          <button class="btn secondary" id="rotLeft">左轉</button>
+          <button class="btn secondary" id="rotRight">右轉</button>
+          <button class="btn secondary" id="rotUp">上轉</button>
+          <button class="btn secondary" id="rotDown">下轉</button>
+        </div>
+        <span class="text-small">提示：可切換前方朝向或微調旋轉，避免棋位遮蔽。</span>
       </div>
 
       <div class="btnRow">
@@ -113,11 +138,20 @@
     const playerEl = document.getElementById('playerKpi');
     const modeEl = document.getElementById('mode');
     const modeKpiEl = document.getElementById('modeKpi');
+    const faceSelect = document.getElementById('faceSelect');
+    const faceKpi = document.getElementById('faceKpi');
     const newBtn = document.getElementById('newGame');
     const resetBtn = document.getElementById('reset');
+    const rotLeft = document.getElementById('rotLeft');
+    const rotRight = document.getElementById('rotRight');
+    const rotUp = document.getElementById('rotUp');
+    const rotDown = document.getElementById('rotDown');
 
     let board, player, turn, over, winSet, lastIdx, mode;
     const cells = [];
+    let face = 'z+';
+    let rotX = 26;
+    let rotY = -28;
 
     const lines = buildLines();
 
@@ -161,6 +195,8 @@
       winSet = new Set();
       lastIdx = null;
       mode = modeEl.value;
+      face = faceSelect.value;
+      applyFacePreset(face);
       render();
     }
 
@@ -234,11 +270,13 @@
       turnEl.textContent = String(turn);
       playerEl.textContent = player;
       modeKpiEl.textContent = mode === 'ai' ? 'AI 對戰' : '同機';
+      faceKpi.textContent = faceLabel(face);
 
       for (let z = 0; z < 3; z++) {
         const layer = document.createElement('div');
         layer.className = 'layer';
         layer.dataset.z = String(z);
+        layer.style.setProperty('--z', String(z));
         for (let y = 0; y < 3; y++) {
           for (let x = 0; x < 3; x++) {
             const i = idx(x,y,z);
@@ -262,9 +300,55 @@
       } else {
         statusEl.textContent = (mode === 'ai' && player === 'O') ? 'AI 思考中…' : `輪到 ${player}`;
       }
+
+      setSceneRotation(rotX, rotY);
+    }
+
+    function faceLabel(f) {
+      return {
+        'z+': 'Z 正面',
+        'z-': 'Z 背面',
+        'x+': 'X 正面',
+        'x-': 'X 背面',
+        'y+': 'Y 正面',
+        'y-': 'Y 背面',
+        'custom': '自訂視角'
+      }[f] || '自訂視角';
+    }
+
+    function applyFacePreset(f) {
+      const preset = {
+        'z+': { x: 26, y: -28 },
+        'z-': { x: 26, y: 152 },
+        'x+': { x: 26, y: -118 },
+        'x-': { x: 26, y: 62 },
+        'y+': { x: -58, y: -28 },
+        'y-': { x: 64, y: -28 }
+      }[f];
+      if (preset) {
+        rotX = preset.x;
+        rotY = preset.y;
+        setSceneRotation(rotX, rotY);
+      }
+    }
+
+    function setSceneRotation(xDeg, yDeg) {
+      layersEl.style.setProperty('--rotX', `${xDeg}deg`);
+      layersEl.style.setProperty('--rotY', `${yDeg}deg`);
+    }
+
+    function nudge(dx=0, dy=0) {
+      rotY += dx;
+      rotX += dy;
+      setSceneRotation(rotX, rotY);
     }
 
     modeEl.addEventListener('change', () => { mode = modeEl.value; render(); if (!over && mode === 'ai' && player === 'O') aiMove(); });
+    faceSelect.addEventListener('change', () => { face = faceSelect.value; applyFacePreset(face); render(); });
+    rotLeft.addEventListener('click', () => { face = 'custom'; nudge(-12, 0); render(); });
+    rotRight.addEventListener('click', () => { face = 'custom'; nudge(12, 0); render(); });
+    rotUp.addEventListener('click', () => { face = 'custom'; nudge(0, -10); render(); });
+    rotDown.addEventListener('click', () => { face = 'custom'; nudge(0, 10); render(); });
     newBtn.addEventListener('click', reset);
     resetBtn.addEventListener('click', reset);
     reset();
