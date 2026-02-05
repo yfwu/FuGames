@@ -1,0 +1,307 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>西瓜棋 - FuLab</title>
+  <link rel="stylesheet" href="fulab-theme.css">
+  <style>
+    .boardWrap {
+      display: flex;
+      justify-content: center;
+      margin: 12px 0;
+    }
+    .board {
+      display: grid;
+      gap: 8px;
+      width: min(100%, 520px);
+    }
+    .cell {
+      appearance: none;
+      border: 1px solid var(--fulab-silver);
+      border-radius: 16px;
+      background: var(--fulab-bg-secondary);
+      aspect-ratio: 1 / 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: border-color 120ms ease, background 120ms ease;
+    }
+    .cell:hover:not(:disabled) {
+      border-color: var(--fulab-teal);
+      background: var(--fulab-tint-teal);
+    }
+    .cell:disabled {
+      cursor: not-allowed;
+      opacity: 0.9;
+    }
+    .cell.last {
+      box-shadow: 0 0 0 2px var(--fulab-indigo);
+    }
+    .cell.slice-red {
+      background: var(--fulab-tint-coral);
+      border-color: var(--fulab-coral);
+    }
+    .cell.slice-green {
+      background: var(--fulab-tint-emerald);
+      border-color: var(--fulab-emerald);
+    }
+    .piece {
+      font-size: clamp(24px, 6vw, 38px);
+      line-height: 1;
+    }
+    .piece.red {
+      color: var(--fulab-coral);
+    }
+    .piece.green {
+      color: var(--fulab-emerald);
+    }
+    .info {
+      text-align: center;
+      margin: 10px 0 12px;
+      font-weight: 650;
+    }
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      margin-top: 8px;
+    }
+    .legendItem {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--fulab-bg-secondary);
+      border: 1px solid var(--fulab-silver);
+      font-size: 12px;
+      color: var(--fulab-graphite);
+    }
+    .legendDot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+    }
+    .legendDot.red { background: var(--fulab-coral); }
+    .legendDot.green { background: var(--fulab-emerald); }
+  </style>
+</head>
+<body>
+  <main>
+    <section class="card">
+      <h1>西瓜棋</h1>
+      <p class="lead">在 6×6 棋盤輪流放下瓜籽，湊出 2×2 同色方格即可收成一片西瓜，先收成指定片數者獲勝。</p>
+      <div class="boardWrap">
+        <div class="board" id="board"></div>
+      </div>
+      <div class="info" id="statusText" aria-live="polite"></div>
+      <div class="pillRow">
+        <span class="pill">回合：<strong id="turnKpi">0</strong></span>
+        <span class="pill">輪到：<strong id="playerKpi">紅瓤</strong></span>
+        <span class="pill">紅瓤片數：<strong id="redScore">0</strong></span>
+        <span class="pill">青皮片數：<strong id="greenScore">0</strong></span>
+        <span class="pill">勝利目標：<strong id="targetKpi">3</strong></span>
+      </div>
+      <div class="fieldGrid" style="margin-top: 12px;">
+        <div class="field">
+          <label for="targetSelect">調整勝利目標</label>
+          <select id="targetSelect">
+            <option value="2">2 片</option>
+            <option value="3" selected>3 片</option>
+            <option value="4">4 片</option>
+          </select>
+        </div>
+      </div>
+      <div class="btnRow" style="margin-top: 12px;">
+        <button class="btn primary" id="newGame">新局</button>
+        <button class="btn secondary" id="reset">重置設定</button>
+      </div>
+      <div class="legend">
+        <span class="legendItem"><span class="legendDot red"></span>紅瓤玩家</span>
+        <span class="legendItem"><span class="legendDot green"></span>青皮玩家</span>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2 class="sectionTitle">規則</h2>
+      <ul class="list">
+        <li>棋盤為 6×6，紅瓤先手，輪流在空格放下一枚瓜籽。</li>
+        <li>當你湊出任一個 2×2 同色方格時，就立即收成 1 片西瓜（每個方格只計分一次）。</li>
+        <li>先收成到達勝利目標者立即獲勝；若棋盤下滿仍未達標，片數較多者勝出。</li>
+        <li>如片數相同則為平手，可以調整勝利目標再開新局。</li>
+      </ul>
+    </section>
+  </main>
+
+  <script>
+    const SIZE = 6;
+    const DEFAULT_TARGET = 3;
+
+    const boardEl = document.getElementById('board');
+    const statusEl = document.getElementById('statusText');
+    const turnEl = document.getElementById('turnKpi');
+    const playerEl = document.getElementById('playerKpi');
+    const redScoreEl = document.getElementById('redScore');
+    const greenScoreEl = document.getElementById('greenScore');
+    const targetKpiEl = document.getElementById('targetKpi');
+    const targetSelect = document.getElementById('targetSelect');
+    const newBtn = document.getElementById('newGame');
+    const resetBtn = document.getElementById('reset');
+
+    let board;
+    let player;
+    let turn;
+    let over;
+    let scores;
+    let blocks;
+    let lastMove;
+    let winner;
+
+    function initBoard() {
+      boardEl.style.gridTemplateColumns = `repeat(${SIZE}, 1fr)`;
+    }
+
+    function resetGame({ resetTarget = false } = {}) {
+      if (resetTarget) {
+        targetSelect.value = String(DEFAULT_TARGET);
+      }
+      board = Array.from({ length: SIZE }, () => Array(SIZE).fill(''));
+      player = 'R';
+      turn = 0;
+      over = false;
+      winner = null;
+      lastMove = null;
+      scores = { R: 0, G: 0 };
+      blocks = { R: new Set(), G: new Set() };
+      render();
+    }
+
+    function getTarget() {
+      return Number(targetSelect.value);
+    }
+
+    function handleMove(r, c) {
+      if (over || board[r][c]) return;
+      board[r][c] = player;
+      lastMove = `${r}-${c}`;
+      turn += 1;
+
+      const newBlocks = claimBlocks(r, c);
+      scores[player] += newBlocks.length;
+      newBlocks.forEach(key => blocks[player].add(key));
+
+      const target = getTarget();
+      if (scores[player] >= target) {
+        over = true;
+        winner = player;
+      } else if (turn >= SIZE * SIZE) {
+        over = true;
+        if (scores.R !== scores.G) {
+          winner = scores.R > scores.G ? 'R' : 'G';
+        }
+      } else {
+        player = player === 'R' ? 'G' : 'R';
+      }
+
+      render();
+    }
+
+    function claimBlocks(r, c) {
+      const offsets = [-1, 0];
+      const found = [];
+      for (const dr of offsets) {
+        for (const dc of offsets) {
+          const br = r + dr;
+          const bc = c + dc;
+          if (br < 0 || bc < 0 || br >= SIZE - 1 || bc >= SIZE - 1) continue;
+          const cells = [
+            board[br][bc],
+            board[br + 1][bc],
+            board[br][bc + 1],
+            board[br + 1][bc + 1]
+          ];
+          if (cells.every(v => v === player)) {
+            const key = `${br}-${bc}`;
+            if (!blocks[player].has(key)) {
+              found.push(key);
+            }
+          }
+        }
+      }
+      return found;
+    }
+
+    function buildSliceCells() {
+      const sliceCells = { R: new Set(), G: new Set() };
+      ['R', 'G'].forEach(p => {
+        blocks[p].forEach(key => {
+          const [r, c] = key.split('-').map(Number);
+          [0, 1].forEach(dr => {
+            [0, 1].forEach(dc => {
+              sliceCells[p].add(`${r + dr}-${c + dc}`);
+            });
+          });
+        });
+      });
+      return sliceCells;
+    }
+
+    function render() {
+      const sliceCells = buildSliceCells();
+      const target = getTarget();
+      targetKpiEl.textContent = String(target);
+      turnEl.textContent = String(turn);
+      playerEl.textContent = player === 'R' ? '紅瓤' : '青皮';
+      redScoreEl.textContent = String(scores.R);
+      greenScoreEl.textContent = String(scores.G);
+
+      boardEl.innerHTML = '';
+
+      for (let r = 0; r < SIZE; r++) {
+        for (let c = 0; c < SIZE; c++) {
+          const key = `${r}-${c}`;
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'cell';
+          if (sliceCells.R.has(key)) btn.classList.add('slice-red');
+          if (sliceCells.G.has(key)) btn.classList.add('slice-green');
+          if (lastMove === key) btn.classList.add('last');
+
+          const value = board[r][c];
+          if (value) {
+            const piece = document.createElement('span');
+            piece.className = `piece ${value === 'R' ? 'red' : 'green'}`;
+            piece.textContent = '●';
+            btn.appendChild(piece);
+          }
+          btn.disabled = over || value !== '';
+          btn.addEventListener('click', () => handleMove(r, c));
+          boardEl.appendChild(btn);
+        }
+      }
+
+      if (over) {
+        if (winner) {
+          const name = winner === 'R' ? '紅瓤' : '青皮';
+          statusEl.textContent = `${name} 收成 ${scores[winner]} 片西瓜，獲勝！`;
+        } else {
+          statusEl.textContent = '棋盤已滿，平手。';
+        }
+      } else {
+        const name = player === 'R' ? '紅瓤' : '青皮';
+        statusEl.textContent = `輪到 ${name} 落子。`;
+      }
+    }
+
+    targetSelect.addEventListener('change', () => resetGame());
+    newBtn.addEventListener('click', () => resetGame());
+    resetBtn.addEventListener('click', () => resetGame({ resetTarget: true }));
+
+    initBoard();
+    resetGame();
+  </script>
+</body>
+</html>
