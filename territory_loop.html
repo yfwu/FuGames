@@ -1,0 +1,563 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="離開領地畫線，返回領地圈地。與兩位瀏覽器 AI 競賽的 FuGames 單頁遊戲。">
+  <title>圈地漫遊 Territory Loop - FuGames</title>
+  <link rel="stylesheet" href="fulab-theme.css">
+  <style>
+    :root { --ink-teal: #267477; --ink-coral: #99553f; --ink-plum: #785671; }
+    body { background: linear-gradient(150deg, var(--fulab-bg-secondary), var(--fulab-paper) 65%); }
+    main { max-width: 1120px; }
+    .topline, .hero, .arena-top, .player-line, .control-bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .topline { font-size: 13px; }
+    .topline a { color: var(--ink-teal); }
+    .edition { color: var(--fulab-slate); font-size: 11px; letter-spacing: .1em; }
+    .hero { padding: 6px 0; flex-wrap: wrap; }
+    .eyebrow { font-size: 11px; font-weight: 700; letter-spacing: .14em; color: var(--ink-teal); margin: 0 0 6px; }
+    h1 { font-size: clamp(27px, 4vw, 38px); margin-bottom: 6px; }
+    .hero .lead { margin: 0; font-size: 14px; }
+    .hero-mark { width: 80px; height: 64px; flex-shrink: 0; }
+    .game-layout { display: grid; grid-template-columns: minmax(0, 1fr) 268px; gap: 18px; align-items: start; }
+    .arena { padding: 16px; min-width: 0; box-shadow: 0 8px 32px #2e344007; }
+    .arena-top { margin-bottom: 12px; }
+    .arena-label { font-size: 12px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+    .dot { width: 8px; height: 8px; background: var(--fulab-teal); border-radius: 50%; display: inline-block; }
+    .clock { font-variant-numeric: tabular-nums; font-size: 20px; line-height: 1.2; font-weight: 700; }
+    .clock small { font-size: 11px; font-weight: 400; color: var(--fulab-slate); margin-right: 8px; }
+    .board-wrap { position: relative; border: 1px solid var(--fulab-silver); border-radius: 12px; overflow: hidden; background: var(--fulab-bg-secondary); }
+    canvas { width: 100%; aspect-ratio: 1; display: block; touch-action: none; outline-offset: -3px; }
+    canvas:focus-visible { outline: 3px solid var(--ink-teal); }
+    .board-overlay { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; padding: 14px; background: #f8f9fb85; backdrop-filter: blur(3px); }
+    [hidden] { display: none !important; }
+    .dialog { width: min(100%, 330px); padding: 24px; background: #fffffff5; border: 1px solid var(--fulab-silver); border-radius: 16px; box-shadow: 0 12px 40px #2e344012; text-align: center; }
+    .dialog h2 { font-size: 23px; }
+    .dialog p { font-size: 13px; }
+    .dialog .btn { width: 100%; }
+    .dialog .btn + .btn { margin-top: 8px; }
+    .loop-demo { display: block; width: 116px; height: 80px; margin: 0 auto 14px; }
+    .status { min-height: 25px; margin: 12px 0 8px; font-size: 13px; font-weight: 650; color: var(--ink-teal); }
+    .control-bar { flex-wrap: wrap; }
+    .key-hint { font-size: 11px; color: var(--fulab-slate); }
+    .btn { min-height: 44px; font: inherit; font-size: 13px; }
+    .btn.primary { background: var(--ink-teal); border-color: var(--ink-teal); }
+    .btn:focus-visible, summary:focus-visible { outline: 3px solid var(--ink-teal); outline-offset: 3px; }
+    .sidebar { display: grid; gap: 14px; }
+    .sidebar h2 { font-size: 15px; margin-bottom: 14px; }
+    .score-big { font-size: 34px; line-height: 1.25; font-weight: 700; color: var(--ink-teal); font-variant-numeric: tabular-nums; }
+    .score-big small { font-size: 15px; }
+    .goal-note { font-size: 12px; color: var(--fulab-slate); margin: 3px 0 12px; }
+    .goal-track, .rank-track { height: 6px; border-radius: 5px; background: var(--fulab-bg-sidebar); overflow: hidden; }
+    .goal-fill { height: 100%; width: 0; background: var(--fulab-teal); transition: width .2s; }
+    .player-row + .player-row { margin-top: 14px; }
+    .player-line { font-size: 12px; margin-bottom: 5px; }
+    .player-label { display: flex; align-items: center; gap: 7px; }
+    .swatch { height: 11px; width: 11px; display: inline-block; border-radius: 3px; background: var(--player-color); }
+    .rank-fill { background: var(--player-color); height: 100%; }
+    .rank-number { font-variant-numeric: tabular-nums; }
+    .instruction { display: grid; grid-template-columns: 24px 1fr; gap: 9px; font-size: 12px; margin-top: 13px; }
+    .step-number { width: 24px; height: 24px; border-radius: 8px; background: var(--fulab-tint-teal); color: var(--ink-teal); display: grid; place-items: center; font-weight: 700; }
+    .instruction strong { display: block; margin-bottom: 2px; }
+    .instruction p { color: #5c6978; margin: 0; }
+    .dpad-section { display: flex; justify-content: space-between; align-items: center; gap: 12px; border-top: 1px solid var(--fulab-silver); margin-top: 13px; padding-top: 12px; }
+    .touch-copy { font-size: 12px; color: #5c6978; max-width: 230px; }
+    .touch-copy strong { color: var(--fulab-graphite); display: block; margin-bottom: 2px; }
+    .dpad { display: grid; grid-template-columns: repeat(3, 44px); grid-template-rows: repeat(2, 44px); gap: 5px; flex-shrink: 0; }
+    .dpad button { padding: 0; font-size: 19px; border-radius: 12px; touch-action: manipulation; user-select: none; }
+    .dpad button:active { background: var(--fulab-tint-teal); border-color: var(--fulab-teal); }
+    .dpad [data-direction="up"] { grid-column: 2; }
+    .dpad [data-direction="left"] { grid-column: 1; grid-row: 2; }
+    .dpad [data-direction="down"] { grid-column: 2; grid-row: 2; }
+    .dpad [data-direction="right"] { grid-column: 3; grid-row: 2; }
+    .details { font-size: 12px; }
+    .details summary { cursor: pointer; font-weight: 700; min-height: 28px; }
+    .details ul { padding-left: 18px; margin-bottom: 0; color: #5c6978; }
+    .details li + li { margin-top: 6px; }
+    .footnote { font-size: 11px; color: var(--fulab-slate); margin: 0; text-align: center; }
+    @media (max-width: 800px) {
+      .game-layout { grid-template-columns: minmax(0, 1fr); }
+      .sidebar { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .how-to { grid-column: 1 / -1; }
+      .how-to .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+      .how-to h2 { margin-bottom: 0; }
+      .hero-mark { display: none; }
+    }
+    @media (max-width: 480px) {
+      main { padding: 12px; gap: 12px; }
+      .hero .lead { font-size: 12px; }
+      .arena { padding: 10px; }
+      .edition { font-size: 9px; }
+      .hero { padding: 0; }
+      .eyebrow { font-size: 10px; }
+      .dialog { padding: 16px; }
+      .dialog h2 { font-size: 21px; }
+      .loop-demo { height: 55px; margin-bottom: 8px; }
+      .dialog p { margin-bottom: 10px; font-size: 12px; }
+      .key-hint { display: none; }
+      .sidebar { gap: 10px; }
+      .sidebar .card { padding: 12px; }
+      .how-to .steps { grid-template-columns: 1fr; gap: 0; }
+      .dpad-section { gap: 6px; }
+      .touch-copy { font-size: 11px; }
+    }
+    @media (min-width: 960px) and (min-height: 601px) and (pointer: fine) {
+      .board-wrap { width: min(100%, max(320px, calc(100svh - 350px))); margin-inline: auto; }
+      .dpad-section { display: none; }
+    }
+    @media (max-height: 600px) and (min-width: 600px) {
+      main { max-width: 860px; padding: 10px; gap: 8px; }
+      .hero { display: none; }
+      .game-layout { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+      .arena { display: grid; grid-template-columns: minmax(0, 1fr) 180px; gap: 8px; padding: 10px; }
+      .arena-top { grid-column: 1 / -1; margin: 0; }
+      .board-wrap { grid-row: 2 / span 3; width: min(100%, calc(100svh - 104px)); justify-self: center; align-self: start; }
+      .status { grid-column: 2; margin: 0; min-height: 0; font-size: 11px; }
+      .control-bar { grid-column: 2; }
+      .key-hint, .touch-copy { display: none; }
+      .dpad-section { grid-column: 2; justify-content: center; margin: 0; padding: 8px 0 0; }
+      .sidebar { grid-template-columns: 1fr 1fr; }
+      .how-to { grid-column: 1 / -1; }
+      .dialog { padding: 12px; max-height: 100%; overflow-y: auto; }
+      .dialog h2 { font-size: 20px; }
+      .dialog p { font-size: 12px; margin-bottom: 8px; }
+      .loop-demo { display: none; }
+    }
+    @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+  </style>
+</head>
+<body>
+  <main>
+    <nav class="topline" aria-label="遊戲導覽">
+      <a href="index.html">← FuGames</a><span class="edition">PLAY A LITTLE. GROW A LITTLE.</span>
+    </nav>
+    <header class="hero">
+      <div><p class="eyebrow">TERRITORY LOOP / 圈出你的版圖</p><h1>圈地漫遊</h1><p class="lead">走出去，繞一圈，再回家。每一次回程，都是新的領地。</p></div>
+      <svg class="hero-mark" viewBox="0 0 80 64" aria-hidden="true"><rect x="2" y="26" width="33" height="34" rx="9" fill="#5ebcbf" opacity=".25"/><path d="M19 42V10H65V43H35" fill="none" stroke="#5ebcbf" stroke-width="3" stroke-dasharray="5 5"/><rect x="27" y="35" width="16" height="16" rx="5" fill="#267477"/><circle cx="65" cy="10" r="5" fill="#d08770"/></svg>
+    </header>
+    <div class="game-layout">
+      <section class="card arena" aria-label="圈地競技場">
+        <div class="arena-top"><span class="arena-label"><span class="dot"></span><span id="phase-label">準備出發</span></span><span class="clock"><small>剩餘</small><span id="clock">2:00</span></span></div>
+        <div class="board-wrap">
+          <canvas id="board" width="720" height="720" tabindex="0" aria-label="圈地棋盤。你是青綠色圓形，AI 是珊瑚方形與紫色菱形。用方向鍵或 WASD 轉向。" aria-describedby="status">你的瀏覽器需要支援 Canvas 才能遊玩。</canvas>
+          <div class="board-overlay" id="overlay">
+            <div class="dialog" role="dialog" aria-labelledby="dialog-title" aria-describedby="dialog-copy">
+              <svg class="loop-demo" id="loop-demo" viewBox="0 0 116 80" aria-hidden="true"><rect x="8" y="24" width="42" height="48" rx="8" fill="#5ebcbf" opacity=".25"/><path d="M30 48V10H100V56H48" fill="none" stroke="#267477" stroke-width="3" stroke-dasharray="5 4"/><path d="m56 49-8 7 8 7" fill="none" stroke="#267477" stroke-width="3"/><circle cx="30" cy="48" r="7" fill="#267477"/></svg>
+              <p class="eyebrow" id="dialog-kicker">你的顏色是青綠色 ●</p>
+              <h2 id="dialog-title">畫一條回家的路</h2>
+              <p id="dialog-copy">離開色塊，畫線後回到自己的領地，就能收下圈內區域。先佔 35%，或在 2 分鐘後領地最多，即獲勝！</p>
+              <button class="btn primary" id="play">開始圈地 →</button>
+              <button class="btn secondary" id="dialog-secondary" hidden>繼續遊戲</button>
+            </div>
+          </div>
+        </div>
+        <p class="status" id="status" role="status" aria-live="polite">先繞小圈：往右 → 往下 → 往左 → 往上，回到青綠領地。</p>
+        <div class="control-bar"><span class="key-hint">↑ ↓ ← → / WASD 轉向 · 空白鍵暫停</span><div class="btnRow"><button class="btn" id="pause" disabled>暫停</button><button class="btn" id="restart">重新開始</button></div></div>
+        <div class="dpad-section">
+          <div class="touch-copy"><strong>輕點方向，持續前進</strong>也可以在棋盤上滑動轉向。<br>撞邊界會停住，換個方向就好。</div>
+          <div class="dpad" role="group" aria-label="觸控方向控制"><button class="btn" data-direction="up" aria-label="向上">↑</button><button class="btn" data-direction="left" aria-label="向左">←</button><button class="btn" data-direction="down" aria-label="向下">↓</button><button class="btn" data-direction="right" aria-label="向右">→</button></div>
+        </div>
+      </section>
+      <aside class="sidebar" aria-label="戰況與教學">
+        <section class="card"><p class="eyebrow">YOUR TERRITORY</p><div class="score-big"><span id="score">2.8</span><small>%</small></div><p class="goal-note">你的領地 / 35% 即獲勝</p><div class="goal-track" role="progressbar" aria-label="領地勝利目標" aria-valuemin="0" aria-valuemax="35" aria-valuenow="2.8" id="goal"><div class="goal-fill" id="goal-fill"></div></div></section>
+        <section class="card"><h2>版圖排行 <span class="text-small">/ 3 位</span></h2><div id="leaderboard"></div></section>
+        <section class="card how-to"><h2>三步上手</h2><div class="steps">
+          <div class="instruction"><span class="step-number">1</span><div><strong>離開領地，畫出路徑</strong><p>你會持續移動。青綠色塊是家，虛線是還沒收好的路。</p></div></div>
+          <div class="instruction"><span class="step-number">2</span><div><strong>回到領地，完成圈地</strong><p>繞小圈更安全。回到任一己方色塊，封閉區域就歸你。</p></div></div>
+          <div class="instruction"><span class="step-number">3</span><div><strong>保護路徑，搶下版圖</strong><p>碰到自己的線，或被對手切線，就會出局。你也能切斷 AI 的線！</p></div></div>
+        </div></section>
+      </aside>
+    </div>
+    <details class="card details"><summary>完整規則與操作</summary><ul>
+      <li>你是青綠圓形；珊瑚方形和紫色菱形是本機 AI。方向鍵、WASD、棋盤滑動或方向按鈕都可轉向；不能直接往反方向折返。</li>
+      <li>回到己方領地時，路徑與被領地／路徑完整包住的格子會被佔領，也可搶走對手色塊。地圖邊界本身不算封閉的牆。</li>
+      <li>撞邊界會停住，但時間繼續。碰到自己的未完成路徑、被切線，或所有領地被奪走，都會出局；身體相遇本身不會淘汰對手。</li>
+      <li>任何一方先佔 35% 即勝；或淘汰所有對手即勝。2 分鐘到時，比較仍在場者的格數，並列最高為平手。出局者的剩餘領地回歸空白。</li>
+      <li>空白鍵或 P 暫停，Esc 也可暫停。切換分頁或視窗自動暫停，回來後手動繼續；重新開始會先停下並詢問是否重開。</li>
+    </ul></details>
+    <p class="footnote">FuGames · 單人 × 2 AI · 遊戲與 AI 全部在瀏覽器執行</p>
+    <noscript><p class="notice">請開啟 JavaScript，才能開始圈地漫遊。</p></noscript>
+  </main>
+
+  <script id="game-engine">
+  'use strict';
+  // Pure simulation: no DOM, network, timers or rendering dependencies.
+  const Territory = (() => {
+    const SIZE = 30, STEP_MS = 150, ROUND_TICKS = 120000 / STEP_MS, TARGET = .35;
+    const DIRECTIONS = { up: [0, -1], right: [1, 0], down: [0, 1], left: [-1, 0] };
+    const vectors = Object.values(DIRECTIONS);
+    const index = (x, y) => y * SIZE + x;
+    const inside = (x, y) => x >= 0 && y >= 0 && x < SIZE && y < SIZE;
+    const point = cell => [cell % SIZE, Math.floor(cell / SIZE)];
+    class Game {
+      constructor(random = Math.random) { this.random = random; this.reset(); }
+      reset() {
+        this.board = new Uint8Array(SIZE * SIZE);
+        this.trails = new Uint8Array(SIZE * SIZE);
+        this.tick = 0; this.phase = 'ready'; this.result = null; this.events = [];
+        this.actors = [[5, 14], [23, 6], [23, 23]].map(([x, y], i) => ({
+          id: i + 1, x, y, previousX: x, previousY: y, direction: [1, 0],
+          pending: null, alive: true, trail: [], anchor: index(x, y), plan: [], captures: 0, blocked: false
+        }));
+        for (const a of this.actors) {
+          for (let y = a.y - 2; y <= a.y + 2; y++) for (let x = a.x - 2; x <= a.x + 2; x++) this.board[index(x, y)] = a.id;
+        }
+      }
+      start() { if (this.phase === 'ready' || this.phase === 'paused') this.phase = 'running'; }
+      pause() { if (this.phase === 'running') this.phase = 'paused'; }
+      steer(name) {
+        if (this.phase !== 'running' || !DIRECTIONS[name]) return false;
+        const a = this.actors[0], d = DIRECTIONS[name];
+        // Compare with the last executed move, not a queued key: two rapid keys cannot reverse into the trail.
+        if (d[0] === -a.direction[0] && d[1] === -a.direction[1]) return false;
+        a.pending = d; return true;
+      }
+      counts() {
+        const counts = [0, 0, 0, 0];
+        for (const cell of this.board) counts[cell]++;
+        return counts;
+      }
+      eliminate(a, reason) {
+        if (!a.alive) return;
+        a.alive = false; a.plan = [];
+        for (let i = 0; i < this.board.length; i++) {
+          if (this.board[i] === a.id) this.board[i] = 0;
+          if (this.trails[i] === a.id) this.trails[i] = 0;
+        }
+        a.trail = [];
+        this.events.push({ type: 'eliminated', id: a.id, reason });
+        if (a.id === 1) this.finish('loss', reason);
+      }
+      finish(outcome, reason) {
+        if (this.phase === 'over') return;
+        this.phase = 'over'; this.result = { outcome, reason, counts: this.counts(), tick: this.tick };
+      }
+      capture(a) {
+        const before = this.counts()[a.id];
+        const claimed = [...a.trail];
+        for (const cell of a.trail) { this.board[cell] = a.id; this.trails[cell] = 0; }
+        a.trail = [];
+        // Flood from every map edge. Only regions fully enclosed by owned cells are captured.
+        const outside = new Uint8Array(SIZE * SIZE), queue = [];
+        const visit = cell => {
+          if (!outside[cell] && this.board[cell] !== a.id) { outside[cell] = 1; queue.push(cell); }
+        };
+        for (let n = 0; n < SIZE; n++) {
+          visit(index(n, 0)); visit(index(n, SIZE - 1)); visit(index(0, n)); visit(index(SIZE - 1, n));
+        }
+        for (let head = 0; head < queue.length; head++) {
+          const [x, y] = point(queue[head]);
+          for (const [dx, dy] of vectors) if (inside(x + dx, y + dy)) visit(index(x + dx, y + dy));
+        }
+        for (let cell = 0; cell < this.board.length; cell++) {
+          if (!outside[cell] && this.board[cell] !== a.id) { this.board[cell] = a.id; claimed.push(cell); }
+        }
+        const cut = new Set(claimed.map(cell => this.trails[cell]).filter(id => id && id !== a.id));
+        for (const id of cut) this.eliminate(this.actors[id - 1], '路徑被圈入對手領地。');
+        const counts = this.counts();
+        for (const other of this.actors) if (other.alive && counts[other.id] === 0) this.eliminate(other, '所有領地都被奪走了。');
+        a.captures++;
+        this.events.push({ type: 'capture', id: a.id, gain: this.counts()[a.id] - before });
+      }
+      move(a, direction) {
+        if (!a.alive || this.phase !== 'running') return;
+        a.previousX = a.x; a.previousY = a.y;
+        a.direction = direction;
+        const x = a.x + direction[0], y = a.y + direction[1];
+        a.blocked = !inside(x, y);
+        if (a.blocked) return;
+        const cell = index(x, y), trailOwner = this.trails[cell];
+        if (trailOwner === a.id) { this.eliminate(a, '你碰到了自己還沒收好的路徑。'); return; }
+        if (trailOwner) this.eliminate(this.actors[trailOwner - 1], '對手切斷了你的路徑。');
+        if (this.phase === 'over') return;
+        a.x = x; a.y = y;
+        if (this.board[cell] === a.id) {
+          if (a.trail.length) this.capture(a);
+          a.anchor = cell;
+        } else {
+          this.trails[cell] = a.id; a.trail.push(cell);
+        }
+      }
+      pathHome(a) {
+        const start = index(a.x, a.y), queue = [start], previous = new Int16Array(SIZE * SIZE).fill(-1);
+        previous[start] = start;
+        for (let head = 0; head < queue.length; head++) {
+          const cell = queue[head];
+          if (cell !== start && this.board[cell] === a.id) {
+            const route = [];
+            for (let at = cell; at !== start; at = previous[at]) route.push(at);
+            return route.reverse();
+          }
+          const [x, y] = point(cell);
+          for (const [dx, dy] of vectors) {
+            if (!inside(x + dx, y + dy)) continue;
+            const next = index(x + dx, y + dy);
+            if (previous[next] !== -1 || this.trails[next] === a.id) continue;
+            previous[next] = cell; queue.push(next);
+          }
+        }
+        return [];
+      }
+      expansionPlan(a) {
+        let best = [], bestScore = -Infinity;
+        // Short rectangles are understandable opponents, with varied routes and a preference for new land.
+        for (const [dx, dy] of vectors) for (const side of [-1, 1]) {
+          const sx = -dy * side, sy = dx * side;
+          for (let attempt = 0; attempt < 5; attempt++) {
+            const width = 3 + Math.floor(this.random() * 5), height = 3 + Math.floor(this.random() * 5);
+            const route = []; let x = a.x, y = a.y, valid = true;
+            for (const [vx, vy, steps] of [[dx, dy, width], [sx, sy, height], [-dx, -dy, width], [-sx, -sy, height]]) {
+              for (let step = 0; step < steps; step++) {
+                x += vx; y += vy;
+                if (!inside(x, y)) { valid = false; break; }
+                route.push(index(x, y));
+              }
+              if (!valid) break;
+            }
+            if (!valid) continue;
+            let gain = 0, risk = 0;
+            const oppositeX = a.x + dx * width + sx * height, oppositeY = a.y + dy * width + sy * height;
+            for (let yy = Math.min(a.y, oppositeY); yy <= Math.max(a.y, oppositeY); yy++) {
+              for (let xx = Math.min(a.x, oppositeX); xx <= Math.max(a.x, oppositeX); xx++) if (this.board[index(xx, yy)] !== a.id) gain++;
+            }
+            if (!gain) continue;
+            for (const other of this.actors) if (other.alive && other.id !== a.id) {
+              for (const cell of route) { const [xx, yy] = point(cell); if (Math.abs(xx - other.x) + Math.abs(yy - other.y) < 4) risk += .35; }
+            }
+            const score = gain / route.length + this.random() * .9 - risk;
+            if (score > bestScore) { best = route; bestScore = score; }
+          }
+        }
+        // If surrounded by owned land, walk to a frontier before drawing the next loop.
+        if (!best.length) {
+          const queue = [index(a.x, a.y)], previous = new Int16Array(SIZE * SIZE).fill(-1);
+          previous[queue[0]] = queue[0];
+          for (let head = 0; head < queue.length; head++) {
+            const cell = queue[head], [x, y] = point(cell);
+            if (vectors.some(([dx, dy]) => inside(x + dx, y + dy) && this.board[index(x + dx, y + dy)] !== a.id)) {
+              for (let at = cell; at !== queue[0]; at = previous[at]) best.push(at);
+              return best.reverse();
+            }
+            for (const [dx, dy] of vectors) if (inside(x + dx, y + dy)) {
+              const next = index(x + dx, y + dy);
+              if (previous[next] === -1 && this.board[next] === a.id) { previous[next] = cell; queue.push(next); }
+            }
+          }
+        }
+        return best;
+      }
+      aiDirection(a) {
+        // Cut an adjacent exposed trail when safe at home; otherwise finish the planned loop.
+        if (!a.trail.length) for (const [dx, dy] of vectors) {
+          if (!inside(a.x + dx, a.y + dy)) continue;
+          const next = index(a.x + dx, a.y + dy);
+          if (this.trails[next] && this.trails[next] !== a.id) { a.plan = []; return [dx, dy]; }
+        }
+        const next = a.plan[0];
+        if (next !== undefined) {
+          const [x, y] = point(next);
+          if (Math.abs(x - a.x) + Math.abs(y - a.y) !== 1 || this.trails[next] === a.id) a.plan = [];
+        }
+        if (!a.plan.length) a.plan = a.trail.length ? this.pathHome(a) : this.expansionPlan(a);
+        if (!a.plan.length) return null;
+        const [x, y] = point(a.plan.shift()); return [x - a.x, y - a.y];
+      }
+      checkResult() {
+        if (this.phase !== 'running') return;
+        const counts = this.counts(), alive = this.actors.filter(a => a.alive);
+        const reached = alive.find(a => counts[a.id] >= SIZE * SIZE * TARGET);
+        if (reached) this.finish(reached.id === 1 ? 'win' : 'loss', reached.id === 1 ? '你率先佔領了 35% 的版圖！' : 'AI 率先佔領了 35% 的版圖。');
+        else if (alive.length === 1) this.finish(alive[0].id === 1 ? 'win' : 'loss', '場上只剩下最後一位漫遊者。');
+        else if (this.tick >= ROUND_TICKS) {
+          const max = Math.max(...alive.map(a => counts[a.id]));
+          const leaders = alive.filter(a => counts[a.id] === max);
+          this.finish(counts[1] === max ? (leaders.length > 1 ? 'draw' : 'win') : 'loss', '時間到！以仍在場者的領地格數決定勝負。');
+        }
+      }
+      step() {
+        if (this.phase !== 'running') return;
+        this.events = []; this.tick++;
+        for (const a of this.actors) { a.previousX = a.x; a.previousY = a.y; }
+        // Alternate priority so the same actor does not always move first when paths meet.
+        const order = this.tick % 2 ? this.actors : [...this.actors].reverse();
+        for (const a of order) {
+          if (!a.alive || this.phase !== 'running') continue;
+          if (a.id === 1) { const d = a.pending || a.direction; a.pending = null; this.move(a, d); }
+          else if (this.tick % 4 !== 0) { const d = this.aiDirection(a); if (d) this.move(a, d); }
+          this.checkResult();
+        }
+      }
+    }
+    return { Game, SIZE, STEP_MS, ROUND_TICKS, TARGET, DIRECTIONS, index };
+  })();
+  </script>
+
+  <script id="game-ui">
+  'use strict';
+  const $ = id => document.getElementById(id);
+  const canvas = $('board'), ctx = canvas.getContext('2d');
+  const palette = [null,
+    { name: '你', color: '#5ebcbf', ink: '#267477', tint: '#cbeaea', shape: '●' },
+    { name: '珊瑚 AI', color: '#d08770', ink: '#99553f', tint: '#efdad1', shape: '■' },
+    { name: '紫藤 AI', color: '#b48ead', ink: '#785671', tint: '#e8dce5', shape: '◆' }
+  ];
+  const game = new Territory.Game();
+  let accumulator = 0, lastTime = 0, frameId = 0, restartPrompt = false, noticeUntil = 0, lastAnnouncement = '';
+  let touchOrigin = null;
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const CELL = 24, SIZE = Territory.SIZE;
+
+  function announce(message) {
+    if (message === lastAnnouncement) return;
+    $('status').textContent = message; lastAnnouncement = message;
+  }
+  function draw() {
+    const ratio = Math.min(window.devicePixelRatio || 1, 2);
+    if (canvas.width !== 720 * ratio) { canvas.width = 720 * ratio; canvas.height = 720 * ratio; }
+    ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+    ctx.fillStyle = '#f8f9fb'; ctx.fillRect(0, 0, 720, 720);
+    for (let y = 0; y < SIZE; y++) for (let x = 0; x < SIZE; x++) {
+      const owner = game.board[Territory.index(x, y)];
+      if (owner) { ctx.fillStyle = palette[owner].tint; ctx.fillRect(x * CELL, y * CELL, CELL, CELL); }
+    }
+    ctx.strokeStyle = '#2e34400a'; ctx.lineWidth = 1; ctx.beginPath();
+    for (let n = 1; n < SIZE; n++) { ctx.moveTo(n * CELL, 0); ctx.lineTo(n * CELL, 720); ctx.moveTo(0, n * CELL); ctx.lineTo(720, n * CELL); }
+    ctx.stroke();
+    // Thin coastlines keep each solid territory distinct from unfinished dashed trails.
+    for (let y = 0; y < SIZE; y++) for (let x = 0; x < SIZE; x++) {
+      const id = game.board[Territory.index(x, y)]; if (!id) continue;
+      ctx.strokeStyle = palette[id].color; ctx.lineWidth = 1.5; ctx.beginPath();
+      if (!y || game.board[Territory.index(x, y - 1)] !== id) { ctx.moveTo(x * CELL, y * CELL); ctx.lineTo((x + 1) * CELL, y * CELL); }
+      if (y === SIZE - 1 || game.board[Territory.index(x, y + 1)] !== id) { ctx.moveTo(x * CELL, (y + 1) * CELL); ctx.lineTo((x + 1) * CELL, (y + 1) * CELL); }
+      if (!x || game.board[Territory.index(x - 1, y)] !== id) { ctx.moveTo(x * CELL, y * CELL); ctx.lineTo(x * CELL, (y + 1) * CELL); }
+      if (x === SIZE - 1 || game.board[Territory.index(x + 1, y)] !== id) { ctx.moveTo((x + 1) * CELL, y * CELL); ctx.lineTo((x + 1) * CELL, (y + 1) * CELL); }
+      ctx.stroke();
+    }
+    for (const a of game.actors) {
+      if (!a.alive) continue;
+      const p = palette[a.id];
+      if (a.trail.length) {
+        ctx.fillStyle = p.color + '55';
+        for (const cell of a.trail) ctx.fillRect((cell % SIZE) * CELL + 3, Math.floor(cell / SIZE) * CELL + 3, CELL - 6, CELL - 6);
+        ctx.beginPath(); ctx.moveTo((a.anchor % SIZE + .5) * CELL, (Math.floor(a.anchor / SIZE) + .5) * CELL);
+        for (const cell of a.trail) ctx.lineTo((cell % SIZE + .5) * CELL, (Math.floor(cell / SIZE) + .5) * CELL);
+        ctx.lineWidth = 3; ctx.lineCap = 'round'; ctx.strokeStyle = p.ink; ctx.setLineDash([5, 5]); ctx.stroke(); ctx.setLineDash([]);
+      }
+      const t = reducedMotion.matches || game.phase !== 'running' ? 1 : Math.min(1, accumulator / Territory.STEP_MS);
+      const x = (a.previousX + (a.x - a.previousX) * t + .5) * CELL;
+      const y = (a.previousY + (a.y - a.previousY) * t + .5) * CELL;
+      ctx.save(); ctx.translate(x, y);
+      if (a.id === 1) { ctx.beginPath(); ctx.arc(0, 0, 14, 0, Math.PI * 2); ctx.fillStyle = '#ffffffbb'; ctx.fill(); }
+      ctx.fillStyle = p.ink; ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.beginPath();
+      if (a.id === 1) ctx.arc(0, 0, 10, 0, Math.PI * 2);
+      else if (a.id === 2) ctx.roundRect(-10, -10, 20, 20, 5);
+      else { ctx.moveTo(0, -13); ctx.lineTo(13, 0); ctx.lineTo(0, 13); ctx.lineTo(-13, 0); ctx.closePath(); }
+      ctx.fill(); ctx.stroke();
+      ctx.rotate(Math.atan2(a.direction[1], a.direction[0])); ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.moveTo(5, 0); ctx.lineTo(-2, -4); ctx.lineTo(-2, 4); ctx.closePath(); ctx.fill(); ctx.restore();
+      if (game.phase === 'ready') { ctx.fillStyle = p.ink; ctx.textAlign = 'center'; ctx.font = 'bold 14px monospace'; ctx.fillText(a.id === 1 ? 'YOU' : 'AI', x, y - 24); }
+    }
+  }
+  function updateHUD() {
+    const counts = game.counts(), percent = counts[1] / (SIZE * SIZE) * 100;
+    $('score').textContent = percent.toFixed(1);
+    $('goal-fill').style.width = Math.min(100, percent / 35 * 100) + '%';
+    $('goal').setAttribute('aria-valuenow', Math.min(35, percent).toFixed(1));
+    const seconds = Math.max(0, Math.ceil((Territory.ROUND_TICKS - game.tick) * Territory.STEP_MS / 1000));
+    $('clock').textContent = Math.floor(seconds / 60) + ':' + String(seconds % 60).padStart(2, '0');
+    $('leaderboard').innerHTML = [...game.actors].sort((a, b) => Number(b.alive) - Number(a.alive) || counts[b.id] - counts[a.id] || a.id - b.id).map(a => {
+      const p = palette[a.id], percentOwned = (counts[a.id] / (SIZE * SIZE) * 100).toFixed(1);
+      return `<div class="player-row" style="--player-color:${p.color}"><div class="player-line"><span class="player-label"><span style="color:${p.ink}">${p.shape}</span>${p.name}</span><span class="rank-number">${a.alive ? percentOwned + '%' : '已出局'}</span></div><div class="rank-track"><div class="rank-fill" style="width:${percentOwned}%"></div></div></div>`;
+    }).join('');
+    $('phase-label').textContent = { ready: '準備出發', running: `領地 ${percent.toFixed(1)}% / 35%`, paused: '已暫停', over: '本局結束' }[game.phase];
+    $('pause').disabled = game.phase === 'ready' || game.phase === 'over' || restartPrompt;
+    $('pause').textContent = game.phase === 'paused' ? '繼續' : '暫停';
+    for (const btn of document.querySelectorAll('[data-direction]')) btn.disabled = game.phase !== 'running';
+  }
+  function showDialog(kicker, title, copy, action, secondary = '') {
+    $('dialog-kicker').textContent = kicker; $('dialog-title').textContent = title; $('dialog-copy').textContent = copy;
+    $('play').textContent = action; $('dialog-secondary').textContent = secondary; $('dialog-secondary').hidden = !secondary;
+    $('loop-demo').hidden = game.phase !== 'ready'; $('overlay').hidden = false;
+    $('play').focus({ preventScroll: true });
+  }
+  function stopFrames() { cancelAnimationFrame(frameId); frameId = 0; lastTime = 0; accumulator = 0; }
+  function startFrames() { stopFrames(); frameId = requestAnimationFrame(frame); }
+  function resume() {
+    restartPrompt = false; game.start(); $('overlay').hidden = true; updateHUD();
+    canvas.focus({ preventScroll: true }); startFrames();
+  }
+  function pause() {
+    if (game.phase !== 'running') return;
+    game.pause(); stopFrames(); updateHUD(); draw(); announce('已暫停，時間與 AI 都停下了。');
+    showDialog('TAKE A BREATH', '休息一下', '時間與 AI 已暫停。準備好後，沿著原來的方向繼續。', '繼續圈地 →');
+  }
+  function endRound() {
+    stopFrames(); updateHUD(); draw();
+    const result = game.result, score = (result.counts[1] / (SIZE * SIZE) * 100).toFixed(1);
+    const title = { win: '這片版圖，屬於你！', loss: '下一圈，再拿回來', draw: '勢均力敵，平手！' }[result.outcome];
+    announce(result.reason);
+    showDialog({ win: 'WELL PLAYED', loss: 'ONE MORE LOOP?', draw: 'A PERFECT BALANCE' }[result.outcome], title, `${result.reason} 最終領地 ${score}%，完成 ${game.actors[0].captures} 次圈地。`, '再玩一局 →');
+  }
+  function newRound() {
+    stopFrames(); restartPrompt = false; game.reset(); noticeUntil = 0; lastAnnouncement = '';
+    announce('先繞小圈：往右 → 往下 → 往左 → 往上，回到青綠領地。'); resume(); draw();
+  }
+  function frame(time) {
+    if (game.phase !== 'running') return;
+    if (!lastTime) lastTime = time;
+    accumulator += Math.min(time - lastTime, Territory.STEP_MS * 3); lastTime = time;
+    while (accumulator >= Territory.STEP_MS && game.phase === 'running') {
+      accumulator -= Territory.STEP_MS; game.step(); updateHUD();
+      for (const event of game.events) {
+        if (event.type === 'capture' && event.id === 1) { announce(`圈地成功！新增 ${event.gain} 格。再繞一小圈吧。`); noticeUntil = game.tick + 18; }
+        if (event.type === 'eliminated' && event.id !== 1) { announce(`${palette[event.id].name} 出局了！空白領地等你收下。`); noticeUntil = game.tick + 18; }
+      }
+      if (game.tick > noticeUntil) {
+        const a = game.actors[0];
+        announce(a.blocked ? '到邊界了！轉向繼續，注意還沒收好的路徑。' : a.trail.length ? '正在畫線，回到青綠色塊才能收下領地。小心被切線！' : '在家很安全。往外繞一圈，再回到青綠領地。');
+      }
+    }
+    if (game.phase === 'over') { endRound(); return; }
+    draw(); frameId = requestAnimationFrame(frame);
+  }
+  $('play').addEventListener('click', () => { if (restartPrompt || game.phase === 'over') newRound(); else resume(); });
+  $('dialog-secondary').addEventListener('click', resume);
+  $('pause').addEventListener('click', () => { if (game.phase === 'running') pause(); else if (game.phase === 'paused') resume(); });
+  $('restart').addEventListener('click', () => {
+    if (game.phase === 'ready' || game.phase === 'over') { newRound(); return; }
+    pause(); restartPrompt = true; updateHUD();
+    showDialog('A FRESH START', '重新開始這一局？', '目前的領地與倒數會重置。兩位 AI 也會從起點出發。', '確定重開', '保留本局，繼續');
+  });
+  const keyDirections = { ArrowUp: 'up', ArrowRight: 'right', ArrowDown: 'down', ArrowLeft: 'left', w: 'up', d: 'right', s: 'down', a: 'left' };
+  document.addEventListener('keydown', event => {
+    if (event.altKey || event.ctrlKey || event.metaKey || /^(INPUT|TEXTAREA|SELECT)$/.test(event.target.tagName)) return;
+    const key = event.key.length === 1 ? event.key.toLowerCase() : event.key;
+    if (keyDirections[key] && game.phase === 'running') { event.preventDefault(); game.steer(keyDirections[key]); }
+    else if (key === 'Escape' && game.phase === 'running') { event.preventDefault(); pause(); }
+    else if ((key === 'p' || key === ' ') && !event.repeat && !restartPrompt) {
+      if (key === ' ' && event.target.closest('button, a, summary')) return;
+      if (game.phase === 'running' || game.phase === 'paused') { event.preventDefault(); if (game.phase === 'running') pause(); else resume(); }
+    }
+  });
+  for (const btn of document.querySelectorAll('[data-direction]')) {
+    btn.addEventListener('pointerdown', event => { if (game.phase === 'running') { event.preventDefault(); game.steer(btn.dataset.direction); } });
+    btn.addEventListener('click', () => game.steer(btn.dataset.direction));
+  }
+  canvas.addEventListener('pointerdown', event => {
+    if (game.phase !== 'running') return;
+    touchOrigin = { x: event.clientX, y: event.clientY, id: event.pointerId }; canvas.setPointerCapture(event.pointerId);
+  });
+  canvas.addEventListener('pointermove', event => {
+    if (!touchOrigin || touchOrigin.id !== event.pointerId) return;
+    const dx = event.clientX - touchOrigin.x, dy = event.clientY - touchOrigin.y;
+    if (Math.max(Math.abs(dx), Math.abs(dy)) < 14) return;
+    game.steer(Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? 'right' : 'left') : (dy > 0 ? 'down' : 'up'));
+    touchOrigin = { x: event.clientX, y: event.clientY, id: event.pointerId };
+  });
+  for (const name of ['pointerup', 'pointercancel', 'lostpointercapture']) canvas.addEventListener(name, () => { touchOrigin = null; });
+  document.addEventListener('visibilitychange', () => { if (document.hidden) pause(); });
+  window.addEventListener('blur', pause);
+  window.addEventListener('resize', () => { if (game.phase !== 'running') draw(); });
+  updateHUD(); draw();
+  </script>
+</body>
+</html>
