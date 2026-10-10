@@ -16,11 +16,21 @@ python -m http.server 8000 --bind 0.0.0.0
 
 ## 遊戲
 
+- 抽牌 Hex：`card_hex.html`
+- 重力大亂鬥：`gravity_brawl.html`
+- 翻轉五子棋：`flip_five.html`
+- 效果貪食蛇：`effect_snake.html`
+- 複式橋牌：`duplicate_bridge.html`
+- 經典 21 點：`blackjack.html`
+- 鋼芯競技場：`tank_arena.html`
+- 脈衝擂台：`pulse_arena.html`
 - 三子循環棋：`cyclic_tictactoe.html`
 - 環面直落四子：`cyclic_connect4_torus.html`
 - 軌道棋：`trackgame.html`
 - 圈地漫遊 Territory Loop：`territory_loop.html`
 - 星點吞噬 Star Feast：`star_feast.html`
+
+八款擴充的逐款規則與 AI 說明見 [開發文件](docs/expansion-games.md)，分工見 [實作計畫](docs/expansion-plan.md)，測試證據與限制見 [驗證紀錄](docs/expansion-validation.md)。
 
 ### 共用介面
 
@@ -59,7 +69,7 @@ AI 會在可達的領地邊緣選擇圈地路線，評估面積、接近前線�
 
 ## 驗證
 
-Repository 沒有建置指令、package manifest、lint 設定或自訂 CI workflow；既有 GitHub Pages 部署由儲存庫設定管理。新增測試不會引入遊戲執行依賴。
+Repository 不需要建置指令或 package manifest。`Game rules` GitHub Actions workflow 在 push／pull request 執行全部 Node 規則與固定種子模擬；既有 GitHub Pages 部署仍由儲存庫設定管理，沒有新增部署服務。瀏覽器驗證在本機 Chromium 執行；測試工具不是遊戲執行依賴。
 
 ### 規則測試（Node.js 18 以上）
 
@@ -79,6 +89,7 @@ git diff --check
 ```sh
 python tests/browser_smoke.py
 python tests/site_browser.py
+python tests/expansion_browser.py
 ```
 
 若環境尚未有測試工具，可安裝 Python 的 `playwright` 並提供 Chromium 執行檔。環境變數：

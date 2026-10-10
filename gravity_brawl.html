@@ -1,0 +1,424 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="四盤方塊競技：每四拍轉向的重力、消行抵銷與三位不同策略的本機 AI。">
+  <title>重力大亂鬥 - FuGames</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="fulab-theme.css">
+  <style>
+    .brawl-layout { display:grid; grid-template-columns:minmax(0,1fr) minmax(190px,.68fr); gap:24px; max-width:700px; margin:auto; }
+    .human-board { min-width:0; }
+    .board-head { display:flex; justify-content:space-between; align-items:center; gap:8px; font-size:12px; margin-bottom:7px; }
+    .board-head strong { color:var(--fulab-ink-teal); }
+    .board-head span { color:var(--fulab-muted); }
+    .board-stage { position:relative; }
+    .brawl-canvas { display:block; width:100%; aspect-ratio:1; border:1px solid var(--fulab-silver); border-radius:10px; background:#f8f9fb; }
+    #board { touch-action:manipulation; }
+    .rivals { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; margin-top:18px; }
+    .rival { min-width:0; }
+    .rival h3 { font-size:11px; margin:0 0 5px; white-space:nowrap; }
+    .rival p { font-size:10px; color:var(--fulab-muted); margin:4px 0 0; }
+    .rival.out { opacity:.48; }
+    .rival.out h3 { text-decoration:line-through; }
+    .brawl-side { display:flex; flex-direction:column; gap:14px; }
+    .gravity-card { background:var(--fulab-bg-secondary); border:1px solid var(--fulab-silver); padding:15px; border-radius:12px; }
+    .gravity-line { display:flex; align-items:center; gap:13px; }
+    .gravity-arrow { font-size:38px; line-height:1; color:var(--fulab-ink-teal); font-weight:700; }
+    .gravity-card h2 { font-size:15px; margin:0 0 3px; }
+    .gravity-card p { color:var(--fulab-muted); font-size:11px; margin:0; }
+    .gravity-card.warning { background:var(--fulab-tint-amber); border-color:var(--fulab-amber); }
+    .timer-track { height:5px; background:var(--fulab-silver); border-radius:9px; margin-top:12px; overflow:hidden; }
+    .timer-track div { height:100%; width:100%; background:var(--fulab-teal); }
+    .preview-row { margin-top:0; display:flex; align-items:center; gap:16px; font-size:11px; color:var(--fulab-muted); }
+    #next { width:44px; height:30px; background:var(--fulab-bg-secondary); border-radius:8px; }
+    .brawl-controls { margin-top:10px; display:grid; grid-template-columns:repeat(3,1fr); gap:7px; }
+    .brawl-controls .btn { padding:8px 4px; border-radius:10px; touch-action:manipulation; }
+    #drop { grid-column:1/-1; }
+    .control-note { font-size:11px; color:var(--fulab-muted); margin:0; }
+    .brawl-log { color:var(--fulab-ink-teal); font-size:12px; min-height:58px; margin:0; }
+    .start-box { padding:15px; border:1px solid var(--fulab-silver); border-radius:12px; background:var(--fulab-tint-teal); }
+    .start-box h2 { font-size:18px; margin:0 0 6px; }
+    .start-box p { font-size:12px; margin:0 0 12px; }
+    .start-box .btn { width:100%; }
+    .touch-hint { font-size:10px; color:var(--fulab-muted); margin:7px 0 0; }
+    @media(max-width:640px) {
+      .brawl-layout { display:flex; flex-direction:column; gap:10px; max-width:390px; }
+      .human-board { order:2; }
+      .gravity-card { order:0; }
+      .start-box { order:1; }
+      .brawl-log { order:3; }
+      .rivals { order:4; }
+      .brawl-side { display:contents; }
+      .gravity-card { padding:10px 12px; }
+      .gravity-arrow { font-size:28px; }
+      .gravity-card h2 { font-size:13px; }
+      .preview-row { gap:8px; }
+      #next { width:44px; height:30px; }
+      .rivals { gap:8px; margin-top:12px; }
+      .rival h3 { font-size:10px; }
+      .rival p { font-size:9px; }
+      .brawl-log { min-height:36px; }
+      .brawl-controls { grid-template-columns:repeat(4,minmax(0,1fr)); }
+      #drop { grid-column:auto; }
+      .control-note { font-size:10px; }
+    }
+  </style>
+</head>
+<body>
+<main class="game-page">
+  <nav class="site-nav" aria-label="遊戲導覽"><a class="site-brand" href="index.html"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>FuGames</a><a href="index.html">所有遊戲 ↗</a></nav>
+  <header class="page-header"><p class="eyebrow">BLOCKS / 你 × 3 本機 AI</p><h1>重力大亂鬥</h1><p class="lead">四盤同拍，重力換向。把對手的干擾，變成自己的反擊。</p></header>
+  <section class="card play-panel" aria-label="重力大亂鬥競技場">
+    <div class="game-toolbar"><p class="game-status" id="phase-label">準備迎接轉向</p><div class="game-metrics"><span>拍數 <strong id="wave">1 / 24</strong></span><span>你的清行 <strong id="lines">0</strong></span><span>待收干擾 <strong id="pending">0</strong></span></div></div>
+    <div class="brawl-layout">
+      <div class="human-board">
+        <div class="board-head"><strong>你 · 主盤</strong><div class="preview-row">下拍<canvas id="next" width="160" height="104" aria-label="下一拍共用方塊"></canvas></div></div>
+        <div class="board-stage"><canvas class="brawl-canvas" id="board" width="400" height="400" tabindex="0" aria-label="你的方塊盤。左右鍵移位、向上鍵旋轉、空白鍵落下。" aria-describedby="status">請使用支援 Canvas 的瀏覽器。</canvas></div>
+        <p class="touch-hint" id="human-note">入場邊：上 · ◀ 左／右 ▶</p>
+        <div class="brawl-controls" aria-label="方塊操作"><button class="btn" id="left" aria-label="移向入場邊左方" disabled>◀ 移位</button><button class="btn" id="rotate" aria-label="旋轉方塊" disabled>↻ 旋轉</button><button class="btn" id="right" aria-label="移向入場邊右方" disabled>移位 ▶</button><button class="btn primary" id="drop" disabled>落下</button></div>
+        <p class="control-note">← → / A D：沿入場邊移位<br>↑ / W：轉塊　空白鍵：落下<br>P / Esc：暫停；切換視窗後手動繼續</p>
+
+      </div>
+      <div class="brawl-side">
+        <div class="gravity-card" id="gravity-card"><div class="gravity-line"><span class="gravity-arrow" id="gravity">↓</span><div><h2 id="gravity-label">重力向下</h2><p id="turn-warning">4 拍後轉向 ←，鬆散方格重新沉降</p></div></div><div class="timer-track" role="progressbar" aria-label="本拍剩餘時間" aria-valuemin="0" aria-valuemax="7" aria-valuenow="7"><div id="timer-fill"></div></div></div>
+        <div class="start-box" id="start-box"><h2 id="dialog-title">先看落點，再換方向</h2><p id="dialog-copy">每拍 7 秒，全員同一塊。每 4 拍重力轉 90°。消一行送一行，先抵銷待收干擾。最後存活或 24 拍清行最多者勝。</p><button class="btn primary" id="play">開始對戰 →</button></div>
+        <p class="brawl-log" id="status" role="status" aria-live="polite">重力換向後，移位方向也會跟著轉。盤面邊緣的 ◀ ▶ 會帶路。</p>
+        <div class="rivals">
+          <article class="rival" id="rival-1"><h3>守平 · AI</h3><canvas class="brawl-canvas" id="board-1" width="180" height="180" aria-label="守平 AI 盤面"></canvas><p id="stats-1">0 行 · 待收 0</p><p id="intent-1">低堆疊優先</p></article>
+          <article class="rival" id="rival-2"><h3>壓迫 · AI</h3><canvas class="brawl-canvas" id="board-2" width="180" height="180" aria-label="壓迫 AI 盤面"></canvas><p id="stats-2">0 行 · 待收 0</p><p id="intent-2">消行進攻優先</p></article>
+          <article class="rival" id="rival-3"><h3>轉潮 · AI</h3><canvas class="brawl-canvas" id="board-3" width="180" height="180" aria-label="轉潮 AI 盤面"></canvas><p id="stats-3">預備下次轉向</p><p id="intent-3">換向地形優先</p></article>
+        </div>
+      </div>
+    </div>
+    <div class="game-actions"><p class="action-note">獨立盤面 · 同一組七袋序列 · 本機 AI</p><div class="btnRow"><button class="btn" id="pause" disabled>暫停</button><button class="btn" id="restart">重新開始</button></div></div>
+  </section>
+  <details class="card rules"><summary>玩法、換向與反擊</summary><div class="rules-body"><ul class="list">
+    <li>一位玩家與三位本機 AI，各用 10 × 10 盤面。每拍共用同一塊方塊與下拍預告；七種方塊每袋各一塊。7 秒內選擇虛線落點，按「落下」立刻一起結算；逾時使用目前落點。</li>
+    <li>只能從入場邊直線落下，不可穿過障礙，也沒有側滑或保留方塊。左右沿入場邊移位、向上旋轉、空白鍵落下；手機點盤面或按鈕。換向後移位方向跟著盤邊的 ◀ ▶。</li>
+    <li>每 4 拍後重力順時針轉 90°：向下、向左、向上、向右循環。既有方格留在原世界位置，再各自向新重力方向沉降；方塊會拆成小格。填滿垂直於重力的一整行即清除。</li>
+    <li>落塊每清 1 行產生 1 行攻擊；先抵銷自己的待收干擾，餘額送給下一位存活對手（你 → 守平 → 壓迫 → 轉潮 → 你）。同拍出局仍保留已產生的攻擊。新攻擊下拍才到，有一拍消行反制。灰色干擾行有一個隨機缺口，從重力底邊推入；頂出方格即淘汰。換向沉降的清行計分但不攻擊。</li>
+    <li>無合法落點或干擾頂出即淘汰。全部同拍淘汰為平手；最後存活者勝。第 24 拍後，存活者累計清行最多者勝，同分並列。你出局即結束並顯示落敗；其餘同拍淘汰判定仍會完成。</li>
+    <li>守平重視洞與高度；壓迫偏愛立即清行；轉潮會試算下次換向後的地形。AI 搜尋所有能從入場邊直落的合法落點，沒有超能力或隱藏資訊。</li>
+    <li>暫停、離開分頁或失去視窗焦點會凍結倒數；回來須按「繼續」。重新開始會重置盤面、攻擊、分數與倒數。</li>
+  </ul></div></details>
+  <footer class="site-footer">FuGames · 隨時來一局</footer>
+  <noscript><p class="notice">請開啟 JavaScript，才能開始遊戲。</p></noscript>
+</main>
+<script id="brawl-engine">
+'use strict';
+const GravityBrawl = (() => {
+  const SIZE = 10, WAVE_SECONDS = 7, MAX_WAVES = 24, ROTATE_EVERY = 4;
+  const TYPES = ['I','O','T','S','Z','J','L'];
+  const BASE = {
+    I:[[0,0],[1,0],[2,0],[3,0]], O:[[0,0],[1,0],[0,1],[1,1]], T:[[0,0],[1,0],[2,0],[1,1]],
+    S:[[1,0],[2,0],[0,1],[1,1]], Z:[[0,0],[1,0],[1,1],[2,1]], J:[[0,0],[0,1],[1,1],[2,1]], L:[[2,0],[0,1],[1,1],[2,1]]
+  };
+  const emptyBoard = () => Array.from({length:SIZE}, () => Array(SIZE).fill(0));
+  const copyBoard = b => b.map(row => row.slice());
+  function normalize(cells) {
+    const minX = Math.min(...cells.map(c => c[0])), minY = Math.min(...cells.map(c => c[1]));
+    return cells.map(([x,y]) => [x-minX,y-minY]).sort((a,b) => a[1]-b[1] || a[0]-b[0]);
+  }
+  function shapes(type) {
+    const rotations = [], seen = new Set(); let current = normalize(BASE[type]);
+    for(let i=0;i<4;i++) {
+      const key = JSON.stringify(current);
+      if(!seen.has(key)) { seen.add(key); rotations.push(current); }
+      current = normalize(current.map(([x,y]) => [-y,x]));
+    }
+    return rotations;
+  }
+  const SHAPES = Object.fromEntries(TYPES.map(type => [type,shapes(type)]));
+  function fits(board, cells, x, y) {
+    return cells.every(([dx,dy]) => x+dx >= 0 && x+dx < SIZE && y+dy >= 0 && y+dy < SIZE && board[y+dy][x+dx] === 0);
+  }
+  function landing(board, type, rotation, x) {
+    const cells = SHAPES[type]?.[rotation];
+    if(!cells || !Number.isInteger(x) || !fits(board,cells,x,0)) return null;
+    let y=0; while(fits(board,cells,x,y+1)) y++;
+    return {x,y,rotation};
+  }
+  function legalPlacements(board,type) {
+    const options=[];
+    SHAPES[type].forEach((_,rotation) => {
+      for(let x=0;x<SIZE;x++) { const p=landing(board,type,rotation,x); if(p) options.push(p); }
+    });
+    return options;
+  }
+  function clearLines(board) {
+    const rows=board.filter(row => row.some(v => !v)).map(row => row.slice()), lines=SIZE-rows.length;
+    while(rows.length<SIZE) rows.unshift(Array(SIZE).fill(0));
+    return {board:rows,lines};
+  }
+  function place(board,type,option) {
+    const p=option && landing(board,type,option.rotation,option.x);
+    if(!p || p.y!==option.y) return null;
+    const result=copyBoard(board), value=TYPES.indexOf(type)+1;
+    for(const [dx,dy] of SHAPES[type][p.rotation]) result[p.y+dy][p.x+dx]=value;
+    return clearLines(result);
+  }
+  function world(x,y,gravity) {
+    if(gravity===1) return [SIZE-1-y,x];
+    if(gravity===2) return [SIZE-1-x,SIZE-1-y];
+    if(gravity===3) return [y,SIZE-1-x];
+    return [x,y];
+  }
+  function canonical(x,y,gravity) {
+    if(gravity===1) return [y,SIZE-1-x];
+    if(gravity===2) return [SIZE-1-x,SIZE-1-y];
+    if(gravity===3) return [SIZE-1-y,x];
+    return [x,y];
+  }
+  function rotateBoard(board) {
+    // Reframe without moving world positions, then settle each single square in the new gravity.
+    const reframed=emptyBoard(), settled=emptyBoard();
+    for(let y=0;y<SIZE;y++) for(let x=0;x<SIZE;x++) reframed[SIZE-1-x][y]=board[y][x];
+    for(let x=0;x<SIZE;x++) {
+      const column=[];
+      for(let y=0;y<SIZE;y++) if(reframed[y][x]) column.push(reframed[y][x]);
+      for(let i=0;i<column.length;i++) settled[SIZE-column.length+i][x]=column[i];
+    }
+    return clearLines(settled);
+  }
+  function addGarbage(board, gaps) {
+    const result=copyBoard(board); let overflow=false;
+    for(const gap of gaps) {
+      if(result[0].some(Boolean)) overflow=true;
+      result.shift(); result.push(Array.from({length:SIZE},(_,x)=>x===gap?0:8));
+    }
+    return {board:result,overflow};
+  }
+  function features(board) {
+    const heights=[], holes=[];
+    for(let x=0;x<SIZE;x++) {
+      let top=SIZE, voids=0;
+      for(let y=0;y<SIZE;y++) { if(board[y][x] && top===SIZE) top=y; else if(!board[y][x] && top<SIZE) voids++; }
+      heights.push(SIZE-top); holes.push(voids);
+    }
+    return {height:heights.reduce((a,b)=>a+b,0),max:Math.max(...heights),holes:holes.reduce((a,b)=>a+b,0),bump:heights.slice(1).reduce((sum,h,i)=>sum+Math.abs(h-heights[i]),0),pressure:board.reduce((sum,row)=>{const n=row.filter(Boolean).length;return sum+(n>=6?(n-5)*(n-5):0);},0)};
+  }
+  const PROFILES = [
+    {name:'守平',hole:7,height:.68,bump:.65,peak:1.8,line:5,turn:.08,pressure:0},
+    {name:'壓迫',hole:3.5,height:.4,bump:.28,peak:.65,line:14,turn:.03,pressure:1.8},
+    {name:'轉潮',hole:4,height:.45,bump:.3,peak:1,line:6,turn:1.4,pressure:.15}
+  ];
+  const boardCost=(f,p)=>f.holes*p.hole+f.height*p.height+f.bump*p.bump+f.max*p.peak;
+  function chooseAI(board,type,profile=0,untilTurn=4,pending=0) {
+    const p=PROFILES[profile%PROFILES.length]; let best=null;
+    for(const move of legalPlacements(board,type)) {
+      const placed=place(board,type,move), f=features(placed.board);
+      let score=placed.lines*p.line-boardCost(f,p)+f.pressure*p.pressure+Math.min(placed.lines,pending)*5;
+      const turned=rotateBoard(placed.board);
+      score+=(turned.lines*p.line-boardCost(features(turned.board),p))*p.turn/untilTurn;
+      if(!best || score>best.score+1e-9) best={...move,score,lines:placed.lines,reason:placed.lines?(pending?'消行抵銷干擾':'消行施壓'):profile===2?'預備換向地形':profile===0?'壓低高度與空洞':'保留清行空間'};
+    }
+    return best;
+  }
+  class Game {
+    constructor(random=Math.random) { this.random=random; this.reset(); }
+    drawPiece() {
+      if(!this.bag.length) {
+        this.bag=TYPES.slice();
+        for(let i=this.bag.length-1;i>0;i--) { const j=Math.floor(this.random()*(i+1)); [this.bag[i],this.bag[j]]=[this.bag[j],this.bag[i]]; }
+      }
+      return this.bag.pop();
+    }
+    reset() {
+      this.phase='ready'; this.wave=1; this.gravity=0; this.remaining=WAVE_SECONDS; this.result=null; this.events=[]; this.bag=[];
+      this.actors=Array.from({length:4},(_,id)=>({id,board:emptyBoard(),alive:true,lines:0,pending:0,sent:0,cancelled:0,reason:'',lastLines:0}));
+      this.piece=this.drawPiece(); this.nextPiece=this.drawPiece(); this.selectDefault();
+    }
+    untilTurn() { return ROTATE_EVERY-(this.wave-1)%ROTATE_EVERY; }
+    selectDefault() {
+      const options=legalPlacements(this.actors[0].board,this.piece);
+      this.selection=options.filter(p=>p.rotation===0).sort((a,b)=>Math.abs(a.x-3)-Math.abs(b.x-3))[0] || options[0] || null;
+    }
+    start() { if(this.phase==='ready' || this.phase==='paused') this.phase='running'; }
+    pause() { if(this.phase==='running') this.phase='paused'; }
+    move(delta) {
+      if(this.phase!=='running' || !this.selection) return false;
+      const move=landing(this.actors[0].board,this.piece,this.selection.rotation,this.selection.x+delta);
+      if(!move) return false; this.selection=move; return true;
+    }
+    selectColumn(x) {
+      if(this.phase!=='running') return false;
+      const rotation=this.selection?.rotation || 0, options=legalPlacements(this.actors[0].board,this.piece).filter(p=>p.rotation===rotation);
+      options.sort((a,b)=>Math.abs(a.x-x)-Math.abs(b.x-x));
+      if(!options.length) return false; this.selection=options[0]; return true;
+    }
+    rotate() {
+      if(this.phase!=='running' || !this.selection) return false;
+      const rotation=(this.selection.rotation+1)%SHAPES[this.piece].length;
+      for(const shift of [0,-1,1,-2,2,-3,3]) {
+        const p=landing(this.actors[0].board,this.piece,rotation,this.selection.x+shift);
+        if(p) { this.selection=p; return true; }
+      }
+      return false;
+    }
+    tick(seconds) {
+      if(this.phase!=='running' || !Number.isFinite(seconds) || seconds<=0) return false;
+      this.remaining=Math.max(0,this.remaining-seconds);
+      if(this.remaining<=1e-9) return this.resolve();
+      return false;
+    }
+    resolve(playerMove=this.selection) {
+      if(this.phase!=='running') return false;
+      const outgoing=Array(4).fill(0); this.events=[];
+      // Every actor resolves against its own start-of-wave board; attacks are delivered only after the batch.
+      for(const a of this.actors) {
+        if(!a.alive) continue;
+        const move=a.id?chooseAI(a.board,this.piece,a.id-1,this.untilTurn(),a.pending):playerMove;
+        const placed=place(a.board,this.piece,move);
+        if(!placed) { a.alive=false; a.reason='入場邊沒有合法落點'; continue; }
+        a.board=placed.board; a.lines+=placed.lines; a.lastLines=placed.lines; a.reason=move.reason || (placed.lines?'成功消行':'已落下');
+        const cancelled=Math.min(placed.lines,a.pending); a.pending-=cancelled; a.cancelled+=cancelled;
+        outgoing[a.id]=placed.lines-cancelled;
+        this.events.push({type:'lock',id:a.id,lines:placed.lines,cancelled});
+        const garbage=addGarbage(a.board,Array.from({length:a.pending},()=>Math.floor(this.random()*SIZE)));
+        a.board=garbage.board; a.pending=0;
+        if(garbage.overflow) { a.alive=false; a.reason='干擾頂出入場邊'; }
+      }
+      if(this.wave%ROTATE_EVERY===0) {
+        this.gravity=(this.gravity+1)%4;
+        for(const a of this.actors) if(a.alive) { const turn=rotateBoard(a.board); a.board=turn.board; a.lines+=turn.lines; this.events.push({type:'turn',id:a.id,lines:turn.lines}); }
+      }
+      // A surviving opponent receives outgoing attacks next wave. A final shot from an eliminated actor still counts.
+      for(let id=0;id<4;id++) if(outgoing[id]) {
+        for(let offset=1;offset<4;offset++) {
+          const target=this.actors[(id+offset)%4];
+          if(target.alive) { target.pending+=outgoing[id]; this.actors[id].sent+=outgoing[id]; this.events.push({type:'attack',from:id,to:target.id,lines:outgoing[id]}); break; }
+        }
+      }
+      this.checkResult();
+      if(this.phase==='running') { this.wave++; this.piece=this.nextPiece; this.nextPiece=this.drawPiece(); this.remaining=WAVE_SECONDS; this.selectDefault(); }
+      return true;
+    }
+    checkResult() {
+      if(this.phase!=='running') return;
+      const alive=this.actors.filter(a=>a.alive); let winners=null,reason='';
+      if(!alive.length) { winners=[]; reason='所有人同拍淘汰。'; }
+      else if(!this.actors[0].alive) { winners=alive.map(a=>a.id); reason='你已淘汰：'+this.actors[0].reason+'。'; }
+      else if(alive.length===1) { winners=[alive[0].id]; reason='你是最後的存活者！'; }
+      else if(this.wave>=MAX_WAVES) {
+        const highest=Math.max(...alive.map(a=>a.lines)); winners=alive.filter(a=>a.lines===highest).map(a=>a.id); reason='24 拍完成，以存活者累計清行比較。';
+      }
+      if(winners) { this.phase='over'; this.result={outcome:!winners.length?'draw':winners.includes(0)?(winners.length===1?'win':'draw'):'loss',winners,reason,wave:this.wave,lines:this.actors[0].lines}; }
+    }
+  }
+  return {Game,SIZE,WAVE_SECONDS,MAX_WAVES,ROTATE_EVERY,TYPES,SHAPES,PROFILES,emptyBoard,copyBoard,fits,landing,legalPlacements,clearLines,place,world,canonical,rotateBoard,addGarbage,features,chooseAI};
+})();
+</script>
+<script id="brawl-ui">
+'use strict';
+const $=id=>document.getElementById(id), game=new GravityBrawl.Game();
+const palette=['#f8f9fb','#81a1c1','#ebcb8b','#b48ead','#a3be8c','#d08770','#5ebcbf','#9caec1','#a6adb8'];
+const arrows=['↓','←','↑','→'], names=['向下','向左','向上','向右'];
+let previousTime=null, uiStamp='', lockUntil=0;
+function paintBoard(canvas,actor,ghost) {
+  const ctx=canvas.getContext('2d'), size=canvas.width, pad=size*.04, cell=(size-pad*2)/10;
+  ctx.clearRect(0,0,size,size); ctx.fillStyle='#f8f9fb'; ctx.fillRect(0,0,size,size);
+  for(let y=0;y<10;y++) for(let x=0;x<10;x++) {
+    const [wx,wy]=GravityBrawl.world(x,y,game.gravity), value=actor.board[y][x];
+    ctx.fillStyle=value?palette[value]:'#f0f2f5'; ctx.fillRect(pad+wx*cell+1,pad+wy*cell+1,cell-2,cell-2);
+    if(value===8) { ctx.strokeStyle='#ffffff88';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(pad+wx*cell+4,pad+wy*cell+cell-4);ctx.lineTo(pad+wx*cell+cell-4,pad+wy*cell+4);ctx.stroke(); }
+  }
+  if(ghost && actor.alive && game.phase!=='over') {
+    for(const [dx,dy] of GravityBrawl.SHAPES[game.piece][ghost.rotation]) {
+      const [wx,wy]=GravityBrawl.world(ghost.x+dx,ghost.y+dy,game.gravity);
+      ctx.fillStyle='#5ebcbf50'; ctx.fillRect(pad+wx*cell+2,pad+wy*cell+2,cell-4,cell-4);
+      ctx.strokeStyle='#267477'; ctx.lineWidth=2; ctx.setLineDash([5,3]); ctx.strokeRect(pad+wx*cell+3,pad+wy*cell+3,cell-6,cell-6); ctx.setLineDash([]);
+    }
+  }
+  ctx.strokeStyle='#267477'; ctx.lineWidth=size*.008; ctx.beginPath();
+  const edge=[[pad,pad,size-pad,pad],[size-pad,pad,size-pad,size-pad],[pad,size-pad,size-pad,size-pad],[pad,pad,pad,size-pad]][game.gravity];
+  ctx.moveTo(edge[0],edge[1]);ctx.lineTo(edge[2],edge[3]);ctx.stroke();
+  if(!actor.alive) { ctx.fillStyle='#ffffffb8';ctx.fillRect(0,0,size,size);ctx.fillStyle='#657283';ctx.textAlign='center';ctx.textBaseline='middle';ctx.font='bold '+size*.1+'px monospace';ctx.fillText('淘汰',size/2,size/2); }
+}
+function paintNext() {
+  const c=$('next'),ctx=c.getContext('2d');ctx.clearRect(0,0,c.width,c.height);
+  const shape=GravityBrawl.SHAPES[game.nextPiece][0],w=Math.max(...shape.map(c=>c[0]))+1,h=Math.max(...shape.map(c=>c[1]))+1,cell=23;
+  for(const [x,y] of shape) { ctx.fillStyle=palette[GravityBrawl.TYPES.indexOf(game.nextPiece)+1]; ctx.fillRect((c.width-w*cell)/2+x*cell+1,(c.height-h*cell)/2+y*cell+1,cell-2,cell-2); }
+  c.setAttribute('aria-label','下一拍共用方塊 '+game.nextPiece);
+}
+function refresh() {
+  const running=game.phase==='running', over=game.phase==='over', ready=game.phase==='ready';
+  $('wave').textContent=Math.min(game.wave,24)+' / 24';$('lines').textContent=game.actors[0].lines;$('pending').textContent=game.actors[0].pending;
+  $('phase-label').textContent=running?'第 '+game.wave+' 拍 · '+Math.ceil(game.remaining)+' 秒':over?'本局結束':ready?'準備迎接轉向':'已暫停 · 倒數凍結';
+  $('gravity').textContent=arrows[game.gravity];$('gravity-label').textContent='重力'+names[game.gravity];
+  $('turn-warning').textContent=game.untilTurn()+' 拍後轉向 '+arrows[(game.gravity+1)%4]+'，小格重新沉降';
+  $('gravity-card').classList.toggle('warning',game.untilTurn()===1);
+  $('timer-fill').style.width=(game.remaining/7*100)+'%';document.querySelector('[role=progressbar]').setAttribute('aria-valuenow',game.remaining.toFixed(1));
+  $('human-note').textContent=['入場邊：上 · ◀ 左／右 ▶','入場邊：右 · ◀ 上／下 ▶','入場邊：下 · ◀ 右／左 ▶','入場邊：左 · ◀ 下／上 ▶'][game.gravity];
+  for(const id of ['left','right','rotate']) $(id).disabled=!running || !game.selection;
+  $('drop').disabled=!running;$('pause').disabled=ready||over;$('pause').textContent=game.phase==='paused'?'繼續':'暫停';
+  $('start-box').hidden=running;
+  if(over) {
+    $('dialog-title').textContent=({win:'你贏了！',loss:'下次轉個好局',draw:'平手，一起守住'})[game.result.outcome];
+    $('dialog-copy').textContent=game.result.reason+' 你清了 '+game.result.lines+' 行，抵銷 '+game.actors[0].cancelled+' 行干擾。';$('play').textContent='再來一局 →';
+  } else if(game.phase==='paused') {
+    $('dialog-title').textContent='局面留在這裡';$('dialog-copy').textContent='倒數與所有 AI 都已暫停。準備好後繼續這一拍。';$('play').textContent='繼續對戰 →';
+  } else if(ready) {
+    $('dialog-title').textContent='先看落點，再換方向';$('dialog-copy').textContent='每拍 7 秒，全員同一塊。每 4 拍重力轉 90°。消一行送一行，先抵銷待收干擾。最後存活或 24 拍清行最多者勝。';$('play').textContent='開始對戰 →';
+  }
+  paintBoard($('board'),game.actors[0],game.selection);paintNext();
+  for(let id=1;id<4;id++) {
+    const a=game.actors[id];paintBoard($('board-'+id),a,null);$('rival-'+id).classList.toggle('out',!a.alive);
+    $('stats-'+id).textContent=a.lines+' 行 · 待收 '+a.pending;$('intent-'+id).textContent=a.alive?(a.reason || ['低堆疊優先','消行進攻優先','預備下次轉向'][id-1]):a.reason;
+  }
+}
+function announceWave() {
+  if(game.phase==='over') { $('status').textContent=game.result.reason; return; }
+  const lock=game.events.find(e=>e.type==='lock'&&e.id===0), turn=game.events.find(e=>e.type==='turn'&&e.id===0), pending=game.actors[0].pending;
+  let message=lock?'上拍清 '+lock.lines+' 行'+(lock.cancelled?'，抵銷 '+lock.cancelled+' 行':'')+'。':'';
+  if(turn) message+='重力已換向，沉降再清 '+turn.lines+' 行。';
+  message+=pending?'待收 '+pending+' 行：這拍消行可反制。':'選好虛線落點，落下即可進到下一拍。';
+  if(!game.selection) message='入場邊已封住，這拍沒有合法落點。落下或倒數結束後結算。';
+  $('status').textContent=message;
+}
+function act(action) {
+  if(game.phase!=='running') return;
+  if(action==='drop') {
+    // Reject rapid repeated pointer/keyboard events; there are no asynchronous settlement callbacks.
+    if(performance.now()<lockUntil) return;
+    lockUntil=performance.now()+220; game.resolve(); announceWave();
+  } else if(action==='rotate') game.rotate(); else game.move(action==='left'?-1:1);
+  refresh();
+}
+function start() { if(game.phase==='over') game.reset();game.start();previousTime=null;lockUntil=0;refresh();$('board').focus({preventScroll:true}); }
+function pause() { game.pause();previousTime=null;refresh(); }
+$('play').addEventListener('click',start);
+$('restart').addEventListener('click',()=>{game.reset();previousTime=null;lockUntil=0;$('status').textContent='新局已備妥，按開始對戰。';refresh();});
+$('pause').addEventListener('click',()=>game.phase==='paused'?start():pause());
+for(const action of ['left','right','rotate','drop']) $(action).addEventListener('click',()=>act(action));
+$('board').addEventListener('pointerdown',event=>{
+  if(game.phase!=='running') return;
+  const rect=event.currentTarget.getBoundingClientRect(),wx=(event.clientX-rect.left)/rect.width*10,wy=(event.clientY-rect.top)/rect.height*10;
+  const [column]=GravityBrawl.canonical(Math.min(9,Math.max(0,Math.floor(wx))),Math.min(9,Math.max(0,Math.floor(wy))),game.gravity);
+  game.selectColumn(column);refresh();
+});
+document.addEventListener('keydown',event=>{
+  if(event.target.matches('input,select,textarea') || event.altKey || event.ctrlKey || event.metaKey) return;
+  const k=event.key.toLowerCase();
+  if(k==='p'||k==='escape') { if(game.phase==='running') pause();else if(game.phase==='paused') start();event.preventDefault();return; }
+  // Let native buttons handle Enter/Space, preventing one key from triggering two actions.
+  if(event.target.tagName==='BUTTON' && (k===' '||k==='enter')) return;
+  const action=({arrowleft:'left',a:'left',arrowright:'right',d:'right',arrowup:'rotate',w:'rotate',' ':'drop',arrowdown:'drop',s:'drop'})[k];
+  if(action && game.phase==='running') {event.preventDefault();if((action==='drop'||action==='rotate')&&event.repeat)return;act(action);}
+});
+window.addEventListener('blur',()=>{if(game.phase==='running')pause();});
+document.addEventListener('visibilitychange',()=>{if(document.hidden&&game.phase==='running')pause();});
+function frame(time) {
+  if(previousTime!==null&&game.phase==='running') {
+    const resolved=game.tick(Math.min((time-previousTime)/1000,.15));
+    if(resolved) announceWave();
+  }
+  previousTime=time;
+  const stamp=[game.phase,game.wave,Math.ceil(game.remaining*10)].join(':');
+  if(stamp!==uiStamp) {uiStamp=stamp;refresh();}
+  requestAnimationFrame(frame);
+}
+refresh();requestAnimationFrame(frame);
+</script>
+</body>
+</html>

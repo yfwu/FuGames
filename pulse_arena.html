@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="description" content="蓄力、閃避、擊退。與三位本機 AI 在縮小的擂台上爭取最後生存。FuGames 原創物理競技場。"><title>脈衝擂台 - FuGames</title><link rel="icon" href="favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="fulab-theme.css">
+<style>
+.pulse-roster{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin-top:12px}.pulse-seat{padding:8px;border:1px solid var(--fulab-silver);border-top:3px solid var(--seat);border-radius:9px;font-size:10px;min-width:0}.pulse-seat strong{display:block;font-size:12px}.pulse-seat span{display:block;color:var(--fulab-muted)}.pulse-seat.out{opacity:.45}.pulse-button{min-width:146px;touch-action:none;user-select:none;-webkit-user-select:none}.pulse-button:active{background:#155d60}.charge-track{height:5px;margin-top:10px;background:#edf0f4;border-radius:5px;overflow:hidden}.charge-track i{display:block;height:100%;width:0;background:var(--fulab-teal);transition:none}.pulse-hint{font-size:11px;color:var(--fulab-muted);margin:10px 0 0}.io-stage{width:min(100%,560px)}@media(max-width:440px){.pulse-roster{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-height:600px) and (min-width:600px){.pulse-roster,.charge-track,.pulse-hint{grid-column:2}.pulse-roster{grid-template-columns:repeat(2,minmax(0,1fr));margin:0}.pulse-seat{padding:4px}.io-page .io-stage{grid-row:2 / span 6}.io-controls{flex-direction:column}.pulse-button{min-width:100%;font-size:11px}}
+</style></head>
+<body><main class="game-page io-page">
+<nav class="site-nav" aria-label="遊戲導覽"><a class="site-brand" href="index.html"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>FuGames</a><a href="index.html">所有遊戲 ↗</a></nav>
+<header class="page-header"><p class="eyebrow">IO / 單人 × 3 AI</p><h1>脈衝擂台</h1><p class="lead">靠近，蓄力，放開。在越縮越小的擂台上站到最後。</p></header>
+<section class="card play-panel" aria-label="脈衝生存擂台">
+<div class="game-toolbar"><p class="game-status" id="phase-label">準備登場</p><div class="game-metrics"><span>留場 <strong id="alive">4 / 4</strong></span><span>脈衝 <strong id="power">就緒</strong></span><span>剩餘 <strong id="clock">60</strong> 秒</span></div></div>
+<div class="io-stage"><canvas id="board" width="720" height="720" tabindex="0" aria-label="脈衝擂台。方向鍵或 WASD 移動，按住空白鍵蓄力、放開發出脈衝。" aria-describedby="status">需要支援 Canvas 的瀏覽器。</canvas><div class="board-overlay" id="overlay"><div class="game-dialog" role="dialog" aria-labelledby="dialog-title" aria-describedby="dialog-copy"><svg class="dialog-art" viewBox="0 0 80 54" aria-hidden="true"><circle cx="31" cy="29" r="12" fill="#cbeaea" stroke="#267477" stroke-width="2"/><path d="M43 9a24 24 0 010 40M48 3a32 32 0 010 50" fill="none" stroke="#5ebcbf" stroke-width="2"/><circle cx="69" cy="29" r="8" fill="#efdad1" stroke="#99553f" stroke-width="2"/></svg><p class="eyebrow">你是青綠色圓盤 · 對手皆為本機 AI</p><h2 id="dialog-title">把握放手的時機</h2><p id="dialog-copy">按住空白鍵或脈衝鈕蓄力、放開擊退周圍對手。離開縮圈即出局，最後留場者獲勝。</p><button class="btn primary" id="play">進入擂台 →</button></div></div></div>
+<div class="io-controls"><p class="action-note">拖曳場地移動 · 按住右鈕蓄力<br>空白鍵蓄力／放開 · P / Esc 暫停</p><button class="btn primary pulse-button" id="pulse" disabled>按住蓄力 → 放開</button></div>
+<p class="game-status io-status" id="status" role="status" aria-live="polite">方向鍵／WASD 或拖曳移動；蓄力時移動較慢，滿 1 秒自動釋放。</p>
+<div class="charge-track" aria-label="脈衝蓄力"><i id="charge-fill"></i></div>
+<div class="pulse-roster" id="roster" aria-label="玩家與 AI 狀態"></div>
+<div class="game-actions"><p class="action-note">沒有生命值，只有立足之地。</p><div class="btnRow"><button class="btn" id="pause" disabled>暫停</button><button class="btn primary" id="restart">重新開始</button></div></div>
+<p class="pulse-hint">虛線圈 = 下一階段邊界 · 彩色光圈 = 蓄力範圍 · 切頁自動暫停</p>
+</section>
+<details class="card rules"><summary>玩法與操作</summary><div class="rules-body"><ul class="list">
+<li>一位玩家加三位本機 AI。你是青綠色圓盤。方向鍵／WASD 或按住場地拖曳移動，放開後仍有短暫慣性，可反向煞車。</li>
+<li>按住空白鍵或脈衝鈕開始蓄力，放開向四周擊退範圍內所有對手。蓄力越久，距離與力道越強；最多 1 秒即自動釋放。蓄力中加速能力降為 55%。每次脈衝後冷卻 1.8 秒，必須先放開才可再次蓄力。</li>
+<li>圓盤互撞會彈開。脈衝無生命值傷害，也沒有隨機命中率；光圈提示正在蓄力的實際範圍。越靠近中心，受到的擊退越強。</li>
+<li>開局 5 秒後邊界持續縮小。你的整顆圓盤必須留在實線圈內，碰越邊界即出局。虛線顯示 5 秒後的邊界；無重生。</li>
+<li>守心 AI 搶中央並以短蓄力反擊，猛攻 AI 追近蓄力，迂迴 AI 側移搶外側角度後長蓄力。三者都會避開危險邊界、躲避已公開的蓄力。</li>
+<li>最後一位留場者勝；同一步全體出界為平手，60 秒後仍留場的多人並列。你出局即結束本局。P／Esc 或按鈕暫停；切換視窗後須手動繼續。重新開始立即開新局。</li>
+</ul></div></details><footer class="site-footer">FuGames · 隨時來一局</footer><noscript><p class="notice">請開啟 JavaScript，才能開始遊戲。</p></noscript></main>
+<script id="pulse-engine">
+'use strict';
+const PulseArena=(()=>{
+ const SIZE=720,DT=.02,ROUND_TICKS=3000,R=18,CENTER={x:360,y:360};
+ const clamp=(n,lo,hi)=>Math.max(lo,Math.min(hi,n));
+ const distance=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
+ function vector(x,y){const d=Math.hypot(x,y);return d?{x:x/d,y:y/d}:{x:0,y:0};}
+ const ringAt=tick=>320-250*clamp((tick*DT-5)/55,0,1);
+ const pulseRange=charge=>58+70*clamp(charge,0,1);
+ class Game{
+  constructor(random=Math.random){this.random=random;this.reset();}
+  reset(){this.phase='ready';this.tick=0;this.result=null;this.waves=[];this.events=[];const rotation=this.random()*Math.PI*2;this.actors=Array.from({length:4},(_,id)=>{const theta=rotation+id*Math.PI/2;return{id,x:360+Math.cos(theta)*160,y:360+Math.sin(theta)*160,vx:0,vy:0,alive:true,charging:false,charge:0,cooldown:0,wasHeld:false,hits:0,mode:'準備'};});}
+  start(){if(this.phase==='ready'||this.phase==='paused')this.phase='running';}
+  pause(){if(this.phase==='running')this.phase='paused';}
+  aiInput(a){
+   const others=this.actors.filter(b=>b!==a&&b.alive).sort((b,c)=>distance(a,b)-distance(a,c)),foe=others[0];if(!foe)return{x:0,y:0,charge:false};
+   const centre=vector(360-a.x,360-a.y),radial=distance(a,CENTER),ring=ringAt(this.tick),gap=distance(a,foe),d=vector(foe.x-a.x,foe.y-a.y);let x=0,y=0,attack=false,threshold=.65;
+   if(a.id===1){a.mode='守住中央';if(radial>38){x=centre.x;y=centre.y;}if(gap<100){x-=d.x*.7;y-=d.y*.7;attack=true;a.mode='短蓄反擊';}threshold=.38;}
+   else if(a.id===2||a.id===0){a.mode='貼近猛攻';x=d.x;y=d.y;attack=gap<140;threshold=.72;}
+   else{a.mode='側移包抄';const outward=vector(foe.x-360,foe.y-360),goal={x:foe.x-outward.x*72,y:foe.y-outward.y*72},go=vector(goal.x-a.x,goal.y-a.y);x=go.x-d.y*.6;y=go.y+d.x*.6;attack=gap<150;threshold=.94;}
+   if(foe.charging&&foe.charge>.35&&gap<pulseRange(foe.charge)+35&&!a.charging){x-=d.x*1.6;y-=d.y*1.6;a.mode='躲開脈衝';}
+   if(radial>ring-85){x=centre.x*2-a.vx/200;y=centre.y*2-a.vy/200;a.mode='煞車回圈';}
+   const charge=a.charging?a.charge<threshold:(attack&&a.cooldown===0&&!a.wasHeld);return{...vector(x,y),charge};
+  }
+  release(a){
+   if(!a.alive||!a.charging)return null;const pulse={owner:a.id,x:a.x,y:a.y,charge:a.charge,range:pulseRange(a.charge),life:.32};a.charging=false;a.charge=0;a.cooldown=1.8;this.waves.push(pulse);this.events.push({type:'pulse',owner:a.id});return pulse;
+  }
+  applyPulse(p){
+   for(const b of this.actors){if(!b.alive||b.id===p.owner)continue;const gap=distance(p,b);if(gap>p.range+R)continue;let d=vector(b.x-p.x,b.y-p.y);if(!d.x&&!d.y){const angle=b.id*Math.PI/2;d={x:Math.cos(angle),y:Math.sin(angle)};}const force=(220+p.charge*440)*(1-.35*clamp(gap/(p.range+R),0,1));b.vx+=d.x*force;b.vy+=d.y*force;this.actors[p.owner].hits++;}
+  }
+  collide(){
+   for(let i=0;i<4;i++)for(let j=i+1;j<4;j++){
+    const a=this.actors[i],b=this.actors[j];if(!a.alive||!b.alive)continue;const gap=distance(a,b);if(gap>=R*2)continue;const n=gap?vector(b.x-a.x,b.y-a.y):{x:1,y:0},overlap=(R*2-gap)/2;a.x-=n.x*overlap;a.y-=n.y*overlap;b.x+=n.x*overlap;b.y+=n.y*overlap;
+    const approach=(b.vx-a.vx)*n.x+(b.vy-a.vy)*n.y;if(approach<0){const impulse=-approach*.85;a.vx-=n.x*impulse;a.vy-=n.y*impulse;b.vx+=n.x*impulse;b.vy+=n.y*impulse;}
+   }
+  }
+  checkResult(){
+   if(this.phase!=='running')return;const alive=this.actors.filter(a=>a.alive);
+   if(alive.length===0){this.phase='over';this.result={outcome:'draw',reason:'所有人同時出界。',leaders:[]};}
+   else if(!this.actors[0].alive){this.phase='over';this.result={outcome:'loss',reason:'你離開了擂台邊界。',leaders:alive.length===1?[alive[0].id]:[]};}
+   else if(alive.length===1){this.phase='over';this.result={outcome:'win',reason:'你是最後留場的選手！',leaders:[0]};}
+   else if(this.tick>=ROUND_TICKS){this.phase='over';this.result={outcome:'draw',reason:'60 秒到，仍留場的選手並列。',leaders:alive.map(a=>a.id)};}
+  }
+  step(input={}){
+   if(this.phase!=='running')return;this.tick++;this.events=[];this.waves=this.waves.filter(p=>(p.life-=DT)>0);const releases=[];
+   // All intentions are read before movement, so an earlier actor cannot react to a later actor's unrendered move.
+   const intentions=this.actors.map(a=>a.id?this.aiInput(a):input);
+   for(const a of this.actors){
+    if(!a.alive)continue;const i=intentions[a.id],held=!!i.charge;a.cooldown=Math.max(0,a.cooldown-DT);
+    if(held&&!a.wasHeld&&a.cooldown===0){a.charging=true;a.charge=0;}
+    if(a.charging){a.charge=Math.min(1,a.charge+DT);if(!held||a.charge>=1){const p=this.release(a);if(p)releases.push(p);}}
+    a.wasHeld=held;const dx=Number.isFinite(i.x)?i.x:0,dy=Number.isFinite(i.y)?i.y:0,d=vector(dx,dy),mag=Math.min(1,Math.hypot(dx,dy)),accel=480*(a.charging?.55:1)*mag;
+    a.vx=(a.vx+d.x*accel*DT)*Math.exp(-2.4*DT);a.vy=(a.vy+d.y*accel*DT)*Math.exp(-2.4*DT);
+   }
+   for(const p of releases)this.applyPulse(p);
+   for(const a of this.actors){if(!a.alive)continue;const speed=Math.hypot(a.vx,a.vy);if(speed>900){a.vx*=900/speed;a.vy*=900/speed;}a.x+=a.vx*DT;a.y+=a.vy*DT;}
+   this.collide();const radius=ringAt(this.tick);for(const a of this.actors)if(a.alive&&distance(a,CENTER)+R>radius){a.alive=false;a.charging=false;a.charge=0;this.events.push({type:'out',id:a.id});}this.checkResult();
+  }
+ }
+ return{Game,SIZE,DT,ROUND_TICKS,R,CENTER,clamp,distance,vector,ringAt,pulseRange};
+})();
+</script>
+<script id="pulse-ui">
+'use strict';
+const $=id=>document.getElementById(id),canvas=$('board'),ctx=canvas.getContext('2d'),game=new PulseArena.Game();
+const colors=['#267477','#846480','#99553f','#56799b'],tints=['#cbeaea','#e8dce5','#efdad1','#dce5ef'],names=['你','守心 AI','猛攻 AI','迂迴 AI'];
+const keys=new Set();let touch=null,mouseMove=null,buttonHeld=false,spaceHeld=false,pulsePointer=null,lastTime=null,accumulator=0,lastPhase='';
+$('roster').innerHTML=names.map((n,i)=>`<div class="pulse-seat" id="seat${i}" style="--seat:${colors[i]}"><strong>${n}</strong><span id="m${i}">準備</span></div>`).join('');
+function clearInput(){keys.clear();touch=null;mouseMove=null;buttonHeld=false;spaceHeld=false;pulsePointer=null;}
+function input(){let x=Number(keys.has('right'))-Number(keys.has('left')),y=Number(keys.has('down'))-Number(keys.has('up'));if(!x&&!y&&touch&&!touch.mouse){x=(touch.x-touch.ox)/40;y=(touch.y-touch.oy)/40;}else if(!x&&!y&&mouseMove){const a=game.actors[0];if(PulseArena.distance(a,mouseMove)>8){const d=PulseArena.vector(mouseMove.x-a.x,mouseMove.y-a.y);x=d.x;y=d.y;}}return{x,y,charge:spaceHeld||buttonHeld};}
+function draw(){
+ const ratio=Math.min(devicePixelRatio||1,2);if(canvas.width!==720*ratio)canvas.width=canvas.height=720*ratio;ctx.setTransform(ratio,0,0,ratio,0,0);ctx.fillStyle='#f0eae7';ctx.fillRect(0,0,720,720);
+ const ring=PulseArena.ringAt(game.tick),future=PulseArena.ringAt(game.tick+250);ctx.fillStyle='#f8f9fb';ctx.beginPath();ctx.arc(360,360,ring,0,Math.PI*2);ctx.fill();ctx.save();ctx.clip();ctx.strokeStyle='#e7ecf0';ctx.lineWidth=1;for(let p=0;p<=720;p+=40){ctx.beginPath();ctx.moveTo(p,0);ctx.lineTo(p,720);ctx.moveTo(0,p);ctx.lineTo(720,p);ctx.stroke();}ctx.restore();ctx.strokeStyle='#d08770';ctx.lineWidth=5;ctx.beginPath();ctx.arc(360,360,ring,0,Math.PI*2);ctx.stroke();ctx.strokeStyle='#d0877080';ctx.lineWidth=2;ctx.setLineDash([6,8]);ctx.beginPath();ctx.arc(360,360,future,0,Math.PI*2);ctx.stroke();ctx.setLineDash([]);ctx.strokeStyle='#d8dee9';ctx.lineWidth=2;ctx.beginPath();ctx.arc(360,360,12,0,Math.PI*2);ctx.moveTo(341,360);ctx.lineTo(379,360);ctx.moveTo(360,341);ctx.lineTo(360,379);ctx.stroke();
+ for(const a of game.actors){if(!a.alive||!a.charging)continue;ctx.fillStyle=colors[a.id]+'0d';ctx.strokeStyle=colors[a.id]+'80';ctx.lineWidth=2;ctx.beginPath();ctx.arc(a.x,a.y,PulseArena.pulseRange(a.charge),0,Math.PI*2);ctx.fill();ctx.stroke();}
+ for(const p of game.waves){const progress=1-p.life/.32;ctx.strokeStyle=colors[p.owner];ctx.globalAlpha=1-progress;ctx.lineWidth=7*(1-progress)+1;ctx.beginPath();ctx.arc(p.x,p.y,18+(p.range-18)*progress,0,Math.PI*2);ctx.stroke();ctx.globalAlpha=1;}
+ for(const a of game.actors){if(!a.alive)continue;const speed=Math.hypot(a.vx,a.vy);ctx.strokeStyle=colors[a.id]+'45';ctx.lineWidth=13;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(a.x-a.vx*.07,a.y-a.vy*.07);ctx.stroke();ctx.fillStyle=tints[a.id];ctx.strokeStyle=colors[a.id];ctx.lineWidth=3;ctx.beginPath();ctx.arc(a.x,a.y,18,0,Math.PI*2);ctx.fill();ctx.stroke();if(a.charging){ctx.lineWidth=4;ctx.beginPath();ctx.arc(a.x,a.y,23,-Math.PI/2,-Math.PI/2+a.charge*Math.PI*2);ctx.stroke();}ctx.fillStyle=colors[a.id];ctx.textAlign='center';ctx.textBaseline='middle';ctx.font='bold 13px monospace';ctx.fillText(a.id?String(a.id):'你',a.x,a.y);ctx.font='bold 12px monospace';ctx.fillText(names[a.id],a.x,a.y-34);if(a.cooldown>0){ctx.fillStyle='#d8dee9';ctx.fillRect(a.x-20,a.y+29,40,3);ctx.fillStyle=colors[a.id];ctx.fillRect(a.x-20,a.y+29,40*(1-a.cooldown/1.8),3);}}
+ if(touch&&!touch.mouse){const r=canvas.getBoundingClientRect(),s=720/r.width,x=(touch.ox-r.left)*s,y=(touch.oy-r.top)*s,d=PulseArena.vector(touch.x-touch.ox,touch.y-touch.oy),len=Math.min(40,Math.hypot(touch.x-touch.ox,touch.y-touch.oy));ctx.fillStyle='#ffffff99';ctx.strokeStyle='#26747766';ctx.lineWidth=2;ctx.beginPath();ctx.arc(x,y,40*s,0,Math.PI*2);ctx.fill();ctx.stroke();ctx.fillStyle='#26747788';ctx.beginPath();ctx.arc(x+d.x*len*s,y+d.y*len*s,12*s,0,Math.PI*2);ctx.fill();}
+}
+function hud(){
+ const a=game.actors[0];$('alive').textContent=`${game.actors.filter(b=>b.alive).length} / 4`;$('power').textContent=a.charging?`${Math.round(a.charge*100)}%`:a.cooldown>0?`${a.cooldown.toFixed(1)}秒`:'就緒';$('clock').textContent=Math.max(0,Math.ceil((PulseArena.ROUND_TICKS-game.tick)*PulseArena.DT));$('charge-fill').style.width=`${a.charge*100}%`;$('phase-label').textContent={ready:'準備登場',running:game.tick<250?'站穩腳步 · 即將縮圈':'邊界縮小中',paused:'已暫停',over:'本局結束'}[game.phase];
+ for(const b of game.actors){$('seat'+b.id).classList.toggle('out',!b.alive);$('m'+b.id).textContent=!b.alive?'已出局':b.charging?`蓄力 ${Math.round(b.charge*100)}%`:b.id?b.mode:b.cooldown>0?'等待冷卻':'脈衝就緒';}
+ $('pulse').disabled=game.phase!=='running'||!a.alive;$('pulse').textContent=a.charging?'放開 → 釋放脈衝':a.cooldown>0?`冷卻 ${a.cooldown.toFixed(1)} 秒`:'按住蓄力 → 放開';$('pause').disabled=game.phase!=='running'&&game.phase!=='paused';$('pause').textContent=game.phase==='paused'?'繼續':'暫停';
+ if(lastPhase===game.phase)return;lastPhase=game.phase;$('overlay').hidden=game.phase==='running';
+ if(game.phase==='paused'){$('dialog-title').textContent='暫停，穩住節奏';$('dialog-copy').textContent='擂台、慣性與倒數都已停止。準備好再繼續。';$('play').textContent='繼續本局 →';}
+ if(game.phase==='over'){$('dialog-title').textContent={win:'擂台最後，只有你',loss:'差一步，就能站穩',draw:'平分這座擂台'}[game.result.outcome];$('dialog-copy').textContent=`${game.result.reason} 你命中 ${a.hits} 次脈衝，存活 ${(game.tick*PulseArena.DT).toFixed(1)} 秒。`;$('play').textContent='再戰一局 →';$('status').textContent=$('dialog-copy').textContent;}
+ if(game.phase!=='running')$('play').focus({preventScroll:true});
+}
+function pause(){if(game.phase==='running'){game.pause();clearInput();accumulator=0;hud();}}
+function start(fresh=false){if(fresh||game.phase==='over')game.reset();clearInput();accumulator=0;lastTime=null;game.start();$('status').textContent='蓄力越久擊退越強；留意縮圈，反向移動可以煞車。';hud();canvas.focus({preventScroll:true});}
+$('play').onclick=()=>start();$('restart').onclick=()=>start(true);$('pause').onclick=()=>game.phase==='paused'?start():pause();
+const map={ArrowUp:'up',w:'up',ArrowDown:'down',s:'down',ArrowLeft:'left',a:'left',ArrowRight:'right',d:'right'};
+document.addEventListener('keydown',e=>{const k=e.key.length===1?e.key.toLowerCase():e.key;if(map[k]&&game.phase==='running'){e.preventDefault();keys.add(map[k]);}else if(k===' '&&game.phase==='running'&&!e.target.closest('button,a,summary')){e.preventDefault();spaceHeld=true;}if((k==='p'||k==='Escape')&&!e.repeat){e.preventDefault();if(game.phase==='paused')start();else pause();}});document.addEventListener('keyup',e=>{const k=e.key.length===1?e.key.toLowerCase():e.key;if(map[k])keys.delete(map[k]);if(k===' ')spaceHeld=false;});
+function mouseTarget(e){const r=canvas.getBoundingClientRect();mouseMove={x:(e.clientX-r.left)*720/r.width,y:(e.clientY-r.top)*720/r.height};}
+canvas.addEventListener('pointerdown',e=>{if(game.phase!=='running'||touch)return;if(e.pointerType==='mouse')mouseTarget(e);touch={id:e.pointerId,ox:e.clientX,oy:e.clientY,x:e.clientX,y:e.clientY,mouse:e.pointerType==='mouse'};canvas.setPointerCapture(e.pointerId);});canvas.addEventListener('pointermove',e=>{if(!touch||touch.id!==e.pointerId)return;if(touch.mouse){mouseTarget(e);return;}touch.x=e.clientX;touch.y=e.clientY;});for(const name of ['pointerup','pointercancel','lostpointercapture'])canvas.addEventListener(name,e=>{if(touch&&touch.id===e.pointerId){touch=null;mouseMove=null;}});
+$('pulse').addEventListener('pointerdown',e=>{if(game.phase!=='running'||pulsePointer!==null)return;e.preventDefault();pulsePointer=e.pointerId;buttonHeld=true;$('pulse').setPointerCapture(e.pointerId);});for(const name of ['pointerup','pointercancel','lostpointercapture'])$('pulse').addEventListener(name,e=>{if(pulsePointer===e.pointerId){pulsePointer=null;buttonHeld=false;}});$('pulse').addEventListener('contextmenu',e=>e.preventDefault());$('pulse').addEventListener('keydown',e=>{if((e.key===' '||e.key==='Enter')&&game.phase==='running'){e.preventDefault();buttonHeld=true;}});$('pulse').addEventListener('keyup',e=>{if(e.key===' '||e.key==='Enter'){e.preventDefault();buttonHeld=false;}});$('pulse').addEventListener('blur',()=>{buttonHeld=false;});
+window.addEventListener('blur',pause);document.addEventListener('visibilitychange',()=>{if(document.hidden)pause();});window.addEventListener('resize',()=>{touch=null;mouseMove=null;});
+function frame(time){if(lastTime!==null&&game.phase==='running'){accumulator+=Math.min(.08,(time-lastTime)/1000);while(accumulator>=PulseArena.DT){game.step(input());accumulator-=PulseArena.DT;}}lastTime=time;hud();draw();requestAnimationFrame(frame);}hud();draw();requestAnimationFrame(frame);
+</script></body></html>

@@ -1,0 +1,299 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="搶星果、閃毒菇，和三種策略的本機 AI 貪食蛇競逐。免費單頁遊戲。">
+  <title>效果貪食蛇 - FuGames</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="fulab-theme.css">
+  <style>
+    .snake-roster { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:6px; margin:12px 0 0; font-size:11px; }
+    .snake-player { border-left:3px solid var(--snake-color); padding:3px 6px; color:var(--fulab-muted); background:var(--fulab-bg-secondary); border-radius:3px; }
+    .snake-player strong { display:block; color:var(--fulab-graphite); font-size:12px; }
+    .food-legend { display:flex; flex-wrap:wrap; gap:6px 12px; margin:12px 0 0; font-size:11px; color:var(--fulab-muted); }
+    .food-legend b { display:inline-flex; width:18px; height:18px; align-items:center; justify-content:center; border-radius:5px; margin-right:3px; }
+    .snake-effects { font-size:11px; color:var(--fulab-muted); margin:4px 0 0; min-height:18px; }
+    .snake-instructions { font-size:11px; color:var(--fulab-muted); margin:10px 0 0; }
+    @media(max-width:600px) { .play-panel { display:flex; flex-direction:column; } .game-toolbar { order:0; } .io-stage { order:1; } .io-controls { order:2; } .game-actions { order:3; } .io-status { order:4; } .snake-effects { order:5; } .snake-roster { order:6; } .food-legend { order:7; } .snake-roster { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+    @media(max-width:380px) { .snake-roster { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+    @media(max-height:600px) and (min-width:600px) { .snake-roster,.food-legend,.snake-effects,.snake-instructions { grid-column:2; margin:0; } .snake-roster { grid-template-columns:repeat(2,minmax(0,1fr)); } .food-legend { font-size:9px; gap:2px; } }
+  </style>
+</head>
+<body>
+  <main class="game-page io-page">
+    <nav class="site-nav" aria-label="遊戲導覽"><a class="site-brand" href="index.html"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>FuGames</a><a href="index.html">所有遊戲 ↗</a></nav>
+    <header class="page-header"><p class="eyebrow">IO / 單人 × 3 AI</p><h1>效果貪食蛇</h1><p class="lead">有些果實讓你長大，有些最好繞道。看準下一步，留一條退路。</p></header>
+    <section class="card play-panel" aria-label="效果貪食蛇競技場">
+      <div class="game-toolbar"><p class="game-status" id="phase-label">準備出發</p><div class="game-metrics"><span>得分 <strong id="score">0</strong></span><span>長度 <strong id="length">4</strong></span><span>存活 <strong id="clock">0:00</strong></span></div></div>
+      <div class="io-stage"><canvas id="board" width="672" height="672" tabindex="0" aria-label="效果貪食蛇。你是青綠色蛇，方向鍵、WASD 或滑動轉向。" aria-describedby="status">需要支援 Canvas 的瀏覽器。</canvas>
+        <div class="board-overlay" id="overlay"><div class="game-dialog" role="dialog" aria-labelledby="dialog-title" aria-describedby="dialog-copy">
+          <svg class="dialog-art" viewBox="0 0 80 54" aria-hidden="true"><path d="M8 40h28V15h17" fill="none" stroke="#5ebcbf" stroke-width="13" stroke-linejoin="round" stroke-linecap="round"/><circle cx="52" cy="13" r="2" fill="#267477"/><path d="M69 26l3 7 7 3-7 3-3 7-3-7-7-3 7-3z" fill="#ebcb8b"/></svg>
+          <p class="eyebrow" id="dialog-kicker">青綠是你 · 其餘皆為本機 AI</p><h2 id="dialog-title">吃之前，先看一眼</h2><p id="dialog-copy">方向鍵／WASD，手機滑動或按方向鈕。搶好果、避毒菇；撞牆或蛇身即結束，拚本局最高分。</p><button class="btn primary" id="play">開始蛇行 →</button>
+        </div></div>
+      </div>
+      <p class="game-status io-status" id="status" role="status" aria-live="polite">持續前進，不能直接回頭。AI 淘汰後會從預告區重新加入。</p>
+      <p class="snake-effects" id="effects">目前無效果 · 每格 0.16 秒</p>
+      <div class="snake-roster" id="roster" aria-label="本局各蛇分數"></div>
+      <div class="food-legend" aria-label="吃下前可查看的食物效果">
+        <span><b style="background:#e1e9d9;color:#4a6540">●</b>果實 +10／長 1 格</span><span><b style="background:#f6edda;color:#856522">✦</b>星果 +25／長 2 格</span><span><b style="background:#dce5ef;color:#486580">◇</b>護盾 +5／抵撞 1 次・6 秒</span><span><b style="background:#efdad1;color:#99553f">×</b>毒菇 −15／短 3 格</span><span><b style="background:#e8dce5;color:#775771">≈</b>泥團 半速 4 秒</span>
+      </div>
+      <div class="game-actions"><p class="action-note">存活越久，累積越多 · P / Esc 暫停</p><div class="btnRow"><button class="btn" id="pause" disabled>暫停</button><button class="btn primary" id="restart">重新開始</button></div></div>
+      <div class="io-controls touch-controls"><p class="action-note">滑一下即可轉向<br>放手後仍會前進</p><div class="dpad" aria-label="觸控方向鍵"><button class="btn" data-direction="up" aria-label="向上">↑</button><button class="btn" data-direction="left" aria-label="向左">←</button><button class="btn" data-direction="down" aria-label="向下">↓</button><button class="btn" data-direction="right" aria-label="向右">→</button></div></div>
+    </section>
+    <details class="card rules"><summary>玩法、食物與 AI</summary><div class="rules-body"><ul class="list">
+      <li>你與三位明確標示的本機 AI 在同一個 28 × 28 場地前進。沒有網路玩家，也沒有時限；吃果實累積本局得分，撞牆、石塊或任何蛇身就結束，可立刻重開。</li>
+      <li>方向鍵／WASD、棋盤滑動或方向鈕轉向，不能直接 180 度回頭。同一步只接收一個最終合法方向；每 0.16 秒前進一格。</li>
+      <li>● 果實加 10 分、長 1 格；✦ 星果加 25 分、分兩步長 2 格。長度最多 30 格，額外果實仍得分。× 毒菇扣 15 分、短 3 格並取消待成長格數；最低 0 分、3 格。食物約 30 秒沒人吃就淡出換新，避免毒物塞滿場地。</li>
+      <li>◇ 護盾加 5 分，接下來約 6 秒可抵擋一次碰撞：停在原位、護盾消失，下步請轉向。≈ 泥團讓接下來 4 秒只在隔一步移動；重複同種效果刷新時間、不疊加。暫停時效果也停止。</li>
+      <li>所有蛇同時移動。撞同一空格時都受撞；交換頭部或進入任何本步開始時的蛇身（含即將移開的尾巴）也受撞。護盾只保護持有者，沒有長蛇優先權；死亡蛇身在該步結束才消失。</li>
+      <li>果果 AI 搜尋最近的高價值食物；守守 AI 優先保留寬闊逃生空間；切切 AI 會預測對手去向並搶佔前路。三者都查看可見場地、避開毒物並評估可能的迎頭相撞。</li>
+      <li>AI 出局後約 4 秒尋找安全空地。虛線區預告約 1.3 秒再加入；若有人接近，重生延後，絕不直接生成在你身上。重新加入的 AI 分數歸零。食物慢慢補至 14 顆。</li>
+      <li>P／Esc 或暫停鈕可暫停。切換分頁、視窗失焦或手機切到背景會自動暫停，返回後由你手動繼續。</li>
+    </ul></div></details>
+    <footer class="site-footer">FuGames · 隨時來一局</footer><noscript><p class="notice">請開啟 JavaScript，才能開始遊戲。</p></noscript>
+  </main>
+  <script id="snake-engine">
+  'use strict';
+  const EffectSnake = (() => {
+    const SIZE = 28, DT = .16, MAX_LENGTH = 30, FOOD_LIMIT = 14, SHIELD_TICKS = 38, SLOW_TICKS = 25, RESPAWN_TICKS = 25, WARNING_TICKS = 8;
+    const DIRS = [{x:0,y:-1},{x:1,y:0},{x:0,y:1},{x:-1,y:0}];
+    const FOODS = {
+      fruit:{icon:'●',name:'果實',score:10,grow:1,value:12,color:'#4a6540',tint:'#e1e9d9'},
+      star:{icon:'✦',name:'星果',score:25,grow:2,value:25,color:'#856522',tint:'#f6edda'},
+      shield:{icon:'◇',name:'護盾',score:5,grow:0,value:18,color:'#486580',tint:'#dce5ef'},
+      poison:{icon:'×',name:'毒菇',score:-15,grow:-3,value:-40,color:'#99553f',tint:'#efdad1'},
+      slow:{icon:'≈',name:'泥團',score:0,grow:0,value:-20,color:'#775771',tint:'#e8dce5'}
+    };
+    const PROFILES = [
+      {name:'你',role:'人類',food:8,space:.25,risk:100,hunt:0},
+      {name:'果果 AI',role:'搶食',food:13,space:.12,risk:95,hunt:0},
+      {name:'守守 AI',role:'保命',food:5,space:1.4,risk:180,hunt:0},
+      {name:'切切 AI',role:'截擊',food:7,space:.4,risk:120,hunt:15}
+    ];
+    const key = p => p.y * SIZE + p.x;
+    const inside = p => p.x >= 0 && p.y >= 0 && p.x < SIZE && p.y < SIZE;
+    const distance = (a,b) => Math.abs(a.x-b.x)+Math.abs(a.y-b.y);
+    const advance = (p,d) => ({x:p.x+DIRS[d].x,y:p.y+DIRS[d].y});
+    class Game {
+      constructor(random = Math.random) { this.random=random; this.reset(); }
+      reset() {
+        this.phase='ready'; this.tick=0; this.events=[]; this.result=null; this.food=[]; this.foodSerial=0; this.respawns=0;
+        this.obstacles = [[8,8],[9,8],[8,9],[18,8],[19,8],[19,9],[8,18],[8,19],[9,19],[19,18],[18,19],[19,19]].map(([x,y])=>({x,y}));
+        this.actors = [[7,4,1],[23,7,2],[20,23,3],[4,20,0]].map(([x,y,dir],id)=>({id,dir,nextDir:dir,body:Array.from({length:4},(_,i)=>({x:x-DIRS[dir].x*i,y:y-DIRS[dir].y*i})),targetLength:4,alive:true,score:0,shield:0,slow:0,slowSkip:false,respawn:0,warning:null,deaths:0,reason:PROFILES[id].role}));
+        this.food.push({x:11,y:4,type:'fruit',expires:190},{x:16,y:4,type:'star',expires:190},{x:17,y:5,type:'poison',expires:190});
+        while(this.food.length < FOOD_LIMIT && this.addFood()) {}
+      }
+      start() { if(this.phase==='ready'||this.phase==='paused')this.phase='running'; }
+      pause() { if(this.phase==='running')this.phase='paused'; }
+      setDirection(dir) {
+        const a=this.actors[0];
+        if(this.phase!=='running'||!Number.isInteger(dir)||dir<0||dir>3||dir===(a.dir+2)%4)return false;
+        a.nextDir=dir; return true;
+      }
+      occupied() {
+        const cells=new Set(this.obstacles.map(key));
+        for(const a of this.actors)if(a.alive)for(const p of a.body)cells.add(key(p));
+        return cells;
+      }
+      warningCells(w) { return w.body.concat(Array.from({length:4},(_,i)=>({x:w.body[0].x+DIRS[w.dir].x*(i+1),y:w.body[0].y+DIRS[w.dir].y*(i+1)}))); }
+      addFood() {
+        if(this.food.length>=FOOD_LIMIT)return false;
+        const blocked=this.occupied(); this.food.forEach(p=>blocked.add(key(p)));
+        for(const a of this.actors)if(a.warning)for(const p of this.warningCells(a.warning))blocked.add(key(p));
+        const offset=Math.floor(this.random()*SIZE*SIZE);
+        for(let i=0;i<SIZE*SIZE;i++) {
+          const n=(offset+i)% (SIZE*SIZE); if(blocked.has(n))continue;
+          const types=['fruit','shield','fruit','poison','star','fruit','slow','fruit'];
+          this.food.push({x:n%SIZE,y:Math.floor(n/SIZE),type:types[this.foodSerial++%types.length],expires:this.tick+190}); return true;
+        }
+        return false;
+      }
+      safeSpawn(w, margin=6) {
+        const cells=this.warningCells(w), blocked=this.occupied();
+        if(cells.some(p=>!inside(p)||blocked.has(key(p))||this.food.some(f=>key(f)===key(p))))return false;
+        if(this.actors.some(a=>a.alive&&cells.some(p=>distance(p,a.body[0])<margin)))return false;
+        return !this.actors.some(a=>a.warning&&a.warning!==w&&this.warningCells(a.warning).some(p=>cells.some(q=>key(p)===key(q))));
+      }
+      findSpawn() {
+        const offset=Math.floor(this.random()*SIZE*SIZE), first=Math.floor(this.random()*4);
+        for(let n=0;n<SIZE*SIZE;n++)for(let i=0;i<4;i++) {
+          const cell=(offset+n)%(SIZE*SIZE), dir=(first+i)%4, head={x:cell%SIZE,y:Math.floor(cell/SIZE)};
+          const w={dir,left:WARNING_TICKS,body:Array.from({length:4},(_,j)=>({x:head.x-DIRS[dir].x*j,y:head.y-DIRS[dir].y*j}))};
+          if(this.safeSpawn(w))return w;
+        }
+        return null;
+      }
+      replenishAI() {
+        for(const a of this.actors.slice(1))if(!a.alive) {
+          if(a.warning) {
+            if(--a.warning.left>0)continue;
+            if(this.safeSpawn(a.warning,4)) {
+              a.body=a.warning.body; a.targetLength=4; a.dir=a.nextDir=a.warning.dir; a.alive=true; a.score=0; a.shield=0; a.slow=0; a.slowSkip=false; a.warning=null; this.respawns++;
+              this.events.push({type:'spawn',actor:a.id});
+            } else { a.warning=null; a.respawn=6; }
+          } else if(a.respawn>0) a.respawn--;
+          else { a.warning=this.findSpawn(); if(!a.warning)a.respawn=6; }
+        }
+      }
+      explore(start, blocked) {
+        const dist=new Int16Array(SIZE*SIZE); dist.fill(-1); dist[key(start)]=0;
+        const queue=[start]; let index=0;
+        while(index<queue.length&&index<200) {
+          const p=queue[index++];
+          for(let d=0;d<4;d++) { const q=advance(p,d), k=key(q); if(!inside(q)||blocked.has(k)||dist[k]>=0)continue; dist[k]=dist[key(p)]+1; queue.push(q); }
+        }
+        return {dist,space:queue.length};
+      }
+      aiDirection(a) {
+        const profile=PROFILES[a.id], blocked=this.occupied(), head=a.body[0], others=this.actors.filter(b=>b!==a&&b.alive);
+        let best=null;
+        for(let d=0;d<4;d++) {
+          if(d===(a.dir+2)%4)continue;
+          const next=advance(head,d);
+          if(!inside(next)||blocked.has(key(next)))continue;
+          const area=this.explore(next,blocked);
+          let score=Math.min(area.space,90)*profile.space;
+          const exits=DIRS.map((_,i)=>advance(next,i)).filter(q=>inside(q)&&!blocked.has(key(q))).length;
+          if(exits===0)score-=600;else if(exits===1)score-=18*profile.space;
+          if(area.space<a.body.length+5)score-=220+(a.body.length+5-area.space)*10;
+          let foodValue=0, target=null;
+          for(const f of this.food) {
+            const steps=area.dist[key(f)]; if(steps<0)continue;
+            if(steps===0&&FOODS[f.type].value<0)score+=FOODS[f.type].value*5;
+            if(FOODS[f.type].value<=0)continue;
+            const race=others.some(b=>distance(b.body[0],f)<steps+1)? .6:1;
+            const value=FOODS[f.type].value*profile.food*race/(steps+2);
+            if(value>foodValue) {foodValue=value;target=f;}
+          }
+          score+=foodValue;
+          let threat=false, hunting=false;
+          for(const b of others) {
+            const h=b.body[0];
+            const possible=DIRS.map((_,i)=>i).filter(i=>i!==(b.dir+2)%4).map(i=>advance(h,i));
+            if(possible.some(p=>key(p)===key(next))) { score-=profile.risk; threat=true; }
+            if(profile.hunt&&distance(head,h)>=3&&distance(head,h)<10) {
+              const ahead=advance(advance(h,b.dir),b.dir);
+              if(inside(ahead)) {score+=Math.max(0,7-distance(next,ahead))*profile.hunt;hunting=true;}
+            }
+          }
+          if(d===a.dir)score+=.2;
+          const reason=threat?'迴避迎面風險':area.space<40?'尋找逃生空間':hunting?'預判前路截擊':target?'搜尋'+FOODS[target.type].name:'保留開闊空間';
+          if(!best||score>best.score)best={dir:d,score,reason};
+        }
+        a.reason=best?best.reason:'無路可走'; return best?best.dir:a.dir;
+      }
+      eat(a,food,moved=false) {
+        const type=FOODS[food.type]; a.score=Math.max(0,a.score+type.score);
+        const base=type.grow<0?a.body.length-(moved?1:0):a.targetLength;
+        a.targetLength=Math.max(3,Math.min(MAX_LENGTH,base+type.grow));
+        if(a.body.length>a.targetLength)a.body.length=a.targetLength;
+        if(food.type==='shield')a.shield=SHIELD_TICKS;
+        if(food.type==='slow') {a.slow=SLOW_TICKS;a.slowSkip=true;}
+        this.events.push({type:'food',actor:a.id,food:food.type});
+      }
+      step() {
+        if(this.phase!=='running')return;
+        this.tick++; this.events=[];
+        const blocked=this.occupied(), plans=[];
+        for(const a of this.actors)if(a.alive) {
+          // Decisions use the same unmodified public board for every snake.
+          const dir=a.id?this.aiDirection(a):a.nextDir;
+          const moving=!(a.slow>0&&a.slowSkip);
+          plans.push({a,dir,moving,next:moving?advance(a.body[0],dir):a.body[0],hit:false});
+        }
+        for(const p of plans)if(p.moving) {
+          p.hit=!inside(p.next)||blocked.has(key(p.next));
+          if(plans.some(q=>q!==p&&q.moving&&key(q.next)===key(p.next)))p.hit=true;
+        }
+        for(const p of plans) {
+          const a=p.a; a.dir=p.dir; a.nextDir=p.dir;
+          const hadShield=a.shield>0;
+          if(a.shield>0)a.shield--; if(a.slow>0) {a.slow--;a.slowSkip=!a.slowSkip;}
+          if(p.hit) {
+            if(hadShield) {a.shield=0;this.events.push({type:'shield',actor:a.id});}
+            else {a.alive=false;a.deaths++;a.respawn=RESPAWN_TICKS;this.events.push({type:'death',actor:a.id});}
+          } else if(p.moving) {
+            a.body.unshift(p.next);
+            const index=this.food.findIndex(f=>key(f)===key(p.next));
+            if(index>=0)this.eat(a,this.food.splice(index,1)[0],true);
+            while(a.body.length>a.targetLength)a.body.pop();
+          }
+        }
+        for(const a of this.actors)if(!a.alive)a.body=[];
+        if(!this.actors[0].alive) {
+          this.phase='over'; this.result={score:this.actors[0].score,ticks:this.tick,respawns:this.respawns}; return;
+        }
+        this.replenishAI();
+        this.food=this.food.filter(f=>f.expires===undefined||f.expires>this.tick);
+        if(this.tick%6===0)this.addFood();
+      }
+    }
+    return {Game,SIZE,DT,MAX_LENGTH,FOOD_LIMIT,SHIELD_TICKS,SLOW_TICKS,RESPAWN_TICKS,WARNING_TICKS,DIRS,FOODS,PROFILES,key,inside,distance,advance};
+  })();
+  </script>
+  <script id="snake-ui">
+  'use strict';
+  const $=id=>document.getElementById(id), canvas=$('board'), ctx=canvas.getContext('2d'), game=new EffectSnake.Game();
+  const colors=['#267477','#b46d55','#647eac','#916b88'], tints=['#5ebcbf','#dca28d','#a3b9d9','#c5a7bf'];
+  let frameID=0, previous=null, elapsed=0, swipe=null, lastNotice=0;
+  const seconds=ticks=>{const n=Math.floor(ticks*EffectSnake.DT);return `${Math.floor(n/60)}:${String(n%60).padStart(2,'0')}`;};
+  function announce(text) { if($('status').textContent!==text)$('status').textContent=text; }
+  function draw() {
+    const ratio=Math.min(window.devicePixelRatio||1,2), size=672, cell=size/EffectSnake.SIZE;
+    if(canvas.width!==size*ratio)canvas.width=canvas.height=size*ratio;
+    ctx.setTransform(ratio,0,0,ratio,0,0);ctx.fillStyle='#f8f9fb';ctx.fillRect(0,0,size,size);
+    ctx.strokeStyle='#e8ecf2';ctx.lineWidth=1;
+    for(let i=0;i<=EffectSnake.SIZE;i++){ctx.beginPath();ctx.moveTo(i*cell,0);ctx.lineTo(i*cell,size);ctx.stroke();ctx.beginPath();ctx.moveTo(0,i*cell);ctx.lineTo(size,i*cell);ctx.stroke();}
+    function square(p,fill,inset=2) {ctx.fillStyle=fill;ctx.beginPath();ctx.roundRect(p.x*cell+inset,p.y*cell+inset,cell-inset*2,cell-inset*2,4);ctx.fill();}
+    for(const p of game.obstacles){square(p,'#d8dee9');ctx.fillStyle='#8b98aa';ctx.fillRect(p.x*cell+7,p.y*cell+10,10,3);}
+    for(const a of game.actors)if(a.warning){ctx.setLineDash([4,3]);ctx.strokeStyle=colors[a.id];for(const p of game.warningCells(a.warning))ctx.strokeRect(p.x*cell+2,p.y*cell+2,cell-4,cell-4);ctx.setLineDash([]);ctx.font='bold 11px monospace';ctx.fillStyle=colors[a.id];ctx.fillText('AI ↳',a.warning.body[0].x*cell,a.warning.body[0].y*cell-4);}
+    for(const f of game.food){const spec=EffectSnake.FOODS[f.type];ctx.globalAlpha=f.expires-game.tick<32?.45:1;square(f,spec.tint,2);ctx.fillStyle=spec.color;ctx.font='bold 20px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(spec.icon,(f.x+.5)*cell,(f.y+.5)*cell+1);}ctx.globalAlpha=1;
+    for(const a of game.actors)if(a.alive){
+      for(let i=a.body.length-1;i>=0;i--)square(a.body[i],i===0?colors[a.id]:tints[a.id],i===0?1.5:3);
+      const h=a.body[0],d=EffectSnake.DIRS[a.dir],cx=(h.x+.5)*cell,cy=(h.y+.5)*cell;
+      ctx.fillStyle='#fff';for(const side of [-1,1]){ctx.beginPath();ctx.arc(cx+d.x*5+d.y*side*4,cy+d.y*5+d.x*side*4,2,0,Math.PI*2);ctx.fill();}
+      if(a.shield>0){ctx.strokeStyle='#81a1c1';ctx.lineWidth=3;ctx.strokeRect(h.x*cell-2,h.y*cell-2,cell+4,cell+4);}
+      if(a.slow>0){ctx.fillStyle='#fff';ctx.font='bold 10px sans-serif';ctx.fillText('≈',cx-d.x*6,cy-d.y*6);}
+      ctx.font='bold 12px monospace';ctx.textAlign='center';ctx.fillStyle=colors[a.id];ctx.fillText(a.id?'AI '+a.id:'YOU',Math.max(22,Math.min(650,cx)),h.y>0?h.y*cell-7:(h.y+1)*cell+10);
+    }
+  }
+  function hud() {
+    const a=game.actors[0];$('score').textContent=a.score;$('length').textContent=a.alive?a.body.length:'—';$('clock').textContent=seconds(game.tick);
+    $('phase-label').textContent={ready:'準備出發',running:'持續競逐',paused:'已暫停',over:'本局結束'}[game.phase];
+    $('pause').disabled=game.phase==='ready'||game.phase==='over';$('pause').textContent=game.phase==='paused'?'繼續':'暫停';
+    const effects=[];if(a.shield)effects.push(`◇ 護盾 ${Math.ceil(a.shield*EffectSnake.DT)} 秒`);if(a.slow)effects.push(`≈ 緩速 ${Math.ceil(a.slow*EffectSnake.DT)} 秒`);
+    $('effects').textContent=effects.length?effects.join(' · '):'目前無效果 · 每格 0.16 秒';
+    $('roster').replaceChildren(...game.actors.map(actor=>{const item=document.createElement('div');item.className='snake-player';item.style.setProperty('--snake-color',colors[actor.id]);const name=document.createElement('strong');name.textContent=EffectSnake.PROFILES[actor.id].name+' · '+actor.score;item.append(name);const detail=document.createElement('span');detail.textContent=actor.alive?EffectSnake.PROFILES[actor.id].role:actor.id?(actor.warning?'預告入場':'等待重生'):'本局結束';item.append(detail);item.title=actor.reason;return item;}));
+  }
+  function dialog(title,copy,button,kicker) {$('dialog-title').textContent=title;$('dialog-copy').textContent=copy;$('play').textContent=button;$('dialog-kicker').textContent=kicker;$('overlay').hidden=false;$('play').focus({preventScroll:true});}
+  function stop() {cancelAnimationFrame(frameID);frameID=0;previous=null;elapsed=0;swipe=null;}
+  function resume() {stop();game.start();$('overlay').hidden=true;announce('持續前進，吃好果、避毒菇；留意下一個轉彎。');hud();canvas.focus({preventScroll:true});frameID=requestAnimationFrame(frame);}
+  function pause() {if(game.phase!=='running')return;game.pause();stop();hud();draw();announce('已暫停，蛇、食物與效果計時全部停止。');dialog('歇一口氣','場地與計時都停下了，準備好再繼續。','繼續蛇行 →','手動繼續');}
+  function restart() {stop();game.reset();lastNotice=0;announce('你是青綠色蛇。吃好果、避毒菇，先看下一步。');resume();draw();}
+  function finish() {stop();hud();draw();announce(`本局 ${game.result.score} 分，存活 ${seconds(game.result.ticks)}。`);dialog('再留一條退路',`本局 ${game.result.score} 分，存活 ${seconds(game.result.ticks)}。撞牆或蛇身會結束；下一局試試先保留轉彎空間。`,'再玩一局 →','本局結束');}
+  function frame(now) {
+    if(game.phase!=='running')return;
+    if(previous===null)previous=now;elapsed+=Math.min((now-previous)/1000,.32);previous=now;
+    while(elapsed>=EffectSnake.DT&&game.phase==='running') {
+      game.step();elapsed-=EffectSnake.DT;
+      for(const event of game.events)if(event.actor===0){if(event.type==='shield'){announce('◇ 護盾擋下一次碰撞！現在停在原位，快轉向。');lastNotice=game.tick;}if(event.type==='food'){const f=EffectSnake.FOODS[event.food];announce(`${f.icon} ${f.name}：${{fruit:'加 10 分、長 1 格',star:'加 25 分、長 2 格',shield:'加 5 分、護盾保護 6 秒',poison:'扣 15 分、短 3 格',slow:'接下來 4 秒半速'}[event.food]}。`);lastNotice=game.tick;}}
+      if(game.tick-lastNotice>32){const waiting=game.actors.find(a=>a.warning);announce(waiting?`${EffectSnake.PROFILES[waiting.id].name} 即將由虛線區入場；靠近時會延後。`:'三位對手皆是本機 AI。留意前路與蛇身，不能直接回頭。');lastNotice=game.tick;}
+    }
+    hud();draw();if(game.phase==='over'){finish();return;}frameID=requestAnimationFrame(frame);
+  }
+  $('play').addEventListener('click',()=>game.phase==='over'?restart():resume());$('restart').addEventListener('click',restart);$('pause').addEventListener('click',()=>game.phase==='paused'?resume():pause());
+  const directions={ArrowUp:0,w:0,W:0,ArrowRight:1,d:1,D:1,ArrowDown:2,s:2,S:2,ArrowLeft:3,a:3,A:3};
+  document.addEventListener('keydown',event=>{if(event.altKey||event.ctrlKey||event.metaKey)return;if(Object.hasOwn(directions,event.key)){event.preventDefault();game.setDirection(directions[event.key]);}else if(['p','P','Escape'].includes(event.key)){event.preventDefault();if(game.phase==='paused')resume();else pause();}});
+  for(const button of document.querySelectorAll('[data-direction]')){
+    const steer=()=>{game.setDirection({up:0,right:1,down:2,left:3}[button.dataset.direction]);canvas.focus({preventScroll:true});};
+    button.addEventListener('pointerdown',event=>{event.preventDefault();steer();});
+    button.addEventListener('click',steer);
+  }
+  canvas.addEventListener('pointerdown',event=>{if(game.phase!=='running')return;swipe={id:event.pointerId,x:event.clientX,y:event.clientY};canvas.setPointerCapture(event.pointerId);});
+  canvas.addEventListener('pointermove',event=>{if(!swipe||swipe.id!==event.pointerId)return;const dx=event.clientX-swipe.x,dy=event.clientY-swipe.y;if(Math.max(Math.abs(dx),Math.abs(dy))<14)return;game.setDirection(Math.abs(dx)>Math.abs(dy)?(dx>0?1:3):(dy>0?2:0));swipe.x=event.clientX;swipe.y=event.clientY;});
+  for(const type of ['pointerup','pointercancel','lostpointercapture'])canvas.addEventListener(type,()=>{swipe=null;});
+  window.addEventListener('blur',pause);document.addEventListener('visibilitychange',()=>{if(document.hidden)pause();});window.addEventListener('pagehide',pause);
+  hud();draw();
+  </script>
+</body>
+</html>
