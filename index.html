@@ -1,98 +1,21 @@
 <!doctype html>
 <html lang="zh-Hant">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>FuGames - FuLab 遊戲集</title>
-  <link rel="stylesheet" href="fulab-theme.css">
-  <style>
-    .gameList {
-      display: grid;
-      gap: 12px;
-    }
-
-    .gameItem {
-      border: 1px solid var(--fulab-silver);
-      border-radius: var(--fulab-radius);
-      padding: 12px;
-      background: var(--fulab-bg-secondary);
-    }
-
-    .gameItem h3 {
-      margin: 0 0 6px;
-    }
-
-    .gameItem .text-small {
-      margin: 0 0 8px;
-    }
-
-    .gameActions {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      margin-top: 6px;
-    }
-  </style>
-</head>
-<body>
-  <main>
-    <section class="card">
-      <h1>FuGames</h1>
-    </section>
-
-    <section class="card">
-      <h2 class="sectionTitle">遊戲列表</h2>
-      <div class="gameList">
-        <div class="gameItem">
-          <div style="display:flex; justify-content:space-between; gap:12px; align-items:center; flex-wrap:wrap;">
-            <div>
-              <h3>三子循環棋</h3>
-              <p class="text-small">3×3 棋盤，放滿三顆後需移動最早放下的棋子。玩家操控黑子，AI 操控白子。</p>
-            </div>
-            <div class="gameActions" style="margin-top:0;">
-              <a class="btn primary" href="cyclic_tictactoe.html">開始遊玩</a>
-            </div>
-          </div>
-        </div>
-
-        <div class="gameItem">
-          <div style="display:flex; justify-content:space-between; gap:12px; align-items:center; flex-wrap:wrap;">
-            <div>
-              <h3>環面直落四子</h3>
-              <p class="text-small">經典 7×6 直落四子，連線可越界繞回（橫/直/斜皆可）。</p>
-            </div>
-            <div class="gameActions" style="margin-top:0;">
-              <a class="btn primary" href="cyclic_connect4_torus.html">開始遊玩</a>
-            </div>
-          </div>
-        </div>
-
-        <div class="gameItem">
-          <div style="display:flex; justify-content:space-between; gap:12px; align-items:center; flex-wrap:wrap;">
-            <div>
-              <h3>軌道棋 Track Game</h3>
-              <p class="text-small">4×4 內外同轉版。支援同機雙人與 AI 對戰，落子後外內圈同步旋轉一步。</p>
-            </div>
-            <div class="gameActions" style="margin-top:0;">
-              <a class="btn primary" href="trackgame.html">開始遊玩</a>
-            </div>
-          </div>
-        </div>
-
-        <div class="gameItem">
-          <div style="display:flex; justify-content:space-between; gap:12px; align-items:center; flex-wrap:wrap;">
-            <div>
-              <h3>圈地漫遊 Territory Loop</h3>
-              <p class="text-small">離開領地畫線，回到領地完成圈地！與兩位 AI 競逐版圖，支援鍵盤與觸控操作。</p>
-            </div>
-            <div class="gameActions" style="margin-top:0;">
-              <a class="btn primary" href="territory_loop.html">開始遊玩</a>
-            </div>
-          </div>
-        </div>
-
-      </div>
-    </section>
-  </main>
-</body>
-</html>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>FuGames - FuLab 遊戲集</title><link rel="stylesheet" href="fulab-theme.css"><style>
+.game-list { display: grid; gap: 12px; }
+.game-card { display: flex; align-items: center; gap: 20px; padding: 22px; background: white; border: 1px solid var(--fulab-silver); border-radius: var(--fulab-radius); }
+.game-icon { width: 64px; height: 64px; flex-shrink: 0; padding: 6px; border-radius: 14px; fill: currentColor; color: var(--fulab-ink-teal); background: var(--fulab-tint-teal); }
+.game-icon.three, .game-icon.four, .game-icon.track { color: #5c7393; background: var(--fulab-tint-indigo); }
+.game-copy { flex: 1; }
+.game-copy h2 { font-size: 21px; margin-bottom: 6px; }
+.game-copy .text-small { margin: 0; }
+@media(max-width:600px) { .game-card { padding: 16px; gap: 12px; flex-wrap: wrap; } .game-icon { width: 48px; height: 48px; } .game-copy { flex-basis: calc(100% - 60px); } .game-copy h2 { font-size: 20px; } .game-card .btn { width: 100%; } }
+</style></head><body><main>
+<nav class="site-nav" aria-label="遊戲導覽"><a class="site-brand" href="index.html"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>FuGames</a><span class="nav-label">你的口袋遊戲室</span></nav>
+<header class="page-header"><p class="eyebrow">FUGAMES / 遊戲室</p><h1>留一點時間，玩一局。</h1><p class="lead">選個喜歡的玩法，即刻開始。</p></header>
+<div class="game-list"><article class="game-card"><svg class="game-icon orb" viewBox="0 0 60 60" aria-hidden="true"><circle cx="25" cy="27" r="16"/><circle cx="49" cy="13" r="5"/><circle cx="51" cy="44" r="7"/></svg><div class="game-copy"><p class="eyebrow">IO / 單人 × 4 AI</p><h2>星點吞噬</h2><p class="text-small">收集光點長大，吃掉小對手，避開大對手。</p></div><a class="btn primary" href="star_feast.html" aria-label="開始遊玩星點吞噬">開始遊玩 ↗</a></article>
+<article class="game-card"><svg class="game-icon loop" viewBox="0 0 60 60" aria-hidden="true"><rect x="6" y="25" width="25" height="25" rx="5"/><path d="M18 36V8H51V42H31" fill="none" stroke="currentColor" stroke-width="3" stroke-dasharray="4 4"/></svg><div class="game-copy"><p class="eyebrow">IO / 持續陣營戰</p><h2>圈地漫遊</h2><p class="text-small">圈地擴張、切斷補給、招降助手。四陣營不間斷角逐。</p></div><a class="btn primary" href="territory_loop.html" aria-label="開始遊玩圈地漫遊">開始遊玩 ↗</a></article>
+<article class="game-card"><svg class="game-icon three" viewBox="0 0 60 60" aria-hidden="true"><circle cx="12" cy="40" r="8"/><circle cx="30" cy="27" r="8"/><circle cx="48" cy="14" r="8"/></svg><div class="game-copy"><p class="eyebrow">棋盤 / 單人 × AI</p><h2>三子循環棋</h2><p class="text-small">每人只有三顆棋，移動最早的一顆，搶先連成一線。</p></div><a class="btn primary" href="cyclic_tictactoe.html" aria-label="開始遊玩三子循環棋">開始遊玩 ↗</a></article>
+<article class="game-card"><svg class="game-icon four" viewBox="0 0 60 60" aria-hidden="true"><circle cx="10" cy="31" r="6"/><circle cx="24" cy="31" r="6"/><circle cx="38" cy="31" r="6"/><circle cx="52" cy="31" r="6"/></svg><div class="game-copy"><p class="eyebrow">棋盤 / 同機雙人</p><h2>環面直落四子</h2><p class="text-small">選欄落子、連成四子；連線可以繞過棋盤邊界。</p></div><a class="btn primary" href="cyclic_connect4_torus.html" aria-label="開始遊玩環面直落四子">開始遊玩 ↗</a></article>
+<article class="game-card"><svg class="game-icon track" viewBox="0 0 60 60" aria-hidden="true"><rect x="8" y="7" width="43" height="43" rx="9" fill="none" stroke="currentColor" stroke-width="3"/><circle cx="8" cy="27" r="7"/><circle cx="51" cy="27" r="7"/></svg><div class="game-copy"><p class="eyebrow">棋盤 / 同機雙人・AI</p><h2>軌道棋</h2><p class="text-small">落子後內外圈一起旋轉，預想下一步的位置。</p></div><a class="btn primary" href="trackgame.html" aria-label="開始遊玩軌道棋">開始遊玩 ↗</a></article></div>
+<footer class="site-footer">FuGames · 隨時來一局</footer>
+</main></body></html>

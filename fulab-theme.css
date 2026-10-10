@@ -9,6 +9,8 @@
   --fulab-coral: #D08770;
   --fulab-plum: #B48EAD;
   --fulab-slate: #708090;
+  --fulab-ink-teal: #267477;
+  --fulab-muted: #657283;
   --fulab-bg-secondary: #F8F9FB;
   --fulab-bg-sidebar: #F4F6F9;
   --fulab-radius: 16px;
@@ -27,15 +29,15 @@
 
 body {
   margin: 0;
-  font-family: 'Iosevka YFWU', Menlo, Consolas, monospace;
-  background: var(--fulab-paper);
+  font-family: 'Iosevka YFWU', ui-monospace, Menlo, Consolas, 'Noto Sans TC', monospace;
+  background: var(--fulab-bg-secondary);
   color: var(--fulab-graphite);
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
 }
 
 a {
-  color: var(--fulab-teal);
+  color: var(--fulab-ink-teal);
   font-weight: 650;
   text-decoration: none;
 }
@@ -45,7 +47,7 @@ a:hover {
 }
 
 main {
-  max-width: 1100px;
+  max-width: 960px;
   margin: 0 auto;
   padding: 16px;
   display: flex;
@@ -74,7 +76,7 @@ p {
 }
 
 .lead {
-  color: var(--fulab-slate);
+  color: var(--fulab-muted);
   margin-bottom: 12px;
 }
 
@@ -106,15 +108,20 @@ p {
   color: var(--fulab-graphite);
   border-radius: var(--fulab-radius);
   padding: 8px 12px;
+  font: inherit;
+  font-size: 13px;
   font-weight: 650;
   cursor: pointer;
-  min-height: 32px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   transition: background-color 120ms ease, border-color 120ms ease;
 }
 
 .btn.primary {
-  background: var(--fulab-teal);
-  border-color: var(--fulab-teal);
+  background: var(--fulab-ink-teal);
+  border-color: var(--fulab-ink-teal);
   color: #fff;
 }
 
@@ -136,7 +143,7 @@ p {
 }
 
 .btn:focus-visible {
-  outline: 2px solid var(--fulab-tint-teal);
+  outline: 3px solid var(--fulab-ink-teal);
   outline-offset: 2px;
 }
 
@@ -169,7 +176,7 @@ label {
 select,
 input[type="number"],
 input[type="text"] {
-  height: 36px;
+  height: 44px;
   padding: 0 10px;
   border-radius: var(--fulab-radius);
   border: 1px solid var(--fulab-silver);
@@ -243,5 +250,92 @@ input:focus-visible {
 
 .text-small {
   font-size: 13px;
-  color: var(--fulab-slate);
+  color: var(--fulab-muted);
 }
+
+/* Shared game shell. Pages only add board-specific geometry and rendering. */
+[hidden] { display: none !important; }
+button, input, select { font-family: inherit; }
+button, a, summary, select, input { -webkit-tap-highlight-color: transparent; }
+:focus-visible { outline: 3px solid var(--fulab-ink-teal); outline-offset: 3px; }
+.site-nav { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 28px; font-size: 12px; }
+.site-brand { display: inline-flex; align-items: center; gap: 8px; color: var(--fulab-graphite); font-size: 16px; font-weight: 750; }
+.brand-mark { display: inline-grid; grid-template-columns: repeat(2, 5px); gap: 3px; }
+.brand-mark i { width: 5px; height: 5px; background: var(--fulab-teal); border-radius: 2px; }
+.site-nav .nav-label { color: var(--fulab-muted); font-size: 11px; }
+.page-header { padding: 4px 0; }
+.page-header h1 { font-size: clamp(25px, 4vw, 34px); margin: 0 0 6px; letter-spacing: -.04em; }
+.page-header .lead { margin: 0; font-size: 13px; }
+.eyebrow { color: var(--fulab-ink-teal); letter-spacing: .1em; font-size: 10px; font-weight: 750; margin: 0 0 6px; }
+.play-panel { padding: 18px; box-shadow: 0 8px 28px #2e344005; min-width: 0; }
+.game-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 16px; font-size: 12px; flex-wrap: wrap; }
+.game-status { font-size: 13px; font-weight: 650; color: var(--fulab-ink-teal); margin: 0; min-height: 22px; }
+.game-metrics { display: flex; gap: 14px; flex-wrap: wrap; color: var(--fulab-muted); font-size: 12px; font-variant-numeric: tabular-nums; }
+.game-metrics strong { color: var(--fulab-graphite); }
+.game-floor { padding: 20px; border: 1px solid var(--fulab-silver); border-radius: 12px; background: var(--fulab-bg-secondary); display: flex; justify-content: center; }
+.game-actions { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-top: 16px; }
+.game-actions .action-note { margin: 0; color: var(--fulab-muted); font-size: 12px; }
+.rules { padding: 0; overflow: hidden; font-size: 13px; }
+.rules > summary { cursor: pointer; padding: 14px 18px; font-weight: 650; min-height: 48px; }
+.rules > summary::marker { color: var(--fulab-ink-teal); }
+.rules-body { padding: 2px 18px 18px; }
+.rules-body p:last-child { margin-bottom: 0; }
+.rules .list { color: var(--fulab-muted); }
+.settings-grid { display: flex; flex-wrap: wrap; gap: 14px; margin: 12px 0; }
+.settings-grid .field { flex: 1; min-width: 140px; }
+.settings-grid select { max-width: 100%; }
+.site-footer { text-align: center; color: var(--fulab-muted); font-size: 10px; padding: 2px 0; }
+.boardWrap { min-width: 0; }
+.board { max-width: 100%; }
+.board .cell { font-family: inherit; padding: 0; }
+.board .cell:disabled { cursor: default; }
+.io-stage { position: relative; width: min(100%, 560px); margin-inline: auto; border: 1px solid var(--fulab-silver); border-radius: 12px; overflow: hidden; background: var(--fulab-bg-secondary); }
+.io-stage canvas { display: block; width: 100%; aspect-ratio: 1; touch-action: none; outline-offset: -3px; }
+.board-overlay { position: absolute; inset: 0; display: grid; place-items: center; padding: 12px; background: #f8f9fb99; backdrop-filter: blur(3px); }
+.game-dialog { width: min(100%, 300px); max-height: 100%; overflow: auto; padding: 22px; text-align: center; background: #fffffff5; border: 1px solid var(--fulab-silver); border-radius: 16px; box-shadow: 0 12px 36px #2e344012; }
+.game-dialog h2 { font-size: 23px; }
+.game-dialog p { font-size: 12px; }
+.game-dialog .btn { width: 100%; }
+.game-dialog .btn + .btn { margin-top: 8px; }
+.dialog-art { width: 76px; height: 52px; display: block; margin: 0 auto 12px; }
+.io-status { margin: 12px 0 0; font-size: 12px; min-height: 20px; }
+.io-controls { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-top: 12px; }
+.io-controls .action-note { font-size: 11px; color: var(--fulab-muted); margin: 0; }
+.dpad { display: grid; grid-template-columns: repeat(3, 44px); grid-template-rows: repeat(2, 44px); gap: 4px; }
+.dpad .btn { padding: 0; font-size: 18px; border-radius: 12px; touch-action: manipulation; user-select: none; }
+.dpad [data-direction="up"] { grid-column: 2; }
+.dpad [data-direction="left"] { grid-column: 1; grid-row: 2; }
+.dpad [data-direction="down"] { grid-column: 2; grid-row: 2; }
+.dpad [data-direction="right"] { grid-column: 3; grid-row: 2; }
+.dpad button:active { background: var(--fulab-tint-teal); }
+@media (pointer: fine) and (min-width: 801px) {
+  .touch-controls { display: none; }
+  .io-stage { width: min(100%, 560px, max(300px, calc(100svh - 300px))); }
+}
+@media (max-width: 600px) {
+  main { padding: 12px; gap: 14px; }
+  .play-panel { padding: 12px; }
+  .game-floor { padding: 12px; }
+  .game-toolbar { gap: 8px; margin-bottom: 12px; }
+  .game-metrics { gap: 10px; font-size: 11px; }
+  .game-actions { gap: 10px; margin-top: 12px; }
+  .game-dialog { padding: 16px; }
+  .game-dialog h2 { font-size: 20px; }
+  .game-dialog p { margin-bottom: 10px; }
+  .dialog-art { height: 38px; margin-bottom: 8px; }
+  .rules > summary { padding: 12px 14px; }
+  .rules-body { padding: 2px 14px 14px; }
+}
+@media (max-height: 600px) and (min-width: 600px) {
+  .io-page { max-width: 900px; padding: 10px; gap: 8px; }
+  .io-page .page-header { display: none; }
+  .io-page .play-panel { display: grid; grid-template-columns: minmax(0, 1fr) 172px; gap: 8px; padding: 10px; }
+  .io-page .game-toolbar { grid-column: 1 / -1; margin: 0; }
+  .io-page .io-stage { grid-row: 2 / span 3; width: min(100%, calc(100svh - 106px)); align-self: start; }
+  .io-page .io-status, .io-page .game-actions, .io-page .io-controls { grid-column: 2; margin: 0; }
+  .io-page .io-controls { justify-content: center; }
+  .io-page .touch-controls { display: flex; }
+  .io-page .action-note, .io-page .dialog-art { display: none; }
+  .io-page .game-dialog { padding: 12px; }
+}
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; scroll-behavior: auto !important; } }

@@ -1,0 +1,293 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="收集光點長大，吞噬小對手，避開大對手。FuGames 單人 AI 吞噬遊戲。">
+  <title>星點吞噬 - FuGames</title>
+  <link rel="stylesheet" href="fulab-theme.css">
+  <style>
+    .boost-button { min-width: 96px; }
+    .boost-button:not(:disabled) { border-color: var(--fulab-teal); color: var(--fulab-ink-teal); background: var(--fulab-tint-teal); }
+    .growth-legend { display: flex; gap: 12px; color: var(--fulab-muted); font-size: 11px; }
+    .growth-legend span:first-child { color: var(--fulab-ink-teal); }
+    .growth-legend span:last-child { color: #99553f; }
+    .growth-controls { display: flex; align-items: center; gap: 12px; justify-content: space-between; margin-top: 12px; }
+    .growth-controls .action-note { color: var(--fulab-muted); font-size: 11px; margin: 0; }
+    @media (max-height: 600px) and (min-width: 600px) {
+      .growth-controls { grid-column: 2; margin: 0; justify-content: center; }
+      .growth-legend { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <main class="game-page io-page">
+    <nav class="site-nav" aria-label="遊戲導覽"><a class="site-brand" href="index.html"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>FuGames</a><a href="index.html">所有遊戲 ↗</a></nav>
+    <header class="page-header"><p class="eyebrow">IO / 單人 × 4 AI</p><h1>星點吞噬</h1><p class="lead">吃光點，慢慢長大。追逐小對手，也別忘了身後的大傢伙。</p></header>
+    <section class="card play-panel" aria-label="星點吞噬競技場">
+      <div class="game-toolbar"><p class="game-status" id="phase-label">準備出發</p><div class="game-metrics"><span>質量 <strong id="mass">20</strong> / 160</span><span>排名 <strong id="rank">3 / 5</strong></span><span>剩餘 <strong id="clock">1:30</strong></span></div></div>
+      <div class="io-stage"><canvas id="board" width="720" height="720" tabindex="0" aria-label="星點吞噬。你是青綠色圓球，使用方向鍵、WASD、滑鼠或觸控拖曳移動。" aria-describedby="status">需要支援 Canvas 的瀏覽器。</canvas>
+        <div class="board-overlay" id="overlay"><div class="game-dialog" role="dialog" aria-labelledby="dialog-title" aria-describedby="dialog-copy">
+          <svg class="dialog-art" id="dialog-art" viewBox="0 0 80 54" aria-hidden="true"><circle cx="28" cy="28" r="20" fill="#cbeaea" stroke="#267477" stroke-width="2"/><circle cx="64" cy="12" r="5" fill="#ebcb8b"/><circle cx="68" cy="38" r="7" fill="#d08770"/><circle cx="31" cy="24" r="3" fill="#267477"/></svg>
+          <p class="eyebrow" id="dialog-kicker">你是青綠色圓球 ●</p><h2 id="dialog-title">小小一顆，也能稱霸</h2><p id="dialog-copy">移動吃光點，長大後吞噬小對手。先達 160 質量，或 90 秒後最大即勝。</p><button class="btn primary" id="play">開始吞噬 →</button><button class="btn" id="dialog-secondary" hidden>保留本局，繼續</button>
+        </div></div>
+      </div>
+      <p class="game-status io-status" id="status" role="status" aria-live="polite">方向鍵／WASD、移動滑鼠，或拖曳棋盤來移動。</p>
+      <div class="game-actions"><div class="growth-legend"><span>○ 青綠框：可吞噬</span><span>○ 珊瑚框：危險</span></div><div class="btnRow"><button class="btn" id="pause" disabled>暫停</button><button class="btn primary" id="restart">重新開始</button></div></div>
+      <div class="growth-controls"><p class="action-note">空白鍵或按鈕衝刺 · P / Esc 暫停<br>觸控：按住並拖曳，放開就停</p><button class="btn boost-button" id="boost" disabled>衝刺 ↗</button></div>
+    </section>
+    <details class="card rules"><summary>玩法與操作</summary><div class="rules-body"><ul class="list">
+      <li>你是青綠色圓球，其他四顆是本機 AI。吃小光點增加 2 質量，大光點增加 5；光點會慢慢補充。</li>
+      <li>質量比對手高至少 20%，並包住對手中心時才能吞噬，獲得對手 80% 的質量。數字是質量；青綠框表示可吞噬，珊瑚框表示對方能吃你，灰框則大小相近。</li>
+      <li>大小相近的對手可互相穿過。撞牆不會出局；角色變大後，速度會稍微下降。</li>
+      <li>任何一方先達 160 質量即勝；吃掉所有對手也會獲勝。90 秒到時，存活者質量最多者勝，並列最高為平手。被吞噬就結束本局。</li>
+      <li>方向鍵或 WASD 按住移動；滑鼠在棋盤內指向目的地。手機按住並拖曳，用手指偏移方向移動，放開就停。</li>
+      <li>空白鍵／衝刺鈕可加速 0.6 秒，冷卻 4 秒，不扣質量。P 或 Esc 暫停，切換視窗自動暫停。</li>
+    </ul></div></details>
+    <footer class="site-footer">FuGames · 隨時來一局</footer>
+    <noscript><p class="notice">請開啟 JavaScript，才能開始遊戲。</p></noscript>
+  </main>
+
+  <script id="growth-engine">
+  'use strict';
+  const StarFeast = (() => {
+    const SIZE = 720, DT = .02, ROUND_TICKS = 4500, TARGET = 160;
+    const radius = mass => 12 + Math.sqrt(mass) * 2;
+    const distance = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
+    const edible = (hunter, prey) => hunter.mass >= prey.mass * 1.2;
+    const clamp = (n, low, high) => Math.max(low, Math.min(high, n));
+    function vector(x, y) { const length = Math.hypot(x, y); return length ? { x: x / length, y: y / length } : { x: 0, y: 0 }; }
+    class Game {
+      constructor(random = Math.random) { this.random = random; this.reset(); }
+      reset() {
+        this.phase = 'ready'; this.tick = 0; this.result = null; this.events = []; this.foodSerial = 0;
+        this.boostTime = 0; this.cooldown = 0; this.collected = 0; this.eaten = 0;
+        this.actors = [[180, 360, 20], [530, 150, 14], [530, 560, 18], [570, 350, 26], [170, 120, 34]].map(([x, y, mass], id) => ({ id, x, y, mass, alive: true, steering: { x: 0, y: 0 } }));
+        this.food = [220, 255, 290, 325].map(x => ({ x, y: 360, value: 2 }));
+        while (this.food.length < 96) this.addFood();
+      }
+      start() { if (this.phase === 'ready' || this.phase === 'paused') this.phase = 'running'; }
+      pause() { if (this.phase === 'running') this.phase = 'paused'; }
+      boost() {
+        if (this.phase !== 'running' || this.cooldown > 0) return false;
+        this.boostTime = .6; this.cooldown = 4; return true;
+      }
+      addFood() {
+        let candidate;
+        for (let attempt = 0; attempt < 24; attempt++) {
+          candidate = { x: 20 + this.random() * (SIZE - 40), y: 20 + this.random() * (SIZE - 40), value: this.foodSerial % 12 === 0 ? 5 : 2 };
+          if (this.actors.every(a => !a.alive || distance(a, candidate) > radius(a.mass) + 20)) break;
+        }
+        this.foodSerial++; this.food.push(candidate);
+      }
+      keepInside(a) { const r = radius(a.mass); a.x = clamp(a.x, r, SIZE - r); a.y = clamp(a.y, r, SIZE - r); }
+      aiDirection(a) {
+        const others = this.actors.filter(b => b.id !== a.id && b.alive);
+        const threats = others.filter(b => edible(b, a) && distance(a, b) < 160).sort((b, c) => distance(a, b) - distance(a, c));
+        let goal;
+        if (threats.length) {
+          const threat = threats[0]; goal = vector(a.x - threat.x, a.y - threat.y);
+          if (!goal.x && !goal.y) goal = { x: 1, y: 0 };
+          // Keep an escape direction along the wall instead of getting pinned to it.
+          const margin = radius(a.mass) + 42;
+          goal.x += a.x < margin ? .9 : a.x > SIZE - margin ? -.9 : 0;
+          goal.y += a.y < margin ? .9 : a.y > SIZE - margin ? -.9 : 0;
+        } else {
+          const prey = others.filter(b => edible(a, b) && distance(a, b) < 140).sort((b, c) => distance(a, b) - distance(a, c))[0];
+          const food = this.food.reduce((best, p) => !best || distance(a, p) / Math.sqrt(p.value) < distance(a, best) / Math.sqrt(best.value) ? p : best, null);
+          const target = prey || food || { x: SIZE / 2, y: SIZE / 2 };
+          goal = vector(target.x - a.x, target.y - a.y);
+        }
+        return vector(goal.x, goal.y);
+      }
+      finish(outcome, reason) {
+        if (this.phase === 'over') return;
+        this.phase = 'over'; this.result = { outcome, reason, mass: this.actors[0].mass, tick: this.tick, collected: this.collected, eaten: this.eaten };
+      }
+      checkResult() {
+        if (this.phase !== 'running') return;
+        const alive = this.actors.filter(a => a.alive), player = this.actors[0];
+        if (!player.alive) { this.finish('loss', '你被更大的對手吞噬了。'); return; }
+        const reached = alive.find(a => a.mass >= TARGET);
+        if (reached) this.finish(reached.id === 0 ? 'win' : 'loss', reached.id === 0 ? '你率先長到 160 質量！' : '對手率先長到 160 質量。');
+        else if (alive.length === 1) this.finish('win', '你吞噬了所有對手！');
+        else if (this.tick >= ROUND_TICKS) {
+          const most = Math.max(...alive.map(a => a.mass)), leaders = alive.filter(a => a.mass === most);
+          this.finish(player.mass === most ? (leaders.length > 1 ? 'draw' : 'win') : 'loss', '時間到！以存活者的質量決定勝負。');
+        }
+      }
+      step(input = { x: 0, y: 0 }) {
+        if (this.phase !== 'running') return;
+        this.events = []; this.tick++;
+        const inputX = Number.isFinite(input.x) ? input.x : 0, inputY = Number.isFinite(input.y) ? input.y : 0;
+        const strength = Math.min(1, Math.hypot(inputX, inputY)), direction = vector(inputX, inputY);
+        for (const a of this.actors) {
+          if (!a.alive) continue;
+          if (a.id && (this.tick % 8 === 1)) a.steering = this.aiDirection(a);
+          const d = a.id ? a.steering : direction;
+          const speed = 108 / (1 + a.mass / 260) * (a.id ? .86 : strength) * (!a.id && this.boostTime > 0 ? 1.9 : 1);
+          a.x += d.x * speed * DT; a.y += d.y * speed * DT; this.keepInside(a);
+        }
+        this.boostTime = Math.max(0, this.boostTime - DT); this.cooldown = Math.max(0, this.cooldown - DT);
+        // Rotate food priority so a standing player does not always win overlaps.
+        const order = this.actors.slice(this.tick % 5).concat(this.actors.slice(0, this.tick % 5));
+        for (const a of order) if (a.alive) {
+          this.food = this.food.filter(p => {
+            if (distance(a, p) > radius(a.mass) + 3) return true;
+            a.mass += p.value;
+            if (!a.id) { this.collected++; this.events.push({ type: 'food', value: p.value }); }
+            return false;
+          });
+        }
+        // Largest first gives a consistent result when multiple circles overlap.
+        for (const hunter of [...this.actors].sort((a, b) => b.mass - a.mass || a.id - b.id)) {
+          if (!hunter.alive) continue;
+          for (const prey of this.actors) {
+            if (prey === hunter || !prey.alive || !edible(hunter, prey)) continue;
+            if (distance(hunter, prey) >= radius(hunter.mass) - radius(prey.mass) * .25) continue;
+            prey.alive = false; hunter.mass += Math.floor(prey.mass * .8);
+            if (!hunter.id) this.eaten++;
+            this.events.push({ type: 'eat', hunter: hunter.id, prey: prey.id });
+          }
+        }
+        for (const a of this.actors) if (a.alive) this.keepInside(a);
+        this.checkResult();
+        if (this.phase === 'running' && this.tick % 25 === 0 && this.food.length < 96) this.addFood();
+      }
+    }
+    return { Game, SIZE, DT, ROUND_TICKS, TARGET, radius, distance, edible, vector };
+  })();
+  </script>
+  <script id="growth-ui">
+  'use strict';
+  const $ = id => document.getElementById(id), canvas = $('board'), ctx = canvas.getContext('2d');
+  const game = new StarFeast.Game();
+  const colors = ['#5ebcbf', '#d08770', '#b48ead', '#81a1c1', '#a3be8c'];
+  const tints = ['#cbeaea', '#efdad1', '#e8dce5', '#dce5ef', '#e1e9d9'];
+  const keys = new Set();
+  let target = null, touch = null, restartPrompt = false, frameId = 0, lastTime = null, accumulator = 0, messageTick = 0;
+  function announce(text) { if ($('status').textContent !== text) $('status').textContent = text; }
+  function clearInput() { keys.clear(); target = null; touch = null; }
+  function movement() {
+    if (keys.size) return { x: Number(keys.has('right')) - Number(keys.has('left')), y: Number(keys.has('down')) - Number(keys.has('up')) };
+    if (touch) return { x: (touch.x - touch.originX) / 34, y: (touch.y - touch.originY) / 34 };
+    if (target) { const a = game.actors[0], d = StarFeast.vector(target.x - a.x, target.y - a.y); return StarFeast.distance(a, target) > 4 ? d : { x: 0, y: 0 }; }
+    return { x: 0, y: 0 };
+  }
+  function draw() {
+    const ratio = Math.min(devicePixelRatio || 1, 2);
+    if (canvas.width !== 720 * ratio) { canvas.width = canvas.height = 720 * ratio; }
+    ctx.setTransform(ratio, 0, 0, ratio, 0, 0); ctx.fillStyle = '#f8f9fb'; ctx.fillRect(0, 0, 720, 720);
+    ctx.fillStyle = '#d8dee988';
+    for (let y = 18; y < 720; y += 24) for (let x = 18; x < 720; x += 24) { ctx.beginPath(); ctx.arc(x, y, 1, 0, Math.PI * 2); ctx.fill(); }
+    for (const p of game.food) {
+      ctx.beginPath(); ctx.arc(p.x, p.y, p.value === 5 ? 6 : 4, 0, Math.PI * 2); ctx.fillStyle = p.value === 5 ? '#d4a948' : '#83ada0'; ctx.fill();
+    }
+    const player = game.actors[0];
+    for (const a of [...game.actors].sort((a, b) => a.mass - b.mass)) {
+      if (!a.alive) continue;
+      const r = StarFeast.radius(a.mass);
+      const ink = !a.id || StarFeast.edible(player, a) ? '#267477' : StarFeast.edible(a, player) ? '#99553f' : '#657283';
+      ctx.beginPath(); ctx.arc(a.x, a.y, r + 4, 0, Math.PI * 2); ctx.fillStyle = '#ffffffbb'; ctx.fill();
+      ctx.beginPath(); ctx.arc(a.x, a.y, r, 0, Math.PI * 2); ctx.fillStyle = tints[a.id]; ctx.fill(); ctx.strokeStyle = colors[a.id]; ctx.lineWidth = 3; ctx.stroke();
+      if (a.id) { ctx.beginPath(); ctx.arc(a.x, a.y, r + 7, 0, Math.PI * 2); ctx.strokeStyle = ink; ctx.lineWidth = 2; ctx.setLineDash(StarFeast.edible(a, player) ? [4, 4] : []); ctx.stroke(); ctx.setLineDash([]); }
+      if (!a.id && game.boostTime > 0) { ctx.beginPath(); ctx.arc(a.x, a.y, r + 9, 0, Math.PI * 2); ctx.strokeStyle = '#5ebcbf88'; ctx.lineWidth = 5; ctx.stroke(); }
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillStyle = ink; ctx.font = 'bold 20px monospace'; ctx.fillText(String(a.mass), a.x, a.y + 1);
+      if (!a.id) { ctx.font = 'bold 15px monospace'; ctx.fillText('YOU', a.x, a.y - r - 17); }
+    }
+    if (touch) {
+      const rect = canvas.getBoundingClientRect(), scale = 720 / rect.width;
+      const x = (touch.originX - rect.left) * scale, y = (touch.originY - rect.top) * scale;
+      const v = StarFeast.vector(touch.x - touch.originX, touch.y - touch.originY), size = Math.min(34, Math.hypot(touch.x - touch.originX, touch.y - touch.originY));
+      ctx.beginPath(); ctx.arc(x, y, 38 * scale, 0, Math.PI * 2); ctx.fillStyle = '#ffffff70'; ctx.fill(); ctx.strokeStyle = '#26747766'; ctx.lineWidth = 2; ctx.stroke();
+      ctx.beginPath(); ctx.arc(x + v.x * size * scale, y + v.y * size * scale, 12 * scale, 0, Math.PI * 2); ctx.fillStyle = '#26747788'; ctx.fill();
+    }
+  }
+  function updateHUD() {
+    const player = game.actors[0], alive = game.actors.filter(a => a.alive);
+    $('mass').textContent = player.mass;
+    $('rank').textContent = player.alive ? `${1 + alive.filter(a => a.mass > player.mass).length} / ${alive.length}` : '出局';
+    const seconds = Math.max(0, Math.ceil((StarFeast.ROUND_TICKS - game.tick) * StarFeast.DT));
+    $('clock').textContent = `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`;
+    $('phase-label').textContent = { ready: '準備出發', running: '吞噬中', paused: '已暫停', over: '本局結束' }[game.phase];
+    $('pause').disabled = game.phase === 'ready' || game.phase === 'over' || restartPrompt;
+    $('pause').textContent = game.phase === 'paused' ? '繼續' : '暫停';
+    $('boost').disabled = game.phase !== 'running' || game.cooldown > 0;
+    $('boost').textContent = game.cooldown > 0 ? `衝刺 ${Math.ceil(game.cooldown)}s` : '衝刺 ↗';
+  }
+  function showDialog(kicker, title, copy, action, secondary = false) {
+    $('dialog-kicker').textContent = kicker; $('dialog-title').textContent = title; $('dialog-copy').textContent = copy; $('play').textContent = action;
+    $('dialog-secondary').hidden = !secondary; $('dialog-art').hidden = game.phase !== 'ready'; $('overlay').hidden = false; $('play').focus({ preventScroll: true });
+  }
+  function stopFrames() { cancelAnimationFrame(frameId); frameId = 0; lastTime = null; accumulator = 0; }
+  function resume() {
+    restartPrompt = false; clearInput(); game.start(); $('overlay').hidden = true; updateHUD(); canvas.focus({ preventScroll: true }); stopFrames(); frameId = requestAnimationFrame(frame);
+    announce('吃光點長大，留意珊瑚框的大對手；需要時按空白鍵衝刺。');
+  }
+  function pause() {
+    if (game.phase !== 'running') return;
+    game.pause(); clearInput(); stopFrames(); updateHUD(); draw(); announce('已暫停，時間與 AI 都停下了。');
+    showDialog('休息一下', '暫停一下也沒關係', '時間與 AI 已停下。準備好再繼續。', '繼續吞噬 →');
+  }
+  function newRound() { stopFrames(); game.reset(); messageTick = 0; resume(); draw(); }
+  function endRound() {
+    clearInput(); stopFrames(); updateHUD(); draw(); const result = game.result;
+    announce(result.reason);
+    showDialog('本局結束', { win: '小星點，長成大贏家', loss: '再吃一局，慢慢長大', draw: '一樣大，平手！' }[result.outcome], `${result.reason} 本局質量 ${result.mass}，吞噬 ${result.eaten} 位對手。`, '再玩一局 →');
+  }
+  function frame(time) {
+    if (game.phase !== 'running') return;
+    if (lastTime === null) lastTime = time;
+    accumulator += Math.min(time - lastTime, 100); lastTime = time;
+    while (accumulator >= 20 && game.phase === 'running') {
+      accumulator -= 20; game.step(movement());
+      for (const event of game.events) if (event.type === 'eat' && event.hunter === 0) { announce('吞噬成功！你又長大了一點。'); messageTick = game.tick + 100; }
+      if (game.tick % 10 === 0) updateHUD();
+      if (game.tick > messageTick && game.tick % 25 === 0) {
+        const player = game.actors[0], threat = game.actors.some(a => a.id && a.alive && StarFeast.edible(a, player) && StarFeast.distance(a, player) < 140);
+        announce(threat ? '大對手靠近了！換個方向，或用衝刺脫身。' : '吃光點長大，青綠框的小對手也能吞噬。');
+      }
+    }
+    if (game.phase === 'over') { endRound(); return; }
+    draw(); frameId = requestAnimationFrame(frame);
+  }
+  $('play').addEventListener('click', () => { if (restartPrompt || game.phase === 'over') newRound(); else resume(); });
+  $('dialog-secondary').addEventListener('click', resume);
+  $('pause').addEventListener('click', () => game.phase === 'running' ? pause() : resume());
+  $('restart').addEventListener('click', () => {
+    if (game.phase === 'ready' || game.phase === 'over') { newRound(); return; }
+    pause(); restartPrompt = true; updateHUD(); showDialog('重新出發', '重新開始這一局？', '質量、對手與倒數會重置。', '確定重開', true);
+  });
+  $('boost').addEventListener('click', () => { game.boost(); updateHUD(); });
+  const keyMap = { ArrowUp: 'up', ArrowDown: 'down', ArrowLeft: 'left', ArrowRight: 'right', w: 'up', s: 'down', a: 'left', d: 'right' };
+  document.addEventListener('keydown', event => {
+    if (event.altKey || event.ctrlKey || event.metaKey || /^(INPUT|TEXTAREA|SELECT)$/.test(event.target.tagName)) return;
+    const key = event.key.length === 1 ? event.key.toLowerCase() : event.key;
+    if (keyMap[key] && game.phase === 'running') { event.preventDefault(); keys.add(keyMap[key]); target = null; }
+    else if (key === ' ' && game.phase === 'running' && !event.target.closest('button, a, summary')) { event.preventDefault(); if (!event.repeat) { game.boost(); updateHUD(); } }
+    else if ((key === 'p' || key === 'Escape') && !event.repeat && !restartPrompt) {
+      if (game.phase === 'running') { event.preventDefault(); pause(); }
+      else if (game.phase === 'paused') { event.preventDefault(); resume(); }
+    }
+  });
+  document.addEventListener('keyup', event => { const key = event.key.length === 1 ? event.key.toLowerCase() : event.key; if (keyMap[key]) keys.delete(keyMap[key]); });
+  function mouseTarget(event) { const rect = canvas.getBoundingClientRect(); target = { x: (event.clientX - rect.left) * 720 / rect.width, y: (event.clientY - rect.top) * 720 / rect.height }; }
+  canvas.addEventListener('pointerdown', event => {
+    if (game.phase !== 'running' || touch) return;
+    if (event.pointerType === 'mouse') { mouseTarget(event); return; }
+    target = null; touch = { id: event.pointerId, originX: event.clientX, originY: event.clientY, x: event.clientX, y: event.clientY }; canvas.setPointerCapture(event.pointerId);
+  });
+  canvas.addEventListener('pointermove', event => {
+    if (game.phase !== 'running') return;
+    if (touch && touch.id === event.pointerId) { touch.x = event.clientX; touch.y = event.clientY; }
+    else if (event.pointerType === 'mouse') mouseTarget(event);
+  });
+  canvas.addEventListener('pointerleave', event => { if (event.pointerType === 'mouse') target = null; });
+  for (const name of ['pointerup', 'pointercancel', 'lostpointercapture']) canvas.addEventListener(name, event => { if (touch && touch.id === event.pointerId) touch = null; });
+  window.addEventListener('blur', pause);
+  document.addEventListener('visibilitychange', () => { if (document.hidden) pause(); });
+  window.addEventListener('resize', () => { touch = null; target = null; if (game.phase !== 'running') draw(); });
+  updateHUD(); draw();
+  </script>
+</body>
+</html>

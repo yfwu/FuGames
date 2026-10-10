@@ -3,85 +3,33 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>環面直落四子 - FuLab</title>
+  <title>環面直落四子 - FuGames</title>
   <link rel="stylesheet" href="fulab-theme.css">
   <style>
-    .boardWrap { display: flex; justify-content: center; }
-    .board {
-      display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      gap: 8px;
-      width: min(100%, 520px);
-    }
-    .colBtn {
-      height: 36px;
-      border-radius: 12px;
-      border: 1px solid var(--fulab-silver);
-      background: var(--fulab-paper);
-      cursor: pointer;
-      font-weight: 650;
-      transition: border-color 120ms ease, background 120ms ease;
-    }
+
+    .board { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; width: min(100%, 480px); }
+    .colBtn { min-height: 44px; padding: 0; border: 1px solid var(--fulab-silver); border-radius: 10px; background: white; color: var(--fulab-ink-teal); font-size: 18px; cursor: pointer; }
     .colBtn:hover { border-color: var(--fulab-teal); }
-    .colBtn:disabled { opacity: .5; cursor: not-allowed; }
-    .grid {
-      grid-column: 1 / -1;
-      display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      gap: 8px;
-    }
-    .cell {
-      aspect-ratio: 1 / 1;
-      border: 1px solid var(--fulab-silver);
-      border-radius: 12px;
-      background: var(--fulab-bg-secondary);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: clamp(28px, 8vw, 42px);
-      position: relative;
-    }
+    .colBtn:disabled { opacity: .4; cursor: default; }
+    .grid { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
+    .cell { aspect-ratio: 1; border: 1px solid var(--fulab-silver); border-radius: 10px; background: white; display: grid; place-items: center; font-size: clamp(23px, 6vw, 40px); min-width: 0; }
     .cell.win { background: var(--fulab-tint-emerald); border-color: var(--fulab-emerald); }
-    .cell.last { box-shadow: 0 0 0 2px var(--fulab-tint-indigo); }
-    .info { text-align: center; margin: 10px 0; font-weight: 650; }
+    .cell.last { box-shadow: inset 0 0 0 2px var(--fulab-tint-indigo); }
+    @media(max-width: 400px) { .board, .grid { gap: 4px; } .game-floor { padding: 8px; } .cell { border-radius: 7px; } }
+
   </style>
 </head>
 <body>
-  <main>
-    <section class="card">
-      <h1>環面直落四子</h1>
-      <p class="lead">經典 7×6 直落四子，加上「環面」判定：連線可繞過左右/上下邊界。棋子改為黑白。</p>
-      <div class="boardWrap">
-        <div class="board">
-          <button class="colBtn" data-col="0">↓</button>
-          <button class="colBtn" data-col="1">↓</button>
-          <button class="colBtn" data-col="2">↓</button>
-          <button class="colBtn" data-col="3">↓</button>
-          <button class="colBtn" data-col="4">↓</button>
-          <button class="colBtn" data-col="5">↓</button>
-          <button class="colBtn" data-col="6">↓</button>
-          <div class="grid" id="grid"></div>
-        </div>
-      </div>
-      <div class="info" id="statusText"></div>
-      <div class="pillRow">
-        <span class="pill">回合：<strong id="turnKpi">0</strong></span>
-        <span class="pill">玩家：<strong id="playerKpi">黑</strong></span>
-      </div>
-      <div class="btnRow">
-        <button class="btn primary" id="newGame">新局</button>
-        <button class="btn secondary" id="reset">重置</button>
-      </div>
+  <main class="game-page">
+    <nav class="site-nav" aria-label="遊戲導覽"><a class="site-brand" href="index.html"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>FuGames</a><a href="index.html">所有遊戲 ↗</a></nav>
+    <header class="page-header"><p class="eyebrow">棋盤 / 同機雙人</p><h1>環面直落四子</h1><p class="lead">輪流選一欄落子，連成四子就贏；連線也能繞過棋盤邊界。</p></header>
+    <section class="card play-panel" aria-label="直落四子棋盤">
+      <div class="game-toolbar"><p class="game-status" id="statusText" role="status" aria-live="polite"></p><div class="game-metrics"><span>回合 <strong id="turnKpi">0</strong></span><span>落子 <strong id="playerKpi">黑</strong></span></div></div>
+      <div class="boardWrap game-floor"><div class="board"><button class="colBtn" data-col="0" aria-label="第 1 欄落子">↓</button><button class="colBtn" data-col="1" aria-label="第 2 欄落子">↓</button><button class="colBtn" data-col="2" aria-label="第 3 欄落子">↓</button><button class="colBtn" data-col="3" aria-label="第 4 欄落子">↓</button><button class="colBtn" data-col="4" aria-label="第 5 欄落子">↓</button><button class="colBtn" data-col="5" aria-label="第 6 欄落子">↓</button><button class="colBtn" data-col="6" aria-label="第 7 欄落子">↓</button><div class="grid" id="grid" role="img" aria-label="七欄六列棋盤"></div></div></div>
+      <div class="game-actions"><p class="action-note">點上方箭頭，棋子會直落到底</p><button class="btn primary" id="newGame">重新開始</button></div>
     </section>
-
-    <section class="card">
-      <h2 class="sectionTitle">規則</h2>
-      <ul class="list">
-        <li>落子方式與經典四子棋相同：點選欄位，棋子直落到最底的空格。</li>
-        <li>環面判定：橫、直、斜線可越界再回到另一側，只要連續四顆同色即勝。</li>
-        <li>若棋盤填滿且無連線則平手。</li>
-      </ul>
-    </section>
+    <details class="card rules"><summary>玩法與操作</summary><div class="rules-body"><ul class="list"><li>兩位玩家輪流選欄落子，棋子落到該欄最底的空格。</li><li>橫、直、斜線都可繞過邊界；連成四子即勝。</li><li>棋盤填滿且無連線則平手。</li></ul></div></details>
+    <footer class="site-footer">FuGames · 隨時來一局</footer>
   </main>
 
   <script>
@@ -92,7 +40,6 @@
     const playerEl = document.getElementById('playerKpi');
     const colBtns = Array.from(document.querySelectorAll('.colBtn'));
     const newBtn = document.getElementById('newGame');
-    const resetBtn = document.getElementById('reset');
 
     let board, player, turn, over, winCells, lastMove;
 
@@ -218,7 +165,6 @@
     }
 
     newBtn.addEventListener('click', reset);
-    resetBtn.addEventListener('click', reset);
     reset();
 
     function symbol(v) {
