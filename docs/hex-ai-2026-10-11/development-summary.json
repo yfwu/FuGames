@@ -1,0 +1,368 @@
+{
+  "original": {
+    "engineSha256": "239b3386513254d85d749b5e7d26f410c1e8afa282d40eb3ca080be57e6194ee",
+    "seeds": [
+      101,
+      307,
+      509,
+      719,
+      929,
+      1151
+    ],
+    "primary": {
+      "games": 144,
+      "wins": {
+        "rush": 32,
+        "cutter": 29,
+        "multi": 28
+      },
+      "draws": 55,
+      "connections": 77,
+      "full": 67,
+      "limit": 0,
+      "drawAtFull": 55,
+      "drawAtLimit": 0,
+      "winsBySeat": [
+        37,
+        29,
+        23
+      ],
+      "winsByStartOrder": [
+        26,
+        30,
+        33
+      ],
+      "plyMean": 101.03472222222223,
+      "plyMax": 170
+    },
+    "matrix": {
+      "rush/cutter": {
+        "games": 36,
+        "wins": 12,
+        "losses": 11,
+        "draws": 13,
+        "decisiveWinRate": 0.5217391304347826,
+        "decisiveWilson95": [
+          0.3296242986421849,
+          0.7076313046005427
+        ],
+        "signedResult": {
+          "mean": 0.02777777777777778,
+          "ci95": [
+            -0.1111111111111111,
+            0.22222222222222224
+          ],
+          "seedClusters": 6
+        }
+      },
+      "rush/multi": {
+        "games": 36,
+        "wins": 13,
+        "losses": 8,
+        "draws": 15,
+        "decisiveWinRate": 0.6190476190476191,
+        "decisiveWilson95": [
+          0.40878295815501514,
+          0.7924923220201749
+        ],
+        "signedResult": {
+          "mean": 0.13888888888888887,
+          "ci95": [
+            -0.05555555555555555,
+            0.36111111111111116
+          ],
+          "seedClusters": 6
+        }
+      },
+      "cutter/multi": {
+        "games": 36,
+        "wins": 10,
+        "losses": 12,
+        "draws": 14,
+        "decisiveWinRate": 0.45454545454545453,
+        "decisiveWilson95": [
+          0.26920014432004846,
+          0.6534052671095845
+        ],
+        "signedResult": {
+          "mean": -0.05555555555555556,
+          "ci95": [
+            -0.16666666666666666,
+            0.1111111111111111
+          ],
+          "seedClusters": 6
+        }
+      }
+    },
+    "threeWay": {
+      "games": 36,
+      "wins": {
+        "rush": 7,
+        "cutter": 8,
+        "multi": 8
+      },
+      "draws": 13,
+      "connections": 22,
+      "full": 14,
+      "limit": 0,
+      "drawAtFull": 13,
+      "drawAtLimit": 0,
+      "winsBySeat": [
+        9,
+        9,
+        5
+      ],
+      "winsByStartOrder": [
+        6,
+        9,
+        8
+      ],
+      "plyMean": 95,
+      "plyMax": 157
+    }
+  },
+  "half": {
+    "engineSha256": "2c2ad4601509b9ccb0973cb2d9bd44c9cfab4ce636f8061ccfbc7b79743cf27d",
+    "seeds": [
+      101,
+      307,
+      509,
+      719,
+      929,
+      1151
+    ],
+    "primary": {
+      "games": 144,
+      "wins": {
+        "rush": 35,
+        "cutter": 30,
+        "multi": 30
+      },
+      "draws": 49,
+      "connections": 77,
+      "full": 67,
+      "limit": 0,
+      "drawAtFull": 49,
+      "drawAtLimit": 0,
+      "winsBySeat": [
+        36,
+        35,
+        24
+      ],
+      "winsByStartOrder": [
+        26,
+        39,
+        30
+      ],
+      "plyMean": 100.79861111111111,
+      "plyMax": 170
+    },
+    "matrix": {
+      "rush/cutter": {
+        "games": 36,
+        "wins": 12,
+        "losses": 11,
+        "draws": 13,
+        "decisiveWinRate": 0.5217391304347826,
+        "decisiveWilson95": [
+          0.3296242986421849,
+          0.7076313046005427
+        ],
+        "signedResult": {
+          "mean": 0.02777777777777778,
+          "ci95": [
+            -0.1111111111111111,
+            0.22222222222222224
+          ],
+          "seedClusters": 6
+        }
+      },
+      "rush/multi": {
+        "games": 36,
+        "wins": 13,
+        "losses": 9,
+        "draws": 14,
+        "decisiveWinRate": 0.5909090909090909,
+        "decisiveWilson95": [
+          0.38734477382893806,
+          0.7674444033117963
+        ],
+        "signedResult": {
+          "mean": 0.1111111111111111,
+          "ci95": [
+            -0.08333333333333333,
+            0.27777777777777773
+          ],
+          "seedClusters": 6
+        }
+      },
+      "cutter/multi": {
+        "games": 36,
+        "wins": 11,
+        "losses": 13,
+        "draws": 12,
+        "decisiveWinRate": 0.4583333333333333,
+        "decisiveWilson95": [
+          0.2789105835168143,
+          0.6492544644689336
+        ],
+        "signedResult": {
+          "mean": -0.05555555555555556,
+          "ci95": [
+            -0.19444444444444445,
+            0.08333333333333333
+          ],
+          "seedClusters": 6
+        }
+      }
+    },
+    "threeWay": {
+      "games": 36,
+      "wins": {
+        "rush": 10,
+        "cutter": 8,
+        "multi": 8
+      },
+      "draws": 10,
+      "connections": 22,
+      "full": 14,
+      "limit": 0,
+      "drawAtFull": 10,
+      "drawAtLimit": 0,
+      "winsBySeat": [
+        10,
+        11,
+        5
+      ],
+      "winsByStartOrder": [
+        9,
+        10,
+        7
+      ],
+      "plyMean": 96.33333333333333,
+      "plyMax": 154
+    }
+  },
+  "quarter": {
+    "engineSha256": "7576bac1ff0dc8d2620b445f0df4a31e1bce0f9190c106093ab92108d36823a3",
+    "seeds": [
+      101,
+      307,
+      509,
+      719,
+      929,
+      1151
+    ],
+    "primary": {
+      "games": 144,
+      "wins": {
+        "rush": 39,
+        "cutter": 29,
+        "multi": 33
+      },
+      "draws": 43,
+      "connections": 81,
+      "full": 63,
+      "limit": 0,
+      "drawAtFull": 43,
+      "drawAtLimit": 0,
+      "winsBySeat": [
+        39,
+        38,
+        24
+      ],
+      "winsByStartOrder": [
+        29,
+        43,
+        29
+      ],
+      "plyMean": 98.88888888888889,
+      "plyMax": 170
+    },
+    "matrix": {
+      "rush/cutter": {
+        "games": 36,
+        "wins": 12,
+        "losses": 11,
+        "draws": 13,
+        "decisiveWinRate": 0.5217391304347826,
+        "decisiveWilson95": [
+          0.3296242986421849,
+          0.7076313046005427
+        ],
+        "signedResult": {
+          "mean": 0.02777777777777778,
+          "ci95": [
+            -0.1111111111111111,
+            0.22222222222222224
+          ],
+          "seedClusters": 6
+        }
+      },
+      "rush/multi": {
+        "games": 36,
+        "wins": 14,
+        "losses": 9,
+        "draws": 13,
+        "decisiveWinRate": 0.6086956521739131,
+        "decisiveWilson95": [
+          0.4078517960374599,
+          0.7784262201761787
+        ],
+        "signedResult": {
+          "mean": 0.13888888888888887,
+          "ci95": [
+            0,
+            0.3055555555555555
+          ],
+          "seedClusters": 6
+        }
+      },
+      "cutter/multi": {
+        "games": 36,
+        "wins": 11,
+        "losses": 16,
+        "draws": 9,
+        "decisiveWinRate": 0.4074074074074074,
+        "decisiveWilson95": [
+          0.24514513372857344,
+          0.5927361694463591
+        ],
+        "signedResult": {
+          "mean": -0.13888888888888887,
+          "ci95": [
+            -0.3333333333333333,
+            0.08333333333333333
+          ],
+          "seedClusters": 6
+        }
+      }
+    },
+    "threeWay": {
+      "games": 36,
+      "wins": {
+        "rush": 13,
+        "cutter": 7,
+        "multi": 8
+      },
+      "draws": 8,
+      "connections": 23,
+      "full": 13,
+      "limit": 0,
+      "drawAtFull": 8,
+      "drawAtLimit": 0,
+      "winsBySeat": [
+        11,
+        11,
+        6
+      ],
+      "winsByStartOrder": [
+        8,
+        11,
+        9
+      ],
+      "plyMean": 94.66666666666667,
+      "plyMax": 153
+    }
+  }
+}

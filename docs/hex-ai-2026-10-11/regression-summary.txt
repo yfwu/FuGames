@@ -1,0 +1,11 @@
+Command: node --test tests/*.test.cjs
+Runtime files unchanged from 13eb890c4f6018a0213df60770c2dc01b6944296
+
+ℹ tests 203
+ℹ suites 0
+ℹ pass 203
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 74016.124857
