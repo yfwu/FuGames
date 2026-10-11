@@ -1,0 +1,11 @@
+{"hashes":{"hex-core.js":"ec377b774dc0bba9cb1636d40f1e1f6faa19b0961c04a57ca7233a8b5182d3f6","autohex-planner.js":"eaec53abebe72e54f567684f4e3a1e825084ad90c8f9341864609ee63e75db8d","hex-strategies.js":"475536a736d1d7ef74dc4ffb41fa6af04349b68f61881fc76bc0471d2c8df624"}}
+{"mode":"auto","ply":250,"goals":0,"hold":0,"air":0,"tunnels":10,"bridges":10,"phase":"running","wallSec":7.3}
+{"mode":"auto","ply":500,"goals":0,"hold":0,"air":1,"tunnels":17,"bridges":14,"phase":"running","wallSec":14.6}
+{"mode":"auto","ply":750,"goals":1,"hold":0,"air":1,"tunnels":39,"bridges":25,"phase":"running","wallSec":22.9}
+{"mode":"auto","ply":1000,"goals":3,"hold":1,"air":2,"tunnels":52,"bridges":30,"phase":"running","wallSec":38.7}
+{"mode":"auto","ply":1250,"goals":4,"hold":9,"air":3,"tunnels":81,"bridges":36,"phase":"running","wallSec":53.2}
+{"mode":"auto","ply":1500,"goals":8,"hold":27,"air":5,"tunnels":115,"bridges":44,"phase":"running","wallSec":68.4}
+{"mode":"auto","ply":1750,"goals":13,"hold":29,"air":8,"tunnels":125,"bridges":55,"phase":"running","wallSec":95.4}
+{"mode":"auto","ply":2000,"goals":18,"hold":39,"air":11,"tunnels":149,"bridges":69,"phase":"over","wallSec":115.1}
+{"done":"auto","actions":2000,"phase":"over","result":{"winners":[4],"standings":[{"player":4,"score":244,"name":"Gold","rank":1},{"player":3,"score":171,"name":"Violet","rank":2},{"player":2,"score":130,"name":"Ember","rank":3},{"player":5,"score":124,"name":"Jade","rank":4},{"player":1,"score":104,"name":"Azure","rank":5},{"player":6,"score":102,"name":"Rose","rank":6}],"draw":false,"reason":"timeout","activeMs":600000},"goals":18,"hold":39,"air":11,"tunnels":149,"bridges":69,"meanMs":56.77081991000011,"p95Ms":128.66438600000401}
+{"done":"normal","actions":202,"phase":"over","result":{"winners":[4],"standings":[{"player":1,"name":"Azure","score":3,"rank":2},{"player":2,"name":"Ember","score":2,"rank":2},{"player":3,"name":"Violet","score":4,"rank":2},{"player":4,"name":"Gold","score":11,"rank":1},{"player":5,"name":"Jade","score":8,"rank":2},{"player":6,"name":"Rose","score":6,"rank":2}],"draw":false,"reason":"connection","activeMs":60300,"ply":202},"goals":1,"hold":0,"air":0,"tunnels":36,"bridges":9,"meanMs":33.66938560891025,"p95Ms":80.55686300000525}

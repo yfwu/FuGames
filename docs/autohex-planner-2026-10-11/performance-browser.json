@@ -1,0 +1,165 @@
+{
+  "note": "Real foreground Chromium on this execution host; mobile viewport emulation is not a physical-phone benchmark. Disclose concurrent CPU workloads when interpreting results. No virtual clock in measured interval.",
+  "sourceSha256": {
+    "autohex-ai-worker.js": "0c7ba91f0d2997d3e3e08bdd6e004e792062b6e497529e3b526536dfbb9ed7c0",
+    "autohex-planner.js": "2e222d259995f604b07c8b599f681a8ccc025a5e1a709bb649c5c539637ebb7f",
+    "autohex-engine.js": "0c5b3137c803f3f77ddd3fbb34a132f1986a257d3db2d828a1d2628e37c69993",
+    "autohex-ui.js": "fb886197132a487f1001a83dc18ee75d7d73aec0b03ebfd50079cf0db6aa71d9",
+    "autohex-visuals.js": "b1bed80f9b4ef5baf8fc8a3c78706a0a6c2baf0b9274fe2c318883ed264e79cd",
+    "autohex.html": "90bcc0fad0f954efbc9080971f512ada6b713c908d733eb6376e2e72aff05d23",
+    "autohex.css": "da2b0c693b2f5ce8ad374ca746a3d62ec4b756c9a0b1374eb0f21018fdb567d5"
+  },
+  "samples": [
+    {
+      "label": "desktop",
+      "dpr": 1,
+      "wallSeconds": 30.404788089002977,
+      "actions": 68,
+      "planning": {
+        "count": 68,
+        "medianMs": 52.599999997764826,
+        "p95Ms": 120.59999999776483,
+        "maxMs": 667.3999999985099
+      },
+      "decisionWait": {
+        "count": 68,
+        "medianMs": 64,
+        "p95Ms": 134.30000000074506,
+        "maxMs": 672.3999999985099
+      },
+      "planningModes": {
+        "worker": 68
+      },
+      "act": {
+        "count": 68,
+        "medianMs": 0.6000000014901161,
+        "p95Ms": 1.9000000022351742,
+        "maxMs": 32.099999997764826
+      },
+      "frame": {
+        "count": 1313,
+        "medianMs": 16.699999999999818,
+        "p95Ms": 33.400000000001455,
+        "maxMs": 700
+      },
+      "longTasks": {
+        "count": 22,
+        "medianMs": 79,
+        "p95Ms": 456,
+        "maxMs": 550
+      },
+      "frameGapsOver50ms": 40,
+      "interactionWallMs": 422.9974099980609,
+      "hiddenEvents": 0,
+      "overflow": false,
+      "finalPlanner": {
+        "selectedPlayer": 3,
+        "visible": true,
+        "plan": {
+          "player": 3,
+          "type": "interdict",
+          "stage": "approach",
+          "target": 592,
+          "path": [
+            411,
+            446,
+            482,
+            518,
+            555,
+            556,
+            592
+          ],
+          "reasonCode": "continue_plan",
+          "committedAtPly": 224,
+          "reviewAtPly": 260,
+          "progress": 0.11111111111111116,
+          "completed": false,
+          "stalled": 2
+        },
+        "routeCellCount": 7,
+        "minTargetPixel": 14,
+        "styles": {
+          "route": "dashed public corridor",
+          "target": "faction diamond",
+          "motion": "static"
+        }
+      }
+    },
+    {
+      "label": "mobile",
+      "dpr": 3,
+      "wallSeconds": 30.225519573999918,
+      "actions": 70,
+      "planning": {
+        "count": 70,
+        "medianMs": 67.39999999850988,
+        "p95Ms": 140,
+        "maxMs": 203.19999999925494
+      },
+      "decisionWait": {
+        "count": 70,
+        "medianMs": 78.19999999925494,
+        "p95Ms": 174.69999999925494,
+        "maxMs": 310.0999999977648
+      },
+      "planningModes": {
+        "worker": 70
+      },
+      "act": {
+        "count": 70,
+        "medianMs": 0.6999999992549419,
+        "p95Ms": 2.399999998509884,
+        "maxMs": 5.900000002235174
+      },
+      "frame": {
+        "count": 1498,
+        "medianMs": 16.69999999999891,
+        "p95Ms": 33.400000000001455,
+        "maxMs": 283.39999999999964
+      },
+      "longTasks": {
+        "count": 23,
+        "medianMs": 65,
+        "p95Ms": 126,
+        "maxMs": 266
+      },
+      "frameGapsOver50ms": 28,
+      "interactionWallMs": 178.9885250000225,
+      "hiddenEvents": 0,
+      "overflow": false,
+      "finalPlanner": {
+        "selectedPlayer": 3,
+        "visible": true,
+        "plan": {
+          "player": 3,
+          "type": "interdict",
+          "stage": "approach",
+          "target": 515,
+          "path": [
+            344,
+            376,
+            409,
+            443,
+            478,
+            515
+          ],
+          "reasonCode": "stalled",
+          "committedAtPly": 248,
+          "reviewAtPly": 284,
+          "progress": 0,
+          "completed": false,
+          "stalled": 0
+        },
+        "routeCellCount": 6,
+        "minTargetPixel": 14,
+        "styles": {
+          "route": "dashed public corridor",
+          "target": "faction diamond",
+          "motion": "static"
+        }
+      }
+    }
+  ],
+  "errors": [],
+  "pass": true
+}

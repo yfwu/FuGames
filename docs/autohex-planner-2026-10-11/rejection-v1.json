@@ -1,0 +1,68 @@
+{
+  "decisionUtc": "2026-10-11T16:45:16.269881+00:00",
+  "status": "REJECTED / PREREGISTERED STUDY INCOMPLETE",
+  "reason": "Root stopped V1 after an independent completed development campaign replicated a material objective failure: released18 arrivals/100 holding rounds/27 air actions vs V1 0/0/32; sustained late harassment/airport/recovery displaced own connection. Partial V1 heldout outcomes were inspected and helped identify the concern and guide investigation before development replication. They informed rejection, so all V1 heldout seeds are retired from confirmatory testing. V2 development uses development seeds and fresh V2 heldout seeds remain unopened.",
+  "planned": {
+    "baseline": 36,
+    "candidate": 36,
+    "mixed": 12
+  },
+  "actual": [
+    {
+      "file": "baseline-heldout.json",
+      "complete": true,
+      "savedCompleteGames": 36,
+      "scheduledGames": 36,
+      "arrivals": 763,
+      "lastSavedKey": "3701/5/1",
+      "interruptedUnsavedCampaign": false
+    },
+    {
+      "file": "candidate-heldout-a.json",
+      "complete": false,
+      "savedCompleteGames": 4,
+      "scheduledGames": 12,
+      "arrivals": 0,
+      "lastSavedKey": "3203/3/4",
+      "interruptedUnsavedCampaign": true
+    },
+    {
+      "file": "candidate-heldout-b.json",
+      "complete": false,
+      "savedCompleteGames": 4,
+      "scheduledGames": 12,
+      "arrivals": 0,
+      "lastSavedKey": "3407/3/4",
+      "interruptedUnsavedCampaign": true
+    },
+    {
+      "file": "mixed-heldout.json",
+      "complete": false,
+      "savedCompleteGames": 3,
+      "scheduledGames": 12,
+      "arrivals": 7,
+      "lastSavedKey": "3301/1/3/mixed0",
+      "interruptedUnsavedCampaign": true
+    }
+  ],
+  "workerStops": {
+    "candidateA": 130,
+    "candidateB": 130,
+    "mixed": 130,
+    "queueSupervisor": 130
+  },
+  "remainingCandidateCStarted": false,
+  "partialCampaignActionCounts": "Unknown: per-game state is checkpointed only after a full2000-action campaign. Three in-progress campaigns were interrupted, with no partial outcomes counted as completed.",
+  "interpretation": "No completed36-pair or12-mixed comparison exists. Baseline36 may be read as a completed baseline only; partial candidate and mixed data are exploratory rejected-candidate evidence. All saved full games and source bytes remain unchanged. V2 must use fresh preregistered heldout seeds.",
+  "processTermination": {
+    "confirmedUtc": "2026-10-11T16:47:14.421227+00:00",
+    "detail": "Initial exec-session Ctrl-C returned130 but detached child processes survived. Direct SIGTERM then stopped all three study child PIDs and queue supervisor; ps verified zombie/nonrunning status. Extra full campaigns completed during detection are retained.",
+    "pids": [
+      32011,
+      31368,
+      31383,
+      31970
+    ],
+    "allNonrunning": true
+  }
+}

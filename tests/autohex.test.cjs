@@ -67,7 +67,7 @@ test('AutoHex river occupation requires public engineering and engineering itsel
   const g = fixture(['turret', 'exchange']), near = at(5, 0), far = at(6, 0);
   g.terrain[near] = g.terrain[far] = 1;
   sameInvalid(g, action('deploy', [near])); sameInvalid(g, action('turret', [near])); sameInvalid(g, action('engineer', [far]));
-  assert.ok(g.act(action('engineer', [near]))); assert.equal(g.roads[near], 1); assert.equal(g.board[near], 0);
+  assert.ok(g.act(action('engineer', [near]))); assert.equal(g.terrain[near], 0); assert.equal(g.roads[near], 0); assert.equal(g.board[near], 0);
   restUntil(g, 1); assert.ok(g.act(action('deploy', [near]))); assert.equal(g.board[near], 1);
 });
 

@@ -9,7 +9,7 @@
   <link rel="stylesheet" href="fulab-theme.css">
   <link rel="stylesheet" href="autohex.css">
 </head>
-<body>
+<body data-hex-mode="auto">
 <main class="game-page autohex-page">
   <nav class="site-nav" aria-label="遊戲導覽"><a class="site-brand" href="index.html"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>FuGames</a><a href="index.html">所有遊戲 <svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#launch"></use></svg></a></nav>
   <header class="page-header ah-header"><div><p class="eyebrow">策略 / 六方戰役</p><h1><svg class="page-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#autohex"></use></svg>AutoHex</h1><p class="lead">從自己的家園出發，穿越河流，接通對岸。戰局不因一次連線而結束。</p></div><span class="ah-local">本機對戰 · 不需連線</span></header>
@@ -17,24 +17,35 @@
   <section class="card ah-command" aria-label="戰役設定與控制">
     <div class="ah-topline"><div><p class="eyebrow">10 MINUTE CAMPAIGN</p><strong id="phase-label">準備出發</strong></div><div class="ah-clock"><span id="clock" aria-label="剩餘時間">10:00</span><small id="clock-note">前景、未暫停才計時</small></div></div>
     <div class="ah-progress" role="progressbar" aria-label="戰役時間" aria-valuemin="0" aria-valuemax="600" aria-valuenow="0" id="campaign-progress"><i id="campaign-progress-fill"></i></div>
-    <div class="ah-settings" id="setup">
+    <div id="setup"><div class="ah-settings">
       <label>模式<select id="match-mode"><option value="human">親自出戰 · 你 + 5 AI</option><option value="spectator">觀戰 · 6 AI</option></select></label>
       <label class="ah-seed-field">戰場 seed<input id="seed" type="text" maxlength="64" autocomplete="off" spellcheck="false" value="autohex-2026"></label>
       <label>先手<select id="starter"><option value="1">A 青綠</option><option value="2">B 珊瑚</option><option value="3">C 紫藤</option><option value="4">D 藍灰</option><option value="5">E 草綠</option><option value="6">F 琥珀</option></select></label>
-      <label>AI 配置<select id="rotation"><option value="0">原始配置</option><option value="1">輪替 1</option><option value="2">輪替 2</option><option value="3">輪替 3</option><option value="4">輪替 4</option><option value="5">輪替 5</option></select></label>
+      <label>配置輪替<select id="rotation"><option value="0">原始配置</option><option value="1">輪替 1</option><option value="2">輪替 2</option><option value="3">輪替 3</option><option value="4">輪替 4</option><option value="5">輪替 5</option></select></label>
       <label>中立事件<select id="neutral-events"><option value="on">開啟 · 游擊 / 災害</option><option value="off">關閉</option></select></label>
+      <label id="seat-count-label" hidden>陣營數<select id="seat-count"><option>2</option><option selected>3</option><option>4</option><option>5</option><option>6</option></select></label>
+      <label>地形<select id="terrain-mode"><option value="mixed">河流與山丘</option><option value="plain">全平地</option></select></label>
+      <label>手牌期限<select id="timed-cards"><option value="keep">保留至使用</option><option value="timed">3 次己方行動</option></select></label>
+    </div>
+    <div class="ah-seat-settings" id="seat-settings" aria-label="本機座位與 AI 策略"></div>
+    <p class="ah-meta" id="seat-note">每位 AI 可使用不同策略；所有運算都在本機。</p>
+    <details class="ah-config"><summary>自訂 AI 策略 JSON <span id="strategy-id"></span></summary><p class="ah-meta">匯入資料格式的策略，或直接編輯。驗證成功後套用到新局；無效內容不會改變目前設定。</p><label class="ah-config-file">讀取 JSON 檔案<input id="strategy-file" type="file" accept="application/json,.json"></label><label for="strategy-json">策略內容</label><textarea id="strategy-json" rows="9" spellcheck="false" aria-describedby="strategy-status"></textarea><div class="ah-controls"><button class="btn" id="strategy-apply" type="button">驗證並套用</button><button class="btn" id="strategy-default" type="button">還原預設策略</button><a href="config/hex-strategies.json" download>下載預設 JSON</a></div><p id="strategy-status" class="ah-meta" role="status"></p></details>
     </div>
     <div class="ah-controls"><button class="btn primary" id="play">開始戰役</button><button class="btn" id="pause" disabled>暫停</button><button class="btn" id="restart">新戰場</button><button class="btn" id="replay">重播此局</button><label class="ah-speed">AI 每步 <input id="step-seconds" type="number" min="0.05" max="10" step="0.05" value="0.30" inputmode="decimal"> 秒</label><button class="btn" id="step" disabled>單步</button></div>
     <p class="ah-meta" id="campaign-note">接通對岸並守住來累積分數；機場與物資站支援你的連線。六方獨立計分，AI 速度不改變十分鐘時限。</p>
   </section>
 
-  <section class="ah-factions" id="players" aria-label="六方戰況與方向"></section>
+  <section class="ah-factions" id="players" aria-label="各方戰況與方向"></section>
   <section class="ah-result card" id="result" hidden aria-live="polite"><div><p class="eyebrow">CAMPAIGN COMPLETE</p><h2 id="result-title">戰役結束</h2><p id="result-description"></p><ol id="standings"></ol></div><button class="btn primary" id="sandbox">繼續自由對戰</button></section>
 
   <div class="ah-layout">
     <section class="card play-panel ah-arena" aria-label="AutoHex 棋盤">
-      <div class="ah-board-heading"><div><h2>六方前線</h2><p class="ah-meta"><span id="round-count">第 0 輪</span> · <span id="turn-count">0 次行動</span> · 1,027 格</p></div><span class="ah-turn-pill" id="turn-label">等待開局</span></div>
+      <div class="ah-board-heading"><div><h2 id="board-heading">六方前線</h2><p class="ah-meta"><span id="round-count">第 0 輪</span> · <span id="turn-count">0 次行動</span> · <span id="cell-count">1,027 格</span></p></div><span class="ah-turn-pill" id="turn-label">等待開局</span></div>
       <p id="neutral-warning" class="ah-neutral-warning" role="status">中立事件開啟；事件發生前會公開預警。</p>
+      <section class="ah-plan" id="planner-panel" aria-label="AI 公開策略">
+        <div class="ah-plan-controls"><label for="plan-faction">策略焦點 <select id="plan-faction"><option value="1">A 青綠</option><option value="2">B 珊瑚</option><option value="3">C 紫藤</option><option value="4">D 藍灰</option><option value="5">E 草綠</option><option value="6">F 琥珀</option><option value="off">關閉路線</option></select></label><button class="btn" id="plan-focus" disabled>查看目標</button></div>
+        <div class="ah-plan-copy"><div class="ah-plan-heading"><strong id="plan-title">等待首次決策</strong><span id="plan-stage">尚未建立策略</span></div><p id="plan-reason">AI 出手後，這裡會顯示它正在執行的公開策略。</p><div class="ah-plan-progress" id="plan-progress" role="progressbar" aria-label="目前策略進展" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><i id="plan-progress-fill"></i></div><div class="ah-plan-detail" id="plan-detail"><span id="plan-progress-text">進展尚未開始</span><span id="plan-legend">粗虛線：下一段路線 · ◇：策略目標</span></div></div>
+      </section>
       <div class="ah-map" id="board-wrap">
         <canvas id="board" tabindex="0" role="application" aria-label="六角戰場。拖曳移動、滾輪或雙指縮放。方向鍵移動格子，Enter 選擇，Escape 取消。" aria-describedby="board-help cell-info"></canvas>
         <div class="ah-map-notice" id="map-notice"><strong>六個家園，六個方向</strong><span>準備好後開始你的十分鐘戰役。</span></div>
@@ -46,7 +57,7 @@
       <p id="turret-info" class="ah-turret-info" role="status">選「查看設施」後點按炮台，可查看射程與目前可攻擊的敵子。</p>
       <p id="cell-info" class="ah-cell-info">點按格子出手；拖曳查看前線。</p>
       <p id="board-help" class="ah-meta">滾輪 / 雙指縮放，拖曳平移；小地圖可快速跳轉。鍵盤方向鍵移動，Enter 選格，Esc 取消。</p>
-      <div class="ah-terrain-legend" aria-label="地形與棋子圖例"><span><i class="ah-swatch river"></i>河流：先築路</span><span><i class="ah-swatch hill"></i>山丘：防守 +1</span><span><i class="ah-swatch road"></i>道路：各方可用</span><span><i class="ah-swatch linked"></i>細線：連回家園的補給</span><span><i class="ah-swatch supply"></i>空心虛線：斷補 / 數字為撤退倒數</span><span>⌂ 永久家園 · ◎ 護盾</span><span><i class="ah-turret-symbol" aria-hidden="true"></i>炮台：字母陣營 / 數字射擊倒數</span><span>✈ 方框：機場 · ◇ 箱：物資站</span><span>城垛外框：31 回合工事 · △ 中立事件預警</span><span>⊕ 可拆除目標 · × 棋子崩解（地形保留）</span><span>本戰役沒有陷阱</span></div>
+      <div class="ah-terrain-legend" aria-label="地形與棋子圖例"><span><i class="ah-swatch river"></i>河流：先築路</span><span><i class="ah-swatch hill"></i>山丘：防守 +1 / 3 回合撤退</span><span><i class="ah-swatch plain"></i>白色平地：整地完成</span><span><i class="ah-swatch linked"></i>細線：連回家園的補給</span><span><i class="ah-swatch supply"></i>空心虛線：斷補 / 數字為撤退倒數</span><span>⌂ 永久家園 · ◎ 護盾</span><span><i class="ah-turret-symbol" aria-hidden="true"></i>炮台：字母陣營 / 數字射擊倒數</span><span>✈ 方框：機場 · ◇ 箱：物資站</span><span>城垛外框：31 回合工事 · △ 中立事件預警</span><span>⊕ 可拆除目標 · × 棋子崩解（地形保留）</span><span>點虛線與入口：地道（不改地形） · 無暗伏陷阱</span></div>
     </section>
 
     <aside class="ah-sidebar">
@@ -54,19 +65,19 @@
         <div class="ah-section-heading"><h2 id="action-heading">你的回合工具</h2><span class="ah-energy" id="energy">能量 0 / 8</span></div>
         <p id="supplies" class="ah-resource">物資 0 / 6 · 航空冷卻 0 回合</p>
         <p id="status" class="ah-status" role="status" aria-live="polite">選擇模式並開始戰役。</p>
-        <div class="ah-base-actions" id="base-actions"><button class="btn" id="deploy" data-action="deploy" aria-pressed="true">鋪子 / 攻占 <small>2 / 4 能量</small></button><button class="btn" id="engineer" data-action="engineer" aria-pressed="false">築路 <small>2 能量</small></button><button class="btn" id="withdraw" data-action="withdraw" aria-pressed="false">撤回 <small>0 能量</small></button><button class="btn" id="rest" data-action="rest">休整</button></div>
+        <div class="ah-base-actions" id="base-actions"><button class="btn" id="deploy" data-action="deploy" aria-pressed="true">鋪子 / 攻占 <small>2 / 4 能量</small></button><button class="btn" id="engineer" data-action="engineer" aria-pressed="false">工程 <small>2 能量</small></button><button class="btn" id="withdraw" data-action="withdraw" aria-pressed="false">撤回 <small>0 能量</small></button><button class="btn" id="tunnel" data-action="tunnel" aria-pressed="false">地道 <small>4 能量</small></button><button class="btn" id="rest" data-action="rest">休整</button></div>
         <div id="air-actions" class="ah-air-actions"><button class="btn" id="airdrop" data-action="airdrop" aria-pressed="false"><strong>空投炮台</strong><small>6 能量 + 3 物資</small></button><button class="btn" id="bombard" data-action="bombard" aria-pressed="false"><strong>航空轟炸</strong><small>7 能量 + 4 物資</small></button></div>
         <p id="air-action-note" class="ah-meta">航空行動先選已啟用的己方機場，再選目標；不需手牌。</p>
         <div class="ah-hand-heading"><h3>你的手牌 <span id="hand-count">0 / 5</span></h3><span id="pool-count">共享牌池</span></div>
         <div id="hand" class="ah-hand"></div>
         <div class="ah-discard"><select id="discard-card" aria-label="選擇要棄置的手牌"></select><button class="btn" id="discard">棄牌</button></div>
-        <div class="ah-selection" id="selection"><span id="selection-label">已選：鋪子</span><button class="btn" id="cancel-selection">取消選取</button></div>
+        <div class="ah-selection" id="selection"><span id="selection-label">已選：鋪子</span><div class="ah-selection-buttons"><button class="btn" id="back-selection" hidden>退一格</button><button class="btn primary" id="confirm-selection" hidden>完成地道</button><button class="btn" id="cancel-selection">取消</button></div></div>
         <p class="ah-meta">每回合只做一件事。一般行動與卡牌須在自己既有棋子 5 格內；友軍不延伸範圍。航空行動例外：從啟用機場起算空投 10 格、轟炸 12 格。無效點選不花資源。</p>
       </section>
 
       <section class="card ah-strategy" aria-label="機場與物資站"><div class="ah-section-heading"><h2>支援據點</h2><span class="ah-tag">點按前往</span></div><p class="ah-meta">機場位置隨 seed 改變。選擇有利於接通對岸的據點，不必逐一占領；占機場本身不加分。</p><p class="ah-meta">機場需連回家園，附近連片 12 子維持 3 次己方行動才啟用。</p><div id="facilities" class="ah-facilities"></div><div id="depots" class="ah-depots"></div><p class="ah-meta">每 3 次己方行動回復 1 物資；控制連通的物資站再加 1，上限 6。兩種航空行動共用 6 回合冷卻。</p></section>
 
-      <section class="card ah-diplomacy" aria-label="公開外交">
+      <section id="diplomacy-panel" class="card ah-diplomacy" aria-label="公開外交">
         <div class="ah-section-heading"><h2>公開外交</h2><span class="ah-tag">最多 2 位盟友</span></div>
         <p class="ah-meta">停戰有期限，不共用手牌與分數。提議、回覆與背盟各占一回合。</p>
         <div id="alliances" class="ah-alliances"></div><div id="offers" class="ah-offers"></div>
@@ -76,9 +87,13 @@
     </aside>
   </div>
 
-  <details class="card rules ah-rules"><summary>戰役指南與卡牌說明</summary><div class="ah-rules-grid"><section><h3>方向與計分</h3><p>每方從標示 ⌂ 的家園，連向同色箭頭指向的對岸。必須沿自己的相鄰棋子或橋梁連回家園，才能得分。每輪結算時首次接通得 12 分，之後持續守住每輪加 2 分；斷線後再次接通可得 6 分（重連獎勵有 12 輪冷卻）。十分鐘到時一起結算，最高分並列就共享第一。</p><h3>補給與重建</h3><p>失去家園連線的棋子可繼續行動，但六次自己的回合後會撤退。每方最多 96 枚棋子；撤回舊前線可騰出空間並回復 1 能量。家園永久保留，失勢仍能重新出發。</p><h3>鋪子與攻占</h3><p>鋪空格花 2 能量；選敵方棋子則為攻占，花 4 能量。必須有自己的相鄰棋子支援，攻擊力達到防守力才能攻占。防守基礎 1，山丘 +1、護盾 +2，守方鄰援另有加成。河流須先築路，家園不可攻占。</p><h3>機場、物資與航空</h3><p>六座機場依 seed 分布於戰場中段至外側；重播同一 seed 會保留位置。機場是支援連線的工具，占領本身不加分，也不必經過機場才能接通對岸。占領機場中心、連通家園補給，並在機場 4 格內保持至少 12 枚相鄰連片的己方棋子，連續維持 3 次己方行動即可啟用；任何條件失去便立即停用。每 3 次己方行動獲得 1 物資，連通的物資站額外增加 1，物資上限 6。</p><p>從啟用的己方機場空投，花 6 能量與 3 物資，在 10 格內空的可通行格建立炮台；仍受每方 3 炮台、96 子上限及斷補撤退限制。航空轟炸花 7 能量與 4 物資，攻擊機場 12 格內一枚非盟友敵子；家園免疫，護盾吸收一次。航空行動不耗卡牌，共用 6 次己方行動冷卻；只有這兩種行動可超出一般 5 格範圍。</p></section><section><h3>能量與手牌</h3><p>每次自己的回合開始恢復 3 能量，上限 8。六方從同一牌池公平抽牌，手牌上限 5；抽牌池用盡才回收棄牌。休整額外回復 3 能量；棄一張牌會抽取替代牌。休整、棄牌、外交都占一回合，不能連續出牌。</p><h3>停戰與背盟</h3><p>停戰持續 12 輪，提議 3 輪內有效，每方最多 2 位盟友。提議後有 8 輪冷卻。背盟花 3 能量、扣 4 分與 2 聲望，並帶來 18 輪交涉冷卻與雙方敵意；需下一次自己的回合才能攻擊原盟友。</p><h3>老兵工事與中立事件</h3><p>同一陣營連續保有一枚棋子超過 30 次自己的已完成行動，第 31 次即形成工事。工事可免疫中立游擊與災害，仍會被敵方攻擊或因斷補撤退；換主或移位後重新累積。</p><p>中立事件可在開局前關閉。開啟時每 12 輪交替發生游擊或災害，提前 2 輪公開標記受影響扇區與至多 2 枚棋子；工事、家園與護盾提供保護。事件只影響棋子，不會摧毀地形。</p><h3>十分鐘，照你的節奏</h3><p>只有此頁在前景且戰役進行時才計時；你的思考時間也會計入。暫停與切換分頁會凍結時間，回到此頁後按繼續。觀戰單步不計時；戰役結束可選擇不再限時的自由對戰。</p></section></div><div id="card-rules" class="ah-card-rules"></div></details>
+  <details class="card rules ah-rules"><summary>共用規則與卡牌說明</summary><div class="ah-rules-grid"><section><h3>從家園接通對岸</h3><p id="winning-rules">自己的相鄰棋子、橋梁和地道，須連回永久家園再接觸同色對岸。AutoHex 每輪首次接通得 12 分，守住每輪加 2 分；斷線後重連可得 6 分（12 輪冷卻）。十分鐘後最高分獲勝；同分共享第一。</p><h3>鋪子、補給與工程</h3><p>鋪空格花 2 能量；攻占敵子花 4，須有足夠己方鄰援。家園不可攻占。普通行動須在行動前己方棋子 5 格內；盟友不延伸範圍。斷補棋子在 6 次自己的回合後撤退，每方最多 96 子。工程花 2 能量：把河流或空／己方山丘變成白色平地，或破壞敵方可見地道的內部格。整地保留己方棋子與設施。</p><h3>山丘與護盾</h3><p>山丘防守 +1；新占領後經過 3 次自己的後續行動，棋子會撤退。工程整平可取消山丘倒數。護盾事先架設，防守 +2，吸收一次拆除或炮擊；山丘不會擋住這些攻擊。</p><h3>橋梁與地道</h3><p>橋梁兩端須為自己的棋子，沿六角直線相距 2–3 步，不可交叉、重疊或形成 T 接點，可共享真正端點。地道花 4 能量、不耗牌：逐格選 3–4 格，形成 2–3 步相鄰且不重複的路徑，可轉彎，最後回到自己的另一枚棋子；兩端距離至少 2。按「完成地道」確認。</p><p>每方最多 2 條地道。內部不可經過家園、機場、物資站、炮台或其他地道；可穿過普通棋子下方。橋梁與地道只傳遞所有者的補給，不占中間格、不改變河流或山丘。端點失去便崩塌；敵方可工程破壞可見的地道內部。</p><h3>手牌與回合</h3><p>每次自己的回合開始恢復 3 能量，上限 8。每人對應 13 張共享牌池配方，其中只有 1 張護盾；總數與座位數成比例。手牌最多 5 張，預設保留至使用；可選 3 次己方行動到期，期限顯示在牌上。每回合只做一件事，休整、棄牌也占回合。無效選取不花資源。</p></section><section><h3>機場、物資與航空</h3><p>機場依 seed 分布，占領本身不加分。占中心、連通家園、4 格內保持 12 枚相鄰連片己方棋子，維持 3 次己方行動才啟用，失去條件立即停用。每 3 次己方行動獲得 1 物資，連通物資站再加 1，上限 6。</p><p>空投炮台花 6 能量、3 物資，從啟用機場選 10 格內的空可通行格；轟炸花 7 能量、4 物資，攻擊 12 格內一枚非盟友非家園棋子，護盾吸收一次。兩者共用 6 次己方行動冷卻；只有航空行動可超出通常 5 格範圍。</p><div id="diplomacy-rules"><h3>公開停戰</h3><p>AutoHex 可停戰 12 輪，提議 3 輪有效，最多 2 位盟友。外交占一回合；背盟花 3 能量、扣 4 分與 2 聲望，18 輪冷卻，下一次己方回合才能攻擊原盟友。一般 Hex 不開放外交。</p></div><h3>工事與中立事件</h3><p>連續保有棋子超過 30 次己方行動，第 31 次形成工事，可抵擋中立游擊／災害，但不防敵方攻擊或斷補。中立事件可開局關閉；開啟後每 12 輪發生，提前 2 輪公開至多 2 格目標，只影響棋子而不改地形。</p><h3>AI 路線與自訂策略</h3><p>策略焦點固定追蹤一位 AI；虛線與菱形代表已選路線與目標，進展來自實際棋盤。手牌與未來出牌不公開。每個 AI 可選不同策略，也可在開局前匯入經驗證的 JSON。相同 seed、座位、策略與行動可重播同局。</p><h3>本機遊玩與暫停</h3><p id="timing-rules">AutoHex 只有此頁在前景且進行中才計時，人的思考也計時。暫停與切換分頁凍結時間；返回後手動繼續。觀戰單步不計時，結算後可繼續不限時對戰。</p><p>一般 Hex 支援 2–6 位本機玩家或 AI；多人輪到新玩家時，交接畫面先隱藏手牌，交接後再顯示。新版與 AutoHex 共用炮台、護盾和補給規則，取代舊版的暗伏、雙鋪、阻擋與反應式護盾。</p></section></div><div id="card-rules" class="ah-card-rules"></div></details>
   <footer class="ah-footer">AutoHex · 六個獨立陣營 · 所有 AI 都在此裝置運算</footer>
 </main>
+<div class="ah-handoff" id="handoff" hidden role="dialog" aria-modal="true" aria-labelledby="handoff-title" aria-describedby="handoff-description"><div class="card"><p class="eyebrow">本機輪流遊玩</p><h2 id="handoff-title">請交接裝置</h2><p id="handoff-description">手牌已隱藏。交給下一位玩家後，再顯示他的手牌。</p><button class="btn primary" id="reveal-hand">顯示我的手牌</button></div></div>
+<script src="hex-strategies.js"></script>
+<script src="autohex-planner.js"></script>
+<script src="hex-core.js"></script>
 <script src="autohex-engine.js"></script>
 <script src="autohex-visuals.js"></script>
 <script src="autohex-ui.js"></script>

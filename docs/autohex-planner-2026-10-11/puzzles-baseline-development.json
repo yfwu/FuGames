@@ -1,0 +1,1186 @@
+{
+  "kind": "Controlled tactical puzzles; other players rest unless the scenario states active responses",
+  "policy": "released96c109a",
+  "sourceHashes": {
+    "autohex-engine.js": "a029f76bb5424506a21f8485519176f010c3803aed401a20733ad83aaf4c9f09"
+  },
+  "sourceUnchanged": true,
+  "tests": [
+    {
+      "name": "planner follows a supplied flank around a defended central barrier over several owner turns",
+      "policy": "released96c109a",
+      "sequences": [
+        {
+          "seed": "planner-flank-sequence",
+          "startPly": 0,
+          "actions": [
+            {
+              "type": "deploy",
+              "cells": [
+                619
+              ],
+              "holds": [
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+              ],
+              "airports": [
+                {
+                  "cell": 863,
+                  "cluster": 9,
+                  "progress": 0,
+                  "active": false
+                }
+              ]
+            },
+            {
+              "type": "deploy",
+              "cells": [
+                618
+              ],
+              "holds": [
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+              ],
+              "airports": [
+                {
+                  "cell": 863,
+                  "cluster": 9,
+                  "progress": 0,
+                  "active": false
+                }
+              ]
+            },
+            {
+              "type": "deploy",
+              "cells": [
+                617
+              ],
+              "holds": [
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+              ],
+              "airports": [
+                {
+                  "cell": 863,
+                  "cluster": 9,
+                  "progress": 0,
+                  "active": false
+                }
+              ]
+            },
+            {
+              "type": "deploy",
+              "cells": [
+                616
+              ],
+              "holds": [
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+              ],
+              "airports": [
+                {
+                  "cell": 863,
+                  "cluster": 9,
+                  "progress": 0,
+                  "active": false
+                }
+              ]
+            },
+            {
+              "type": "deploy",
+              "cells": [
+                615
+              ],
+              "holds": [
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+              ],
+              "airports": [
+                {
+                  "cell": 863,
+                  "cluster": 9,
+                  "progress": 0,
+                  "active": false
+                }
+              ]
+            },
+            {
+              "type": "deploy",
+              "cells": [
+                580
+              ],
+              "holds": [
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+              ],
+              "airports": [
+                {
+                  "cell": 863,
+                  "cluster": 9,
+                  "progress": 0,
+                  "active": false
+                }
+              ]
+            },
+            {
+              "type": "deploy",
+              "cells": [
+                544
+              ],
+              "holds": [
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+              ],
+              "airports": [
+                {
+                  "cell": 863,
+                  "cluster": 9,
+                  "progress": 0,
+                  "active": false
+                }
+              ]
+            },
+            {
+              "type": "deploy",
+              "cells": [
+                507
+              ],
+              "holds": [
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+              ],
+              "airports": [
+                {
+                  "cell": 863,
+                  "cluster": 9,
+                  "progress": 0,
+                  "active": false
+                }
+              ]
+            },
+            {
+              "type": "deploy",
+              "cells": [
+                471
+              ],
+              "holds": [
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+              ],
+              "airports": [
+                {
+                  "cell": 863,
+                  "cluster": 9,
+                  "progress": 0,
+                  "active": false
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "pass": true
+    },
+    {
+      "name": "planner completes a nearby goal instead of collecting an unrelated nearly ready airport",
+      "policy": "released96c109a",
+      "sequences": [
+        {
+          "seed": "planner-ignore-facility",
+          "startPly": 0,
+          "actions": [
+            {
+              "type": "deploy",
+              "cells": [
+                64
+              ],
+              "holds": [
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+              ],
+              "airports": [
+                {
+                  "cell": 809,
+                  "cluster": 13,
+                  "progress": 1,
+                  "active": false
+                }
+              ]
+            },
+            {
+              "type": "deploy",
+              "cells": [
+                43
+              ],
+              "holds": [
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+              ],
+              "airports": [
+                {
+                  "cell": 809,
+                  "cluster": 13,
+                  "progress": 2,
+                  "active": false
+                }
+              ]
+            },
+            {
+              "type": "deploy",
+              "cells": [
+                23
+              ],
+              "holds": [
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+              ],
+              "airports": [
+                {
+                  "cell": 809,
+                  "cluster": 13,
+                  "progress": 3,
+                  "active": true
+                }
+              ]
+            },
+            {
+              "type": "deploy",
+              "cells": [
+                4
+              ],
+              "holds": [
+                true,
+                false,
+                false,
+                false,
+                false,
+                false
+              ],
+              "airports": [
+                {
+                  "cell": 809,
+                  "cluster": 13,
+                  "progress": 3,
+                  "active": true
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "pass": true
+    },
+    {
+      "name": "planner develops a useful airport, holds it, and actually disrupts the remote scoring route",
+      "policy": "released96c109a",
+      "sequences": [
+        {
+          "seed": "planner-airport-purpose",
+          "startPly": 0,
+          "actions": [
+            {
+              "type": "deploy",
+              "cells": [
+                332
+              ],
+              "holds": [
+                false,
+                false,
+                false,
+                true,
+                false,
+                false
+              ],
+              "airports": [
+                {
+                  "cell": 751,
+                  "cluster": 8,
+                  "progress": 0,
+                  "active": false
+                },
+                {
+                  "cell": 506,
+                  "cluster": 9,
+                  "progress": 0,
+                  "active": false
+                },
+                {
+                  "cell": 744,
+                  "cluster": 9,
+                  "progress": 0,
+                  "active": false
+                }
+              ]
+            },
+            {
+              "type": "deploy",
+              "cells": [
+                301
+              ],
+              "holds": [
+                false,
+                false,
+                false,
+                true,
+                false,
+                false
+              ],
+              "airports": [
+                {
+                  "cell": 751,
+                  "cluster": 8,
+                  "progress": 0,
+                  "active": false
+                },
+                {
+                  "cell": 506,
+                  "cluster": 9,
+                  "progress": 0,
+                  "active": false
+                },
+                {
+                  "cell": 744,
+                  "cluster": 9,
+                  "progress": 0,
+                  "active": false
+                }
+              ]
+            },
+            {
+              "type": "deploy",
+              "cells": [
+                271
+              ],
+              "holds": [
+                false,
+                false,
+                false,
+                true,
+                false,
+                false
+              ],
+              "airports": [
+                {
+                  "cell": 751,
+                  "cluster": 8,
+                  "progress": 0,
+                  "active": false
+                },
+                {
+                  "cell": 506,
+                  "cluster": 9,
+                  "progress": 0,
+                  "active": false
+                },
+                {
+                  "cell": 744,
+                  "cluster": 9,
+                  "progress": 0,
+                  "active": false
+                }
+              ]
+            },
+            {
+              "type": "deploy",
+              "cells": [
+                242
+              ],
+              "holds": [
+                false,
+                false,
+                false,
+                true,
+                false,
+                false
+              ],
+              "airports": [
+                {
+                  "cell": 751,
+                  "cluster": 8,
+                  "progress": 0,
+                  "active": false
+                },
+                {
+                  "cell": 506,
+                  "cluster": 9,
+                  "progress": 0,
+                  "active": false
+                },
+                {
+                  "cell": 744,
+                  "cluster": 9,
+                  "progress": 0,
+                  "active": false
+                }
+              ]
+            },
+            {
+              "type": "deploy",
+              "cells": [
+                214
+              ],
+              "holds": [
+                false,
+                false,
+                false,
+                true,
+                false,
+                false
+              ],
+              "airports": [
+                {
+                  "cell": 751,
+                  "cluster": 8,
+                  "progress": 0,
+                  "active": false
+                },
+                {
+                  "cell": 506,
+                  "cluster": 9,
+                  "progress": 0,
+                  "active": false
+                },
+                {
+                  "cell": 744,
+                  "cluster": 9,
+                  "progress": 0,
+                  "active": false
+                }
+              ]
+            },
+            {
+              "type": "deploy",
+              "cells": [
+                187
+              ],
+              "holds": [
+                false,
+                false,
+                false,
+                true,
+                false,
+                false
+              ],
+              "airports": [
+                {
+                  "cell": 751,
+                  "cluster": 8,
+                  "progress": 0,
+                  "active": false
+                },
+                {
+                  "cell": 506,
+                  "cluster": 9,
+                  "progress": 0,
+                  "active": false
+                },
+                {
+                  "cell": 744,
+                  "cluster": 9,
+                  "progress": 0,
+                  "active": false
+                }
+              ]
+            },
+            {
+              "type": "deploy",
+              "cells": [
+                161
+              ],
+              "holds": [
+                false,
+                false,
+                false,
+                true,
+                false,
+                false
+              ],
+              "airports": [
+                {
+                  "cell": 751,
+                  "cluster": 8,
+                  "progress": 0,
+                  "active": false
+                },
+                {
+                  "cell": 506,
+                  "cluster": 9,
+                  "progress": 0,
+                  "active": false
+                },
+                {
+                  "cell": 744,
+                  "cluster": 9,
+                  "progress": 0,
+                  "active": false
+                }
+              ]
+            },
+            {
+              "type": "deploy",
+              "cells": [
+                136
+              ],
+              "holds": [
+                false,
+                false,
+                false,
+                true,
+                false,
+                false
+              ],
+              "airports": [
+                {
+                  "cell": 751,
+                  "cluster": 8,
+                  "progress": 0,
+                  "active": false
+                },
+                {
+                  "cell": 506,
+                  "cluster": 9,
+                  "progress": 0,
+                  "active": false
+                },
+                {
+                  "cell": 744,
+                  "cluster": 9,
+                  "progress": 0,
+                  "active": false
+                }
+              ]
+            },
+            {
+              "type": "deploy",
+              "cells": [
+                112
+              ],
+              "holds": [
+                false,
+                false,
+                false,
+                true,
+                false,
+                false
+              ],
+              "airports": [
+                {
+                  "cell": 751,
+                  "cluster": 8,
+                  "progress": 0,
+                  "active": false
+                },
+                {
+                  "cell": 506,
+                  "cluster": 9,
+                  "progress": 0,
+                  "active": false
+                },
+                {
+                  "cell": 744,
+                  "cluster": 9,
+                  "progress": 0,
+                  "active": false
+                }
+              ]
+            },
+            {
+              "type": "deploy",
+              "cells": [
+                89
+              ],
+              "holds": [
+                false,
+                false,
+                false,
+                true,
+                false,
+                false
+              ],
+              "airports": [
+                {
+                  "cell": 751,
+                  "cluster": 8,
+                  "progress": 0,
+                  "active": false
+                },
+                {
+                  "cell": 506,
+                  "cluster": 9,
+                  "progress": 0,
+                  "active": false
+                },
+                {
+                  "cell": 744,
+                  "cluster": 9,
+                  "progress": 0,
+                  "active": false
+                }
+              ]
+            },
+            {
+              "type": "deploy",
+              "cells": [
+                67
+              ],
+              "holds": [
+                false,
+                false,
+                false,
+                true,
+                false,
+                false
+              ],
+              "airports": [
+                {
+                  "cell": 751,
+                  "cluster": 8,
+                  "progress": 0,
+                  "active": false
+                },
+                {
+                  "cell": 506,
+                  "cluster": 9,
+                  "progress": 0,
+                  "active": false
+                },
+                {
+                  "cell": 744,
+                  "cluster": 9,
+                  "progress": 0,
+                  "active": false
+                }
+              ]
+            },
+            {
+              "type": "deploy",
+              "cells": [
+                46
+              ],
+              "holds": [
+                false,
+                false,
+                false,
+                true,
+                false,
+                false
+              ],
+              "airports": [
+                {
+                  "cell": 751,
+                  "cluster": 8,
+                  "progress": 0,
+                  "active": false
+                },
+                {
+                  "cell": 506,
+                  "cluster": 9,
+                  "progress": 0,
+                  "active": false
+                },
+                {
+                  "cell": 744,
+                  "cluster": 9,
+                  "progress": 0,
+                  "active": false
+                }
+              ]
+            },
+            {
+              "type": "deploy",
+              "cells": [
+                26
+              ],
+              "holds": [
+                false,
+                false,
+                false,
+                true,
+                false,
+                false
+              ],
+              "airports": [
+                {
+                  "cell": 751,
+                  "cluster": 8,
+                  "progress": 0,
+                  "active": false
+                },
+                {
+                  "cell": 506,
+                  "cluster": 9,
+                  "progress": 0,
+                  "active": false
+                },
+                {
+                  "cell": 744,
+                  "cluster": 9,
+                  "progress": 0,
+                  "active": false
+                }
+              ]
+            },
+            {
+              "type": "deploy",
+              "cells": [
+                7
+              ],
+              "holds": [
+                true,
+                false,
+                false,
+                true,
+                false,
+                false
+              ],
+              "airports": [
+                {
+                  "cell": 751,
+                  "cluster": 8,
+                  "progress": 0,
+                  "active": false
+                },
+                {
+                  "cell": 506,
+                  "cluster": 9,
+                  "progress": 0,
+                  "active": false
+                },
+                {
+                  "cell": 744,
+                  "cluster": 9,
+                  "progress": 0,
+                  "active": false
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "pass": false,
+      "error": "Never followed facility development with air: [{\"type\":\"deploy\",\"cells\":[332]},{\"type\":\"deploy\",\"cells\":[301]},{\"type\":\"deploy\",\"cells\":[271]},{\"type\":\"deploy\",\"cells\":[242]},{\"type\":\"deploy\",\"cells\":[214]},{\"type\":\"deploy\",\"cells\":[187]},{\"type\":\"deploy\",\"cells\":[161]},{\"type\":\"deploy\",\"cells\":[136]},{\"type\":\"deploy\",\"cells\":[112]},{\"type\":\"deploy\",\"cells\":[89]},{\"type\":\"deploy\",\"cells\":[67]},{\"type\":\"deploy\",\"cells\":[46]},{\"type\":\"deploy\",\"cells\":[26]},{\"type\":\"deploy\",\"cells\":[7]}]"
+    },
+    {
+      "name": "planner repairs a severed goal route and retains real supply through following turns",
+      "policy": "released96c109a",
+      "sequences": [
+        {
+          "seed": "planner-repair-sequence",
+          "startPly": 0,
+          "actions": [
+            {
+              "type": "deploy",
+              "cells": [
+                513
+              ],
+              "holds": [
+                true,
+                false,
+                false,
+                false,
+                false,
+                false
+              ],
+              "airports": []
+            }
+          ]
+        },
+        {
+          "seed": "planner-repair-sequence",
+          "startPly": 1,
+          "actions": [
+            {
+              "type": "deploy",
+              "cells": [
+                809
+              ],
+              "holds": [
+                true,
+                false,
+                false,
+                false,
+                false,
+                false
+              ],
+              "airports": []
+            },
+            {
+              "type": "deploy",
+              "cells": [
+                780
+              ],
+              "holds": [
+                true,
+                false,
+                false,
+                false,
+                false,
+                false
+              ],
+              "airports": []
+            },
+            {
+              "type": "deploy",
+              "cells": [
+                750
+              ],
+              "holds": [
+                true,
+                false,
+                false,
+                false,
+                false,
+                false
+              ],
+              "airports": []
+            }
+          ]
+        }
+      ],
+      "pass": true
+    },
+    {
+      "name": "planner reassesses after an active opponent legally cuts the committed route, then reconnects and finishes",
+      "policy": "released96c109a",
+      "sequences": [
+        {
+          "seed": "planner-active-reassessment",
+          "startPly": 0,
+          "actions": [
+            {
+              "type": "deploy",
+              "cells": [
+                42
+              ],
+              "holds": [
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+              ],
+              "airports": []
+            }
+          ]
+        },
+        {
+          "seed": "planner-active-reassessment",
+          "startPly": 2,
+          "actions": [
+            {
+              "type": "deploy",
+              "cells": [
+                688
+              ],
+              "holds": [
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+              ],
+              "airports": []
+            },
+            {
+              "type": "deploy",
+              "cells": [
+                22
+              ],
+              "holds": [
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+              ],
+              "airports": []
+            },
+            {
+              "type": "deploy",
+              "cells": [
+                3
+              ],
+              "holds": [
+                true,
+                false,
+                false,
+                false,
+                false,
+                false
+              ],
+              "airports": []
+            }
+          ]
+        }
+      ],
+      "pass": true
+    },
+    {
+      "name": "planner stops an imminent enemy connection before the opponent attempts its finishing deployment",
+      "policy": "released96c109a",
+      "sequences": [
+        {
+          "seed": "planner-imminent-defense",
+          "startPly": 0,
+          "actions": [
+            {
+              "type": "deploy",
+              "cells": [
+                182
+              ],
+              "holds": [
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+              ],
+              "airports": []
+            }
+          ]
+        }
+      ],
+      "pass": true
+    },
+    {
+      "name": "planner breaks an obstructing pact and then exploits the opening with legal paid actions",
+      "policy": "released96c109a",
+      "sequences": [
+        {
+          "seed": "planner-betray-sequence",
+          "startPly": 0,
+          "actions": [
+            {
+              "type": "deploy",
+              "cells": [
+                19
+              ],
+              "holds": [
+                false,
+                true,
+                false,
+                false,
+                false,
+                false
+              ],
+              "airports": []
+            },
+            {
+              "type": "deploy",
+              "cells": [
+                21
+              ],
+              "holds": [
+                false,
+                true,
+                false,
+                false,
+                false,
+                false
+              ],
+              "airports": []
+            },
+            {
+              "type": "deploy",
+              "cells": [
+                22
+              ],
+              "holds": [
+                false,
+                true,
+                false,
+                false,
+                false,
+                false
+              ],
+              "airports": []
+            },
+            {
+              "type": "deploy",
+              "cells": [
+                23
+              ],
+              "holds": [
+                false,
+                true,
+                false,
+                false,
+                false,
+                false
+              ],
+              "airports": []
+            },
+            {
+              "type": "deploy",
+              "cells": [
+                24
+              ],
+              "holds": [
+                false,
+                true,
+                false,
+                false,
+                false,
+                false
+              ],
+              "airports": []
+            }
+          ]
+        }
+      ],
+      "pass": false,
+      "error": "[{\"type\":\"deploy\",\"cells\":[19]},{\"type\":\"deploy\",\"cells\":[21]},{\"type\":\"deploy\",\"cells\":[22]},{\"type\":\"deploy\",\"cells\":[23]},{\"type\":\"deploy\",\"cells\":[24]}]"
+    },
+    {
+      "name": "planner accepts a useful public truce that prevents an immediate supply cut and then completes its route",
+      "policy": "released96c109a",
+      "sequences": [
+        {
+          "seed": "planner-beneficial-truce",
+          "startPly": 0,
+          "actions": [
+            {
+              "type": "deploy",
+              "cells": [
+                42
+              ],
+              "holds": [
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+              ],
+              "airports": []
+            }
+          ]
+        },
+        {
+          "seed": "planner-beneficial-truce",
+          "startPly": 2,
+          "actions": [
+            {
+              "type": "deploy",
+              "cells": [
+                549
+              ],
+              "holds": [
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+              ],
+              "airports": []
+            },
+            {
+              "type": "deploy",
+              "cells": [
+                512
+              ],
+              "holds": [
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+              ],
+              "airports": []
+            },
+            {
+              "type": "deploy",
+              "cells": [
+                22
+              ],
+              "holds": [
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+              ],
+              "airports": []
+            },
+            {
+              "type": "deploy",
+              "cells": [
+                3
+              ],
+              "holds": [
+                true,
+                false,
+                false,
+                false,
+                false,
+                false
+              ],
+              "airports": []
+            }
+          ]
+        }
+      ],
+      "pass": false,
+      "opponentResponse": {
+        "captureLegal": true,
+        "supplyCut": true
+      },
+      "error": "Expected values to be strictly equal:\n\n'deploy' !== 'accept'\n"
+    }
+  ]
+}

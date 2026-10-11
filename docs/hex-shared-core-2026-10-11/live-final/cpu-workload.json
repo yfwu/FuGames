@@ -1,0 +1,13 @@
+{
+  "campaignStartedUtc": "2026-10-11T17:43:57.218328+00:00",
+  "concurrentFormalSimulationWorkers": 2,
+  "wholeRepositoryNodeSuite": {
+    "startedUtc": "2026-10-11T17:39:00+00:00",
+    "endedNoLaterThanUtc": "2026-10-11T17:45:10+00:00",
+    "concurrency": 1,
+    "result": "378/378 PASS",
+    "durationSeconds": 292.17,
+    "source": "Parent coordination message and repository-final-suite.log"
+  },
+  "note": "The first approximately 73 seconds also shared CPU with one Node test worker; after that the remaining background load was two formal simulation workers. Separate 2\u00d730-second performance intervals were coordinated without these heavy workloads."
+}

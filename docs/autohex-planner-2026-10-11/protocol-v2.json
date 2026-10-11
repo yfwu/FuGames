@@ -1,0 +1,220 @@
+{
+  "registeredUtc": "2026-10-11T16:45:56.144393+00:00",
+  "candidate": "V2, source not frozen and no heldout games opened",
+  "status": "PREREGISTERED; wait for parent freeze approval and dual-source hashes",
+  "baselineCommit": "96c109a59c0bf79a159561ed845715a8e0ab8fee",
+  "seeds": [
+    73013,
+    74101,
+    75209,
+    76303,
+    77417,
+    78511
+  ],
+  "pairedSchedule": [
+    {
+      "seed": 73013,
+      "rotation": 0,
+      "first": 1
+    },
+    {
+      "seed": 73013,
+      "rotation": 0,
+      "first": 2
+    },
+    {
+      "seed": 74101,
+      "rotation": 1,
+      "first": 2
+    },
+    {
+      "seed": 74101,
+      "rotation": 1,
+      "first": 3
+    },
+    {
+      "seed": 75209,
+      "rotation": 2,
+      "first": 3
+    },
+    {
+      "seed": 75209,
+      "rotation": 2,
+      "first": 4
+    },
+    {
+      "seed": 76303,
+      "rotation": 3,
+      "first": 4
+    },
+    {
+      "seed": 76303,
+      "rotation": 3,
+      "first": 5
+    },
+    {
+      "seed": 77417,
+      "rotation": 4,
+      "first": 5
+    },
+    {
+      "seed": 77417,
+      "rotation": 4,
+      "first": 6
+    },
+    {
+      "seed": 78511,
+      "rotation": 5,
+      "first": 6
+    },
+    {
+      "seed": 78511,
+      "rotation": 5,
+      "first": 1
+    }
+  ],
+  "mixedSchedule": [
+    {
+      "seed": 73013,
+      "rotation": 0,
+      "first": 1,
+      "mixedOffset": 0
+    },
+    {
+      "seed": 73013,
+      "rotation": 0,
+      "first": 1,
+      "mixedOffset": 1
+    },
+    {
+      "seed": 74101,
+      "rotation": 1,
+      "first": 3,
+      "mixedOffset": 0
+    },
+    {
+      "seed": 74101,
+      "rotation": 1,
+      "first": 3,
+      "mixedOffset": 1
+    },
+    {
+      "seed": 75209,
+      "rotation": 2,
+      "first": 3,
+      "mixedOffset": 0
+    },
+    {
+      "seed": 75209,
+      "rotation": 2,
+      "first": 3,
+      "mixedOffset": 1
+    },
+    {
+      "seed": 76303,
+      "rotation": 3,
+      "first": 5,
+      "mixedOffset": 0
+    },
+    {
+      "seed": 76303,
+      "rotation": 3,
+      "first": 5,
+      "mixedOffset": 1
+    },
+    {
+      "seed": 77417,
+      "rotation": 4,
+      "first": 5,
+      "mixedOffset": 0
+    },
+    {
+      "seed": 77417,
+      "rotation": 4,
+      "first": 5,
+      "mixedOffset": 1
+    },
+    {
+      "seed": 78511,
+      "rotation": 5,
+      "first": 1,
+      "mixedOffset": 0
+    },
+    {
+      "seed": 78511,
+      "rotation": 5,
+      "first": 1,
+      "mixedOffset": 1
+    }
+  ],
+  "plannedCounts": {
+    "baseline": 12,
+    "candidate": 12,
+    "mixed": 12
+  },
+  "duration": {
+    "actions": 2000,
+    "activeModelMsPerAction": 300,
+    "activeModelMsPerGame": 600000
+  },
+  "pairedMargins": {
+    "firstSeats": {
+      "1": 2,
+      "2": 2,
+      "3": 2,
+      "4": 2,
+      "5": 2,
+      "6": 2
+    },
+    "firstProfileIndices": {
+      "0": 2,
+      "1": 2,
+      "2": 2,
+      "3": 2,
+      "4": 2,
+      "5": 2
+    },
+    "profileRotations": {
+      "0": 2,
+      "1": 2,
+      "2": 2,
+      "3": 2,
+      "4": 2,
+      "5": 2
+    }
+  },
+  "mixedMargins": {
+    "firstSeats": {
+      "1": 4,
+      "3": 4,
+      "5": 4
+    },
+    "firstProfileIndices": {
+      "0": 2,
+      "3": 2,
+      "4": 2,
+      "1": 2,
+      "2": 2,
+      "5": 2
+    },
+    "profileRotations": {
+      "0": 2,
+      "1": 2,
+      "2": 2,
+      "3": 2,
+      "4": 2,
+      "5": 2
+    }
+  },
+  "pairedLimitation": "Six independent seeds, two configurations per seed. Each seed has one profile rotation and two consecutive starting seats/profiles. All six seat/profile/rotation margins balance globally, not within each seed. Seed-by-profile and seed-by-seat interactions are not identified; this is not a full factorial.",
+  "mixedPolicy": "Candidate controls seats with (seat+mixedOffset)%2===1; release controls others. Exact seed/rotation/first preserved under reversal. Each policy gets every seat/profile equally within each seed.",
+  "mixedLimitation": "First profiles balance globally; only odd starting seats1/3/5 occur, each4 times. Policy reversal balances which policy starts each seed. Limited adversarial probe, not population win-rate estimate.",
+  "analysis": "Same realized outcome metrics and definitions as V1 protocol: own opposite-edge progress/connections/holding, realized multi-action intentions and airport follow-on utility, spatial and late activity, seat/profile/score disparities, finite search and timing. Report all completed campaigns, including unfavorable outcomes. No tuning on these seeds.",
+  "resources": "At most3 study workers. Counts reduced before opening any V2 heldout seeds after V1 was rejected for independently replicated architectural failure; not a reduced continuation of V1. Shared host/browser load must be recorded.",
+  "sourceRequirement": "Capture both engine and planner bytes via explicit resolver, record hashes and enforce freeze gates. V1 heldout seeds/results are excluded from V2 acceptance.",
+  "hold": {
+    "utc": "2026-10-11T17:01:06.849061+00:00",
+    "reason": "User scope expanded to a shared normal-Hex/AutoHex core, changed bridge span and added tunnels/configurable strategy models. No V2 heldout games were opened. Baseline96 rule-equivalence assumptions must be reviewed and protocol amended before formal execution.",
+    "reservedSeedsUnopened": true
+  }
+}

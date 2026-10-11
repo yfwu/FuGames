@@ -1,0 +1,15 @@
+{
+  "algorithm": "sha256",
+  "hashes": {
+    "flip-five-engine.js": "2113ee773ff4dfc76cca8c9b291659ff4b3095101c4b1e178007658115a4b1c1",
+    "flip-five-ai.js": "16e2743fa0478a9ec6c6a1cb6b38ef9cedfac712383d196f058e543ce660e036",
+    "baseline-engine.js": "94b090be2f81618c0bf173f9f6002c51a04d52f4292450ed583cb6ec79fb07b2",
+    "compare-ai.cjs": "f192e4986ea1221f9c700638a1f192f2933a79b8607a05ba62a12f97164f93c4",
+    "evaluate.cpp": "fdd997a262020842d21a327942b586a89a8195ca3a888b754d3673fad9b68dc6",
+    "flip-five-ai.test.cjs": "ebd0d6b63fa8b123ed7d302a131f67c048f9ba74932b8155a274d0761f55cf6f",
+    "ai-development.json": "485356941ab99882a8502ee828cc3b0974ef0e2795af1c670742e78ecbd4bcb1",
+    "ai-heldout.json": "5010d642eff848aced344f4c22b07742cbf8bfd4da5861f6f2dae9db60747bdc",
+    "ai-unforced.json": "285dc0de3e045305e041a83d3385b24fae690c4bd01e3ab44068c8234c9a1f99",
+    "opening-response.json": "153b0b8ab6748415819d5697fb0cef3fefcc879cda344b58e8601b848ffe5f65"
+  }
+}

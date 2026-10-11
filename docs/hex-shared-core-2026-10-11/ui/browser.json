@@ -1,0 +1,441 @@
+{
+  "sourceSha256": {
+    "hex-core.js": "3fc410b72e07b62464ad6272a8dd1e0af8e0300d3fa757e66c8d4147a53322c9",
+    "hex-strategies.js": "475536a736d1d7ef74dc4ffb41fa6af04349b68f61881fc76bc0471d2c8df624",
+    "autohex-planner.js": "16f383fbe1d2eb67afd7864bda04056994c8ec254f9cc2f2cb6fad0aecb2659c",
+    "autohex-ai-worker.js": "9899135883679de114a5206dd6ba1e8be111e959eea24186b30092b774b81b0a",
+    "cardhex-engine.js": "10eadf0e92901ec6f2a94d5e5c9d9697ffb242c98d10d37ccdad903c7a952769",
+    "autohex-engine.js": "c8eae0f24f67cf92e04c0912ae4d46cecdd17e4147edd1d2796429d0f7018d0b",
+    "autohex-ui.js": "031baf48f8236941e1e35ab7bf2197f5c657b905ef1bba014ac09c6d880598c8",
+    "autohex-visuals.js": "2b32967624469d18db1cefebbb1f1c26f05eebb600da71333f59ddd316db6746",
+    "autohex.css": "6345d45ac68387f07d50c1a62e6e57f980b35a19a57d9852e170c6dc58b2723c",
+    "card_hex.html": "cbabd45ecb3cd41f0620a862e66b7ee88801c18280cc03cd3fd49efe72ab2c7e",
+    "autohex.html": "4c5e408607675bf65ebd840447f78bc0c2cb821e64a564d105469f3cfb4c8ba7"
+  },
+  "method": "Real DOM/canvas input; virtual timer holds AI during controlled terrain/structure fixtures. Setup and hotseat use normal UI. Not campaign acceptance.",
+  "errors": [],
+  "cases": [
+    {
+      "viewport": "desktop",
+      "mode": "card_hex.html",
+      "dpr": 1,
+      "fixtures": {
+        "river": {
+          "beforeRGBA": [
+            220,
+            236,
+            244,
+            255
+          ],
+          "afterRGBA": [
+            255,
+            255,
+            255,
+            255
+          ],
+          "actualTerrain": 0
+        },
+        "hill": {
+          "beforeRGBA": [
+            242,
+            235,
+            217,
+            255
+          ],
+          "afterRGBA": [
+            255,
+            255,
+            255,
+            255
+          ],
+          "actualTerrain": 0
+        },
+        "bridge": {
+          "beforeRGBA": [
+            220,
+            236,
+            244,
+            255
+          ],
+          "afterRGBA": [
+            220,
+            236,
+            244,
+            255
+          ],
+          "actualTerrain": 1
+        },
+        "tunnel": {
+          "beforeRGBA": [
+            220,
+            236,
+            244,
+            255
+          ],
+          "afterRGBA": [
+            220,
+            236,
+            244,
+            255
+          ],
+          "actualTerrain": 1
+        }
+      },
+      "overflow": false
+    },
+    {
+      "viewport": "desktop",
+      "mode": "autohex.html",
+      "dpr": 1,
+      "fixtures": {
+        "river": {
+          "beforeRGBA": [
+            220,
+            236,
+            244,
+            255
+          ],
+          "afterRGBA": [
+            255,
+            255,
+            255,
+            255
+          ],
+          "actualTerrain": 0
+        },
+        "hill": {
+          "beforeRGBA": [
+            242,
+            235,
+            217,
+            255
+          ],
+          "afterRGBA": [
+            255,
+            255,
+            255,
+            255
+          ],
+          "actualTerrain": 0
+        },
+        "bridge": {
+          "beforeRGBA": [
+            220,
+            236,
+            244,
+            255
+          ],
+          "afterRGBA": [
+            220,
+            236,
+            244,
+            255
+          ],
+          "actualTerrain": 1
+        },
+        "tunnel": {
+          "beforeRGBA": [
+            220,
+            236,
+            244,
+            255
+          ],
+          "afterRGBA": [
+            220,
+            236,
+            244,
+            255
+          ],
+          "actualTerrain": 1
+        }
+      },
+      "overflow": false
+    },
+    {
+      "viewport": "mobile",
+      "mode": "card_hex.html",
+      "dpr": 3,
+      "fixtures": {
+        "river": {
+          "beforeRGBA": [
+            220,
+            236,
+            244,
+            255
+          ],
+          "afterRGBA": [
+            255,
+            255,
+            255,
+            255
+          ],
+          "actualTerrain": 0
+        },
+        "hill": {
+          "beforeRGBA": [
+            242,
+            235,
+            217,
+            255
+          ],
+          "afterRGBA": [
+            255,
+            255,
+            255,
+            255
+          ],
+          "actualTerrain": 0
+        },
+        "bridge": {
+          "beforeRGBA": [
+            220,
+            236,
+            244,
+            255
+          ],
+          "afterRGBA": [
+            220,
+            236,
+            244,
+            255
+          ],
+          "actualTerrain": 1
+        },
+        "tunnel": {
+          "beforeRGBA": [
+            220,
+            236,
+            244,
+            255
+          ],
+          "afterRGBA": [
+            220,
+            236,
+            244,
+            255
+          ],
+          "actualTerrain": 1
+        }
+      },
+      "overflow": false
+    },
+    {
+      "viewport": "mobile",
+      "mode": "autohex.html",
+      "dpr": 3,
+      "fixtures": {
+        "river": {
+          "beforeRGBA": [
+            220,
+            236,
+            244,
+            255
+          ],
+          "afterRGBA": [
+            255,
+            255,
+            255,
+            255
+          ],
+          "actualTerrain": 0
+        },
+        "hill": {
+          "beforeRGBA": [
+            242,
+            235,
+            217,
+            255
+          ],
+          "afterRGBA": [
+            255,
+            255,
+            255,
+            255
+          ],
+          "actualTerrain": 0
+        },
+        "bridge": {
+          "beforeRGBA": [
+            220,
+            236,
+            244,
+            255
+          ],
+          "afterRGBA": [
+            220,
+            236,
+            244,
+            255
+          ],
+          "actualTerrain": 1
+        },
+        "tunnel": {
+          "beforeRGBA": [
+            220,
+            236,
+            244,
+            255
+          ],
+          "afterRGBA": [
+            220,
+            236,
+            244,
+            255
+          ],
+          "actualTerrain": 1
+        }
+      },
+      "overflow": false
+    },
+    {
+      "viewport": "narrow",
+      "mode": "card_hex.html",
+      "dpr": 2,
+      "fixtures": {
+        "river": {
+          "beforeRGBA": [
+            220,
+            236,
+            244,
+            255
+          ],
+          "afterRGBA": [
+            255,
+            255,
+            255,
+            255
+          ],
+          "actualTerrain": 0
+        },
+        "hill": {
+          "beforeRGBA": [
+            242,
+            235,
+            217,
+            255
+          ],
+          "afterRGBA": [
+            255,
+            255,
+            255,
+            255
+          ],
+          "actualTerrain": 0
+        },
+        "bridge": {
+          "beforeRGBA": [
+            220,
+            236,
+            244,
+            255
+          ],
+          "afterRGBA": [
+            220,
+            236,
+            244,
+            255
+          ],
+          "actualTerrain": 1
+        },
+        "tunnel": {
+          "beforeRGBA": [
+            220,
+            236,
+            244,
+            255
+          ],
+          "afterRGBA": [
+            220,
+            236,
+            244,
+            255
+          ],
+          "actualTerrain": 1
+        }
+      },
+      "overflow": false
+    },
+    {
+      "viewport": "narrow",
+      "mode": "autohex.html",
+      "dpr": 2,
+      "fixtures": {
+        "river": {
+          "beforeRGBA": [
+            220,
+            236,
+            244,
+            255
+          ],
+          "afterRGBA": [
+            255,
+            255,
+            255,
+            255
+          ],
+          "actualTerrain": 0
+        },
+        "hill": {
+          "beforeRGBA": [
+            242,
+            235,
+            217,
+            255
+          ],
+          "afterRGBA": [
+            255,
+            255,
+            255,
+            255
+          ],
+          "actualTerrain": 0
+        },
+        "bridge": {
+          "beforeRGBA": [
+            220,
+            236,
+            244,
+            255
+          ],
+          "afterRGBA": [
+            220,
+            236,
+            244,
+            255
+          ],
+          "actualTerrain": 1
+        },
+        "tunnel": {
+          "beforeRGBA": [
+            220,
+            236,
+            244,
+            255
+          ],
+          "afterRGBA": [
+            220,
+            236,
+            244,
+            255
+          ],
+          "actualTerrain": 1
+        }
+      },
+      "overflow": false
+    }
+  ],
+  "sourceEndSha256": {
+    "hex-core.js": "3fc410b72e07b62464ad6272a8dd1e0af8e0300d3fa757e66c8d4147a53322c9",
+    "hex-strategies.js": "475536a736d1d7ef74dc4ffb41fa6af04349b68f61881fc76bc0471d2c8df624",
+    "autohex-planner.js": "16f383fbe1d2eb67afd7864bda04056994c8ec254f9cc2f2cb6fad0aecb2659c",
+    "autohex-ai-worker.js": "9899135883679de114a5206dd6ba1e8be111e959eea24186b30092b774b81b0a",
+    "cardhex-engine.js": "10eadf0e92901ec6f2a94d5e5c9d9697ffb242c98d10d37ccdad903c7a952769",
+    "autohex-engine.js": "c8eae0f24f67cf92e04c0912ae4d46cecdd17e4147edd1d2796429d0f7018d0b",
+    "autohex-ui.js": "031baf48f8236941e1e35ab7bf2197f5c657b905ef1bba014ac09c6d880598c8",
+    "autohex-visuals.js": "2b32967624469d18db1cefebbb1f1c26f05eebb600da71333f59ddd316db6746",
+    "autohex.css": "6345d45ac68387f07d50c1a62e6e57f980b35a19a57d9852e170c6dc58b2723c",
+    "card_hex.html": "cbabd45ecb3cd41f0620a862e66b7ee88801c18280cc03cd3fd49efe72ab2c7e",
+    "autohex.html": "4c5e408607675bf65ebd840447f78bc0c2cb821e64a564d105469f3cfb4c8ba7"
+  },
+  "passed": true
+}

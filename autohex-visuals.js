@@ -7,11 +7,11 @@
   'use strict';
   function supplyForest(view, adjacency) {
     const result = [];
-    for (let owner = 1; owner <= 6; owner++) {
+    for (let owner = 1; owner < view.players.length; owner++) {
       const home = view.players[owner]?.home;
       if (!Number.isInteger(home) || view.board[home] !== owner || !view.supplied[home]) continue;
       const links = new Map();
-      for (const b of view.bridges || []) if (b.owner === owner && view.board[b.a] === owner && view.board[b.b] === owner) {
+      for (const b of [...(view.bridges || []), ...(view.tunnels || [])]) if (b.owner === owner && view.board[b.a] === owner && view.board[b.b] === owner) {
         if (!links.has(b.a)) links.set(b.a, []); if (!links.has(b.b)) links.set(b.b, []);
         links.get(b.a).push(b.b); links.get(b.b).push(b.a);
       }

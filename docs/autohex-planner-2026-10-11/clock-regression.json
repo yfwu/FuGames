@@ -1,0 +1,78 @@
+{
+  "sourceSha256": {
+    "autohex-ai-worker.js": "0c7ba91f0d2997d3e3e08bdd6e004e792062b6e497529e3b526536dfbb9ed7c0",
+    "autohex-planner.js": "2e222d259995f604b07c8b599f681a8ccc025a5e1a709bb649c5c539637ebb7f",
+    "autohex-engine.js": "0c5b3137c803f3f77ddd3fbb34a132f1986a257d3db2d828a1d2628e37c69993",
+    "autohex-ui.js": "20e6f2aa126927f1afa5d2fb02d7b6c2392204d520f517c6349d2a3a79217045",
+    "autohex-visuals.js": "b1bed80f9b4ef5baf8fc8a3c78706a0a6c2baf0b9274fe2c318883ed264e79cd",
+    "autohex.html": "90bcc0fad0f954efbc9080971f512ada6b713c908d733eb6376e2e72aff05d23",
+    "autohex.css": "da2b0c693b2f5ce8ad374ca746a3d62ec4b756c9a0b1374eb0f21018fdb567d5"
+  },
+  "method": "Real time with RAF timestamps deliberately 75 ms stale; fallback adds 25 ms blocking work per decision.",
+  "scenarios": [
+    {
+      "elapsedMs": 4051.599999997765,
+      "activeMs": 4014.199999999255,
+      "ply": 10,
+      "phase": "paused",
+      "timing": {
+        "count": 10,
+        "lastMs": 25.399999998509884,
+        "lastLatencyMs": 26.599999997764826,
+        "lastMode": "worker",
+        "maxMs": 126.90000000223517,
+        "totalMs": 329.70000000298023,
+        "workerCount": 10,
+        "synchronousCount": 0,
+        "recentMs": [
+          126.90000000223517,
+          76.5,
+          14.5,
+          12.5,
+          18.100000001490116,
+          12.699999999254942,
+          17.600000001490116,
+          12.5,
+          13,
+          25.399999998509884
+        ]
+      },
+      "driftMs": -37.399999998509884,
+      "pageErrors": [],
+      "pauseFrozen": true,
+      "mode": "worker"
+    },
+    {
+      "elapsedMs": 4067.699999999255,
+      "activeMs": 4013,
+      "ply": 10,
+      "phase": "paused",
+      "timing": {
+        "count": 10,
+        "lastMs": 34.19999999925494,
+        "lastLatencyMs": 34.19999999925494,
+        "lastMode": "fallback",
+        "maxMs": 78.69999999925494,
+        "totalMs": 319.1000000014901,
+        "workerCount": 0,
+        "synchronousCount": 10,
+        "recentMs": [
+          78.69999999925494,
+          32,
+          35.600000001490116,
+          23.899999998509884,
+          18.699999999254942,
+          22.400000002235174,
+          19.900000002235174,
+          20.699999999254942,
+          33,
+          34.19999999925494
+        ]
+      },
+      "driftMs": -54.69999999925494,
+      "pageErrors": [],
+      "pauseFrozen": true,
+      "mode": "fallback"
+    }
+  ]
+}

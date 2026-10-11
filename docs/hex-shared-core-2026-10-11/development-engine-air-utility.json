@@ -1,0 +1,100 @@
+{
+  "capturedHashes": {
+    "hex-core.js": "f04314ad12393717e48b8708f9a3b59a5a49492da577a4a9d6cec67fa870de2c",
+    "autohex-planner.js": "16f383fbe1d2eb67afd7864bda04056994c8ec254f9cc2f2cb6fad0aecb2659c",
+    "hex-strategies.js": "475536a736d1d7ef74dc4ffb41fa6af04349b68f61881fc76bc0471d2c8df624"
+  },
+  "games": [
+    {
+      "mode": "auto",
+      "drops": [
+        {
+          "ply": 607,
+          "player": 2,
+          "target": 830,
+          "supplied": true
+        },
+        {
+          "ply": 1471,
+          "player": 2,
+          "target": 767,
+          "supplied": true
+        },
+        {
+          "ply": 1609,
+          "player": 2,
+          "target": 751,
+          "supplied": true
+        },
+        {
+          "ply": 1795,
+          "player": 2,
+          "target": 832,
+          "supplied": true
+        },
+        {
+          "ply": 1897,
+          "player": 2,
+          "target": 857,
+          "supplied": true
+        }
+      ],
+      "bombs": [
+        {
+          "ply": 1333,
+          "player": 2,
+          "target": 713,
+          "removed": true,
+          "lostSupply": 31,
+          "brokeHeldGoal": false
+        },
+        {
+          "ply": 1411,
+          "player": 2,
+          "target": 616,
+          "removed": true,
+          "lostSupply": 29,
+          "brokeHeldGoal": true
+        },
+        {
+          "ply": 1699,
+          "player": 2,
+          "target": 690,
+          "removed": true,
+          "lostSupply": 11,
+          "brokeHeldGoal": false
+        },
+        {
+          "ply": 1939,
+          "player": 2,
+          "target": 690,
+          "removed": true,
+          "lostSupply": 11,
+          "brokeHeldGoal": true
+        },
+        {
+          "ply": 1981,
+          "player": 2,
+          "target": 656,
+          "removed": true,
+          "lostSupply": 13,
+          "brokeHeldGoal": true
+        }
+      ],
+      "laterAirTurretHits": 24
+    },
+    {
+      "mode": "normal",
+      "drops": [
+        {
+          "ply": 97,
+          "player": 2,
+          "target": 24,
+          "supplied": false
+        }
+      ],
+      "bombs": [],
+      "laterAirTurretHits": 0
+    }
+  ]
+}

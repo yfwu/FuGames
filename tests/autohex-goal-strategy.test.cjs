@@ -1,10 +1,11 @@
 'use strict';
 const test = require('node:test'), assert = require('node:assert/strict');
 const H = require('../autohex-engine.js');
+const {canonicalHomes}=require('./helpers/hex-tactical-fixture.cjs');
 const center = H.index(0, 0), radius = i => H.distance(center, i);
 function clean(seed = 'goal-priority') {
   const g = new H.Game({ seed, neutralEvents: false }); g.start();
-  g.terrain.fill(0); g.roads.fill(0); g.board.set(g.anchors); g.shields.fill(0);
+  canonicalHomes(g,H); g.terrain.fill(0); g.roads.fill(0); g.board.set(g.anchors); g.shields.fill(0);
   g.bridges = []; g.turrets = []; g.alliances = []; g.offers = [];
   g.hands[1] = ['bridge', 'shield', 'destroy', 'turret', 'exchange']; g.players[1].energy = 8;
   return g;
@@ -70,7 +71,7 @@ test('AI repairs a severed supplied opposite-edge connection before collecting a
   const gap = cells[Math.floor(cells.length / 2)]; g.board[gap] = 0;
   assert.equal(holds(g,1),false);
   const chosen = H.chooseAction(g.observation()); assert.ok(H.legalAction(g.observation(), chosen));
-  assert.ok(['deploy','bridge'].includes(chosen.type)); assert.ok(g.act(chosen)); assert.ok(holds(g,1));
+  assert.ok(['deploy','bridge','tunnel'].includes(chosen.type)); assert.ok(g.act(chosen)); assert.ok(holds(g,1));
 });
 
 test('AI interrupts a public enemy goal connection when in range', () => {

@@ -1,0 +1,920 @@
+{
+  "baseline": {
+    "goals": 18,
+    "holding": 100,
+    "air": 27,
+    "unlocks": 40,
+    "losses": 39,
+    "alliances": 3,
+    "meanMs": 6.605233737500006,
+    "p95Ms": 22.051628000000164,
+    "quarters": [
+      {
+        "actions": 500,
+        "changes": 571,
+        "captures": 162,
+        "destroyed": 17,
+        "goals": 1,
+        "holding": 0,
+        "air": 3,
+        "types": {
+          "deploy": 448,
+          "exchange": 13,
+          "bridge": 11,
+          "shield": 14,
+          "reroute": 3,
+          "destroy": 4,
+          "airdrop": 3,
+          "engineer": 2,
+          "turret": 2
+        },
+        "intents": {}
+      },
+      {
+        "actions": 500,
+        "changes": 721,
+        "captures": 221,
+        "destroyed": 66,
+        "goals": 3,
+        "holding": 0,
+        "air": 7,
+        "types": {
+          "deploy": 454,
+          "destroy": 8,
+          "airdrop": 6,
+          "engineer": 3,
+          "offer": 6,
+          "bridge": 7,
+          "reject": 1,
+          "turret": 5,
+          "shield": 2,
+          "exchange": 5,
+          "reroute": 1,
+          "accept": 1,
+          "bombard": 1
+        },
+        "intents": {}
+      },
+      {
+        "actions": 500,
+        "changes": 665,
+        "captures": 188,
+        "destroyed": 78,
+        "goals": 3,
+        "holding": 21,
+        "air": 8,
+        "types": {
+          "offer": 9,
+          "deploy": 428,
+          "airdrop": 7,
+          "shield": 13,
+          "exchange": 10,
+          "destroy": 9,
+          "accept": 2,
+          "reroute": 3,
+          "turret": 8,
+          "bridge": 10,
+          "bombard": 1
+        },
+        "intents": {}
+      },
+      {
+        "actions": 500,
+        "changes": 594,
+        "captures": 175,
+        "destroyed": 127,
+        "goals": 11,
+        "holding": 79,
+        "air": 9,
+        "types": {
+          "deploy": 383,
+          "shield": 21,
+          "destroy": 20,
+          "offer": 11,
+          "bridge": 20,
+          "reroute": 4,
+          "engineer": 3,
+          "airdrop": 3,
+          "exchange": 15,
+          "bombard": 6,
+          "turret": 13,
+          "discard": 1
+        },
+        "intents": {}
+      }
+    ],
+    "players": [
+      {
+        "p": 1,
+        "firstGoal": 533,
+        "bestGap": 0,
+        "final": {
+          "gap": 16,
+          "deficit": 16,
+          "route": [
+            443,
+            409,
+            376,
+            344,
+            313,
+            283,
+            254,
+            226,
+            199,
+            173,
+            148,
+            124,
+            101,
+            78,
+            57,
+            37,
+            18
+          ],
+          "stones": 32,
+          "supplied": 28,
+          "score": 189
+        },
+        "lowestRouteDeficit": 2,
+        "lateImprovingActions": 43,
+        "lateRetreatingActions": 8,
+        "topLateActions": [
+          [
+            "deploy:344",
+            10
+          ],
+          [
+            "deploy:622",
+            9
+          ],
+          [
+            "deploy:935",
+            7
+          ],
+          [
+            "shield:778",
+            3
+          ],
+          [
+            "deploy:443",
+            2
+          ]
+        ],
+        "episodes": 0,
+        "progressingEpisodes": 0
+      },
+      {
+        "p": 2,
+        "firstGoal": 509,
+        "bestGap": 0,
+        "final": {
+          "gap": 19,
+          "deficit": 6,
+          "route": [
+            409,
+            375,
+            374,
+            373,
+            372,
+            371,
+            338,
+            272,
+            271,
+            270,
+            240,
+            211,
+            183,
+            156,
+            130,
+            105
+          ],
+          "stones": 70,
+          "supplied": 51,
+          "score": 194
+        },
+        "lowestRouteDeficit": 2,
+        "lateImprovingActions": 47,
+        "lateRetreatingActions": 1,
+        "topLateActions": [
+          [
+            "deploy:344",
+            12
+          ],
+          [
+            "deploy:375",
+            11
+          ],
+          [
+            "offer:",
+            4
+          ],
+          [
+            "deploy:312",
+            2
+          ],
+          [
+            "deploy:448",
+            2
+          ]
+        ],
+        "episodes": 0,
+        "progressingEpisodes": 0
+      },
+      {
+        "p": 3,
+        "firstGoal": null,
+        "bestGap": 0,
+        "final": {
+          "gap": 26,
+          "deficit": 13,
+          "route": [
+            314,
+            345,
+            344,
+            343,
+            375,
+            408,
+            442,
+            477,
+            514,
+            550,
+            585,
+            619,
+            652,
+            684,
+            715,
+            714,
+            713,
+            712,
+            711,
+            710,
+            709,
+            708,
+            738,
+            767,
+            795,
+            822,
+            821,
+            820
+          ],
+          "stones": 38,
+          "supplied": 19,
+          "score": 172
+        },
+        "lowestRouteDeficit": 1,
+        "lateImprovingActions": 54,
+        "lateRetreatingActions": 2,
+        "topLateActions": [
+          [
+            "deploy:344",
+            18
+          ],
+          [
+            "deploy:375",
+            12
+          ],
+          [
+            "deploy:683",
+            9
+          ],
+          [
+            "offer:",
+            4
+          ],
+          [
+            "deploy:652",
+            3
+          ]
+        ],
+        "episodes": 0,
+        "progressingEpisodes": 0
+      },
+      {
+        "p": 4,
+        "firstGoal": 791,
+        "bestGap": 0,
+        "final": {
+          "gap": 0,
+          "deficit": 0,
+          "route": [
+            1015
+          ],
+          "stones": 59,
+          "supplied": 58,
+          "score": 308
+        },
+        "lowestRouteDeficit": 0,
+        "lateImprovingActions": 39,
+        "lateRetreatingActions": 0,
+        "topLateActions": [
+          [
+            "deploy:142",
+            10
+          ],
+          [
+            "deploy:279",
+            5
+          ],
+          [
+            "deploy:651",
+            4
+          ],
+          [
+            "deploy:975",
+            4
+          ],
+          [
+            "deploy:168",
+            4
+          ]
+        ],
+        "episodes": 0,
+        "progressingEpisodes": 0
+      },
+      {
+        "p": 5,
+        "firstGoal": 389,
+        "bestGap": 0,
+        "final": {
+          "gap": 0,
+          "deficit": 0,
+          "route": [
+            1026
+          ],
+          "stones": 53,
+          "supplied": 51,
+          "score": 278
+        },
+        "lowestRouteDeficit": 0,
+        "lateImprovingActions": 49,
+        "lateRetreatingActions": 6,
+        "topLateActions": [
+          [
+            "deploy:683",
+            9
+          ],
+          [
+            "deploy:935",
+            6
+          ],
+          [
+            "deploy:402",
+            6
+          ],
+          [
+            "shield:471",
+            3
+          ],
+          [
+            "deploy:437",
+            3
+          ]
+        ],
+        "episodes": 0,
+        "progressingEpisodes": 0
+      },
+      {
+        "p": 6,
+        "firstGoal": 1049,
+        "bestGap": 0,
+        "final": {
+          "gap": 0,
+          "deficit": 0,
+          "route": [
+            38
+          ],
+          "stones": 51,
+          "supplied": 50,
+          "score": 231
+        },
+        "lowestRouteDeficit": 0,
+        "lateImprovingActions": 52,
+        "lateRetreatingActions": 2,
+        "topLateActions": [
+          [
+            "deploy:142",
+            10
+          ],
+          [
+            "deploy:543",
+            4
+          ],
+          [
+            "deploy:143",
+            4
+          ],
+          [
+            "destroy:279",
+            3
+          ],
+          [
+            "deploy:337",
+            3
+          ]
+        ],
+        "episodes": 0,
+        "progressingEpisodes": 0
+      }
+    ]
+  },
+  "candidate": {
+    "goals": 0,
+    "holding": 0,
+    "air": 32,
+    "unlocks": 55,
+    "losses": 53,
+    "alliances": 65,
+    "meanMs": 64.61771237500017,
+    "p95Ms": 134.11712599999737,
+    "quarters": [
+      {
+        "actions": 500,
+        "changes": 550,
+        "captures": 65,
+        "destroyed": 50,
+        "goals": 0,
+        "holding": 0,
+        "air": 2,
+        "types": {
+          "deploy": 402,
+          "shield": 15,
+          "bridge": 14,
+          "destroy": 15,
+          "offer": 22,
+          "accept": 8,
+          "turret": 15,
+          "exchange": 3,
+          "engineer": 2,
+          "reroute": 2,
+          "bombard": 2
+        },
+        "intents": {
+          "flank": 89,
+          "direct": 122,
+          "interdict": 168,
+          "recover": 85,
+          "defend": 3,
+          "airport": 33
+        }
+      },
+      {
+        "actions": 500,
+        "changes": 623,
+        "captures": 95,
+        "destroyed": 105,
+        "goals": 0,
+        "holding": 0,
+        "air": 13,
+        "types": {
+          "deploy": 359,
+          "shield": 14,
+          "bridge": 18,
+          "accept": 21,
+          "bombard": 7,
+          "offer": 35,
+          "exchange": 7,
+          "turret": 11,
+          "destroy": 14,
+          "airdrop": 6,
+          "betray": 6,
+          "reject": 1,
+          "reroute": 1
+        },
+        "intents": {
+          "airport": 196,
+          "interdict": 140,
+          "recover": 86,
+          "direct": 71,
+          "flank": 7
+        }
+      },
+      {
+        "actions": 500,
+        "changes": 630,
+        "captures": 120,
+        "destroyed": 68,
+        "goals": 0,
+        "holding": 0,
+        "air": 8,
+        "types": {
+          "deploy": 366,
+          "offer": 34,
+          "turret": 16,
+          "bombard": 7,
+          "accept": 18,
+          "destroy": 14,
+          "betray": 8,
+          "shield": 11,
+          "bridge": 14,
+          "exchange": 6,
+          "rest": 2,
+          "engineer": 2,
+          "reroute": 1,
+          "airdrop": 1
+        },
+        "intents": {
+          "recover": 113,
+          "interdict": 213,
+          "airport": 90,
+          "direct": 71,
+          "flank": 13
+        }
+      },
+      {
+        "actions": 500,
+        "changes": 679,
+        "captures": 120,
+        "destroyed": 79,
+        "goals": 0,
+        "holding": 0,
+        "air": 9,
+        "types": {
+          "deploy": 384,
+          "shield": 10,
+          "accept": 18,
+          "betray": 6,
+          "bridge": 8,
+          "destroy": 10,
+          "rest": 3,
+          "offer": 32,
+          "turret": 11,
+          "exchange": 5,
+          "bombard": 9,
+          "engineer": 4
+        },
+        "intents": {
+          "interdict": 229,
+          "airport": 100,
+          "flank": 4,
+          "recover": 113,
+          "direct": 49,
+          "defend": 5
+        }
+      }
+    ],
+    "players": [
+      {
+        "p": 1,
+        "firstGoal": null,
+        "bestGap": 7,
+        "final": {
+          "gap": 15,
+          "deficit": 17,
+          "route": [
+            407,
+            374,
+            342,
+            311,
+            280,
+            250,
+            221,
+            193,
+            166,
+            140,
+            116,
+            93,
+            70,
+            49,
+            28,
+            8
+          ],
+          "stones": 35,
+          "supplied": 35,
+          "score": 112
+        },
+        "lowestRouteDeficit": 11,
+        "lateImprovingActions": 33,
+        "lateRetreatingActions": 0,
+        "topLateActions": [
+          [
+            "accept:",
+            6
+          ],
+          [
+            "offer:",
+            5
+          ],
+          [
+            "deploy:655",
+            4
+          ],
+          [
+            "deploy:513",
+            2
+          ],
+          [
+            "deploy:749",
+            2
+          ]
+        ],
+        "episodes": 150,
+        "progressingEpisodes": 63
+      },
+      {
+        "p": 2,
+        "firstGoal": null,
+        "bestGap": 7,
+        "final": {
+          "gap": 19,
+          "deficit": 19,
+          "route": [
+            173,
+            147,
+            122,
+            98,
+            97,
+            74,
+            52,
+            51,
+            50,
+            49,
+            28,
+            8,
+            7,
+            6,
+            5,
+            4,
+            3,
+            2,
+            1,
+            0
+          ],
+          "stones": 38,
+          "supplied": 38,
+          "score": 123
+        },
+        "lowestRouteDeficit": 7,
+        "lateImprovingActions": 35,
+        "lateRetreatingActions": 4,
+        "topLateActions": [
+          [
+            "offer:",
+            7
+          ],
+          [
+            "deploy:519",
+            5
+          ],
+          [
+            "deploy:479",
+            3
+          ],
+          [
+            "deploy:443",
+            3
+          ],
+          [
+            "deploy:442",
+            3
+          ]
+        ],
+        "episodes": 153,
+        "progressingEpisodes": 76
+      },
+      {
+        "p": 3,
+        "firstGoal": null,
+        "bestGap": 9,
+        "final": {
+          "gap": 25,
+          "deficit": 27,
+          "route": [
+            223,
+            222,
+            221,
+            249,
+            248,
+            247,
+            246,
+            245,
+            244,
+            243,
+            272,
+            271,
+            270,
+            269,
+            268,
+            267,
+            266,
+            265,
+            264,
+            294,
+            325,
+            357,
+            390,
+            424,
+            459,
+            495
+          ],
+          "stones": 21,
+          "supplied": 21,
+          "score": 121
+        },
+        "lowestRouteDeficit": 9,
+        "lateImprovingActions": 21,
+        "lateRetreatingActions": 1,
+        "topLateActions": [
+          [
+            "accept:",
+            5
+          ],
+          [
+            "deploy:655",
+            4
+          ],
+          [
+            "betray:",
+            3
+          ],
+          [
+            "rest:",
+            3
+          ],
+          [
+            "deploy:482",
+            3
+          ]
+        ],
+        "episodes": 158,
+        "progressingEpisodes": 63
+      },
+      {
+        "p": 4,
+        "firstGoal": null,
+        "bestGap": 11,
+        "final": {
+          "gap": 20,
+          "deficit": 21,
+          "route": [
+            440,
+            476,
+            513,
+            550,
+            586,
+            621,
+            655,
+            688,
+            719,
+            749,
+            778,
+            806,
+            833,
+            859,
+            884,
+            908,
+            931,
+            953,
+            974,
+            995,
+            1015
+          ],
+          "stones": 34,
+          "supplied": 24,
+          "score": 76
+        },
+        "lowestRouteDeficit": 14,
+        "lateImprovingActions": 24,
+        "lateRetreatingActions": 0,
+        "topLateActions": [
+          [
+            "offer:",
+            8
+          ],
+          [
+            "deploy:380",
+            5
+          ],
+          [
+            "deploy:514",
+            3
+          ],
+          [
+            "deploy:443",
+            3
+          ],
+          [
+            "deploy:347",
+            3
+          ]
+        ],
+        "episodes": 165,
+        "progressingEpisodes": 79
+      },
+      {
+        "p": 5,
+        "firstGoal": null,
+        "bestGap": 10,
+        "final": {
+          "gap": 15,
+          "deficit": 16,
+          "route": [
+            654,
+            687,
+            688,
+            689,
+            690,
+            722,
+            753,
+            783,
+            812,
+            840,
+            867,
+            893,
+            918,
+            942,
+            965,
+            987
+          ],
+          "stones": 44,
+          "supplied": 44,
+          "score": 57
+        },
+        "lowestRouteDeficit": 12,
+        "lateImprovingActions": 43,
+        "lateRetreatingActions": 1,
+        "topLateActions": [
+          [
+            "deploy:544",
+            7
+          ],
+          [
+            "deploy:507",
+            3
+          ],
+          [
+            "offer:",
+            3
+          ],
+          [
+            "deploy:506",
+            3
+          ],
+          [
+            "deploy:434",
+            3
+          ]
+        ],
+        "episodes": 173,
+        "progressingEpisodes": 86
+      },
+      {
+        "p": 6,
+        "firstGoal": null,
+        "bestGap": 10,
+        "final": {
+          "gap": 17,
+          "deficit": 19,
+          "route": [
+            622,
+            588,
+            553,
+            554,
+            518,
+            482,
+            483,
+            484,
+            449,
+            450,
+            451,
+            417,
+            418,
+            419,
+            386,
+            387,
+            388,
+            389
+          ],
+          "stones": 47,
+          "supplied": 45,
+          "score": 133
+        },
+        "lowestRouteDeficit": 11,
+        "lateImprovingActions": 22,
+        "lateRetreatingActions": 3,
+        "topLateActions": [
+          [
+            "offer:",
+            6
+          ],
+          [
+            "accept:",
+            4
+          ],
+          [
+            "deploy:544",
+            4
+          ],
+          [
+            "deploy:506",
+            4
+          ],
+          [
+            "deploy:686",
+            4
+          ]
+        ],
+        "episodes": 172,
+        "progressingEpisodes": 60
+      }
+    ]
+  }
+}

@@ -1,0 +1,16 @@
+started normal 0 pid 42489
+started normal 1 pid 42490
+finished normal 0 0
+started matrix 0 pid 43569
+finished normal 1 0
+started matrix 1 pid 43576
+finished matrix 0 0
+started control 0 pid 43678
+finished matrix 1 0
+started candidate 0 pid 43718
+finished control 0 0
+started candidate 1 pid 43802
+finished candidate 0 0
+started candidate 2 pid 44326
+finished candidate 1 0
+started mixed 0 pid 44426

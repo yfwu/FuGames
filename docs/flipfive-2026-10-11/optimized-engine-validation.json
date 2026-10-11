@@ -1,0 +1,13 @@
+{
+  "seed": "0x51636d27",
+  "sampledBoards": 101,
+  "transitions": 6411,
+  "winningProbes": 6411,
+  "terminalDrawChecked": true,
+  "fullBoardMajorityChecked": true,
+  "probeRestorationChecked": true,
+  "productionEngine": "/workspace/FuGames/flip-five-engine.js",
+  "engineSha256": "2113ee773ff4dfc76cca8c9b291659ff4b3095101c4b1e178007658115a4b1c1",
+  "aiSha256": "16e2743fa0478a9ec6c6a1cb6b38ef9cedfac712383d196f058e543ce660e036",
+  "valid": true
+}

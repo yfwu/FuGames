@@ -1,0 +1,10 @@
+{
+  "seed": "0x51636d27",
+  "sampledBoards": 93,
+  "transitionComparisons": 6403,
+  "terminalComparisons": 6403,
+  "sourceSha256": "331bd07414231a34a12f57eb5768d1e108fb2fed0459f37be8c68e8ed0c28120",
+  "exhaustiveCertificateReplies": 76,
+  "concreteCounterline": "E5 E4 E3 D5 E2 F3",
+  "d5BoundedRefutationReplies": 77
+}

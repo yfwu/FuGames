@@ -1,0 +1,4 @@
+{"batch":"candidate","index":1,"seed":73013,"ply":2000,"winners":[6],"goals":13,"air":22,"meanMs":56.305075572999954,"done":1,"planned":4}
+{"batch":"candidate","index":4,"seed":75209,"ply":2000,"winners":[2],"goals":14,"air":20,"meanMs":67.19932666100017,"done":2,"planned":4}
+{"batch":"candidate","index":7,"seed":76303,"ply":2000,"winners":[1],"goals":15,"air":10,"meanMs":52.1805552539991,"done":3,"planned":4}
+{"batch":"candidate","index":10,"seed":78511,"ply":2000,"winners":[5],"goals":8,"air":35,"meanMs":57.48647675149993,"done":4,"planned":4}

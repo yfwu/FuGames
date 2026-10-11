@@ -1,0 +1,312 @@
+{
+  "note": "Real foreground Chromium on this execution host; mobile viewport emulation is not a physical-phone benchmark. Disclose concurrent CPU workloads when interpreting results. No virtual clock in measured interval.",
+  "sourceSha256": {
+    "autohex-ai-worker.js": "0c7ba91f0d2997d3e3e08bdd6e004e792062b6e497529e3b526536dfbb9ed7c0",
+    "autohex-planner.js": "2e222d259995f604b07c8b599f681a8ccc025a5e1a709bb649c5c539637ebb7f",
+    "autohex-engine.js": "0c5b3137c803f3f77ddd3fbb34a132f1986a257d3db2d828a1d2628e37c69993",
+    "autohex-ui.js": "20e6f2aa126927f1afa5d2fb02d7b6c2392204d520f517c6349d2a3a79217045",
+    "autohex-visuals.js": "b1bed80f9b4ef5baf8fc8a3c78706a0a6c2baf0b9274fe2c318883ed264e79cd",
+    "autohex.html": "90bcc0fad0f954efbc9080971f512ada6b713c908d733eb6376e2e72aff05d23",
+    "autohex.css": "da2b0c693b2f5ce8ad374ca746a3d62ec4b756c9a0b1374eb0f21018fdb567d5"
+  },
+  "samples": [
+    {
+      "label": "desktop",
+      "dpr": 1,
+      "wallSeconds": 30.26537346600162,
+      "actions": 68,
+      "planning": {
+        "count": 68,
+        "medianMs": 61,
+        "p95Ms": 127.70000000298023,
+        "maxMs": 645.6999999992549
+      },
+      "decisionWait": {
+        "count": 68,
+        "medianMs": 62.80000000074506,
+        "p95Ms": 172,
+        "maxMs": 649.1999999992549
+      },
+      "planningModes": {
+        "worker": 68
+      },
+      "act": {
+        "count": 68,
+        "medianMs": 0.6000000014901161,
+        "p95Ms": 3.099999997764826,
+        "maxMs": 14.800000000745058
+      },
+      "frame": {
+        "count": 1527,
+        "medianMs": 16.69999999999709,
+        "p95Ms": 16.80000000000291,
+        "maxMs": 533.2000000000044
+      },
+      "longTasks": {
+        "count": 18,
+        "medianMs": 77,
+        "p95Ms": 260,
+        "maxMs": 489
+      },
+      "frameGapsOver50ms": 25,
+      "interactionWallMs": 252.70459000239498,
+      "hiddenEvents": 0,
+      "overflow": false,
+      "finalPlanner": {
+        "selectedPlayer": 3,
+        "visible": true,
+        "plan": {
+          "player": 3,
+          "type": "direct",
+          "stage": "advance",
+          "target": 847,
+          "path": [
+            618,
+            651,
+            650,
+            682,
+            713,
+            743,
+            772,
+            771,
+            799,
+            798,
+            797,
+            824,
+            850,
+            849,
+            848,
+            847
+          ],
+          "reasonCode": "continue_plan",
+          "committedAtPly": 632,
+          "reviewAtPly": 668,
+          "progress": 0.17948717948717952,
+          "completed": false,
+          "stalled": 0
+        },
+        "routeCellCount": 16,
+        "minTargetPixel": 14,
+        "styles": {
+          "route": "dashed public corridor",
+          "target": "faction diamond",
+          "motion": "static"
+        }
+      }
+    }
+  ],
+  "errors": [],
+  "mainThreadTopSelfMs": [
+    {
+      "function": "(idle)",
+      "url": "",
+      "line": 0,
+      "selfMs": 21146.29
+    },
+    {
+      "function": "(program)",
+      "url": "",
+      "line": 0,
+      "selfMs": 5439.15
+    },
+    {
+      "function": "drawImage",
+      "url": "",
+      "line": 0,
+      "selfMs": 798.88
+    },
+    {
+      "function": "getBoundingClientRect",
+      "url": "",
+      "line": 0,
+      "selfMs": 489.44
+    },
+    {
+      "function": "clone",
+      "url": "http://127.0.0.1:8011/autohex-engine.js",
+      "line": 637,
+      "selfMs": 396.22
+    },
+    {
+      "function": "computeSupply",
+      "url": "http://127.0.0.1:8011/autohex-engine.js",
+      "line": 165,
+      "selfMs": 168.17
+    },
+    {
+      "function": "fill",
+      "url": "",
+      "line": 0,
+      "selfMs": 157.03
+    },
+    {
+      "function": "observation",
+      "url": "http://127.0.0.1:8011/autohex-engine.js",
+      "line": 633,
+      "selfMs": 122.74
+    },
+    {
+      "function": "paintClock",
+      "url": "http://127.0.0.1:8011/autohex-ui.js",
+      "line": 187,
+      "selfMs": 116.12
+    },
+    {
+      "function": "replaceChildren",
+      "url": "",
+      "line": 0,
+      "selfMs": 85.99
+    },
+    {
+      "function": "drawEffects",
+      "url": "http://127.0.0.1:8011/autohex-ui.js",
+      "line": 605,
+      "selfMs": 84.85
+    },
+    {
+      "function": "goalPoint",
+      "url": "http://127.0.0.1:8011/autohex-ui.js",
+      "line": 232,
+      "selfMs": 79.76
+    },
+    {
+      "function": "paintStaticLayers",
+      "url": "http://127.0.0.1:8011/autohex-ui.js",
+      "line": 639,
+      "selfMs": 75.15
+    },
+    {
+      "function": "(garbage collector)",
+      "url": "",
+      "line": 0,
+      "selfMs": 69.97
+    },
+    {
+      "function": "requestAnimationFrame",
+      "url": "",
+      "line": 0,
+      "selfMs": 62.42
+    },
+    {
+      "function": "(anonymous)",
+      "url": "http://127.0.0.1:8011/autohex-ui.js",
+      "line": 245,
+      "selfMs": 50.87
+    },
+    {
+      "function": "render",
+      "url": "http://127.0.0.1:8011/autohex-ui.js",
+      "line": 195,
+      "selfMs": 50.86
+    },
+    {
+      "function": "(anonymous)",
+      "url": "http://127.0.0.1:8011/autohex-ui.js",
+      "line": 102,
+      "selfMs": 47.08
+    },
+    {
+      "function": "drawGoals",
+      "url": "http://127.0.0.1:8011/autohex-ui.js",
+      "line": 695,
+      "selfMs": 44.79
+    },
+    {
+      "function": "(anonymous)",
+      "url": "http://127.0.0.1:8011/autohex-ui.js",
+      "line": 233,
+      "selfMs": 36.48
+    },
+    {
+      "function": "lineTo",
+      "url": "",
+      "line": 0,
+      "selfMs": 34.01
+    },
+    {
+      "function": "hexPath",
+      "url": "http://127.0.0.1:8011/autohex-ui.js",
+      "line": 503,
+      "selfMs": 33.74
+    },
+    {
+      "function": "drawMini",
+      "url": "http://127.0.0.1:8011/autohex-ui.js",
+      "line": 709,
+      "selfMs": 31.5
+    },
+    {
+      "function": "draw",
+      "url": "http://127.0.0.1:8011/autohex-ui.js",
+      "line": 687,
+      "selfMs": 29.59
+    },
+    {
+      "function": "stroke",
+      "url": "",
+      "line": 0,
+      "selfMs": 28.58
+    },
+    {
+      "function": "clearRect",
+      "url": "",
+      "line": 0,
+      "selfMs": 25.75
+    },
+    {
+      "function": "paintInspection",
+      "url": "http://127.0.0.1:8011/autohex-ui.js",
+      "line": 470,
+      "selfMs": 23.86
+    },
+    {
+      "function": "flushClock",
+      "url": "http://127.0.0.1:8011/autohex-ui.js",
+      "line": 113,
+      "selfMs": 18.78
+    },
+    {
+      "function": "setAttribute",
+      "url": "",
+      "line": 0,
+      "selfMs": 17.69
+    },
+    {
+      "function": "node",
+      "url": "http://127.0.0.1:8011/autohex-ui.js",
+      "line": 57,
+      "selfMs": 17.66
+    },
+    {
+      "function": "renderPlayers",
+      "url": "http://127.0.0.1:8011/autohex-ui.js",
+      "line": 237,
+      "selfMs": 16.44
+    },
+    {
+      "function": "tick",
+      "url": "http://127.0.0.1:8011/autohex-ui.js",
+      "line": 136,
+      "selfMs": 15.4
+    },
+    {
+      "function": "frame",
+      "url": "",
+      "line": 7,
+      "selfMs": 15.29
+    },
+    {
+      "function": "fillText",
+      "url": "",
+      "line": 0,
+      "selfMs": 15.18
+    },
+    {
+      "function": "renderPlanner",
+      "url": "http://127.0.0.1:8011/autohex-ui.js",
+      "line": 262,
+      "selfMs": 14.33
+    }
+  ],
+  "pass": true
+}

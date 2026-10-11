@@ -1,3 +1,4 @@
+// HISTORICAL ONLY: released96c109a normal Hex rules; not shared-core validation.
 'use strict';
 // Paired finite-deck experiment. All decisions receive only Game.observation().
 const fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypto'),assert=require('node:assert/strict');
@@ -46,7 +47,7 @@ if(!isMainThread){
  parentPort.close();
 }else(async()=>{
  const mode=process.argv[2]||'development',output=process.argv[3]||path.join(folder,mode+'.json');
- const source=fs.readFileSync(path.join(root,'card_hex.html'),'utf8').match(/<script id="hex-engine">([\s\S]*?)<\/script>/)[1],hash=crypto.createHash('sha256').update(source).digest('hex');
+ const source=fs.readFileSync(path.join(root,'tests/fixtures/card_hex-96c109a.html'),'utf8').match(/<script id="hex-engine">([\s\S]*?)<\/script>/)[1],hash=crypto.createHash('sha256').update(source).digest('hex');
  if(process.env.ENGINE_SHA)assert.equal(hash,process.env.ENGINE_SHA);
  let seeds=[101,307,509,719,929,1151],commitment=null;
  if(mode==='heldout'){

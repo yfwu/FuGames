@@ -12,6 +12,14 @@ OUT=Path(os.environ.get('AUTOHEX_REPORT_DIR', str(ROOT/'docs/autohex-2026-10-11'
 BASE=os.environ.get('FUGAMES_BASE_URL','http://127.0.0.1:8011')
 report={'clock':'virtual time for control tests; not ten-minute wall-clock evidence','viewports':[],'checks':[],'pageErrors':[]}
 
+def wait_ai_ply(p, expected):
+    # Worker computation uses real time while the main-page test clock is paused.
+    deadline=time.monotonic()+20
+    while p.evaluate('autoHexGame.ply')<expected and time.monotonic()<deadline:
+        time.sleep(.025)
+    assert p.evaluate('autoHexGame.ply')==expected
+
+
 def hit(p, selector, mobile=False):
     e=p.locator(selector);e.tap() if mobile else e.click()
 
@@ -71,10 +79,10 @@ with sync_playwright() as pw:
 
     ctx=browser.new_context(viewport={'width':1440,'height':1100});p=ctx.new_page();setup(p)
     p.locator('#match-mode').select_option('spectator');p.locator('#play').click()
-    p.clock.run_for(300);assert p.evaluate('autoHexGame.ply')==1
+    p.clock.run_for(300);wait_ai_ply(p,1)
     p.locator('#step-seconds').fill('1');p.locator('#step-seconds').dispatch_event('change')
     p.clock.run_for(999);assert p.evaluate('autoHexGame.ply')==1
-    p.clock.run_for(1);assert p.evaluate('autoHexGame.ply')==2
+    p.clock.run_for(1);wait_ai_ply(p,2)
     p.locator('#pause').click();p.locator('#step').click();assert p.evaluate('autoHexGame.ply')==3
     three=game_state(p);active=p.evaluate('autoHexGame.activeMs');p.clock.run_for(5000)
     assert game_state(p)==three and p.evaluate('autoHexGame.activeMs')==active

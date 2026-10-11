@@ -1,0 +1,81 @@
+{
+  "sourceSha256": {
+    "config/hex-strategies.json": "10ce104fb719dec09a7cfcff2765a33766c0313b977974903d5e635cb5f0d26a",
+    "hex-core.js": "3fc410b72e07b62464ad6272a8dd1e0af8e0300d3fa757e66c8d4147a53322c9",
+    "hex-strategies.js": "475536a736d1d7ef74dc4ffb41fa6af04349b68f61881fc76bc0471d2c8df624",
+    "cardhex-engine.js": "10eadf0e92901ec6f2a94d5e5c9d9697ffb242c98d10d37ccdad903c7a952769",
+    "card_hex.html": "cbabd45ecb3cd41f0620a862e66b7ee88801c18280cc03cd3fd49efe72ab2c7e",
+    "autohex-ai-worker.js": "9899135883679de114a5206dd6ba1e8be111e959eea24186b30092b774b81b0a",
+    "autohex-planner.js": "3d49ff6eda09bc88a33cc82839c3f892dea0a184b9a00fd91d8af401c154555a",
+    "autohex-engine.js": "c8eae0f24f67cf92e04c0912ae4d46cecdd17e4147edd1d2796429d0f7018d0b",
+    "autohex-ui.js": "8c2f0507b55098008bfa20cd287764b980374082b4975712634cecf5f4eb6b5c",
+    "autohex-visuals.js": "2b32967624469d18db1cefebbb1f1c26f05eebb600da71333f59ddd316db6746",
+    "autohex.html": "4c5e408607675bf65ebd840447f78bc0c2cb821e64a564d105469f3cfb4c8ba7",
+    "autohex.css": "6345d45ac68387f07d50c1a62e6e57f980b35a19a57d9852e170c6dc58b2723c"
+  },
+  "method": "Real time with RAF timestamps deliberately 75 ms stale; fallback adds 25 ms blocking work per decision.",
+  "scenarios": [
+    {
+      "elapsedMs": 4067.89999999851,
+      "activeMs": 4019.89999999851,
+      "ply": 9,
+      "phase": "paused",
+      "timing": {
+        "count": 9,
+        "lastMs": 22.300000000745058,
+        "lastLatencyMs": 23.799999997019768,
+        "lastMode": "worker",
+        "maxMs": 146.19999999925494,
+        "totalMs": 608.2999999932945,
+        "workerCount": 9,
+        "synchronousCount": 0,
+        "recentMs": [
+          110.29999999701977,
+          146.19999999925494,
+          43.399999998509884,
+          21,
+          33.30000000074506,
+          25.399999998509884,
+          124.5,
+          81.89999999850988,
+          22.300000000745058
+        ]
+      },
+      "driftMs": -48.0,
+      "pageErrors": [],
+      "pauseFrozen": true,
+      "mode": "worker"
+    },
+    {
+      "elapsedMs": 4042.60000000149,
+      "activeMs": 4017.300000000745,
+      "ply": 9,
+      "phase": "paused",
+      "timing": {
+        "count": 9,
+        "lastMs": 44.899999998509884,
+        "lastLatencyMs": 44.899999998509884,
+        "lastMode": "fallback",
+        "maxMs": 112.39999999850988,
+        "totalMs": 644.8999999985099,
+        "workerCount": 0,
+        "synchronousCount": 9,
+        "recentMs": [
+          112.39999999850988,
+          83.10000000149012,
+          91.09999999776483,
+          71.29999999701977,
+          57.100000001490116,
+          57,
+          78.60000000149012,
+          49.400000002235174,
+          44.899999998509884
+        ]
+      },
+      "driftMs": -25.300000000745058,
+      "pageErrors": [],
+      "pauseFrozen": true,
+      "mode": "fallback"
+    }
+  ]
+}

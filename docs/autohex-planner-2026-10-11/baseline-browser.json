@@ -1,0 +1,324 @@
+{
+  "baseline": "96c109a",
+  "kind": "read-only published baseline visual capture; direct legal AI actions and model timestamps used only to stage opening screenshot; not real-time evidence",
+  "sources": {
+    "autohex-engine.js": "a029f76bb5424506a21f8485519176f010c3803aed401a20733ad83aaf4c9f09",
+    "autohex-ui.js": "f65b2e988d39113c86e082211924f2cc3b0d475108f3225b56a3951ff1f862e2",
+    "autohex-visuals.js": "b1bed80f9b4ef5baf8fc8a3c78706a0a6c2baf0b9274fe2c318883ed264e79cd",
+    "autohex.html": "927b8a6a57f18389d2a453bd6fdbfd5a484e5d079e6d915f17a9e2ae2811f9a8",
+    "autohex.css": "5902ca1e8675530e358402d44167b35df670f4b1251af9de76cb66ca8ccdf806"
+  },
+  "viewports": [
+    {
+      "label": "desktop",
+      "state": {
+        "ply": 120,
+        "round": 20,
+        "airports": [
+          {
+            "id": 0,
+            "cell": 915,
+            "owner": 0,
+            "supplied": false,
+            "cluster": 0,
+            "progress": 0,
+            "active": false,
+            "qualified": false
+          },
+          {
+            "id": 1,
+            "cell": 562,
+            "owner": 0,
+            "supplied": false,
+            "cluster": 0,
+            "progress": 0,
+            "active": false,
+            "qualified": false
+          },
+          {
+            "id": 2,
+            "cell": 148,
+            "owner": 0,
+            "supplied": false,
+            "cluster": 0,
+            "progress": 0,
+            "active": false,
+            "qualified": false
+          },
+          {
+            "id": 3,
+            "cell": 111,
+            "owner": 0,
+            "supplied": false,
+            "cluster": 0,
+            "progress": 0,
+            "active": false,
+            "qualified": false
+          },
+          {
+            "id": 4,
+            "cell": 464,
+            "owner": 0,
+            "supplied": false,
+            "cluster": 0,
+            "progress": 0,
+            "active": false,
+            "qualified": false
+          },
+          {
+            "id": 5,
+            "cell": 878,
+            "owner": 0,
+            "supplied": false,
+            "cluster": 0,
+            "progress": 0,
+            "active": false,
+            "qualified": false
+          }
+        ],
+        "telemetry": {
+          "actions": 120,
+          "meaningful": 120,
+          "captures": 19,
+          "destroyed": 0,
+          "supplyRetreats": 0,
+          "engineered": 0,
+          "cardsUsed": 0,
+          "reshuffles": 0,
+          "goalArrivals": 0,
+          "goalHoldingRounds": 0,
+          "offers": 0,
+          "alliances": 0,
+          "betrayals": 0,
+          "withdrawals": 0,
+          "turretShots": 0,
+          "shieldBlocks": 0,
+          "airportUnlocks": 0,
+          "airportLosses": 0,
+          "airdrops": 0,
+          "bombardments": 0,
+          "depotControls": 4,
+          "suppliesEarned": 36,
+          "suppliesSpent": 0,
+          "fortifications": 0,
+          "neutralWarnings": 1,
+          "neutralStrikes": 1,
+          "neutralRemoved": 2,
+          "neutralBlocks": 0,
+          "byType": {
+            "deploy": 120
+          },
+          "byMinute": [
+            {
+              "actions": 120,
+              "meaningful": 120,
+              "captures": 19,
+              "cardsUsed": 0
+            }
+          ],
+          "perPlayer": [
+            {
+              "actions": 0,
+              "captures": 0,
+              "cardsUsed": 0,
+              "goals": 0
+            },
+            {
+              "actions": 20,
+              "captures": 2,
+              "cardsUsed": 0,
+              "goals": 0
+            },
+            {
+              "actions": 20,
+              "captures": 4,
+              "cardsUsed": 0,
+              "goals": 0
+            },
+            {
+              "actions": 20,
+              "captures": 3,
+              "cardsUsed": 0,
+              "goals": 0
+            },
+            {
+              "actions": 20,
+              "captures": 4,
+              "cardsUsed": 0,
+              "goals": 0
+            },
+            {
+              "actions": 20,
+              "captures": 3,
+              "cardsUsed": 0,
+              "goals": 0
+            },
+            {
+              "actions": 20,
+              "captures": 3,
+              "cardsUsed": 0,
+              "goals": 0
+            }
+          ]
+        }
+      },
+      "overflow": false
+    },
+    {
+      "label": "mobile",
+      "state": {
+        "ply": 120,
+        "round": 20,
+        "airports": [
+          {
+            "id": 0,
+            "cell": 915,
+            "owner": 0,
+            "supplied": false,
+            "cluster": 0,
+            "progress": 0,
+            "active": false,
+            "qualified": false
+          },
+          {
+            "id": 1,
+            "cell": 562,
+            "owner": 0,
+            "supplied": false,
+            "cluster": 0,
+            "progress": 0,
+            "active": false,
+            "qualified": false
+          },
+          {
+            "id": 2,
+            "cell": 148,
+            "owner": 0,
+            "supplied": false,
+            "cluster": 0,
+            "progress": 0,
+            "active": false,
+            "qualified": false
+          },
+          {
+            "id": 3,
+            "cell": 111,
+            "owner": 0,
+            "supplied": false,
+            "cluster": 0,
+            "progress": 0,
+            "active": false,
+            "qualified": false
+          },
+          {
+            "id": 4,
+            "cell": 464,
+            "owner": 0,
+            "supplied": false,
+            "cluster": 0,
+            "progress": 0,
+            "active": false,
+            "qualified": false
+          },
+          {
+            "id": 5,
+            "cell": 878,
+            "owner": 0,
+            "supplied": false,
+            "cluster": 0,
+            "progress": 0,
+            "active": false,
+            "qualified": false
+          }
+        ],
+        "telemetry": {
+          "actions": 120,
+          "meaningful": 120,
+          "captures": 19,
+          "destroyed": 0,
+          "supplyRetreats": 0,
+          "engineered": 0,
+          "cardsUsed": 0,
+          "reshuffles": 0,
+          "goalArrivals": 0,
+          "goalHoldingRounds": 0,
+          "offers": 0,
+          "alliances": 0,
+          "betrayals": 0,
+          "withdrawals": 0,
+          "turretShots": 0,
+          "shieldBlocks": 0,
+          "airportUnlocks": 0,
+          "airportLosses": 0,
+          "airdrops": 0,
+          "bombardments": 0,
+          "depotControls": 4,
+          "suppliesEarned": 36,
+          "suppliesSpent": 0,
+          "fortifications": 0,
+          "neutralWarnings": 1,
+          "neutralStrikes": 1,
+          "neutralRemoved": 2,
+          "neutralBlocks": 0,
+          "byType": {
+            "deploy": 120
+          },
+          "byMinute": [
+            {
+              "actions": 120,
+              "meaningful": 120,
+              "captures": 19,
+              "cardsUsed": 0
+            }
+          ],
+          "perPlayer": [
+            {
+              "actions": 0,
+              "captures": 0,
+              "cardsUsed": 0,
+              "goals": 0
+            },
+            {
+              "actions": 20,
+              "captures": 2,
+              "cardsUsed": 0,
+              "goals": 0
+            },
+            {
+              "actions": 20,
+              "captures": 4,
+              "cardsUsed": 0,
+              "goals": 0
+            },
+            {
+              "actions": 20,
+              "captures": 3,
+              "cardsUsed": 0,
+              "goals": 0
+            },
+            {
+              "actions": 20,
+              "captures": 4,
+              "cardsUsed": 0,
+              "goals": 0
+            },
+            {
+              "actions": 20,
+              "captures": 3,
+              "cardsUsed": 0,
+              "goals": 0
+            },
+            {
+              "actions": 20,
+              "captures": 3,
+              "cardsUsed": 0,
+              "goals": 0
+            }
+          ]
+        }
+      },
+      "overflow": false
+    }
+  ],
+  "errors": []
+}

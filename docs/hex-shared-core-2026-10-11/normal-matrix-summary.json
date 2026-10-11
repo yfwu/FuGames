@@ -1,0 +1,1104 @@
+{
+  "scope": "Complete normal cohorts only; Auto comparison still running. No retuning from these outcomes.",
+  "normal": {
+    "games": 40,
+    "connections": 40,
+    "caps": 0,
+    "draws": 0,
+    "plies": {
+      "min": 33,
+      "mean": 172.125,
+      "max": 440
+    },
+    "firstSeatWins": 12,
+    "bySeat": {
+      "1": {
+        "appearances": 40,
+        "wins": 6,
+        "air": 3,
+        "multiActionCompleted": 5
+      },
+      "2": {
+        "appearances": 40,
+        "wins": 10,
+        "air": 8,
+        "multiActionCompleted": 12
+      },
+      "3": {
+        "appearances": 36,
+        "wins": 12,
+        "air": 3,
+        "multiActionCompleted": 11
+      },
+      "4": {
+        "appearances": 30,
+        "wins": 4,
+        "air": 2,
+        "multiActionCompleted": 7
+      },
+      "5": {
+        "appearances": 22,
+        "wins": 4,
+        "air": 4,
+        "multiActionCompleted": 6
+      },
+      "6": {
+        "appearances": 12,
+        "wins": 4,
+        "air": 0,
+        "multiActionCompleted": 1
+      }
+    },
+    "byStrategy": {
+      "vanguard": {
+        "appearances": 29,
+        "wins": 6,
+        "air": 3,
+        "multiActionCompleted": 6
+      },
+      "airhead": {
+        "appearances": 31,
+        "wins": 1,
+        "air": 11,
+        "multiActionCompleted": 1
+      },
+      "flanker": {
+        "appearances": 31,
+        "wins": 10,
+        "air": 0,
+        "multiActionCompleted": 9
+      },
+      "interdict": {
+        "appearances": 32,
+        "wins": 10,
+        "air": 2,
+        "multiActionCompleted": 13
+      },
+      "recover": {
+        "appearances": 30,
+        "wins": 6,
+        "air": 2,
+        "multiActionCompleted": 6
+      },
+      "envoy": {
+        "appearances": 27,
+        "wins": 7,
+        "air": 2,
+        "multiActionCompleted": 7
+      }
+    },
+    "intentOutcomes": {
+      "direct": {
+        "episodes": 1660,
+        "actions": 4095,
+        "completed": 36,
+        "multiActionCompleted": 29
+      },
+      "airport": {
+        "episodes": 601,
+        "actions": 787,
+        "completed": 17,
+        "multiActionCompleted": 0
+      },
+      "flank": {
+        "episodes": 788,
+        "actions": 1553,
+        "completed": 4,
+        "multiActionCompleted": 4
+      },
+      "defend": {
+        "episodes": 228,
+        "actions": 273,
+        "completed": 147,
+        "multiActionCompleted": 5
+      },
+      "interdict": {
+        "episodes": 81,
+        "actions": 94,
+        "completed": 26,
+        "multiActionCompleted": 2
+      },
+      "recover": {
+        "episodes": 59,
+        "actions": 83,
+        "completed": 22,
+        "multiActionCompleted": 2
+      }
+    },
+    "actualActions": {
+      "deploy": 5676,
+      "tunnel": 373,
+      "destroy": 159,
+      "bridge": 146,
+      "engineer": 327,
+      "turret": 57,
+      "shield": 54,
+      "exchange": 72,
+      "bombard": 9,
+      "airdrop": 11,
+      "reroute": 1
+    },
+    "air": 20,
+    "tunnels": 373,
+    "sabotages": 273,
+    "repeatTunnels": 120,
+    "budgetViolations": 0
+  },
+  "normalByCount": {
+    "2": {
+      "games": 4,
+      "connections": 4,
+      "caps": 0,
+      "draws": 0,
+      "plies": {
+        "min": 33,
+        "mean": 37,
+        "max": 46
+      },
+      "firstSeatWins": 2,
+      "bySeat": {
+        "1": {
+          "appearances": 4,
+          "wins": 2,
+          "air": 0,
+          "multiActionCompleted": 2
+        },
+        "2": {
+          "appearances": 4,
+          "wins": 2,
+          "air": 0,
+          "multiActionCompleted": 2
+        }
+      },
+      "byStrategy": {
+        "vanguard": {
+          "appearances": 1,
+          "wins": 1,
+          "air": 0,
+          "multiActionCompleted": 1
+        },
+        "airhead": {
+          "appearances": 2,
+          "wins": 0,
+          "air": 0,
+          "multiActionCompleted": 0
+        },
+        "flanker": {
+          "appearances": 2,
+          "wins": 1,
+          "air": 0,
+          "multiActionCompleted": 1
+        },
+        "interdict": {
+          "appearances": 2,
+          "wins": 2,
+          "air": 0,
+          "multiActionCompleted": 2
+        },
+        "recover": {
+          "appearances": 1,
+          "wins": 0,
+          "air": 0,
+          "multiActionCompleted": 0
+        }
+      },
+      "intentOutcomes": {
+        "direct": {
+          "episodes": 16,
+          "actions": 60,
+          "completed": 3,
+          "multiActionCompleted": 3
+        },
+        "airport": {
+          "episodes": 10,
+          "actions": 21,
+          "completed": 0,
+          "multiActionCompleted": 0
+        },
+        "flank": {
+          "episodes": 13,
+          "actions": 61,
+          "completed": 1,
+          "multiActionCompleted": 1
+        },
+        "defend": {
+          "episodes": 2,
+          "actions": 5,
+          "completed": 2,
+          "multiActionCompleted": 0
+        },
+        "interdict": {
+          "episodes": 1,
+          "actions": 1,
+          "completed": 0,
+          "multiActionCompleted": 0
+        }
+      },
+      "actualActions": {
+        "deploy": 139,
+        "tunnel": 2,
+        "destroy": 2,
+        "bridge": 1,
+        "engineer": 2,
+        "shield": 2
+      },
+      "air": 0,
+      "tunnels": 2,
+      "sabotages": 2,
+      "repeatTunnels": 0,
+      "budgetViolations": 0
+    },
+    "3": {
+      "games": 6,
+      "connections": 6,
+      "caps": 0,
+      "draws": 0,
+      "plies": {
+        "min": 49,
+        "mean": 85,
+        "max": 130
+      },
+      "firstSeatWins": 2,
+      "bySeat": {
+        "1": {
+          "appearances": 6,
+          "wins": 1,
+          "air": 0,
+          "multiActionCompleted": 1
+        },
+        "2": {
+          "appearances": 6,
+          "wins": 4,
+          "air": 2,
+          "multiActionCompleted": 5
+        },
+        "3": {
+          "appearances": 6,
+          "wins": 1,
+          "air": 1,
+          "multiActionCompleted": 0
+        }
+      },
+      "byStrategy": {
+        "vanguard": {
+          "appearances": 3,
+          "wins": 1,
+          "air": 2,
+          "multiActionCompleted": 1
+        },
+        "airhead": {
+          "appearances": 3,
+          "wins": 0,
+          "air": 1,
+          "multiActionCompleted": 0
+        },
+        "flanker": {
+          "appearances": 3,
+          "wins": 3,
+          "air": 0,
+          "multiActionCompleted": 2
+        },
+        "interdict": {
+          "appearances": 3,
+          "wins": 0,
+          "air": 0,
+          "multiActionCompleted": 0
+        },
+        "recover": {
+          "appearances": 3,
+          "wins": 1,
+          "air": 0,
+          "multiActionCompleted": 1
+        },
+        "envoy": {
+          "appearances": 3,
+          "wins": 1,
+          "air": 0,
+          "multiActionCompleted": 2
+        }
+      },
+      "intentOutcomes": {
+        "direct": {
+          "episodes": 128,
+          "actions": 292,
+          "completed": 6,
+          "multiActionCompleted": 5
+        },
+        "flank": {
+          "episodes": 58,
+          "actions": 122,
+          "completed": 0,
+          "multiActionCompleted": 0
+        },
+        "airport": {
+          "episodes": 47,
+          "actions": 70,
+          "completed": 4,
+          "multiActionCompleted": 0
+        },
+        "recover": {
+          "episodes": 3,
+          "actions": 3,
+          "completed": 1,
+          "multiActionCompleted": 0
+        },
+        "defend": {
+          "episodes": 13,
+          "actions": 17,
+          "completed": 12,
+          "multiActionCompleted": 1
+        },
+        "interdict": {
+          "episodes": 4,
+          "actions": 6,
+          "completed": 1,
+          "multiActionCompleted": 0
+        }
+      },
+      "actualActions": {
+        "deploy": 425,
+        "engineer": 21,
+        "tunnel": 17,
+        "destroy": 17,
+        "bridge": 14,
+        "turret": 4,
+        "shield": 5,
+        "exchange": 4,
+        "bombard": 2,
+        "airdrop": 1
+      },
+      "air": 3,
+      "tunnels": 17,
+      "sabotages": 14,
+      "repeatTunnels": 6,
+      "budgetViolations": 0
+    },
+    "4": {
+      "games": 8,
+      "connections": 8,
+      "caps": 0,
+      "draws": 0,
+      "plies": {
+        "min": 84,
+        "mean": 165,
+        "max": 281
+      },
+      "firstSeatWins": 4,
+      "bySeat": {
+        "1": {
+          "appearances": 8,
+          "wins": 0,
+          "air": 2,
+          "multiActionCompleted": 0
+        },
+        "2": {
+          "appearances": 8,
+          "wins": 2,
+          "air": 3,
+          "multiActionCompleted": 3
+        },
+        "3": {
+          "appearances": 8,
+          "wins": 4,
+          "air": 0,
+          "multiActionCompleted": 4
+        },
+        "4": {
+          "appearances": 8,
+          "wins": 2,
+          "air": 0,
+          "multiActionCompleted": 3
+        }
+      },
+      "byStrategy": {
+        "vanguard": {
+          "appearances": 5,
+          "wins": 1,
+          "air": 0,
+          "multiActionCompleted": 1
+        },
+        "airhead": {
+          "appearances": 6,
+          "wins": 1,
+          "air": 3,
+          "multiActionCompleted": 0
+        },
+        "flanker": {
+          "appearances": 6,
+          "wins": 2,
+          "air": 0,
+          "multiActionCompleted": 3
+        },
+        "interdict": {
+          "appearances": 6,
+          "wins": 2,
+          "air": 1,
+          "multiActionCompleted": 4
+        },
+        "recover": {
+          "appearances": 5,
+          "wins": 1,
+          "air": 1,
+          "multiActionCompleted": 1
+        },
+        "envoy": {
+          "appearances": 4,
+          "wins": 1,
+          "air": 0,
+          "multiActionCompleted": 1
+        }
+      },
+      "intentOutcomes": {
+        "flank": {
+          "episodes": 146,
+          "actions": 300,
+          "completed": 1,
+          "multiActionCompleted": 1
+        },
+        "direct": {
+          "episodes": 305,
+          "actions": 751,
+          "completed": 7,
+          "multiActionCompleted": 6
+        },
+        "airport": {
+          "episodes": 125,
+          "actions": 164,
+          "completed": 2,
+          "multiActionCompleted": 0
+        },
+        "defend": {
+          "episodes": 63,
+          "actions": 72,
+          "completed": 47,
+          "multiActionCompleted": 2
+        },
+        "interdict": {
+          "episodes": 16,
+          "actions": 17,
+          "completed": 6,
+          "multiActionCompleted": 1
+        },
+        "recover": {
+          "episodes": 12,
+          "actions": 16,
+          "completed": 6,
+          "multiActionCompleted": 0
+        }
+      },
+      "actualActions": {
+        "deploy": 1086,
+        "destroy": 46,
+        "tunnel": 64,
+        "bridge": 17,
+        "engineer": 63,
+        "bombard": 2,
+        "shield": 11,
+        "airdrop": 3,
+        "exchange": 19,
+        "turret": 9
+      },
+      "air": 5,
+      "tunnels": 64,
+      "sabotages": 55,
+      "repeatTunnels": 24,
+      "budgetViolations": 0
+    },
+    "5": {
+      "games": 10,
+      "connections": 10,
+      "caps": 0,
+      "draws": 0,
+      "plies": {
+        "min": 109,
+        "mean": 217.6,
+        "max": 440
+      },
+      "firstSeatWins": 0,
+      "bySeat": {
+        "1": {
+          "appearances": 10,
+          "wins": 1,
+          "air": 1,
+          "multiActionCompleted": 0
+        },
+        "2": {
+          "appearances": 10,
+          "wins": 2,
+          "air": 1,
+          "multiActionCompleted": 2
+        },
+        "3": {
+          "appearances": 10,
+          "wins": 4,
+          "air": 0,
+          "multiActionCompleted": 4
+        },
+        "4": {
+          "appearances": 10,
+          "wins": 1,
+          "air": 1,
+          "multiActionCompleted": 3
+        },
+        "5": {
+          "appearances": 10,
+          "wins": 2,
+          "air": 3,
+          "multiActionCompleted": 3
+        }
+      },
+      "byStrategy": {
+        "vanguard": {
+          "appearances": 8,
+          "wins": 0,
+          "air": 0,
+          "multiActionCompleted": 0
+        },
+        "airhead": {
+          "appearances": 8,
+          "wins": 0,
+          "air": 3,
+          "multiActionCompleted": 1
+        },
+        "flanker": {
+          "appearances": 8,
+          "wins": 2,
+          "air": 0,
+          "multiActionCompleted": 2
+        },
+        "interdict": {
+          "appearances": 9,
+          "wins": 3,
+          "air": 0,
+          "multiActionCompleted": 4
+        },
+        "recover": {
+          "appearances": 9,
+          "wins": 2,
+          "air": 1,
+          "multiActionCompleted": 2
+        },
+        "envoy": {
+          "appearances": 8,
+          "wins": 3,
+          "air": 2,
+          "multiActionCompleted": 3
+        }
+      },
+      "intentOutcomes": {
+        "direct": {
+          "episodes": 522,
+          "actions": 1266,
+          "completed": 9,
+          "multiActionCompleted": 7
+        },
+        "flank": {
+          "episodes": 265,
+          "actions": 522,
+          "completed": 1,
+          "multiActionCompleted": 1
+        },
+        "airport": {
+          "episodes": 188,
+          "actions": 237,
+          "completed": 3,
+          "multiActionCompleted": 0
+        },
+        "defend": {
+          "episodes": 74,
+          "actions": 85,
+          "completed": 41,
+          "multiActionCompleted": 1
+        },
+        "interdict": {
+          "episodes": 29,
+          "actions": 37,
+          "completed": 13,
+          "multiActionCompleted": 1
+        },
+        "recover": {
+          "episodes": 20,
+          "actions": 29,
+          "completed": 7,
+          "multiActionCompleted": 2
+        }
+      },
+      "actualActions": {
+        "deploy": 1753,
+        "destroy": 63,
+        "tunnel": 132,
+        "bridge": 48,
+        "airdrop": 5,
+        "engineer": 116,
+        "shield": 15,
+        "turret": 20,
+        "exchange": 23,
+        "bombard": 1
+      },
+      "air": 6,
+      "tunnels": 132,
+      "sabotages": 99,
+      "repeatTunnels": 41,
+      "budgetViolations": 0
+    },
+    "6": {
+      "games": 12,
+      "connections": 12,
+      "caps": 0,
+      "draws": 0,
+      "plies": {
+        "min": 133,
+        "mean": 227.58333333333334,
+        "max": 411
+      },
+      "firstSeatWins": 4,
+      "bySeat": {
+        "1": {
+          "appearances": 12,
+          "wins": 2,
+          "air": 0,
+          "multiActionCompleted": 2
+        },
+        "2": {
+          "appearances": 12,
+          "wins": 0,
+          "air": 2,
+          "multiActionCompleted": 0
+        },
+        "3": {
+          "appearances": 12,
+          "wins": 3,
+          "air": 2,
+          "multiActionCompleted": 3
+        },
+        "4": {
+          "appearances": 12,
+          "wins": 1,
+          "air": 1,
+          "multiActionCompleted": 1
+        },
+        "5": {
+          "appearances": 12,
+          "wins": 2,
+          "air": 1,
+          "multiActionCompleted": 3
+        },
+        "6": {
+          "appearances": 12,
+          "wins": 4,
+          "air": 0,
+          "multiActionCompleted": 1
+        }
+      },
+      "byStrategy": {
+        "vanguard": {
+          "appearances": 12,
+          "wins": 3,
+          "air": 1,
+          "multiActionCompleted": 3
+        },
+        "airhead": {
+          "appearances": 12,
+          "wins": 0,
+          "air": 4,
+          "multiActionCompleted": 0
+        },
+        "flanker": {
+          "appearances": 12,
+          "wins": 2,
+          "air": 0,
+          "multiActionCompleted": 1
+        },
+        "interdict": {
+          "appearances": 12,
+          "wins": 3,
+          "air": 1,
+          "multiActionCompleted": 3
+        },
+        "recover": {
+          "appearances": 12,
+          "wins": 2,
+          "air": 0,
+          "multiActionCompleted": 2
+        },
+        "envoy": {
+          "appearances": 12,
+          "wins": 2,
+          "air": 0,
+          "multiActionCompleted": 1
+        }
+      },
+      "intentOutcomes": {
+        "direct": {
+          "episodes": 689,
+          "actions": 1726,
+          "completed": 11,
+          "multiActionCompleted": 8
+        },
+        "flank": {
+          "episodes": 306,
+          "actions": 548,
+          "completed": 1,
+          "multiActionCompleted": 1
+        },
+        "defend": {
+          "episodes": 76,
+          "actions": 94,
+          "completed": 45,
+          "multiActionCompleted": 1
+        },
+        "airport": {
+          "episodes": 231,
+          "actions": 295,
+          "completed": 8,
+          "multiActionCompleted": 0
+        },
+        "recover": {
+          "episodes": 24,
+          "actions": 35,
+          "completed": 8,
+          "multiActionCompleted": 0
+        },
+        "interdict": {
+          "episodes": 31,
+          "actions": 33,
+          "completed": 6,
+          "multiActionCompleted": 0
+        }
+      },
+      "actualActions": {
+        "deploy": 2273,
+        "tunnel": 158,
+        "engineer": 125,
+        "bridge": 66,
+        "airdrop": 2,
+        "shield": 21,
+        "turret": 24,
+        "exchange": 26,
+        "destroy": 31,
+        "bombard": 4,
+        "reroute": 1
+      },
+      "air": 6,
+      "tunnels": 158,
+      "sabotages": 103,
+      "repeatTunnels": 49,
+      "budgetViolations": 0
+    }
+  },
+  "matrix": {
+    "games": 60,
+    "connections": 60,
+    "caps": 0,
+    "draws": 0,
+    "plies": {
+      "min": 33,
+      "mean": 35.43333333333333,
+      "max": 50
+    },
+    "firstSeatWins": 12,
+    "bySeat": {
+      "1": {
+        "appearances": 60,
+        "wins": 12,
+        "air": 2,
+        "multiActionCompleted": 5
+      },
+      "2": {
+        "appearances": 60,
+        "wins": 48,
+        "air": 0,
+        "multiActionCompleted": 28
+      }
+    },
+    "byStrategy": {
+      "airhead": {
+        "appearances": 20,
+        "wins": 2,
+        "air": 2,
+        "multiActionCompleted": 2
+      },
+      "vanguard": {
+        "appearances": 20,
+        "wins": 16,
+        "air": 0,
+        "multiActionCompleted": 3
+      },
+      "flanker": {
+        "appearances": 20,
+        "wins": 11,
+        "air": 0,
+        "multiActionCompleted": 10
+      },
+      "interdict": {
+        "appearances": 20,
+        "wins": 10,
+        "air": 0,
+        "multiActionCompleted": 8
+      },
+      "recover": {
+        "appearances": 20,
+        "wins": 11,
+        "air": 0,
+        "multiActionCompleted": 7
+      },
+      "envoy": {
+        "appearances": 20,
+        "wins": 10,
+        "air": 0,
+        "multiActionCompleted": 3
+      }
+    },
+    "intentOutcomes": {
+      "airport": {
+        "episodes": 129,
+        "actions": 291,
+        "completed": 0,
+        "multiActionCompleted": 0
+      },
+      "direct": {
+        "episodes": 221,
+        "actions": 664,
+        "completed": 47,
+        "multiActionCompleted": 19
+      },
+      "flank": {
+        "episodes": 244,
+        "actions": 1130,
+        "completed": 13,
+        "multiActionCompleted": 13
+      },
+      "interdict": {
+        "episodes": 8,
+        "actions": 18,
+        "completed": 3,
+        "multiActionCompleted": 1
+      },
+      "defend": {
+        "episodes": 13,
+        "actions": 20,
+        "completed": 13,
+        "multiActionCompleted": 0
+      },
+      "recover": {
+        "episodes": 3,
+        "actions": 3,
+        "completed": 3,
+        "multiActionCompleted": 0
+      }
+    },
+    "actualActions": {
+      "deploy": 2068,
+      "shield": 50,
+      "destroy": 6,
+      "bombard": 2
+    },
+    "air": 2,
+    "tunnels": 0,
+    "sabotages": 0,
+    "repeatTunnels": 0,
+    "budgetViolations": 0
+  },
+  "pairMatchups": {
+    "vanguard": {
+      "airhead": {
+        "games": 4,
+        "wins": 4,
+        "losses": 0,
+        "draws": 0
+      },
+      "flanker": {
+        "games": 4,
+        "wins": 3,
+        "losses": 1,
+        "draws": 0
+      },
+      "interdict": {
+        "games": 4,
+        "wins": 3,
+        "losses": 1,
+        "draws": 0
+      },
+      "recover": {
+        "games": 4,
+        "wins": 3,
+        "losses": 1,
+        "draws": 0
+      },
+      "envoy": {
+        "games": 4,
+        "wins": 3,
+        "losses": 1,
+        "draws": 0
+      }
+    },
+    "airhead": {
+      "vanguard": {
+        "games": 4,
+        "wins": 0,
+        "losses": 4,
+        "draws": 0
+      },
+      "flanker": {
+        "games": 4,
+        "wins": 0,
+        "losses": 4,
+        "draws": 0
+      },
+      "interdict": {
+        "games": 4,
+        "wins": 1,
+        "losses": 3,
+        "draws": 0
+      },
+      "recover": {
+        "games": 4,
+        "wins": 0,
+        "losses": 4,
+        "draws": 0
+      },
+      "envoy": {
+        "games": 4,
+        "wins": 1,
+        "losses": 3,
+        "draws": 0
+      }
+    },
+    "flanker": {
+      "vanguard": {
+        "games": 4,
+        "wins": 1,
+        "losses": 3,
+        "draws": 0
+      },
+      "airhead": {
+        "games": 4,
+        "wins": 4,
+        "losses": 0,
+        "draws": 0
+      },
+      "interdict": {
+        "games": 4,
+        "wins": 2,
+        "losses": 2,
+        "draws": 0
+      },
+      "recover": {
+        "games": 4,
+        "wins": 2,
+        "losses": 2,
+        "draws": 0
+      },
+      "envoy": {
+        "games": 4,
+        "wins": 2,
+        "losses": 2,
+        "draws": 0
+      }
+    },
+    "interdict": {
+      "vanguard": {
+        "games": 4,
+        "wins": 1,
+        "losses": 3,
+        "draws": 0
+      },
+      "airhead": {
+        "games": 4,
+        "wins": 3,
+        "losses": 1,
+        "draws": 0
+      },
+      "flanker": {
+        "games": 4,
+        "wins": 2,
+        "losses": 2,
+        "draws": 0
+      },
+      "recover": {
+        "games": 4,
+        "wins": 2,
+        "losses": 2,
+        "draws": 0
+      },
+      "envoy": {
+        "games": 4,
+        "wins": 2,
+        "losses": 2,
+        "draws": 0
+      }
+    },
+    "recover": {
+      "vanguard": {
+        "games": 4,
+        "wins": 1,
+        "losses": 3,
+        "draws": 0
+      },
+      "airhead": {
+        "games": 4,
+        "wins": 4,
+        "losses": 0,
+        "draws": 0
+      },
+      "flanker": {
+        "games": 4,
+        "wins": 2,
+        "losses": 2,
+        "draws": 0
+      },
+      "interdict": {
+        "games": 4,
+        "wins": 2,
+        "losses": 2,
+        "draws": 0
+      },
+      "envoy": {
+        "games": 4,
+        "wins": 2,
+        "losses": 2,
+        "draws": 0
+      }
+    },
+    "envoy": {
+      "vanguard": {
+        "games": 4,
+        "wins": 1,
+        "losses": 3,
+        "draws": 0
+      },
+      "airhead": {
+        "games": 4,
+        "wins": 3,
+        "losses": 1,
+        "draws": 0
+      },
+      "flanker": {
+        "games": 4,
+        "wins": 2,
+        "losses": 2,
+        "draws": 0
+      },
+      "interdict": {
+        "games": 4,
+        "wins": 2,
+        "losses": 2,
+        "draws": 0
+      },
+      "recover": {
+        "games": 4,
+        "wins": 2,
+        "losses": 2,
+        "draws": 0
+      }
+    }
+  },
+  "observedStrictMajorityThreeWayCycles": [],
+  "cycleInterpretation": "A strict majority cycle here is descriptive only, based on just2independent seeds and4games per pair. Empty list means this protocol did not demonstrate even that sample criterion.",
+  "limitations": [
+    "Seed/seat-order variants are correlated.",
+    "No population win-rate or general cyclic-dominance claim.",
+    "Normal game endpoint is a connection; score is not the win criterion.",
+    "Normal profiles/first seats are not fully factorial."
+  ]
+}

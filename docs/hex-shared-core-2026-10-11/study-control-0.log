@@ -1,0 +1,12 @@
+{"batch":"control","index":0,"seed":73013,"ply":2000,"winners":[5],"goals":26,"air":11,"meanMs":6.390583618000001,"done":1,"planned":12}
+{"batch":"control","index":1,"seed":73013,"ply":2000,"winners":[6],"goals":14,"air":15,"meanMs":3.5575197344999907,"done":2,"planned":12}
+{"batch":"control","index":2,"seed":74101,"ply":2000,"winners":[1],"goals":19,"air":1,"meanMs":3.3599519104999525,"done":3,"planned":12}
+{"batch":"control","index":3,"seed":74101,"ply":2000,"winners":[1],"goals":25,"air":3,"meanMs":2.107858248000033,"done":4,"planned":12}
+{"batch":"control","index":4,"seed":75209,"ply":2000,"winners":[2],"goals":27,"air":29,"meanMs":1.745674026000026,"done":5,"planned":12}
+{"batch":"control","index":5,"seed":75209,"ply":2000,"winners":[1],"goals":17,"air":4,"meanMs":2.1674224659998873,"done":6,"planned":12}
+{"batch":"control","index":6,"seed":76303,"ply":2000,"winners":[3],"goals":22,"air":0,"meanMs":2.01446794899986,"done":7,"planned":12}
+{"batch":"control","index":7,"seed":76303,"ply":2000,"winners":[4],"goals":26,"air":0,"meanMs":2.199542766999897,"done":8,"planned":12}
+{"batch":"control","index":8,"seed":77417,"ply":2000,"winners":[6],"goals":10,"air":2,"meanMs":2.27454427999998,"done":9,"planned":12}
+{"batch":"control","index":9,"seed":77417,"ply":2000,"winners":[1],"goals":14,"air":0,"meanMs":2.605032716499947,"done":10,"planned":12}
+{"batch":"control","index":10,"seed":78511,"ply":2000,"winners":[5],"goals":34,"air":20,"meanMs":3.0885267525001034,"done":11,"planned":12}
+{"batch":"control","index":11,"seed":78511,"ply":2000,"winners":[1],"goals":21,"air":10,"meanMs":1.9186515109999454,"done":12,"planned":12}

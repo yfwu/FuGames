@@ -1,0 +1,167 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "FuGames shared Hex strategy configuration v1",
+  "description": "Runtime also rejects duplicate profile IDs and files larger than 32 KiB.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "version",
+    "profiles"
+  ],
+  "properties": {
+    "version": {
+      "const": 1
+    },
+    "profiles": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 12,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "name",
+          "mission",
+          "route",
+          "airport",
+          "commitment",
+          "diplomacy"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 32,
+            "pattern": "^[a-z][a-z0-9_-]*$",
+            "not": {
+              "enum": [
+                "constructor",
+                "prototype",
+                "__proto__"
+              ]
+            }
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 32,
+            "pattern": "^[^\\u0000-\\u001f\\u007f]*\\S[^\\u0000-\\u001f\\u007f]*$"
+          },
+          "mission": {
+            "type": "string",
+            "enum": [
+              "connect",
+              "airhead",
+              "flank",
+              "interdict",
+              "recover",
+              "diplomat"
+            ]
+          },
+          "route": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "side",
+              "transport",
+              "maxDetour"
+            ],
+            "properties": {
+              "side": {
+                "type": "integer",
+                "minimum": -1,
+                "maximum": 1
+              },
+              "transport": {
+                "type": "string",
+                "enum": [
+                  "ground",
+                  "bridge",
+                  "tunnel",
+                  "both"
+                ]
+              },
+              "maxDetour": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 18
+              }
+            }
+          },
+          "airport": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "mode",
+              "maxOwnActions",
+              "maxSetupCost",
+              "projection"
+            ],
+            "properties": {
+              "mode": {
+                "type": "string",
+                "enum": [
+                  "avoid",
+                  "opportunity",
+                  "invest"
+                ]
+              },
+              "maxOwnActions": {
+                "type": "integer",
+                "minimum": 6,
+                "maximum": 24
+              },
+              "maxSetupCost": {
+                "type": "integer",
+                "minimum": 6,
+                "maximum": 36
+              },
+              "projection": {
+                "type": "string",
+                "enum": [
+                  "turret",
+                  "bombard",
+                  "either"
+                ]
+              }
+            }
+          },
+          "commitment": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "reviewOwnTurns",
+              "stalledOwnTurns",
+              "maxOwnTurns"
+            ],
+            "properties": {
+              "reviewOwnTurns": {
+                "type": "integer",
+                "minimum": 2,
+                "maximum": 8
+              },
+              "stalledOwnTurns": {
+                "type": "integer",
+                "minimum": 2,
+                "maximum": 6
+              },
+              "maxOwnTurns": {
+                "type": "integer",
+                "minimum": 8,
+                "maximum": 36
+              }
+            }
+          },
+          "diplomacy": {
+            "type": "string",
+            "enum": [
+              "avoid",
+              "opportunity"
+            ]
+          }
+        }
+      }
+    }
+  }
+}

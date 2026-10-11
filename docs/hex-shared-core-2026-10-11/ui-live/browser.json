@@ -1,0 +1,1169 @@
+{
+  "sourceSha256": {
+    "hex-core.js": "3fc410b72e07b62464ad6272a8dd1e0af8e0300d3fa757e66c8d4147a53322c9",
+    "hex-strategies.js": "475536a736d1d7ef74dc4ffb41fa6af04349b68f61881fc76bc0471d2c8df624",
+    "autohex-planner.js": "16f383fbe1d2eb67afd7864bda04056994c8ec254f9cc2f2cb6fad0aecb2659c",
+    "autohex-ai-worker.js": "9899135883679de114a5206dd6ba1e8be111e959eea24186b30092b774b81b0a",
+    "cardhex-engine.js": "10eadf0e92901ec6f2a94d5e5c9d9697ffb242c98d10d37ccdad903c7a952769",
+    "autohex-ui.js": "96d1c77baa6c34221d266800a83e8335e7ef3b5422cb0a685f35a4c74b8335ac",
+    "autohex-visuals.js": "2b32967624469d18db1cefebbb1f1c26f05eebb600da71333f59ddd316db6746",
+    "autohex.css": "6345d45ac68387f07d50c1a62e6e57f980b35a19a57d9852e170c6dc58b2723c",
+    "card_hex.html": "cbabd45ecb3cd41f0620a862e66b7ee88801c18280cc03cd3fd49efe72ab2c7e"
+  },
+  "method": "Real foreground normal games via UI Worker with 0.05-second interval. No virtual clocks, engine mutation, or bulk actions. CPU may be shared with development studies; not a performance benchmark.",
+  "games": [
+    {
+      "playerCount": 2,
+      "samples": [
+        {
+          "wallSeconds": 3.264,
+          "phase": "over",
+          "ply": 33,
+          "activeMs": 3104.39999999851,
+          "round": 16,
+          "observer": 0,
+          "hidden": false,
+          "handButtons": 0,
+          "goals": 1
+        }
+      ],
+      "ending": {
+        "result": {
+          "winners": [
+            1
+          ],
+          "standings": [
+            {
+              "player": 1,
+              "name": "Azure",
+              "score": 0,
+              "rank": 1
+            },
+            {
+              "player": 2,
+              "name": "Ember",
+              "score": 0,
+              "rank": 2
+            }
+          ],
+          "draw": false,
+          "reason": "connection",
+          "activeMs": 3104.39999999851,
+          "ply": 33
+        },
+        "telemetry": {
+          "actions": 33,
+          "meaningful": 33,
+          "captures": 0,
+          "destroyed": 0,
+          "supplyRetreats": 0,
+          "engineered": 0,
+          "cardsUsed": 0,
+          "reshuffles": 0,
+          "goalArrivals": 1,
+          "goalHoldingRounds": 0,
+          "offers": 0,
+          "alliances": 0,
+          "betrayals": 0,
+          "withdrawals": 0,
+          "tunnelsBuilt": 0,
+          "tunnelsCollapsed": 0,
+          "tunnelSabotages": 0,
+          "hillRetreats": 0,
+          "cardsExpired": 0,
+          "turretShots": 0,
+          "shieldBlocks": 0,
+          "airportUnlocks": 1,
+          "airportLosses": 0,
+          "airdrops": 0,
+          "bombardments": 0,
+          "depotControls": 1,
+          "suppliesEarned": 11,
+          "suppliesSpent": 0,
+          "fortifications": 0,
+          "neutralWarnings": 0,
+          "neutralStrikes": 0,
+          "neutralRemoved": 0,
+          "neutralBlocks": 0,
+          "byType": {
+            "deploy": 33
+          },
+          "byMinute": [
+            {
+              "actions": 33,
+              "meaningful": 33,
+              "captures": 0,
+              "cardsUsed": 0
+            }
+          ],
+          "perPlayer": [
+            {
+              "actions": 0,
+              "captures": 0,
+              "cardsUsed": 0,
+              "goals": 0
+            },
+            {
+              "actions": 17,
+              "captures": 0,
+              "cardsUsed": 0,
+              "goals": 1
+            },
+            {
+              "actions": 16,
+              "captures": 0,
+              "cardsUsed": 0,
+              "goals": 0
+            }
+          ]
+        },
+        "planning": {
+          "count": 33,
+          "lastMs": 5.300000000745058,
+          "lastLatencyMs": 7.099999997764826,
+          "lastMode": "worker",
+          "maxMs": 76.10000000149012,
+          "totalMs": 787.5000000186265,
+          "workerCount": 33,
+          "synchronousCount": 0,
+          "recentMs": [
+            76.10000000149012,
+            55.80000000074506,
+            31.300000000745058,
+            38.600000001490116,
+            14.100000001490116,
+            33.100000001490116,
+            13.100000001490116,
+            18.399999998509884,
+            8,
+            29.600000001490116,
+            8.699999999254942,
+            22.599999997764826,
+            13.600000001490116,
+            21.899999998509884,
+            8.599999997764826,
+            40.400000002235174,
+            7.899999998509884,
+            21.200000002980232,
+            11.699999999254942,
+            22.900000002235174,
+            8.800000000745058,
+            39.600000001490116,
+            12.400000002235174,
+            34.5,
+            8.399999998509884,
+            41,
+            7.300000000745058,
+            58.80000000074506,
+            6.600000001490116,
+            29.300000000745058,
+            6.200000002980232,
+            31.699999999254942,
+            5.300000000745058
+          ]
+        },
+        "config": {
+          "version": 1,
+          "mode": "normal",
+          "radius": 9,
+          "playerCount": 2,
+          "seatSlots": [
+            0,
+            3
+          ]
+        },
+        "strategyConfigId": "hex-strategies-v1-75843bf5",
+        "players": [
+          null,
+          {
+            "id": 1,
+            "seatSlot": 0,
+            "strategyId": "vanguard",
+            "strategy": {
+              "id": "vanguard",
+              "name": "直進先鋒",
+              "mission": "connect",
+              "route": {
+                "side": 0,
+                "transport": "both",
+                "maxDetour": 8
+              },
+              "airport": {
+                "mode": "opportunity",
+                "maxOwnActions": 18,
+                "maxSetupCost": 28,
+                "projection": "either"
+              },
+              "commitment": {
+                "reviewOwnTurns": 6,
+                "stalledOwnTurns": 3,
+                "maxOwnTurns": 24
+              },
+              "diplomacy": "avoid"
+            },
+            "name": "Azure",
+            "color": "#65c7ff",
+            "home": 266,
+            "axis": "q",
+            "sign": 1,
+            "score": 0,
+            "energy": 6,
+            "profile": {
+              "name": "Vanguard",
+              "aggression": 1.15,
+              "engineering": 0.95,
+              "diplomacy": 0.7,
+              "flank": 1,
+              "outer": 0.6
+            },
+            "diplomacyUntil": 0,
+            "grudgeUntil": [
+              0,
+              0,
+              0
+            ],
+            "reputation": 0,
+            "goalActive": true,
+            "reached": true,
+            "lastGoalRound": -12,
+            "goals": 1,
+            "ownerTurns": 17,
+            "stones": 19,
+            "completedActions": 17,
+            "supplies": 6,
+            "airCooldown": 0,
+            "airportsActivated": 0,
+            "depotVisited": true
+          },
+          {
+            "id": 2,
+            "seatSlot": 3,
+            "strategyId": "airhead",
+            "strategy": {
+              "id": "airhead",
+              "name": "航空支點",
+              "mission": "airhead",
+              "route": {
+                "side": 0,
+                "transport": "both",
+                "maxDetour": 8
+              },
+              "airport": {
+                "mode": "invest",
+                "maxOwnActions": 18,
+                "maxSetupCost": 28,
+                "projection": "turret"
+              },
+              "commitment": {
+                "reviewOwnTurns": 6,
+                "stalledOwnTurns": 3,
+                "maxOwnTurns": 24
+              },
+              "diplomacy": "opportunity"
+            },
+            "name": "Ember",
+            "color": "#ff9874",
+            "home": 4,
+            "axis": "q",
+            "sign": -1,
+            "score": 0,
+            "energy": 6,
+            "profile": {
+              "name": "Architect",
+              "aggression": 0.95,
+              "engineering": 1.2,
+              "diplomacy": 0.9,
+              "flank": -1,
+              "outer": 1.2
+            },
+            "diplomacyUntil": 0,
+            "grudgeUntil": [
+              0,
+              0,
+              0
+            ],
+            "reputation": 0,
+            "goalActive": false,
+            "reached": false,
+            "lastGoalRound": -12,
+            "goals": 0,
+            "ownerTurns": 16,
+            "stones": 19,
+            "completedActions": 16,
+            "supplies": 5,
+            "airCooldown": 0,
+            "airportsActivated": 1,
+            "depotVisited": false
+          }
+        ],
+        "overflow": false
+      }
+    },
+    {
+      "playerCount": 6,
+      "samples": [
+        {
+          "wallSeconds": 10.294,
+          "phase": "running",
+          "ply": 95,
+          "activeMs": 10302.39999999851,
+          "round": 15,
+          "observer": 0,
+          "hidden": false,
+          "handButtons": 0,
+          "goals": 0
+        },
+        {
+          "wallSeconds": 20.556,
+          "phase": "running",
+          "ply": 194,
+          "activeMs": 20566.10000000894,
+          "round": 32,
+          "observer": 0,
+          "hidden": false,
+          "handButtons": 0,
+          "goals": 0
+        },
+        {
+          "wallSeconds": 22.604,
+          "phase": "over",
+          "ply": 214,
+          "activeMs": 22449.90000001341,
+          "round": 35,
+          "observer": 0,
+          "hidden": false,
+          "handButtons": 0,
+          "goals": 1
+        }
+      ],
+      "ending": {
+        "result": {
+          "winners": [
+            4
+          ],
+          "standings": [
+            {
+              "player": 1,
+              "name": "Azure",
+              "score": 7,
+              "rank": 2
+            },
+            {
+              "player": 2,
+              "name": "Ember",
+              "score": 5,
+              "rank": 2
+            },
+            {
+              "player": 3,
+              "name": "Violet",
+              "score": 9,
+              "rank": 2
+            },
+            {
+              "player": 4,
+              "name": "Gold",
+              "score": 12,
+              "rank": 1
+            },
+            {
+              "player": 5,
+              "name": "Jade",
+              "score": 9,
+              "rank": 2
+            },
+            {
+              "player": 6,
+              "name": "Rose",
+              "score": 8,
+              "rank": 2
+            }
+          ],
+          "draw": false,
+          "reason": "connection",
+          "activeMs": 22449.90000001341,
+          "ply": 214
+        },
+        "telemetry": {
+          "actions": 214,
+          "meaningful": 214,
+          "captures": 30,
+          "destroyed": 20,
+          "supplyRetreats": 5,
+          "engineered": 1,
+          "cardsUsed": 25,
+          "reshuffles": 0,
+          "goalArrivals": 1,
+          "goalHoldingRounds": 0,
+          "offers": 0,
+          "alliances": 0,
+          "betrayals": 0,
+          "withdrawals": 0,
+          "tunnelsBuilt": 25,
+          "tunnelsCollapsed": 20,
+          "tunnelSabotages": 19,
+          "hillRetreats": 0,
+          "cardsExpired": 0,
+          "turretShots": 4,
+          "shieldBlocks": 0,
+          "airportUnlocks": 1,
+          "airportLosses": 1,
+          "airdrops": 1,
+          "bombardments": 0,
+          "depotControls": 10,
+          "suppliesEarned": 39,
+          "suppliesSpent": 3,
+          "fortifications": 30,
+          "neutralWarnings": 0,
+          "neutralStrikes": 0,
+          "neutralRemoved": 0,
+          "neutralBlocks": 0,
+          "byType": {
+            "deploy": 143,
+            "tunnel": 25,
+            "destroy": 16,
+            "shield": 1,
+            "bridge": 6,
+            "engineer": 20,
+            "airdrop": 1,
+            "exchange": 2
+          },
+          "byMinute": [
+            {
+              "actions": 214,
+              "meaningful": 214,
+              "captures": 30,
+              "cardsUsed": 25
+            }
+          ],
+          "perPlayer": [
+            {
+              "actions": 0,
+              "captures": 0,
+              "cardsUsed": 0,
+              "goals": 0
+            },
+            {
+              "actions": 36,
+              "captures": 3,
+              "cardsUsed": 4,
+              "goals": 0
+            },
+            {
+              "actions": 36,
+              "captures": 2,
+              "cardsUsed": 7,
+              "goals": 0
+            },
+            {
+              "actions": 36,
+              "captures": 4,
+              "cardsUsed": 2,
+              "goals": 0
+            },
+            {
+              "actions": 36,
+              "captures": 8,
+              "cardsUsed": 6,
+              "goals": 1
+            },
+            {
+              "actions": 35,
+              "captures": 8,
+              "cardsUsed": 1,
+              "goals": 0
+            },
+            {
+              "actions": 35,
+              "captures": 5,
+              "cardsUsed": 5,
+              "goals": 0
+            }
+          ]
+        },
+        "planning": {
+          "count": 214,
+          "lastMs": 48.899999998509884,
+          "lastLatencyMs": 108.09999999776483,
+          "lastMode": "worker",
+          "maxMs": 110.29999999701977,
+          "totalMs": 6691.699999988079,
+          "workerCount": 214,
+          "synchronousCount": 0,
+          "recentMs": [
+            56,
+            52.79999999701977,
+            22.599999997764826,
+            24.199999999254942,
+            26.699999999254942,
+            22.100000001490116,
+            28.699999999254942,
+            26.600000001490116,
+            21.400000002235174,
+            42.69999999925494,
+            20.600000001490116,
+            27.399999998509884,
+            36.100000001490116,
+            44.399999998509884,
+            18.799999997019768,
+            18.300000000745058,
+            24.399999998509884,
+            27.5,
+            24.5,
+            47,
+            30.900000002235174,
+            23.199999999254942,
+            15.600000001490116,
+            36.900000002235174,
+            22.5,
+            23.099999997764826,
+            14.5,
+            17.5,
+            25.100000001490116,
+            13.099999997764826,
+            24.400000002235174,
+            37.80000000074506,
+            21,
+            17.800000000745058,
+            35,
+            20.200000002980232,
+            16.899999998509884,
+            41.399999998509884,
+            14.199999999254942,
+            41,
+            28.300000000745058,
+            24.400000002235174,
+            16.5,
+            58.69999999925494,
+            19.300000000745058,
+            29.5,
+            37,
+            37.29999999701977,
+            26.899999998509884,
+            67.80000000074506,
+            25.800000000745058,
+            20.600000001490116,
+            22.899999998509884,
+            17.300000000745058,
+            18.699999999254942,
+            56.900000002235174,
+            23.600000001490116,
+            27.699999999254942,
+            27.699999999254942,
+            40.900000002235174,
+            18.400000002235174,
+            60.099999997764826,
+            16,
+            30.899999998509884,
+            36.69999999925494,
+            20.800000000745058,
+            34.600000001490116,
+            50.399999998509884,
+            21.800000000745058,
+            34.70000000298023,
+            16.399999998509884,
+            32,
+            27.199999999254942,
+            43.900000002235174,
+            19.600000001490116,
+            52.69999999925494,
+            23.800000000745058,
+            18.399999998509884,
+            17.899999998509884,
+            62.19999999925494,
+            18.800000000745058,
+            35,
+            15.299999997019768,
+            15,
+            22.5,
+            36.399999998509884,
+            25.699999999254942,
+            46.19999999925494,
+            17.300000000745058,
+            20.199999999254942,
+            33.600000001490116,
+            41,
+            31.099999997764826,
+            43.5,
+            19.200000002980232,
+            20.599999997764826,
+            16.600000001490116,
+            42.19999999925494,
+            33.29999999701977,
+            40.19999999925494,
+            16.600000001490116,
+            29.799999997019768,
+            34.5,
+            48.69999999925494,
+            34.099999997764826,
+            31.699999999254942,
+            56.100000001490116,
+            35,
+            20.300000000745058,
+            56.19999999925494,
+            13.400000002235174,
+            32.69999999925494,
+            39.69999999925494,
+            23.600000001490116,
+            19.699999999254942,
+            66.59999999776483,
+            39.400000002235174,
+            35.899999998509884,
+            30.100000001490116,
+            27.200000002980232,
+            16.600000001490116,
+            54.899999998509884,
+            17.5,
+            32.5,
+            34.19999999925494,
+            20.300000000745058,
+            19.199999999254942,
+            72.80000000074506,
+            28.199999999254942,
+            46.099999997764826,
+            34.600000001490116,
+            30.599999997764826,
+            16.800000000745058,
+            71.39999999850988,
+            27.300000000745058,
+            42,
+            30.5,
+            20,
+            20.800000000745058,
+            51.5,
+            31.199999999254942,
+            70,
+            22.899999998509884,
+            16,
+            28.399999998509884,
+            46,
+            19.800000000745058,
+            46.30000000074506,
+            37.29999999701977,
+            33.599999997764826,
+            45.600000001490116,
+            110.29999999701977,
+            23.100000001490116,
+            38.899999998509884,
+            44.5,
+            22.300000000745058,
+            18.800000000745058,
+            44,
+            21.5,
+            32.30000000074506,
+            28.399999998509884,
+            31.199999999254942,
+            15.600000001490116,
+            59.899999998509884,
+            26,
+            44.600000001490116,
+            16.800000000745058,
+            57.899999998509884,
+            44.099999997764826,
+            46.900000002235174,
+            20.5,
+            21,
+            26.900000002235174,
+            24.899999998509884,
+            16.100000001490116,
+            38.899999998509884,
+            21.600000001490116,
+            41.600000001490116,
+            36.5,
+            53.19999999925494,
+            63.900000002235174,
+            36.399999998509884,
+            17.100000001490116,
+            19.899999998509884,
+            21.800000000745058,
+            51.900000002235174,
+            15.099999997764826,
+            25.300000000745058,
+            39.899999998509884,
+            24.100000001490116,
+            16.100000001490116,
+            31.199999999254942,
+            15.800000000745058,
+            36.899999998509884,
+            20.400000002235174,
+            24.300000000745058,
+            24,
+            20.700000002980232,
+            15.5,
+            34.900000002235174,
+            14.800000000745058,
+            43.69999999925494,
+            42.399999998509884,
+            13.300000000745058,
+            32.399999998509884,
+            14.699999999254942,
+            13.099999997764826,
+            40.399999998509884,
+            40.5,
+            32.100000001490116,
+            20.800000000745058,
+            11.899999998509884,
+            18.099999997764826,
+            48.899999998509884
+          ]
+        },
+        "config": {
+          "version": 1,
+          "mode": "normal",
+          "radius": 9,
+          "playerCount": 6,
+          "seatSlots": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5
+          ]
+        },
+        "strategyConfigId": "hex-strategies-v1-75843bf5",
+        "players": [
+          null,
+          {
+            "id": 1,
+            "seatSlot": 0,
+            "strategyId": "vanguard",
+            "strategy": {
+              "id": "vanguard",
+              "name": "直進先鋒",
+              "mission": "connect",
+              "route": {
+                "side": 0,
+                "transport": "both",
+                "maxDetour": 8
+              },
+              "airport": {
+                "mode": "opportunity",
+                "maxOwnActions": 18,
+                "maxSetupCost": 28,
+                "projection": "either"
+              },
+              "commitment": {
+                "reviewOwnTurns": 6,
+                "stalledOwnTurns": 3,
+                "maxOwnTurns": 24
+              },
+              "diplomacy": "avoid"
+            },
+            "name": "Azure",
+            "color": "#65c7ff",
+            "home": 266,
+            "axis": "q",
+            "sign": 1,
+            "score": 7,
+            "energy": 6,
+            "profile": {
+              "name": "Vanguard",
+              "aggression": 1.15,
+              "engineering": 0.95,
+              "diplomacy": 0.7,
+              "flank": 1,
+              "outer": 0.6
+            },
+            "diplomacyUntil": 0,
+            "grudgeUntil": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "reputation": 0,
+            "goalActive": false,
+            "reached": false,
+            "lastGoalRound": -12,
+            "goals": 0,
+            "ownerTurns": 36,
+            "stones": 12,
+            "completedActions": 36,
+            "supplies": 6,
+            "airCooldown": 0,
+            "airportsActivated": 0,
+            "depotVisited": false
+          },
+          {
+            "id": 2,
+            "seatSlot": 1,
+            "strategyId": "airhead",
+            "strategy": {
+              "id": "airhead",
+              "name": "航空支點",
+              "mission": "airhead",
+              "route": {
+                "side": 0,
+                "transport": "both",
+                "maxDetour": 8
+              },
+              "airport": {
+                "mode": "invest",
+                "maxOwnActions": 18,
+                "maxSetupCost": 28,
+                "projection": "turret"
+              },
+              "commitment": {
+                "reviewOwnTurns": 6,
+                "stalledOwnTurns": 3,
+                "maxOwnTurns": 24
+              },
+              "diplomacy": "opportunity"
+            },
+            "name": "Ember",
+            "color": "#ff9874",
+            "home": 210,
+            "axis": "s",
+            "sign": -1,
+            "score": 5,
+            "energy": 3,
+            "profile": {
+              "name": "Architect",
+              "aggression": 0.95,
+              "engineering": 1.2,
+              "diplomacy": 0.9,
+              "flank": -1,
+              "outer": 1.2
+            },
+            "diplomacyUntil": 0,
+            "grudgeUntil": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "reputation": 0,
+            "goalActive": false,
+            "reached": false,
+            "lastGoalRound": -12,
+            "goals": 0,
+            "ownerTurns": 36,
+            "stones": 18,
+            "completedActions": 36,
+            "supplies": 6,
+            "airCooldown": 0,
+            "airportsActivated": 0,
+            "depotVisited": false
+          },
+          {
+            "id": 3,
+            "seatSlot": 2,
+            "strategyId": "flanker",
+            "strategy": {
+              "id": "flanker",
+              "name": "地道側翼",
+              "mission": "flank",
+              "route": {
+                "side": 0,
+                "transport": "both",
+                "maxDetour": 12
+              },
+              "airport": {
+                "mode": "avoid",
+                "maxOwnActions": 18,
+                "maxSetupCost": 28,
+                "projection": "either"
+              },
+              "commitment": {
+                "reviewOwnTurns": 6,
+                "stalledOwnTurns": 3,
+                "maxOwnTurns": 24
+              },
+              "diplomacy": "avoid"
+            },
+            "name": "Violet",
+            "color": "#b9a0ff",
+            "home": 59,
+            "axis": "r",
+            "sign": 1,
+            "score": 9,
+            "energy": 6,
+            "profile": {
+              "name": "Sentinel",
+              "aggression": 1,
+              "engineering": 1.05,
+              "diplomacy": 1,
+              "flank": 1,
+              "outer": 1
+            },
+            "diplomacyUntil": 0,
+            "grudgeUntil": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "reputation": 0,
+            "goalActive": false,
+            "reached": false,
+            "lastGoalRound": -12,
+            "goals": 0,
+            "ownerTurns": 36,
+            "stones": 17,
+            "completedActions": 36,
+            "supplies": 6,
+            "airCooldown": 0,
+            "airportsActivated": 1,
+            "depotVisited": true
+          },
+          {
+            "id": 4,
+            "seatSlot": 3,
+            "strategyId": "interdict",
+            "strategy": {
+              "id": "interdict",
+              "name": "補給截斷",
+              "mission": "interdict",
+              "route": {
+                "side": 0,
+                "transport": "bridge",
+                "maxDetour": 8
+              },
+              "airport": {
+                "mode": "opportunity",
+                "maxOwnActions": 18,
+                "maxSetupCost": 28,
+                "projection": "bombard"
+              },
+              "commitment": {
+                "reviewOwnTurns": 6,
+                "stalledOwnTurns": 3,
+                "maxOwnTurns": 24
+              },
+              "diplomacy": "avoid"
+            },
+            "name": "Gold",
+            "color": "#ffc95b",
+            "home": 4,
+            "axis": "q",
+            "sign": -1,
+            "score": 12,
+            "energy": 4,
+            "profile": {
+              "name": "Raider",
+              "aggression": 1.25,
+              "engineering": 0.9,
+              "diplomacy": 0.6,
+              "flank": -1,
+              "outer": 0.5
+            },
+            "diplomacyUntil": 0,
+            "grudgeUntil": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "reputation": 0,
+            "goalActive": true,
+            "reached": true,
+            "lastGoalRound": -12,
+            "goals": 1,
+            "ownerTurns": 36,
+            "stones": 21,
+            "completedActions": 36,
+            "supplies": 6,
+            "airCooldown": 0,
+            "airportsActivated": 0,
+            "depotVisited": true
+          },
+          {
+            "id": 5,
+            "seatSlot": 4,
+            "strategyId": "recover",
+            "strategy": {
+              "id": "recover",
+              "name": "穩固推進",
+              "mission": "recover",
+              "route": {
+                "side": 0,
+                "transport": "both",
+                "maxDetour": 8
+              },
+              "airport": {
+                "mode": "opportunity",
+                "maxOwnActions": 18,
+                "maxSetupCost": 28,
+                "projection": "either"
+              },
+              "commitment": {
+                "reviewOwnTurns": 6,
+                "stalledOwnTurns": 3,
+                "maxOwnTurns": 24
+              },
+              "diplomacy": "opportunity"
+            },
+            "name": "Jade",
+            "color": "#60dbb0",
+            "home": 60,
+            "axis": "s",
+            "sign": 1,
+            "score": 9,
+            "energy": 3,
+            "profile": {
+              "name": "Envoy",
+              "aggression": 0.95,
+              "engineering": 1,
+              "diplomacy": 1.3,
+              "flank": 1,
+              "outer": 1.1
+            },
+            "diplomacyUntil": 0,
+            "grudgeUntil": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "reputation": 0,
+            "goalActive": false,
+            "reached": false,
+            "lastGoalRound": -12,
+            "goals": 0,
+            "ownerTurns": 35,
+            "stones": 22,
+            "completedActions": 35,
+            "supplies": 6,
+            "airCooldown": 0,
+            "airportsActivated": 0,
+            "depotVisited": true
+          },
+          {
+            "id": 6,
+            "seatSlot": 5,
+            "strategyId": "envoy",
+            "strategy": {
+              "id": "envoy",
+              "name": "協議擴張",
+              "mission": "diplomat",
+              "route": {
+                "side": 0,
+                "transport": "both",
+                "maxDetour": 8
+              },
+              "airport": {
+                "mode": "opportunity",
+                "maxOwnActions": 18,
+                "maxSetupCost": 28,
+                "projection": "either"
+              },
+              "commitment": {
+                "reviewOwnTurns": 6,
+                "stalledOwnTurns": 3,
+                "maxOwnTurns": 24
+              },
+              "diplomacy": "opportunity"
+            },
+            "name": "Rose",
+            "color": "#f18ac2",
+            "home": 211,
+            "axis": "r",
+            "sign": -1,
+            "score": 8,
+            "energy": 0,
+            "profile": {
+              "name": "Pathfinder",
+              "aggression": 1.05,
+              "engineering": 1.1,
+              "diplomacy": 0.95,
+              "flank": -1,
+              "outer": 1.4
+            },
+            "diplomacyUntil": 0,
+            "grudgeUntil": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "reputation": 0,
+            "goalActive": false,
+            "reached": false,
+            "lastGoalRound": -12,
+            "goals": 0,
+            "ownerTurns": 35,
+            "stones": 18,
+            "completedActions": 35,
+            "supplies": 6,
+            "airCooldown": 0,
+            "airportsActivated": 0,
+            "depotVisited": false
+          }
+        ],
+        "overflow": false
+      }
+    }
+  ],
+  "human": {
+    "actions": [
+      {
+        "cell": 0,
+        "beforePly": 0
+      },
+      {
+        "cell": 1,
+        "beforePly": 3
+      },
+      {
+        "cell": 2,
+        "beforePly": 6
+      }
+    ],
+    "ply": 9,
+    "strategyConfigId": "hex-strategies-v1-660d5598",
+    "timedCardLabels": "炮台\n1 格 · 剩 3 次己方行動 · 選自己的非家園棋子架炮台。每 3 次自己回合射擊，射程 3 格。\n4\n能量",
+    "pauseResume": true,
+    "worker": {
+      "count": 6,
+      "lastMs": 11.099999997764826,
+      "lastLatencyMs": 11.899999998509884,
+      "lastMode": "worker",
+      "maxMs": 32.5,
+      "totalMs": 121.8999999947846,
+      "workerCount": 6,
+      "synchronousCount": 0,
+      "recentMs": [
+        32.5,
+        25,
+        15.699999999254942,
+        18.099999997764826,
+        19.5,
+        11.099999997764826
+      ]
+    },
+    "replayPreservedSetup": true
+  },
+  "errors": [],
+  "sourceEndSha256": {
+    "hex-core.js": "3fc410b72e07b62464ad6272a8dd1e0af8e0300d3fa757e66c8d4147a53322c9",
+    "hex-strategies.js": "475536a736d1d7ef74dc4ffb41fa6af04349b68f61881fc76bc0471d2c8df624",
+    "autohex-planner.js": "16f383fbe1d2eb67afd7864bda04056994c8ec254f9cc2f2cb6fad0aecb2659c",
+    "autohex-ai-worker.js": "9899135883679de114a5206dd6ba1e8be111e959eea24186b30092b774b81b0a",
+    "cardhex-engine.js": "10eadf0e92901ec6f2a94d5e5c9d9697ffb242c98d10d37ccdad903c7a952769",
+    "autohex-ui.js": "96d1c77baa6c34221d266800a83e8335e7ef3b5422cb0a685f35a4c74b8335ac",
+    "autohex-visuals.js": "2b32967624469d18db1cefebbb1f1c26f05eebb600da71333f59ddd316db6746",
+    "autohex.css": "6345d45ac68387f07d50c1a62e6e57f980b35a19a57d9852e170c6dc58b2723c",
+    "card_hex.html": "cbabd45ecb3cd41f0620a862e66b7ee88801c18280cc03cd3fd49efe72ab2c7e"
+  },
+  "sourcesUnchanged": true,
+  "passed": true
+}

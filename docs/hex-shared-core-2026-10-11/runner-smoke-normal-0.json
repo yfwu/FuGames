@@ -1,0 +1,252 @@
+{
+  "kind": "development runner smoke, not formal cohort",
+  "batch": "normal",
+  "shard": 0,
+  "shards": 1,
+  "planned": 1,
+  "complete": true,
+  "startedUtc": "2026-10-11T17:31:20.359Z",
+  "protocolSha256": "c6831a15cd360769c9105a54e7bd55df1da06cca155c2b64e156281ea5f52eef",
+  "sourceHashes": {
+    "hex-strategies.js": "475536a736d1d7ef74dc4ffb41fa6af04349b68f61881fc76bc0471d2c8df624",
+    "autohex-planner.js": "3d49ff6eda09bc88a33cc82839c3f892dea0a184b9a00fd91d8af401c154555a",
+    "hex-core.js": "3fc410b72e07b62464ad6272a8dd1e0af8e0300d3fa757e66c8d4147a53322c9",
+    "config/hex-strategies.json": "10ce104fb719dec09a7cfcff2765a33766c0313b977974903d5e635cb5f0d26a"
+  },
+  "configurationId": "hex-strategies-v1-75843bf5",
+  "games": [
+    {
+      "seed": "shared-study-runner-development-smoke",
+      "playerCount": 2,
+      "first": 1,
+      "rotation": 0,
+      "index": 0,
+      "mode": "normal",
+      "complete": true,
+      "ply": 47,
+      "modelMs": 0,
+      "firstGoalAction": 47,
+      "result": {
+        "winners": [
+          1
+        ],
+        "standings": [
+          {
+            "player": 1,
+            "name": "Azure",
+            "score": 1,
+            "rank": 1
+          },
+          {
+            "player": 2,
+            "name": "Ember",
+            "score": 2,
+            "rank": 2
+          }
+        ],
+        "draw": false,
+        "reason": "connection",
+        "activeMs": 0,
+        "ply": 47
+      },
+      "telemetry": {
+        "actions": 47,
+        "meaningful": 47,
+        "captures": 3,
+        "destroyed": 0,
+        "supplyRetreats": 0,
+        "engineered": 0,
+        "cardsUsed": 1,
+        "reshuffles": 0,
+        "goalArrivals": 1,
+        "goalHoldingRounds": 0,
+        "offers": 0,
+        "alliances": 0,
+        "betrayals": 0,
+        "withdrawals": 0,
+        "tunnelsBuilt": 0,
+        "tunnelsCollapsed": 0,
+        "tunnelSabotages": 0,
+        "hillRetreats": 0,
+        "cardsExpired": 0,
+        "turretShots": 0,
+        "shieldBlocks": 0,
+        "airportUnlocks": 3,
+        "airportLosses": 0,
+        "airdrops": 0,
+        "bombardments": 0,
+        "depotControls": 0,
+        "suppliesEarned": 12,
+        "suppliesSpent": 0,
+        "fortifications": 0,
+        "neutralWarnings": 2,
+        "neutralStrikes": 1,
+        "neutralRemoved": 1,
+        "neutralBlocks": 1,
+        "byType": {
+          "deploy": 46,
+          "shield": 1
+        },
+        "byMinute": [
+          {
+            "actions": 47,
+            "meaningful": 47,
+            "captures": 3,
+            "cardsUsed": 1
+          }
+        ],
+        "perPlayer": [
+          {
+            "actions": 0,
+            "captures": 0,
+            "cardsUsed": 0,
+            "goals": 0
+          },
+          {
+            "actions": 24,
+            "captures": 1,
+            "cardsUsed": 1,
+            "goals": 1
+          },
+          {
+            "actions": 23,
+            "captures": 2,
+            "cardsUsed": 0,
+            "goals": 0
+          }
+        ]
+      },
+      "quarters": [
+        {
+          "actions": 47,
+          "changedCells": 47,
+          "combat": 3,
+          "air": 0,
+          "goals": 1,
+          "tunnels": 0,
+          "sabotages": 0
+        },
+        {
+          "actions": 0,
+          "changedCells": 0,
+          "combat": 0,
+          "air": 0,
+          "goals": 0,
+          "tunnels": 0,
+          "sabotages": 0
+        },
+        {
+          "actions": 0,
+          "changedCells": 0,
+          "combat": 0,
+          "air": 0,
+          "goals": 0,
+          "tunnels": 0,
+          "sabotages": 0
+        },
+        {
+          "actions": 0,
+          "changedCells": 0,
+          "combat": 0,
+          "air": 0,
+          "goals": 0,
+          "tunnels": 0,
+          "sabotages": 0
+        }
+      ],
+      "lastQuarter": {
+        "actions": 12,
+        "changedCells": 12,
+        "combat": 3,
+        "air": 0,
+        "goals": 1,
+        "tunnels": 0,
+        "sabotages": 0
+      },
+      "combatRegions": {
+        "center": 3,
+        "middle": 0,
+        "outer": 0
+      },
+      "regionCellCounts": {
+        "center": 37,
+        "middle": 90,
+        "outer": 144
+      },
+      "players": [
+        {
+          "player": 1,
+          "slot": 5,
+          "strategy": "vanguard",
+          "policy": "planner",
+          "actions": 24,
+          "types": {
+            "deploy": 23,
+            "shield": 1
+          },
+          "intents": {
+            "flank": 7,
+            "direct": 17
+          },
+          "reused": 18,
+          "completed": 1,
+          "intentChanges": 5,
+          "airportSpentMax": 0,
+          "budgetViolations": 0,
+          "air": 0,
+          "suppliedDrops": 0,
+          "goalGapImprovement": 39,
+          "goalGapRegression": 0,
+          "airSupplyLoss": 0,
+          "airGoalBreaks": 0,
+          "turretHitsFromDrops": 0,
+          "repeatTunnelBuilds": 0,
+          "goals": 1,
+          "score": 1,
+          "finalSuppliedGoalGap": 0,
+          "winner": true
+        },
+        {
+          "player": 2,
+          "slot": 2,
+          "strategy": "airhead",
+          "policy": "planner",
+          "actions": 23,
+          "types": {
+            "deploy": 23
+          },
+          "intents": {
+            "airport": 17,
+            "direct": 6
+          },
+          "reused": 8,
+          "completed": 0,
+          "intentChanges": 14,
+          "airportSpentMax": 17,
+          "budgetViolations": 0,
+          "air": 0,
+          "suppliedDrops": 0,
+          "goalGapImprovement": 14,
+          "goalGapRegression": 0,
+          "airSupplyLoss": 0,
+          "airGoalBreaks": 0,
+          "turretHitsFromDrops": 0,
+          "repeatTunnelBuilds": 0,
+          "goals": 0,
+          "score": 2,
+          "finalSuppliedGoalGap": 3,
+          "winner": false
+        }
+      ],
+      "decisionMs": {
+        "n": 47,
+        "mean": 39.454685340425534,
+        "p95": 71.74559899999997,
+        "max": 127.76973499999997
+      },
+      "wallSeconds": 1.994037111
+    }
+  ],
+  "wallSeconds": 2.0371453820000003,
+  "finishedUtc": "2026-10-11T17:31:22.396Z"
+}

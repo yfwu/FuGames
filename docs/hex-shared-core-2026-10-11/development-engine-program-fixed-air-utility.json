@@ -1,0 +1,232 @@
+{
+  "capturedHashes": {
+    "hex-core.js": "3fc410b72e07b62464ad6272a8dd1e0af8e0300d3fa757e66c8d4147a53322c9",
+    "autohex-planner.js": "3d49ff6eda09bc88a33cc82839c3f892dea0a184b9a00fd91d8af401c154555a",
+    "hex-strategies.js": "475536a736d1d7ef74dc4ffb41fa6af04349b68f61881fc76bc0471d2c8df624"
+  },
+  "games": [
+    {
+      "mode": "auto",
+      "drops": [
+        {
+          "ply": 537,
+          "player": 4,
+          "target": 343,
+          "supplied": true,
+          "firstSuppliedPly": 537,
+          "endedAtPly": 549,
+          "hits": 0
+        },
+        {
+          "ply": 603,
+          "player": 4,
+          "target": 517,
+          "supplied": true,
+          "firstSuppliedPly": 603,
+          "endedAtPly": 629,
+          "hits": 1
+        },
+        {
+          "ply": 619,
+          "player": 2,
+          "target": 441,
+          "supplied": true,
+          "firstSuppliedPly": 619,
+          "endedAtPly": 798,
+          "hits": 10
+        },
+        {
+          "ply": 1517,
+          "player": 6,
+          "target": 885,
+          "supplied": true,
+          "firstSuppliedPly": 1517,
+          "endedAtPly": 1696,
+          "hits": 10
+        },
+        {
+          "ply": 1571,
+          "player": 6,
+          "target": 809,
+          "supplied": true,
+          "firstSuppliedPly": 1571,
+          "endedAtPly": 1750,
+          "hits": 10
+        },
+        {
+          "ply": 1621,
+          "player": 2,
+          "target": 484,
+          "supplied": false,
+          "firstSuppliedPly": 1627,
+          "endedAtPly": 1800,
+          "hits": 9
+        },
+        {
+          "ply": 1693,
+          "player": 2,
+          "target": 588,
+          "supplied": true,
+          "firstSuppliedPly": 1693,
+          "endedAtPly": 1872,
+          "hits": 10
+        },
+        {
+          "ply": 1821,
+          "player": 4,
+          "target": 517,
+          "supplied": true,
+          "firstSuppliedPly": 1821,
+          "endedAtPly": 1830,
+          "hits": 0
+        },
+        {
+          "ply": 1905,
+          "player": 4,
+          "target": 481,
+          "supplied": true,
+          "firstSuppliedPly": 1905,
+          "endedAtPly": 1920,
+          "hits": 0
+        }
+      ],
+      "bombs": [
+        {
+          "ply": 759,
+          "player": 4,
+          "target": 233,
+          "removed": true,
+          "lostSupply": 38,
+          "brokeHeldGoal": true
+        },
+        {
+          "ply": 801,
+          "player": 4,
+          "target": 405,
+          "removed": true,
+          "lostSupply": 17,
+          "brokeHeldGoal": false
+        },
+        {
+          "ply": 921,
+          "player": 4,
+          "target": 475,
+          "removed": true,
+          "lostSupply": 21,
+          "brokeHeldGoal": false
+        },
+        {
+          "ply": 1017,
+          "player": 4,
+          "target": 371,
+          "removed": true,
+          "lostSupply": 18,
+          "brokeHeldGoal": true
+        },
+        {
+          "ply": 1027,
+          "player": 2,
+          "target": 445,
+          "removed": true,
+          "lostSupply": 29,
+          "brokeHeldGoal": true
+        },
+        {
+          "ply": 1055,
+          "player": 6,
+          "target": 623,
+          "removed": true,
+          "lostSupply": 32,
+          "brokeHeldGoal": true
+        },
+        {
+          "ply": 1065,
+          "player": 4,
+          "target": 371,
+          "removed": true,
+          "lostSupply": 18,
+          "brokeHeldGoal": true
+        },
+        {
+          "ply": 1069,
+          "player": 2,
+          "target": 756,
+          "removed": true,
+          "lostSupply": 20,
+          "brokeHeldGoal": true
+        },
+        {
+          "ply": 1167,
+          "player": 4,
+          "target": 511,
+          "removed": true,
+          "lostSupply": 19,
+          "brokeHeldGoal": false
+        },
+        {
+          "ply": 1417,
+          "player": 2,
+          "target": 511,
+          "removed": true,
+          "lostSupply": 21,
+          "brokeHeldGoal": true
+        },
+        {
+          "ply": 1475,
+          "player": 6,
+          "target": 651,
+          "removed": true,
+          "lostSupply": 24,
+          "brokeHeldGoal": true
+        },
+        {
+          "ply": 1477,
+          "player": 2,
+          "target": 196,
+          "removed": true,
+          "lostSupply": 59,
+          "brokeHeldGoal": true
+        },
+        {
+          "ply": 1537,
+          "player": 2,
+          "target": 870,
+          "removed": true,
+          "lostSupply": 18,
+          "brokeHeldGoal": true
+        },
+        {
+          "ply": 1763,
+          "player": 6,
+          "target": 430,
+          "removed": true,
+          "lostSupply": 36,
+          "brokeHeldGoal": false
+        },
+        {
+          "ply": 1901,
+          "player": 6,
+          "target": 782,
+          "removed": true,
+          "lostSupply": 25,
+          "brokeHeldGoal": false
+        },
+        {
+          "ply": 1948,
+          "player": 5,
+          "target": 307,
+          "removed": true,
+          "lostSupply": 12,
+          "brokeHeldGoal": false
+        }
+      ],
+      "laterAirTurretHits": 50
+    },
+    {
+      "mode": "normal",
+      "drops": [],
+      "bombs": [],
+      "laterAirTurretHits": 0
+    }
+  ]
+}

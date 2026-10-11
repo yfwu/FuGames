@@ -1,0 +1,22 @@
+✔ planner follows a supplied flank around a defended central barrier over several owner turns (1143.446203ms)
+✔ planner completes a nearby goal instead of collecting an unrelated nearly ready airport (349.4938ms)
+✔ planner develops a useful airport, holds it, and actually disrupts the remote scoring route (687.583869ms)
+✔ planner repairs a severed goal route and retains real supply through following turns (215.729812ms)
+✔ planner reassesses after an active opponent legally cuts the committed route, then reconnects and finishes (389.787174ms)
+✔ planner stops an imminent enemy connection before the opponent attempts its finishing deployment (120.029224ms)
+✔ planner breaks an obstructing pact and then exploits the opening with legal paid actions (315.343989ms)
+✔ planner accepts a useful public truce that prevents an immediate supply cut and then completes its route (348.129357ms)
+✔ planner is deterministic and reads no opponent hand, deck order, or raw private fields (177.775469ms)
+✔ only accepted actions commit private memory; observations isolate it and reset clears all plans (150.73599ms)
+✔ malformed planner metadata cannot inject unbounded paths, hidden fields, scores, or another player intent (11.329171ms)
+✔ seeded planner replay preserves actions, rules state, bounded memory, and finite search through changing positions (6745.295859ms)
+✔ an irrelevant distant public stone does not discard an ongoing useful commitment (231.008699ms)
+✔ planner integration preserves released rules, seeded layouts, deck draws, scoring, and shared action results (782.655699ms)
+ℹ tests 14
+ℹ suites 0
+ℹ pass 14
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 12402.954225

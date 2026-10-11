@@ -8,19 +8,27 @@ from pathlib import Path
 from datetime import datetime, timezone
 from urllib.parse import urlparse
 from collections import Counter
-import hashlib, json, os, subprocess
+import hashlib, json, os, subprocess, time
 from playwright.sync_api import sync_playwright
 
 ROOT = Path(__file__).resolve().parents[1]
-OUT = ROOT / 'docs/autohex-goals-2026-10-11'
+OUT = Path(os.environ.get('AUTOHEX_REPORT_DIR', str(ROOT / 'docs/autohex-goals-2026-10-11')))
 BASE = os.environ.get('FUGAMES_BASE_URL', 'http://127.0.0.1:8012')
-SOURCES = ['autohex-engine.js', 'autohex-ui.js', 'autohex-visuals.js', 'autohex.html', 'autohex.css']
+SOURCES = ['autohex-ai-worker.js', 'autohex-planner.js', 'autohex-engine.js', 'autohex-ui.js', 'autohex-visuals.js', 'autohex.html', 'autohex.css']
 BASELINE = 'f3d50e7'
 SEEDS = ['goal-ui-alpha', 'goal-ui-bravo']
 OUT.mkdir(parents=True, exist_ok=True)
 (OUT / 'screenshots').mkdir(exist_ok=True)
 def hashes():
     return {name: hashlib.sha256((ROOT / name).read_bytes()).hexdigest() for name in SOURCES}
+
+def wait_ai_ply(p, expected):
+    # Worker computation uses real time while the main-page test clock is paused.
+    deadline=time.monotonic()+20
+    while p.evaluate('autoHexGame.ply')<expected and time.monotonic()<deadline:
+        time.sleep(.025)
+    assert p.evaluate('autoHexGame.ply')==expected
+
 def new_page(browser, width, height, mobile):
     ctx = browser.new_context(viewport={'width': width, 'height': height},
                               device_scale_factor=3 if mobile else 1, is_mobile=mobile, has_touch=mobile)
@@ -142,7 +150,8 @@ try:
                 for _ in range(7):
                     if p.evaluate('autoHexGame.turn') == 1:
                         break
-                    p.clock.run_for(300)
+                    expected=p.evaluate('autoHexGame.ply')+1
+                    p.clock.run_for(300);wait_ai_ply(p,expected)
                 assert p.evaluate('autoHexGame.turn') == 1
                 action = p.evaluate('AutoHex.chooseAction(autoHexGame.observation(1))')
                 ply = p.evaluate('autoHexGame.ply')

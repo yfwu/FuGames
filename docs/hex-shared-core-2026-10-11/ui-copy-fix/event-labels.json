@@ -1,0 +1,7 @@
+{
+  "method": "Controlled public event fixtures rendered through the shared UI; no campaign claim.",
+  "uiSha256": "8c2f0507b55098008bfa20cd287764b980374082b4975712634cecf5f4eb6b5c",
+  "eventLog": "R0對岸連線完成，本局已結算。\nR0A 青綠 的地道已崩塌，地形保留。\nR0B 珊瑚 一張手牌已到期並回到棄牌池。\nR0A 青綠 有 2 枚山丘棋子在 3 次後續己方行動後撤退。\nR0各方就緒，從家園向對岸出發。",
+  "errors": [],
+  "passed": true
+}

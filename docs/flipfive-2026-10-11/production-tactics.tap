@@ -1,0 +1,14 @@
+✔ certificate covers all 76 legal replies in the conditional E7 losing line (11.855996ms)
+✔ D5 survives the short horizon: all 77 fifth-move attempts have a reply denying ply7 (29.146137ms)
+✔ F3 is the unique immediate defense; the plausible F5 allows winning recapture (18.83072ms)
+✔ AI finds the unique capture defense under all board symmetries and either color (788.630498ms)
+✔ AI prolongs the already-lost triple instead of allowing the earliest forced loss (118.606899ms)
+✔ AI avoids the certified orthogonally adjacent reply to an opening E5 (408.65831ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 6
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1560.994382

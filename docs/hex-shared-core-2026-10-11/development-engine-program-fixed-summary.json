@@ -1,0 +1,327 @@
+{
+  "manifest": "development-engine-program-fixed-manifest.json",
+  "games": [
+    {
+      "mode": "auto",
+      "actions": 2000,
+      "activeMs": 600000,
+      "end": {
+        "winners": [
+          4
+        ],
+        "standings": [
+          {
+            "player": 4,
+            "score": 310,
+            "name": "Gold",
+            "rank": 1
+          },
+          {
+            "player": 2,
+            "score": 185,
+            "name": "Ember",
+            "rank": 2
+          },
+          {
+            "player": 5,
+            "score": 177,
+            "name": "Jade",
+            "rank": 3
+          },
+          {
+            "player": 6,
+            "score": 143,
+            "name": "Rose",
+            "rank": 4
+          },
+          {
+            "player": 1,
+            "score": 141,
+            "name": "Azure",
+            "rank": 5
+          },
+          {
+            "player": 3,
+            "score": 134,
+            "name": "Violet",
+            "rank": 6
+          }
+        ],
+        "draw": false,
+        "reason": "timeout",
+        "activeMs": 600000
+      },
+      "illegal": 0,
+      "goals": 12,
+      "holds": 64,
+      "air": {
+        "airdrops": 9,
+        "bombardments": 16,
+        "suppliedAtDrop": 8,
+        "everSupplied": 9,
+        "laterTurretHits": 50,
+        "heldConnectionsBroken": 10
+      },
+      "airports": 21,
+      "tunnels": 42,
+      "tunnelCollapses": 36,
+      "tunnelSabotages": 25,
+      "bridges": 46,
+      "repeatedTunnelPaths": 3,
+      "maxTunnelRepeat": 2,
+      "budgetAborts": [
+        0,
+        2,
+        6,
+        0,
+        1,
+        3,
+        2
+      ],
+      "profileMetrics": {
+        "vanguard": {
+          "actions": 334,
+          "airdrop": 0,
+          "bombard": 0,
+          "tunnel": 6,
+          "bridge": 13,
+          "airportStages": {
+            "approach": 36,
+            "build": 1
+          },
+          "actualCompletions": 0
+        },
+        "airhead": {
+          "actions": 334,
+          "airdrop": 3,
+          "bombard": 5,
+          "tunnel": 9,
+          "bridge": 10,
+          "airportStages": {
+            "approach": 103,
+            "hold": 4,
+            "project": 4,
+            "build": 7
+          },
+          "actualCompletions": 2
+        },
+        "flanker": {
+          "actions": 333,
+          "airdrop": 0,
+          "bombard": 0,
+          "tunnel": 7,
+          "bridge": 5,
+          "airportStages": {},
+          "actualCompletions": 0
+        },
+        "interdict": {
+          "actions": 333,
+          "airdrop": 4,
+          "bombard": 6,
+          "tunnel": 0,
+          "bridge": 11,
+          "airportStages": {
+            "build": 2,
+            "project": 17,
+            "approach": 13,
+            "hold": 1
+          },
+          "actualCompletions": 3
+        },
+        "recover": {
+          "actions": 333,
+          "airdrop": 0,
+          "bombard": 1,
+          "tunnel": 11,
+          "bridge": 5,
+          "airportStages": {
+            "approach": 45,
+            "build": 8,
+            "hold": 1
+          },
+          "actualCompletions": 1
+        },
+        "envoy": {
+          "actions": 333,
+          "airdrop": 2,
+          "bombard": 4,
+          "tunnel": 9,
+          "bridge": 2,
+          "airportStages": {
+            "build": 5,
+            "approach": 31,
+            "hold": 3,
+            "project": 8
+          },
+          "actualCompletions": 3
+        }
+      },
+      "last500": {
+        "goals": 2,
+        "holds": 14,
+        "air": 10,
+        "combat": 250,
+        "meaningful": 500,
+        "tunnels": 10,
+        "bridges": 8
+      },
+      "timing": {
+        "meanMs": 75.77285416050005,
+        "p95Ms": 126.02709799999866,
+        "maxMs": 4106.152649999996,
+        "wallMs": 153553.78956399998,
+        "note": "Development run with shared-host load; not a controlled performance comparison."
+      }
+    },
+    {
+      "mode": "normal",
+      "actions": 241,
+      "activeMs": 72000,
+      "end": {
+        "winners": [
+          1
+        ],
+        "standings": [
+          {
+            "player": 1,
+            "name": "Azure",
+            "score": 12,
+            "rank": 1
+          },
+          {
+            "player": 2,
+            "name": "Ember",
+            "score": 13,
+            "rank": 2
+          },
+          {
+            "player": 3,
+            "name": "Violet",
+            "score": 7,
+            "rank": 2
+          },
+          {
+            "player": 4,
+            "name": "Gold",
+            "score": 11,
+            "rank": 2
+          },
+          {
+            "player": 5,
+            "name": "Jade",
+            "score": 15,
+            "rank": 2
+          },
+          {
+            "player": 6,
+            "name": "Rose",
+            "score": 14,
+            "rank": 2
+          }
+        ],
+        "draw": false,
+        "reason": "connection",
+        "activeMs": 72000,
+        "ply": 241
+      },
+      "illegal": 0,
+      "goals": 1,
+      "holds": 0,
+      "air": {
+        "airdrops": 0,
+        "bombardments": 0,
+        "suppliedAtDrop": 0,
+        "everSupplied": 0,
+        "laterTurretHits": 0,
+        "heldConnectionsBroken": 0
+      },
+      "airports": 0,
+      "tunnels": 12,
+      "tunnelCollapses": 11,
+      "tunnelSabotages": 9,
+      "bridges": 9,
+      "repeatedTunnelPaths": 1,
+      "maxTunnelRepeat": 8,
+      "budgetAborts": [
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0
+      ],
+      "profileMetrics": {
+        "vanguard": {
+          "actions": 41,
+          "airdrop": 0,
+          "bombard": 0,
+          "tunnel": 0,
+          "bridge": 1,
+          "airportStages": {
+            "approach": 2
+          },
+          "actualCompletions": 0
+        },
+        "airhead": {
+          "actions": 40,
+          "airdrop": 0,
+          "bombard": 0,
+          "tunnel": 1,
+          "bridge": 2,
+          "airportStages": {
+            "approach": 18,
+            "build": 3
+          },
+          "actualCompletions": 0
+        },
+        "flanker": {
+          "actions": 40,
+          "airdrop": 0,
+          "bombard": 0,
+          "tunnel": 8,
+          "bridge": 2,
+          "airportStages": {},
+          "actualCompletions": 0
+        },
+        "interdict": {
+          "actions": 40,
+          "airdrop": 0,
+          "bombard": 0,
+          "tunnel": 0,
+          "bridge": 2,
+          "airportStages": {
+            "approach": 2
+          },
+          "actualCompletions": 0
+        },
+        "recover": {
+          "actions": 40,
+          "airdrop": 0,
+          "bombard": 0,
+          "tunnel": 2,
+          "bridge": 1,
+          "airportStages": {},
+          "actualCompletions": 0
+        },
+        "envoy": {
+          "actions": 40,
+          "airdrop": 0,
+          "bombard": 0,
+          "tunnel": 1,
+          "bridge": 1,
+          "airportStages": {},
+          "actualCompletions": 0
+        }
+      },
+      "last500": null,
+      "timing": {
+        "meanMs": 65.22653367220005,
+        "p95Ms": 200.71415099999285,
+        "maxMs": 1136.320150000014,
+        "wallMs": 16019.461677000014,
+        "note": "Development run with shared-host load; not a controlled performance comparison."
+      }
+    }
+  ]
+}

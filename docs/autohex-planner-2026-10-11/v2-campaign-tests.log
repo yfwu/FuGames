@@ -1,0 +1,12 @@
+✔ completed local missions do not erase campaign stagnation on an unchanged public board (226.973294ms)
+✔ campaign memory is bounded, private, mutation isolated, and cleared by reset (53.328123ms)
+✔ own goal routes survive every searched beam depth during actual changing play (1193.298777ms)
+✔ late campaign planning executes a supplied flank around a defended wall (212.40596ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1975.258372

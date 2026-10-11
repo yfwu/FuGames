@@ -1,0 +1,13 @@
+{
+  "ok": true,
+  "baselineTransitionsCompared": 394,
+  "fixtures": [
+    "block-converts-to-five",
+    "capture-five-grace",
+    "unbroken-five-qualifies-after-reply",
+    "bracket-can-break-pending-five",
+    "direct-five-immediate-with-capture-grace",
+    "all-five-delayed-with-hold-five",
+    "last-placement-shield"
+  ]
+}

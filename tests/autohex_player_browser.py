@@ -10,7 +10,16 @@ import json, os, time
 from playwright.sync_api import sync_playwright
 ROOT=Path(__file__).resolve().parents[1];OUT=Path(os.environ.get('AUTOHEX_REPORT_DIR', str(ROOT/'docs/autohex-2026-10-11')))
 BASE=os.environ.get('FUGAMES_BASE_URL','http://127.0.0.1:8011')
+(OUT/'screenshots').mkdir(parents=True,exist_ok=True)
 report={'mode':'scripted human policy, real mobile controls, virtual AI clock','pageErrors':[]}
+
+def wait_ai_ply(p, expected):
+    # Worker computation uses real time while the main-page test clock is paused.
+    deadline=time.monotonic()+20
+    while p.evaluate('autoHexGame.ply')<expected and time.monotonic()<deadline:
+        time.sleep(.025)
+    assert p.evaluate('autoHexGame.ply')==expected
+
 with sync_playwright() as pw:
     browser=pw.chromium.launch(executable_path='/usr/bin/chromium',args=['--no-sandbox'])
     ctx=browser.new_context(viewport={'width':390,'height':844},device_scale_factor=3,is_mobile=True,has_touch=True)
@@ -21,7 +30,8 @@ with sync_playwright() as pw:
     for turn in range(60):
         for _ in range(7):
             if p.evaluate('autoHexGame.turn')==1:break
-            p.clock.run_for(300)
+            expected=p.evaluate('autoHexGame.ply')+1
+            p.clock.run_for(300);wait_ai_ply(p,expected)
         assert p.evaluate('autoHexGame.turn')==1
         a=p.evaluate('AutoHex.chooseAction(autoHexGame.observation(1))')
         before=p.evaluate('autoHexGame.ply');t=time.monotonic();kind=a['type']
@@ -51,10 +61,10 @@ with sync_playwright() as pw:
     assert p.evaluate('document.documentElement.scrollWidth<=innerWidth')
     p.screenshot(path=str(OUT/'screenshots/mobile-long-play.png'),full_page=True)
     p.goto(BASE+'/autohex.html?mode=spectator&seed=restart-check');p.locator('#play').tap()
-    p.clock.run_for(300);assert p.evaluate('autoHexGame.ply')==1
+    p.clock.run_for(300);wait_ai_ply(p,1)
     p.locator('#restart').tap();assert p.evaluate('autoHexGame.ply===0&&autoHexGame.activeMs===0&&autoHexGame.bridges.length===0&&autoHexGame.lastAction===null')
     p.clock.run_for(299);assert p.evaluate('autoHexGame.ply')==0
-    p.clock.run_for(1);assert p.evaluate('autoHexGame.ply')==1
+    p.clock.run_for(1);wait_ai_ply(p,1)
     p.evaluate('autoHexGame.activeMs=599900') # Explicit boundary fixture, not elapsed-time evidence.
     p.clock.run_for(200);assert p.evaluate('autoHexGame.phase')=='over';assert p.locator('#result').is_visible()
     recorded=p.evaluate('JSON.stringify(autoHexGame.result)');ply=p.evaluate('autoHexGame.ply');p.clock.run_for(1000)

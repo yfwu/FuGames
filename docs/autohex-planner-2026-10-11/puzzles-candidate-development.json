@@ -1,0 +1,1824 @@
+{
+  "kind": "Controlled tactical puzzles; other players rest unless the scenario states active responses",
+  "policy": "planner",
+  "tests": [
+    {
+      "name": "planner follows a supplied flank around a defended central barrier over several owner turns",
+      "policy": "planner",
+      "sequences": [
+        {
+          "seed": "planner-flank-sequence",
+          "startPly": 0,
+          "actions": [
+            {
+              "type": "deploy",
+              "cells": [
+                652
+              ],
+              "intent": {
+                "player": 1,
+                "type": "direct",
+                "stage": "advance",
+                "target": 3,
+                "path": [
+                  653,
+                  652,
+                  651,
+                  650,
+                  649,
+                  648,
+                  614,
+                  579,
+                  543,
+                  506,
+                  469,
+                  433,
+                  398,
+                  364,
+                  332,
+                  301
+                ],
+                "reasonCode": "short_route",
+                "committedAtPly": 0,
+                "reviewAtPly": 36,
+                "progress": 0,
+                "completed": false,
+                "stalled": 0
+              },
+              "diagnostics": {
+                "nodes": 30,
+                "maxNodes": 48,
+                "depth": 3,
+                "candidates": 4,
+                "opponentReplies": 150,
+                "reusedIntent": false,
+                "chosenStrategy": "direct",
+                "reasonCode": "short_route",
+                "previousOutcome": "none"
+              },
+              "holds": [
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+              ],
+              "airports": [
+                {
+                  "cell": 863,
+                  "cluster": 9,
+                  "progress": 0,
+                  "active": false
+                }
+              ]
+            },
+            {
+              "type": "deploy",
+              "cells": [
+                651
+              ],
+              "intent": {
+                "player": 1,
+                "type": "direct",
+                "stage": "advance",
+                "target": 3,
+                "path": [
+                  652,
+                  651,
+                  650,
+                  649,
+                  648,
+                  614,
+                  579,
+                  543,
+                  506,
+                  469,
+                  433,
+                  398,
+                  364,
+                  332,
+                  301,
+                  271
+                ],
+                "reasonCode": "continue_plan",
+                "committedAtPly": 0,
+                "reviewAtPly": 36,
+                "progress": 0.03703703703703709,
+                "completed": false,
+                "stalled": 0
+              },
+              "diagnostics": {
+                "nodes": 30,
+                "maxNodes": 48,
+                "depth": 3,
+                "candidates": 4,
+                "opponentReplies": 150,
+                "reusedIntent": true,
+                "chosenStrategy": "direct",
+                "reasonCode": "continue_plan",
+                "previousOutcome": "continued"
+              },
+              "holds": [
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+              ],
+              "airports": [
+                {
+                  "cell": 863,
+                  "cluster": 9,
+                  "progress": 0,
+                  "active": false
+                }
+              ]
+            },
+            {
+              "type": "deploy",
+              "cells": [
+                650
+              ],
+              "intent": {
+                "player": 1,
+                "type": "direct",
+                "stage": "advance",
+                "target": 3,
+                "path": [
+                  651,
+                  650,
+                  649,
+                  648,
+                  614,
+                  579,
+                  543,
+                  506,
+                  469,
+                  433,
+                  398,
+                  364,
+                  332,
+                  301,
+                  271,
+                  242
+                ],
+                "reasonCode": "continue_plan",
+                "committedAtPly": 0,
+                "reviewAtPly": 36,
+                "progress": 0.07407407407407407,
+                "completed": false,
+                "stalled": 0
+              },
+              "diagnostics": {
+                "nodes": 30,
+                "maxNodes": 48,
+                "depth": 3,
+                "candidates": 4,
+                "opponentReplies": 150,
+                "reusedIntent": true,
+                "chosenStrategy": "direct",
+                "reasonCode": "continue_plan",
+                "previousOutcome": "continued"
+              },
+              "holds": [
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+              ],
+              "airports": [
+                {
+                  "cell": 863,
+                  "cluster": 9,
+                  "progress": 0,
+                  "active": false
+                }
+              ]
+            },
+            {
+              "type": "deploy",
+              "cells": [
+                649
+              ],
+              "intent": {
+                "player": 1,
+                "type": "direct",
+                "stage": "advance",
+                "target": 3,
+                "path": [
+                  650,
+                  649,
+                  648,
+                  614,
+                  579,
+                  543,
+                  506,
+                  469,
+                  433,
+                  398,
+                  364,
+                  332,
+                  301,
+                  271,
+                  242,
+                  214
+                ],
+                "reasonCode": "continue_plan",
+                "committedAtPly": 0,
+                "reviewAtPly": 36,
+                "progress": 0.11111111111111116,
+                "completed": false,
+                "stalled": 0
+              },
+              "diagnostics": {
+                "nodes": 30,
+                "maxNodes": 48,
+                "depth": 3,
+                "candidates": 4,
+                "opponentReplies": 150,
+                "reusedIntent": true,
+                "chosenStrategy": "direct",
+                "reasonCode": "continue_plan",
+                "previousOutcome": "continued"
+              },
+              "holds": [
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+              ],
+              "airports": [
+                {
+                  "cell": 863,
+                  "cluster": 9,
+                  "progress": 0,
+                  "active": false
+                }
+              ]
+            },
+            {
+              "type": "deploy",
+              "cells": [
+                648
+              ],
+              "intent": {
+                "player": 1,
+                "type": "direct",
+                "stage": "advance",
+                "target": 3,
+                "path": [
+                  649,
+                  648,
+                  614,
+                  579,
+                  543,
+                  506,
+                  469,
+                  433,
+                  398,
+                  364,
+                  332,
+                  301,
+                  271,
+                  242,
+                  214,
+                  187
+                ],
+                "reasonCode": "continue_plan",
+                "committedAtPly": 0,
+                "reviewAtPly": 36,
+                "progress": 0.14814814814814814,
+                "completed": false,
+                "stalled": 0
+              },
+              "diagnostics": {
+                "nodes": 30,
+                "maxNodes": 48,
+                "depth": 3,
+                "candidates": 4,
+                "opponentReplies": 150,
+                "reusedIntent": true,
+                "chosenStrategy": "direct",
+                "reasonCode": "continue_plan",
+                "previousOutcome": "continued"
+              },
+              "holds": [
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+              ],
+              "airports": [
+                {
+                  "cell": 863,
+                  "cluster": 9,
+                  "progress": 0,
+                  "active": false
+                }
+              ]
+            },
+            {
+              "type": "deploy",
+              "cells": [
+                614
+              ],
+              "intent": {
+                "player": 1,
+                "type": "direct",
+                "stage": "advance",
+                "target": 3,
+                "path": [
+                  648,
+                  614,
+                  579,
+                  543,
+                  506,
+                  469,
+                  433,
+                  398,
+                  364,
+                  332,
+                  301,
+                  271,
+                  242,
+                  214,
+                  187,
+                  160
+                ],
+                "reasonCode": "continue_plan",
+                "committedAtPly": 0,
+                "reviewAtPly": 36,
+                "progress": 0.18518518518518523,
+                "completed": false,
+                "stalled": 0
+              },
+              "diagnostics": {
+                "nodes": 30,
+                "maxNodes": 48,
+                "depth": 3,
+                "candidates": 4,
+                "opponentReplies": 150,
+                "reusedIntent": true,
+                "chosenStrategy": "direct",
+                "reasonCode": "continue_plan",
+                "previousOutcome": "continued"
+              },
+              "holds": [
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+              ],
+              "airports": [
+                {
+                  "cell": 863,
+                  "cluster": 9,
+                  "progress": 0,
+                  "active": false
+                }
+              ]
+            },
+            {
+              "type": "deploy",
+              "cells": [
+                579
+              ],
+              "intent": {
+                "player": 1,
+                "type": "direct",
+                "stage": "advance",
+                "target": 3,
+                "path": [
+                  614,
+                  579,
+                  543,
+                  506,
+                  469,
+                  433,
+                  398,
+                  364,
+                  332,
+                  301,
+                  271,
+                  242,
+                  214,
+                  187,
+                  160,
+                  135
+                ],
+                "reasonCode": "opportunity_changed",
+                "committedAtPly": 36,
+                "reviewAtPly": 72,
+                "progress": 0,
+                "completed": false,
+                "stalled": 0
+              },
+              "diagnostics": {
+                "nodes": 30,
+                "maxNodes": 48,
+                "depth": 3,
+                "candidates": 4,
+                "opponentReplies": 150,
+                "reusedIntent": false,
+                "chosenStrategy": "direct",
+                "reasonCode": "opportunity_changed",
+                "previousOutcome": "review"
+              },
+              "holds": [
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+              ],
+              "airports": [
+                {
+                  "cell": 863,
+                  "cluster": 9,
+                  "progress": 0,
+                  "active": false
+                }
+              ]
+            },
+            {
+              "type": "deploy",
+              "cells": [
+                543
+              ],
+              "intent": {
+                "player": 1,
+                "type": "direct",
+                "stage": "advance",
+                "target": 3,
+                "path": [
+                  579,
+                  543,
+                  506,
+                  469,
+                  433,
+                  398,
+                  364,
+                  332,
+                  301,
+                  271,
+                  242,
+                  214,
+                  187,
+                  160,
+                  135,
+                  111
+                ],
+                "reasonCode": "continue_plan",
+                "committedAtPly": 36,
+                "reviewAtPly": 72,
+                "progress": 0.04761904761904767,
+                "completed": false,
+                "stalled": 0
+              },
+              "diagnostics": {
+                "nodes": 30,
+                "maxNodes": 48,
+                "depth": 3,
+                "candidates": 4,
+                "opponentReplies": 150,
+                "reusedIntent": true,
+                "chosenStrategy": "direct",
+                "reasonCode": "continue_plan",
+                "previousOutcome": "continued"
+              },
+              "holds": [
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+              ],
+              "airports": [
+                {
+                  "cell": 863,
+                  "cluster": 9,
+                  "progress": 0,
+                  "active": false
+                }
+              ]
+            },
+            {
+              "type": "deploy",
+              "cells": [
+                506
+              ],
+              "intent": {
+                "player": 1,
+                "type": "direct",
+                "stage": "advance",
+                "target": 3,
+                "path": [
+                  543,
+                  506,
+                  469,
+                  433,
+                  398,
+                  364,
+                  332,
+                  301,
+                  271,
+                  242,
+                  214,
+                  187,
+                  160,
+                  135,
+                  111,
+                  88
+                ],
+                "reasonCode": "continue_plan",
+                "committedAtPly": 36,
+                "reviewAtPly": 72,
+                "progress": 0.09523809523809523,
+                "completed": false,
+                "stalled": 0
+              },
+              "diagnostics": {
+                "nodes": 30,
+                "maxNodes": 48,
+                "depth": 3,
+                "candidates": 4,
+                "opponentReplies": 150,
+                "reusedIntent": true,
+                "chosenStrategy": "direct",
+                "reasonCode": "continue_plan",
+                "previousOutcome": "continued"
+              },
+              "holds": [
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+              ],
+              "airports": [
+                {
+                  "cell": 863,
+                  "cluster": 9,
+                  "progress": 0,
+                  "active": false
+                }
+              ]
+            },
+            {
+              "type": "deploy",
+              "cells": [
+                469
+              ],
+              "intent": {
+                "player": 1,
+                "type": "direct",
+                "stage": "advance",
+                "target": 3,
+                "path": [
+                  506,
+                  469,
+                  433,
+                  398,
+                  364,
+                  332,
+                  301,
+                  271,
+                  242,
+                  214,
+                  187,
+                  160,
+                  135,
+                  111,
+                  88,
+                  65
+                ],
+                "reasonCode": "continue_plan",
+                "committedAtPly": 36,
+                "reviewAtPly": 72,
+                "progress": 0.1428571428571429,
+                "completed": false,
+                "stalled": 0
+              },
+              "diagnostics": {
+                "nodes": 30,
+                "maxNodes": 48,
+                "depth": 3,
+                "candidates": 4,
+                "opponentReplies": 150,
+                "reusedIntent": true,
+                "chosenStrategy": "direct",
+                "reasonCode": "continue_plan",
+                "previousOutcome": "continued"
+              },
+              "holds": [
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+              ],
+              "airports": [
+                {
+                  "cell": 863,
+                  "cluster": 9,
+                  "progress": 0,
+                  "active": false
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "pass": true
+    },
+    {
+      "name": "planner completes a nearby goal instead of collecting an unrelated nearly ready airport",
+      "policy": "planner",
+      "sequences": [
+        {
+          "seed": "planner-ignore-facility",
+          "startPly": 0,
+          "actions": [
+            {
+              "type": "deploy",
+              "cells": [
+                64
+              ],
+              "intent": {
+                "player": 1,
+                "type": "direct",
+                "stage": "advance",
+                "target": 3,
+                "path": [
+                  86,
+                  64,
+                  43,
+                  22,
+                  3
+                ],
+                "reasonCode": "short_route",
+                "committedAtPly": 0,
+                "reviewAtPly": 36,
+                "progress": 0,
+                "completed": false,
+                "stalled": 0
+              },
+              "diagnostics": {
+                "nodes": 27,
+                "maxNodes": 48,
+                "depth": 3,
+                "candidates": 3,
+                "opponentReplies": 135,
+                "reusedIntent": false,
+                "chosenStrategy": "direct",
+                "reasonCode": "short_route",
+                "previousOutcome": "none"
+              },
+              "holds": [
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+              ],
+              "airports": [
+                {
+                  "cell": 809,
+                  "cluster": 13,
+                  "progress": 1,
+                  "active": false
+                }
+              ]
+            },
+            {
+              "type": "deploy",
+              "cells": [
+                43
+              ],
+              "intent": {
+                "player": 1,
+                "type": "direct",
+                "stage": "advance",
+                "target": 3,
+                "path": [
+                  64,
+                  43,
+                  22,
+                  3
+                ],
+                "reasonCode": "continue_plan",
+                "committedAtPly": 0,
+                "reviewAtPly": 36,
+                "progress": 0.25,
+                "completed": false,
+                "stalled": 0
+              },
+              "diagnostics": {
+                "nodes": 27,
+                "maxNodes": 48,
+                "depth": 3,
+                "candidates": 3,
+                "opponentReplies": 135,
+                "reusedIntent": true,
+                "chosenStrategy": "direct",
+                "reasonCode": "continue_plan",
+                "previousOutcome": "continued"
+              },
+              "holds": [
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+              ],
+              "airports": [
+                {
+                  "cell": 809,
+                  "cluster": 13,
+                  "progress": 2,
+                  "active": false
+                }
+              ]
+            },
+            {
+              "type": "deploy",
+              "cells": [
+                22
+              ],
+              "intent": {
+                "player": 1,
+                "type": "direct",
+                "stage": "advance",
+                "target": 3,
+                "path": [
+                  43,
+                  22,
+                  3
+                ],
+                "reasonCode": "continue_plan",
+                "committedAtPly": 0,
+                "reviewAtPly": 36,
+                "progress": 0.5,
+                "completed": false,
+                "stalled": 0
+              },
+              "diagnostics": {
+                "nodes": 27,
+                "maxNodes": 48,
+                "depth": 3,
+                "candidates": 3,
+                "opponentReplies": 135,
+                "reusedIntent": true,
+                "chosenStrategy": "direct",
+                "reasonCode": "continue_plan",
+                "previousOutcome": "continued"
+              },
+              "holds": [
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+              ],
+              "airports": [
+                {
+                  "cell": 809,
+                  "cluster": 13,
+                  "progress": 3,
+                  "active": true
+                }
+              ]
+            },
+            {
+              "type": "deploy",
+              "cells": [
+                3
+              ],
+              "intent": {
+                "player": 1,
+                "type": "direct",
+                "stage": "advance",
+                "target": 3,
+                "path": [
+                  22,
+                  3
+                ],
+                "reasonCode": "continue_plan",
+                "committedAtPly": 0,
+                "reviewAtPly": 36,
+                "progress": 0.75,
+                "completed": false,
+                "stalled": 0
+              },
+              "diagnostics": {
+                "nodes": 27,
+                "maxNodes": 48,
+                "depth": 3,
+                "candidates": 3,
+                "opponentReplies": 135,
+                "reusedIntent": true,
+                "chosenStrategy": "direct",
+                "reasonCode": "continue_plan",
+                "previousOutcome": "continued"
+              },
+              "holds": [
+                true,
+                false,
+                false,
+                false,
+                false,
+                false
+              ],
+              "airports": [
+                {
+                  "cell": 809,
+                  "cluster": 13,
+                  "progress": 3,
+                  "active": true
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "pass": true
+    },
+    {
+      "name": "planner develops a useful airport, holds it, and actually disrupts the remote scoring route",
+      "policy": "planner",
+      "sequences": [
+        {
+          "seed": "planner-airport-purpose",
+          "startPly": 0,
+          "actions": [
+            {
+              "type": "deploy",
+              "cells": [
+                809
+              ],
+              "intent": {
+                "player": 1,
+                "type": "airport",
+                "stage": "build",
+                "target": 751,
+                "path": [
+                  751
+                ],
+                "reasonCode": "airport_projection",
+                "committedAtPly": 0,
+                "reviewAtPly": 36,
+                "progress": 0,
+                "completed": false,
+                "stalled": 0
+              },
+              "diagnostics": {
+                "nodes": 36,
+                "maxNodes": 48,
+                "depth": 3,
+                "candidates": 6,
+                "opponentReplies": 180,
+                "reusedIntent": false,
+                "chosenStrategy": "airport",
+                "reasonCode": "airport_projection",
+                "previousOutcome": "none"
+              },
+              "holds": [
+                false,
+                false,
+                false,
+                true,
+                false,
+                false
+              ],
+              "airports": [
+                {
+                  "cell": 751,
+                  "cluster": 9,
+                  "progress": 0,
+                  "active": false
+                },
+                {
+                  "cell": 506,
+                  "cluster": 9,
+                  "progress": 0,
+                  "active": false
+                },
+                {
+                  "cell": 744,
+                  "cluster": 9,
+                  "progress": 0,
+                  "active": false
+                }
+              ]
+            },
+            {
+              "type": "deploy",
+              "cells": [
+                780
+              ],
+              "intent": {
+                "player": 1,
+                "type": "airport",
+                "stage": "build",
+                "target": 751,
+                "path": [
+                  751
+                ],
+                "reasonCode": "continue_plan",
+                "committedAtPly": 0,
+                "reviewAtPly": 36,
+                "progress": 0.1428571428571429,
+                "completed": false,
+                "stalled": 0
+              },
+              "diagnostics": {
+                "nodes": 36,
+                "maxNodes": 48,
+                "depth": 3,
+                "candidates": 6,
+                "opponentReplies": 180,
+                "reusedIntent": true,
+                "chosenStrategy": "airport",
+                "reasonCode": "continue_plan",
+                "previousOutcome": "continued"
+              },
+              "holds": [
+                false,
+                false,
+                false,
+                true,
+                false,
+                false
+              ],
+              "airports": [
+                {
+                  "cell": 751,
+                  "cluster": 10,
+                  "progress": 0,
+                  "active": false
+                },
+                {
+                  "cell": 506,
+                  "cluster": 9,
+                  "progress": 0,
+                  "active": false
+                },
+                {
+                  "cell": 744,
+                  "cluster": 9,
+                  "progress": 0,
+                  "active": false
+                }
+              ]
+            },
+            {
+              "type": "deploy",
+              "cells": [
+                808
+              ],
+              "intent": {
+                "player": 1,
+                "type": "airport",
+                "stage": "build",
+                "target": 751,
+                "path": [
+                  751
+                ],
+                "reasonCode": "continue_plan",
+                "committedAtPly": 0,
+                "reviewAtPly": 36,
+                "progress": 0.2857142857142857,
+                "completed": false,
+                "stalled": 0
+              },
+              "diagnostics": {
+                "nodes": 36,
+                "maxNodes": 48,
+                "depth": 3,
+                "candidates": 6,
+                "opponentReplies": 180,
+                "reusedIntent": true,
+                "chosenStrategy": "airport",
+                "reasonCode": "continue_plan",
+                "previousOutcome": "continued"
+              },
+              "holds": [
+                false,
+                false,
+                false,
+                true,
+                false,
+                false
+              ],
+              "airports": [
+                {
+                  "cell": 751,
+                  "cluster": 11,
+                  "progress": 0,
+                  "active": false
+                },
+                {
+                  "cell": 506,
+                  "cluster": 9,
+                  "progress": 0,
+                  "active": false
+                },
+                {
+                  "cell": 744,
+                  "cluster": 9,
+                  "progress": 0,
+                  "active": false
+                }
+              ]
+            },
+            {
+              "type": "deploy",
+              "cells": [
+                752
+              ],
+              "intent": {
+                "player": 1,
+                "type": "airport",
+                "stage": "build",
+                "target": 751,
+                "path": [
+                  751
+                ],
+                "reasonCode": "continue_plan",
+                "committedAtPly": 0,
+                "reviewAtPly": 36,
+                "progress": 0.4285714285714286,
+                "completed": false,
+                "stalled": 0
+              },
+              "diagnostics": {
+                "nodes": 36,
+                "maxNodes": 48,
+                "depth": 3,
+                "candidates": 6,
+                "opponentReplies": 180,
+                "reusedIntent": true,
+                "chosenStrategy": "airport",
+                "reasonCode": "continue_plan",
+                "previousOutcome": "continued"
+              },
+              "holds": [
+                false,
+                false,
+                false,
+                true,
+                false,
+                false
+              ],
+              "airports": [
+                {
+                  "cell": 751,
+                  "cluster": 12,
+                  "progress": 1,
+                  "active": false
+                },
+                {
+                  "cell": 506,
+                  "cluster": 9,
+                  "progress": 0,
+                  "active": false
+                },
+                {
+                  "cell": 744,
+                  "cluster": 9,
+                  "progress": 0,
+                  "active": false
+                }
+              ]
+            },
+            {
+              "type": "deploy",
+              "cells": [
+                332
+              ],
+              "intent": {
+                "player": 1,
+                "type": "airport",
+                "stage": "hold",
+                "target": 751,
+                "path": [
+                  751
+                ],
+                "reasonCode": "continue_plan",
+                "committedAtPly": 0,
+                "reviewAtPly": 36,
+                "progress": 0.7142857142857143,
+                "completed": false,
+                "stalled": 0
+              },
+              "diagnostics": {
+                "nodes": 36,
+                "maxNodes": 48,
+                "depth": 3,
+                "candidates": 6,
+                "opponentReplies": 180,
+                "reusedIntent": true,
+                "chosenStrategy": "airport",
+                "reasonCode": "continue_plan",
+                "previousOutcome": "continued"
+              },
+              "holds": [
+                false,
+                false,
+                false,
+                true,
+                false,
+                false
+              ],
+              "airports": [
+                {
+                  "cell": 751,
+                  "cluster": 12,
+                  "progress": 2,
+                  "active": false
+                },
+                {
+                  "cell": 506,
+                  "cluster": 9,
+                  "progress": 0,
+                  "active": false
+                },
+                {
+                  "cell": 744,
+                  "cluster": 9,
+                  "progress": 0,
+                  "active": false
+                }
+              ]
+            },
+            {
+              "type": "deploy",
+              "cells": [
+                301
+              ],
+              "intent": {
+                "player": 1,
+                "type": "airport",
+                "stage": "hold",
+                "target": 751,
+                "path": [
+                  751
+                ],
+                "reasonCode": "continue_plan",
+                "committedAtPly": 0,
+                "reviewAtPly": 36,
+                "progress": 0.8571428571428572,
+                "completed": false,
+                "stalled": 0
+              },
+              "diagnostics": {
+                "nodes": 36,
+                "maxNodes": 48,
+                "depth": 3,
+                "candidates": 6,
+                "opponentReplies": 180,
+                "reusedIntent": true,
+                "chosenStrategy": "airport",
+                "reasonCode": "continue_plan",
+                "previousOutcome": "continued"
+              },
+              "holds": [
+                false,
+                false,
+                false,
+                true,
+                false,
+                false
+              ],
+              "airports": [
+                {
+                  "cell": 751,
+                  "cluster": 12,
+                  "progress": 3,
+                  "active": true
+                },
+                {
+                  "cell": 506,
+                  "cluster": 9,
+                  "progress": 0,
+                  "active": false
+                },
+                {
+                  "cell": 744,
+                  "cluster": 9,
+                  "progress": 0,
+                  "active": false
+                }
+              ]
+            },
+            {
+              "type": "bombard",
+              "cells": [
+                751,
+                347
+              ],
+              "intent": {
+                "player": 1,
+                "type": "airport",
+                "stage": "project",
+                "target": 751,
+                "path": [
+                  751
+                ],
+                "reasonCode": "opportunity_changed",
+                "committedAtPly": 36,
+                "reviewAtPly": 72,
+                "progress": 1,
+                "completed": false,
+                "stalled": 0
+              },
+              "diagnostics": {
+                "nodes": 36,
+                "maxNodes": 48,
+                "depth": 3,
+                "candidates": 6,
+                "opponentReplies": 180,
+                "reusedIntent": false,
+                "chosenStrategy": "airport",
+                "reasonCode": "opportunity_changed",
+                "previousOutcome": "review"
+              },
+              "holds": [
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+              ],
+              "airports": [
+                {
+                  "cell": 751,
+                  "cluster": 12,
+                  "progress": 3,
+                  "active": true
+                },
+                {
+                  "cell": 506,
+                  "cluster": 9,
+                  "progress": 0,
+                  "active": false
+                },
+                {
+                  "cell": 744,
+                  "cluster": 9,
+                  "progress": 0,
+                  "active": false
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "pass": true
+    },
+    {
+      "name": "planner repairs a severed goal route and retains real supply through following turns",
+      "policy": "planner",
+      "sequences": [
+        {
+          "seed": "planner-repair-sequence",
+          "startPly": 0,
+          "actions": [
+            {
+              "type": "bridge",
+              "cells": [
+                476,
+                550
+              ],
+              "intent": {
+                "player": 1,
+                "type": "recover",
+                "stage": "repair",
+                "target": 0,
+                "path": [
+                  550,
+                  513,
+                  476,
+                  440,
+                  405,
+                  371,
+                  338,
+                  306,
+                  275,
+                  245,
+                  216,
+                  188,
+                  161,
+                  135,
+                  110,
+                  86
+                ],
+                "reasonCode": "restore_supply",
+                "committedAtPly": 0,
+                "reviewAtPly": 36,
+                "progress": 0,
+                "completed": false,
+                "stalled": 0
+              },
+              "diagnostics": {
+                "nodes": 30,
+                "maxNodes": 48,
+                "depth": 3,
+                "candidates": 4,
+                "opponentReplies": 150,
+                "reusedIntent": false,
+                "chosenStrategy": "recover",
+                "reasonCode": "restore_supply",
+                "previousOutcome": "none"
+              },
+              "holds": [
+                true,
+                false,
+                false,
+                false,
+                false,
+                false
+              ],
+              "airports": []
+            }
+          ]
+        },
+        {
+          "seed": "planner-repair-sequence",
+          "startPly": 1,
+          "actions": [
+            {
+              "type": "deploy",
+              "cells": [
+                1
+              ],
+              "intent": {
+                "player": 1,
+                "type": "defend",
+                "stage": "hold",
+                "target": 0,
+                "path": [
+                  0
+                ],
+                "reasonCode": "short_route",
+                "committedAtPly": 6,
+                "reviewAtPly": 42,
+                "progress": 1,
+                "completed": true,
+                "stalled": 0
+              },
+              "diagnostics": {
+                "nodes": 9,
+                "maxNodes": 48,
+                "depth": 3,
+                "candidates": 1,
+                "opponentReplies": 45,
+                "reusedIntent": false,
+                "chosenStrategy": "defend",
+                "reasonCode": "short_route",
+                "previousOutcome": "completed"
+              },
+              "holds": [
+                true,
+                false,
+                false,
+                false,
+                false,
+                false
+              ],
+              "airports": []
+            },
+            {
+              "type": "deploy",
+              "cells": [
+                2
+              ],
+              "intent": {
+                "player": 1,
+                "type": "defend",
+                "stage": "hold",
+                "target": 0,
+                "path": [
+                  0
+                ],
+                "reasonCode": "short_route",
+                "committedAtPly": 12,
+                "reviewAtPly": 48,
+                "progress": 1,
+                "completed": true,
+                "stalled": 0
+              },
+              "diagnostics": {
+                "nodes": 9,
+                "maxNodes": 48,
+                "depth": 3,
+                "candidates": 1,
+                "opponentReplies": 45,
+                "reusedIntent": false,
+                "chosenStrategy": "defend",
+                "reasonCode": "short_route",
+                "previousOutcome": "completed"
+              },
+              "holds": [
+                true,
+                false,
+                false,
+                false,
+                false,
+                false
+              ],
+              "airports": []
+            },
+            {
+              "type": "deploy",
+              "cells": [
+                3
+              ],
+              "intent": {
+                "player": 1,
+                "type": "defend",
+                "stage": "hold",
+                "target": 0,
+                "path": [
+                  0
+                ],
+                "reasonCode": "short_route",
+                "committedAtPly": 18,
+                "reviewAtPly": 54,
+                "progress": 1,
+                "completed": true,
+                "stalled": 0
+              },
+              "diagnostics": {
+                "nodes": 9,
+                "maxNodes": 48,
+                "depth": 3,
+                "candidates": 1,
+                "opponentReplies": 45,
+                "reusedIntent": false,
+                "chosenStrategy": "defend",
+                "reasonCode": "short_route",
+                "previousOutcome": "completed"
+              },
+              "holds": [
+                true,
+                false,
+                false,
+                false,
+                false,
+                false
+              ],
+              "airports": []
+            }
+          ]
+        }
+      ],
+      "pass": true
+    },
+    {
+      "name": "planner reassesses after an active opponent legally cuts the committed route, then reconnects and finishes",
+      "policy": "planner",
+      "sequences": [
+        {
+          "seed": "planner-active-reassessment",
+          "startPly": 0,
+          "actions": [
+            {
+              "type": "deploy",
+              "cells": [
+                41
+              ],
+              "intent": {
+                "player": 1,
+                "type": "direct",
+                "stage": "advance",
+                "target": 1,
+                "path": [
+                  63,
+                  41,
+                  21,
+                  1
+                ],
+                "reasonCode": "short_route",
+                "committedAtPly": 0,
+                "reviewAtPly": 36,
+                "progress": 0,
+                "completed": false,
+                "stalled": 0
+              },
+              "diagnostics": {
+                "nodes": 30,
+                "maxNodes": 48,
+                "depth": 3,
+                "candidates": 4,
+                "opponentReplies": 150,
+                "reusedIntent": false,
+                "chosenStrategy": "direct",
+                "reasonCode": "short_route",
+                "previousOutcome": "none"
+              },
+              "holds": [
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+              ],
+              "airports": []
+            }
+          ]
+        },
+        {
+          "seed": "planner-active-reassessment",
+          "startPly": 2,
+          "actions": [
+            {
+              "type": "bridge",
+              "cells": [
+                621,
+                720
+              ],
+              "intent": {
+                "player": 1,
+                "type": "recover",
+                "stage": "repair",
+                "target": 41,
+                "path": [
+                  720,
+                  688,
+                  655,
+                  621,
+                  586,
+                  550,
+                  513,
+                  476,
+                  440,
+                  405,
+                  371,
+                  338,
+                  306,
+                  275,
+                  245,
+                  216
+                ],
+                "reasonCode": "opportunity_changed",
+                "committedAtPly": 6,
+                "reviewAtPly": 42,
+                "progress": 0,
+                "completed": false,
+                "stalled": 0
+              },
+              "diagnostics": {
+                "nodes": 30,
+                "maxNodes": 48,
+                "depth": 3,
+                "candidates": 4,
+                "opponentReplies": 150,
+                "reusedIntent": false,
+                "chosenStrategy": "recover",
+                "reasonCode": "opportunity_changed",
+                "previousOutcome": "continued"
+              },
+              "holds": [
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+              ],
+              "airports": []
+            },
+            {
+              "type": "deploy",
+              "cells": [
+                21
+              ],
+              "intent": {
+                "player": 1,
+                "type": "direct",
+                "stage": "advance",
+                "target": 1,
+                "path": [
+                  41,
+                  21,
+                  1
+                ],
+                "reasonCode": "short_route",
+                "committedAtPly": 12,
+                "reviewAtPly": 48,
+                "progress": 0,
+                "completed": false,
+                "stalled": 0
+              },
+              "diagnostics": {
+                "nodes": 27,
+                "maxNodes": 48,
+                "depth": 3,
+                "candidates": 3,
+                "opponentReplies": 135,
+                "reusedIntent": false,
+                "chosenStrategy": "direct",
+                "reasonCode": "short_route",
+                "previousOutcome": "completed"
+              },
+              "holds": [
+                false,
+                false,
+                false,
+                false,
+                false,
+                false
+              ],
+              "airports": []
+            },
+            {
+              "type": "deploy",
+              "cells": [
+                1
+              ],
+              "intent": {
+                "player": 1,
+                "type": "direct",
+                "stage": "advance",
+                "target": 1,
+                "path": [
+                  21,
+                  1
+                ],
+                "reasonCode": "continue_plan",
+                "committedAtPly": 12,
+                "reviewAtPly": 48,
+                "progress": 0.5,
+                "completed": false,
+                "stalled": 0
+              },
+              "diagnostics": {
+                "nodes": 27,
+                "maxNodes": 48,
+                "depth": 3,
+                "candidates": 3,
+                "opponentReplies": 135,
+                "reusedIntent": true,
+                "chosenStrategy": "direct",
+                "reasonCode": "continue_plan",
+                "previousOutcome": "continued"
+              },
+              "holds": [
+                true,
+                false,
+                false,
+                false,
+                false,
+                false
+              ],
+              "airports": []
+            }
+          ]
+        }
+      ],
+      "pass": true
+    },
+    {
+      "name": "planner breaks an obstructing pact and then exploits the opening with legal paid actions",
+      "policy": "planner",
+      "sequences": [
+        {
+          "seed": "planner-betray-sequence",
+          "startPly": 0,
+          "actions": [
+            {
+              "type": "betray",
+              "cells": [],
+              "target": 2,
+              "intent": {
+                "player": 1,
+                "type": "direct",
+                "stage": "advance",
+                "target": 0,
+                "path": [
+                  20,
+                  0
+                ],
+                "reasonCode": "short_route",
+                "committedAtPly": 0,
+                "reviewAtPly": 36,
+                "progress": 0,
+                "completed": false,
+                "stalled": 0
+              },
+              "diagnostics": {
+                "nodes": 27,
+                "maxNodes": 48,
+                "depth": 3,
+                "candidates": 3,
+                "opponentReplies": 135,
+                "reusedIntent": false,
+                "chosenStrategy": "direct",
+                "reasonCode": "short_route",
+                "previousOutcome": "none"
+              },
+              "holds": [
+                false,
+                true,
+                false,
+                false,
+                false,
+                false
+              ],
+              "airports": []
+            },
+            {
+              "type": "deploy",
+              "cells": [
+                1
+              ],
+              "intent": {
+                "player": 1,
+                "type": "airport",
+                "stage": "approach",
+                "target": 185,
+                "path": [
+                  188,
+                  187,
+                  186,
+                  185
+                ],
+                "reasonCode": "opportunity_changed",
+                "committedAtPly": 6,
+                "reviewAtPly": 42,
+                "progress": 0,
+                "completed": false,
+                "stalled": 0
+              },
+              "diagnostics": {
+                "nodes": 36,
+                "maxNodes": 48,
+                "depth": 3,
+                "candidates": 6,
+                "opponentReplies": 180,
+                "reusedIntent": false,
+                "chosenStrategy": "airport",
+                "reasonCode": "opportunity_changed",
+                "previousOutcome": "continued"
+              },
+              "holds": [
+                true,
+                false,
+                false,
+                false,
+                false,
+                false
+              ],
+              "airports": []
+            }
+          ]
+        }
+      ],
+      "pass": true
+    },
+    {
+      "name": "planner is deterministic and reads no opponent hand, deck order, or raw private fields",
+      "policy": "planner",
+      "sequences": [],
+      "pass": true
+    },
+    {
+      "name": "only accepted actions commit private memory; observations isolate it and reset clears all plans",
+      "policy": "planner",
+      "sequences": [],
+      "pass": true
+    },
+    {
+      "name": "malformed planner metadata cannot inject unbounded paths, hidden fields, scores, or another player intent",
+      "policy": "planner",
+      "sequences": [],
+      "pass": true
+    },
+    {
+      "name": "seeded planner replay preserves actions, rules state, bounded memory, and finite search through changing positions",
+      "policy": "planner",
+      "sequences": [],
+      "pass": true
+    }
+  ]
+}

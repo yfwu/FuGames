@@ -1,0 +1,387 @@
+{
+  "premise": "E5 E4 E3 E7 E2",
+  "attacker": 1,
+  "defender": 2,
+  "replies": [
+    {
+      "defense": "A1",
+      "winningReply": "E1",
+      "flips": []
+    },
+    {
+      "defense": "B1",
+      "winningReply": "E1",
+      "flips": []
+    },
+    {
+      "defense": "C1",
+      "winningReply": "E1",
+      "flips": []
+    },
+    {
+      "defense": "D1",
+      "winningReply": "E1",
+      "flips": []
+    },
+    {
+      "defense": "E1",
+      "winningReply": "E6",
+      "flips": []
+    },
+    {
+      "defense": "F1",
+      "winningReply": "E1",
+      "flips": []
+    },
+    {
+      "defense": "G1",
+      "winningReply": "E1",
+      "flips": []
+    },
+    {
+      "defense": "H1",
+      "winningReply": "E1",
+      "flips": []
+    },
+    {
+      "defense": "I1",
+      "winningReply": "E1",
+      "flips": []
+    },
+    {
+      "defense": "A2",
+      "winningReply": "E1",
+      "flips": []
+    },
+    {
+      "defense": "B2",
+      "winningReply": "E1",
+      "flips": []
+    },
+    {
+      "defense": "C2",
+      "winningReply": "E1",
+      "flips": []
+    },
+    {
+      "defense": "D2",
+      "winningReply": "E1",
+      "flips": []
+    },
+    {
+      "defense": "F2",
+      "winningReply": "E1",
+      "flips": []
+    },
+    {
+      "defense": "G2",
+      "winningReply": "E1",
+      "flips": []
+    },
+    {
+      "defense": "H2",
+      "winningReply": "E1",
+      "flips": []
+    },
+    {
+      "defense": "I2",
+      "winningReply": "E1",
+      "flips": []
+    },
+    {
+      "defense": "A3",
+      "winningReply": "E1",
+      "flips": []
+    },
+    {
+      "defense": "B3",
+      "winningReply": "E1",
+      "flips": []
+    },
+    {
+      "defense": "C3",
+      "winningReply": "E1",
+      "flips": []
+    },
+    {
+      "defense": "D3",
+      "winningReply": "E1",
+      "flips": []
+    },
+    {
+      "defense": "F3",
+      "winningReply": "E1",
+      "flips": []
+    },
+    {
+      "defense": "G3",
+      "winningReply": "E1",
+      "flips": []
+    },
+    {
+      "defense": "H3",
+      "winningReply": "E1",
+      "flips": []
+    },
+    {
+      "defense": "I3",
+      "winningReply": "E1",
+      "flips": []
+    },
+    {
+      "defense": "A4",
+      "winningReply": "E1",
+      "flips": []
+    },
+    {
+      "defense": "B4",
+      "winningReply": "E1",
+      "flips": []
+    },
+    {
+      "defense": "C4",
+      "winningReply": "E1",
+      "flips": []
+    },
+    {
+      "defense": "D4",
+      "winningReply": "E1",
+      "flips": []
+    },
+    {
+      "defense": "F4",
+      "winningReply": "E1",
+      "flips": []
+    },
+    {
+      "defense": "G4",
+      "winningReply": "E1",
+      "flips": []
+    },
+    {
+      "defense": "H4",
+      "winningReply": "E1",
+      "flips": []
+    },
+    {
+      "defense": "I4",
+      "winningReply": "E1",
+      "flips": []
+    },
+    {
+      "defense": "A5",
+      "winningReply": "E1",
+      "flips": []
+    },
+    {
+      "defense": "B5",
+      "winningReply": "E1",
+      "flips": []
+    },
+    {
+      "defense": "C5",
+      "winningReply": "E1",
+      "flips": []
+    },
+    {
+      "defense": "D5",
+      "winningReply": "E1",
+      "flips": []
+    },
+    {
+      "defense": "F5",
+      "winningReply": "E1",
+      "flips": []
+    },
+    {
+      "defense": "G5",
+      "winningReply": "E1",
+      "flips": []
+    },
+    {
+      "defense": "H5",
+      "winningReply": "E1",
+      "flips": []
+    },
+    {
+      "defense": "I5",
+      "winningReply": "E1",
+      "flips": []
+    },
+    {
+      "defense": "A6",
+      "winningReply": "E1",
+      "flips": []
+    },
+    {
+      "defense": "B6",
+      "winningReply": "E1",
+      "flips": []
+    },
+    {
+      "defense": "C6",
+      "winningReply": "E1",
+      "flips": []
+    },
+    {
+      "defense": "D6",
+      "winningReply": "E1",
+      "flips": []
+    },
+    {
+      "defense": "E6",
+      "winningReply": "E1",
+      "flips": []
+    },
+    {
+      "defense": "F6",
+      "winningReply": "E1",
+      "flips": []
+    },
+    {
+      "defense": "G6",
+      "winningReply": "E1",
+      "flips": []
+    },
+    {
+      "defense": "H6",
+      "winningReply": "E1",
+      "flips": []
+    },
+    {
+      "defense": "I6",
+      "winningReply": "E1",
+      "flips": []
+    },
+    {
+      "defense": "A7",
+      "winningReply": "E1",
+      "flips": []
+    },
+    {
+      "defense": "B7",
+      "winningReply": "E1",
+      "flips": []
+    },
+    {
+      "defense": "C7",
+      "winningReply": "E1",
+      "flips": []
+    },
+    {
+      "defense": "D7",
+      "winningReply": "E1",
+      "flips": []
+    },
+    {
+      "defense": "F7",
+      "winningReply": "E1",
+      "flips": []
+    },
+    {
+      "defense": "G7",
+      "winningReply": "E1",
+      "flips": []
+    },
+    {
+      "defense": "H7",
+      "winningReply": "E1",
+      "flips": []
+    },
+    {
+      "defense": "I7",
+      "winningReply": "E1",
+      "flips": []
+    },
+    {
+      "defense": "A8",
+      "winningReply": "E1",
+      "flips": []
+    },
+    {
+      "defense": "B8",
+      "winningReply": "E1",
+      "flips": []
+    },
+    {
+      "defense": "C8",
+      "winningReply": "E1",
+      "flips": []
+    },
+    {
+      "defense": "D8",
+      "winningReply": "E1",
+      "flips": []
+    },
+    {
+      "defense": "E8",
+      "winningReply": "E1",
+      "flips": []
+    },
+    {
+      "defense": "F8",
+      "winningReply": "E1",
+      "flips": []
+    },
+    {
+      "defense": "G8",
+      "winningReply": "E1",
+      "flips": []
+    },
+    {
+      "defense": "H8",
+      "winningReply": "E1",
+      "flips": []
+    },
+    {
+      "defense": "I8",
+      "winningReply": "E1",
+      "flips": []
+    },
+    {
+      "defense": "A9",
+      "winningReply": "E1",
+      "flips": []
+    },
+    {
+      "defense": "B9",
+      "winningReply": "E1",
+      "flips": []
+    },
+    {
+      "defense": "C9",
+      "winningReply": "E1",
+      "flips": []
+    },
+    {
+      "defense": "D9",
+      "winningReply": "E1",
+      "flips": []
+    },
+    {
+      "defense": "E9",
+      "winningReply": "E1",
+      "flips": []
+    },
+    {
+      "defense": "F9",
+      "winningReply": "E1",
+      "flips": []
+    },
+    {
+      "defense": "G9",
+      "winningReply": "E1",
+      "flips": []
+    },
+    {
+      "defense": "H9",
+      "winningReply": "E1",
+      "flips": []
+    },
+    {
+      "defense": "I9",
+      "winningReply": "E1",
+      "flips": []
+    }
+  ]
+}

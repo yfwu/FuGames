@@ -1,0 +1,23 @@
+{
+  "scope": "Development mechanism probe; one fixed public board,24 public seeds; sampled representative6-owner-turn continuations with resting opponents. Not heldout games or proof of stronger opponents.",
+  "baselineDistinctFirstActions": 1,
+  "candidateDistinctFirstActions": 3,
+  "candidateDistinctExecutedSequences": 3,
+  "candidateReusedPerSequence": [
+    5,
+    5,
+    5
+  ],
+  "memoryResetReusedPerSequence": [
+    0,
+    0,
+    0
+  ],
+  "memoryResetChangedExecutedSequences": 0,
+  "interpretation": "Distinct trajectories are coherent across6 owner turns and seeded; resetting memory alone does not change these quiet opening sequences. This probe establishes controlled policy variation but does not establish an outcome advantage caused by persistence. Active blockade fixtures test recovery separately.",
+  "files": [
+    "variation-baseline-development.json",
+    "variation-candidate-development.json",
+    "variation-memory-reset-development.json"
+  ]
+}

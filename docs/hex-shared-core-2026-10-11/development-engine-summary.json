@@ -1,0 +1,307 @@
+{
+  "kind": "development-not-heldout-after-sabotage-model",
+  "seed": "shared-dev-engine-5171",
+  "hashes": {
+    "hex-core.js": "f04314ad12393717e48b8708f9a3b59a5a49492da577a4a9d6cec67fa870de2c",
+    "autohex-planner.js": "16f383fbe1d2eb67afd7864bda04056994c8ec254f9cc2f2cb6fad0aecb2659c",
+    "hex-strategies.js": "475536a736d1d7ef74dc4ffb41fa6af04349b68f61881fc76bc0471d2c8df624"
+  },
+  "games": [
+    {
+      "mode": "auto",
+      "actions": 2000,
+      "result": {
+        "winners": [
+          4
+        ],
+        "standings": [
+          {
+            "player": 4,
+            "score": 175,
+            "name": "Gold",
+            "rank": 1
+          },
+          {
+            "player": 3,
+            "score": 166,
+            "name": "Violet",
+            "rank": 2
+          },
+          {
+            "player": 5,
+            "score": 156,
+            "name": "Jade",
+            "rank": 3
+          },
+          {
+            "player": 6,
+            "score": 153,
+            "name": "Rose",
+            "rank": 4
+          },
+          {
+            "player": 2,
+            "score": 108,
+            "name": "Ember",
+            "rank": 5
+          },
+          {
+            "player": 1,
+            "score": 94,
+            "name": "Azure",
+            "rank": 6
+          }
+        ],
+        "draw": false,
+        "reason": "timeout",
+        "activeMs": 600000
+      },
+      "goals": 14,
+      "holds": 27,
+      "air": {
+        "drop": 5,
+        "bombard": 5
+      },
+      "airports": 33,
+      "tunnels": 139,
+      "collapsed": 135,
+      "sabotages": 112,
+      "bridges": 72,
+      "illegal": 0,
+      "last500": {
+        "goals": 8,
+        "holds": 12,
+        "air": 6,
+        "combat": 212,
+        "meaningful": 500
+      },
+      "budgetAborts": [
+        0,
+        1,
+        7,
+        0,
+        1,
+        0,
+        0
+      ],
+      "profileMetrics": {
+        "vanguard": {
+          "actions": 334,
+          "airdrop": 0,
+          "bombard": 0,
+          "tunnel": 23,
+          "bridge": 7,
+          "airportStages": {
+            "approach": 18
+          },
+          "actualCompletions": 6
+        },
+        "airhead": {
+          "actions": 334,
+          "airdrop": 5,
+          "bombard": 5,
+          "tunnel": 28,
+          "bridge": 8,
+          "airportStages": {
+            "approach": 81,
+            "build": 26,
+            "hold": 12,
+            "project": 7
+          },
+          "actualCompletions": 1
+        },
+        "flanker": {
+          "actions": 333,
+          "airdrop": 0,
+          "bombard": 0,
+          "tunnel": 14,
+          "bridge": 10,
+          "airportStages": {},
+          "actualCompletions": 0
+        },
+        "interdict": {
+          "actions": 333,
+          "airdrop": 0,
+          "bombard": 0,
+          "tunnel": 0,
+          "bridge": 16,
+          "airportStages": {
+            "approach": 15,
+            "build": 6,
+            "hold": 1,
+            "project": 1
+          },
+          "actualCompletions": 2
+        },
+        "recover": {
+          "actions": 333,
+          "airdrop": 0,
+          "bombard": 0,
+          "tunnel": 45,
+          "bridge": 23,
+          "airportStages": {
+            "approach": 15
+          },
+          "actualCompletions": 1
+        },
+        "envoy": {
+          "actions": 333,
+          "airdrop": 0,
+          "bombard": 0,
+          "tunnel": 29,
+          "bridge": 8,
+          "airportStages": {
+            "approach": 10
+          },
+          "actualCompletions": 0
+        }
+      },
+      "tunnelRepeatedPathCount": 27,
+      "maxTunnelRepeat": 10,
+      "timing": {
+        "meanMs": 43.671818862,
+        "p95Ms": 95.95192099999986,
+        "maxMs": 384.48752599999716
+      }
+    },
+    {
+      "mode": "normal",
+      "actions": 112,
+      "result": {
+        "winners": [
+          4
+        ],
+        "standings": [
+          {
+            "player": 1,
+            "name": "Azure",
+            "score": 1,
+            "rank": 2
+          },
+          {
+            "player": 2,
+            "name": "Ember",
+            "score": 0,
+            "rank": 2
+          },
+          {
+            "player": 3,
+            "name": "Violet",
+            "score": 5,
+            "rank": 2
+          },
+          {
+            "player": 4,
+            "name": "Gold",
+            "score": 1,
+            "rank": 1
+          },
+          {
+            "player": 5,
+            "name": "Jade",
+            "score": 6,
+            "rank": 2
+          },
+          {
+            "player": 6,
+            "name": "Rose",
+            "score": 3,
+            "rank": 2
+          }
+        ],
+        "draw": false,
+        "reason": "connection",
+        "activeMs": 33300,
+        "ply": 112
+      },
+      "goals": 1,
+      "holds": 0,
+      "air": {
+        "drop": 1,
+        "bombard": 0
+      },
+      "airports": 1,
+      "tunnels": 9,
+      "collapsed": 3,
+      "sabotages": 3,
+      "bridges": 5,
+      "illegal": 0,
+      "last500": null,
+      "budgetAborts": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "profileMetrics": {
+        "vanguard": {
+          "actions": 19,
+          "airdrop": 0,
+          "bombard": 0,
+          "tunnel": 4,
+          "bridge": 0,
+          "airportStages": {},
+          "actualCompletions": 0
+        },
+        "airhead": {
+          "actions": 19,
+          "airdrop": 1,
+          "bombard": 0,
+          "tunnel": 0,
+          "bridge": 0,
+          "airportStages": {
+            "approach": 10,
+            "build": 4
+          },
+          "actualCompletions": 0
+        },
+        "flanker": {
+          "actions": 19,
+          "airdrop": 0,
+          "bombard": 0,
+          "tunnel": 2,
+          "bridge": 1,
+          "airportStages": {},
+          "actualCompletions": 0
+        },
+        "interdict": {
+          "actions": 19,
+          "airdrop": 0,
+          "bombard": 0,
+          "tunnel": 0,
+          "bridge": 2,
+          "airportStages": {},
+          "actualCompletions": 0
+        },
+        "recover": {
+          "actions": 18,
+          "airdrop": 0,
+          "bombard": 0,
+          "tunnel": 1,
+          "bridge": 1,
+          "airportStages": {},
+          "actualCompletions": 0
+        },
+        "envoy": {
+          "actions": 18,
+          "airdrop": 0,
+          "bombard": 0,
+          "tunnel": 2,
+          "bridge": 1,
+          "airportStages": {},
+          "actualCompletions": 0
+        }
+      },
+      "tunnelRepeatedPathCount": 1,
+      "maxTunnelRepeat": 2,
+      "timing": {
+        "meanMs": 32.850045026786056,
+        "p95Ms": 53.147449999989476,
+        "maxMs": 87.18187100000796
+      }
+    }
+  ]
+}

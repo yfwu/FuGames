@@ -1,0 +1,76 @@
+{
+  "method": "Actual Worker computation; virtual main-page clock; held real responses and explicit adversarial delivery envelopes",
+  "sourceSha256": {
+    "autohex-ai-worker.js": "0c7ba91f0d2997d3e3e08bdd6e004e792062b6e497529e3b526536dfbb9ed7c0",
+    "autohex-planner.js": "2e222d259995f604b07c8b599f681a8ccc025a5e1a709bb649c5c539637ebb7f",
+    "autohex-engine.js": "0c5b3137c803f3f77ddd3fbb34a132f1986a257d3db2d828a1d2628e37c69993",
+    "autohex-ui.js": "20e6f2aa126927f1afa5d2fb02d7b6c2392204d520f517c6349d2a3a79217045",
+    "autohex-visuals.js": "b1bed80f9b4ef5baf8fc8a3c78706a0a6c2baf0b9274fe2c318883ed264e79cd",
+    "autohex.html": "90bcc0fad0f954efbc9080971f512ada6b713c908d733eb6376e2e72aff05d23",
+    "autohex.css": "da2b0c693b2f5ce8ad374ca746a3d62ec4b756c9a0b1374eb0f21018fdb567d5"
+  },
+  "checks": [
+    "id/generation/ply/turn guards; duplicate ignored; one action per valid response; idle Worker reused",
+    "pause: pending computation terminated; held old response ignored",
+    "speed: pending computation terminated; held old response ignored",
+    "replay: pending computation terminated; held old response ignored",
+    "restart: pending computation terminated; held old response ignored",
+    "visibility: pending computation terminated; held old response ignored",
+    "campaign expiry cancels pending response; setup mode switch starts a clean ready game",
+    "eight rapid replays clear old work; old and current duplicate responses cannot double-act",
+    "missing Worker support uses an explicit measured synchronous fallback"
+  ],
+  "errors": [],
+  "lastRunRequests": [
+    {
+      "worker": 1,
+      "id": 1,
+      "generation": 3,
+      "ply": 0,
+      "turn": 1,
+      "observer": 1,
+      "handCount": 5,
+      "memoryOwner": null,
+      "keys": [
+        "type",
+        "id",
+        "generation",
+        "ply",
+        "turn",
+        "observation"
+      ]
+    },
+    {
+      "worker": 2,
+      "id": 2,
+      "generation": 19,
+      "ply": 0,
+      "turn": 1,
+      "observer": 1,
+      "handCount": 5,
+      "memoryOwner": null,
+      "keys": [
+        "type",
+        "id",
+        "generation",
+        "ply",
+        "turn",
+        "observation"
+      ]
+    }
+  ],
+  "timing": {
+    "count": 1,
+    "lastMs": 91,
+    "lastLatencyMs": 0,
+    "lastMode": "worker",
+    "maxMs": 91,
+    "totalMs": 91,
+    "workerCount": 1,
+    "synchronousCount": 0,
+    "recentMs": [
+      91
+    ]
+  },
+  "pass": true
+}

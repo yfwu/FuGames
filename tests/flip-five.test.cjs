@@ -1,7 +1,6 @@
 'use strict';
-const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),vm=require('node:vm');
-const html=fs.readFileSync(path.join(__dirname,'..','flip_five.html'),'utf8');
-const F=vm.runInNewContext(html.match(/<script id="flip-engine">([\s\S]*?)<\/script>/)[1]+'; FlipFive;');
+const test=require('node:test'),assert=require('node:assert/strict');
+const F=require('../flip-five-engine.js');
 const blank=()=>Array(81).fill(0),plain=v=>JSON.parse(JSON.stringify(v));
 
 test('all empty cells are legal even without a bracket; illegal actions are atomic',()=>{

@@ -1,0 +1,19 @@
+{
+  "repository": "/workspace/FuGames",
+  "gitHead": "96c109a59c0bf79a159561ed845715a8e0ab8fee",
+  "source": "flip_five.html",
+  "sha256": "331bd07414231a34a12f57eb5768d1e108fb2fed0459f37be8c68e8ed0c28120",
+  "isolatedSnapshot": "/workspace/FuGames-flipfive-analysis/source/flip_five.html",
+  "snapshotInRepository": false,
+  "screenshot": {
+    "libraryFileId": "libfile_48c0ba8688688191848c92437dc60463",
+    "fileId": "file_000000003e4881f9bf5ea9f7f5563040",
+    "filename": "image.png",
+    "version": 0,
+    "width": 694,
+    "height": 464,
+    "sizeBytes": 83032,
+    "materialization": "Official current Library helper failed with: library file transfer failed: download failed (exit 1)",
+    "visuallyInspected": false
+  }
+}

@@ -1,0 +1,51 @@
+✔ external transport programs execute different real routes on the identical supplied river-gap puzzle (162.485401ms)
+✖ a public opponent can sabotage the tempting tunnel; the planner instead completes a durable ground repair (158.942935ms)
+✖ external airport investment executes its paid follow-on while avoid chooses ground actions on the same public board (839.514416ms)
+✔ airport investment budget survives forced mission reviews and enforces twelve owner turns of cooldown (425.248521ms)
+✔ accepted program memory is private, cloned, finite, resettable and cannot commit with an illegal action (69.545765ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 3
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1837.430687
+
+✖ failing tests:
+
+test at tests/hex-strategy-programs.test.cjs:35:1
+✖ a public opponent can sabotage the tempting tunnel; the planner instead completes a durable ground repair (158.942935ms)
+  AssertionError [ERR_ASSERTION]: [{"type":"engineer","cells":[86]},{"type":"deploy","cells":[86]},{"type":"tunnel","cells":[110,86,63,41]},{"type":"tunnel","cells":[110,86,63,41]},{"type":"tunnel","cells":[110,86,63,41]},{"type":"tunnel","cells":[110,86,63,41]},{"type":"tunnel","cells":[110,86,63,41]},{"type":"engineer","cells":[63]}]
+      at TestContext.<anonymous> (/workspace/FuGames/tests/hex-strategy-programs.test.cjs:39:9)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/hex-strategy-programs.test.cjs:42:1
+✖ external airport investment executes its paid follow-on while avoid chooses ground actions on the same public board (839.514416ms)
+  AssertionError [ERR_ASSERTION]: [{"type":"deploy","cells":[809],"intent":"airport","stage":"build","target":751,"follow":347},{"type":"deploy","cells":[780],"intent":"airport","stage":"build","target":751,"follow":347},{"type":"deploy","cells":[808],"intent":"airport","stage":"build","target":751,"follow":347},{"type":"deploy","cells":[750],"intent":"airport","stage":"build","target":751,"follow":347},{"type":"deploy","cells":[332],"intent":"airport","stage":"hold","target":751,"follow":347},{"type":"deploy","cells":[301],"intent":"airport","stage":"hold","target":751,"follow":347},{"type":"deploy","cells":[271],"intent":"airport","stage":"approach","target":282,"follow":29},{"type":"deploy","cells":[272],"intent":"airport","stage":"approach","target":282,"follow":29},{"type":"deploy","cells":[273],"intent":"airport","stage":"approach","target":282,"follow":29},{"type":"deploy","cells":[274],"intent":"airport","stage":"approach","target":282,"follow":29},{"type":"deploy","cells":[275],"intent":"airport","stage":"approach","target":275,"follow":29},{"type":"deploy","cells":[245],"intent":"airport","stage":"build","target":275,"follow":29},{"type":"deploy","cells":[246],"intent":"airport","stage":"build","target":275,"follow":29},{"type":"deploy","cells":[305],"intent":"airport","stage":"build","target":275,"follow":29}]
+      at TestContext.<anonymous> (/workspace/FuGames/tests/hex-strategy-programs.test.cjs:45:9)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }

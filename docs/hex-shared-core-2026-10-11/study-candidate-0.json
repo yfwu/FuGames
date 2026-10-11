@@ -1,0 +1,2995 @@
+{
+  "kind": "preregistered frozen shared-core comparison",
+  "batch": "candidate",
+  "shard": 0,
+  "shards": 3,
+  "planned": 4,
+  "complete": true,
+  "startedUtc": "2026-10-11T17:42:19.354Z",
+  "protocolSha256": "f81a7cf99175ff6d62ec9988d36932afe9863b39935a906a3c2158d0d38a7d8e",
+  "runnerSha256": "8818550572f2f6442149deba70158eb6ce417e8ec6918f63f0fc01292d6a7ad0",
+  "sourceHashes": {
+    "hex-strategies.js": "475536a736d1d7ef74dc4ffb41fa6af04349b68f61881fc76bc0471d2c8df624",
+    "autohex-planner.js": "3d49ff6eda09bc88a33cc82839c3f892dea0a184b9a00fd91d8af401c154555a",
+    "hex-core.js": "3fc410b72e07b62464ad6272a8dd1e0af8e0300d3fa757e66c8d4147a53322c9",
+    "config/hex-strategies.json": "10ce104fb719dec09a7cfcff2765a33766c0313b977974903d5e635cb5f0d26a"
+  },
+  "configurationId": "hex-strategies-v1-75843bf5",
+  "games": [
+    {
+      "seed": 73013,
+      "rotation": 0,
+      "first": 1,
+      "index": 0,
+      "mode": "auto",
+      "playerCount": 6,
+      "complete": true,
+      "actionTraceSha256": "34ede68ebbc41c109f32d17358a111afa6eaa05773190c3226ac9e8b3f157662",
+      "finalBoardSha256": "f2c8129c95e952dd0c8a3aaea7b1e46af6c27252e9ec0a45842db8d58bcc8a2c",
+      "ply": 2000,
+      "modelMs": 600000,
+      "firstGoalAction": 1206,
+      "result": {
+        "winners": [
+          5
+        ],
+        "standings": [
+          {
+            "player": 5,
+            "score": 224,
+            "name": "Jade",
+            "rank": 1
+          },
+          {
+            "player": 2,
+            "score": 193,
+            "name": "Ember",
+            "rank": 2
+          },
+          {
+            "player": 6,
+            "score": 173,
+            "name": "Rose",
+            "rank": 3
+          },
+          {
+            "player": 1,
+            "score": 159,
+            "name": "Azure",
+            "rank": 4
+          },
+          {
+            "player": 4,
+            "score": 157,
+            "name": "Gold",
+            "rank": 5
+          },
+          {
+            "player": 3,
+            "score": 123,
+            "name": "Violet",
+            "rank": 6
+          }
+        ],
+        "draw": false,
+        "reason": "timeout",
+        "activeMs": 600000
+      },
+      "telemetry": {
+        "actions": 2000,
+        "meaningful": 1998,
+        "captures": 597,
+        "destroyed": 288,
+        "supplyRetreats": 461,
+        "engineered": 46,
+        "cardsUsed": 157,
+        "reshuffles": 3,
+        "goalArrivals": 14,
+        "goalHoldingRounds": 24,
+        "offers": 90,
+        "alliances": 13,
+        "betrayals": 3,
+        "withdrawals": 0,
+        "tunnelsBuilt": 59,
+        "tunnelsCollapsed": 55,
+        "tunnelSabotages": 28,
+        "hillRetreats": 0,
+        "cardsExpired": 0,
+        "turretShots": 222,
+        "shieldBlocks": 0,
+        "airportUnlocks": 31,
+        "airportLosses": 26,
+        "airdrops": 4,
+        "bombardments": 15,
+        "depotControls": 73,
+        "suppliesEarned": 108,
+        "suppliesSpent": 72,
+        "fortifications": 489,
+        "neutralWarnings": 27,
+        "neutralStrikes": 27,
+        "neutralRemoved": 42,
+        "neutralBlocks": 9,
+        "byType": {
+          "deploy": 1583,
+          "engineer": 74,
+          "shield": 17,
+          "destroy": 51,
+          "offer": 90,
+          "tunnel": 59,
+          "bridge": 35,
+          "turret": 32,
+          "bombard": 15,
+          "accept": 13,
+          "betray": 3,
+          "airdrop": 4,
+          "exchange": 21,
+          "reroute": 1,
+          "rest": 2
+        },
+        "byMinute": [
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 17,
+            "cardsUsed": 7
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 62,
+            "cardsUsed": 12
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 57,
+            "cardsUsed": 11
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 66,
+            "cardsUsed": 22
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 75,
+            "cardsUsed": 14
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 77,
+            "cardsUsed": 14
+          },
+          {
+            "actions": 200,
+            "meaningful": 199,
+            "captures": 48,
+            "cardsUsed": 26
+          },
+          {
+            "actions": 200,
+            "meaningful": 199,
+            "captures": 58,
+            "cardsUsed": 18
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 63,
+            "cardsUsed": 16
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 74,
+            "cardsUsed": 17
+          }
+        ],
+        "perPlayer": [
+          {
+            "actions": 0,
+            "captures": 0,
+            "cardsUsed": 0,
+            "goals": 0
+          },
+          {
+            "actions": 334,
+            "captures": 106,
+            "cardsUsed": 29,
+            "goals": 1
+          },
+          {
+            "actions": 334,
+            "captures": 76,
+            "cardsUsed": 17,
+            "goals": 5
+          },
+          {
+            "actions": 333,
+            "captures": 98,
+            "cardsUsed": 25,
+            "goals": 0
+          },
+          {
+            "actions": 333,
+            "captures": 107,
+            "cardsUsed": 33,
+            "goals": 0
+          },
+          {
+            "actions": 333,
+            "captures": 115,
+            "cardsUsed": 25,
+            "goals": 5
+          },
+          {
+            "actions": 333,
+            "captures": 95,
+            "cardsUsed": 28,
+            "goals": 3
+          }
+        ]
+      },
+      "quarters": [
+        {
+          "actions": 500,
+          "changedCells": 554,
+          "combat": 144,
+          "air": 1,
+          "goals": 0,
+          "tunnels": 18,
+          "sabotages": 6
+        },
+        {
+          "actions": 500,
+          "changedCells": 620,
+          "combat": 219,
+          "air": 1,
+          "goals": 0,
+          "tunnels": 13,
+          "sabotages": 7
+        },
+        {
+          "actions": 500,
+          "changedCells": 605,
+          "combat": 261,
+          "air": 5,
+          "goals": 6,
+          "tunnels": 13,
+          "sabotages": 10
+        },
+        {
+          "actions": 500,
+          "changedCells": 635,
+          "combat": 261,
+          "air": 12,
+          "goals": 8,
+          "tunnels": 15,
+          "sabotages": 5
+        }
+      ],
+      "lastQuarter": {
+        "actions": 500,
+        "changedCells": 635,
+        "combat": 261,
+        "air": 12,
+        "goals": 8,
+        "tunnels": 15,
+        "sabotages": 5
+      },
+      "combatRegions": {
+        "center": 388,
+        "middle": 395,
+        "outer": 102
+      },
+      "regionCellCounts": {
+        "center": 127,
+        "middle": 342,
+        "outer": 558
+      },
+      "players": [
+        {
+          "player": 1,
+          "slot": 5,
+          "strategy": "vanguard",
+          "policy": "planner",
+          "actions": 334,
+          "types": {
+            "deploy": 275,
+            "engineer": 18,
+            "tunnel": 9,
+            "destroy": 10,
+            "bridge": 6,
+            "exchange": 4,
+            "shield": 6,
+            "rest": 1,
+            "airdrop": 1,
+            "turret": 3,
+            "bombard": 1
+          },
+          "intents": {
+            "direct": 224,
+            "flank": 50,
+            "recover": 8,
+            "airport": 16,
+            "defend": 36
+          },
+          "reused": 181,
+          "completed": 25,
+          "multiActionCompleted": 4,
+          "intentOutcomes": {
+            "direct": {
+              "episodes": 80,
+              "actions": 224,
+              "completed": 7,
+              "multiActionCompleted": 3
+            },
+            "flank": {
+              "episodes": 24,
+              "actions": 50,
+              "completed": 0,
+              "multiActionCompleted": 0
+            },
+            "recover": {
+              "episodes": 7,
+              "actions": 8,
+              "completed": 5,
+              "multiActionCompleted": 0
+            },
+            "airport": {
+              "episodes": 16,
+              "actions": 16,
+              "completed": 2,
+              "multiActionCompleted": 0
+            },
+            "defend": {
+              "episodes": 26,
+              "actions": 36,
+              "completed": 11,
+              "multiActionCompleted": 1
+            }
+          },
+          "intentChanges": 152,
+          "airportSpentMax": 16,
+          "budgetViolations": 0,
+          "air": 2,
+          "suppliedDrops": 1,
+          "goalGapImprovement": 1319,
+          "goalGapRegression": 45,
+          "airSupplyLoss": 39,
+          "airGoalBreaks": 1,
+          "turretHitsFromDrops": 0,
+          "repeatTunnelBuilds": 3,
+          "goals": 1,
+          "score": 159,
+          "finalSuppliedGoalGap": 5,
+          "winner": false
+        },
+        {
+          "player": 2,
+          "slot": 0,
+          "strategy": "airhead",
+          "policy": "planner",
+          "actions": 334,
+          "types": {
+            "deploy": 257,
+            "engineer": 16,
+            "offer": 28,
+            "destroy": 5,
+            "bombard": 6,
+            "shield": 1,
+            "tunnel": 4,
+            "betray": 2,
+            "airdrop": 2,
+            "accept": 1,
+            "turret": 8,
+            "bridge": 3,
+            "rest": 1
+          },
+          "intents": {
+            "direct": 200,
+            "airport": 112,
+            "flank": 6,
+            "defend": 14,
+            "recover": 2
+          },
+          "reused": 158,
+          "completed": 24,
+          "multiActionCompleted": 3,
+          "intentOutcomes": {
+            "direct": {
+              "episodes": 79,
+              "actions": 200,
+              "completed": 17,
+              "multiActionCompleted": 3
+            },
+            "airport": {
+              "episodes": 79,
+              "actions": 112,
+              "completed": 0,
+              "multiActionCompleted": 0
+            },
+            "flank": {
+              "episodes": 4,
+              "actions": 6,
+              "completed": 2,
+              "multiActionCompleted": 0
+            },
+            "defend": {
+              "episodes": 12,
+              "actions": 14,
+              "completed": 5,
+              "multiActionCompleted": 0
+            },
+            "recover": {
+              "episodes": 2,
+              "actions": 2,
+              "completed": 0,
+              "multiActionCompleted": 0
+            }
+          },
+          "intentChanges": 175,
+          "airportSpentMax": 18,
+          "budgetViolations": 0,
+          "air": 8,
+          "suppliedDrops": 2,
+          "goalGapImprovement": 1616,
+          "goalGapRegression": 4,
+          "airSupplyLoss": 107,
+          "airGoalBreaks": 4,
+          "turretHitsFromDrops": 14,
+          "repeatTunnelBuilds": 0,
+          "goals": 5,
+          "score": 193,
+          "finalSuppliedGoalGap": 14,
+          "winner": false
+        },
+        {
+          "player": 3,
+          "slot": 1,
+          "strategy": "flanker",
+          "policy": "planner",
+          "actions": 333,
+          "types": {
+            "deploy": 276,
+            "shield": 1,
+            "engineer": 10,
+            "destroy": 14,
+            "tunnel": 22,
+            "turret": 4,
+            "exchange": 4,
+            "bridge": 2
+          },
+          "intents": {
+            "flank": 178,
+            "direct": 118,
+            "interdict": 2,
+            "recover": 2,
+            "defend": 33
+          },
+          "reused": 174,
+          "completed": 10,
+          "multiActionCompleted": 2,
+          "intentOutcomes": {
+            "flank": {
+              "episodes": 67,
+              "actions": 178,
+              "completed": 0,
+              "multiActionCompleted": 0
+            },
+            "direct": {
+              "episodes": 62,
+              "actions": 118,
+              "completed": 0,
+              "multiActionCompleted": 0
+            },
+            "interdict": {
+              "episodes": 2,
+              "actions": 2,
+              "completed": 1,
+              "multiActionCompleted": 0
+            },
+            "recover": {
+              "episodes": 1,
+              "actions": 2,
+              "completed": 0,
+              "multiActionCompleted": 0
+            },
+            "defend": {
+              "episodes": 27,
+              "actions": 33,
+              "completed": 9,
+              "multiActionCompleted": 2
+            }
+          },
+          "intentChanges": 158,
+          "airportSpentMax": 0,
+          "budgetViolations": 0,
+          "air": 0,
+          "suppliedDrops": 0,
+          "goalGapImprovement": 600,
+          "goalGapRegression": 31,
+          "airSupplyLoss": 0,
+          "airGoalBreaks": 0,
+          "turretHitsFromDrops": 0,
+          "repeatTunnelBuilds": 8,
+          "goals": 0,
+          "score": 123,
+          "finalSuppliedGoalGap": 15,
+          "winner": false
+        },
+        {
+          "player": 4,
+          "slot": 2,
+          "strategy": "interdict",
+          "policy": "planner",
+          "actions": 333,
+          "types": {
+            "deploy": 281,
+            "engineer": 14,
+            "bridge": 12,
+            "destroy": 7,
+            "turret": 5,
+            "shield": 3,
+            "exchange": 6,
+            "airdrop": 1,
+            "bombard": 4
+          },
+          "intents": {
+            "direct": 252,
+            "flank": 31,
+            "defend": 9,
+            "interdict": 18,
+            "airport": 21,
+            "recover": 2
+          },
+          "reused": 192,
+          "completed": 10,
+          "multiActionCompleted": 1,
+          "intentOutcomes": {
+            "direct": {
+              "episodes": 83,
+              "actions": 252,
+              "completed": 3,
+              "multiActionCompleted": 1
+            },
+            "flank": {
+              "episodes": 14,
+              "actions": 31,
+              "completed": 0,
+              "multiActionCompleted": 0
+            },
+            "defend": {
+              "episodes": 8,
+              "actions": 9,
+              "completed": 4,
+              "multiActionCompleted": 0
+            },
+            "interdict": {
+              "episodes": 15,
+              "actions": 18,
+              "completed": 1,
+              "multiActionCompleted": 0
+            },
+            "airport": {
+              "episodes": 20,
+              "actions": 21,
+              "completed": 2,
+              "multiActionCompleted": 0
+            },
+            "recover": {
+              "episodes": 1,
+              "actions": 2,
+              "completed": 0,
+              "multiActionCompleted": 0
+            }
+          },
+          "intentChanges": 140,
+          "airportSpentMax": 18,
+          "budgetViolations": 0,
+          "air": 5,
+          "suppliedDrops": 1,
+          "goalGapImprovement": 922,
+          "goalGapRegression": 35,
+          "airSupplyLoss": 102,
+          "airGoalBreaks": 4,
+          "turretHitsFromDrops": 0,
+          "repeatTunnelBuilds": 0,
+          "goals": 0,
+          "score": 157,
+          "finalSuppliedGoalGap": 9,
+          "winner": false
+        },
+        {
+          "player": 5,
+          "slot": 3,
+          "strategy": "recover",
+          "policy": "planner",
+          "actions": 333,
+          "types": {
+            "deploy": 255,
+            "engineer": 7,
+            "tunnel": 10,
+            "offer": 31,
+            "destroy": 5,
+            "turret": 5,
+            "shield": 3,
+            "bridge": 6,
+            "exchange": 5,
+            "reroute": 1,
+            "accept": 3,
+            "betray": 1,
+            "bombard": 1
+          },
+          "intents": {
+            "direct": 248,
+            "flank": 37,
+            "interdict": 4,
+            "defend": 17,
+            "recover": 5,
+            "airport": 22
+          },
+          "reused": 190,
+          "completed": 33,
+          "multiActionCompleted": 6,
+          "intentOutcomes": {
+            "direct": {
+              "episodes": 82,
+              "actions": 248,
+              "completed": 16,
+              "multiActionCompleted": 4
+            },
+            "flank": {
+              "episodes": 19,
+              "actions": 37,
+              "completed": 3,
+              "multiActionCompleted": 1
+            },
+            "interdict": {
+              "episodes": 2,
+              "actions": 4,
+              "completed": 1,
+              "multiActionCompleted": 1
+            },
+            "defend": {
+              "episodes": 15,
+              "actions": 17,
+              "completed": 8,
+              "multiActionCompleted": 0
+            },
+            "recover": {
+              "episodes": 5,
+              "actions": 5,
+              "completed": 1,
+              "multiActionCompleted": 0
+            },
+            "airport": {
+              "episodes": 20,
+              "actions": 22,
+              "completed": 4,
+              "multiActionCompleted": 0
+            }
+          },
+          "intentChanges": 142,
+          "airportSpentMax": 18,
+          "budgetViolations": 0,
+          "air": 1,
+          "suppliedDrops": 0,
+          "goalGapImprovement": 1275,
+          "goalGapRegression": 39,
+          "airSupplyLoss": 32,
+          "airGoalBreaks": 0,
+          "turretHitsFromDrops": 0,
+          "repeatTunnelBuilds": 2,
+          "goals": 5,
+          "score": 224,
+          "finalSuppliedGoalGap": 10,
+          "winner": true
+        },
+        {
+          "player": 6,
+          "slot": 4,
+          "strategy": "envoy",
+          "policy": "planner",
+          "actions": 333,
+          "types": {
+            "deploy": 239,
+            "engineer": 9,
+            "destroy": 10,
+            "offer": 31,
+            "tunnel": 14,
+            "bridge": 6,
+            "turret": 7,
+            "accept": 9,
+            "exchange": 2,
+            "shield": 3,
+            "bombard": 3
+          },
+          "intents": {
+            "direct": 238,
+            "flank": 36,
+            "recover": 3,
+            "defend": 34,
+            "interdict": 5,
+            "airport": 17
+          },
+          "reused": 193,
+          "completed": 33,
+          "multiActionCompleted": 6,
+          "intentOutcomes": {
+            "direct": {
+              "episodes": 78,
+              "actions": 238,
+              "completed": 5,
+              "multiActionCompleted": 2
+            },
+            "flank": {
+              "episodes": 19,
+              "actions": 36,
+              "completed": 2,
+              "multiActionCompleted": 2
+            },
+            "recover": {
+              "episodes": 2,
+              "actions": 3,
+              "completed": 0,
+              "multiActionCompleted": 0
+            },
+            "defend": {
+              "episodes": 24,
+              "actions": 34,
+              "completed": 19,
+              "multiActionCompleted": 1
+            },
+            "interdict": {
+              "episodes": 5,
+              "actions": 5,
+              "completed": 4,
+              "multiActionCompleted": 0
+            },
+            "airport": {
+              "episodes": 12,
+              "actions": 17,
+              "completed": 3,
+              "multiActionCompleted": 1
+            }
+          },
+          "intentChanges": 139,
+          "airportSpentMax": 17,
+          "budgetViolations": 0,
+          "air": 3,
+          "suppliedDrops": 0,
+          "goalGapImprovement": 554,
+          "goalGapRegression": 22,
+          "airSupplyLoss": 72,
+          "airGoalBreaks": 2,
+          "turretHitsFromDrops": 0,
+          "repeatTunnelBuilds": 1,
+          "goals": 3,
+          "score": 173,
+          "finalSuppliedGoalGap": 13,
+          "winner": false
+        }
+      ],
+      "decisionMs": {
+        "n": 2000,
+        "mean": 36.79859470800005,
+        "p95": 66.97162299999763,
+        "max": 181.58020600000054
+      },
+      "wallSeconds": 78.02807193800001
+    },
+    {
+      "seed": 74101,
+      "rotation": 1,
+      "first": 3,
+      "index": 3,
+      "mode": "auto",
+      "playerCount": 6,
+      "complete": true,
+      "actionTraceSha256": "8eccaff3900812e130fff509eb889cd0297d16727388163991d2c577580bcc5d",
+      "finalBoardSha256": "78c2a5111b05463707278c1f1567cffc404f00cc64e2b62ad36472cb7e655046",
+      "ply": 2000,
+      "modelMs": 600000,
+      "firstGoalAction": 618,
+      "result": {
+        "winners": [
+          1
+        ],
+        "standings": [
+          {
+            "player": 1,
+            "score": 246,
+            "name": "Azure",
+            "rank": 1
+          },
+          {
+            "player": 3,
+            "score": 195,
+            "name": "Violet",
+            "rank": 2
+          },
+          {
+            "player": 2,
+            "score": 185,
+            "name": "Ember",
+            "rank": 3
+          },
+          {
+            "player": 6,
+            "score": 172,
+            "name": "Rose",
+            "rank": 4
+          },
+          {
+            "player": 4,
+            "score": 155,
+            "name": "Gold",
+            "rank": 5
+          },
+          {
+            "player": 5,
+            "score": 122,
+            "name": "Jade",
+            "rank": 6
+          }
+        ],
+        "draw": false,
+        "reason": "timeout",
+        "activeMs": 600000
+      },
+      "telemetry": {
+        "actions": 2000,
+        "meaningful": 2000,
+        "captures": 526,
+        "destroyed": 331,
+        "supplyRetreats": 405,
+        "engineered": 35,
+        "cardsUsed": 211,
+        "reshuffles": 4,
+        "goalArrivals": 17,
+        "goalHoldingRounds": 48,
+        "offers": 97,
+        "alliances": 11,
+        "betrayals": 1,
+        "withdrawals": 0,
+        "tunnelsBuilt": 51,
+        "tunnelsCollapsed": 47,
+        "tunnelSabotages": 32,
+        "hillRetreats": 0,
+        "cardsExpired": 0,
+        "turretShots": 259,
+        "shieldBlocks": 0,
+        "airportUnlocks": 14,
+        "airportLosses": 12,
+        "airdrops": 14,
+        "bombardments": 12,
+        "depotControls": 33,
+        "suppliesEarned": 119,
+        "suppliesSpent": 90,
+        "fortifications": 519,
+        "neutralWarnings": 27,
+        "neutralStrikes": 27,
+        "neutralRemoved": 43,
+        "neutralBlocks": 6,
+        "byType": {
+          "deploy": 1536,
+          "destroy": 60,
+          "tunnel": 51,
+          "turret": 50,
+          "engineer": 67,
+          "offer": 97,
+          "shield": 19,
+          "accept": 11,
+          "bridge": 67,
+          "exchange": 14,
+          "airdrop": 14,
+          "reroute": 1,
+          "bombard": 12,
+          "betray": 1
+        },
+        "byMinute": [
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 32,
+            "cardsUsed": 8
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 56,
+            "cardsUsed": 13
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 69,
+            "cardsUsed": 23
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 50,
+            "cardsUsed": 21
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 46,
+            "cardsUsed": 24
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 45,
+            "cardsUsed": 19
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 76,
+            "cardsUsed": 23
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 52,
+            "cardsUsed": 30
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 46,
+            "cardsUsed": 27
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 54,
+            "cardsUsed": 23
+          }
+        ],
+        "perPlayer": [
+          {
+            "actions": 0,
+            "captures": 0,
+            "cardsUsed": 0,
+            "goals": 0
+          },
+          {
+            "actions": 333,
+            "captures": 57,
+            "cardsUsed": 35,
+            "goals": 6
+          },
+          {
+            "actions": 333,
+            "captures": 84,
+            "cardsUsed": 32,
+            "goals": 4
+          },
+          {
+            "actions": 334,
+            "captures": 108,
+            "cardsUsed": 43,
+            "goals": 4
+          },
+          {
+            "actions": 334,
+            "captures": 106,
+            "cardsUsed": 24,
+            "goals": 0
+          },
+          {
+            "actions": 333,
+            "captures": 94,
+            "cardsUsed": 24,
+            "goals": 0
+          },
+          {
+            "actions": 333,
+            "captures": 77,
+            "cardsUsed": 53,
+            "goals": 3
+          }
+        ]
+      },
+      "quarters": [
+        {
+          "actions": 500,
+          "changedCells": 523,
+          "combat": 158,
+          "air": 1,
+          "goals": 0,
+          "tunnels": 14,
+          "sabotages": 6
+        },
+        {
+          "actions": 500,
+          "changedCells": 606,
+          "combat": 245,
+          "air": 6,
+          "goals": 6,
+          "tunnels": 10,
+          "sabotages": 10
+        },
+        {
+          "actions": 500,
+          "changedCells": 641,
+          "combat": 224,
+          "air": 6,
+          "goals": 3,
+          "tunnels": 16,
+          "sabotages": 9
+        },
+        {
+          "actions": 500,
+          "changedCells": 575,
+          "combat": 230,
+          "air": 13,
+          "goals": 8,
+          "tunnels": 11,
+          "sabotages": 7
+        }
+      ],
+      "lastQuarter": {
+        "actions": 500,
+        "changedCells": 575,
+        "combat": 230,
+        "air": 13,
+        "goals": 8,
+        "tunnels": 11,
+        "sabotages": 7
+      },
+      "combatRegions": {
+        "center": 582,
+        "middle": 223,
+        "outer": 52
+      },
+      "regionCellCounts": {
+        "center": 127,
+        "middle": 342,
+        "outer": 558
+      },
+      "players": [
+        {
+          "player": 1,
+          "slot": 0,
+          "strategy": "airhead",
+          "policy": "planner",
+          "actions": 333,
+          "types": {
+            "deploy": 226,
+            "offer": 32,
+            "destroy": 15,
+            "tunnel": 7,
+            "turret": 4,
+            "engineer": 13,
+            "bridge": 11,
+            "airdrop": 11,
+            "accept": 6,
+            "shield": 3,
+            "bombard": 3,
+            "exchange": 2
+          },
+          "intents": {
+            "airport": 99,
+            "direct": 148,
+            "flank": 36,
+            "defend": 50
+          },
+          "reused": 142,
+          "completed": 47,
+          "multiActionCompleted": 7,
+          "intentOutcomes": {
+            "airport": {
+              "episodes": 75,
+              "actions": 99,
+              "completed": 4,
+              "multiActionCompleted": 1
+            },
+            "direct": {
+              "episodes": 65,
+              "actions": 148,
+              "completed": 18,
+              "multiActionCompleted": 4
+            },
+            "flank": {
+              "episodes": 14,
+              "actions": 36,
+              "completed": 1,
+              "multiActionCompleted": 1
+            },
+            "defend": {
+              "episodes": 37,
+              "actions": 50,
+              "completed": 24,
+              "multiActionCompleted": 1
+            }
+          },
+          "intentChanges": 190,
+          "airportSpentMax": 18,
+          "budgetViolations": 0,
+          "air": 14,
+          "suppliedDrops": 11,
+          "goalGapImprovement": 1253,
+          "goalGapRegression": 0,
+          "airSupplyLoss": 66,
+          "airGoalBreaks": 1,
+          "turretHitsFromDrops": 27,
+          "repeatTunnelBuilds": 0,
+          "goals": 6,
+          "score": 246,
+          "finalSuppliedGoalGap": 22,
+          "winner": true
+        },
+        {
+          "player": 2,
+          "slot": 1,
+          "strategy": "flanker",
+          "policy": "planner",
+          "actions": 333,
+          "types": {
+            "deploy": 279,
+            "turret": 8,
+            "tunnel": 11,
+            "bridge": 11,
+            "engineer": 11,
+            "shield": 3,
+            "destroy": 7,
+            "exchange": 3
+          },
+          "intents": {
+            "flank": 139,
+            "direct": 158,
+            "defend": 33,
+            "interdict": 3
+          },
+          "reused": 184,
+          "completed": 20,
+          "multiActionCompleted": 4,
+          "intentOutcomes": {
+            "flank": {
+              "episodes": 56,
+              "actions": 139,
+              "completed": 3,
+              "multiActionCompleted": 1
+            },
+            "direct": {
+              "episodes": 61,
+              "actions": 158,
+              "completed": 6,
+              "multiActionCompleted": 2
+            },
+            "defend": {
+              "episodes": 29,
+              "actions": 33,
+              "completed": 11,
+              "multiActionCompleted": 1
+            },
+            "interdict": {
+              "episodes": 3,
+              "actions": 3,
+              "completed": 0,
+              "multiActionCompleted": 0
+            }
+          },
+          "intentChanges": 148,
+          "airportSpentMax": 0,
+          "budgetViolations": 0,
+          "air": 0,
+          "suppliedDrops": 0,
+          "goalGapImprovement": 1054,
+          "goalGapRegression": 13,
+          "airSupplyLoss": 0,
+          "airGoalBreaks": 0,
+          "turretHitsFromDrops": 0,
+          "repeatTunnelBuilds": 2,
+          "goals": 4,
+          "score": 185,
+          "finalSuppliedGoalGap": 24,
+          "winner": false
+        },
+        {
+          "player": 3,
+          "slot": 2,
+          "strategy": "interdict",
+          "policy": "planner",
+          "actions": 334,
+          "types": {
+            "deploy": 276,
+            "destroy": 11,
+            "shield": 5,
+            "engineer": 15,
+            "turret": 14,
+            "bridge": 11,
+            "reroute": 1,
+            "exchange": 1
+          },
+          "intents": {
+            "direct": 224,
+            "flank": 24,
+            "interdict": 32,
+            "defend": 34,
+            "airport": 20
+          },
+          "reused": 167,
+          "completed": 47,
+          "multiActionCompleted": 8,
+          "intentOutcomes": {
+            "direct": {
+              "episodes": 84,
+              "actions": 224,
+              "completed": 22,
+              "multiActionCompleted": 6
+            },
+            "flank": {
+              "episodes": 18,
+              "actions": 24,
+              "completed": 3,
+              "multiActionCompleted": 0
+            },
+            "interdict": {
+              "episodes": 25,
+              "actions": 32,
+              "completed": 8,
+              "multiActionCompleted": 1
+            },
+            "defend": {
+              "episodes": 20,
+              "actions": 34,
+              "completed": 11,
+              "multiActionCompleted": 1
+            },
+            "airport": {
+              "episodes": 20,
+              "actions": 20,
+              "completed": 3,
+              "multiActionCompleted": 0
+            }
+          },
+          "intentChanges": 166,
+          "airportSpentMax": 18,
+          "budgetViolations": 0,
+          "air": 0,
+          "suppliedDrops": 0,
+          "goalGapImprovement": 1009,
+          "goalGapRegression": 0,
+          "airSupplyLoss": 0,
+          "airGoalBreaks": 0,
+          "turretHitsFromDrops": 0,
+          "repeatTunnelBuilds": 0,
+          "goals": 4,
+          "score": 195,
+          "finalSuppliedGoalGap": 0,
+          "winner": false
+        },
+        {
+          "player": 4,
+          "slot": 3,
+          "strategy": "recover",
+          "policy": "planner",
+          "actions": 334,
+          "types": {
+            "deploy": 252,
+            "destroy": 7,
+            "offer": 31,
+            "tunnel": 14,
+            "engineer": 9,
+            "turret": 7,
+            "accept": 1,
+            "bridge": 7,
+            "betray": 1,
+            "shield": 1,
+            "exchange": 2,
+            "bombard": 2
+          },
+          "intents": {
+            "direct": 227,
+            "flank": 30,
+            "recover": 16,
+            "interdict": 1,
+            "defend": 24,
+            "airport": 36
+          },
+          "reused": 171,
+          "completed": 22,
+          "multiActionCompleted": 4,
+          "intentOutcomes": {
+            "direct": {
+              "episodes": 80,
+              "actions": 227,
+              "completed": 3,
+              "multiActionCompleted": 3
+            },
+            "flank": {
+              "episodes": 14,
+              "actions": 30,
+              "completed": 2,
+              "multiActionCompleted": 1
+            },
+            "recover": {
+              "episodes": 15,
+              "actions": 16,
+              "completed": 5,
+              "multiActionCompleted": 0
+            },
+            "interdict": {
+              "episodes": 1,
+              "actions": 1,
+              "completed": 0,
+              "multiActionCompleted": 0
+            },
+            "defend": {
+              "episodes": 21,
+              "actions": 24,
+              "completed": 12,
+              "multiActionCompleted": 0
+            },
+            "airport": {
+              "episodes": 32,
+              "actions": 36,
+              "completed": 0,
+              "multiActionCompleted": 0
+            }
+          },
+          "intentChanges": 162,
+          "airportSpentMax": 18,
+          "budgetViolations": 0,
+          "air": 2,
+          "suppliedDrops": 0,
+          "goalGapImprovement": 960,
+          "goalGapRegression": 0,
+          "airSupplyLoss": 6,
+          "airGoalBreaks": 0,
+          "turretHitsFromDrops": 0,
+          "repeatTunnelBuilds": 2,
+          "goals": 0,
+          "score": 155,
+          "finalSuppliedGoalGap": 13,
+          "winner": false
+        },
+        {
+          "player": 5,
+          "slot": 4,
+          "strategy": "envoy",
+          "policy": "planner",
+          "actions": 333,
+          "types": {
+            "deploy": 242,
+            "destroy": 7,
+            "offer": 34,
+            "tunnel": 7,
+            "accept": 4,
+            "bridge": 9,
+            "engineer": 12,
+            "turret": 2,
+            "exchange": 5,
+            "bombard": 7,
+            "shield": 1,
+            "airdrop": 3
+          },
+          "intents": {
+            "flank": 92,
+            "direct": 174,
+            "recover": 4,
+            "defend": 18,
+            "interdict": 2,
+            "airport": 43
+          },
+          "reused": 171,
+          "completed": 19,
+          "multiActionCompleted": 2,
+          "intentOutcomes": {
+            "flank": {
+              "episodes": 38,
+              "actions": 92,
+              "completed": 0,
+              "multiActionCompleted": 0
+            },
+            "direct": {
+              "episodes": 71,
+              "actions": 174,
+              "completed": 2,
+              "multiActionCompleted": 2
+            },
+            "recover": {
+              "episodes": 3,
+              "actions": 4,
+              "completed": 2,
+              "multiActionCompleted": 0
+            },
+            "defend": {
+              "episodes": 17,
+              "actions": 18,
+              "completed": 8,
+              "multiActionCompleted": 0
+            },
+            "interdict": {
+              "episodes": 2,
+              "actions": 2,
+              "completed": 0,
+              "multiActionCompleted": 0
+            },
+            "airport": {
+              "episodes": 31,
+              "actions": 43,
+              "completed": 7,
+              "multiActionCompleted": 0
+            }
+          },
+          "intentChanges": 161,
+          "airportSpentMax": 18,
+          "budgetViolations": 0,
+          "air": 10,
+          "suppliedDrops": 2,
+          "goalGapImprovement": 750,
+          "goalGapRegression": 88,
+          "airSupplyLoss": 140,
+          "airGoalBreaks": 1,
+          "turretHitsFromDrops": 0,
+          "repeatTunnelBuilds": 1,
+          "goals": 0,
+          "score": 122,
+          "finalSuppliedGoalGap": 7,
+          "winner": false
+        },
+        {
+          "player": 6,
+          "slot": 5,
+          "strategy": "vanguard",
+          "policy": "planner",
+          "actions": 333,
+          "types": {
+            "deploy": 261,
+            "tunnel": 12,
+            "destroy": 13,
+            "engineer": 7,
+            "shield": 6,
+            "bridge": 18,
+            "turret": 15,
+            "exchange": 1
+          },
+          "intents": {
+            "flank": 54,
+            "direct": 227,
+            "defend": 29,
+            "recover": 1,
+            "airport": 21,
+            "interdict": 1
+          },
+          "reused": 188,
+          "completed": 29,
+          "multiActionCompleted": 9,
+          "intentOutcomes": {
+            "flank": {
+              "episodes": 25,
+              "actions": 54,
+              "completed": 4,
+              "multiActionCompleted": 1
+            },
+            "direct": {
+              "episodes": 74,
+              "actions": 227,
+              "completed": 11,
+              "multiActionCompleted": 7
+            },
+            "defend": {
+              "episodes": 25,
+              "actions": 29,
+              "completed": 11,
+              "multiActionCompleted": 1
+            },
+            "recover": {
+              "episodes": 1,
+              "actions": 1,
+              "completed": 1,
+              "multiActionCompleted": 0
+            },
+            "airport": {
+              "episodes": 19,
+              "actions": 21,
+              "completed": 2,
+              "multiActionCompleted": 0
+            },
+            "interdict": {
+              "episodes": 1,
+              "actions": 1,
+              "completed": 0,
+              "multiActionCompleted": 0
+            }
+          },
+          "intentChanges": 144,
+          "airportSpentMax": 18,
+          "budgetViolations": 0,
+          "air": 0,
+          "suppliedDrops": 0,
+          "goalGapImprovement": 1484,
+          "goalGapRegression": 365,
+          "airSupplyLoss": 0,
+          "airGoalBreaks": 0,
+          "turretHitsFromDrops": 0,
+          "repeatTunnelBuilds": 3,
+          "goals": 3,
+          "score": 172,
+          "finalSuppliedGoalGap": 14,
+          "winner": false
+        }
+      ],
+      "decisionMs": {
+        "n": 2000,
+        "mean": 43.43846496100014,
+        "p95": 88.62939299999562,
+        "max": 205.8090089999896
+      },
+      "wallSeconds": 91.47309816
+    },
+    {
+      "seed": 76303,
+      "rotation": 3,
+      "first": 4,
+      "index": 6,
+      "mode": "auto",
+      "playerCount": 6,
+      "complete": true,
+      "actionTraceSha256": "ec88b8dcd7849fea5849feb12c352fc91e4799583d0ec0263286863459e0fb01",
+      "finalBoardSha256": "e29f6f58de1c57c92c9e264c191ebe7562751b1929fb32d8628aef8be3cfd370",
+      "ply": 2000,
+      "modelMs": 600000,
+      "firstGoalAction": 594,
+      "result": {
+        "winners": [
+          1
+        ],
+        "standings": [
+          {
+            "player": 1,
+            "score": 209,
+            "name": "Azure",
+            "rank": 1
+          },
+          {
+            "player": 5,
+            "score": 189,
+            "name": "Jade",
+            "rank": 2
+          },
+          {
+            "player": 2,
+            "score": 171,
+            "name": "Ember",
+            "rank": 3
+          },
+          {
+            "player": 3,
+            "score": 149,
+            "name": "Violet",
+            "rank": 4
+          },
+          {
+            "player": 6,
+            "score": 143,
+            "name": "Rose",
+            "rank": 5
+          },
+          {
+            "player": 4,
+            "score": 119,
+            "name": "Gold",
+            "rank": 6
+          }
+        ],
+        "draw": false,
+        "reason": "timeout",
+        "activeMs": 600000
+      },
+      "telemetry": {
+        "actions": 2000,
+        "meaningful": 1997,
+        "captures": 610,
+        "destroyed": 240,
+        "supplyRetreats": 427,
+        "engineered": 61,
+        "cardsUsed": 133,
+        "reshuffles": 2,
+        "goalArrivals": 10,
+        "goalHoldingRounds": 23,
+        "offers": 93,
+        "alliances": 20,
+        "betrayals": 0,
+        "withdrawals": 0,
+        "tunnelsBuilt": 72,
+        "tunnelsCollapsed": 72,
+        "tunnelSabotages": 44,
+        "hillRetreats": 0,
+        "cardsExpired": 0,
+        "turretShots": 203,
+        "shieldBlocks": 2,
+        "airportUnlocks": 8,
+        "airportLosses": 4,
+        "airdrops": 2,
+        "bombardments": 12,
+        "depotControls": 13,
+        "suppliesEarned": 88,
+        "suppliesSpent": 54,
+        "fortifications": 532,
+        "neutralWarnings": 27,
+        "neutralStrikes": 27,
+        "neutralRemoved": 47,
+        "neutralBlocks": 6,
+        "byType": {
+          "deploy": 1557,
+          "engineer": 105,
+          "shield": 14,
+          "destroy": 27,
+          "tunnel": 72,
+          "offer": 93,
+          "turret": 37,
+          "accept": 20,
+          "bridge": 42,
+          "exchange": 13,
+          "reject": 3,
+          "bombard": 12,
+          "rest": 3,
+          "airdrop": 2
+        },
+        "byMinute": [
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 13,
+            "cardsUsed": 6
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 45,
+            "cardsUsed": 18
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 85,
+            "cardsUsed": 14
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 78,
+            "cardsUsed": 5
+          },
+          {
+            "actions": 200,
+            "meaningful": 199,
+            "captures": 70,
+            "cardsUsed": 24
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 65,
+            "cardsUsed": 12
+          },
+          {
+            "actions": 200,
+            "meaningful": 199,
+            "captures": 70,
+            "cardsUsed": 17
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 62,
+            "cardsUsed": 12
+          },
+          {
+            "actions": 200,
+            "meaningful": 199,
+            "captures": 64,
+            "cardsUsed": 10
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 58,
+            "cardsUsed": 15
+          }
+        ],
+        "perPlayer": [
+          {
+            "actions": 0,
+            "captures": 0,
+            "cardsUsed": 0,
+            "goals": 0
+          },
+          {
+            "actions": 333,
+            "captures": 108,
+            "cardsUsed": 29,
+            "goals": 2
+          },
+          {
+            "actions": 333,
+            "captures": 96,
+            "cardsUsed": 28,
+            "goals": 1
+          },
+          {
+            "actions": 333,
+            "captures": 109,
+            "cardsUsed": 17,
+            "goals": 0
+          },
+          {
+            "actions": 334,
+            "captures": 101,
+            "cardsUsed": 15,
+            "goals": 0
+          },
+          {
+            "actions": 334,
+            "captures": 99,
+            "cardsUsed": 18,
+            "goals": 5
+          },
+          {
+            "actions": 333,
+            "captures": 97,
+            "cardsUsed": 26,
+            "goals": 2
+          }
+        ]
+      },
+      "quarters": [
+        {
+          "actions": 500,
+          "changedCells": 518,
+          "combat": 166,
+          "air": 0,
+          "goals": 0,
+          "tunnels": 20,
+          "sabotages": 6
+        },
+        {
+          "actions": 500,
+          "changedCells": 542,
+          "combat": 243,
+          "air": 2,
+          "goals": 5,
+          "tunnels": 15,
+          "sabotages": 9
+        },
+        {
+          "actions": 500,
+          "changedCells": 619,
+          "combat": 226,
+          "air": 5,
+          "goals": 2,
+          "tunnels": 18,
+          "sabotages": 13
+        },
+        {
+          "actions": 500,
+          "changedCells": 606,
+          "combat": 215,
+          "air": 7,
+          "goals": 3,
+          "tunnels": 19,
+          "sabotages": 16
+        }
+      ],
+      "lastQuarter": {
+        "actions": 500,
+        "changedCells": 606,
+        "combat": 215,
+        "air": 7,
+        "goals": 3,
+        "tunnels": 19,
+        "sabotages": 16
+      },
+      "combatRegions": {
+        "center": 437,
+        "middle": 341,
+        "outer": 72
+      },
+      "regionCellCounts": {
+        "center": 127,
+        "middle": 342,
+        "outer": 558
+      },
+      "players": [
+        {
+          "player": 1,
+          "slot": 0,
+          "strategy": "interdict",
+          "policy": "planner",
+          "actions": 333,
+          "types": {
+            "deploy": 278,
+            "engineer": 23,
+            "turret": 12,
+            "bridge": 5,
+            "reject": 1,
+            "shield": 3,
+            "exchange": 5,
+            "destroy": 4,
+            "rest": 2
+          },
+          "intents": {
+            "direct": 208,
+            "flank": 54,
+            "interdict": 28,
+            "defend": 16,
+            "airport": 26,
+            "recover": 1
+          },
+          "reused": 170,
+          "completed": 25,
+          "multiActionCompleted": 6,
+          "intentOutcomes": {
+            "direct": {
+              "episodes": 80,
+              "actions": 208,
+              "completed": 13,
+              "multiActionCompleted": 5
+            },
+            "flank": {
+              "episodes": 29,
+              "actions": 54,
+              "completed": 1,
+              "multiActionCompleted": 0
+            },
+            "interdict": {
+              "episodes": 22,
+              "actions": 28,
+              "completed": 3,
+              "multiActionCompleted": 0
+            },
+            "defend": {
+              "episodes": 10,
+              "actions": 16,
+              "completed": 6,
+              "multiActionCompleted": 1
+            },
+            "airport": {
+              "episodes": 21,
+              "actions": 26,
+              "completed": 1,
+              "multiActionCompleted": 0
+            },
+            "recover": {
+              "episodes": 1,
+              "actions": 1,
+              "completed": 1,
+              "multiActionCompleted": 0
+            }
+          },
+          "intentChanges": 162,
+          "airportSpentMax": 18,
+          "budgetViolations": 0,
+          "air": 0,
+          "suppliedDrops": 0,
+          "goalGapImprovement": 1012,
+          "goalGapRegression": 0,
+          "airSupplyLoss": 0,
+          "airGoalBreaks": 0,
+          "turretHitsFromDrops": 0,
+          "repeatTunnelBuilds": 0,
+          "goals": 2,
+          "score": 209,
+          "finalSuppliedGoalGap": 27,
+          "winner": true
+        },
+        {
+          "player": 2,
+          "slot": 1,
+          "strategy": "recover",
+          "policy": "planner",
+          "actions": 333,
+          "types": {
+            "deploy": 233,
+            "engineer": 13,
+            "shield": 5,
+            "destroy": 8,
+            "offer": 32,
+            "tunnel": 12,
+            "turret": 5,
+            "bridge": 9,
+            "exchange": 1,
+            "bombard": 8,
+            "accept": 6,
+            "airdrop": 1
+          },
+          "intents": {
+            "direct": 200,
+            "flank": 48,
+            "interdict": 1,
+            "defend": 16,
+            "recover": 17,
+            "airport": 51
+          },
+          "reused": 169,
+          "completed": 23,
+          "multiActionCompleted": 3,
+          "intentOutcomes": {
+            "direct": {
+              "episodes": 79,
+              "actions": 200,
+              "completed": 2,
+              "multiActionCompleted": 2
+            },
+            "flank": {
+              "episodes": 26,
+              "actions": 48,
+              "completed": 1,
+              "multiActionCompleted": 0
+            },
+            "interdict": {
+              "episodes": 1,
+              "actions": 1,
+              "completed": 0,
+              "multiActionCompleted": 0
+            },
+            "defend": {
+              "episodes": 12,
+              "actions": 16,
+              "completed": 9,
+              "multiActionCompleted": 1
+            },
+            "recover": {
+              "episodes": 11,
+              "actions": 17,
+              "completed": 6,
+              "multiActionCompleted": 0
+            },
+            "airport": {
+              "episodes": 35,
+              "actions": 51,
+              "completed": 5,
+              "multiActionCompleted": 0
+            }
+          },
+          "intentChanges": 163,
+          "airportSpentMax": 18,
+          "budgetViolations": 0,
+          "air": 9,
+          "suppliedDrops": 1,
+          "goalGapImprovement": 966,
+          "goalGapRegression": 4,
+          "airSupplyLoss": 203,
+          "airGoalBreaks": 4,
+          "turretHitsFromDrops": 10,
+          "repeatTunnelBuilds": 2,
+          "goals": 1,
+          "score": 171,
+          "finalSuppliedGoalGap": 7,
+          "winner": false
+        },
+        {
+          "player": 3,
+          "slot": 2,
+          "strategy": "envoy",
+          "policy": "planner",
+          "actions": 333,
+          "types": {
+            "deploy": 248,
+            "engineer": 9,
+            "offer": 31,
+            "tunnel": 14,
+            "accept": 14,
+            "bridge": 5,
+            "turret": 7,
+            "destroy": 3,
+            "exchange": 1,
+            "shield": 1
+          },
+          "intents": {
+            "direct": 232,
+            "flank": 59,
+            "defend": 19,
+            "airport": 20,
+            "interdict": 1,
+            "recover": 2
+          },
+          "reused": 179,
+          "completed": 11,
+          "multiActionCompleted": 0,
+          "intentOutcomes": {
+            "direct": {
+              "episodes": 83,
+              "actions": 232,
+              "completed": 0,
+              "multiActionCompleted": 0
+            },
+            "flank": {
+              "episodes": 33,
+              "actions": 59,
+              "completed": 0,
+              "multiActionCompleted": 0
+            },
+            "defend": {
+              "episodes": 18,
+              "actions": 19,
+              "completed": 9,
+              "multiActionCompleted": 0
+            },
+            "airport": {
+              "episodes": 18,
+              "actions": 20,
+              "completed": 2,
+              "multiActionCompleted": 0
+            },
+            "interdict": {
+              "episodes": 1,
+              "actions": 1,
+              "completed": 0,
+              "multiActionCompleted": 0
+            },
+            "recover": {
+              "episodes": 1,
+              "actions": 2,
+              "completed": 0,
+              "multiActionCompleted": 0
+            }
+          },
+          "intentChanges": 153,
+          "airportSpentMax": 18,
+          "budgetViolations": 0,
+          "air": 0,
+          "suppliedDrops": 0,
+          "goalGapImprovement": 664,
+          "goalGapRegression": 12,
+          "airSupplyLoss": 0,
+          "airGoalBreaks": 0,
+          "turretHitsFromDrops": 0,
+          "repeatTunnelBuilds": 6,
+          "goals": 0,
+          "score": 149,
+          "finalSuppliedGoalGap": 5,
+          "winner": false
+        },
+        {
+          "player": 4,
+          "slot": 3,
+          "strategy": "vanguard",
+          "policy": "planner",
+          "actions": 334,
+          "types": {
+            "deploy": 274,
+            "engineer": 26,
+            "tunnel": 18,
+            "bridge": 8,
+            "destroy": 2,
+            "turret": 4,
+            "shield": 1,
+            "bombard": 1
+          },
+          "intents": {
+            "flank": 57,
+            "direct": 229,
+            "recover": 2,
+            "defend": 22,
+            "airport": 24
+          },
+          "reused": 199,
+          "completed": 27,
+          "multiActionCompleted": 10,
+          "intentOutcomes": {
+            "flank": {
+              "episodes": 27,
+              "actions": 57,
+              "completed": 3,
+              "multiActionCompleted": 1
+            },
+            "direct": {
+              "episodes": 69,
+              "actions": 229,
+              "completed": 11,
+              "multiActionCompleted": 8
+            },
+            "recover": {
+              "episodes": 2,
+              "actions": 2,
+              "completed": 0,
+              "multiActionCompleted": 0
+            },
+            "defend": {
+              "episodes": 18,
+              "actions": 22,
+              "completed": 12,
+              "multiActionCompleted": 1
+            },
+            "airport": {
+              "episodes": 19,
+              "actions": 24,
+              "completed": 1,
+              "multiActionCompleted": 0
+            }
+          },
+          "intentChanges": 134,
+          "airportSpentMax": 18,
+          "budgetViolations": 0,
+          "air": 1,
+          "suppliedDrops": 0,
+          "goalGapImprovement": 1262,
+          "goalGapRegression": 47,
+          "airSupplyLoss": 26,
+          "airGoalBreaks": 0,
+          "turretHitsFromDrops": 0,
+          "repeatTunnelBuilds": 7,
+          "goals": 0,
+          "score": 119,
+          "finalSuppliedGoalGap": 15,
+          "winner": false
+        },
+        {
+          "player": 5,
+          "slot": 4,
+          "strategy": "airhead",
+          "policy": "planner",
+          "actions": 334,
+          "types": {
+            "deploy": 258,
+            "engineer": 8,
+            "tunnel": 16,
+            "offer": 30,
+            "bridge": 9,
+            "turret": 3,
+            "destroy": 2,
+            "shield": 1,
+            "exchange": 3,
+            "airdrop": 1,
+            "bombard": 3
+          },
+          "intents": {
+            "airport": 120,
+            "direct": 158,
+            "flank": 15,
+            "defend": 40,
+            "interdict": 1
+          },
+          "reused": 158,
+          "completed": 32,
+          "multiActionCompleted": 9,
+          "intentOutcomes": {
+            "airport": {
+              "episodes": 79,
+              "actions": 120,
+              "completed": 0,
+              "multiActionCompleted": 0
+            },
+            "direct": {
+              "episodes": 66,
+              "actions": 158,
+              "completed": 11,
+              "multiActionCompleted": 5
+            },
+            "flank": {
+              "episodes": 7,
+              "actions": 15,
+              "completed": 1,
+              "multiActionCompleted": 1
+            },
+            "defend": {
+              "episodes": 23,
+              "actions": 40,
+              "completed": 19,
+              "multiActionCompleted": 3
+            },
+            "interdict": {
+              "episodes": 1,
+              "actions": 1,
+              "completed": 1,
+              "multiActionCompleted": 0
+            }
+          },
+          "intentChanges": 175,
+          "airportSpentMax": 18,
+          "budgetViolations": 0,
+          "air": 4,
+          "suppliedDrops": 1,
+          "goalGapImprovement": 859,
+          "goalGapRegression": 3,
+          "airSupplyLoss": 37,
+          "airGoalBreaks": 2,
+          "turretHitsFromDrops": 7,
+          "repeatTunnelBuilds": 5,
+          "goals": 5,
+          "score": 189,
+          "finalSuppliedGoalGap": 18,
+          "winner": false
+        },
+        {
+          "player": 6,
+          "slot": 5,
+          "strategy": "flanker",
+          "policy": "planner",
+          "actions": 333,
+          "types": {
+            "deploy": 266,
+            "engineer": 26,
+            "shield": 3,
+            "destroy": 8,
+            "tunnel": 12,
+            "exchange": 3,
+            "bridge": 6,
+            "turret": 6,
+            "reject": 2,
+            "rest": 1
+          },
+          "intents": {
+            "flank": 156,
+            "direct": 146,
+            "interdict": 5,
+            "defend": 26
+          },
+          "reused": 170,
+          "completed": 17,
+          "multiActionCompleted": 4,
+          "intentOutcomes": {
+            "flank": {
+              "episodes": 77,
+              "actions": 156,
+              "completed": 6,
+              "multiActionCompleted": 1
+            },
+            "direct": {
+              "episodes": 65,
+              "actions": 146,
+              "completed": 5,
+              "multiActionCompleted": 1
+            },
+            "interdict": {
+              "episodes": 4,
+              "actions": 5,
+              "completed": 1,
+              "multiActionCompleted": 1
+            },
+            "defend": {
+              "episodes": 17,
+              "actions": 26,
+              "completed": 5,
+              "multiActionCompleted": 1
+            }
+          },
+          "intentChanges": 162,
+          "airportSpentMax": 0,
+          "budgetViolations": 0,
+          "air": 0,
+          "suppliedDrops": 0,
+          "goalGapImprovement": 850,
+          "goalGapRegression": 86,
+          "airSupplyLoss": 0,
+          "airGoalBreaks": 0,
+          "turretHitsFromDrops": 0,
+          "repeatTunnelBuilds": 3,
+          "goals": 2,
+          "score": 143,
+          "finalSuppliedGoalGap": 15,
+          "winner": false
+        }
+      ],
+      "decisionMs": {
+        "n": 2000,
+        "mean": 58.10147211350025,
+        "p95": 109.47150600000168,
+        "max": 1135.0648740000033
+      },
+      "wallSeconds": 123.13271358000001
+    },
+    {
+      "seed": 77417,
+      "rotation": 4,
+      "first": 6,
+      "index": 9,
+      "mode": "auto",
+      "playerCount": 6,
+      "complete": true,
+      "actionTraceSha256": "5de69ed4f713040efe8ff283054b8cd17dfe592c6295990798017b27e2faeb35",
+      "finalBoardSha256": "92dabc4bbadf717f23d9361f8eaee6701f1275900249a36f4456337fee05965d",
+      "ply": 2000,
+      "modelMs": 600000,
+      "firstGoalAction": 426,
+      "result": {
+        "winners": [
+          3
+        ],
+        "standings": [
+          {
+            "player": 3,
+            "score": 287,
+            "name": "Violet",
+            "rank": 1
+          },
+          {
+            "player": 6,
+            "score": 276,
+            "name": "Rose",
+            "rank": 2
+          },
+          {
+            "player": 4,
+            "score": 213,
+            "name": "Gold",
+            "rank": 3
+          },
+          {
+            "player": 1,
+            "score": 161,
+            "name": "Azure",
+            "rank": 4
+          },
+          {
+            "player": 2,
+            "score": 154,
+            "name": "Ember",
+            "rank": 5
+          },
+          {
+            "player": 5,
+            "score": 127,
+            "name": "Jade",
+            "rank": 6
+          }
+        ],
+        "draw": false,
+        "reason": "timeout",
+        "activeMs": 600000
+      },
+      "telemetry": {
+        "actions": 2000,
+        "meaningful": 2000,
+        "captures": 560,
+        "destroyed": 322,
+        "supplyRetreats": 370,
+        "engineered": 46,
+        "cardsUsed": 205,
+        "reshuffles": 4,
+        "goalArrivals": 23,
+        "goalHoldingRounds": 85,
+        "offers": 91,
+        "alliances": 6,
+        "betrayals": 2,
+        "withdrawals": 0,
+        "tunnelsBuilt": 50,
+        "tunnelsCollapsed": 47,
+        "tunnelSabotages": 35,
+        "hillRetreats": 0,
+        "cardsExpired": 0,
+        "turretShots": 246,
+        "shieldBlocks": 1,
+        "airportUnlocks": 12,
+        "airportLosses": 9,
+        "airdrops": 2,
+        "bombardments": 9,
+        "depotControls": 139,
+        "suppliesEarned": 75,
+        "suppliesSpent": 42,
+        "fortifications": 587,
+        "neutralWarnings": 27,
+        "neutralStrikes": 27,
+        "neutralRemoved": 41,
+        "neutralBlocks": 7,
+        "byType": {
+          "deploy": 1554,
+          "shield": 23,
+          "destroy": 68,
+          "engineer": 81,
+          "tunnel": 50,
+          "offer": 91,
+          "turret": 50,
+          "bridge": 43,
+          "exchange": 21,
+          "accept": 6,
+          "betray": 2,
+          "airdrop": 2,
+          "bombard": 9
+        },
+        "byMinute": [
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 28,
+            "cardsUsed": 8
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 83,
+            "cardsUsed": 14
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 69,
+            "cardsUsed": 34
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 51,
+            "cardsUsed": 24
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 75,
+            "cardsUsed": 23
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 67,
+            "cardsUsed": 19
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 46,
+            "cardsUsed": 30
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 37,
+            "cardsUsed": 16
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 52,
+            "cardsUsed": 20
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 52,
+            "cardsUsed": 17
+          }
+        ],
+        "perPlayer": [
+          {
+            "actions": 0,
+            "captures": 0,
+            "cardsUsed": 0,
+            "goals": 0
+          },
+          {
+            "actions": 334,
+            "captures": 79,
+            "cardsUsed": 30,
+            "goals": 5
+          },
+          {
+            "actions": 333,
+            "captures": 116,
+            "cardsUsed": 21,
+            "goals": 2
+          },
+          {
+            "actions": 333,
+            "captures": 87,
+            "cardsUsed": 55,
+            "goals": 6
+          },
+          {
+            "actions": 333,
+            "captures": 89,
+            "cardsUsed": 31,
+            "goals": 5
+          },
+          {
+            "actions": 333,
+            "captures": 80,
+            "cardsUsed": 25,
+            "goals": 1
+          },
+          {
+            "actions": 334,
+            "captures": 109,
+            "cardsUsed": 43,
+            "goals": 4
+          }
+        ]
+      },
+      "quarters": [
+        {
+          "actions": 500,
+          "changedCells": 490,
+          "combat": 177,
+          "air": 0,
+          "goals": 2,
+          "tunnels": 8,
+          "sabotages": 5
+        },
+        {
+          "actions": 500,
+          "changedCells": 648,
+          "combat": 251,
+          "air": 0,
+          "goals": 9,
+          "tunnels": 11,
+          "sabotages": 4
+        },
+        {
+          "actions": 500,
+          "changedCells": 613,
+          "combat": 220,
+          "air": 2,
+          "goals": 3,
+          "tunnels": 17,
+          "sabotages": 18
+        },
+        {
+          "actions": 500,
+          "changedCells": 576,
+          "combat": 234,
+          "air": 9,
+          "goals": 9,
+          "tunnels": 14,
+          "sabotages": 8
+        }
+      ],
+      "lastQuarter": {
+        "actions": 500,
+        "changedCells": 576,
+        "combat": 234,
+        "air": 9,
+        "goals": 9,
+        "tunnels": 14,
+        "sabotages": 8
+      },
+      "combatRegions": {
+        "center": 212,
+        "middle": 544,
+        "outer": 126
+      },
+      "regionCellCounts": {
+        "center": 127,
+        "middle": 342,
+        "outer": 558
+      },
+      "players": [
+        {
+          "player": 1,
+          "slot": 3,
+          "strategy": "recover",
+          "policy": "planner",
+          "actions": 334,
+          "types": {
+            "deploy": 241,
+            "shield": 4,
+            "destroy": 8,
+            "tunnel": 9,
+            "offer": 31,
+            "bridge": 9,
+            "engineer": 15,
+            "turret": 7,
+            "exchange": 2,
+            "accept": 4,
+            "betray": 1,
+            "bombard": 3
+          },
+          "intents": {
+            "flank": 136,
+            "direct": 136,
+            "recover": 4,
+            "defend": 25,
+            "airport": 33
+          },
+          "reused": 181,
+          "completed": 36,
+          "multiActionCompleted": 13,
+          "intentOutcomes": {
+            "flank": {
+              "episodes": 46,
+              "actions": 136,
+              "completed": 13,
+              "multiActionCompleted": 6
+            },
+            "direct": {
+              "episodes": 58,
+              "actions": 136,
+              "completed": 12,
+              "multiActionCompleted": 5
+            },
+            "recover": {
+              "episodes": 3,
+              "actions": 4,
+              "completed": 1,
+              "multiActionCompleted": 0
+            },
+            "defend": {
+              "episodes": 17,
+              "actions": 25,
+              "completed": 7,
+              "multiActionCompleted": 1
+            },
+            "airport": {
+              "episodes": 29,
+              "actions": 33,
+              "completed": 3,
+              "multiActionCompleted": 1
+            }
+          },
+          "intentChanges": 152,
+          "airportSpentMax": 18,
+          "budgetViolations": 0,
+          "air": 3,
+          "suppliedDrops": 0,
+          "goalGapImprovement": 1243,
+          "goalGapRegression": 0,
+          "airSupplyLoss": 62,
+          "airGoalBreaks": 3,
+          "turretHitsFromDrops": 0,
+          "repeatTunnelBuilds": 1,
+          "goals": 5,
+          "score": 161,
+          "finalSuppliedGoalGap": 5,
+          "winner": false
+        },
+        {
+          "player": 2,
+          "slot": 4,
+          "strategy": "envoy",
+          "policy": "planner",
+          "actions": 333,
+          "types": {
+            "deploy": 252,
+            "offer": 35,
+            "engineer": 16,
+            "destroy": 9,
+            "bridge": 4,
+            "tunnel": 7,
+            "exchange": 4,
+            "shield": 3,
+            "turret": 1,
+            "bombard": 2
+          },
+          "intents": {
+            "direct": 243,
+            "flank": 22,
+            "interdict": 1,
+            "airport": 49,
+            "defend": 18
+          },
+          "reused": 172,
+          "completed": 23,
+          "multiActionCompleted": 8,
+          "intentOutcomes": {
+            "direct": {
+              "episodes": 86,
+              "actions": 243,
+              "completed": 10,
+              "multiActionCompleted": 6
+            },
+            "flank": {
+              "episodes": 15,
+              "actions": 22,
+              "completed": 1,
+              "multiActionCompleted": 1
+            },
+            "interdict": {
+              "episodes": 1,
+              "actions": 1,
+              "completed": 1,
+              "multiActionCompleted": 0
+            },
+            "airport": {
+              "episodes": 43,
+              "actions": 49,
+              "completed": 3,
+              "multiActionCompleted": 1
+            },
+            "defend": {
+              "episodes": 16,
+              "actions": 18,
+              "completed": 8,
+              "multiActionCompleted": 0
+            }
+          },
+          "intentChanges": 160,
+          "airportSpentMax": 18,
+          "budgetViolations": 0,
+          "air": 2,
+          "suppliedDrops": 0,
+          "goalGapImprovement": 1782,
+          "goalGapRegression": 173,
+          "airSupplyLoss": 68,
+          "airGoalBreaks": 2,
+          "turretHitsFromDrops": 0,
+          "repeatTunnelBuilds": 2,
+          "goals": 2,
+          "score": 154,
+          "finalSuppliedGoalGap": 25,
+          "winner": false
+        },
+        {
+          "player": 3,
+          "slot": 5,
+          "strategy": "vanguard",
+          "policy": "planner",
+          "actions": 333,
+          "types": {
+            "deploy": 254,
+            "tunnel": 12,
+            "bridge": 12,
+            "engineer": 12,
+            "destroy": 18,
+            "exchange": 3,
+            "shield": 6,
+            "turret": 16
+          },
+          "intents": {
+            "flank": 43,
+            "direct": 197,
+            "airport": 36,
+            "defend": 57
+          },
+          "reused": 152,
+          "completed": 54,
+          "multiActionCompleted": 5,
+          "intentOutcomes": {
+            "flank": {
+              "episodes": 22,
+              "actions": 43,
+              "completed": 4,
+              "multiActionCompleted": 0
+            },
+            "direct": {
+              "episodes": 83,
+              "actions": 197,
+              "completed": 22,
+              "multiActionCompleted": 5
+            },
+            "airport": {
+              "episodes": 34,
+              "actions": 36,
+              "completed": 2,
+              "multiActionCompleted": 0
+            },
+            "defend": {
+              "episodes": 42,
+              "actions": 57,
+              "completed": 26,
+              "multiActionCompleted": 0
+            }
+          },
+          "intentChanges": 180,
+          "airportSpentMax": 18,
+          "budgetViolations": 0,
+          "air": 0,
+          "suppliedDrops": 0,
+          "goalGapImprovement": 1247,
+          "goalGapRegression": 73,
+          "airSupplyLoss": 0,
+          "airGoalBreaks": 0,
+          "turretHitsFromDrops": 0,
+          "repeatTunnelBuilds": 2,
+          "goals": 6,
+          "score": 287,
+          "finalSuppliedGoalGap": 0,
+          "winner": true
+        },
+        {
+          "player": 4,
+          "slot": 0,
+          "strategy": "airhead",
+          "policy": "planner",
+          "actions": 333,
+          "types": {
+            "deploy": 248,
+            "destroy": 13,
+            "engineer": 8,
+            "tunnel": 12,
+            "offer": 25,
+            "bridge": 6,
+            "turret": 5,
+            "exchange": 4,
+            "accept": 2,
+            "shield": 3,
+            "airdrop": 2,
+            "bombard": 4,
+            "betray": 1
+          },
+          "intents": {
+            "airport": 103,
+            "direct": 170,
+            "flank": 32,
+            "defend": 28
+          },
+          "reused": 144,
+          "completed": 25,
+          "multiActionCompleted": 3,
+          "intentOutcomes": {
+            "airport": {
+              "episodes": 77,
+              "actions": 103,
+              "completed": 0,
+              "multiActionCompleted": 0
+            },
+            "direct": {
+              "episodes": 75,
+              "actions": 170,
+              "completed": 13,
+              "multiActionCompleted": 3
+            },
+            "flank": {
+              "episodes": 16,
+              "actions": 32,
+              "completed": 3,
+              "multiActionCompleted": 0
+            },
+            "defend": {
+              "episodes": 21,
+              "actions": 28,
+              "completed": 9,
+              "multiActionCompleted": 0
+            }
+          },
+          "intentChanges": 188,
+          "airportSpentMax": 18,
+          "budgetViolations": 0,
+          "air": 6,
+          "suppliedDrops": 2,
+          "goalGapImprovement": 1324,
+          "goalGapRegression": 0,
+          "airSupplyLoss": 116,
+          "airGoalBreaks": 3,
+          "turretHitsFromDrops": 0,
+          "repeatTunnelBuilds": 3,
+          "goals": 5,
+          "score": 213,
+          "finalSuppliedGoalGap": 29,
+          "winner": false
+        },
+        {
+          "player": 5,
+          "slot": 1,
+          "strategy": "flanker",
+          "policy": "planner",
+          "actions": 333,
+          "types": {
+            "deploy": 285,
+            "engineer": 13,
+            "exchange": 2,
+            "bridge": 6,
+            "destroy": 8,
+            "turret": 7,
+            "tunnel": 10,
+            "shield": 2
+          },
+          "intents": {
+            "flank": 119,
+            "direct": 187,
+            "defend": 27
+          },
+          "reused": 197,
+          "completed": 16,
+          "multiActionCompleted": 0,
+          "intentOutcomes": {
+            "flank": {
+              "episodes": 43,
+              "actions": 119,
+              "completed": 0,
+              "multiActionCompleted": 0
+            },
+            "direct": {
+              "episodes": 68,
+              "actions": 187,
+              "completed": 1,
+              "multiActionCompleted": 0
+            },
+            "defend": {
+              "episodes": 25,
+              "actions": 27,
+              "completed": 15,
+              "multiActionCompleted": 0
+            }
+          },
+          "intentChanges": 135,
+          "airportSpentMax": 0,
+          "budgetViolations": 0,
+          "air": 0,
+          "suppliedDrops": 0,
+          "goalGapImprovement": 941,
+          "goalGapRegression": 228,
+          "airSupplyLoss": 0,
+          "airGoalBreaks": 0,
+          "turretHitsFromDrops": 0,
+          "repeatTunnelBuilds": 6,
+          "goals": 1,
+          "score": 127,
+          "finalSuppliedGoalGap": 11,
+          "winner": false
+        },
+        {
+          "player": 6,
+          "slot": 2,
+          "strategy": "interdict",
+          "policy": "planner",
+          "actions": 334,
+          "types": {
+            "deploy": 274,
+            "destroy": 12,
+            "turret": 14,
+            "bridge": 6,
+            "exchange": 6,
+            "engineer": 17,
+            "shield": 5
+          },
+          "intents": {
+            "flank": 29,
+            "direct": 223,
+            "interdict": 27,
+            "defend": 25,
+            "airport": 30
+          },
+          "reused": 166,
+          "completed": 58,
+          "multiActionCompleted": 9,
+          "intentOutcomes": {
+            "flank": {
+              "episodes": 14,
+              "actions": 29,
+              "completed": 2,
+              "multiActionCompleted": 0
+            },
+            "direct": {
+              "episodes": 86,
+              "actions": 223,
+              "completed": 38,
+              "multiActionCompleted": 9
+            },
+            "interdict": {
+              "episodes": 23,
+              "actions": 27,
+              "completed": 4,
+              "multiActionCompleted": 0
+            },
+            "defend": {
+              "episodes": 20,
+              "actions": 25,
+              "completed": 11,
+              "multiActionCompleted": 0
+            },
+            "airport": {
+              "episodes": 25,
+              "actions": 30,
+              "completed": 3,
+              "multiActionCompleted": 0
+            }
+          },
+          "intentChanges": 167,
+          "airportSpentMax": 18,
+          "budgetViolations": 0,
+          "air": 0,
+          "suppliedDrops": 0,
+          "goalGapImprovement": 1433,
+          "goalGapRegression": 13,
+          "airSupplyLoss": 0,
+          "airGoalBreaks": 0,
+          "turretHitsFromDrops": 0,
+          "repeatTunnelBuilds": 0,
+          "goals": 4,
+          "score": 276,
+          "finalSuppliedGoalGap": 0,
+          "winner": false
+        }
+      ],
+      "decisionMs": {
+        "n": 2000,
+        "mean": 53.57967045199964,
+        "p95": 96.56134600000223,
+        "max": 1095.6231519999565
+      },
+      "wallSeconds": 112.99013322099997
+    }
+  ],
+  "wallSeconds": 405.73481218999996,
+  "finishedUtc": "2026-10-11T17:49:05.089Z"
+}

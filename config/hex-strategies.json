@@ -1,0 +1,137 @@
+{
+  "version": 1,
+  "profiles": [
+    {
+      "id": "vanguard",
+      "name": "直進先鋒",
+      "mission": "connect",
+      "route": {
+        "side": 0,
+        "transport": "both",
+        "maxDetour": 8
+      },
+      "airport": {
+        "mode": "opportunity",
+        "maxOwnActions": 18,
+        "maxSetupCost": 28,
+        "projection": "either"
+      },
+      "commitment": {
+        "reviewOwnTurns": 6,
+        "stalledOwnTurns": 3,
+        "maxOwnTurns": 24
+      },
+      "diplomacy": "avoid"
+    },
+    {
+      "id": "airhead",
+      "name": "航空支點",
+      "mission": "airhead",
+      "route": {
+        "side": 0,
+        "transport": "both",
+        "maxDetour": 8
+      },
+      "airport": {
+        "mode": "invest",
+        "maxOwnActions": 18,
+        "maxSetupCost": 28,
+        "projection": "turret"
+      },
+      "commitment": {
+        "reviewOwnTurns": 6,
+        "stalledOwnTurns": 3,
+        "maxOwnTurns": 24
+      },
+      "diplomacy": "opportunity"
+    },
+    {
+      "id": "flanker",
+      "name": "地道側翼",
+      "mission": "flank",
+      "route": {
+        "side": 0,
+        "transport": "both",
+        "maxDetour": 12
+      },
+      "airport": {
+        "mode": "avoid",
+        "maxOwnActions": 18,
+        "maxSetupCost": 28,
+        "projection": "either"
+      },
+      "commitment": {
+        "reviewOwnTurns": 6,
+        "stalledOwnTurns": 3,
+        "maxOwnTurns": 24
+      },
+      "diplomacy": "avoid"
+    },
+    {
+      "id": "interdict",
+      "name": "補給截斷",
+      "mission": "interdict",
+      "route": {
+        "side": 0,
+        "transport": "bridge",
+        "maxDetour": 8
+      },
+      "airport": {
+        "mode": "opportunity",
+        "maxOwnActions": 18,
+        "maxSetupCost": 28,
+        "projection": "bombard"
+      },
+      "commitment": {
+        "reviewOwnTurns": 6,
+        "stalledOwnTurns": 3,
+        "maxOwnTurns": 24
+      },
+      "diplomacy": "avoid"
+    },
+    {
+      "id": "recover",
+      "name": "穩固推進",
+      "mission": "recover",
+      "route": {
+        "side": 0,
+        "transport": "both",
+        "maxDetour": 8
+      },
+      "airport": {
+        "mode": "opportunity",
+        "maxOwnActions": 18,
+        "maxSetupCost": 28,
+        "projection": "either"
+      },
+      "commitment": {
+        "reviewOwnTurns": 6,
+        "stalledOwnTurns": 3,
+        "maxOwnTurns": 24
+      },
+      "diplomacy": "opportunity"
+    },
+    {
+      "id": "envoy",
+      "name": "協議擴張",
+      "mission": "diplomat",
+      "route": {
+        "side": 0,
+        "transport": "both",
+        "maxDetour": 8
+      },
+      "airport": {
+        "mode": "opportunity",
+        "maxOwnActions": 18,
+        "maxSetupCost": 28,
+        "projection": "either"
+      },
+      "commitment": {
+        "reviewOwnTurns": 6,
+        "stalledOwnTurns": 3,
+        "maxOwnTurns": 24
+      },
+      "diplomacy": "opportunity"
+    }
+  ]
+}

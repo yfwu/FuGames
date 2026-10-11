@@ -73,57 +73,50 @@ test('shared CSS defines non-shrinking icon layout and geometric classic stones'
   assert.match(css,/\.classic-stone[^{}]*\{[^{}]*border-radius\s*:\s*50%/s);
 });
 
-// Independent Hex audit: geometric fairness and privacy at the actual exported
-// observation boundary. These checks do not send raw Game objects to the AI.
-const vm = require('node:vm');
-function hexEngine(){return vm.runInNewContext(read('card_hex.html').match(/<script id="hex-engine">([\s\S]*?)<\/script>/)[1]+';CardHex;');}
+// Independent current shared-Hex audit. The released91-cell personal-shoe,
+// secret-trap mechanics remain covered by explicitly historical test suites.
+const SharedHex = require('../hex-core.js');
 const json = value => JSON.parse(JSON.stringify(value));
-const seeded = initial => {let seed=initial;return()=>((seed=(Math.imul(seed,1664525)+1013904223)>>>0)/4294967296);};
 
-test('independent Hex audit: all 91 cells, edges and connection costs preserve 120-degree rotation',()=>{
-  const H=hexEngine(),rotate=i=>{const c=H.CELLS[i];return H.index(c.r,c.s);};
-  assert.equal(H.COUNT,91);assert.equal(new Set(H.CELLS.map(c=>rotate(c.i))).size,91);
-  for(const c of H.CELLS)assert.deepEqual(Array.from(H.ADJ[c.i],rotate).sort((a,b)=>a-b),Array.from(H.ADJ[rotate(c.i)]).sort((a,b)=>a-b));
-  for(const edge of H.EDGES)for(const side of edge)assert.equal(side.length,6);
-  for(const player of H.PLAYERS)assert.equal(H.shortest(Array(91).fill(0),player),11);
-  const axes=[null,0,1,2],rotatedAxes=[null,1,2,0],random=seeded(137);
-  for(let n=0;n<20;n++){
-    const board=Array.from({length:91},()=>random()<.55?0:1+Math.floor(random()*3)),rotated=Array(91).fill(0);
-    board.forEach((p,i)=>rotated[rotate(i)]=p);
-    for(const p of H.PLAYERS)for(const breach of [Infinity,3])assert.equal(H.shortest(board,p,axes,[],breach),H.shortest(rotated,p,rotatedAxes,[],breach));
+test('independent shared Hex audit: 271 cells, adjacency and directed goals preserve rotation',()=>{
+  const H=SharedHex.create({mode:'normal',playerCount:3}),g=new H.Game({seed:'audit-symmetry'});
+  const rotate=i=>{const c=H.CELLS[i];return H.index(c.r,c.s);};
+  assert.equal(H.COUNT,271);assert.equal(new Set(H.CELLS.map(c=>rotate(c.i))).size,271);
+  for(const c of H.CELLS)assert.deepEqual(H.ADJ[c.i].map(rotate).sort((a,b)=>a-b),[...H.ADJ[rotate(c.i)]].sort((a,b)=>a-b));
+  for(const p of H.PLAYERS){
+    const other=H.PLAYERS.find(q=>g.players[q].home===rotate(g.players[p].home));assert.ok(other);
+    const goals=H.CELLS.filter(c=>H.goalCell(g,p,c.i)).map(c=>rotate(c.i)).sort((a,b)=>a-b);
+    assert.deepEqual(goals,H.CELLS.filter(c=>H.goalCell(g,other,c.i)).map(c=>c.i).sort((a,b)=>a-b));
+    assert.equal(goals.length,10);
+    for(const c of H.CELLS)assert.equal(H.distance(g.players[p].home,c.i),H.distance(g.players[other].home,rotate(c.i)));
   }
 });
 
-test('independent Hex audit: every observer receives identical view/decision after all enemy secrets change',()=>{
-  const H=hexEngine();
-  for(const observer of H.PLAYERS)for(let seed=1;seed<=3;seed++){
-    const g=new H.Game(seeded(seed*77));g.start();g.turn=observer;
-    const enemies=H.PLAYERS.filter(p=>p!==observer),normal=H.index(3,-2),own=H.index(-3,1),secretA=H.index(0,0),secretB=H.index(2,0);
-    g.hands[observer]=['double','remove','trap','turret'];
-    g.decks[observer]=Array.from(H.DECK);for(const card of g.hands[observer])g.decks[observer].splice(g.decks[observer].indexOf(card),1);
-    g.board[normal]=enemies[0];g.traps=[{owner:observer,cell:own},{owner:enemies[0],cell:secretA},{owner:enemies[1],cell:secretB}];
-    g.trapDeployments=[null,1,1,1];g.last={player:enemies[0],type:'trap',cells:[normal,secretA],reason:'公開部署暗伏'};
-    const before=g.observation(observer),choice=H.chooseAction(before);
-    assert.deepEqual(json(before.ownTraps),[{owner:observer,cell:own}]);
-    assert.deepEqual(json(before.last.cells),[normal]);
-    for(const key of ['traps','hands','decks','seeds','random'])assert.ok(!(key in before),key+' must not cross the AI boundary');
-    g.traps[1].cell=H.index(-1,3);g.traps[2].cell=H.index(1,-3);g.last.cells[1]=g.traps[1].cell;
-    for(const enemy of enemies){const count=g.hands[enemy].length,hidden=[...g.hands[enemy],...g.decks[enemy]].reverse();g.hands[enemy]=hidden.slice(0,count);g.decks[enemy]=hidden.slice(count);g.seeds[enemy]+=123456;assert.deepEqual([...g.hands[enemy],...g.decks[enemy]].sort(),Array.from(H.DECK).sort());}
-    const after=g.observation(observer);
-    assert.deepEqual(json(after),json(before),`observer ${observer}, seed ${seed}`);
-    assert.deepEqual(json(H.chooseAction(after)),json(choice),`decision changed for observer ${observer}`);
+test('independent shared Hex audit: every active observer ignores other hands, deck order and private plans',()=>{
+  for(const count of [2,3,4,5,6]){
+    const H=SharedHex.create({mode:'normal',playerCount:count}),g=new H.Game({seed:'audit-private-'+count});g.start();
+    for(const observer of H.PLAYERS){
+      g.turn=observer;const before=g.observation(observer),choice=H.chooseAction(before);
+      for(const key of ['hands','drawPile','discardPile','plannerStates','_random'])assert.equal(key in before,false,key);
+      for(const p of H.PLAYERS)if(p!==observer){g.hands[p]=g.hands[p].map((_,i)=>i%2?'destroy':'shield');g.plannerStates[p]=null;}
+      g.drawPile.reverse();g.discardPile.reverse();const after=g.observation(observer);
+      assert.deepEqual(json(after),json(before));assert.deepEqual(json(H.chooseAction(after)),json(choice));
+    }
   }
 });
 
-test('independent Hex audit: equal finite supply, one shield each, and all first seats rotate fairly',()=>{
-  const H=hexEngine();
-  for(const first of H.PLAYERS){
-    const g=new H.Game(seeded(40+first),'builder',first);
-    for(const p of H.PLAYERS){assert.equal(g.hands[p].length,2);assert.equal(g.decks[p].length,11);assert.deepEqual([...g.hands[p],...g.decks[p]].sort(),Array.from(H.DECK).sort());assert.equal([...g.hands[p],...g.decks[p]].filter(c=>c==='shield').length,1);}
-    g.start();const turns=[];
-    for(let n=0;n<6;n++){turns.push(g.turn);assert.ok(g.act({type:'place',cells:[H.index(-5+n,-Math.min(0,-5+n))]}));}
-    assert.deepEqual(turns,[first,first%3+1,(first+1)%3+1,first,first%3+1,(first+1)%3+1]);
-    assert.equal(g.ply,6);assert.equal(g.turn,first);
+test('independent shared Hex audit: one finite common shoe, equal draws and all starting seats',()=>{
+  for(const count of [2,3,4,5,6]){
+    const H=SharedHex.create({mode:'normal',playerCount:count});
+    for(const first of H.PLAYERS){
+      const g=new H.Game({seed:'audit-finite-'+count,first});
+      assert.equal(g.deckRecipe.length,13);assert.equal(g.deckRecipe.filter(c=>c==='shield').length,1);
+      const physical=()=>[...g.drawPile,...g.discardPile,...g.hands.flat()].sort();const initial=physical();
+      assert.equal(initial.length,count*13);assert.equal(initial.filter(c=>c==='shield').length,count);
+      assert.equal(new Set(H.PLAYERS.map(p=>g.hands[p].length)).size,1);g.start();const turns=[];
+      for(let n=0;n<count*2;n++){turns.push(g.turn);assert.ok(g.act({type:'rest',cells:[]}));assert.deepEqual(physical(),initial);}
+      assert.deepEqual(turns,Array.from({length:count*2},(_,i)=>(first-1+i)%count+1));
+      assert.equal(g.turn,first);assert.equal(new Set(H.PLAYERS.map(p=>g.hands[p].length)).size,1);assert.equal(H.TURN_LIMIT%count,0);
+    }
   }
-  assert.equal(H.LIMIT%3,0,'turn cap must end after equal complete rotations');
 });

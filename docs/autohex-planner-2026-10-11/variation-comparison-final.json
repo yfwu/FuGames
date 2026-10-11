@@ -1,0 +1,38 @@
+{
+  "scope": "Frozen candidate mechanism probe; one fixed public board,24 public strategy seeds; representative6-owner-turn continuations with resting opponents. Not natural seeded games or heldout balance evidence.",
+  "sourceHashes": {
+    "baseline": "a029f76bb5424506a21f8485519176f010c3803aed401a20733ad83aaf4c9f09",
+    "candidateEngine": "0c5b3137c803f3f77ddd3fbb34a132f1986a257d3db2d828a1d2628e37c69993",
+    "candidatePlanner": "2e222d259995f604b07c8b599f681a8ccc025a5e1a709bb649c5c539637ebb7f"
+  },
+  "baselineDistinctFirstActions": 1,
+  "candidateDistinctFirstActions": 3,
+  "candidateDistinctExecutedSequences": 3,
+  "candidateReusedPerSequence": [
+    5,
+    5,
+    5
+  ],
+  "memoryResetReusedPerSequence": [
+    0,
+    0,
+    0
+  ],
+  "memoryResetChangedExecutedSequences": 0,
+  "candidateFinalSuppliedGaps": [
+    29,
+    29,
+    29
+  ],
+  "memoryResetFinalSuppliedGaps": [
+    29,
+    29,
+    29
+  ],
+  "interpretation": "Seed changes produce coherent distinct trajectories through six own turns. Resetting memory alone does not change these quiet opening sequences or their measured frontier progress. This does not demonstrate an outcome advantage caused by persistence. Active blockade fixtures test recovery separately.",
+  "files": [
+    "variation-baseline-development.json",
+    "variation-candidate-final.json",
+    "variation-memory-reset-final.json"
+  ]
+}

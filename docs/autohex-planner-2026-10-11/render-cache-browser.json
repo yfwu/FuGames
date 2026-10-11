@@ -1,0 +1,203 @@
+{
+  "method": "Before/after canvas screenshot comparison at identical paused effect ages, same engine/fixture; actual pan/zoom/touch/inspection controls; virtual animation clock",
+  "sourceSha256": {
+    "autohex-ai-worker.js": "0c7ba91f0d2997d3e3e08bdd6e004e792062b6e497529e3b526536dfbb9ed7c0",
+    "autohex-planner.js": "2e222d259995f604b07c8b599f681a8ccc025a5e1a709bb649c5c539637ebb7f",
+    "autohex-engine.js": "0c5b3137c803f3f77ddd3fbb34a132f1986a257d3db2d828a1d2628e37c69993",
+    "autohex-ui.js": "20e6f2aa126927f1afa5d2fb02d7b6c2392204d520f517c6349d2a3a79217045",
+    "autohex-visuals.js": "b1bed80f9b4ef5baf8fc8a3c78706a0a6c2baf0b9274fe2c318883ed264e79cd",
+    "autohex.html": "90bcc0fad0f954efbc9080971f512ada6b713c908d733eb6376e2e72aff05d23",
+    "autohex.css": "da2b0c693b2f5ce8ad374ca746a3d62ec4b756c9a0b1374eb0f21018fdb567d5"
+  },
+  "beforeUiSha256": "fb886197132a487f1001a83dc18ee75d7d73aec0b03ebfd50079cf0db6aa71d9",
+  "cases": [
+    {
+      "viewport": "desktop",
+      "dpr": 1,
+      "differences": [
+        {
+          "state": "whole",
+          "maxChannelDifference": 1,
+          "changedPixels": 59,
+          "pixels": 555408
+        },
+        {
+          "state": "frozen-impacts-range-selection",
+          "maxChannelDifference": 1,
+          "changedPixels": 30,
+          "pixels": 555408
+        },
+        {
+          "state": "supply-off",
+          "maxChannelDifference": 1,
+          "changedPixels": 30,
+          "pixels": 555408
+        },
+        {
+          "state": "zoom-pan",
+          "maxChannelDifference": 1,
+          "changedPixels": 52,
+          "pixels": 555408
+        },
+        {
+          "state": "aged-impacts",
+          "maxChannelDifference": 1,
+          "changedPixels": 59,
+          "pixels": 555408
+        },
+        {
+          "state": "reduced-motion",
+          "maxChannelDifference": 1,
+          "changedPixels": 59,
+          "pixels": 555408
+        },
+        {
+          "state": "replay-clears",
+          "maxChannelDifference": 1,
+          "changedPixels": 57,
+          "pixels": 555408
+        }
+      ],
+      "cacheReuseDuringAnimation": {
+        "valid": true,
+        "rebuilds": 25,
+        "composites": 28,
+        "minimaps": 25,
+        "canvasCount": 2,
+        "cacheBytes": 4435968
+      },
+      "touchPinch": false,
+      "overflow": false
+    },
+    {
+      "viewport": "mobile",
+      "dpr": 3,
+      "differences": [
+        {
+          "state": "whole",
+          "maxChannelDifference": 1,
+          "changedPixels": 155,
+          "pixels": 1460466
+        },
+        {
+          "state": "frozen-impacts-range-selection",
+          "maxChannelDifference": 1,
+          "changedPixels": 166,
+          "pixels": 1460466
+        },
+        {
+          "state": "supply-off",
+          "maxChannelDifference": 1,
+          "changedPixels": 166,
+          "pixels": 1460466
+        },
+        {
+          "state": "zoom-pan",
+          "maxChannelDifference": 1,
+          "changedPixels": 211,
+          "pixels": 1460466
+        },
+        {
+          "state": "touch-pinch",
+          "maxChannelDifference": 1,
+          "changedPixels": 99,
+          "pixels": 1460466
+        },
+        {
+          "state": "aged-impacts",
+          "maxChannelDifference": 1,
+          "changedPixels": 155,
+          "pixels": 1460466
+        },
+        {
+          "state": "reduced-motion",
+          "maxChannelDifference": 1,
+          "changedPixels": 155,
+          "pixels": 1460466
+        },
+        {
+          "state": "replay-clears",
+          "maxChannelDifference": 1,
+          "changedPixels": 180,
+          "pixels": 1460466
+        }
+      ],
+      "cacheReuseDuringAnimation": {
+        "valid": true,
+        "rebuilds": 38,
+        "composites": 41,
+        "minimaps": 38,
+        "canvasCount": 2,
+        "cacheBytes": 8096400
+      },
+      "touchPinch": true,
+      "overflow": false
+    },
+    {
+      "viewport": "narrow",
+      "dpr": 2,
+      "differences": [
+        {
+          "state": "whole",
+          "maxChannelDifference": 1,
+          "changedPixels": 82,
+          "pixels": 517776
+        },
+        {
+          "state": "frozen-impacts-range-selection",
+          "maxChannelDifference": 1,
+          "changedPixels": 64,
+          "pixels": 517776
+        },
+        {
+          "state": "supply-off",
+          "maxChannelDifference": 1,
+          "changedPixels": 64,
+          "pixels": 517776
+        },
+        {
+          "state": "zoom-pan",
+          "maxChannelDifference": 1,
+          "changedPixels": 69,
+          "pixels": 517776
+        },
+        {
+          "state": "touch-pinch",
+          "maxChannelDifference": 1,
+          "changedPixels": 15,
+          "pixels": 517776
+        },
+        {
+          "state": "aged-impacts",
+          "maxChannelDifference": 1,
+          "changedPixels": 119,
+          "pixels": 517776
+        },
+        {
+          "state": "reduced-motion",
+          "maxChannelDifference": 1,
+          "changedPixels": 117,
+          "pixels": 517776
+        },
+        {
+          "state": "replay-clears",
+          "maxChannelDifference": 1,
+          "changedPixels": 94,
+          "pixels": 517776
+        }
+      ],
+      "cacheReuseDuringAnimation": {
+        "valid": true,
+        "rebuilds": 38,
+        "composites": 41,
+        "minimaps": 38,
+        "canvasCount": 2,
+        "cacheBytes": 4133376
+      },
+      "touchPinch": true,
+      "overflow": false
+    }
+  ],
+  "errors": [],
+  "pass": true
+}

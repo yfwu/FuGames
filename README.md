@@ -17,8 +17,8 @@ python -m http.server 8000 --bind 0.0.0.0
 ## 遊戲
 
 - Tux 2D：`tux2d.html`（原創雪港企鵝卡丁車；三圈、漂移加速、道具與四位 AI）
-- AutoHex：`autohex.html`（獨立六方大型戰場；六 AI 觀戰或人類下場）
-- 抽牌 Hex：`card_hex.html`
+- AutoHex：`autohex.html`（共用 Hex 核心的大型六方戰役；六 AI 觀戰或人類下場）
+- 抽牌 Hex：`card_hex.html`（271 格、2–6 席本機玩家／AI，無聯盟）
 - 重力大亂鬥：`gravity_brawl.html`
 - 翻轉五子棋：`flip_five.html`
 - 效果貪食蛇：`effect_snake.html`
@@ -48,6 +48,8 @@ python -m http.server 8000 --bind 0.0.0.0
 AutoHex 接續新增外圈機場／補給站、物資空中行動、持有超過 30 次己方行動的固守，以及可關閉的中立事件；炮台、炮擊與斷補也直接呈現在棋盤。見 [外圍戰略、畫面對照與實測](docs/autohex-visual-2026-10-11/validation.md)。
 
 依實際遊玩回饋，AutoHex 再調整為連通目標優先：機場隨 seed 在中段至外側變化，保留六方對稱的可達機會；AI 先推進、修補與防守對岸連通，機場和空中行動只作為路線支援。取消固定先搶設施的開局與中央懲罰。見 [連通進度、機場用途與空間分布對照](docs/autohex-goals-2026-10-11/validation.md)。
+
+本次將普通 Hex 與 AutoHex 遷移至單一核心：部署範圍 5 格、直線橋長 2–3 格、可彎曲地道至多 3 步；真正改造的地形統一白底。兩種模式共用卡牌、補給、炮台、機場及只讀公開資訊的有界多步 AI；普通版支援 2–6 個本機玩家／AI 席位且禁止外交。AI 任務流程與投入上限可透過版本化 JSON 設定。見 [規格與遷移差異](docs/hex-shared-core-2026-10-11/design.md)、[策略設定說明](docs/hex-shared-core-2026-10-11/strategies.md)。先前未發布 AI 迭代的失敗與開發證據保留於 [規劃驗證紀錄](docs/autohex-planner-2026-10-11/validation.md)，不代表本次最終驗收。
 
 獨立新增 Tux 2D：原創雪港賽道，預設你與四位 AI 跑三圈，也可觀看五 AI 競速。每圈依序通過十二個檢查點；甩尾蓄力後放開加速，雪球、香蕉皮、護盾與加速道具使用共同規則。預設自動油門，方向鍵／WASD 轉向，Shift／Z 甩尾，Space 使用道具，P／Esc 暫停；手機有可同時按住的觸控按鈕。賽道、美術與程式為原創，僅以 [SuperTuxKart](https://supertuxkart.net/Main_Page) 為玩法靈感。見 [規則、完整賽事與手機驗證](docs/tux2d-2026-10-11/validation.md)。
 
@@ -131,3 +133,5 @@ FUGAMES_BASE_URL=http://127.0.0.1:8000 python tests/tux2d_performance_browser.py
 `site_browser.py` 逐頁檢查六頁在桌機、390px 手機、320px 窄手機及橫向手機的畫面、共用樣式、規則收合與導覽。實際驗證三子棋落子／AI／重開、四子棋勝利與環面判定、軌道棋旋轉／悔棋／提示／AI／動畫期間重開，以及星點吞噬的鍵盤／滑鼠／觸控收集、衝刺、暫停／重開及離線遊玩。勝負 UI 使用固定局面驗證；結果會保留截圖。
 
 觸控驗證使用 Chromium 裝置模擬，不能代替實體 iOS Safari、Android 裝置及不同瀏覽器引擎的驗證。
+
+翻轉五子棋保留原規則，改用有固定工作上限、完整即勝／即敗掃描與後續攻守搜尋的 AI，透過可取消的 Worker 執行。獨立搜尋證明 `E5 → E4 → E3` 後先手可在第 11 手前強制獲勝；這不等於整個遊戲先手必勝。新 AI 避開該相鄰敗著，16 場保留開局對舊 AI 為 10 勝 6 負；完整證明、全部結果與限制見 [Flip Five 研究](docs/flipfive-2026-10-11/README.md) 與 [AI 對照](docs/flipfive-2026-10-11/ai-study/README.md)。

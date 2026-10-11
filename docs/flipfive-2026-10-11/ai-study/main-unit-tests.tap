@@ -1,0 +1,25 @@
+✔ incremental search transition agrees with production rules on seeded reachable boards (96.711037ms)
+✔ hypothetical win probes match actual move outcomes and restore the board (35.674779ms)
+✔ takes an immediate capture-five and rejects terminal or malformed observations (5.295611ms)
+✔ complete root defense finds the unique diagonal rescue after E5 E4 E3 D5 E2 (177.466057ms)
+✔ historical fourth move chooses a reply that refutes forced win by ply seven (307.495591ms)
+✔ search is deterministic, bounded and never mutates a caller observation (21.89929ms)
+✔ opening response avoids the certified adjacent blunder for both colors, profiles and deterministic seeds (532.482663ms)
+✔ all empty cells are legal even without a bracket; illegal actions are atomic (10.114344ms)
+✔ all eight sandwich rays flip simultaneously; edges never wrap and there is no cascade (1.040754ms)
+✔ open rays, friendly neighbours and interrupted chains do not flip (5.778555ms)
+✔ victory is evaluated after every flip and includes longer lines and both diagonals (3.206793ms)
+✔ simultaneous final lines draw; full board without five counts stones, with lines takes precedence (3.939058ms)
+✔ pause and terminal states freeze and restart restores an empty board with selected starter (0.422737ms)
+✔ AI recognizes a winning capture and always takes a direct immediate win (22.219995ms)
+✔ AI blocks a sole immediate threat and searches a defensive capture off the threat cell (49.713477ms)
+✔ public observations are copied and personality changes actual board preferences (34.640014ms)
+✔ 12 AI matches with varied legal openings finish in at most 81 placements (779.465846ms)
+ℹ tests 17
+ℹ suites 0
+ℹ pass 17
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1367.610122

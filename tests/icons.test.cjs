@@ -112,5 +112,5 @@ test('homepage maps every game to its own shared icon and keeps each accessible 
   assert.match(card,/<use href="icons\.svg#launch">/);assert.doesNotMatch(card,/<path\b|<circle\b|<text\b|[↗▶↻]/);
  }
  assert.deepEqual(found.sort(),[...games].sort());
- const hex=cards.find(([,c])=>c.includes('href="card_hex.html"'))[1];assert.match(hex,/單人 × 2 AI/);assert.match(hex,/91 格六邊形/);assert.match(hex,/炮台與暗伏/);assert.doesNotMatch(hex,/留下護盾/);
+ const hex=cards.find(([,c])=>c.includes('href="card_hex.html"'))[1];assert.match(hex,/2–6 席本機玩家與 AI/);assert.match(hex,/271 格/);assert.match(hex,/短橋、彎曲地道與機場/);assert.match(hex,/AutoHex 共用規則/);assert.doesNotMatch(hex,/暗伏|91 格|單人 × 2 AI/);
 });

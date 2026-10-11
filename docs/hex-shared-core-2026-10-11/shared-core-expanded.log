@@ -1,0 +1,26 @@
+✔ shared factories isolate geometries and all2–6active seat clocks, homes and directed goals (246.064425ms)
+✔ every spatial selection uses own pre-action radius5 independently of straight bridge span2–3 (577.800343ms)
+✔ both modes reject every-owner surface duplicate, reverse, overlap, crossing andT but share true endpoints (1035.578385ms)
+✔ bent tunnels provide an actual owner-only supply edge without claiming or terraforming interiors (61.837295ms)
+✔ tunnel path bounds reject jumps, loops, repeats andfour edges even when endpoints are nearby (243.385592ms)
+✔ tunnel interiors exclude anchors, facilities, turrets andother tunnels; surface crossings remain legal (240.337611ms)
+✔ public tunnel counterplay costs two energy, honors pacts, andendpoint loss immediately collapses it (80.123421ms)
+✔ engineering really converts river/hill state to ordinary terrain; bridges do not (158.495175ms)
+✔ hill retreat counts exactlythree subsequent owner actions, while engineering ownhill stabilizes it (83.058465ms)
+✔ normal mode rejects all diplomacy at the engine boundary including injected offers (57.050608ms)
+✔ every active seat shares one13-per-seat shoe with exactlyone shield per recipe and finite reshuffle conservation (188.339682ms)
+✔ optional card expiry uses own action clocks and returns cards to the same physical shoe (67.304385ms)
+✔ normal first settled connection ends immediately whileAuto continues the scored campaign (64.57741ms)
+✔ normal finite100-per-active-seat action cap andAuto foreground clock have explicit separate endings (196.652652ms)
+✔ seeded terrain is identical for every normal seat count, including inactive home clearings (167.507618ms)
+✔ identical local positions resolve the same paid common actions in normal and Auto modes (67.927032ms)
+✔ two tunnels may share an owned endpoint, enforce the owner cap and collapse on capture or withdrawal (115.965237ms)
+✔ normal2–6 complete seeded replays preserve actual actions, hidden cards and bounded planner state (2631.559854ms)
+ℹ tests 18
+ℹ suites 0
+ℹ pass 18
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 6557.202329

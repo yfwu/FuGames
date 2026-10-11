@@ -1,0 +1,314 @@
+{
+  "premise": "E5 E4 E3 D5",
+  "horizonPlies": 3,
+  "defenses": [
+    {
+      "attack": "A1",
+      "defense": "F5"
+    },
+    {
+      "attack": "B1",
+      "defense": "F5"
+    },
+    {
+      "attack": "C1",
+      "defense": "F5"
+    },
+    {
+      "attack": "D1",
+      "defense": "F5"
+    },
+    {
+      "attack": "E1",
+      "defense": "F5"
+    },
+    {
+      "attack": "F1",
+      "defense": "F5"
+    },
+    {
+      "attack": "G1",
+      "defense": "F5"
+    },
+    {
+      "attack": "H1",
+      "defense": "F5"
+    },
+    {
+      "attack": "I1",
+      "defense": "F5"
+    },
+    {
+      "attack": "A2",
+      "defense": "F5"
+    },
+    {
+      "attack": "B2",
+      "defense": "F5"
+    },
+    {
+      "attack": "C2",
+      "defense": "F5"
+    },
+    {
+      "attack": "D2",
+      "defense": "F5"
+    },
+    {
+      "attack": "E2",
+      "defense": "F3"
+    },
+    {
+      "attack": "F2",
+      "defense": "F5"
+    },
+    {
+      "attack": "G2",
+      "defense": "F5"
+    },
+    {
+      "attack": "H2",
+      "defense": "F5"
+    },
+    {
+      "attack": "I2",
+      "defense": "F5"
+    },
+    {
+      "attack": "A3",
+      "defense": "F5"
+    },
+    {
+      "attack": "B3",
+      "defense": "F5"
+    },
+    {
+      "attack": "C3",
+      "defense": "F5"
+    },
+    {
+      "attack": "D3",
+      "defense": "F3"
+    },
+    {
+      "attack": "F3",
+      "defense": "G2"
+    },
+    {
+      "attack": "G3",
+      "defense": "F5"
+    },
+    {
+      "attack": "H3",
+      "defense": "F5"
+    },
+    {
+      "attack": "I3",
+      "defense": "F5"
+    },
+    {
+      "attack": "A4",
+      "defense": "F5"
+    },
+    {
+      "attack": "B4",
+      "defense": "F5"
+    },
+    {
+      "attack": "C4",
+      "defense": "F3"
+    },
+    {
+      "attack": "D4",
+      "defense": "F5"
+    },
+    {
+      "attack": "F4",
+      "defense": "F5"
+    },
+    {
+      "attack": "G4",
+      "defense": "F3"
+    },
+    {
+      "attack": "H4",
+      "defense": "F5"
+    },
+    {
+      "attack": "I4",
+      "defense": "F5"
+    },
+    {
+      "attack": "A5",
+      "defense": "F5"
+    },
+    {
+      "attack": "B5",
+      "defense": "F3"
+    },
+    {
+      "attack": "C5",
+      "defense": "G5"
+    },
+    {
+      "attack": "F5",
+      "defense": "G5"
+    },
+    {
+      "attack": "G5",
+      "defense": "F3"
+    },
+    {
+      "attack": "H5",
+      "defense": "F3"
+    },
+    {
+      "attack": "I5",
+      "defense": "F5"
+    },
+    {
+      "attack": "A6",
+      "defense": "F5"
+    },
+    {
+      "attack": "B6",
+      "defense": "F5"
+    },
+    {
+      "attack": "C6",
+      "defense": "E7"
+    },
+    {
+      "attack": "D6",
+      "defense": "F5"
+    },
+    {
+      "attack": "E6",
+      "defense": "F5"
+    },
+    {
+      "attack": "F6",
+      "defense": "F5"
+    },
+    {
+      "attack": "G6",
+      "defense": "F5"
+    },
+    {
+      "attack": "H6",
+      "defense": "F5"
+    },
+    {
+      "attack": "I6",
+      "defense": "F5"
+    },
+    {
+      "attack": "A7",
+      "defense": "F5"
+    },
+    {
+      "attack": "B7",
+      "defense": "F5"
+    },
+    {
+      "attack": "C7",
+      "defense": "F5"
+    },
+    {
+      "attack": "D7",
+      "defense": "F5"
+    },
+    {
+      "attack": "E7",
+      "defense": "F3"
+    },
+    {
+      "attack": "F7",
+      "defense": "F5"
+    },
+    {
+      "attack": "G7",
+      "defense": "F5"
+    },
+    {
+      "attack": "H7",
+      "defense": "F5"
+    },
+    {
+      "attack": "I7",
+      "defense": "F5"
+    },
+    {
+      "attack": "A8",
+      "defense": "F5"
+    },
+    {
+      "attack": "B8",
+      "defense": "F5"
+    },
+    {
+      "attack": "C8",
+      "defense": "F5"
+    },
+    {
+      "attack": "D8",
+      "defense": "F5"
+    },
+    {
+      "attack": "E8",
+      "defense": "F5"
+    },
+    {
+      "attack": "F8",
+      "defense": "F5"
+    },
+    {
+      "attack": "G8",
+      "defense": "F5"
+    },
+    {
+      "attack": "H8",
+      "defense": "F5"
+    },
+    {
+      "attack": "I8",
+      "defense": "F5"
+    },
+    {
+      "attack": "A9",
+      "defense": "F5"
+    },
+    {
+      "attack": "B9",
+      "defense": "F5"
+    },
+    {
+      "attack": "C9",
+      "defense": "F5"
+    },
+    {
+      "attack": "D9",
+      "defense": "F5"
+    },
+    {
+      "attack": "E9",
+      "defense": "F5"
+    },
+    {
+      "attack": "F9",
+      "defense": "F5"
+    },
+    {
+      "attack": "G9",
+      "defense": "F5"
+    },
+    {
+      "attack": "H9",
+      "defense": "F5"
+    },
+    {
+      "attack": "I9",
+      "defense": "F5"
+    }
+  ]
+}

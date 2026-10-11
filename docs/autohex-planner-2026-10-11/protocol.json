@@ -1,0 +1,298 @@
+{
+  "registeredUtc": "2026-10-11T16:30:12.079241+00:00",
+  "baselineCommit": "96c109a59c0bf79a159561ed845715a8e0ab8fee",
+  "candidateSourceStatus": "Frozen before heldout opened; root approved exact engine/planner pair.",
+  "scope": "Precommitted36 paired complete games per version plus12 mixed-policy reversal games. Counts chosen on development cost before any heldout results.",
+  "heldoutSeeds": [
+    3203,
+    3301,
+    3407,
+    3511,
+    3607,
+    3701
+  ],
+  "pairedSchedule": [
+    {
+      "seed": 3203,
+      "rotation": 0,
+      "first": 1
+    },
+    {
+      "seed": 3203,
+      "rotation": 1,
+      "first": 2
+    },
+    {
+      "seed": 3203,
+      "rotation": 2,
+      "first": 3
+    },
+    {
+      "seed": 3203,
+      "rotation": 3,
+      "first": 4
+    },
+    {
+      "seed": 3203,
+      "rotation": 4,
+      "first": 5
+    },
+    {
+      "seed": 3203,
+      "rotation": 5,
+      "first": 6
+    },
+    {
+      "seed": 3301,
+      "rotation": 0,
+      "first": 2
+    },
+    {
+      "seed": 3301,
+      "rotation": 1,
+      "first": 3
+    },
+    {
+      "seed": 3301,
+      "rotation": 2,
+      "first": 4
+    },
+    {
+      "seed": 3301,
+      "rotation": 3,
+      "first": 5
+    },
+    {
+      "seed": 3301,
+      "rotation": 4,
+      "first": 6
+    },
+    {
+      "seed": 3301,
+      "rotation": 5,
+      "first": 1
+    },
+    {
+      "seed": 3407,
+      "rotation": 0,
+      "first": 1
+    },
+    {
+      "seed": 3407,
+      "rotation": 1,
+      "first": 2
+    },
+    {
+      "seed": 3407,
+      "rotation": 2,
+      "first": 3
+    },
+    {
+      "seed": 3407,
+      "rotation": 3,
+      "first": 4
+    },
+    {
+      "seed": 3407,
+      "rotation": 4,
+      "first": 5
+    },
+    {
+      "seed": 3407,
+      "rotation": 5,
+      "first": 6
+    },
+    {
+      "seed": 3511,
+      "rotation": 0,
+      "first": 2
+    },
+    {
+      "seed": 3511,
+      "rotation": 1,
+      "first": 3
+    },
+    {
+      "seed": 3511,
+      "rotation": 2,
+      "first": 4
+    },
+    {
+      "seed": 3511,
+      "rotation": 3,
+      "first": 5
+    },
+    {
+      "seed": 3511,
+      "rotation": 4,
+      "first": 6
+    },
+    {
+      "seed": 3511,
+      "rotation": 5,
+      "first": 1
+    },
+    {
+      "seed": 3607,
+      "rotation": 0,
+      "first": 1
+    },
+    {
+      "seed": 3607,
+      "rotation": 1,
+      "first": 2
+    },
+    {
+      "seed": 3607,
+      "rotation": 2,
+      "first": 3
+    },
+    {
+      "seed": 3607,
+      "rotation": 3,
+      "first": 4
+    },
+    {
+      "seed": 3607,
+      "rotation": 4,
+      "first": 5
+    },
+    {
+      "seed": 3607,
+      "rotation": 5,
+      "first": 6
+    },
+    {
+      "seed": 3701,
+      "rotation": 0,
+      "first": 2
+    },
+    {
+      "seed": 3701,
+      "rotation": 1,
+      "first": 3
+    },
+    {
+      "seed": 3701,
+      "rotation": 2,
+      "first": 4
+    },
+    {
+      "seed": 3701,
+      "rotation": 3,
+      "first": 5
+    },
+    {
+      "seed": 3701,
+      "rotation": 4,
+      "first": 6
+    },
+    {
+      "seed": 3701,
+      "rotation": 5,
+      "first": 1
+    }
+  ],
+  "mixedSchedule": [
+    {
+      "seed": 3203,
+      "rotation": 0,
+      "first": 1,
+      "mixedOffset": 0
+    },
+    {
+      "seed": 3203,
+      "rotation": 0,
+      "first": 1,
+      "mixedOffset": 1
+    },
+    {
+      "seed": 3301,
+      "rotation": 1,
+      "first": 3,
+      "mixedOffset": 0
+    },
+    {
+      "seed": 3301,
+      "rotation": 1,
+      "first": 3,
+      "mixedOffset": 1
+    },
+    {
+      "seed": 3407,
+      "rotation": 2,
+      "first": 3,
+      "mixedOffset": 0
+    },
+    {
+      "seed": 3407,
+      "rotation": 2,
+      "first": 3,
+      "mixedOffset": 1
+    },
+    {
+      "seed": 3511,
+      "rotation": 3,
+      "first": 5,
+      "mixedOffset": 0
+    },
+    {
+      "seed": 3511,
+      "rotation": 3,
+      "first": 5,
+      "mixedOffset": 1
+    },
+    {
+      "seed": 3607,
+      "rotation": 4,
+      "first": 5,
+      "mixedOffset": 0
+    },
+    {
+      "seed": 3607,
+      "rotation": 4,
+      "first": 5,
+      "mixedOffset": 1
+    },
+    {
+      "seed": 3701,
+      "rotation": 5,
+      "first": 1,
+      "mixedOffset": 0
+    },
+    {
+      "seed": 3701,
+      "rotation": 5,
+      "first": 1,
+      "mixedOffset": 1
+    }
+  ],
+  "mixedPolicy": "Planner controls seats with (seat+mixedOffset)%2===1; released policy controls other seats. Same seed/rotation/first for reversal.",
+  "duration": {
+    "actions": 2000,
+    "activeModelMsPerAction": 300,
+    "activeModelMsPerGame": 600000
+  },
+  "balance": "Each starting seat appears6 times overall and once per seed. Each starting profile appears6 times overall. Within each seed only3 starting profiles are represented twice each; profile parity is associated with alternating seed groups. Not a full factorial and cannot separate seed-by-starting-profile interactions.",
+  "mainMeasures": [
+    "completed goals, first timing, holding, directed supplied frontier and independent adjacency route deficit",
+    "actual multi-action execution within commitments, observed supplied targets/frontier changes/air use/goal results; label-only completion is not success",
+    "airport activation through same-airport air use before loss, supplied drops, direct later air-turret hits, observed enemy supply changes",
+    "spatial combat and occupation divided by area; late activity; seed/seat/profile/score disparities",
+    "decision mean/p50/p95/p99/max; node/depth/private-memory bounds; hidden-data invariance and seeded replay"
+  ],
+  "controls": "Development tactical puzzles run with same response policy against baseline; at least one real opponent cut and imminent goal finishing attempt. Fixed-board public-seed variation and memory-reset are mechanism probes, not heldout balance evidence. Mixed-policy games are a limited adversarial probe, not population win-rate proof.",
+  "resources": "At most3 compute workers. Root full Node tests and actual600s browser may share4CPUhost; record contention and avoid device performance claims.",
+  "rules": "No tuning on heldout. Do not reduce counts or discard unfavorable outcomes after results. Any frozen runtime change invalidates affected source comparison and must be labeled as a new candidate.",
+  "freezeConfirmedUtc": "2026-10-11T16:35:08.338670+00:00",
+  "candidateHashes": {
+    "autohex-engine.js": "0c5b3137c803f3f77ddd3fbb34a132f1986a257d3db2d828a1d2628e37c69993",
+    "autohex-planner.js": "2e222d259995f604b07c8b599f681a8ccc025a5e1a709bb649c5c539637ebb7f"
+  },
+  "termination": {
+    "status": "REJECTED / PREREGISTERED STUDY INCOMPLETE",
+    "decisionUtc": "2026-10-11T16:45:16.269881+00:00",
+    "record": "rejection-v1.json",
+    "plannedSchedulePreserved": true
+  }
+}

@@ -1,7 +1,6 @@
 'use strict';
-const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),vm=require('node:vm');
-const html=fs.readFileSync(path.join(__dirname,'..','card_hex.html'),'utf8');
-const H=vm.runInNewContext(html.match(/<script id="hex-engine">([\s\S]*?)<\/script>/)[1]+'; CardHex;');
+const {test,loadHistoricalHex}=require('./helpers/historical-hex.cjs'),assert=require('node:assert/strict');
+const H=loadHistoricalHex();
 const seeded=seed=>()=>((seed=(Math.imul(seed,1664525)+1013904223)>>>0)/4294967296),blank=()=>Array(H.COUNT).fill(0),plain=v=>JSON.parse(JSON.stringify(v));
 const at=(q,r)=>H.index(q,r),center=at(0,0),g=()=>{const x=new H.Game(seeded(1));x.start();return x;};
 const line=(board,p,except=[])=>{for(let r=-5;r<=5;r++){const i=at(0,r);if(!except.includes(i))board[i]=p;}};

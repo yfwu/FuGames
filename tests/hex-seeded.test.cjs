@@ -1,6 +1,6 @@
 'use strict';
-const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
-const H=vm.runInNewContext(fs.readFileSync(require('node:path').join(__dirname,'../card_hex.html'),'utf8').match(/<script id="hex-engine">([\s\S]*?)<\/script>/)[1]+';CardHex;');
+const {test,loadHistoricalHex}=require('./helpers/historical-hex.cjs'),assert=require('node:assert/strict');
+const H=loadHistoricalHex();
 const at=H.index,center=at(0,0),plain=x=>JSON.parse(JSON.stringify(x));
 function game(options={}){const g=new H.Game(H.seeded('fixture'),'rush',1,{seed:'fixture',...options});g.start();return g;}
 function move(g){const i=g.board.findIndex((v,i)=>!v&&H.walkable(i,g.terrain,g.roads)&&H.distance(i,center)>2);assert.ok(i>=0);assert.ok(g.act({type:'place',cells:[i]}));}

@@ -1,0 +1,1165 @@
+{
+  "version": 1,
+  "status": "execution authorized; all preregistered counts fixed, completed status is in execution.json",
+  "createdUtc": "2026-10-11T17:19:36.648938+00:00",
+  "scope": "Current shared core only; unchanged rules between policies. Old96c109a is not a valid rule-identical opponent. Prior V1 heldout was inspected, informed investigation/rejection, and retired. Reserved Auto seeds below remain unopened.",
+  "sourcesToCapture": [
+    "hex-core.js",
+    "autohex-planner.js",
+    "hex-strategies.js",
+    "config/hex-strategies.json"
+  ],
+  "resolver": "Capture source bytes once and resolve all relative dependencies exclusively from captured modules; hash gate before launch and include sources+hashes in each output.",
+  "policies": {
+    "candidate": "chooseAction",
+    "control": "greedyAction on the SAME shared core/public observation; myopic implementation, not a claim of optimal strength",
+    "mixed": "alternate candidate/myopic seats then reverse for each of six seeds"
+  },
+  "autoSchedule": [
+    {
+      "seed": 73013,
+      "rotation": 0,
+      "first": 1
+    },
+    {
+      "seed": 73013,
+      "rotation": 0,
+      "first": 2
+    },
+    {
+      "seed": 74101,
+      "rotation": 1,
+      "first": 2
+    },
+    {
+      "seed": 74101,
+      "rotation": 1,
+      "first": 3
+    },
+    {
+      "seed": 75209,
+      "rotation": 2,
+      "first": 3
+    },
+    {
+      "seed": 75209,
+      "rotation": 2,
+      "first": 4
+    },
+    {
+      "seed": 76303,
+      "rotation": 3,
+      "first": 4
+    },
+    {
+      "seed": 76303,
+      "rotation": 3,
+      "first": 5
+    },
+    {
+      "seed": 77417,
+      "rotation": 4,
+      "first": 5
+    },
+    {
+      "seed": 77417,
+      "rotation": 4,
+      "first": 6
+    },
+    {
+      "seed": 78511,
+      "rotation": 5,
+      "first": 6
+    },
+    {
+      "seed": 78511,
+      "rotation": 5,
+      "first": 1
+    }
+  ],
+  "autoGames": {
+    "candidate": 12,
+    "control": 12,
+    "mixed": 12,
+    "actionsPerGame": 2000,
+    "modelMsPerAction": 300,
+    "terminalModelMs": 600000
+  },
+  "mixedSchedule": [
+    {
+      "seed": 73013,
+      "rotation": 0,
+      "first": 1,
+      "mixedOffset": 0,
+      "candidateSeats": [
+        1,
+        3,
+        5
+      ]
+    },
+    {
+      "seed": 73013,
+      "rotation": 0,
+      "first": 1,
+      "mixedOffset": 1,
+      "candidateSeats": [
+        2,
+        4,
+        6
+      ]
+    },
+    {
+      "seed": 74101,
+      "rotation": 1,
+      "first": 3,
+      "mixedOffset": 0,
+      "candidateSeats": [
+        1,
+        3,
+        5
+      ]
+    },
+    {
+      "seed": 74101,
+      "rotation": 1,
+      "first": 3,
+      "mixedOffset": 1,
+      "candidateSeats": [
+        2,
+        4,
+        6
+      ]
+    },
+    {
+      "seed": 75209,
+      "rotation": 2,
+      "first": 3,
+      "mixedOffset": 0,
+      "candidateSeats": [
+        1,
+        3,
+        5
+      ]
+    },
+    {
+      "seed": 75209,
+      "rotation": 2,
+      "first": 3,
+      "mixedOffset": 1,
+      "candidateSeats": [
+        2,
+        4,
+        6
+      ]
+    },
+    {
+      "seed": 76303,
+      "rotation": 3,
+      "first": 5,
+      "mixedOffset": 0,
+      "candidateSeats": [
+        1,
+        3,
+        5
+      ]
+    },
+    {
+      "seed": 76303,
+      "rotation": 3,
+      "first": 5,
+      "mixedOffset": 1,
+      "candidateSeats": [
+        2,
+        4,
+        6
+      ]
+    },
+    {
+      "seed": 77417,
+      "rotation": 4,
+      "first": 5,
+      "mixedOffset": 0,
+      "candidateSeats": [
+        1,
+        3,
+        5
+      ]
+    },
+    {
+      "seed": 77417,
+      "rotation": 4,
+      "first": 5,
+      "mixedOffset": 1,
+      "candidateSeats": [
+        2,
+        4,
+        6
+      ]
+    },
+    {
+      "seed": 78511,
+      "rotation": 5,
+      "first": 1,
+      "mixedOffset": 0,
+      "candidateSeats": [
+        1,
+        3,
+        5
+      ]
+    },
+    {
+      "seed": 78511,
+      "rotation": 5,
+      "first": 1,
+      "mixedOffset": 1,
+      "candidateSeats": [
+        2,
+        4,
+        6
+      ]
+    }
+  ],
+  "normalSchedule": [
+    {
+      "playerCount": 2,
+      "seed": 81213,
+      "first": 1,
+      "rotation": 0
+    },
+    {
+      "playerCount": 2,
+      "seed": 81213,
+      "first": 2,
+      "rotation": 1
+    },
+    {
+      "playerCount": 2,
+      "seed": 82209,
+      "first": 1,
+      "rotation": 2
+    },
+    {
+      "playerCount": 2,
+      "seed": 82209,
+      "first": 2,
+      "rotation": 3
+    },
+    {
+      "playerCount": 3,
+      "seed": 81313,
+      "first": 1,
+      "rotation": 0
+    },
+    {
+      "playerCount": 3,
+      "seed": 81313,
+      "first": 2,
+      "rotation": 1
+    },
+    {
+      "playerCount": 3,
+      "seed": 81313,
+      "first": 3,
+      "rotation": 2
+    },
+    {
+      "playerCount": 3,
+      "seed": 82309,
+      "first": 1,
+      "rotation": 3
+    },
+    {
+      "playerCount": 3,
+      "seed": 82309,
+      "first": 2,
+      "rotation": 4
+    },
+    {
+      "playerCount": 3,
+      "seed": 82309,
+      "first": 3,
+      "rotation": 5
+    },
+    {
+      "playerCount": 4,
+      "seed": 81413,
+      "first": 1,
+      "rotation": 0
+    },
+    {
+      "playerCount": 4,
+      "seed": 81413,
+      "first": 2,
+      "rotation": 1
+    },
+    {
+      "playerCount": 4,
+      "seed": 81413,
+      "first": 3,
+      "rotation": 2
+    },
+    {
+      "playerCount": 4,
+      "seed": 81413,
+      "first": 4,
+      "rotation": 3
+    },
+    {
+      "playerCount": 4,
+      "seed": 82409,
+      "first": 1,
+      "rotation": 4
+    },
+    {
+      "playerCount": 4,
+      "seed": 82409,
+      "first": 2,
+      "rotation": 5
+    },
+    {
+      "playerCount": 4,
+      "seed": 82409,
+      "first": 3,
+      "rotation": 0
+    },
+    {
+      "playerCount": 4,
+      "seed": 82409,
+      "first": 4,
+      "rotation": 1
+    },
+    {
+      "playerCount": 5,
+      "seed": 81513,
+      "first": 1,
+      "rotation": 0
+    },
+    {
+      "playerCount": 5,
+      "seed": 81513,
+      "first": 2,
+      "rotation": 1
+    },
+    {
+      "playerCount": 5,
+      "seed": 81513,
+      "first": 3,
+      "rotation": 2
+    },
+    {
+      "playerCount": 5,
+      "seed": 81513,
+      "first": 4,
+      "rotation": 3
+    },
+    {
+      "playerCount": 5,
+      "seed": 81513,
+      "first": 5,
+      "rotation": 4
+    },
+    {
+      "playerCount": 5,
+      "seed": 82509,
+      "first": 1,
+      "rotation": 5
+    },
+    {
+      "playerCount": 5,
+      "seed": 82509,
+      "first": 2,
+      "rotation": 0
+    },
+    {
+      "playerCount": 5,
+      "seed": 82509,
+      "first": 3,
+      "rotation": 1
+    },
+    {
+      "playerCount": 5,
+      "seed": 82509,
+      "first": 4,
+      "rotation": 2
+    },
+    {
+      "playerCount": 5,
+      "seed": 82509,
+      "first": 5,
+      "rotation": 3
+    },
+    {
+      "playerCount": 6,
+      "seed": 81613,
+      "first": 1,
+      "rotation": 0
+    },
+    {
+      "playerCount": 6,
+      "seed": 81613,
+      "first": 2,
+      "rotation": 1
+    },
+    {
+      "playerCount": 6,
+      "seed": 81613,
+      "first": 3,
+      "rotation": 2
+    },
+    {
+      "playerCount": 6,
+      "seed": 81613,
+      "first": 4,
+      "rotation": 3
+    },
+    {
+      "playerCount": 6,
+      "seed": 81613,
+      "first": 5,
+      "rotation": 4
+    },
+    {
+      "playerCount": 6,
+      "seed": 81613,
+      "first": 6,
+      "rotation": 5
+    },
+    {
+      "playerCount": 6,
+      "seed": 82609,
+      "first": 1,
+      "rotation": 0
+    },
+    {
+      "playerCount": 6,
+      "seed": 82609,
+      "first": 2,
+      "rotation": 1
+    },
+    {
+      "playerCount": 6,
+      "seed": 82609,
+      "first": 3,
+      "rotation": 2
+    },
+    {
+      "playerCount": 6,
+      "seed": 82609,
+      "first": 4,
+      "rotation": 3
+    },
+    {
+      "playerCount": 6,
+      "seed": 82609,
+      "first": 5,
+      "rotation": 4
+    },
+    {
+      "playerCount": 6,
+      "seed": 82609,
+      "first": 6,
+      "rotation": 5
+    }
+  ],
+  "normalMatrix": [
+    {
+      "playerCount": 2,
+      "seed": 88103,
+      "first": 1,
+      "rotation": 0,
+      "strategyIds": [
+        "vanguard",
+        "airhead"
+      ]
+    },
+    {
+      "playerCount": 2,
+      "seed": 88103,
+      "first": 1,
+      "rotation": 0,
+      "strategyIds": [
+        "airhead",
+        "vanguard"
+      ]
+    },
+    {
+      "playerCount": 2,
+      "seed": 88103,
+      "first": 1,
+      "rotation": 0,
+      "strategyIds": [
+        "vanguard",
+        "flanker"
+      ]
+    },
+    {
+      "playerCount": 2,
+      "seed": 88103,
+      "first": 1,
+      "rotation": 0,
+      "strategyIds": [
+        "flanker",
+        "vanguard"
+      ]
+    },
+    {
+      "playerCount": 2,
+      "seed": 88103,
+      "first": 1,
+      "rotation": 0,
+      "strategyIds": [
+        "vanguard",
+        "interdict"
+      ]
+    },
+    {
+      "playerCount": 2,
+      "seed": 88103,
+      "first": 1,
+      "rotation": 0,
+      "strategyIds": [
+        "interdict",
+        "vanguard"
+      ]
+    },
+    {
+      "playerCount": 2,
+      "seed": 88103,
+      "first": 1,
+      "rotation": 0,
+      "strategyIds": [
+        "vanguard",
+        "recover"
+      ]
+    },
+    {
+      "playerCount": 2,
+      "seed": 88103,
+      "first": 1,
+      "rotation": 0,
+      "strategyIds": [
+        "recover",
+        "vanguard"
+      ]
+    },
+    {
+      "playerCount": 2,
+      "seed": 88103,
+      "first": 1,
+      "rotation": 0,
+      "strategyIds": [
+        "vanguard",
+        "envoy"
+      ]
+    },
+    {
+      "playerCount": 2,
+      "seed": 88103,
+      "first": 1,
+      "rotation": 0,
+      "strategyIds": [
+        "envoy",
+        "vanguard"
+      ]
+    },
+    {
+      "playerCount": 2,
+      "seed": 88103,
+      "first": 1,
+      "rotation": 0,
+      "strategyIds": [
+        "airhead",
+        "flanker"
+      ]
+    },
+    {
+      "playerCount": 2,
+      "seed": 88103,
+      "first": 1,
+      "rotation": 0,
+      "strategyIds": [
+        "flanker",
+        "airhead"
+      ]
+    },
+    {
+      "playerCount": 2,
+      "seed": 88103,
+      "first": 1,
+      "rotation": 0,
+      "strategyIds": [
+        "airhead",
+        "interdict"
+      ]
+    },
+    {
+      "playerCount": 2,
+      "seed": 88103,
+      "first": 1,
+      "rotation": 0,
+      "strategyIds": [
+        "interdict",
+        "airhead"
+      ]
+    },
+    {
+      "playerCount": 2,
+      "seed": 88103,
+      "first": 1,
+      "rotation": 0,
+      "strategyIds": [
+        "airhead",
+        "recover"
+      ]
+    },
+    {
+      "playerCount": 2,
+      "seed": 88103,
+      "first": 1,
+      "rotation": 0,
+      "strategyIds": [
+        "recover",
+        "airhead"
+      ]
+    },
+    {
+      "playerCount": 2,
+      "seed": 88103,
+      "first": 1,
+      "rotation": 0,
+      "strategyIds": [
+        "airhead",
+        "envoy"
+      ]
+    },
+    {
+      "playerCount": 2,
+      "seed": 88103,
+      "first": 1,
+      "rotation": 0,
+      "strategyIds": [
+        "envoy",
+        "airhead"
+      ]
+    },
+    {
+      "playerCount": 2,
+      "seed": 88103,
+      "first": 1,
+      "rotation": 0,
+      "strategyIds": [
+        "flanker",
+        "interdict"
+      ]
+    },
+    {
+      "playerCount": 2,
+      "seed": 88103,
+      "first": 1,
+      "rotation": 0,
+      "strategyIds": [
+        "interdict",
+        "flanker"
+      ]
+    },
+    {
+      "playerCount": 2,
+      "seed": 88103,
+      "first": 1,
+      "rotation": 0,
+      "strategyIds": [
+        "flanker",
+        "recover"
+      ]
+    },
+    {
+      "playerCount": 2,
+      "seed": 88103,
+      "first": 1,
+      "rotation": 0,
+      "strategyIds": [
+        "recover",
+        "flanker"
+      ]
+    },
+    {
+      "playerCount": 2,
+      "seed": 88103,
+      "first": 1,
+      "rotation": 0,
+      "strategyIds": [
+        "flanker",
+        "envoy"
+      ]
+    },
+    {
+      "playerCount": 2,
+      "seed": 88103,
+      "first": 1,
+      "rotation": 0,
+      "strategyIds": [
+        "envoy",
+        "flanker"
+      ]
+    },
+    {
+      "playerCount": 2,
+      "seed": 88103,
+      "first": 1,
+      "rotation": 0,
+      "strategyIds": [
+        "interdict",
+        "recover"
+      ]
+    },
+    {
+      "playerCount": 2,
+      "seed": 88103,
+      "first": 1,
+      "rotation": 0,
+      "strategyIds": [
+        "recover",
+        "interdict"
+      ]
+    },
+    {
+      "playerCount": 2,
+      "seed": 88103,
+      "first": 1,
+      "rotation": 0,
+      "strategyIds": [
+        "interdict",
+        "envoy"
+      ]
+    },
+    {
+      "playerCount": 2,
+      "seed": 88103,
+      "first": 1,
+      "rotation": 0,
+      "strategyIds": [
+        "envoy",
+        "interdict"
+      ]
+    },
+    {
+      "playerCount": 2,
+      "seed": 88103,
+      "first": 1,
+      "rotation": 0,
+      "strategyIds": [
+        "recover",
+        "envoy"
+      ]
+    },
+    {
+      "playerCount": 2,
+      "seed": 88103,
+      "first": 1,
+      "rotation": 0,
+      "strategyIds": [
+        "envoy",
+        "recover"
+      ]
+    },
+    {
+      "playerCount": 2,
+      "seed": 89209,
+      "first": 1,
+      "rotation": 0,
+      "strategyIds": [
+        "vanguard",
+        "airhead"
+      ]
+    },
+    {
+      "playerCount": 2,
+      "seed": 89209,
+      "first": 1,
+      "rotation": 0,
+      "strategyIds": [
+        "airhead",
+        "vanguard"
+      ]
+    },
+    {
+      "playerCount": 2,
+      "seed": 89209,
+      "first": 1,
+      "rotation": 0,
+      "strategyIds": [
+        "vanguard",
+        "flanker"
+      ]
+    },
+    {
+      "playerCount": 2,
+      "seed": 89209,
+      "first": 1,
+      "rotation": 0,
+      "strategyIds": [
+        "flanker",
+        "vanguard"
+      ]
+    },
+    {
+      "playerCount": 2,
+      "seed": 89209,
+      "first": 1,
+      "rotation": 0,
+      "strategyIds": [
+        "vanguard",
+        "interdict"
+      ]
+    },
+    {
+      "playerCount": 2,
+      "seed": 89209,
+      "first": 1,
+      "rotation": 0,
+      "strategyIds": [
+        "interdict",
+        "vanguard"
+      ]
+    },
+    {
+      "playerCount": 2,
+      "seed": 89209,
+      "first": 1,
+      "rotation": 0,
+      "strategyIds": [
+        "vanguard",
+        "recover"
+      ]
+    },
+    {
+      "playerCount": 2,
+      "seed": 89209,
+      "first": 1,
+      "rotation": 0,
+      "strategyIds": [
+        "recover",
+        "vanguard"
+      ]
+    },
+    {
+      "playerCount": 2,
+      "seed": 89209,
+      "first": 1,
+      "rotation": 0,
+      "strategyIds": [
+        "vanguard",
+        "envoy"
+      ]
+    },
+    {
+      "playerCount": 2,
+      "seed": 89209,
+      "first": 1,
+      "rotation": 0,
+      "strategyIds": [
+        "envoy",
+        "vanguard"
+      ]
+    },
+    {
+      "playerCount": 2,
+      "seed": 89209,
+      "first": 1,
+      "rotation": 0,
+      "strategyIds": [
+        "airhead",
+        "flanker"
+      ]
+    },
+    {
+      "playerCount": 2,
+      "seed": 89209,
+      "first": 1,
+      "rotation": 0,
+      "strategyIds": [
+        "flanker",
+        "airhead"
+      ]
+    },
+    {
+      "playerCount": 2,
+      "seed": 89209,
+      "first": 1,
+      "rotation": 0,
+      "strategyIds": [
+        "airhead",
+        "interdict"
+      ]
+    },
+    {
+      "playerCount": 2,
+      "seed": 89209,
+      "first": 1,
+      "rotation": 0,
+      "strategyIds": [
+        "interdict",
+        "airhead"
+      ]
+    },
+    {
+      "playerCount": 2,
+      "seed": 89209,
+      "first": 1,
+      "rotation": 0,
+      "strategyIds": [
+        "airhead",
+        "recover"
+      ]
+    },
+    {
+      "playerCount": 2,
+      "seed": 89209,
+      "first": 1,
+      "rotation": 0,
+      "strategyIds": [
+        "recover",
+        "airhead"
+      ]
+    },
+    {
+      "playerCount": 2,
+      "seed": 89209,
+      "first": 1,
+      "rotation": 0,
+      "strategyIds": [
+        "airhead",
+        "envoy"
+      ]
+    },
+    {
+      "playerCount": 2,
+      "seed": 89209,
+      "first": 1,
+      "rotation": 0,
+      "strategyIds": [
+        "envoy",
+        "airhead"
+      ]
+    },
+    {
+      "playerCount": 2,
+      "seed": 89209,
+      "first": 1,
+      "rotation": 0,
+      "strategyIds": [
+        "flanker",
+        "interdict"
+      ]
+    },
+    {
+      "playerCount": 2,
+      "seed": 89209,
+      "first": 1,
+      "rotation": 0,
+      "strategyIds": [
+        "interdict",
+        "flanker"
+      ]
+    },
+    {
+      "playerCount": 2,
+      "seed": 89209,
+      "first": 1,
+      "rotation": 0,
+      "strategyIds": [
+        "flanker",
+        "recover"
+      ]
+    },
+    {
+      "playerCount": 2,
+      "seed": 89209,
+      "first": 1,
+      "rotation": 0,
+      "strategyIds": [
+        "recover",
+        "flanker"
+      ]
+    },
+    {
+      "playerCount": 2,
+      "seed": 89209,
+      "first": 1,
+      "rotation": 0,
+      "strategyIds": [
+        "flanker",
+        "envoy"
+      ]
+    },
+    {
+      "playerCount": 2,
+      "seed": 89209,
+      "first": 1,
+      "rotation": 0,
+      "strategyIds": [
+        "envoy",
+        "flanker"
+      ]
+    },
+    {
+      "playerCount": 2,
+      "seed": 89209,
+      "first": 1,
+      "rotation": 0,
+      "strategyIds": [
+        "interdict",
+        "recover"
+      ]
+    },
+    {
+      "playerCount": 2,
+      "seed": 89209,
+      "first": 1,
+      "rotation": 0,
+      "strategyIds": [
+        "recover",
+        "interdict"
+      ]
+    },
+    {
+      "playerCount": 2,
+      "seed": 89209,
+      "first": 1,
+      "rotation": 0,
+      "strategyIds": [
+        "interdict",
+        "envoy"
+      ]
+    },
+    {
+      "playerCount": 2,
+      "seed": 89209,
+      "first": 1,
+      "rotation": 0,
+      "strategyIds": [
+        "envoy",
+        "interdict"
+      ]
+    },
+    {
+      "playerCount": 2,
+      "seed": 89209,
+      "first": 1,
+      "rotation": 0,
+      "strategyIds": [
+        "recover",
+        "envoy"
+      ]
+    },
+    {
+      "playerCount": 2,
+      "seed": 89209,
+      "first": 1,
+      "rotation": 0,
+      "strategyIds": [
+        "envoy",
+        "recover"
+      ]
+    }
+  ],
+  "normalGames": {
+    "activeSeatCoverage": 40,
+    "headToHeadMatrix": 60,
+    "terminal": "actual first settled connection or100*activeSeats actions; no synthetic timeout win"
+  },
+  "metrics": [
+    "legality/no fallback substitutions",
+    "actual supplied goal arrivals and holding",
+    "actual air shots and route/supply disruption",
+    "bridge/tunnel builds and sabotage, repeated build-collapse sequences",
+    "last-quarter meaningful board changes/combat/goals",
+    "private program airportSpent budget and actual post-action completion",
+    "winner/score by seat, geometric slot, strategy and first mover",
+    "decision mean/p95/max, total model time and wall time under shared CPU",
+    "last quarter means the final quarter of each actual completed match, not the nominal action cap"
+  ],
+  "limits": [
+    "Two configs per independent Auto seed, balanced globally not fully factorial within seed.",
+    "Mixed seat parity is reversed, not every six-seat policy assignment.",
+    "Normal first seats exhausted per seed, profiles rotated deterministically but not fully factorial.",
+    "Two independent matrix seeds cannot establish universal pair strength or cyclic dominance.",
+    "No heldout tuning or outcome-dependent sample reduction; retain all outcomes and explicit aborts.",
+    "Only automated simulations; browser clocks and human input are separate evidence.",
+    "Six independent seeds, two configurations per seed. Each seed has one profile rotation and two consecutive starting seats/profiles. All six seat/profile/rotation margins balance globally, not within each seed. Seed-by-profile and seed-by-seat interactions are not identified; this is not a full factorial.",
+    "First profiles balance globally; only odd starting seats1/3/5 occur, each4 times. Policy reversal balances which policy starts each seed. Limited adversarial probe, not population win-rate estimate.",
+    "Formal cohort uses default seeded terrain, retained cards and enabled public neutral events; classic/timed options are verified by fixtures and browser checks, not a fully crossed campaign study."
+  ],
+  "execution": {
+    "maxWorkers": 3,
+    "formalGate": "targeted tests pass, complete counteraware development games reviewed, parent declares all modules/config frozen",
+    "estimatedWall": "about15–30minutes shared CPU, contingent on final decision costs; not a benchmark",
+    "initialWorkersDuringBrowser600s": 2,
+    "sharedLoad": "Formal study starts after a dedicated quiet performance window. At most2 study workers while the real600-second UI campaign runs; after parent releases the browser window at most3. Wall timings are not isolated performance benchmarks.",
+    "batchOrder": [
+      "normal(2 shards)",
+      "matrix(2 shards)",
+      "control(1 shard)",
+      "candidate(3 shards)",
+      "mixed(3 shards)"
+    ],
+    "orderingReason": "Chosen before opening any formal seed: return complete normal seat and head-to-head coverage during browser campaign, then longer Auto games. Counts and configurations are unchanged."
+  },
+  "pairedMargins": {
+    "firstSeats": {
+      "1": 2,
+      "2": 2,
+      "3": 2,
+      "4": 2,
+      "5": 2,
+      "6": 2
+    },
+    "firstProfileIndices": {
+      "0": 2,
+      "1": 2,
+      "2": 2,
+      "3": 2,
+      "4": 2,
+      "5": 2
+    },
+    "profileRotations": {
+      "0": 2,
+      "1": 2,
+      "2": 2,
+      "3": 2,
+      "4": 2,
+      "5": 2
+    }
+  },
+  "mixedMargins": {
+    "firstSeats": {
+      "1": 4,
+      "3": 4,
+      "5": 4
+    },
+    "firstProfileIndices": {
+      "0": 2,
+      "3": 2,
+      "4": 2,
+      "1": 2,
+      "2": 2,
+      "5": 2
+    },
+    "profileRotations": {
+      "0": 2,
+      "1": 2,
+      "2": 2,
+      "3": 2,
+      "4": 2,
+      "5": 2
+    }
+  },
+  "matchOptions": {
+    "terrain": "seeded (default)",
+    "timedCards": false,
+    "neutralEvents": true,
+    "normalControls": "all AI",
+    "defaultStrategies": "six validated JSON profiles; matrix explicitly selects the two compared IDs"
+  },
+  "startedUtc": "2026-10-11T17:39:02.955373+00:00"
+}

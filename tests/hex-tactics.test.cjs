@@ -1,7 +1,6 @@
 'use strict';
-const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
-const source=fs.readFileSync(path.join(__dirname,'../card_hex.html'),'utf8').match(/<script id="hex-engine">([\s\S]*?)<\/script>/)[1];
-const H=new Function(source+';return CardHex;')(),at=H.index,C=at(0,0),E=at(1,0);
+const {test,loadHistoricalHex}=require('./helpers/historical-hex.cjs'),assert=require('node:assert/strict');
+const H=loadHistoricalHex('function'),at=H.index,C=at(0,0),E=at(1,0);
 function game(options={}){const g=new H.Game(H.seeded('tactics'),'rush',1,{seed:'tactics',...options});g.start();return g;}
 function hand(g,p,cards){g.hands[p]=cards.slice();g.deadlines[p]=cards.map(()=>g.completed[p]+3);}
 function invalid(g,a){const before=JSON.stringify(g);assert.equal(H.legalAction(g.observation(),a),false);assert.equal(g.act(a),false);assert.equal(JSON.stringify(g),before);}

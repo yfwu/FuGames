@@ -1,0 +1,31 @@
+✔ public forward model preserves paid cards, automatic turret fire, shields and owner upkeep (64.302868ms)
+✔ public forward model resolves already announced neutral protection and supply loss like real rules (70.619717ms)
+✔ public forward model uses only known actor cards, cannot read private getters, and owns independent copies (4.758945ms)
+✔ public forward model does not invent an unannounced future neutral target (3.636741ms)
+✔ public forward model invalidates supply caches after bridges, reroutes, exchange and engineering (42.345184ms)
+✔ normal public simulation settles a winning move once and refuses all terminal or ready actions (34.69577ms)
+✔ public simulation preserves known card expiry, hill retreat and public tunnel sabotage (13.079306ms)
+✔ shared factories isolate geometries and all2–6active seat clocks, homes and directed goals (324.960885ms)
+✔ every spatial selection uses own pre-action radius5 independently of straight bridge span2–3 (476.158812ms)
+✔ both modes reject every-owner surface duplicate, reverse, overlap, crossing andT but share true endpoints (887.585562ms)
+✔ bent tunnels provide an actual owner-only supply edge without claiming or terraforming interiors (37.946555ms)
+✔ tunnel path bounds reject jumps, loops, repeats andfour edges even when endpoints are nearby (218.968002ms)
+✔ tunnel interiors exclude anchors, facilities, turrets andother tunnels; surface crossings remain legal (242.080532ms)
+✔ public tunnel counterplay costs two energy, honors pacts, andendpoint loss immediately collapses it (97.830993ms)
+✔ engineering really converts river/hill state to ordinary terrain; bridges do not (153.407177ms)
+✔ hill retreat counts exactlythree subsequent owner actions, while engineering ownhill stabilizes it (69.031937ms)
+✔ normal mode rejects all diplomacy at the engine boundary including injected offers (54.135481ms)
+✔ every active seat shares one13-per-seat shoe with exactlyone shield per recipe and finite reshuffle conservation (150.098217ms)
+✔ optional card expiry uses own action clocks and returns cards to the same physical shoe (33.009924ms)
+✔ normal first settled connection ends immediately whileAuto continues the scored campaign (58.933746ms)
+✔ normal finite100-per-active-seat action cap andAuto foreground clock have explicit separate endings (197.375082ms)
+✔ seeded terrain is identical for every normal seat count, including inactive home clearings (158.504879ms)
+✔ identical local positions resolve the same paid common actions in normal and Auto modes (83.60145ms)
+ℹ tests 23
+ℹ suites 0
+ℹ pass 23
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3484.83712

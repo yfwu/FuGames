@@ -1,7 +1,8 @@
+// HISTORICAL ONLY: released96c109a normal Hex rules; not shared-core validation.
 'use strict';
 // Reproducible balance study, intentionally outside *.test.cjs and ordinary CI.
 const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),assert=require('node:assert/strict');
-const root=path.join(__dirname,'..'),source=fs.readFileSync(path.join(root,'card_hex.html'),'utf8');
+const root=path.join(__dirname,'..'),source=fs.readFileSync(path.join(root,'tests/fixtures/card_hex-96c109a.html'),'utf8');
 const H=vm.runInNewContext(source.match(/<script id="hex-engine">([\s\S]*?)<\/script>/)[1]+';CardHex;');
 const rng=seed=>()=>((seed=(Math.imul(seed,1664525)+1013904223)>>>0)/4294967296),seeds=Array.from({length:24},(_,i)=>101+i*137),cards=Object.keys(H.CARD_COUNTS);
 const percentile=(a,p)=>a.slice().sort((x,y)=>x-y)[Math.max(0,Math.ceil(a.length*p)-1)]||0;

@@ -105,7 +105,7 @@ test('AutoHex airdrop extends only from an active airport to distance 10, costs 
   invalid(g, action('deploy', [near])); invalid(g, action('airdrop', [airport, far])); invalid(g, action('airdrop', [g.players[1].home, near]));
   g.players[1].supplies = 2; invalid(g, action('airdrop', [airport, near])); g.players[1].supplies = 6;
   g.players[1].energy = 5; invalid(g, action('airdrop', [airport, near])); g.players[1].energy = 8;
-  g.terrain[near] = 1; invalid(g, action('airdrop', [airport, near])); g.roads[near] = 1;
+  g.terrain[near] = 1; invalid(g, action('airdrop', [airport, near])); g.terrain[near] = 0; g.roads[near] = 0;
   assert.ok(g.act(action('airdrop', [airport, near]))); assert.equal(g.board[near], 1); assert.ok(g.turrets.some(t => t.owner === 1 && t.cell === near));
   assert.equal(g.players[1].energy, 2); assert.equal(g.players[1].supplies, 3); assert.equal(g.players[1].airCooldown, 6); assert.equal(g.ply, 1); assert.equal(g.age[near], 0);
   assert.deepEqual(g.hands[1], hand); assert.equal(g.telemetry.cardsUsed, 0);
@@ -207,7 +207,7 @@ test('AutoHex AI uses a ready airport to break a remote supplied enemy goal and 
 
 test('AutoHex AI uses a supplied defensive airdrop while retaining a real opposite-edge route', () => {
   const { g, airport, cluster } = airportFixture();
-  const goal = at(-18, 0); pathTo(g, goal); assert.equal(H.computeSupply(g, 1)[goal], 1);
+  const goal = H.CELLS.find(c=>H.goalCell(g,1,c.i)&&!g.anchors[c.i]).i; pathTo(g, goal); assert.equal(H.computeSupply(g, 1)[goal], 1);
   const facilities = new Set([...g.airports, ...g.depots].map(a => a.cell));
   const landing = H.CELLS.find(c => !g.board[c.i] && H.distance(c.i, airport) <= 4 && H.ADJ[c.i].some(i => cluster.includes(i))).i;
   const enemies = H.CELLS.filter(c => !g.board[c.i] && !g.anchors[c.i] && !facilities.has(c.i) &&

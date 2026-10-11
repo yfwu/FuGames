@@ -1,7 +1,8 @@
+// HISTORICAL ONLY: released96c109a normal Hex rules; not shared-core validation.
 'use strict';
 // Actual legal games: no profile-dependent winner rules or manufactured bonuses.
 const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),assert=require('node:assert/strict'),crypto=require('node:crypto');
-const root=path.join(__dirname,'..'),source=fs.readFileSync(path.join(root,'card_hex.html'),'utf8').match(/<script id="hex-engine">([\s\S]*?)<\/script>/)[1],H=vm.runInNewContext(source+';CardHex;');
+const root=path.join(__dirname,'..'),source=fs.readFileSync(path.join(root,'tests/fixtures/card_hex-96c109a.html'),'utf8').match(/<script id="hex-engine">([\s\S]*?)<\/script>/)[1],H=vm.runInNewContext(source+';CardHex;');
 const profiles=['rush','cutter','multi'],seeds=[101,307,509,719,929,1151],matches=[],timings=[],started=performance.now(),counts={actions:{},events:{},illegal:0};
 function run(seed,lineup,first,axis,timed,neutral,group){
  const g=new H.Game(H.seeded(seed),'rush',first,{seed,terrain:'seeded',cards:'mixed',timed,neutral});g.reset(first,axis);g.profiles=[null,...lineup];g.start();let steps=0;

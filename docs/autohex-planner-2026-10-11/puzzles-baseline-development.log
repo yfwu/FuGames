@@ -1,0 +1,84 @@
+✔ planner follows a supplied flank around a defended central barrier over several owner turns (190.226566ms)
+✔ planner completes a nearby goal instead of collecting an unrelated nearly ready airport (55.027644ms)
+✖ planner develops a useful airport, holds it, and actually disrupts the remote scoring route (104.294008ms)
+✔ planner repairs a severed goal route and retains real supply through following turns (35.943446ms)
+✔ planner reassesses after an active opponent legally cuts the committed route, then reconnects and finishes (38.337388ms)
+✔ planner stops an imminent enemy connection before the opponent attempts its finishing deployment (13.686539ms)
+✖ planner breaks an obstructing pact and then exploits the opening with legal paid actions (63.092987ms)
+✖ planner accepts a useful public truce that prevents an immediate supply cut and then completes its route (49.839211ms)
+﹣ planner is deterministic and reads no opponent hand, deck order, or raw private fields (0.46593ms) # SKIP
+﹣ only accepted actions commit private memory; observations isolate it and reset clears all plans (1.001829ms) # SKIP
+﹣ malformed planner metadata cannot inject unbounded paths, hidden fields, scores, or another player intent (0.309315ms) # SKIP
+﹣ seeded planner replay preserves actions, rules state, bounded memory, and finite search through changing positions (0.236474ms) # SKIP
+﹣ an irrelevant distant public stone does not discard an ongoing useful commitment (0.061812ms) # SKIP
+﹣ planner integration preserves released rules, seeded layouts, deck draws, scoring, and shared action results (0.053826ms) # SKIP
+ℹ tests 14
+ℹ suites 0
+ℹ pass 5
+ℹ fail 3
+ℹ cancelled 0
+ℹ skipped 6
+ℹ todo 0
+ℹ duration_ms 813.041943
+
+✖ failing tests:
+
+test at tests/autohex-planner.test.cjs:15:3
+✖ planner develops a useful airport, holds it, and actually disrupts the remote scoring route (104.294008ms)
+  AssertionError [ERR_ASSERTION]: Never followed facility development with air: [{"type":"deploy","cells":[332]},{"type":"deploy","cells":[301]},{"type":"deploy","cells":[271]},{"type":"deploy","cells":[242]},{"type":"deploy","cells":[214]},{"type":"deploy","cells":[187]},{"type":"deploy","cells":[161]},{"type":"deploy","cells":[136]},{"type":"deploy","cells":[112]},{"type":"deploy","cells":[89]},{"type":"deploy","cells":[67]},{"type":"deploy","cells":[46]},{"type":"deploy","cells":[26]},{"type":"deploy","cells":[7]}]
+      at /workspace/FuGames/tests/autohex-planner.test.cjs:120:10
+      at TestContext.<anonymous> (/workspace/FuGames/tests/autohex-planner.test.cjs:17:11)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/autohex-planner.test.cjs:15:3
+✖ planner breaks an obstructing pact and then exploits the opening with legal paid actions (63.092987ms)
+  AssertionError [ERR_ASSERTION]: [{"type":"deploy","cells":[19]},{"type":"deploy","cells":[21]},{"type":"deploy","cells":[22]},{"type":"deploy","cells":[23]},{"type":"deploy","cells":[24]}]
+      at /workspace/FuGames/tests/autohex-planner.test.cjs:171:10
+      at TestContext.<anonymous> (/workspace/FuGames/tests/autohex-planner.test.cjs:17:11)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/autohex-planner.test.cjs:15:3
+✖ planner accepts a useful public truce that prevents an immediate supply cut and then completes its route (49.839211ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+  'deploy' !== 'accept'
+
+      at /workspace/FuGames/tests/autohex-planner.test.cjs:192:10
+      at TestContext.<anonymous> (/workspace/FuGames/tests/autohex-planner.test.cjs:17:11)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'deploy',
+    expected: 'accept',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
