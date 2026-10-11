@@ -203,7 +203,7 @@
       button.disabled = !yourTurn || !m || !activeAirports.length || resources.energy < m.cost || resources.supplies < m.supplyCost || resources.airCooldown > 0;
       button.setAttribute('aria-pressed', String(selection.type === type));
     }
-    $('air-action-note').textContent = human ? activeAirports.length ? `已有 ${activeAirports.length} 座可用機場；先選機場再選目標，不需手牌。` : '先取得並啟用外圍機場，才能空投或轟炸。不需手牌。' : '航空出手與物資都是公開的；檢視外圍據點可追蹤機場進度。';
+    $('air-action-note').textContent = human ? activeAirports.length ? `已有 ${activeAirports.length} 座可用機場；先選機場再選目標，不需手牌。` : '可啟用有利於連線的機場，再空投或轟炸；主目標仍是接通對岸。' : '航空出手與物資都是公開的；查看支援據點可追蹤機場進度。';
     $('status').textContent = statusText(); $('status').classList.toggle('error', error);
     $('base-actions').hidden = !human; $('selection').hidden = !human; $('hand').previousElementSibling.hidden = !human; $('discard-card').parentElement.hidden = !human;
     for (const type of ['deploy', 'engineer', 'withdraw', 'rest']) {

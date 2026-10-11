@@ -90,7 +90,7 @@ test('AutoHex visual helpers use public observation fields and never copy privat
 });
 
 test('AutoHex air effects mark the landing cell and use one damage-resolution effect per bombardment', () => {
-  const effects = new V.Effects(), airport = H.AIRPORT_CELLS[0], landing = at(3, 0), target = at(2, 0);
+  const effects = new V.Effects(), airport = new H.Game({ seed: 'visual-air-effects' }).airports[0].cell, landing = at(3, 0), target = at(2, 0);
   effects.ingest([
     { id: 1, type: 'airdrop', player: 1, cells: [airport, landing], origin: airport, source: 'airdrop', activeMs: 100 },
     { id: 2, type: 'destroy', player: 1, cells: [target], origin: airport, source: 'bombard', from: 2, activeMs: 100 },

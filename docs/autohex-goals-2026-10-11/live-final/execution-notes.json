@@ -1,0 +1,8 @@
+{
+  "startedUtc": "2026-10-11T15:07:56.485094+00:00",
+  "candidateEngineSha256": "a029f76bb5424506a21f8485519176f010c3803aed401a20733ad83aaf4c9f09",
+  "cpuShared": true,
+  "parallelWorkload": "Parent-authorized 72 + 72 model study; machine CPU is shared. No additional browser test launched by this agent.",
+  "pacing": "Unmodified default 0.30 seconds per AI action; actual foreground 600-second campaign.",
+  "priorEvidenceReused": false
+}

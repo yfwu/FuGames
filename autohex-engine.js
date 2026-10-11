@@ -84,9 +84,7 @@
     }
     return result;
   });
-  const AIRPORT_CELLS = Object.freeze([[12, 0], [0, 12], [-12, 12], [-12, 0], [0, -12], [12, -12]].map(c => index(...c)));
   const DEPOT_CELLS = Object.freeze([[10, -5], [5, 5], [-5, 10], [-10, 5], [-5, -5], [5, -10]].map(c => index(...c)));
-  const FACILITY_CELLS = new Set([...AIRPORT_CELLS, ...DEPOT_CELLS]);
   function sectorOf(i) { const c = CELLS[i]; return (Math.round(Math.atan2(c.y, c.x) / (Math.PI / 3)) + 6) % 6; }
   const HOME_COORDS = [[18, -9], [9, 9], [-9, 18], [-18, 9], [-9, -9], [9, -18]];
   const AXES = ['q', 's', 'r', 'q', 's', 'r'];
@@ -109,6 +107,37 @@
   function randomSource(seed) {
     let a = hash(seed);
     return function () { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+  }
+  // A separate seeded stream chooses a sixfold orbit, so every home sees the
+  // same access geometry. Seeds span central, middle and outer locations; no
+  // facility coordinate or center-avoidance preference is fixed into the AI.
+  const AIRPORT_LAYOUTS = [];
+  for (let q = 6; q <= 13; q++) for (let r = -q + 1; r <= 0; r++) {
+    const sites = []; let a = q, b = r;
+    for (let k = 0; k < 6; k++) { sites.push(index(a, b)); [a, b] = [-b, a + b]; }
+    if (sites.every(i => DEPOT_CELLS.every(j => distance(i, j) >= 3) && HOME_COORDS.every(h => distance(i, index(...h)) >= 5))) AIRPORT_LAYOUTS.push(Object.freeze(sites));
+  }
+  function airportCells(seed = 'autohex') {
+    const random = randomSource(String(seed) + ':airport-layout-v2');
+    return AIRPORT_LAYOUTS[Math.floor(random() * AIRPORT_LAYOUTS.length)].slice();
+  }
+  // Compatibility for consumers using the default seed. Live game rules and
+  // presentation must use state.airports; other seeds have different cells.
+  const AIRPORT_CELLS = Object.freeze(airportCells());
+  function prepareFacilities(state) {
+    for (const airport of state.airports) for (const i of NEAR[airport.cell]) if (distance(airport.cell, i) <= 2) state.terrain[i] = 0;
+    for (const depot of state.depots) state.terrain[depot.cell] = 0;
+    const home = index(...HOME_COORDS[0]);
+    const target = state.airports.slice().sort((a, b) => distance(home, a.cell) - distance(home, b.cell) || a.id - b.id)[0].cell;
+    // Rotate one shortest corridor instead of independently tie-breaking six
+    // paths. This preserves exact terrain/access symmetry around every seat.
+    let i = home;
+    while (true) {
+      let { q, r } = CELLS[i];
+      for (let k = 0; k < 6; k++) { const j = index(q, r); if (state.terrain[j] === 1) state.terrain[j] = 0; [q, r] = [-r, q + r]; }
+      if (i === target) break;
+      i = ADJ[i].find(j => distance(j, target) < distance(i, target));
+    }
   }
   function shuffle(array, random) {
     for (let i = array.length - 1; i > 0; i--) { const j = Math.floor(random() * (i + 1)); [array[i], array[j]] = [array[j], array[i]]; }
@@ -149,7 +178,7 @@
   }
   function airportStatus(state, i, supplied) {
     const owner = state.board[i] || 0;
-    if (!owner || !AIRPORT_CELLS.includes(i)) return { owner, supplied: false, cluster: 0, qualified: false };
+    if (!owner || !(state.airports || []).some(a => a.cell === i)) return { owner, supplied: false, cluster: 0, qualified: false };
     const connected = supplied || computeSupply(state, owner), queue = [i], seen = new Set(queue);
     for (let k = 0; k < queue.length; k++) for (const j of ADJ[queue[k]]) {
       if (!seen.has(j) && state.board[j] === owner && distance(i, j) <= RULES.airportRadius) { seen.add(j); queue.push(j); }
@@ -275,7 +304,7 @@
       this.roads = new Uint8Array(COUNT); this.anchors = new Uint8Array(COUNT);
       this.shields = new Uint8Array(COUNT); this.unsupplied = new Uint8Array(COUNT);
       this.age = new Uint16Array(COUNT); this.fortified = new Uint8Array(COUNT);
-      this.airports = AIRPORT_CELLS.map((cell, id) => ({ id, cell, owner: 0, supplied: false, cluster: 0, progress: 0, active: false }));
+      this.airports = airportCells(seed).map((cell, id) => ({ id, cell, owner: 0, supplied: false, cluster: 0, progress: 0, active: false }));
       this.depots = DEPOT_CELLS.map((cell, id) => ({ id, cell, owner: 0, supplied: false }));
       this.neutralWarning = null; this._neutralSector = Math.floor(this._neutralRandom() * 6); this._neutralCount = 0;
       this.bridges = []; this.turrets = []; this.offers = []; this.alliances = []; this.events = []; this.recentActions = [];
@@ -306,7 +335,7 @@
         for (const i of inward) this.board[i] = p;
         for (const i of NEAR[home]) if (distance(home, i) <= 2) this.terrain[i] = 0;
       }
-      for (const i of FACILITY_CELLS) this.terrain[i] = 0;
+      prepareFacilities(this);
       for (let k = 0; k < RULES.initialHand; k++) for (const p of PLAYERS) this._draw(p);
       this._event('ready', 0, 'Six directed routes. Hold the opposite edge; highest score after ten active minutes wins.');
       return this;
@@ -598,7 +627,7 @@
 
   // Min-heap Dijkstra over public cells. Private deck state and other hands are
   // intentionally absent from this planner's inputs and all its helper calls.
-  function routeDistances(state, p, targets = null) {
+  function routeDistances(state, p, next = null) {
     const result = new Float64Array(COUNT); result.fill(Infinity); const heap = [];
     function push(i, cost) { let k = heap.length; heap.push([i, cost]); while (k > 0) { const parent = (k - 1) >> 1; if (heap[parent][1] <= cost) break; heap[k] = heap[parent]; k = parent; } heap[k] = [i, cost]; }
     function pop() { const first = heap[0], last = heap.pop(); if (heap.length) { let k = 0; while (k * 2 + 1 < heap.length) { let child = k * 2 + 1; if (child + 1 < heap.length && heap[child + 1][1] < heap[child][1]) child++; if (heap[child][1] >= last[1]) break; heap[k] = heap[child]; k = child; } heap[k] = last; } return first; }
@@ -606,20 +635,18 @@
     const profile = state.players[p].profile || PROFILES[0], home = CELLS[state.players[p].home];
     for (const c of CELLS) {
       const owner = state.board[c.i];
-      weights[c.i] = state.anchors[c.i] && owner !== p ? 1000 : owner === p ? 0.16 : owner ? (allied(state, p, owner) ? 8 : 3.5) : state.terrain[c.i] === 1 && !state.roads[c.i] ? 2 : 1;
-      if (owner !== p && !targets) {
-        const radial = Math.max(Math.abs(c.q), Math.abs(c.r), Math.abs(c.s));
-        const oppositeFlank = Math.max(0, -(home.q * c.r - home.r * c.q) * (profile.flank || 1));
-        weights[c.i] += Math.max(0, 10 - radial) * (profile.outer || 1) * 0.12 + oppositeFlank * 0.002;
-      }
-      if ((targets ? targets.includes(c.i) : goalCell(state, p, c.i)) && (!state.anchors[c.i] || owner === p)) { result[c.i] = 0; push(c.i, 0); }
+      weights[c.i] = state.anchors[c.i] && owner !== p ? 1000 : owner === p ? 0.12 : owner ? (allied(state, p, owner) ? 8 : 3.5) : state.terrain[c.i] === 1 && !state.roads[c.i] ? 2 : 1;
+      // A tiny flank preference only breaks otherwise similar paths. The
+      // center carries exactly the same terrain cost as the rest of the map.
+      if (owner !== p) weights[c.i] += Math.max(0, -(home.q * c.r - home.r * c.q) * (profile.flank || 1)) * 0.00015;
+      if (goalCell(state, p, c.i) && (!state.anchors[c.i] || owner === p)) { result[c.i] = 0; push(c.i, 0); }
     }
     const links = new Map();
     for (const b of state.bridges || []) if (b.owner === p) { if (!links.has(b.a)) links.set(b.a, []); if (!links.has(b.b)) links.set(b.b, []); links.get(b.a).push(b.b); links.get(b.b).push(b.a); }
     while (heap.length) {
       const [i, cost] = pop(); if (cost !== result[i]) continue;
-      for (const j of ADJ[i]) { const candidate = cost + weights[i]; if (candidate < result[j]) { result[j] = candidate; push(j, candidate); } }
-      for (const j of links.get(i) || []) { const candidate = cost + 0.12; if (candidate < result[j]) { result[j] = candidate; push(j, candidate); } }
+      for (const j of ADJ[i]) { const candidate = cost + weights[i]; if (candidate < result[j]) { result[j] = candidate; if (next) next[j] = i; push(j, candidate); } }
+      for (const j of links.get(i) || []) { const candidate = cost + 0.12; if (candidate < result[j]) { result[j] = candidate; if (next) next[j] = i; push(j, candidate); } }
     }
     return result;
   }
@@ -627,20 +654,10 @@
     if (!state || state.phase !== 'running' || (state.observer !== undefined && state.observer !== state.turn)) return null;
     const p = state.turn, player = state.players[p], profile = player.profile || PROFILES[0];
     const own = [], enemies = [], counts = Array(7).fill(0), nearOwn = new Uint8Array(COUNT), ownAdj = new Uint8Array(COUNT);
-    const supply = computeSupply(state, p), home = CELLS[player.home];
-    const closestDepot = (state.depots || []).slice().sort((a, b) => distance(player.home, a.cell) - distance(player.home, b.cell) || a.id - b.id)[0];
-    const preferredAirport = (state.airports || []).slice().sort((a, b) => {
-      const ac = CELLS[a.cell], bc = CELLS[b.cell];
-      const flankA = (home.q * ac.r - home.r * ac.q) * (profile.flank || 1), flankB = (home.q * bc.r - home.r * bc.q) * (profile.flank || 1);
-      return distance(player.home, a.cell) - distance(player.home, b.cell) || flankB - flankA;
-    })[0];
-    let objective = null, buildAirport = null;
-    if (!player.depotVisited && closestDepot) objective = closestDepot.cell;
-    else if (!player.airportsActivated && preferredAirport) {
-      if (preferredAirport.owner !== p || !preferredAirport.supplied) objective = preferredAirport.cell;
-      else if (preferredAirport.cluster < RULES.airportStones) { objective = preferredAirport.cell; buildAirport = preferredAirport; }
-    }
-    const route = routeDistances(state, p, objective === null ? null : [objective]);
+    const supply = computeSupply(state, p);
+    const facilityCells = new Set([...(state.airports || []), ...(state.depots || [])].map(a => a.cell));
+    const next = new Int32Array(COUNT).fill(-1), route = routeDistances(state, p, next), corridor = new Uint8Array(COUNT);
+    for (let i = player.home; i >= 0 && !corridor[i]; i = next[i]) corridor[i] = 1;
     for (let i = 0; i < COUNT; i++) {
       const owner = state.board[i]; if (owner) counts[owner]++;
       if (owner === p) { own.push(i); for (const j of NEAR[i]) nearOwn[j] = 1; for (const j of ADJ[i]) ownAdj[j]++; }
@@ -655,17 +672,52 @@
     function consider(action, value) { if (value > bestValue && legalAction(state, action)) { best = action; bestValue = value; } }
     function card(type, cells, value) { if (cards[type] !== undefined) consider({ type, cells, cardIndex: cards[type] }, value); }
     const danger = i => { let value = 0; for (const j of NEAR[i]) if (distance(i, j) <= 3 && state.board[j] && state.board[j] !== p && !allied(state, p, state.board[j])) value++; return value; };
-    const cuts = new Map(), enemySupply = new Map();
-    function cutImpact(i) {
+    const cuts = new Map(), enemySupply = new Map(), enemyDistance = new Map();
+    for (const other of PLAYERS) if (other !== p) {
+      const supplied = computeSupply(state, other); enemySupply.set(other, supplied);
+      let remaining = 2 * RADIUS;
+      for (let i = 0; i < COUNT; i++) if (supplied[i]) remaining = Math.min(remaining, RADIUS + CELLS[i][state.players[other].axis] * state.players[other].sign);
+      enemyDistance.set(other, remaining);
+    }
+    function cutData(i) {
       if (cuts.has(i)) return cuts.get(i);
-      const owner = state.board[i];
-      if (!owner || owner === p) return 0;
-      if (!enemySupply.has(owner)) enemySupply.set(owner, computeSupply(state, owner));
-      const before = enemySupply.get(owner); if (!before[i]) return 0;
+      const owner = state.board[i], before = enemySupply.get(owner), result = { lost: 0, goal: false };
+      if (!before || !before[i]) return result;
       const board = state.board.slice(); board[i] = 0;
-      const after = computeSupply({ ...state, board }, owner); let lost = 0;
-      for (let j = 0; j < COUNT; j++) if (j !== i && before[j] && !after[j]) lost++;
-      cuts.set(i, lost); return lost;
+      const after = computeSupply({ ...state, board }, owner);
+      for (let j = 0; j < COUNT; j++) if (before[j] && !after[j]) {
+        if (j !== i) result.lost++;
+        if (goalCell(state, owner, j)) result.goal = true;
+      }
+      cuts.set(i, result); return result;
+    }
+    const goalNetwork = new Uint8Array(COUNT), goalQueue = own.filter(i => goalCell(state, p, i));
+    for (const i of goalQueue) goalNetwork[i] = 1;
+    const ownLinks = new Map();
+    for (const b of state.bridges || []) if (b.owner === p && state.board[b.a] === p && state.board[b.b] === p) {
+      if (!ownLinks.has(b.a)) ownLinks.set(b.a, []); if (!ownLinks.has(b.b)) ownLinks.set(b.b, []);
+      ownLinks.get(b.a).push(b.b); ownLinks.get(b.b).push(b.a);
+    }
+    for (let k = 0; k < goalQueue.length; k++) for (const j of [...ADJ[goalQueue[k]], ...(ownLinks.get(goalQueue[k]) || [])]) {
+      if (state.board[j] === p && !goalNetwork[j]) { goalNetwork[j] = 1; goalQueue.push(j); }
+    }
+    const holdsGoal = goalQueue.some(i => supply[i]);
+    const completesGoal = i => !holdsGoal && (goalCell(state, p, i) || ADJ[i].some(j => goalNetwork[j]));
+    const connectedAt = i => ADJ[i].some(j => state.board[j] === p && supply[j]);
+    const routeGain = i => Math.max(0, Math.min(4, bestRoute - route[i]));
+    const goalThreat = i => {
+      const owner = state.board[i]; if (!owner || owner === p || !enemySupply.get(owner)?.[i]) return 0;
+      const remaining = enemyDistance.get(owner), at = RADIUS + CELLS[i][state.players[owner].axis] * state.players[owner].sign;
+      return remaining === 0 ? 18 : remaining <= 3 && at <= remaining + 2 ? 34 : 0;
+    };
+    const ownCuts = new Map();
+    function routeRisk(i) {
+      if (!supply[i] || !corridor[i] || state.anchors[i]) return 0;
+      if (ownCuts.has(i)) return ownCuts.get(i);
+      const board = state.board.slice(); board[i] = 0; const after = computeSupply({ ...state, board }, p);
+      let lost = 0, goal = false;
+      for (const j of own) if (supply[j] && !after[j]) { if (j !== i) lost++; if (goalCell(state, p, j)) goal = true; }
+      const value = (goal ? 50 : 0) + Math.min(16, lost * 1.2); ownCuts.set(i, value); return value;
     }
     const leader = PLAYERS.reduce((a, b) => state.players[b].score + counts[b] * 0.2 > state.players[a].score + counts[a] * 0.2 ? b : a, p);
     const border = new Uint16Array(7);
@@ -689,78 +741,86 @@
       }
     }
 
-    const cutCandidates = new Set(enemies.slice().sort((a, b) => adjacentCount(state, b, state.board[b]) - adjacentCount(state, a, state.board[a])).slice(0, 10));
+    const cutCandidates = new Set(enemies.slice().sort((a, b) => goalThreat(b) - goalThreat(a) || adjacentCount(state, b, state.board[b]) - adjacentCount(state, a, state.board[a])).slice(0, 12));
     for (const i of enemies) {
-      const owner = state.board[i], support = adjacentCount(state, i, owner);
-      const threatening = state.players[owner].goalActive || goalCell(state, owner, i);
-      const nearHome = distance(i, player.home) <= 5;
-      const facility = FACILITY_CELLS.has(i) ? 12 : 0, disruption = cutCandidates.has(i) ? Math.min(16, cutImpact(i) * 1.2) : 0;
-      const priority = 28 + ownAdj[i] * 2.2 + (threatening ? 12 : 0) + (nearHome ? 10 : 0) + (state.turrets.some(t => t.cell === i) ? 8 : 0) + facility + disruption;
-      consider({ type: 'deploy', cells: [i] }, priority * profile.aggression + (supply[ADJ[i].find(j => state.board[j] === p)] ? 2 : 0) + noise(i));
-      card('destroy', [i], (priority + Math.min(5, support) - (state.shields[i] ? 9 : 0) - 4) * profile.aggression + noise(i));
-      if (cards.exchange !== undefined && !state.shields[i]) for (const j of ADJ[i]) if (state.board[j] === p && ownAdj[j] >= 2 && ownAdj[i] >= 2) {
-        card('exchange', [j, i], priority * profile.aggression - 2 + Math.max(-3, route[j] - route[i]));
+      const owner = state.board[i], support = adjacentCount(state, i, owner), cut = cutCandidates.has(i) ? cutData(i) : { lost: 0, goal: false };
+      const progress = connectedAt(i) ? routeGain(i) * 16 + (corridor[i] ? 8 : 0) : 0;
+      const defense = goalThreat(i) + (cut.goal ? 65 : 0);
+      const priority = 20 + ownAdj[i] * 1.5 + defense + (distance(i, player.home) <= 4 ? 7 : 0) +
+        (state.turrets.some(t => t.cell === i) ? 7 : 0) + (facilityCells.has(i) ? 3 : 0) + Math.min(12, cut.lost) + progress;
+      const finish = connectedAt(i) && completesGoal(i) ? 95 : 0;
+      consider({ type: 'deploy', cells: [i] }, priority + finish + (profile.aggression - 1) * 9 + noise(i));
+      card('destroy', [i], priority + Math.min(4, support) - (state.shields[i] ? 14 : 0) - 7 + (profile.aggression - 1) * 9 + noise(i));
+      if (cards.exchange !== undefined && !state.shields[i]) for (const j of ADJ[i]) if (state.board[j] === p && ownAdj[j] >= 2 && ownAdj[i] >= 2 && !corridor[j]) {
+        card('exchange', [j, i], priority - 3 + Math.max(-3, route[j] - route[i]));
       }
     }
 
-    // Expand one contiguous route first. Unsupplied stones may reconnect, but
-    // they never masquerade as home-connected path progress in this heuristic.
-    for (let i = 0; i < COUNT; i++) if (!state.board[i] && nearOwn[i] && ownAdj[i]) {
-      const suppliedNeighbors = ADJ[i].filter(j => state.board[j] === p && supply[j]);
-      if (!suppliedNeighbors.length) continue;
-      const improvement = bestRoute - route[i];
-      const nearestGoal = RADIUS + CELLS[i][player.axis] * player.sign;
-      const enemyNeighbors = ADJ[i].filter(j => state.board[j] && state.board[j] !== p && !allied(state, p, state.board[j])).length;
-      let value = 35 + Math.max(-15, Math.min(3, improvement)) * 14 + (goalCell(state, p, i) ? 10 : 0) - ownAdj[i] * 0.4;
-      if (player.goalActive) value = 10 + enemyNeighbors * 8 + (nearestGoal <= 2 ? 8 : 0) + ownAdj[i] * 0.5;
-      if (FACILITY_CELLS.has(i)) value += 8;
-      if (buildAirport && distance(i, buildAirport.cell) <= RULES.airportRadius) value = Math.max(value, 58 - distance(i, buildAirport.cell) * 0.5 + ownAdj[i] * 0.3);
+    // Opposite-edge progress is always the main route objective. Facilities
+    // are useful on that route; visiting one is never an opening prerequisite.
+    for (let i = 0; i < COUNT; i++) if (!state.board[i] && nearOwn[i] && ownAdj[i] && connectedAt(i)) {
+      const improvement = bestRoute - route[i], enemyNeighbors = ADJ[i].filter(j => state.board[j] && state.board[j] !== p && !allied(state, p, state.board[j])).length;
+      let value = 28 + Math.max(-1.5, Math.min(3, improvement)) * 23 + (corridor[i] ? 11 : 0) - ownAdj[i] * .4;
+      if (completesGoal(i)) value += 95;
+      if (holdsGoal) {
+        const vulnerable = ADJ[i].filter(j => corridor[j] && supply[j] && danger(j));
+        value = 12 + enemyNeighbors * 5 + ownAdj[i] * 1.5 + Math.min(45, Math.max(0, ...vulnerable.map(routeRisk)));
+      }
+      if (facilityCells.has(i) && (corridor[i] || ADJ[i].some(j => corridor[j]))) value += 5;
+      // Finish a nearly-ready local airport when it reinforces the route or a
+      // contested front. There is no off-route facility collection objective.
+      for (const airport of state.airports || []) if (airport.owner === p && airport.supplied && !airport.active && airport.cluster >= 8 && airport.cluster < RULES.airportStones &&
+        distance(i, airport.cell) <= RULES.airportRadius && (corridor[airport.cell] || ADJ[airport.cell].some(j => corridor[j])) && ADJ[i].some(j => state.board[j] === p && distance(j, airport.cell) <= RULES.airportRadius)) {
+        value = Math.max(value, 55 + (airport.cluster - 8) * 2 + enemyNeighbors * 2);
+      }
       value += noise(i);
-      if (state.terrain[i] === 1 && !state.roads[i]) consider({ type: 'engineer', cells: [i] }, value * profile.engineering - 1);
+      if (state.terrain[i] === 1 && !state.roads[i]) consider({ type: 'engineer', cells: [i] }, value + (profile.engineering - 1) * 5 - 2);
       else consider({ type: 'deploy', cells: [i] }, value);
     }
+    const defensive = own.filter(i => supply[i] && corridor[i] && danger(i)).sort((a, b) => ownAdj[a] - ownAdj[b]).slice(0, 12);
     for (const i of own) {
-      const threat = danger(i);
+      const threat = danger(i), risk = defensive.includes(i) ? routeRisk(i) : 0;
       if (threat) {
-        card('turret', [i], 20 + Math.min(7, threat) * 3 + (supply[i] ? 3 : -10));
-        card('shield', [i], 13 + Math.min(5, threat) * 2 + (goalCell(state, p, i) ? 12 : 0) + (ownAdj[i] <= 2 && supply[i] ? 5 : 0) + (FACILITY_CELLS.has(i) ? 14 : 0));
+        card('turret', [i], 22 + Math.min(7, threat) * 3 + (supply[i] ? 3 : -10) + risk * .75);
+        card('shield', [i], 13 + Math.min(5, threat) * 2 + risk + (goalCell(state, p, i) ? 12 : 0));
       }
       if (state.neutralWarning && state.neutralWarning.cells.includes(i) && (state.age?.[i] || 0) + state.neutralWarning.resolveRound - state.round < RULES.fortifyAge) {
-        card('shield', [i], 69 + (FACILITY_CELLS.has(i) ? 10 : 0));
+        card('shield', [i], 49 + routeRisk(i) + (facilityCells.has(i) ? 16 : 0));
       }
       if (!supply[i] && cards.bridge !== undefined) for (const j of NEAR[i]) if (state.board[j] === p && supply[j]) {
-        card('bridge', [i, j], 47 + (state.unsupplied[i] || 0) + Math.max(0, bestRoute - route[i]) + noise(i));
+        card('bridge', [i, j], 43 + (state.unsupplied[i] || 0) + routeGain(i) * 8 + (goalNetwork[i] && !holdsGoal ? 95 : 0) + noise(i));
       }
     }
     if (cards.reroute !== undefined) for (const bridge of state.bridges) if (bridge.owner === p) {
       for (const [keep, old] of [[bridge.a, bridge.b], [bridge.b, bridge.a]]) if (supply[keep]) {
-        for (const i of NEAR[keep]) if (state.board[i] === p && !supply[i]) card('reroute', [keep, old, i], 48 + (state.unsupplied[i] || 0));
+        for (const i of NEAR[keep]) if (state.board[i] === p && !supply[i]) card('reroute', [keep, old, i], 43 + (state.unsupplied[i] || 0) + routeGain(i) * 8 + (goalNetwork[i] && !holdsGoal ? 95 : 0));
       }
     }
 
     if ((player.airCooldown || 0) === 0 && (player.supplies || 0) >= 3) for (const airport of state.airports || []) if (airport.owner === p && airport.active) {
       const bombTargets = CELLS.filter(c => distance(airport.cell, c.i) <= RULES.bombardRange && state.board[c.i] && state.board[c.i] !== p && !state.anchors[c.i] && !allied(state, p, state.board[c.i]));
-      bombTargets.sort((a, b) => (FACILITY_CELLS.has(b.i) ? 10 : 0) + adjacentCount(state, b.i, state.board[b.i]) - ((FACILITY_CELLS.has(a.i) ? 10 : 0) + adjacentCount(state, a.i, state.board[a.i])));
+      bombTargets.sort((a, b) => goalThreat(b.i) + (corridor[b.i] ? 15 : 0) + adjacentCount(state, b.i, state.board[b.i]) - (goalThreat(a.i) + (corridor[a.i] ? 15 : 0) + adjacentCount(state, a.i, state.board[a.i])));
       for (const c of bombTargets.slice(0, 12)) {
-        const value = 47 + Math.min(22, cutImpact(c.i) * 1.8) + (FACILITY_CELLS.has(c.i) ? 12 : 0) + (state.turrets.some(t => t.cell === c.i) ? 9 : 0) - (state.shields[c.i] ? 12 : 0);
-        consider({ type: 'bombard', cells: [airport.cell, c.i] }, value * profile.aggression);
+        const cut = cutData(c.i), value = 29 + Math.min(17, cut.lost * 1.4) + (cut.goal ? 65 : 0) + goalThreat(c.i) +
+          (corridor[c.i] ? 28 : 0) + (facilityCells.has(c.i) ? 4 : 0) + (state.turrets.some(t => t.cell === c.i) ? 9 : 0) - (state.shields[c.i] ? 15 : 0);
+        consider({ type: 'bombard', cells: [airport.cell, c.i] }, value + (profile.aggression - 1) * 8);
       }
       if (state.turrets.filter(t => t.owner === p).length < RULES.maxTurrets) for (const c of CELLS) {
         if (state.board[c.i] || distance(airport.cell, c.i) > RULES.airdropRange || (state.terrain[c.i] === 1 && !state.roads[c.i])) continue;
-        const threat = danger(c.i); if (!threat) continue;
-        const connected = ADJ[c.i].some(j => state.board[j] === p && supply[j]);
+        const threat = danger(c.i), connected = connectedAt(c.i);
         const reconnectable = cards.bridge !== undefined && NEAR[c.i].some(j => state.board[j] === p && supply[j]);
-        const raid = !nearOwn[c.i] && player.supplies === RULES.suppliesCap && threat >= 3;
-        if (!connected && !reconnectable && !raid) continue;
-        const value = 39 + Math.min(7, threat) * 2.5 + (connected ? 7 : reconnectable ? 1 : -4) + (FACILITY_CELLS.has(c.i) ? 8 : 0);
-        consider({ type: 'airdrop', cells: [airport.cell, c.i] }, value * profile.engineering);
+        const leap = reconnectable && corridor[c.i] && routeGain(c.i) >= 2;
+        if ((!connected && !leap) || (!threat && !leap)) continue;
+        const finish = connected && completesGoal(c.i) ? 95 : 0;
+        const value = 31 + Math.min(7, threat) * 3 + (connected ? 7 : -3) + (corridor[c.i] ? 12 : 0) + routeGain(c.i) * 7 + finish;
+        consider({ type: 'airdrop', cells: [airport.cell, c.i] }, value + (profile.engineering - 1) * 6);
       }
     }
 
     // At the cap, free a redundant/back-line cell, explicitly checking that the
     // removal does not sever the surviving supplied route. No footprint subsidy.
     if (own.length >= MAX_STONES - 2) {
-      const candidates = own.filter(i => !state.anchors[i] && ordinary(state, i) && !goalCell(state, p, i) && !FACILITY_CELLS.has(i) &&
+      const candidates = own.filter(i => !state.anchors[i] && ordinary(state, i) && !goalCell(state, p, i) && !facilityCells.has(i) &&
         !(state.airports || []).some(a => a.owner === p && a.cluster <= RULES.airportStones + 2 && distance(a.cell, i) <= RULES.airportRadius));
       candidates.sort((a, b) => (supply[a] ? 0 : 100) + route[a] - danger(a) * 3 - ((supply[b] ? 0 : 100) + route[b] - danger(b) * 3) || a - b).reverse();
       let checked = 0;
@@ -781,5 +841,5 @@
 
   return Object.freeze({ Game, RADIUS, COUNT, CELLS, ADJ, PLAYERS, CARD_META, ACTION_META, CARD_TYPES, DECK_SIZE, MAX_STONES,
     RULES, PROFILES, index, distance, legalAction, chooseAction, inRange, computeSupply, goalCell, allied, alliesOf,
-    bridgeConflict, bridgesConflict, bridgeLegal, combatStrength, actionCost, AIRPORT_CELLS, DEPOT_CELLS, airportStatus, activeAirport, sectorOf });
+    bridgeConflict, bridgesConflict, bridgeLegal, combatStrength, actionCost, AIRPORT_CELLS, DEPOT_CELLS, airportCells, airportStatus, activeAirport, sectorOf });
 });

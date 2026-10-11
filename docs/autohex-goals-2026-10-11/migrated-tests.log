@@ -1,0 +1,33 @@
+✔ AutoHex facilities use the seed-specific symmetric airport layout and start neutral with public zero stock (19.293396ms)
+✔ AutoHex airports require 12 locally connected own stones, home supply and three completed owner actions (34.492991ms)
+✔ AutoHex airport clusters exclude allied stones and remote bridge islands, and loss of center or supply disables flight immediately (42.393876ms)
+✔ AutoHex stock regenerates equally every three owner actions, supplied depots add at most one, and cap is six (145.070423ms)
+✔ AutoHex airdrop extends only from an active airport to distance 10, costs energy/stock, and uses no card (111.524477ms)
+✔ AutoHex air abilities share six subsequent owner-action cooldowns and still obey footprint/turret caps (153.294685ms)
+✔ AutoHex bombard reaches distance 12, rejects 13/allies/anchors, and shields absorb the paid strike (54.023854ms)
+✔ AutoHex fortification requires 31 unchanged completed owner actions; enemy turns and pauses do not age a stone (27.290792ms)
+✔ AutoHex new placement, capture and both exchanged cells reset fortification age; fortified isolation still retreats (26.471112ms)
+✔ AutoHex neutral warnings are public, deterministic, two rounds ahead, bounded to two non-anchor cells, and optional (52.763481ms)
+✔ AutoHex neutral events respect new fortification/shields, remove only warned unprotected stones, and award no combat score (5.275401ms)
+✔ AutoHex AI uses a ready airport to break a remote supplied enemy goal and respects the shared cooldown (106.095426ms)
+✔ AutoHex AI uses a supplied defensive airdrop while retaining a real opposite-edge route (67.620293ms)
+✔ AutoHex AI protects a publicly warned vulnerable airport with an available shield (26.303996ms)
+✔ AutoHex strategic observations expose public readiness but keep private hand/deck permutations out of AI choices (94.079867ms)
+✔ AutoHex final shared-top results do not break ties using airports, stock, fortifications or allies (11.337437ms)
+✔ AutoHex neutral randomness does not alter the shared deck or seeded reshuffles (145.121074ms)
+✔ AutoHex visual supply forest starts at homes, follows own supplied neighbors/bridges, and contains no cycles (24.973894ms)
+✔ AutoHex visual turret range is exactly three and excludes active allies, anchors, and own stones (30.85137ms)
+✔ AutoHex effects retain distinct same-turn hit IDs and never restart an animation on repeated observations (0.836763ms)
+✔ AutoHex effect storage, seen IDs and cell lists remain bounded with detached snapshots (17.482577ms)
+✔ AutoHex effects expire by active age, reject stale observations, and clear correctly for manual steps and restart (1.466712ms)
+✔ AutoHex visual helpers use public observation fields and never copy private card data into effects (1.285546ms)
+✔ AutoHex air effects mark the landing cell and use one damage-resolution effect per bombardment (47.85947ms)
+✔ AutoHex neutral warning is not rendered as a hit and strike/block resolutions remain distinct public effects (0.41728ms)
+ℹ tests 25
+ℹ suites 0
+ℹ pass 25
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1889.819669

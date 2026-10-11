@@ -1,0 +1,258 @@
+{"wallSeconds": 0.3, "activeMs": 40.19999999925494, "ply": 0, "phase": "running", "counts": [1009, 3, 3, 3, 3, 3, 3]}
+{"wallSeconds": 31.4, "activeMs": 31186.70000000298, "ply": 52, "phase": "running", "counts": [957, 12, 12, 12, 12, 11, 11]}
+{"wallSeconds": 62.0, "activeMs": 61615.20000000298, "ply": 113, "phase": "running", "counts": [909, 20, 20, 17, 21, 20, 20]}
+{"wallSeconds": 92.3, "activeMs": 92057.80000000447, "ply": 180, "phase": "running", "counts": [895, 21, 23, 20, 28, 18, 22]}
+{"wallSeconds": 122.6, "activeMs": 122328, "ply": 245, "phase": "running", "counts": [874, 29, 27, 23, 31, 19, 24]}
+{"wallSeconds": 153.5, "activeMs": 153115.0999999959, "ply": 316, "phase": "running", "counts": [852, 40, 33, 24, 24, 19, 35]}
+{"wallSeconds": 183.5, "activeMs": 183204.99999999814, "ply": 382, "phase": "running", "counts": [863, 25, 38, 27, 28, 24, 22]}
+{"wallSeconds": 214.5, "activeMs": 214149.9000000041, "ply": 451, "phase": "running", "counts": [850, 29, 40, 17, 29, 35, 27]}
+{"wallSeconds": 244.7, "activeMs": 244342.60000000522, "ply": 510, "phase": "running", "counts": [853, 37, 34, 20, 32, 21, 30]}
+{"wallSeconds": 275.2, "activeMs": 274914.0000000056, "ply": 588, "phase": "running", "counts": [840, 42, 40, 24, 33, 24, 24]}
+{"wallSeconds": 305.3, "activeMs": 305019.5000000037, "ply": 668, "phase": "running", "counts": [813, 41, 47, 29, 39, 33, 25]}
+{"wallSeconds": 336.1, "activeMs": 335751.59999999776, "ply": 748, "phase": "running", "counts": [847, 17, 20, 36, 42, 38, 27]}
+{"wallSeconds": 367.6, "activeMs": 366773.5999999959, "ply": 833, "phase": "running", "counts": [832, 22, 25, 38, 43, 44, 23]}
+{"wallSeconds": 398.1, "activeMs": 397787.9999999944, "ply": 921, "phase": "running", "counts": [803, 33, 36, 43, 44, 43, 25]}
+{"wallSeconds": 428.4, "activeMs": 428115.3999999929, "ply": 1009, "phase": "running", "counts": [805, 16, 40, 44, 54, 36, 32]}
+{"wallSeconds": 458.5, "activeMs": 458213.1999999918, "ply": 1099, "phase": "running", "counts": [784, 24, 37, 47, 57, 41, 37]}
+{"wallSeconds": 488.6, "activeMs": 487737.09999999404, "ply": 1177, "phase": "running", "counts": [768, 29, 42, 46, 60, 42, 40]}
+{"wallSeconds": 518.8, "activeMs": 518554.8999999892, "ply": 1266, "phase": "running", "counts": [741, 35, 49, 47, 65, 44, 46]}
+{"wallSeconds": 548.9, "activeMs": 548607.2999999933, "ply": 1356, "phase": "running", "counts": [717, 40, 54, 41, 77, 49, 49]}
+{"wallSeconds": 578.9, "activeMs": 578602.4999999925, "ply": 1446, "phase": "running", "counts": [738, 40, 10, 48, 85, 50, 56]}
+{"wallSeconds": 600.6, "activeMs": 600000, "ply": 1509, "phase": "over", "counts": [721, 40, 20, 52, 83, 56, 55]}
+{
+  "kind": "real wall-clock foreground Chromium; no virtual time",
+  "seed": "autohex-live-2026-10-11",
+  "startedUtc": "2026-10-11T15:07:55.115468+00:00",
+  "sourceHashes": {
+    "autohex-engine.js": "a029f76bb5424506a21f8485519176f010c3803aed401a20733ad83aaf4c9f09",
+    "autohex-ui.js": "f65b2e988d39113c86e082211924f2cc3b0d475108f3225b56a3951ff1f862e2",
+    "autohex.html": "927b8a6a57f18389d2a453bd6fdbfd5a484e5d079e6d915f17a9e2ae2811f9a8",
+    "autohex.css": "5902ca1e8675530e358402d44167b35df670f4b1251af9de76cb66ca8ccdf806",
+    "autohex-visuals.js": "b1bed80f9b4ef5baf8fc8a3c78706a0a6c2baf0b9274fe2c318883ed264e79cd"
+  },
+  "pageErrors": [],
+  "consoleErrors": [],
+  "wallSeconds": 600.6269926450022,
+  "activeMs": 600000,
+  "result": {
+    "winners": [
+      1,
+      5
+    ],
+    "standings": [
+      {
+        "player": 1,
+        "score": 152,
+        "name": "Azure",
+        "rank": 1
+      },
+      {
+        "player": 5,
+        "score": 152,
+        "name": "Jade",
+        "rank": 1
+      },
+      {
+        "player": 3,
+        "score": 145,
+        "name": "Violet",
+        "rank": 3
+      },
+      {
+        "player": 4,
+        "score": 142,
+        "name": "Gold",
+        "rank": 4
+      },
+      {
+        "player": 6,
+        "score": 130,
+        "name": "Rose",
+        "rank": 5
+      },
+      {
+        "player": 2,
+        "score": 122,
+        "name": "Ember",
+        "rank": 6
+      }
+    ],
+    "draw": true,
+    "reason": "timeout",
+    "activeMs": 600000
+  },
+  "actions": 1509,
+  "actionTypes": {
+    "deploy": 1330,
+    "engineer": 30,
+    "exchange": 29,
+    "bridge": 27,
+    "shield": 26,
+    "destroy": 22,
+    "reroute": 5,
+    "turret": 12,
+    "offer": 19,
+    "accept": 4,
+    "reject": 2,
+    "discard": 3
+  },
+  "minuteActivity": [
+    {
+      "minute": 1,
+      "actions": 110,
+      "types": {
+        "deploy": 106,
+        "engineer": 3,
+        "exchange": 1
+      },
+      "changedCells": 110,
+      "lostOrExchangedStones": 8
+    },
+    {
+      "minute": 2,
+      "actions": 129,
+      "types": {
+        "deploy": 106,
+        "engineer": 7,
+        "bridge": 5,
+        "exchange": 5,
+        "shield": 5,
+        "destroy": 1
+      },
+      "changedCells": 124,
+      "lostOrExchangedStones": 84
+    },
+    {
+      "minute": 3,
+      "actions": 135,
+      "types": {
+        "deploy": 110,
+        "bridge": 4,
+        "exchange": 6,
+        "reroute": 2,
+        "shield": 8,
+        "turret": 1,
+        "destroy": 3,
+        "engineer": 1
+      },
+      "changedCells": 159,
+      "lostOrExchangedStones": 94
+    },
+    {
+      "minute": 4,
+      "actions": 127,
+      "types": {
+        "deploy": 114,
+        "exchange": 2,
+        "bridge": 2,
+        "destroy": 3,
+        "engineer": 1,
+        "shield": 2,
+        "turret": 1,
+        "offer": 1,
+        "accept": 1
+      },
+      "changedCells": 196,
+      "lostOrExchangedStones": 125
+    },
+    {
+      "minute": 5,
+      "actions": 154,
+      "types": {
+        "deploy": 142,
+        "destroy": 4,
+        "engineer": 5,
+        "exchange": 1,
+        "shield": 1,
+        "bridge": 1
+      },
+      "changedCells": 188,
+      "lostOrExchangedStones": 103
+    },
+    {
+      "minute": 6,
+      "actions": 159,
+      "types": {
+        "deploy": 139,
+        "bridge": 5,
+        "offer": 3,
+        "engineer": 3,
+        "accept": 1,
+        "turret": 5,
+        "exchange": 1,
+        "destroy": 1,
+        "reroute": 1
+      },
+      "changedCells": 240,
+      "lostOrExchangedStones": 161
+    },
+    {
+      "minute": 7,
+      "actions": 173,
+      "types": {
+        "deploy": 160,
+        "exchange": 4,
+        "offer": 2,
+        "turret": 1,
+        "shield": 2,
+        "bridge": 1,
+        "engineer": 2,
+        "destroy": 1
+      },
+      "changedCells": 221,
+      "lostOrExchangedStones": 138
+    },
+    {
+      "minute": 8,
+      "actions": 174,
+      "types": {
+        "deploy": 143,
+        "exchange": 8,
+        "bridge": 4,
+        "offer": 6,
+        "accept": 2,
+        "engineer": 2,
+        "shield": 3,
+        "destroy": 3,
+        "reject": 1,
+        "turret": 2
+      },
+      "changedCells": 192,
+      "lostOrExchangedStones": 124
+    },
+    {
+      "minute": 9,
+      "actions": 169,
+      "types": {
+        "deploy": 159,
+        "engineer": 3,
+        "offer": 3,
+        "destroy": 3,
+        "exchange": 1
+      },
+      "changedCells": 195,
+      "lostOrExchangedStones": 115
+    },
+    {
+      "minute": 10,
+      "actions": 179,
+      "types": {
+        "deploy": 151,
+        "engineer": 3,
+        "discard": 3,
+        "offer": 4,
+        "reroute": 2,
+        "bridge": 5,
+        "reject": 1,
+        "destroy": 3,
+        "turret": 2,
+        "shield": 5
+      },
+      "changedCells": 209,
+      "lostOrExchangedStones": 145
+    }
+  ],
+  "actionsPerSecond": 2.5123745993412046,
+  "finalUi": "CAMPAIGN COMPLETE\n\nA 青綠、E 草綠 並列第一\n\n已完成 600 秒前景戰役、251 輪、1509 次行動。結盟各自計分。\n\n1. A 青綠 · 152 分\n1. E 草綠 · 152 分\n3. C 紫藤 · 145 分\n4. D 藍灰 · 142 分\n5. F 琥珀 · 130 分\n6. B 珊瑚 · 122 分\n繼續自由對戰",
+  "sourceUnchanged": true
+}

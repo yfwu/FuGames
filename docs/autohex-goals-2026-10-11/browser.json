@@ -1,0 +1,173 @@
+{
+  "baseline": "f3d50e7",
+  "clock": "virtual AI timer control; no real-time claim",
+  "controlledFixtures": [
+    "dynamic airport supply path and cluster, unlocked with 18 legal rest actions",
+    "all but final opposite-edge route cell, then real human deploy and legal round settlement"
+  ],
+  "sourceSha256": {
+    "autohex-engine.js": "a029f76bb5424506a21f8485519176f010c3803aed401a20733ad83aaf4c9f09",
+    "autohex-ui.js": "f65b2e988d39113c86e082211924f2cc3b0d475108f3225b56a3951ff1f862e2",
+    "autohex-visuals.js": "b1bed80f9b4ef5baf8fc8a3c78706a0a6c2baf0b9274fe2c318883ed264e79cd",
+    "autohex.html": "927b8a6a57f18389d2a453bd6fdbfd5a484e5d079e6d915f17a9e2ae2811f9a8",
+    "autohex.css": "5902ca1e8675530e358402d44167b35df670f4b1251af9de76cb66ca8ccdf806"
+  },
+  "errors": [],
+  "viewports": [
+    {
+      "label": "desktop",
+      "beforeAirportCells": [
+        891,
+        525,
+        147,
+        135,
+        501,
+        879
+      ],
+      "firstSeed": [
+        890,
+        561,
+        173,
+        136,
+        465,
+        853
+      ],
+      "secondSeed": [
+        856,
+        812,
+        451,
+        170,
+        214,
+        575
+      ],
+      "dynamicNavigation": true,
+      "humanActions": {
+        "deploy": 12
+      },
+      "remoteAirActionsViaUi": true,
+      "invalidAirActionAtomic": true,
+      "goalRouteWithoutAirport": [
+        1017,
+        998,
+        978,
+        957,
+        935,
+        912,
+        888,
+        863,
+        837,
+        810,
+        782,
+        753,
+        723,
+        692,
+        660,
+        627,
+        593,
+        558,
+        522,
+        486,
+        450,
+        416,
+        383,
+        351,
+        320,
+        290,
+        261,
+        233,
+        206,
+        179,
+        153,
+        128,
+        104,
+        81,
+        59,
+        38,
+        18
+      ],
+      "goalArrivalScore": 12,
+      "holdingScore": 14,
+      "replayRestoresSeedAndClearsState": true,
+      "spectatorHandPrivate": true,
+      "overflow": false
+    },
+    {
+      "label": "mobile",
+      "beforeAirportCells": [
+        891,
+        525,
+        147,
+        135,
+        501,
+        879
+      ],
+      "firstSeed": [
+        890,
+        561,
+        173,
+        136,
+        465,
+        853
+      ],
+      "secondSeed": [
+        856,
+        812,
+        451,
+        170,
+        214,
+        575
+      ],
+      "dynamicNavigation": true,
+      "humanActions": {
+        "deploy": 12
+      },
+      "remoteAirActionsViaUi": true,
+      "invalidAirActionAtomic": true,
+      "goalRouteWithoutAirport": [
+        1017,
+        998,
+        978,
+        957,
+        935,
+        912,
+        888,
+        863,
+        837,
+        810,
+        782,
+        753,
+        723,
+        692,
+        660,
+        627,
+        593,
+        558,
+        522,
+        486,
+        450,
+        416,
+        383,
+        351,
+        320,
+        290,
+        261,
+        233,
+        206,
+        179,
+        153,
+        128,
+        104,
+        81,
+        59,
+        38,
+        18
+      ],
+      "goalArrivalScore": 12,
+      "holdingScore": 14,
+      "replayRestoresSeedAndClearsState": true,
+      "spectatorHandPrivate": true,
+      "overflow": false
+    }
+  ],
+  "pass": true
+}

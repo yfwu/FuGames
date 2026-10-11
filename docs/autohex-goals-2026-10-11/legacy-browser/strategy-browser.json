@@ -1,0 +1,48 @@
+{
+  "clock": "virtual for timer control only",
+  "fixture": "public seeded airport, controlled supply path/cluster and item resources; actual UI air actions",
+  "sourceSha256": {
+    "autohex-engine.js": "a029f76bb5424506a21f8485519176f010c3803aed401a20733ad83aaf4c9f09",
+    "autohex-ui.js": "f65b2e988d39113c86e082211924f2cc3b0d475108f3225b56a3951ff1f862e2",
+    "autohex-visuals.js": "b1bed80f9b4ef5baf8fc8a3c78706a0a6c2baf0b9274fe2c318883ed264e79cd",
+    "autohex.html": "927b8a6a57f18389d2a453bd6fdbfd5a484e5d079e6d915f17a9e2ae2811f9a8",
+    "autohex.css": "5902ca1e8675530e358402d44167b35df670f4b1251af9de76cb66ca8ccdf806"
+  },
+  "viewports": [
+    {
+      "label": "desktop",
+      "dpr": 1,
+      "seededCells": {
+        "airport": 862,
+        "target": 547,
+        "far": 0,
+        "bombard": 473
+      },
+      "airportUnlockThrough18Actions": true,
+      "illegalAirTargetAtomic": true,
+      "remoteAirdropViaUi": true,
+      "remoteBombardViaUi": true,
+      "cooldownElapsedThroughActions": true,
+      "neutralOffReplay": true,
+      "overflow": false
+    },
+    {
+      "label": "mobile",
+      "dpr": 3,
+      "seededCells": {
+        "airport": 862,
+        "target": 547,
+        "far": 0,
+        "bombard": 473
+      },
+      "airportUnlockThrough18Actions": true,
+      "illegalAirTargetAtomic": true,
+      "remoteAirdropViaUi": true,
+      "remoteBombardViaUi": true,
+      "cooldownElapsedThroughActions": true,
+      "neutralOffReplay": true,
+      "overflow": false
+    }
+  ],
+  "errors": []
+}
