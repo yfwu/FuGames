@@ -1,0 +1,2366 @@
+{
+  "generatedAt": "2026-10-11T14:11:39.580Z",
+  "complete": true,
+  "baselineCommit": "13c94a8",
+  "baselineEngineSha256": "b9f70d993c417964899feea6dbd7cc2bd971d524a7a3fd048a5b9948f0f57cdb",
+  "currentEngineSha256": "767905f8761d17216a444f60f341812a52427e7bbe364fb163133bb87c18a9e6",
+  "comparedEngineSource": "/* AutoHex: deterministic local campaign rules. No DOM, clock, or hidden-hand AI. */\n(function (root, factory) {\n  'use strict';\n  const api = factory();\n  if (typeof module === 'object' && module.exports) module.exports = api;\n  if (root) root.AutoHex = api;\n})(typeof window !== 'undefined' ? window : globalThis, function () {\n  'use strict';\n\n  const RADIUS = 18;\n  const PLAYERS = Object.freeze([1, 2, 3, 4, 5, 6]);\n  const RULES = Object.freeze({ range: 5, energyCap: 8, regeneration: 3,\n    handCap: 5, initialHand: 5, maxStones: 96, unsuppliedTurns: 6,\n    allianceRounds: 12, offerRounds: 3, offerCooldown: 8, betrayalCooldown: 18,\n    betrayalEnergy: 3, betrayalScore: 4, maxAllies: 2, maxTurrets: 3,\n    turretPeriod: 3, turretLife: 30, turretRange: 3, shieldTurns: 8,\n    firstGoalScore: 12, repeatGoalScore: 6, holdingScore: 2, goalCooldown: 12,\n    eventLimit: 96, recentActionLimit: 240, durationMs: 600000 });\n  const MAX_STONES = RULES.maxStones;\n  const CARD_META = Object.freeze({\n    turret: Object.freeze({ label: 'Turret', cost: 4, slots: 1,\n      description: 'Fortify an own stone. Fires at one nonallied enemy within 3 every 3 owner turns; lasts 30 turns. Maximum 3 turrets.' }),\n    destroy: Object.freeze({ label: 'Demolition', cost: 5, slots: 1,\n      description: 'Remove an enemy stone within 5. A shield absorbs one demolition. Permanent home anchors are immune.' }),\n    bridge: Object.freeze({ label: 'Bridge', cost: 3, slots: 2,\n      description: 'Join two existing own stones 2–5 cells apart. Carries supply. No crossing, overlap, duplication or T junction; shared endpoints are legal.' }),\n    reroute: Object.freeze({ label: 'Reroute', cost: 2, slots: 3,\n      description: 'Select retained bridge endpoint, old other endpoint, then new own endpoint. Reattach the bridge, obeying the same distance and collision rules.' }),\n    shield: Object.freeze({ label: 'Shield', cost: 2, slots: 1,\n      description: 'Protect an own non-anchor stone for 8 owner turns. Adds 2 defense and absorbs one demolition or turret shot.' }),\n    exchange: Object.freeze({ label: 'Exchange', cost: 3, slots: 2,\n      description: 'Swap an own ordinary stone with an adjacent empty cell or nonallied ordinary enemy. Excludes anchors, turrets and bridge endpoints. Every target must already be within own range 5.' })\n  });\n  const ACTION_META = Object.freeze({\n    deploy: Object.freeze({ label: 'Deploy / capture', slots: 1, cost: 2,\n      description: 'Place within 5 of an own stone for 2 energy (river needs a road). Capture for 4 energy with sufficient adjacent support; hills add 1 defense.' }),\n    engineer: Object.freeze({ label: 'Engineer', slots: 1, cost: 2,\n      description: 'Make an empty river cell passable for everyone, within own range 5.' }),\n    withdraw: Object.freeze({ label: 'Withdraw', slots: 1, cost: 0,\n      description: 'Withdraw an own non-anchor stone, removing its structures and recovering 1 energy.' }),\n    rest: Object.freeze({ label: 'Rest', slots: 0, cost: 0,\n      description: 'Recover 3 additional energy. Ends the turn.' }),\n    discard: Object.freeze({ label: 'Discard', slots: 0, cost: 0,\n      description: 'Recycle one card and draw a replacement. Ends the turn.' }),\n    offer: Object.freeze({ label: 'Offer pact', slots: 0, cost: 0,\n      description: 'Offer a 12-round nonaggression pact. Offer lasts 3 rounds; each faction may have at most 2 pacts.' }),\n    accept: Object.freeze({ label: 'Accept pact', slots: 0, cost: 0, description: 'Accept a public incoming offer. Ends the turn.' }),\n    reject: Object.freeze({ label: 'Reject offer', slots: 0, cost: 0, description: 'Reject a public incoming offer. Ends the turn.' }),\n    betray: Object.freeze({ label: 'Betray pact', slots: 0, cost: 3,\n      description: 'End a pact, lose 4 score and 2 reputation, and incur an 18-round diplomacy cooldown and mutual grudge. Ends the turn.' })\n  });\n  const CARD_TYPES = Object.freeze(Object.keys(CARD_META));\n  const DECK_SIZE = CARD_TYPES.length * 16;\n  const CELLS = [];\n  const lookup = new Map();\n  for (let q = -RADIUS; q <= RADIUS; q++) {\n    for (let r = Math.max(-RADIUS, -q - RADIUS); r <= Math.min(RADIUS, -q + RADIUS); r++) {\n      const i = CELLS.length;\n      CELLS.push(Object.freeze({ q, r, s: -q - r, i, x: Math.sqrt(3) * (q + r / 2), y: 1.5 * r }));\n      lookup.set(q + ',' + r, i);\n    }\n  }\n  Object.freeze(CELLS);\n  const COUNT = CELLS.length;\n  function index(q, r) { const n = lookup.get(q + ',' + r); return n === undefined ? -1 : n; }\n  function cell(value) { return Number.isInteger(value) ? CELLS[value] : value; }\n  function distance(a, b) {\n    a = cell(a); b = cell(b);\n    return a && b ? Math.max(Math.abs(a.q - b.q), Math.abs(a.r - b.r), Math.abs((a.s === undefined ? -a.q - a.r : a.s) - (b.s === undefined ? -b.q - b.r : b.s))) : Infinity;\n  }\n  const DIRS = [[1, 0], [0, 1], [-1, 1], [-1, 0], [0, -1], [1, -1]];\n  const ADJ = Object.freeze(CELLS.map(c => Object.freeze(DIRS.map(d => index(c.q + d[0], c.r + d[1])).filter(i => i >= 0))));\n  const NEAR = CELLS.map(c => {\n    const result = [];\n    for (let dq = -5; dq <= 5; dq++) for (let dr = Math.max(-5, -dq - 5); dr <= Math.min(5, -dq + 5); dr++) {\n      const i = index(c.q + dq, c.r + dr); if (i >= 0) result.push(i);\n    }\n    return result;\n  });\n  const HOME_COORDS = [[18, -9], [9, 9], [-9, 18], [-18, 9], [-9, -9], [9, -18]];\n  const AXES = ['q', 's', 'r', 'q', 's', 'r'];\n  const SIGNS = [1, -1, 1, -1, 1, -1];\n  const COLORS = ['#000000', '#65c7ff', '#ff9874', '#b9a0ff', '#ffc95b', '#60dbb0', '#f18ac2'];\n  const PROFILES = Object.freeze([\n    Object.freeze({ name: 'Vanguard', aggression: 1.15, engineering: 0.95, diplomacy: 0.7 }),\n    Object.freeze({ name: 'Architect', aggression: 0.95, engineering: 1.2, diplomacy: 0.9 }),\n    Object.freeze({ name: 'Sentinel', aggression: 1, engineering: 1.05, diplomacy: 1 }),\n    Object.freeze({ name: 'Raider', aggression: 1.25, engineering: 0.9, diplomacy: 0.6 }),\n    Object.freeze({ name: 'Envoy', aggression: 0.95, engineering: 1, diplomacy: 1.3 }),\n    Object.freeze({ name: 'Pathfinder', aggression: 1.05, engineering: 1.1, diplomacy: 0.95 })\n  ]);\n\n  function hash(value) {\n    const string = String(value); let h = 2166136261;\n    for (let i = 0; i < string.length; i++) { h ^= string.charCodeAt(i); h = Math.imul(h, 16777619); }\n    return h >>> 0;\n  }\n  function randomSource(seed) {\n    let a = hash(seed);\n    return function () { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };\n  }\n  function shuffle(array, random) {\n    for (let i = array.length - 1; i > 0; i--) { const j = Math.floor(random() * (i + 1)); [array[i], array[j]] = [array[j], array[i]]; }\n    return array;\n  }\n  function validCell(i) { return Number.isInteger(i) && i >= 0 && i < COUNT; }\n  function inRange(state, player, i) {\n    if (!validCell(i) || !PLAYERS.includes(player)) return false;\n    return NEAR[i].some(j => state.board[j] === player);\n  }\n  function goalCell(state, player, i) {\n    return validCell(i) && state.players[player] && CELLS[i][state.players[player].axis] === -state.players[player].sign * RADIUS;\n  }\n  function allied(state, a, b) {\n    return a === b || (state.alliances || []).some(p => ((p.a === a && p.b === b) || (p.a === b && p.b === a)) && p.expiresRound > state.round);\n  }\n  function alliesOf(state, player) {\n    return (state.alliances || []).filter(a => a.expiresRound > state.round && (a.a === player || a.b === player)).map(a => a.a === player ? a.b : a.a);\n  }\n  function computeSupply(state, player) {\n    const supplied = new Uint8Array(COUNT);\n    const home = state.players[player] && state.players[player].home;\n    if (!validCell(home) || state.board[home] !== player) return supplied;\n    const linked = new Map();\n    for (const bridge of state.bridges || []) {\n      if (bridge.owner !== player || state.board[bridge.a] !== player || state.board[bridge.b] !== player) continue;\n      if (!linked.has(bridge.a)) linked.set(bridge.a, []);\n      if (!linked.has(bridge.b)) linked.set(bridge.b, []);\n      linked.get(bridge.a).push(bridge.b); linked.get(bridge.b).push(bridge.a);\n    }\n    const queue = [home]; supplied[home] = 1;\n    for (let k = 0; k < queue.length; k++) {\n      const i = queue[k];\n      for (const j of ADJ[i]) if (!supplied[j] && state.board[j] === player) { supplied[j] = 1; queue.push(j); }\n      for (const j of linked.get(i) || []) if (!supplied[j] && state.board[j] === player) { supplied[j] = 1; queue.push(j); }\n    }\n    return supplied;\n  }\n  function cross(a, b, c) { return (b.q - a.q) * (c.r - a.r) - (b.r - a.r) * (c.q - a.q); }\n  function onSegment(a, b, c) { return cross(a, b, c) === 0 && c.q >= Math.min(a.q, b.q) && c.q <= Math.max(a.q, b.q) && c.r >= Math.min(a.r, b.r) && c.r <= Math.max(a.r, b.r); }\n  function sameCell(a, b) { return a.q === b.q && a.r === b.r; }\n  // Axial coordinates are an affine transform of the rendered plane. Integer\n  // cross products make collision checks exact, including collinear overlaps.\n  function bridgeConflict(a, b, c, d) {\n    a = cell(a); b = cell(b); c = cell(c); d = cell(d);\n    if (!a || !b || !c || !d || sameCell(a, b) || sameCell(c, d)) return true;\n    const ac = cross(a, b, c), ad = cross(a, b, d), ca = cross(c, d, a), cb = cross(c, d, b);\n    if (ac === 0 && ad === 0) {\n      const key = a.q !== b.q ? 'q' : 'r';\n      const lo = Math.max(Math.min(a[key], b[key]), Math.min(c[key], d[key]));\n      const hi = Math.min(Math.max(a[key], b[key]), Math.max(c[key], d[key]));\n      if (lo > hi) return false;\n      if (lo < hi) return true;\n      return !(sameCell(a, c) || sameCell(a, d) || sameCell(b, c) || sameCell(b, d));\n    }\n    if (sameCell(a, c) || sameCell(a, d) || sameCell(b, c) || sameCell(b, d)) return false;\n    return (ac * ad < 0 && ca * cb < 0) || (ac === 0 && onSegment(a, b, c)) || (ad === 0 && onSegment(a, b, d)) || (ca === 0 && onSegment(c, d, a)) || (cb === 0 && onSegment(c, d, b));\n  }\n  function bridgesConflict(left, right) { return bridgeConflict(left.a, left.b, right.a, right.b); }\n  function bridgeIndex(state, owner, a, b) { return (state.bridges || []).findIndex(v => v.owner === owner && ((v.a === a && v.b === b) || (v.a === b && v.b === a))); }\n  function bridgeLegal(state, player, a, b, omit = -1) {\n    return a !== b && state.board[a] === player && state.board[b] === player && distance(a, b) >= 2 && distance(a, b) <= 5 &&\n      !(state.bridges || []).some((v, k) => k !== omit && bridgeConflict(a, b, v.a, v.b));\n  }\n  function ordinary(state, i) {\n    return !state.anchors[i] && !(state.turrets || []).some(t => t.cell === i) && !(state.bridges || []).some(b => b.a === i || b.b === i);\n  }\n  function adjacentCount(state, i, owner) { let n = 0; for (const j of ADJ[i]) if (state.board[j] === owner) n++; return n; }\n  function combatStrength(state, player, i) {\n    let attack = adjacentCount(state, i, player);\n    if (attack) attack += (state.turrets || []).filter(t => t.owner === player && distance(t.cell, i) <= RULES.turretRange).length;\n    const owner = state.board[i];\n    const defense = 1 + (state.terrain[i] === 2 ? 1 : 0) + (state.shields[i] ? 2 : 0) + Math.min(2, Math.floor(adjacentCount(state, i, owner) / 3));\n    return { attack, defense };\n  }\n  function actionCost(state, action) {\n    if (action.type === 'deploy') return state.board[(action.cells || [])[0]] ? 4 : 2;\n    return CARD_META[action.type] ? CARD_META[action.type].cost : (ACTION_META[action.type] || {}).cost || 0;\n  }\n  function legalAction(state, action) {\n    if (!state || state.phase !== 'running' || !action || typeof action.type !== 'string') return false;\n    const p = state.turn, player = state.players[p];\n    if (!player || (state.observer !== undefined && state.observer !== p)) return false;\n    const type = action.type, meta = CARD_META[type] || ACTION_META[type];\n    if (!meta) return false;\n    const cells = action.cells === undefined ? [] : action.cells;\n    if (!Array.isArray(cells) || cells.length !== meta.slots || cells.some(i => !validCell(i))) return false;\n    if (new Set(cells).size !== cells.length) return false;\n    if (cells.some(i => !inRange(state, p, i))) return false;\n    const hand = state.hand || (state.hands && state.hands[p]) || [];\n    const cardIndex = action.cardIndex === undefined ? hand.indexOf(type) : action.cardIndex;\n    if (CARD_META[type] && (!Number.isInteger(cardIndex) || hand[cardIndex] !== type)) return false;\n    if (player.energy < actionCost(state, action)) return false;\n    const a = cells[0], b = cells[1], target = action.target;\n    if (type === 'rest') return true;\n    if (type === 'discard') return Number.isInteger(action.cardIndex) && action.cardIndex >= 0 && action.cardIndex < hand.length;\n    if (type === 'deploy') {\n      const owner = state.board[a];\n      if (owner === p || state.anchors[a] || (state.terrain[a] === 1 && !state.roads[a])) return false;\n      let stones = 0; for (let i = 0; i < COUNT; i++) if (state.board[i] === p) stones++;\n      if (stones >= MAX_STONES) return false;\n      if (!owner) return true;\n      if (allied(state, p, owner)) return false;\n      const strength = combatStrength(state, p, a); return strength.attack > 0 && strength.attack >= strength.defense;\n    }\n    if (type === 'engineer') return !state.board[a] && state.terrain[a] === 1 && !state.roads[a];\n    if (type === 'withdraw') return state.board[a] === p && !state.anchors[a];\n    if (type === 'turret') return state.board[a] === p && !state.anchors[a] && !(state.turrets || []).some(t => t.cell === a) && (state.turrets || []).filter(t => t.owner === p).length < RULES.maxTurrets;\n    if (type === 'shield') return state.board[a] === p && !state.anchors[a] && !state.shields[a];\n    if (type === 'destroy') return !!state.board[a] && state.board[a] !== p && !state.anchors[a] && !allied(state, p, state.board[a]);\n    if (type === 'bridge') return bridgeLegal(state, p, a, b);\n    if (type === 'reroute') {\n      const old = bridgeIndex(state, p, a, b);\n      return old >= 0 && state.board[b] === p && bridgeLegal(state, p, a, cells[2], old);\n    }\n    if (type === 'exchange') return state.board[a] === p && ordinary(state, a) && ordinary(state, b) && distance(a, b) === 1 &&\n      state.board[b] !== p && (!state.board[b] || !allied(state, p, state.board[b])) && (state.terrain[b] !== 1 || state.roads[b]);\n    if (!PLAYERS.includes(target) || target === p) return false;\n    const incoming = (state.offers || []).some(o => o.from === target && o.to === p && o.expiresRound > state.round);\n    if (type === 'reject') return incoming;\n    if (type === 'betray') return allied(state, p, target);\n    const other = state.players[target];\n    const noRoom = alliesOf(state, p).length >= RULES.maxAllies || alliesOf(state, target).length >= RULES.maxAllies;\n    const grudge = (player.grudgeUntil && player.grudgeUntil[target] || 0) > state.round || (other.grudgeUntil && other.grudgeUntil[p] || 0) > state.round;\n    if (type === 'accept') return incoming && !noRoom && !grudge && !allied(state, p, target);\n    if (type === 'offer') return !noRoom && !grudge && !allied(state, p, target) && (player.diplomacyUntil || 0) <= state.round &&\n      !(state.offers || []).some(o => o.expiresRound > state.round && ((o.from === p && o.to === target) || (o.to === p && o.from === target)));\n    return false;\n  }\n\n  class Game {\n    constructor(options = {}) {\n      this.durationMs = Number.isFinite(options.durationMs) && options.durationMs > 0 ? options.durationMs : RULES.durationMs;\n      this.reset(options.seed === undefined ? 'autohex' : options.seed, options.first === undefined ? 1 : options.first, options.rotation === undefined ? 0 : options.rotation);\n    }\n    reset(seed = this.seed, first = this.first, rotation = this.rotation) {\n      this.seed = seed; this.first = PLAYERS.includes(first) ? first : 1;\n      this.rotation = ((Number.isInteger(rotation) ? rotation : 0) % 6 + 6) % 6;\n      this._random = randomSource(seed); this.phase = 'ready'; this.turn = this.first;\n      this.ply = 0; this.round = 0; this.activeMs = 0; this.sandbox = false; this.result = null;\n      this._turnStarted = false; this._offerId = 0; this._eventId = 0; this.lastAction = null;\n      this.board = new Uint8Array(COUNT); this.terrain = new Uint8Array(COUNT);\n      this.roads = new Uint8Array(COUNT); this.anchors = new Uint8Array(COUNT);\n      this.shields = new Uint8Array(COUNT); this.unsupplied = new Uint8Array(COUNT);\n      this.bridges = []; this.turrets = []; this.offers = []; this.alliances = []; this.events = []; this.recentActions = [];\n      this.players = [null]; this.hands = Array.from({ length: 7 }, () => []);\n      this.drawPile = shuffle(CARD_TYPES.flatMap(type => Array(16).fill(type)), this._random); this.discardPile = [];\n      this.telemetry = { actions: 0, meaningful: 0, captures: 0, destroyed: 0, supplyRetreats: 0, engineered: 0,\n        cardsUsed: 0, reshuffles: 0, goalArrivals: 0, goalHoldingRounds: 0, offers: 0, alliances: 0, betrayals: 0,\n        withdrawals: 0, turretShots: 0, shieldBlocks: 0, byType: {}, byMinute: [],\n        perPlayer: Array.from({ length: 7 }, () => ({ actions: 0, captures: 0, cardsUsed: 0, goals: 0 })) };\n      for (const c of CELLS) {\n        let q = c.q, r = c.r, canonical = q + ',' + r;\n        for (let k = 0; k < 5; k++) { const nq = -r; r = q + r; q = nq; const key = q + ',' + r; if (key < canonical) canonical = key; }\n        const value = hash(seed + ':terrain:' + canonical) % 100;\n        this.terrain[c.i] = value < 10 ? 1 : value < 26 ? 2 : 0;\n      }\n      for (const p of PLAYERS) {\n        const home = index(...HOME_COORDS[p - 1]);\n        const profile = PROFILES[(p - 1 + this.rotation) % 6];\n        this.players[p] = { id: p, name: ['Azure', 'Ember', 'Violet', 'Gold', 'Jade', 'Rose'][p - 1], color: COLORS[p],\n          home, axis: AXES[p - 1], sign: SIGNS[p - 1], score: 0, energy: 5, profile: { ...profile },\n          diplomacyUntil: 0, grudgeUntil: Array(7).fill(0), reputation: 0, goalActive: false, reached: false,\n          lastGoalRound: -RULES.goalCooldown, goals: 0, ownerTurns: 0, stones: 3 };\n        this.board[home] = p; this.anchors[home] = p;\n        const inward = ADJ[home].filter(i => CELLS[i][AXES[p - 1]] * SIGNS[p - 1] === RADIUS - 1);\n        for (const i of inward) this.board[i] = p;\n        for (const i of NEAR[home]) if (distance(home, i) <= 2) this.terrain[i] = 0;\n      }\n      for (let k = 0; k < RULES.initialHand; k++) for (const p of PLAYERS) this._draw(p);\n      this._event('ready', 0, 'Six directed routes. Hold the opposite edge; highest score after ten active minutes wins.');\n      return this;\n    }\n    start() {\n      if (this.phase !== 'ready' && this.phase !== 'paused') return false;\n      this.phase = 'running'; if (!this._turnStarted) this._beginTurn(); return true;\n    }\n    pause() { if (this.phase !== 'running') return false; this.phase = 'paused'; return true; }\n    advanceTime(deltaMs) {\n      if (this.phase !== 'running' || !Number.isFinite(deltaMs) || deltaMs <= 0) return false;\n      this.activeMs += deltaMs;\n      if (!this.sandbox && this.activeMs >= this.durationMs) { this.activeMs = this.durationMs; this._finish(); }\n      return true;\n    }\n    continueSandbox() {\n      if (this.phase !== 'over') return false;\n      this.sandbox = true; this.phase = 'running';\n      this._event('sandbox', 0, 'Sandbox continues; campaign standings remain recorded.'); return true;\n    }\n    _finish() {\n      const standings = PLAYERS.map(player => ({ player, score: this.players[player].score, name: this.players[player].name }));\n      standings.sort((a, b) => b.score - a.score || a.player - b.player);\n      let previous = null, rank = 0;\n      standings.forEach((row, i) => { if (row.score !== previous) rank = i + 1; row.rank = rank; previous = row.score; });\n      const winners = standings.filter(s => s.rank === 1).map(s => s.player);\n      this.result = { winners, standings, draw: winners.length > 1, reason: 'timeout', activeMs: this.activeMs };\n      this.phase = 'over'; this._event('campaign-end', 0, winners.length > 1 ? 'Campaign complete: shared first place.' : this.players[winners[0]].name + ' leads the final standings.');\n    }\n    _event(type, player, message, extra = {}) {\n      this.events.push({ id: ++this._eventId, type, player, message, ply: this.ply, round: this.round, activeMs: this.activeMs, ...extra });\n      if (this.events.length > RULES.eventLimit) this.events.splice(0, this.events.length - RULES.eventLimit);\n    }\n    _draw(player) {\n      if (this.hands[player].length >= RULES.handCap) return;\n      if (!this.drawPile.length && this.discardPile.length) {\n        this.drawPile = shuffle(this.discardPile.splice(0), this._random); this.telemetry.reshuffles++;\n        this._event('reshuffle', 0, 'The shared discard pile was shuffled into a new draw pile.');\n      }\n      if (this.drawPile.length) this.hands[player].push(this.drawPile.pop());\n    }\n    _remove(i) {\n      if (this.anchors[i]) return false;\n      this.board[i] = 0; this.shields[i] = 0; this.unsupplied[i] = 0;\n      this.bridges = this.bridges.filter(b => b.a !== i && b.b !== i);\n      this.turrets = this.turrets.filter(t => t.cell !== i); return true;\n    }\n    _capture(p, i, source) {\n      const from = this.board[i]; this._remove(i); this.board[i] = p;\n      this.players[p].score++; this.telemetry.captures++; this.telemetry.perPlayer[p].captures++;\n      this._event('capture', p, this.players[p].name + ' captured a ' + this.players[from].name + ' stone.', { cells: [i], from, source });\n    }\n    _damage(p, i, source, origin = null) {\n      if (!this.board[i] || this.board[i] === p || this.anchors[i] || allied(this, p, this.board[i])) return false;\n      if (this.shields[i]) {\n        this.shields[i] = 0; this.telemetry.shieldBlocks++;\n        this._event('shield-block', p, 'A shield absorbed ' + source + '.', { cells: [i], from: this.board[i], source, origin }); return true;\n      }\n      const from = this.board[i]; this._remove(i); this.players[p].score++; this.telemetry.destroyed++;\n      this._event('destroy', p, this.players[p].name + ' destroyed a ' + this.players[from].name + ' stone.', { cells: [i], from, source, origin }); return true;\n    }\n    _beginTurn() {\n      this._turnStarted = true;\n      const p = this.turn, player = this.players[p]; player.ownerTurns++;\n      player.energy = Math.min(RULES.energyCap, player.energy + RULES.regeneration);\n      for (let i = 0; i < COUNT; i++) if (this.board[i] === p && this.shields[i]) this.shields[i]--;\n      // Resolve each owner's battery simultaneously in stable cell order. Pacts\n      // are checked at the moment of firing, never silently broken by a turret.\n      const firing = this.turrets.filter(t => t.owner === p).sort((a, b) => a.cell - b.cell);\n      for (const turret of firing) {\n        turret.life--; turret.countdown--;\n        if (turret.countdown <= 0) {\n          turret.countdown = RULES.turretPeriod;\n          const targets = NEAR[turret.cell].filter(i => distance(turret.cell, i) <= RULES.turretRange && this.board[i] && this.board[i] !== p && !this.anchors[i] && !allied(this, p, this.board[i]));\n          targets.sort((a, b) => (this.turrets.some(t => t.cell === b) ? 3 : 0) + adjacentCount(this, b, this.board[b]) -\n            ((this.turrets.some(t => t.cell === a) ? 3 : 0) + adjacentCount(this, a, this.board[a])) || distance(turret.cell, a) - distance(turret.cell, b) || a - b);\n          if (targets.length) { this.telemetry.turretShots++; this._damage(p, targets[0], 'turret', turret.cell); }\n        }\n      }\n      this.turrets = this.turrets.filter(t => t.life > 0 && this.board[t.cell] === t.owner);\n      this._countStones();\n    }\n    _settleSupply(p) {\n      const supplied = computeSupply(this, p); let retreats = 0; const cells = [];\n      for (let i = 0; i < COUNT; i++) if (this.board[i] === p) {\n        if (supplied[i] || this.anchors[i]) this.unsupplied[i] = 0;\n        else if (++this.unsupplied[i] >= RULES.unsuppliedTurns) { this._remove(i); retreats++; cells.push(i); }\n      }\n      if (retreats) {\n        this.telemetry.supplyRetreats += retreats;\n        this._event('supply-retreat', p, this.players[p].name + ' withdrew ' + retreats + ' unsupplied stone' + (retreats === 1 ? '' : 's') + '.', { count: retreats, cells });\n      }\n    }\n    _countStones() {\n      for (const p of PLAYERS) this.players[p].stones = 0;\n      for (const p of this.board) if (p) this.players[p].stones++;\n    }\n    _roundEnd() {\n      this.round++;\n      const expiredOffers = this.offers.filter(o => o.expiresRound <= this.round);\n      const expiredPacts = this.alliances.filter(a => a.expiresRound <= this.round);\n      this.offers = this.offers.filter(o => o.expiresRound > this.round);\n      this.alliances = this.alliances.filter(a => a.expiresRound > this.round);\n      for (const offer of expiredOffers) this._event('offer-expired', offer.from, 'An unanswered pact offer expired.', { target: offer.to });\n      for (const pact of expiredPacts) this._event('alliance-expired', pact.a, 'The ' + this.players[pact.a].name + '–' + this.players[pact.b].name + ' pact expired.', { target: pact.b });\n      const scoring = PLAYERS.map(p => {\n        const supply = computeSupply(this, p); return supply.some((value, i) => value && goalCell(this, p, i));\n      });\n      // All six conditions are captured before any score changes: no first-seat\n      // goal win, and neither goals nor alliances terminate a campaign early.\n      for (const p of PLAYERS) {\n        const player = this.players[p], holds = scoring[p - 1];\n        if (holds) {\n          if (!player.goalActive && (!player.reached || this.round - player.lastGoalRound >= RULES.goalCooldown)) {\n            const points = player.reached ? RULES.repeatGoalScore : RULES.firstGoalScore;\n            player.score += points; player.lastGoalRound = this.round; player.reached = true; player.goals++;\n            this.telemetry.goalArrivals++; this.telemetry.perPlayer[p].goals++;\n            this._event('goal-arrival', p, player.name + ' supplied the opposite edge: +' + points + '.', { points });\n          } else if (player.goalActive) {\n            player.score += RULES.holdingScore; this.telemetry.goalHoldingRounds++;\n            if (this.round % 5 === 0) this._event('goal-hold', p, player.name + ' continues holding its supplied opposite edge.', { points: RULES.holdingScore });\n          }\n        } else if (player.goalActive) this._event('goal-lost', p, player.name + ' lost its supplied opposite-edge route.');\n        player.goalActive = holds;\n      }\n    }\n    act(action) {\n      if (!legalAction(this, action)) return false;\n      const p = this.turn, player = this.players[p], type = action.type, cells = action.cells || [], a = cells[0], b = cells[1];\n      const before = { captures: this.telemetry.captures, destroyed: this.telemetry.destroyed };\n      player.energy -= actionCost(this, action);\n      if (CARD_META[type] || type === 'discard') {\n        const cardIndex = action.cardIndex === undefined ? this.hands[p].indexOf(type) : action.cardIndex;\n        const [card] = this.hands[p].splice(cardIndex, 1); this.discardPile.push(card);\n        if (CARD_META[type]) { this.telemetry.cardsUsed++; this.telemetry.perPlayer[p].cardsUsed++; }\n      }\n      if (type === 'deploy') {\n        if (this.board[a]) this._capture(p, a, 'deploy'); else { this.board[a] = p; this.unsupplied[a] = 0; }\n      } else if (type === 'engineer') { this.roads[a] = 1; this.telemetry.engineered++; }\n      else if (type === 'withdraw') { this._remove(a); player.energy = Math.min(RULES.energyCap, player.energy + 1); this.telemetry.withdrawals++; }\n      else if (type === 'rest') player.energy = Math.min(RULES.energyCap, player.energy + 3);\n      else if (type === 'turret') this.turrets.push({ owner: p, cell: a, countdown: RULES.turretPeriod, life: RULES.turretLife });\n      else if (type === 'destroy') this._damage(p, a, 'demolition');\n      else if (type === 'shield') this.shields[a] = RULES.shieldTurns;\n      else if (type === 'bridge') this.bridges.push({ owner: p, a, b });\n      else if (type === 'reroute') this.bridges[bridgeIndex(this, p, a, b)] = { owner: p, a, b: cells[2] };\n      else if (type === 'exchange') {\n        const owner = this.board[b]; this.board[a] = owner; this.board[b] = p;\n        this.shields[a] = 0; this.shields[b] = 0; this.unsupplied[a] = 0; this.unsupplied[b] = 0;\n        if (owner) {\n          player.score++; this.telemetry.captures++; this.telemetry.perPlayer[p].captures++;\n          this._event('capture', p, player.name + ' exchanged positions with ' + this.players[owner].name + '.', { cells: [a, b], from: owner, source: 'exchange' });\n        }\n      } else if (type === 'offer') {\n        this.offers.push({ id: ++this._offerId, from: p, to: action.target, createdRound: this.round, expiresRound: this.round + RULES.offerRounds });\n        player.diplomacyUntil = this.round + RULES.offerCooldown; this.telemetry.offers++;\n      } else if (type === 'accept') {\n        this.offers = this.offers.filter(o => !((o.from === p && o.to === action.target) || (o.to === p && o.from === action.target)));\n        this.alliances.push({ a: p, b: action.target, createdRound: this.round, expiresRound: this.round + RULES.allianceRounds });\n        this.telemetry.alliances++;\n      } else if (type === 'reject') this.offers = this.offers.filter(o => o.from !== action.target || o.to !== p);\n      else if (type === 'betray') {\n        const target = action.target;\n        this.alliances = this.alliances.filter(v => !((v.a === p && v.b === target) || (v.a === target && v.b === p)));\n        player.score -= RULES.betrayalScore; player.reputation -= 2;\n        player.diplomacyUntil = this.round + RULES.betrayalCooldown;\n        player.grudgeUntil[target] = this.round + RULES.betrayalCooldown;\n        this.players[target].grudgeUntil[p] = this.round + RULES.betrayalCooldown;\n        this.telemetry.betrayals++;\n      }\n      this.telemetry.actions++; this.telemetry.perPlayer[p].actions++;\n      this.telemetry.byType[type] = (this.telemetry.byType[type] || 0) + 1;\n      const meaningful = type !== 'rest' && type !== 'discard'; if (meaningful) this.telemetry.meaningful++;\n      const minute = Math.min(10, Math.floor(this.activeMs / 60000));\n      if (!this.telemetry.byMinute[minute]) this.telemetry.byMinute[minute] = { actions: 0, meaningful: 0, captures: 0, cardsUsed: 0 };\n      const bin = this.telemetry.byMinute[minute]; bin.actions++; if (meaningful) bin.meaningful++;\n      bin.captures += this.telemetry.captures - before.captures; if (CARD_META[type]) bin.cardsUsed++;\n      const record = { player: p, type, cells: cells.slice(), target: action.target, ply: this.ply, round: this.round,\n        activeMs: this.activeMs, captures: this.telemetry.captures - before.captures, destroyed: this.telemetry.destroyed - before.destroyed, meaningful };\n      this.lastAction = record; this.recentActions.push(record);\n      if (this.recentActions.length > RULES.recentActionLimit) this.recentActions.shift();\n      const messages = { deploy: 'deployed a stone', engineer: 'engineered a river crossing', withdraw: 'withdrew a stone', turret: 'built a turret', shield: 'raised a shield', bridge: 'linked a bridge', reroute: 'rerouted a bridge', exchange: 'exchanged positions', offer: 'offered a pact', accept: 'accepted a pact', reject: 'rejected a pact', betray: 'broke a pact (−4 score)', discard: 'recycled a card', rest: 'rested' };\n      if (type !== 'destroy') this._event(type, p, player.name + ' ' + messages[type] + (action.target ? ' with ' + this.players[action.target].name : '') + '.', { cells: cells.slice(), target: action.target });\n      this._settleSupply(p); this._draw(p); this.ply++;\n      if (this.ply % 6 === 0) this._roundEnd();\n      this.turn = this.turn % 6 + 1; this._beginTurn(); return true;\n    }\n    observation(player = this.turn) {\n      const supplied = new Uint8Array(COUNT), range = new Uint8Array(COUNT);\n      for (const p of PLAYERS) { const own = computeSupply(this, p); for (let i = 0; i < COUNT; i++) if (own[i]) supplied[i] = 1; }\n      if (PLAYERS.includes(player)) for (let i = 0; i < COUNT; i++) if (this.board[i] === player) for (const j of NEAR[i]) range[j] = 1;\n      const clone = value => JSON.parse(JSON.stringify(value));\n      return { observer: player, seed: this.seed, first: this.first, rotation: this.rotation, phase: this.phase, turn: this.turn,\n        ply: this.ply, round: this.round, activeMs: this.activeMs, durationMs: this.durationMs, sandbox: this.sandbox,\n        result: this.result && clone(this.result), board: Array.from(this.board), terrain: Array.from(this.terrain), roads: Array.from(this.roads),\n        anchors: Array.from(this.anchors), shields: Array.from(this.shields), unsupplied: Array.from(this.unsupplied), supplied: Array.from(supplied), range: Array.from(range),\n        bridges: this.bridges.map(b => ({ ...b })), turrets: this.turrets.map(t => ({ ...t })), players: this.players.map(p => p && ({ ...p, profile: { ...p.profile }, grudgeUntil: p.grudgeUntil.slice() })),\n        offers: this.offers.map(o => ({ ...o })), alliances: this.alliances.map(a => ({ ...a })), events: clone(this.events),\n        hand: (this.hands[player] || []).slice(), handCounts: this.hands.map(h => h.length), drawCount: this.drawPile.length, discardCount: this.discardPile.length,\n        telemetry: clone(this.telemetry), recentActions: clone(this.recentActions), lastAction: this.lastAction ? clone(this.lastAction) : null };\n    }\n  }\n\n  // Min-heap Dijkstra over public cells. Private deck state and other hands are\n  // intentionally absent from this planner's inputs and all its helper calls.\n  function routeDistances(state, p) {\n    const result = new Float64Array(COUNT); result.fill(Infinity); const heap = [];\n    function push(i, cost) { let k = heap.length; heap.push([i, cost]); while (k > 0) { const parent = (k - 1) >> 1; if (heap[parent][1] <= cost) break; heap[k] = heap[parent]; k = parent; } heap[k] = [i, cost]; }\n    function pop() { const first = heap[0], last = heap.pop(); if (heap.length) { let k = 0; while (k * 2 + 1 < heap.length) { let child = k * 2 + 1; if (child + 1 < heap.length && heap[child + 1][1] < heap[child][1]) child++; if (heap[child][1] >= last[1]) break; heap[k] = heap[child]; k = child; } heap[k] = last; } return first; }\n    const weights = new Float64Array(COUNT);\n    for (const c of CELLS) {\n      const owner = state.board[c.i];\n      weights[c.i] = state.anchors[c.i] && owner !== p ? 1000 : owner === p ? 0.16 : owner ? (allied(state, p, owner) ? 8 : 3.5) : state.terrain[c.i] === 1 && !state.roads[c.i] ? 2 : 1;\n      if (goalCell(state, p, c.i) && (!state.anchors[c.i] || owner === p)) { result[c.i] = 0; push(c.i, 0); }\n    }\n    const links = new Map();\n    for (const b of state.bridges || []) if (b.owner === p) { if (!links.has(b.a)) links.set(b.a, []); if (!links.has(b.b)) links.set(b.b, []); links.get(b.a).push(b.b); links.get(b.b).push(b.a); }\n    while (heap.length) {\n      const [i, cost] = pop(); if (cost !== result[i]) continue;\n      for (const j of ADJ[i]) { const candidate = cost + weights[i]; if (candidate < result[j]) { result[j] = candidate; push(j, candidate); } }\n      for (const j of links.get(i) || []) { const candidate = cost + 0.12; if (candidate < result[j]) { result[j] = candidate; push(j, candidate); } }\n    }\n    return result;\n  }\n  function chooseAction(state) {\n    if (!state || state.phase !== 'running' || (state.observer !== undefined && state.observer !== state.turn)) return null;\n    const p = state.turn, player = state.players[p], profile = player.profile || PROFILES[0];\n    const own = [], enemies = [], counts = Array(7).fill(0), nearOwn = new Uint8Array(COUNT), ownAdj = new Uint8Array(COUNT);\n    const supply = computeSupply(state, p), route = routeDistances(state, p);\n    for (let i = 0; i < COUNT; i++) {\n      const owner = state.board[i]; if (owner) counts[owner]++;\n      if (owner === p) { own.push(i); for (const j of NEAR[i]) nearOwn[j] = 1; for (const j of ADJ[i]) ownAdj[j]++; }\n    }\n    for (let i = 0; i < COUNT; i++) if (nearOwn[i] && state.board[i] && state.board[i] !== p && !state.anchors[i] && !allied(state, p, state.board[i])) enemies.push(i);\n    let bestRoute = Infinity;\n    for (const i of own) if (supply[i]) bestRoute = Math.min(bestRoute, route[i]);\n    const cards = {}; (state.hand || []).forEach((type, i) => { if (cards[type] === undefined) cards[type] = i; });\n    let best = { type: 'rest', cells: [] }, bestValue = -10;\n    const publicTieBreak = hash(state.seed + ':' + state.ply);\n    const noise = i => ((Math.imul(i + 1, 1103515245) ^ publicTieBreak) >>> 0) % 100 / 1000;\n    function consider(action, value) { if (value > bestValue && legalAction(state, action)) { best = action; bestValue = value; } }\n    function card(type, cells, value) { if (cards[type] !== undefined) consider({ type, cells, cardIndex: cards[type] }, value); }\n    const danger = i => { let value = 0; for (const j of NEAR[i]) if (distance(i, j) <= 3 && state.board[j] && state.board[j] !== p && !allied(state, p, state.board[j])) value++; return value; };\n    const leader = PLAYERS.reduce((a, b) => state.players[b].score + counts[b] * 0.2 > state.players[a].score + counts[a] * 0.2 ? b : a, p);\n    const border = new Uint16Array(7);\n    for (const i of own) for (const j of ADJ[i]) if (state.board[j] && state.board[j] !== p) border[state.board[j]]++;\n\n    for (const offer of state.offers || []) if (offer.to === p && offer.expiresRound > state.round) {\n      const target = offer.from, sharedThreat = leader !== p && leader !== target;\n      const favorable = sharedThreat && state.players[target].score <= player.score + 18 && target !== ((p + 2) % 6 + 1);\n      consider({ type: favorable ? 'accept' : 'reject', target, cells: [] }, favorable ? 43 * profile.diplomacy : 18);\n    }\n    if (state.round >= 8 && (state.ply + p) % 17 < 3 && leader !== p && state.players[leader].score >= player.score + 4) {\n      for (const target of PLAYERS) if (target !== p && target !== leader && border[target] > 0 && state.players[target].score < state.players[leader].score) {\n        consider({ type: 'offer', target, cells: [] }, 25 * profile.diplomacy + Math.min(8, border[leader]));\n      }\n    }\n    for (const target of alliesOf(state, p)) {\n      const blocksGoal = own.some(i => ADJ[i].some(j => state.board[j] === target && route[j] < route[i] && route[i] <= 6));\n      const dominantNeighbor = target === leader && state.players[target].score >= player.score + 24 && border[target] >= 3;\n      if ((blocksGoal || dominantNeighbor) && state.round + 3 < (state.alliances.find(a => (a.a === p && a.b === target) || (a.a === target && a.b === p)) || {}).expiresRound) {\n        consider({ type: 'betray', target, cells: [] }, 40 + Math.min(8, border[target]) + (state.players[target].goalActive ? 10 : 0));\n      }\n    }\n\n    for (const i of enemies) {\n      const owner = state.board[i], support = adjacentCount(state, i, owner);\n      const threatening = state.players[owner].goalActive || goalCell(state, owner, i);\n      const nearHome = distance(i, player.home) <= 5;\n      const priority = 28 + ownAdj[i] * 2.2 + (threatening ? 12 : 0) + (nearHome ? 10 : 0) + (state.turrets.some(t => t.cell === i) ? 8 : 0);\n      consider({ type: 'deploy', cells: [i] }, priority * profile.aggression + (supply[ADJ[i].find(j => state.board[j] === p)] ? 2 : 0) + noise(i));\n      card('destroy', [i], (priority + Math.min(5, support) - (state.shields[i] ? 9 : 0) - 4) * profile.aggression + noise(i));\n      if (cards.exchange !== undefined && !state.shields[i]) for (const j of ADJ[i]) if (state.board[j] === p && ownAdj[j] >= 2 && ownAdj[i] >= 2) {\n        card('exchange', [j, i], priority * profile.aggression - 2 + Math.max(-3, route[j] - route[i]));\n      }\n    }\n\n    // Expand one contiguous route first. Unsupplied stones may reconnect, but\n    // they never masquerade as home-connected path progress in this heuristic.\n    for (let i = 0; i < COUNT; i++) if (!state.board[i] && nearOwn[i] && ownAdj[i]) {\n      const suppliedNeighbors = ADJ[i].filter(j => state.board[j] === p && supply[j]);\n      if (!suppliedNeighbors.length) continue;\n      const improvement = bestRoute - route[i];\n      const nearestGoal = RADIUS + CELLS[i][player.axis] * player.sign;\n      const enemyNeighbors = ADJ[i].filter(j => state.board[j] && state.board[j] !== p && !allied(state, p, state.board[j])).length;\n      let value = 35 + Math.max(-15, Math.min(3, improvement)) * 14 + (goalCell(state, p, i) ? 10 : 0) - ownAdj[i] * 0.4;\n      if (player.goalActive) value = 10 + enemyNeighbors * 8 + (nearestGoal <= 2 ? 8 : 0) + ownAdj[i] * 0.5;\n      value += noise(i);\n      if (state.terrain[i] === 1 && !state.roads[i]) consider({ type: 'engineer', cells: [i] }, value * profile.engineering - 1);\n      else consider({ type: 'deploy', cells: [i] }, value);\n    }\n    for (const i of own) {\n      const threat = danger(i);\n      if (threat) {\n        card('turret', [i], 20 + Math.min(7, threat) * 3 + (supply[i] ? 3 : -10));\n        card('shield', [i], 13 + Math.min(5, threat) * 2 + (goalCell(state, p, i) ? 12 : 0) + (ownAdj[i] <= 2 && supply[i] ? 5 : 0));\n      }\n      if (!supply[i] && cards.bridge !== undefined) for (const j of NEAR[i]) if (state.board[j] === p && supply[j]) {\n        card('bridge', [i, j], 47 + (state.unsupplied[i] || 0) + Math.max(0, bestRoute - route[i]) + noise(i));\n      }\n    }\n    if (cards.reroute !== undefined) for (const bridge of state.bridges) if (bridge.owner === p) {\n      for (const [keep, old] of [[bridge.a, bridge.b], [bridge.b, bridge.a]]) if (supply[keep]) {\n        for (const i of NEAR[keep]) if (state.board[i] === p && !supply[i]) card('reroute', [keep, old, i], 48 + (state.unsupplied[i] || 0));\n      }\n    }\n\n    // At the cap, free a redundant/back-line cell, explicitly checking that the\n    // removal does not sever the surviving supplied route. No footprint subsidy.\n    if (own.length >= MAX_STONES - 2) {\n      const candidates = own.filter(i => !state.anchors[i] && ordinary(state, i) && !goalCell(state, p, i));\n      candidates.sort((a, b) => (supply[a] ? 0 : 100) + route[a] - danger(a) * 3 - ((supply[b] ? 0 : 100) + route[b] - danger(b) * 3) || a - b).reverse();\n      let checked = 0;\n      for (const i of candidates) {\n        if (++checked > 14) break;\n        const board = state.board.slice(); board[i] = 0; const after = computeSupply({ ...state, board }, p);\n        let cuts = 0; for (const j of own) if (j !== i && supply[j] && !after[j]) cuts++;\n        if (!cuts) { consider({ type: 'withdraw', cells: [i] }, own.length >= MAX_STONES ? 52 : 18); break; }\n      }\n    }\n    if (bestValue < 5 && state.hand.length) {\n      const priorities = { reroute: 0, bridge: 1, exchange: 2, shield: 3, turret: 4, destroy: 5 };\n      let discard = 0; for (let i = 1; i < state.hand.length; i++) if (priorities[state.hand[i]] < priorities[state.hand[discard]]) discard = i;\n      consider({ type: 'discard', cells: [], cardIndex: discard }, 0);\n    }\n    return best;\n  }\n\n  return Object.freeze({ Game, RADIUS, COUNT, CELLS, ADJ, PLAYERS, CARD_META, ACTION_META, CARD_TYPES, DECK_SIZE, MAX_STONES,\n    RULES, PROFILES, index, distance, legalAction, chooseAction, inRange, computeSupply, goalCell, allied, alliesOf,\n    bridgeConflict, bridgesConflict, bridgeLegal, combatStrength, actionCost });\n});\n",
+  "mode": "visual-only intermediate accelerated model-time baseline equivalence",
+  "independentSeeds": 6,
+  "configurationsPerSeed": 2,
+  "campaigns": 12,
+  "acceptedActionsPerVersion": 24000,
+  "modelMsPerCampaign": 600000,
+  "stepMs": 300,
+  "comparedEveryAction": [
+    "chosen action",
+    "seed",
+    "first",
+    "rotation",
+    "durationMs",
+    "phase",
+    "turn",
+    "ply",
+    "round",
+    "activeMs",
+    "sandbox",
+    "result",
+    "board",
+    "terrain",
+    "roads",
+    "anchors",
+    "shields",
+    "unsupplied",
+    "bridges",
+    "turrets",
+    "players",
+    "hands",
+    "drawPile",
+    "discardPile",
+    "telemetry",
+    "recentActions",
+    "lastAction",
+    "_turnStarted",
+    "_offerId",
+    "events after removal of new visual metadata"
+  ],
+  "elapsedSeconds": 289.29917500399995,
+  "limitations": [
+    "This proves only the intermediate visual metadata version identified by currentEngineSha256. It does not claim later strategic-rule changes preserve the baseline.",
+    "This is an exact deterministic equivalence check on 12 configurations, not a balance study or real foreground browser timing test.",
+    "Only new event IDs, origins, shield-block owner/source, and supply-retreat cell lists are ignored in event comparisons. All gameplay state and existing event fields must remain equal."
+  ],
+  "matches": [
+    {
+      "seed": 101,
+      "rotation": 0,
+      "first": 1,
+      "actions": 2000,
+      "activeMs": 600000,
+      "actionTraceSha256": "7eca1707db48f9c9c26e59fa7b8ef923c701f50a5fabb4f69040dbac4c48a094",
+      "finalGameplaySha256": "4562e8b548cafb2a2061c6eaa9e6d79239ae936542cd7e6ce47e7726f04a8284",
+      "result": {
+        "winners": [
+          2
+        ],
+        "standings": [
+          {
+            "player": 2,
+            "score": 185,
+            "name": "Ember",
+            "rank": 1
+          },
+          {
+            "player": 3,
+            "score": 177,
+            "name": "Violet",
+            "rank": 2
+          },
+          {
+            "player": 4,
+            "score": 176,
+            "name": "Gold",
+            "rank": 3
+          },
+          {
+            "player": 1,
+            "score": 169,
+            "name": "Azure",
+            "rank": 4
+          },
+          {
+            "player": 6,
+            "score": 159,
+            "name": "Rose",
+            "rank": 5
+          },
+          {
+            "player": 5,
+            "score": 155,
+            "name": "Jade",
+            "rank": 6
+          }
+        ],
+        "draw": false,
+        "reason": "timeout",
+        "activeMs": 600000
+      },
+      "telemetry": {
+        "actions": 2000,
+        "meaningful": 2000,
+        "captures": 982,
+        "destroyed": 39,
+        "supplyRetreats": 144,
+        "engineered": 60,
+        "cardsUsed": 84,
+        "reshuffles": 1,
+        "goalArrivals": 0,
+        "goalHoldingRounds": 0,
+        "offers": 30,
+        "alliances": 20,
+        "betrayals": 0,
+        "withdrawals": 89,
+        "turretShots": 34,
+        "shieldBlocks": 0,
+        "byType": {
+          "deploy": 1717,
+          "engineer": 60,
+          "turret": 17,
+          "bridge": 19,
+          "exchange": 20,
+          "shield": 20,
+          "reroute": 3,
+          "destroy": 5,
+          "offer": 30,
+          "accept": 20,
+          "withdraw": 89
+        },
+        "byMinute": [
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 33,
+            "cardsUsed": 13
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 91,
+            "cardsUsed": 24
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 99,
+            "cardsUsed": 16
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 96,
+            "cardsUsed": 11
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 93,
+            "cardsUsed": 7
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 111,
+            "cardsUsed": 12
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 120,
+            "cardsUsed": 0
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 111,
+            "cardsUsed": 0
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 105,
+            "cardsUsed": 1
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 123,
+            "cardsUsed": 0
+          }
+        ],
+        "perPlayer": [
+          {
+            "actions": 0,
+            "captures": 0,
+            "cardsUsed": 0,
+            "goals": 0
+          },
+          {
+            "actions": 334,
+            "captures": 169,
+            "cardsUsed": 9,
+            "goals": 0
+          },
+          {
+            "actions": 334,
+            "captures": 183,
+            "cardsUsed": 7,
+            "goals": 0
+          },
+          {
+            "actions": 333,
+            "captures": 172,
+            "cardsUsed": 18,
+            "goals": 0
+          },
+          {
+            "actions": 333,
+            "captures": 149,
+            "cardsUsed": 24,
+            "goals": 0
+          },
+          {
+            "actions": 333,
+            "captures": 151,
+            "cardsUsed": 8,
+            "goals": 0
+          },
+          {
+            "actions": 333,
+            "captures": 158,
+            "cardsUsed": 18,
+            "goals": 0
+          }
+        ]
+      }
+    },
+    {
+      "seed": 101,
+      "rotation": 3,
+      "first": 3,
+      "actions": 2000,
+      "activeMs": 600000,
+      "actionTraceSha256": "8f08734ac0d3de1a39a521916e31caf9f517f81234d7d47bfe197dab696b52ec",
+      "finalGameplaySha256": "9482be0dd011d4bb7356a28b4b732c27f4525b25f49a9bd4a930fc15bbd265ee",
+      "result": {
+        "winners": [
+          4
+        ],
+        "standings": [
+          {
+            "player": 4,
+            "score": 177,
+            "name": "Gold",
+            "rank": 1
+          },
+          {
+            "player": 1,
+            "score": 175,
+            "name": "Azure",
+            "rank": 2
+          },
+          {
+            "player": 3,
+            "score": 174,
+            "name": "Violet",
+            "rank": 3
+          },
+          {
+            "player": 2,
+            "score": 165,
+            "name": "Ember",
+            "rank": 4
+          },
+          {
+            "player": 5,
+            "score": 140,
+            "name": "Jade",
+            "rank": 5
+          },
+          {
+            "player": 6,
+            "score": 133,
+            "name": "Rose",
+            "rank": 6
+          }
+        ],
+        "draw": false,
+        "reason": "timeout",
+        "activeMs": 600000
+      },
+      "telemetry": {
+        "actions": 2000,
+        "meaningful": 2000,
+        "captures": 923,
+        "destroyed": 31,
+        "supplyRetreats": 228,
+        "engineered": 58,
+        "cardsUsed": 97,
+        "reshuffles": 1,
+        "goalArrivals": 1,
+        "goalHoldingRounds": 1,
+        "offers": 26,
+        "alliances": 16,
+        "betrayals": 1,
+        "withdrawals": 60,
+        "turretShots": 23,
+        "shieldBlocks": 0,
+        "byType": {
+          "deploy": 1742,
+          "engineer": 58,
+          "turret": 21,
+          "bridge": 22,
+          "exchange": 22,
+          "destroy": 8,
+          "reroute": 2,
+          "shield": 22,
+          "offer": 26,
+          "accept": 16,
+          "withdraw": 60,
+          "betray": 1
+        },
+        "byMinute": [
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 32,
+            "cardsUsed": 18
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 86,
+            "cardsUsed": 17
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 99,
+            "cardsUsed": 14
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 75,
+            "cardsUsed": 4
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 89,
+            "cardsUsed": 18
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 93,
+            "cardsUsed": 4
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 115,
+            "cardsUsed": 8
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 113,
+            "cardsUsed": 9
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 103,
+            "cardsUsed": 4
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 118,
+            "cardsUsed": 1
+          }
+        ],
+        "perPlayer": [
+          {
+            "actions": 0,
+            "captures": 0,
+            "cardsUsed": 0,
+            "goals": 0
+          },
+          {
+            "actions": 333,
+            "captures": 159,
+            "cardsUsed": 10,
+            "goals": 1
+          },
+          {
+            "actions": 333,
+            "captures": 162,
+            "cardsUsed": 8,
+            "goals": 0
+          },
+          {
+            "actions": 334,
+            "captures": 171,
+            "cardsUsed": 10,
+            "goals": 0
+          },
+          {
+            "actions": 334,
+            "captures": 158,
+            "cardsUsed": 25,
+            "goals": 0
+          },
+          {
+            "actions": 333,
+            "captures": 141,
+            "cardsUsed": 9,
+            "goals": 0
+          },
+          {
+            "actions": 333,
+            "captures": 132,
+            "cardsUsed": 35,
+            "goals": 0
+          }
+        ]
+      }
+    },
+    {
+      "seed": 8020,
+      "rotation": 1,
+      "first": 2,
+      "actions": 2000,
+      "activeMs": 600000,
+      "actionTraceSha256": "11d9bb42d6aa786af591bc7ecc253cf54d1860e0e422a28dec7f6b9600aabe1e",
+      "finalGameplaySha256": "6e2771c6299c2b49d5459ba26b75f40e9f4ff454ec8b0a3772bfb4b2edb90a57",
+      "result": {
+        "winners": [
+          6
+        ],
+        "standings": [
+          {
+            "player": 6,
+            "score": 181,
+            "name": "Rose",
+            "rank": 1
+          },
+          {
+            "player": 4,
+            "score": 178,
+            "name": "Gold",
+            "rank": 2
+          },
+          {
+            "player": 2,
+            "score": 165,
+            "name": "Ember",
+            "rank": 3
+          },
+          {
+            "player": 1,
+            "score": 163,
+            "name": "Azure",
+            "rank": 4
+          },
+          {
+            "player": 3,
+            "score": 155,
+            "name": "Violet",
+            "rank": 5
+          },
+          {
+            "player": 5,
+            "score": 130,
+            "name": "Jade",
+            "rank": 6
+          }
+        ],
+        "draw": false,
+        "reason": "timeout",
+        "activeMs": 600000
+      },
+      "telemetry": {
+        "actions": 2000,
+        "meaningful": 2000,
+        "captures": 843,
+        "destroyed": 99,
+        "supplyRetreats": 243,
+        "engineered": 69,
+        "cardsUsed": 168,
+        "reshuffles": 2,
+        "goalArrivals": 2,
+        "goalHoldingRounds": 3,
+        "offers": 17,
+        "alliances": 10,
+        "betrayals": 0,
+        "withdrawals": 66,
+        "turretShots": 82,
+        "shieldBlocks": 0,
+        "byType": {
+          "deploy": 1670,
+          "engineer": 69,
+          "bridge": 34,
+          "turret": 36,
+          "destroy": 17,
+          "exchange": 38,
+          "reroute": 7,
+          "shield": 36,
+          "offer": 17,
+          "accept": 10,
+          "withdraw": 66
+        },
+        "byMinute": [
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 29,
+            "cardsUsed": 13
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 85,
+            "cardsUsed": 18
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 101,
+            "cardsUsed": 19
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 83,
+            "cardsUsed": 11
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 89,
+            "cardsUsed": 24
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 61,
+            "cardsUsed": 25
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 90,
+            "cardsUsed": 15
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 98,
+            "cardsUsed": 17
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 95,
+            "cardsUsed": 15
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 112,
+            "cardsUsed": 11
+          }
+        ],
+        "perPlayer": [
+          {
+            "actions": 0,
+            "captures": 0,
+            "cardsUsed": 0,
+            "goals": 0
+          },
+          {
+            "actions": 333,
+            "captures": 148,
+            "cardsUsed": 20,
+            "goals": 1
+          },
+          {
+            "actions": 334,
+            "captures": 131,
+            "cardsUsed": 27,
+            "goals": 1
+          },
+          {
+            "actions": 334,
+            "captures": 144,
+            "cardsUsed": 16,
+            "goals": 0
+          },
+          {
+            "actions": 333,
+            "captures": 116,
+            "cardsUsed": 70,
+            "goals": 0
+          },
+          {
+            "actions": 333,
+            "captures": 126,
+            "cardsUsed": 24,
+            "goals": 0
+          },
+          {
+            "actions": 333,
+            "captures": 178,
+            "cardsUsed": 11,
+            "goals": 0
+          }
+        ]
+      }
+    },
+    {
+      "seed": 8020,
+      "rotation": 4,
+      "first": 4,
+      "actions": 2000,
+      "activeMs": 600000,
+      "actionTraceSha256": "21f38c10b612b4a7512f4deee3f43b483da916f8f4379b421aca55478c493be4",
+      "finalGameplaySha256": "0b9f351457de7ca186cc7fbc6bb8f554467f5b1b4a4fbc4fda9a7baae498d4a7",
+      "result": {
+        "winners": [
+          6
+        ],
+        "standings": [
+          {
+            "player": 6,
+            "score": 186,
+            "name": "Rose",
+            "rank": 1
+          },
+          {
+            "player": 2,
+            "score": 165,
+            "name": "Ember",
+            "rank": 2
+          },
+          {
+            "player": 1,
+            "score": 164,
+            "name": "Azure",
+            "rank": 3
+          },
+          {
+            "player": 3,
+            "score": 164,
+            "name": "Violet",
+            "rank": 3
+          },
+          {
+            "player": 5,
+            "score": 143,
+            "name": "Jade",
+            "rank": 5
+          },
+          {
+            "player": 4,
+            "score": 141,
+            "name": "Gold",
+            "rank": 6
+          }
+        ],
+        "draw": false,
+        "reason": "timeout",
+        "activeMs": 600000
+      },
+      "telemetry": {
+        "actions": 2000,
+        "meaningful": 1991,
+        "captures": 933,
+        "destroyed": 30,
+        "supplyRetreats": 124,
+        "engineered": 73,
+        "cardsUsed": 118,
+        "reshuffles": 1,
+        "goalArrivals": 0,
+        "goalHoldingRounds": 0,
+        "offers": 22,
+        "alliances": 16,
+        "betrayals": 0,
+        "withdrawals": 92,
+        "turretShots": 21,
+        "shieldBlocks": 0,
+        "byType": {
+          "deploy": 1670,
+          "engineer": 73,
+          "bridge": 21,
+          "turret": 26,
+          "destroy": 9,
+          "reroute": 4,
+          "exchange": 28,
+          "shield": 30,
+          "offer": 22,
+          "accept": 16,
+          "withdraw": 92,
+          "discard": 9
+        },
+        "byMinute": [
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 30,
+            "cardsUsed": 18
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 94,
+            "cardsUsed": 16
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 103,
+            "cardsUsed": 21
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 81,
+            "cardsUsed": 9
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 86,
+            "cardsUsed": 10
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 95,
+            "cardsUsed": 8
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 113,
+            "cardsUsed": 6
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 104,
+            "cardsUsed": 4
+          },
+          {
+            "actions": 200,
+            "meaningful": 196,
+            "captures": 114,
+            "cardsUsed": 11
+          },
+          {
+            "actions": 200,
+            "meaningful": 195,
+            "captures": 113,
+            "cardsUsed": 15
+          }
+        ],
+        "perPlayer": [
+          {
+            "actions": 0,
+            "captures": 0,
+            "cardsUsed": 0,
+            "goals": 0
+          },
+          {
+            "actions": 333,
+            "captures": 158,
+            "cardsUsed": 19,
+            "goals": 0
+          },
+          {
+            "actions": 333,
+            "captures": 163,
+            "cardsUsed": 13,
+            "goals": 0
+          },
+          {
+            "actions": 333,
+            "captures": 150,
+            "cardsUsed": 39,
+            "goals": 0
+          },
+          {
+            "actions": 334,
+            "captures": 136,
+            "cardsUsed": 13,
+            "goals": 0
+          },
+          {
+            "actions": 334,
+            "captures": 142,
+            "cardsUsed": 21,
+            "goals": 0
+          },
+          {
+            "actions": 333,
+            "captures": 184,
+            "cardsUsed": 13,
+            "goals": 0
+          }
+        ]
+      }
+    },
+    {
+      "seed": 15939,
+      "rotation": 2,
+      "first": 3,
+      "actions": 2000,
+      "activeMs": 600000,
+      "actionTraceSha256": "67f0a35f19a2806caf7c82c7814049fb64edb29151846a4929527411a7703f11",
+      "finalGameplaySha256": "ace4567764001f6ad89df2cc6b249bdb3c9e52ab69f3abfeddf6886c7c764f43",
+      "result": {
+        "winners": [
+          4
+        ],
+        "standings": [
+          {
+            "player": 4,
+            "score": 171,
+            "name": "Gold",
+            "rank": 1
+          },
+          {
+            "player": 6,
+            "score": 161,
+            "name": "Rose",
+            "rank": 2
+          },
+          {
+            "player": 5,
+            "score": 155,
+            "name": "Jade",
+            "rank": 3
+          },
+          {
+            "player": 2,
+            "score": 153,
+            "name": "Ember",
+            "rank": 4
+          },
+          {
+            "player": 3,
+            "score": 147,
+            "name": "Violet",
+            "rank": 5
+          },
+          {
+            "player": 1,
+            "score": 133,
+            "name": "Azure",
+            "rank": 6
+          }
+        ],
+        "draw": false,
+        "reason": "timeout",
+        "activeMs": 600000
+      },
+      "telemetry": {
+        "actions": 2000,
+        "meaningful": 2000,
+        "captures": 852,
+        "destroyed": 24,
+        "supplyRetreats": 324,
+        "engineered": 48,
+        "cardsUsed": 82,
+        "reshuffles": 1,
+        "goalArrivals": 4,
+        "goalHoldingRounds": 1,
+        "offers": 27,
+        "alliances": 15,
+        "betrayals": 0,
+        "withdrawals": 64,
+        "turretShots": 21,
+        "shieldBlocks": 0,
+        "byType": {
+          "deploy": 1764,
+          "engineer": 48,
+          "turret": 18,
+          "bridge": 17,
+          "exchange": 19,
+          "reroute": 4,
+          "destroy": 3,
+          "offer": 27,
+          "accept": 15,
+          "shield": 21,
+          "withdraw": 64
+        },
+        "byMinute": [
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 17,
+            "cardsUsed": 11
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 64,
+            "cardsUsed": 24
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 86,
+            "cardsUsed": 15
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 96,
+            "cardsUsed": 11
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 91,
+            "cardsUsed": 4
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 91,
+            "cardsUsed": 3
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 89,
+            "cardsUsed": 4
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 95,
+            "cardsUsed": 5
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 103,
+            "cardsUsed": 2
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 120,
+            "cardsUsed": 3
+          }
+        ],
+        "perPlayer": [
+          {
+            "actions": 0,
+            "captures": 0,
+            "cardsUsed": 0,
+            "goals": 0
+          },
+          {
+            "actions": 333,
+            "captures": 131,
+            "cardsUsed": 8,
+            "goals": 0
+          },
+          {
+            "actions": 333,
+            "captures": 137,
+            "cardsUsed": 8,
+            "goals": 1
+          },
+          {
+            "actions": 334,
+            "captures": 147,
+            "cardsUsed": 2,
+            "goals": 0
+          },
+          {
+            "actions": 334,
+            "captures": 158,
+            "cardsUsed": 15,
+            "goals": 1
+          },
+          {
+            "actions": 333,
+            "captures": 146,
+            "cardsUsed": 16,
+            "goals": 0
+          },
+          {
+            "actions": 333,
+            "captures": 133,
+            "cardsUsed": 33,
+            "goals": 2
+          }
+        ]
+      }
+    },
+    {
+      "seed": 15939,
+      "rotation": 5,
+      "first": 5,
+      "actions": 2000,
+      "activeMs": 600000,
+      "actionTraceSha256": "92507c78bdc152de02e9882b75fe29a37eb75eaea33c703f70d652a24037634f",
+      "finalGameplaySha256": "2c8164722aaa27925a8d83c1f2783598761e6a99995b616dbf19f0a3bc451399",
+      "result": {
+        "winners": [
+          6
+        ],
+        "standings": [
+          {
+            "player": 6,
+            "score": 186,
+            "name": "Rose",
+            "rank": 1
+          },
+          {
+            "player": 4,
+            "score": 181,
+            "name": "Gold",
+            "rank": 2
+          },
+          {
+            "player": 1,
+            "score": 175,
+            "name": "Azure",
+            "rank": 3
+          },
+          {
+            "player": 2,
+            "score": 159,
+            "name": "Ember",
+            "rank": 4
+          },
+          {
+            "player": 5,
+            "score": 159,
+            "name": "Jade",
+            "rank": 4
+          },
+          {
+            "player": 3,
+            "score": 157,
+            "name": "Violet",
+            "rank": 6
+          }
+        ],
+        "draw": false,
+        "reason": "timeout",
+        "activeMs": 600000
+      },
+      "telemetry": {
+        "actions": 2000,
+        "meaningful": 1986,
+        "captures": 978,
+        "destroyed": 39,
+        "supplyRetreats": 102,
+        "engineered": 44,
+        "cardsUsed": 95,
+        "reshuffles": 1,
+        "goalArrivals": 0,
+        "goalHoldingRounds": 0,
+        "offers": 22,
+        "alliances": 10,
+        "betrayals": 0,
+        "withdrawals": 120,
+        "turretShots": 35,
+        "shieldBlocks": 0,
+        "byType": {
+          "deploy": 1695,
+          "engineer": 44,
+          "turret": 21,
+          "bridge": 15,
+          "exchange": 26,
+          "reroute": 3,
+          "destroy": 4,
+          "shield": 26,
+          "offer": 22,
+          "accept": 10,
+          "withdraw": 120,
+          "discard": 14
+        },
+        "byMinute": [
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 36,
+            "cardsUsed": 20
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 83,
+            "cardsUsed": 23
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 99,
+            "cardsUsed": 10
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 99,
+            "cardsUsed": 4
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 101,
+            "cardsUsed": 5
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 103,
+            "cardsUsed": 3
+          },
+          {
+            "actions": 200,
+            "meaningful": 199,
+            "captures": 106,
+            "cardsUsed": 2
+          },
+          {
+            "actions": 200,
+            "meaningful": 194,
+            "captures": 119,
+            "cardsUsed": 6
+          },
+          {
+            "actions": 200,
+            "meaningful": 194,
+            "captures": 119,
+            "cardsUsed": 6
+          },
+          {
+            "actions": 200,
+            "meaningful": 199,
+            "captures": 113,
+            "cardsUsed": 16
+          }
+        ],
+        "perPlayer": [
+          {
+            "actions": 0,
+            "captures": 0,
+            "cardsUsed": 0,
+            "goals": 0
+          },
+          {
+            "actions": 333,
+            "captures": 173,
+            "cardsUsed": 9,
+            "goals": 0
+          },
+          {
+            "actions": 333,
+            "captures": 153,
+            "cardsUsed": 27,
+            "goals": 0
+          },
+          {
+            "actions": 333,
+            "captures": 152,
+            "cardsUsed": 5,
+            "goals": 0
+          },
+          {
+            "actions": 333,
+            "captures": 176,
+            "cardsUsed": 18,
+            "goals": 0
+          },
+          {
+            "actions": 334,
+            "captures": 149,
+            "cardsUsed": 13,
+            "goals": 0
+          },
+          {
+            "actions": 334,
+            "captures": 175,
+            "cardsUsed": 23,
+            "goals": 0
+          }
+        ]
+      }
+    },
+    {
+      "seed": 1000003,
+      "rotation": 3,
+      "first": 4,
+      "actions": 2000,
+      "activeMs": 600000,
+      "actionTraceSha256": "86cfc11097556596ff81f9f6f842506cf77a383273240f89f1b7d7475af12f32",
+      "finalGameplaySha256": "784a5e8e4bb4e4f6c662d83de399eba2320e4cad7be33430ae200c403148819b",
+      "result": {
+        "winners": [
+          5
+        ],
+        "standings": [
+          {
+            "player": 5,
+            "score": 181,
+            "name": "Jade",
+            "rank": 1
+          },
+          {
+            "player": 1,
+            "score": 176,
+            "name": "Azure",
+            "rank": 2
+          },
+          {
+            "player": 3,
+            "score": 159,
+            "name": "Violet",
+            "rank": 3
+          },
+          {
+            "player": 6,
+            "score": 157,
+            "name": "Rose",
+            "rank": 4
+          },
+          {
+            "player": 2,
+            "score": 155,
+            "name": "Ember",
+            "rank": 5
+          },
+          {
+            "player": 4,
+            "score": 154,
+            "name": "Gold",
+            "rank": 6
+          }
+        ],
+        "draw": false,
+        "reason": "timeout",
+        "activeMs": 600000
+      },
+      "telemetry": {
+        "actions": 2000,
+        "meaningful": 1999,
+        "captures": 966,
+        "destroyed": 16,
+        "supplyRetreats": 118,
+        "engineered": 49,
+        "cardsUsed": 74,
+        "reshuffles": 1,
+        "goalArrivals": 0,
+        "goalHoldingRounds": 0,
+        "offers": 34,
+        "alliances": 21,
+        "betrayals": 0,
+        "withdrawals": 95,
+        "turretShots": 10,
+        "shieldBlocks": 0,
+        "byType": {
+          "deploy": 1726,
+          "engineer": 49,
+          "turret": 17,
+          "shield": 18,
+          "offer": 34,
+          "accept": 21,
+          "bridge": 14,
+          "exchange": 18,
+          "destroy": 6,
+          "reroute": 1,
+          "discard": 1,
+          "withdraw": 95
+        },
+        "byMinute": [
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 40,
+            "cardsUsed": 15
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 82,
+            "cardsUsed": 6
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 73,
+            "cardsUsed": 31
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 103,
+            "cardsUsed": 3
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 99,
+            "cardsUsed": 1
+          },
+          {
+            "actions": 200,
+            "meaningful": 199,
+            "captures": 106,
+            "cardsUsed": 4
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 107,
+            "cardsUsed": 2
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 113,
+            "cardsUsed": 5
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 122,
+            "cardsUsed": 2
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 121,
+            "cardsUsed": 5
+          }
+        ],
+        "perPlayer": [
+          {
+            "actions": 0,
+            "captures": 0,
+            "cardsUsed": 0,
+            "goals": 0
+          },
+          {
+            "actions": 333,
+            "captures": 174,
+            "cardsUsed": 19,
+            "goals": 0
+          },
+          {
+            "actions": 333,
+            "captures": 153,
+            "cardsUsed": 6,
+            "goals": 0
+          },
+          {
+            "actions": 333,
+            "captures": 151,
+            "cardsUsed": 16,
+            "goals": 0
+          },
+          {
+            "actions": 334,
+            "captures": 153,
+            "cardsUsed": 7,
+            "goals": 0
+          },
+          {
+            "actions": 334,
+            "captures": 178,
+            "cardsUsed": 14,
+            "goals": 0
+          },
+          {
+            "actions": 333,
+            "captures": 157,
+            "cardsUsed": 12,
+            "goals": 0
+          }
+        ]
+      }
+    },
+    {
+      "seed": 1000003,
+      "rotation": 0,
+      "first": 6,
+      "actions": 2000,
+      "activeMs": 600000,
+      "actionTraceSha256": "c004a2f741ec6a75e93a40d50b52d46e4a040ee3380ec885d91faa8c3c13c274",
+      "finalGameplaySha256": "521e90c7d731543f6ab4070c5dc5a4ea8405ed3e6286172c5624905bb5620dd9",
+      "result": {
+        "winners": [
+          4
+        ],
+        "standings": [
+          {
+            "player": 4,
+            "score": 183,
+            "name": "Gold",
+            "rank": 1
+          },
+          {
+            "player": 2,
+            "score": 175,
+            "name": "Ember",
+            "rank": 2
+          },
+          {
+            "player": 3,
+            "score": 175,
+            "name": "Violet",
+            "rank": 2
+          },
+          {
+            "player": 5,
+            "score": 174,
+            "name": "Jade",
+            "rank": 4
+          },
+          {
+            "player": 1,
+            "score": 156,
+            "name": "Azure",
+            "rank": 5
+          },
+          {
+            "player": 6,
+            "score": 139,
+            "name": "Rose",
+            "rank": 6
+          }
+        ],
+        "draw": false,
+        "reason": "timeout",
+        "activeMs": 600000
+      },
+      "telemetry": {
+        "actions": 2000,
+        "meaningful": 1990,
+        "captures": 964,
+        "destroyed": 38,
+        "supplyRetreats": 118,
+        "engineered": 46,
+        "cardsUsed": 141,
+        "reshuffles": 2,
+        "goalArrivals": 0,
+        "goalHoldingRounds": 0,
+        "offers": 22,
+        "alliances": 1,
+        "betrayals": 0,
+        "withdrawals": 109,
+        "turretShots": 33,
+        "shieldBlocks": 1,
+        "byType": {
+          "deploy": 1671,
+          "engineer": 46,
+          "turret": 31,
+          "bridge": 30,
+          "destroy": 6,
+          "exchange": 34,
+          "reroute": 10,
+          "shield": 30,
+          "offer": 22,
+          "withdraw": 109,
+          "discard": 10,
+          "accept": 1
+        },
+        "byMinute": [
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 45,
+            "cardsUsed": 21
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 83,
+            "cardsUsed": 37
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 83,
+            "cardsUsed": 11
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 98,
+            "cardsUsed": 23
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 80,
+            "cardsUsed": 13
+          },
+          {
+            "actions": 200,
+            "meaningful": 199,
+            "captures": 110,
+            "cardsUsed": 7
+          },
+          {
+            "actions": 200,
+            "meaningful": 195,
+            "captures": 111,
+            "cardsUsed": 9
+          },
+          {
+            "actions": 200,
+            "meaningful": 196,
+            "captures": 112,
+            "cardsUsed": 11
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 123,
+            "cardsUsed": 6
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 119,
+            "cardsUsed": 3
+          }
+        ],
+        "perPlayer": [
+          {
+            "actions": 0,
+            "captures": 0,
+            "cardsUsed": 0,
+            "goals": 0
+          },
+          {
+            "actions": 334,
+            "captures": 155,
+            "cardsUsed": 6,
+            "goals": 0
+          },
+          {
+            "actions": 333,
+            "captures": 170,
+            "cardsUsed": 30,
+            "goals": 0
+          },
+          {
+            "actions": 333,
+            "captures": 175,
+            "cardsUsed": 17,
+            "goals": 0
+          },
+          {
+            "actions": 333,
+            "captures": 173,
+            "cardsUsed": 10,
+            "goals": 0
+          },
+          {
+            "actions": 333,
+            "captures": 161,
+            "cardsUsed": 29,
+            "goals": 0
+          },
+          {
+            "actions": 334,
+            "captures": 130,
+            "cardsUsed": 49,
+            "goals": 0
+          }
+        ]
+      }
+    },
+    {
+      "seed": 1007922,
+      "rotation": 4,
+      "first": 5,
+      "actions": 2000,
+      "activeMs": 600000,
+      "actionTraceSha256": "5b7f67f711f1abe77e0e80ce2bb4268ca146c80bfb7db5c01472d988a73f1650",
+      "finalGameplaySha256": "8cbf8817c90bc729d2b870f51d6f06f73490443e719d70d412d94ca1debde410",
+      "result": {
+        "winners": [
+          2
+        ],
+        "standings": [
+          {
+            "player": 2,
+            "score": 174,
+            "name": "Ember",
+            "rank": 1
+          },
+          {
+            "player": 1,
+            "score": 168,
+            "name": "Azure",
+            "rank": 2
+          },
+          {
+            "player": 5,
+            "score": 163,
+            "name": "Jade",
+            "rank": 3
+          },
+          {
+            "player": 4,
+            "score": 156,
+            "name": "Gold",
+            "rank": 4
+          },
+          {
+            "player": 3,
+            "score": 155,
+            "name": "Violet",
+            "rank": 5
+          },
+          {
+            "player": 6,
+            "score": 155,
+            "name": "Rose",
+            "rank": 5
+          }
+        ],
+        "draw": false,
+        "reason": "timeout",
+        "activeMs": 600000
+      },
+      "telemetry": {
+        "actions": 2000,
+        "meaningful": 1997,
+        "captures": 917,
+        "destroyed": 24,
+        "supplyRetreats": 229,
+        "engineered": 62,
+        "cardsUsed": 97,
+        "reshuffles": 1,
+        "goalArrivals": 2,
+        "goalHoldingRounds": 3,
+        "offers": 28,
+        "alliances": 16,
+        "betrayals": 0,
+        "withdrawals": 76,
+        "turretShots": 15,
+        "shieldBlocks": 0,
+        "byType": {
+          "deploy": 1718,
+          "engineer": 62,
+          "turret": 23,
+          "bridge": 19,
+          "exchange": 20,
+          "reroute": 4,
+          "shield": 22,
+          "destroy": 9,
+          "offer": 28,
+          "accept": 16,
+          "withdraw": 76,
+          "discard": 3
+        },
+        "byMinute": [
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 32,
+            "cardsUsed": 16
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 78,
+            "cardsUsed": 31
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 83,
+            "cardsUsed": 11
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 97,
+            "cardsUsed": 9
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 105,
+            "cardsUsed": 10
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 92,
+            "cardsUsed": 3
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 102,
+            "cardsUsed": 7
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 104,
+            "cardsUsed": 2
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 116,
+            "cardsUsed": 0
+          },
+          {
+            "actions": 200,
+            "meaningful": 197,
+            "captures": 108,
+            "cardsUsed": 8
+          }
+        ],
+        "perPlayer": [
+          {
+            "actions": 0,
+            "captures": 0,
+            "cardsUsed": 0,
+            "goals": 0
+          },
+          {
+            "actions": 333,
+            "captures": 163,
+            "cardsUsed": 17,
+            "goals": 0
+          },
+          {
+            "actions": 333,
+            "captures": 164,
+            "cardsUsed": 31,
+            "goals": 0
+          },
+          {
+            "actions": 333,
+            "captures": 153,
+            "cardsUsed": 8,
+            "goals": 0
+          },
+          {
+            "actions": 333,
+            "captures": 156,
+            "cardsUsed": 10,
+            "goals": 0
+          },
+          {
+            "actions": 334,
+            "captures": 144,
+            "cardsUsed": 14,
+            "goals": 1
+          },
+          {
+            "actions": 334,
+            "captures": 137,
+            "cardsUsed": 17,
+            "goals": 1
+          }
+        ]
+      }
+    },
+    {
+      "seed": 1007922,
+      "rotation": 1,
+      "first": 1,
+      "actions": 2000,
+      "activeMs": 600000,
+      "actionTraceSha256": "ae534c5a99ebb65717632a398ee7f502cef87968740f1c8cb8a3971ffb0a75cf",
+      "finalGameplaySha256": "d0cc98ba82ccc816f17839250346f55c35aa18664b96e080c3ee7f3799713886",
+      "result": {
+        "winners": [
+          6
+        ],
+        "standings": [
+          {
+            "player": 6,
+            "score": 195,
+            "name": "Rose",
+            "rank": 1
+          },
+          {
+            "player": 5,
+            "score": 183,
+            "name": "Jade",
+            "rank": 2
+          },
+          {
+            "player": 4,
+            "score": 167,
+            "name": "Gold",
+            "rank": 3
+          },
+          {
+            "player": 3,
+            "score": 151,
+            "name": "Violet",
+            "rank": 4
+          },
+          {
+            "player": 2,
+            "score": 141,
+            "name": "Ember",
+            "rank": 5
+          },
+          {
+            "player": 1,
+            "score": 129,
+            "name": "Azure",
+            "rank": 6
+          }
+        ],
+        "draw": false,
+        "reason": "timeout",
+        "activeMs": 600000
+      },
+      "telemetry": {
+        "actions": 2000,
+        "meaningful": 2000,
+        "captures": 815,
+        "destroyed": 93,
+        "supplyRetreats": 320,
+        "engineered": 58,
+        "cardsUsed": 136,
+        "reshuffles": 2,
+        "goalArrivals": 5,
+        "goalHoldingRounds": 5,
+        "offers": 29,
+        "alliances": 8,
+        "betrayals": 0,
+        "withdrawals": 63,
+        "turretShots": 83,
+        "shieldBlocks": 0,
+        "byType": {
+          "deploy": 1706,
+          "engineer": 58,
+          "turret": 31,
+          "bridge": 28,
+          "exchange": 32,
+          "shield": 30,
+          "destroy": 10,
+          "offer": 29,
+          "accept": 8,
+          "withdraw": 63,
+          "reroute": 5
+        },
+        "byMinute": [
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 14,
+            "cardsUsed": 13
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 69,
+            "cardsUsed": 15
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 70,
+            "cardsUsed": 19
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 91,
+            "cardsUsed": 18
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 79,
+            "cardsUsed": 1
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 95,
+            "cardsUsed": 7
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 101,
+            "cardsUsed": 8
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 106,
+            "cardsUsed": 8
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 88,
+            "cardsUsed": 29
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 102,
+            "cardsUsed": 18
+          }
+        ],
+        "perPlayer": [
+          {
+            "actions": 0,
+            "captures": 0,
+            "cardsUsed": 0,
+            "goals": 0
+          },
+          {
+            "actions": 334,
+            "captures": 129,
+            "cardsUsed": 14,
+            "goals": 0
+          },
+          {
+            "actions": 334,
+            "captures": 112,
+            "cardsUsed": 32,
+            "goals": 2
+          },
+          {
+            "actions": 333,
+            "captures": 139,
+            "cardsUsed": 4,
+            "goals": 1
+          },
+          {
+            "actions": 333,
+            "captures": 158,
+            "cardsUsed": 23,
+            "goals": 0
+          },
+          {
+            "actions": 333,
+            "captures": 149,
+            "cardsUsed": 29,
+            "goals": 0
+          },
+          {
+            "actions": 333,
+            "captures": 128,
+            "cardsUsed": 34,
+            "goals": 2
+          }
+        ]
+      }
+    },
+    {
+      "seed": 1015841,
+      "rotation": 5,
+      "first": 6,
+      "actions": 2000,
+      "activeMs": 600000,
+      "actionTraceSha256": "f86b5a3bea355083a82d49271c6da1750bf0399eab4993fc3fc41f65cfb233fc",
+      "finalGameplaySha256": "d25738e6217cd27a983970afe326c0497e95402a8e483690e54963932e06f050",
+      "result": {
+        "winners": [
+          3
+        ],
+        "standings": [
+          {
+            "player": 3,
+            "score": 218,
+            "name": "Violet",
+            "rank": 1
+          },
+          {
+            "player": 2,
+            "score": 191,
+            "name": "Ember",
+            "rank": 2
+          },
+          {
+            "player": 6,
+            "score": 163,
+            "name": "Rose",
+            "rank": 3
+          },
+          {
+            "player": 5,
+            "score": 162,
+            "name": "Jade",
+            "rank": 4
+          },
+          {
+            "player": 4,
+            "score": 158,
+            "name": "Gold",
+            "rank": 5
+          },
+          {
+            "player": 1,
+            "score": 125,
+            "name": "Azure",
+            "rank": 6
+          }
+        ],
+        "draw": false,
+        "reason": "timeout",
+        "activeMs": 600000
+      },
+      "telemetry": {
+        "actions": 2000,
+        "meaningful": 1997,
+        "captures": 821,
+        "destroyed": 68,
+        "supplyRetreats": 302,
+        "engineered": 48,
+        "cardsUsed": 141,
+        "reshuffles": 2,
+        "goalArrivals": 7,
+        "goalHoldingRounds": 31,
+        "offers": 20,
+        "alliances": 8,
+        "betrayals": 0,
+        "withdrawals": 100,
+        "turretShots": 57,
+        "shieldBlocks": 1,
+        "byType": {
+          "deploy": 1680,
+          "engineer": 48,
+          "turret": 32,
+          "bridge": 30,
+          "destroy": 12,
+          "reroute": 4,
+          "exchange": 32,
+          "offer": 20,
+          "accept": 8,
+          "shield": 31,
+          "discard": 3,
+          "withdraw": 100
+        },
+        "byMinute": [
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 41,
+            "cardsUsed": 18
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 66,
+            "cardsUsed": 26
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 94,
+            "cardsUsed": 15
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 74,
+            "cardsUsed": 18
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 81,
+            "cardsUsed": 9
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 79,
+            "cardsUsed": 8
+          },
+          {
+            "actions": 200,
+            "meaningful": 197,
+            "captures": 89,
+            "cardsUsed": 18
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 111,
+            "cardsUsed": 4
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 90,
+            "cardsUsed": 11
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 96,
+            "cardsUsed": 14
+          }
+        ],
+        "perPlayer": [
+          {
+            "actions": 0,
+            "captures": 0,
+            "cardsUsed": 0,
+            "goals": 0
+          },
+          {
+            "actions": 334,
+            "captures": 96,
+            "cardsUsed": 22,
+            "goals": 2
+          },
+          {
+            "actions": 333,
+            "captures": 152,
+            "cardsUsed": 35,
+            "goals": 1
+          },
+          {
+            "actions": 333,
+            "captures": 137,
+            "cardsUsed": 24,
+            "goals": 3
+          },
+          {
+            "actions": 333,
+            "captures": 152,
+            "cardsUsed": 10,
+            "goals": 0
+          },
+          {
+            "actions": 333,
+            "captures": 151,
+            "cardsUsed": 27,
+            "goals": 0
+          },
+          {
+            "actions": 334,
+            "captures": 133,
+            "cardsUsed": 23,
+            "goals": 1
+          }
+        ]
+      }
+    },
+    {
+      "seed": 1015841,
+      "rotation": 2,
+      "first": 2,
+      "actions": 2000,
+      "activeMs": 600000,
+      "actionTraceSha256": "5e9ccd197bee5bbbb95f06bac1603881d71c610a7623e75f8aa31e60665c02de",
+      "finalGameplaySha256": "062b9f161a8cbe61a0ab069ff0cc4dc3e1a762a88e16941580c43989aca6969a",
+      "result": {
+        "winners": [
+          4
+        ],
+        "standings": [
+          {
+            "player": 4,
+            "score": 164,
+            "name": "Gold",
+            "rank": 1
+          },
+          {
+            "player": 2,
+            "score": 163,
+            "name": "Ember",
+            "rank": 2
+          },
+          {
+            "player": 1,
+            "score": 160,
+            "name": "Azure",
+            "rank": 3
+          },
+          {
+            "player": 6,
+            "score": 153,
+            "name": "Rose",
+            "rank": 4
+          },
+          {
+            "player": 3,
+            "score": 128,
+            "name": "Violet",
+            "rank": 5
+          },
+          {
+            "player": 5,
+            "score": 126,
+            "name": "Jade",
+            "rank": 6
+          }
+        ],
+        "draw": false,
+        "reason": "timeout",
+        "activeMs": 600000
+      },
+      "telemetry": {
+        "actions": 2000,
+        "meaningful": 2000,
+        "captures": 798,
+        "destroyed": 40,
+        "supplyRetreats": 461,
+        "engineered": 45,
+        "cardsUsed": 114,
+        "reshuffles": 1,
+        "goalArrivals": 6,
+        "goalHoldingRounds": 1,
+        "offers": 17,
+        "alliances": 3,
+        "betrayals": 0,
+        "withdrawals": 44,
+        "turretShots": 33,
+        "shieldBlocks": 0,
+        "byType": {
+          "deploy": 1777,
+          "engineer": 45,
+          "turret": 21,
+          "bridge": 24,
+          "exchange": 30,
+          "destroy": 7,
+          "reroute": 7,
+          "offer": 17,
+          "shield": 25,
+          "accept": 3,
+          "withdraw": 44
+        },
+        "byMinute": [
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 28,
+            "cardsUsed": 23
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 83,
+            "cardsUsed": 20
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 84,
+            "cardsUsed": 17
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 75,
+            "cardsUsed": 14
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 86,
+            "cardsUsed": 13
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 82,
+            "cardsUsed": 7
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 71,
+            "cardsUsed": 7
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 94,
+            "cardsUsed": 5
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 96,
+            "cardsUsed": 6
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 99,
+            "cardsUsed": 2
+          }
+        ],
+        "perPlayer": [
+          {
+            "actions": 0,
+            "captures": 0,
+            "cardsUsed": 0,
+            "goals": 0
+          },
+          {
+            "actions": 333,
+            "captures": 159,
+            "cardsUsed": 11,
+            "goals": 0
+          },
+          {
+            "actions": 334,
+            "captures": 137,
+            "cardsUsed": 15,
+            "goals": 3
+          },
+          {
+            "actions": 334,
+            "captures": 127,
+            "cardsUsed": 11,
+            "goals": 0
+          },
+          {
+            "actions": 333,
+            "captures": 125,
+            "cardsUsed": 30,
+            "goals": 1
+          },
+          {
+            "actions": 333,
+            "captures": 106,
+            "cardsUsed": 24,
+            "goals": 2
+          },
+          {
+            "actions": 333,
+            "captures": 144,
+            "cardsUsed": 23,
+            "goals": 0
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,57 @@
+{
+  "baseline": null,
+  "clock": "virtual time for lifecycle assertions only",
+  "viewports": [
+    {
+      "label": "desktop",
+      "width": 1440,
+      "height": 1100,
+      "dpr": 1,
+      "overflow": false,
+      "turretMinCssPixels": 12,
+      "publicSupplyLinks": 33,
+      "rangeCells": 37,
+      "simultaneousShots": 2,
+      "pausedEffectsFrozen": true,
+      "privateDataCanvasInvariant": true,
+      "reducedMotion": true,
+      "replayClears": true
+    },
+    {
+      "label": "mobile",
+      "width": 390,
+      "height": 844,
+      "dpr": 3,
+      "overflow": false,
+      "turretMinCssPixels": 12,
+      "publicSupplyLinks": 33,
+      "rangeCells": 37,
+      "simultaneousShots": 2,
+      "pausedEffectsFrozen": true,
+      "privateDataCanvasInvariant": true,
+      "reducedMotion": true,
+      "replayClears": true
+    },
+    {
+      "label": "narrow",
+      "width": 320,
+      "height": 740,
+      "dpr": 2,
+      "overflow": false,
+      "turretMinCssPixels": 12,
+      "publicSupplyLinks": 33,
+      "rangeCells": 37,
+      "simultaneousShots": 2,
+      "pausedEffectsFrozen": true,
+      "privateDataCanvasInvariant": true,
+      "reducedMotion": true,
+      "replayClears": true
+    }
+  ],
+  "errors": [],
+  "originalHexTrapPrivacy": {
+    "ownZoneCells": 7,
+    "enemyPermutationsLeaveBoardIdentical": true,
+    "spectatorHiddenZones": 0
+  }
+}

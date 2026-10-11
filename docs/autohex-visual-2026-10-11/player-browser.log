@@ -1,0 +1,118 @@
+{
+  "mode": "scripted human policy, real mobile controls, virtual AI clock",
+  "pageErrors": [],
+  "humanActions": {
+    "deploy": 57,
+    "destroy": 1,
+    "engineer": 1,
+    "airdrop": 1
+  },
+  "totalPly": 355,
+  "wallSeconds": 261.98456586799875,
+  "telemetry": {
+    "actions": 355,
+    "meaningful": 355,
+    "captures": 121,
+    "destroyed": 21,
+    "supplyRetreats": 7,
+    "engineered": 18,
+    "cardsUsed": 31,
+    "reshuffles": 0,
+    "goalArrivals": 0,
+    "goalHoldingRounds": 0,
+    "offers": 1,
+    "alliances": 0,
+    "betrayals": 0,
+    "withdrawals": 0,
+    "turretShots": 18,
+    "shieldBlocks": 0,
+    "airportUnlocks": 6,
+    "airportLosses": 5,
+    "airdrops": 2,
+    "bombardments": 0,
+    "depotControls": 7,
+    "suppliesEarned": 42,
+    "suppliesSpent": 6,
+    "fortifications": 92,
+    "neutralWarnings": 5,
+    "neutralStrikes": 4,
+    "neutralRemoved": 5,
+    "neutralBlocks": 3,
+    "byType": {
+      "deploy": 303,
+      "engineer": 18,
+      "bridge": 7,
+      "turret": 3,
+      "destroy": 3,
+      "exchange": 9,
+      "shield": 6,
+      "reroute": 3,
+      "offer": 1,
+      "airdrop": 2
+    },
+    "byMinute": [
+      {
+        "actions": 239,
+        "meaningful": 239,
+        "captures": 73,
+        "cardsUsed": 22
+      },
+      {
+        "actions": 116,
+        "meaningful": 116,
+        "captures": 48,
+        "cardsUsed": 9
+      }
+    ],
+    "perPlayer": [
+      {
+        "actions": 0,
+        "captures": 0,
+        "cardsUsed": 0,
+        "goals": 0
+      },
+      {
+        "actions": 60,
+        "captures": 16,
+        "cardsUsed": 1,
+        "goals": 0
+      },
+      {
+        "actions": 59,
+        "captures": 20,
+        "cardsUsed": 12,
+        "goals": 0
+      },
+      {
+        "actions": 59,
+        "captures": 16,
+        "cardsUsed": 5,
+        "goals": 0
+      },
+      {
+        "actions": 59,
+        "captures": 24,
+        "cardsUsed": 10,
+        "goals": 0
+      },
+      {
+        "actions": 59,
+        "captures": 24,
+        "cardsUsed": 2,
+        "goals": 0
+      },
+      {
+        "actions": 59,
+        "captures": 21,
+        "cardsUsed": 1,
+        "goals": 0
+      }
+    ]
+  },
+  "twoFingerPinch": true,
+  "lifecycle": [
+    "restart clears state and schedules exactly one AI turn",
+    "timeout stops actions and renders result",
+    "sandbox resumes combat while preserving campaign result"
+  ]
+}

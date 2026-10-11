@@ -1,0 +1,28 @@
+{
+  "clock": "virtual for timer control only",
+  "viewports": [
+    {
+      "label": "desktop",
+      "dpr": 1,
+      "airportUnlockThrough18Actions": true,
+      "illegalAirTargetAtomic": true,
+      "remoteAirdropViaUi": true,
+      "remoteBombardViaUi": true,
+      "cooldownElapsedThroughActions": true,
+      "neutralOffReplay": true,
+      "overflow": false
+    },
+    {
+      "label": "mobile",
+      "dpr": 3,
+      "airportUnlockThrough18Actions": true,
+      "illegalAirTargetAtomic": true,
+      "remoteAirdropViaUi": true,
+      "remoteBombardViaUi": true,
+      "cooldownElapsedThroughActions": true,
+      "neutralOffReplay": true,
+      "overflow": false
+    }
+  ],
+  "errors": []
+}

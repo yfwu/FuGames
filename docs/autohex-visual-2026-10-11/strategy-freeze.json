@@ -1,0 +1,36 @@
+{
+  "source": "autohex-engine.js",
+  "sha256": "a75d8a8fe9c372921f1937a7e4d5b40e438642a07a6f6979ea30154304a5fb26",
+  "frozenAt": "2026-10-11T14:18:20.093Z",
+  "baseline": "13c94a8",
+  "developmentSeeds": [
+    17,
+    31,
+    43,
+    59,
+    71,
+    89
+  ],
+  "tuningSeeds": [
+    211,
+    307,
+    401
+  ],
+  "heldoutSeeds": [
+    701,
+    809,
+    907,
+    1009,
+    1103,
+    1201
+  ],
+  "rotations": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5
+  ],
+  "note": "Frozen before starting the after-heldout sample. No balance tuning from heldout observations. Accelerated evidence is separate from real-time browser validation."
+}

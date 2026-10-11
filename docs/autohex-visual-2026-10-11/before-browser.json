@@ -1,0 +1,28 @@
+{
+  "baseline": "13c94a8",
+  "clock": "virtual time for lifecycle assertions only",
+  "viewports": [
+    {
+      "label": "desktop",
+      "width": 1440,
+      "height": 1100,
+      "dpr": 1,
+      "overflow": false
+    },
+    {
+      "label": "mobile",
+      "width": 390,
+      "height": 844,
+      "dpr": 3,
+      "overflow": false
+    },
+    {
+      "label": "narrow",
+      "width": 320,
+      "height": 740,
+      "dpr": 2,
+      "overflow": false
+    }
+  ],
+  "errors": []
+}

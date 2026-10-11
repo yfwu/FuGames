@@ -10,9 +10,9 @@ import hashlib, json, os, time
 from playwright.sync_api import sync_playwright
 
 ROOT = Path(__file__).resolve().parents[1]
-OUT = ROOT / 'docs/autohex-2026-10-11'
+OUT = Path(os.environ.get('AUTOHEX_REPORT_DIR', str(ROOT/'docs/autohex-2026-10-11')))
 BASE = os.environ.get('FUGAMES_BASE_URL', 'http://127.0.0.1:8011')
-FILES = ['autohex-engine.js', 'autohex-ui.js', 'autohex.html', 'autohex.css']
+FILES = ['autohex-engine.js', 'autohex-ui.js', 'autohex.html', 'autohex.css', 'autohex-visuals.js']
 def hashes():
     return {f: hashlib.sha256((ROOT/f).read_bytes()).hexdigest() for f in FILES}
 
@@ -64,10 +64,14 @@ with sync_playwright() as pw:
           alliances:autoHexGame.observation(0).alliances,
           drawCount:autoHexGame.observation(0).drawCount,discardCount:autoHexGame.observation(0).discardCount,
           actions:liveAcceptance.actions.length,hiddenEvents:liveAcceptance.hiddenEvents,
-          overflow:document.documentElement.scrollWidth>innerWidth})''')
+          overflow:document.documentElement.scrollWidth>innerWidth,
+          visuals:window.autoHexVisualDebug ? {activeEffects:autoHexVisualDebug().activeEffects,seenCount:autoHexVisualDebug().seenCount} : null,
+          strategic:{airports:autoHexGame.airports,neutralWarning:autoHexGame.neutralWarning,telemetry:autoHexGame.telemetry}})''')
         wall = time.monotonic()-start
         assert not info['hidden'] and not info['hiddenEvents'], 'Live campaign left foreground'
         assert not info['overflow']
+        if info['visuals']:
+            assert info['visuals']['activeEffects'] <= 64 and info['visuals']['seenCount'] <= 256
         assert float(info['speed']) == .30
         assert info['activeMs'] <= wall*1000+150, 'Active clock outran wall clock'
         if wall >= next_sample or info['phase']=='over':

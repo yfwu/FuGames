@@ -1,0 +1,271 @@
+{
+  "sample": "heldout",
+  "timing": "Accelerated 2000 actions × 300 model active milliseconds. Not a real-time browser run.",
+  "conditionsMatch": true,
+  "regions": [
+    "center",
+    "middle",
+    "outer"
+  ],
+  "regionCells": [
+    127,
+    144,
+    756
+  ],
+  "before": {
+    "games": 36,
+    "sourceSha256": "b9f70d993c417964899feea6dbd7cc2bd971d524a7a3fd048a5b9948f0f57cdb",
+    "combatPerGame": [
+      363.6111111111111,
+      219.36111111111111,
+      382.4166666666667
+    ],
+    "combatShare": [
+      0.3766472923979974,
+      0.22722564309144272,
+      0.39612706451055996
+    ],
+    "combatPerCellPerGame": [
+      2.863079615048119,
+      1.523341049382716,
+      0.505842151675485
+    ],
+    "centerToOuterCombatDensity": 5.660025772001861,
+    "occupationShare": [
+      0.2778068382346576,
+      0.24125002009499677,
+      0.4809431416703456
+    ],
+    "meanOccupiedCells": [
+      93.13888888888889,
+      80.88266998341625,
+      161.24336650082918
+    ],
+    "occupationDensity": [
+      0.7333770778652668,
+      0.5616852082181684,
+      0.21328487632384813
+    ],
+    "combatBySectorPerGame": [
+      146.02777777777777,
+      149.83333333333334,
+      169.11111111111111,
+      186.47222222222223,
+      154.91666666666666,
+      159.02777777777777
+    ],
+    "meanFactionSectorCoverage": 5.333333333333333,
+    "sectorCoverageRange": [
+      3,
+      6
+    ],
+    "gamesWithCombatInAllSectors": 36,
+    "goalArrivals": 79,
+    "goalRange": [
+      0,
+      6
+    ],
+    "gamesWithGoals": 27,
+    "goalHoldingRounds": 233,
+    "lastQuarterMean": {
+      "meaningful": 498.22222222222223,
+      "combat": 284.3888888888889,
+      "goals": 0.3888888888888889,
+      "air": 0
+    },
+    "lastQuarterRange": {
+      "meaningful": [
+        490,
+        500
+      ],
+      "combat": [
+        228,
+        321
+      ],
+      "air": [
+        0,
+        0
+      ]
+    },
+    "airportUnlocks": 0,
+    "airportLosses": 0,
+    "airdrops": 0,
+    "bombardments": 0,
+    "airportUnlockRange": [
+      0,
+      0
+    ],
+    "airportLossRange": [
+      0,
+      0
+    ],
+    "airActionRange": [
+      0,
+      0
+    ],
+    "meanConcurrentAirports": 0,
+    "peakAirports": 0,
+    "meanAirUsers": 0,
+    "meanSuppliedDepots": 0,
+    "depotControls": 0,
+    "neutralRemoved": 0,
+    "neutralBlocks": 0,
+    "fortifications": 0,
+    "meanFinalLead": 9.88888888888889,
+    "finalLeadRange": [
+      0,
+      44
+    ],
+    "maxObservedLead": 45,
+    "halfwayLeaderAlsoWins": 14,
+    "fractionalWinsBySeat": {
+      "1": 10.5,
+      "2": 4,
+      "3": 4,
+      "4": 10.5,
+      "5": 5,
+      "6": 2
+    },
+    "fractionalWinsByProfile": {
+      "Architect": 5,
+      "Raider": 8.5,
+      "Vanguard": 6.5,
+      "Envoy": 8.5,
+      "Pathfinder": 4,
+      "Sentinel": 3.5
+    },
+    "meanAiMs": 3.33698469230543,
+    "gameMeanAiRangeMs": [
+      1.1854686634994431,
+      13.59690307250018
+    ]
+  },
+  "after": {
+    "games": 36,
+    "sourceSha256": "a75d8a8fe9c372921f1937a7e4d5b40e438642a07a6f6979ea30154304a5fb26",
+    "combatPerGame": [
+      29.27777777777778,
+      114.11111111111111,
+      891.8055555555555
+    ],
+    "combatShare": [
+      0.028282394611854993,
+      0.11023157216840636,
+      0.8614860332197386
+    ],
+    "combatPerCellPerGame": [
+      0.2305336832895888,
+      0.7924382716049383,
+      1.1796369782480893
+    ],
+    "centerToOuterCombatDensity": 0.1954276506590702,
+    "occupationShare": [
+      0.04787198406063484,
+      0.16506651597286345,
+      0.7870614999665017
+    ],
+    "meanOccupiedCells": [
+      13.627280265339968,
+      46.9879767827529,
+      224.04560530679933
+    ],
+    "occupationDensity": [
+      0.10730141941212573,
+      0.3263053943246729,
+      0.29635662077618957
+    ],
+    "combatBySectorPerGame": [
+      135.02777777777777,
+      177.69444444444446,
+      175.75,
+      216.41666666666666,
+      151.02777777777777,
+      179.27777777777777
+    ],
+    "meanFactionSectorCoverage": 4.657407407407407,
+    "sectorCoverageRange": [
+      2,
+      6
+    ],
+    "gamesWithCombatInAllSectors": 36,
+    "goalArrivals": 106,
+    "goalRange": [
+      0,
+      10
+    ],
+    "gamesWithGoals": 31,
+    "goalHoldingRounds": 163,
+    "lastQuarterMean": {
+      "meaningful": 499.69444444444446,
+      "combat": 272.6111111111111,
+      "goals": 1.2777777777777777,
+      "air": 10.555555555555555
+    },
+    "lastQuarterRange": {
+      "meaningful": [
+        494,
+        500
+      ],
+      "combat": [
+        207,
+        319
+      ],
+      "air": [
+        1,
+        21
+      ]
+    },
+    "airportUnlocks": 1085,
+    "airportLosses": 1022,
+    "airdrops": 827,
+    "bombardments": 348,
+    "airportUnlockRange": [
+      18,
+      44
+    ],
+    "airportLossRange": [
+      15,
+      42
+    ],
+    "airActionRange": [
+      15,
+      53
+    ],
+    "meanConcurrentAirports": 1.3913764510779436,
+    "peakAirports": 5,
+    "meanAirUsers": 5.083333333333333,
+    "meanSuppliedDepots": 4.152985074626866,
+    "depotControls": 7579,
+    "neutralRemoved": 1185,
+    "neutralBlocks": 592,
+    "fortifications": 25156,
+    "meanFinalLead": 16.083333333333332,
+    "finalLeadRange": [
+      1,
+      60
+    ],
+    "maxObservedLead": 70,
+    "halfwayLeaderAlsoWins": 7,
+    "fractionalWinsBySeat": {
+      "1": 8,
+      "2": 2,
+      "3": 4,
+      "4": 9,
+      "5": 9,
+      "6": 4
+    },
+    "fractionalWinsByProfile": {
+      "Raider": 5,
+      "Pathfinder": 6,
+      "Sentinel": 6,
+      "Envoy": 6,
+      "Architect": 6,
+      "Vanguard": 7
+    },
+    "meanAiMs": 4.757789408499978,
+    "gameMeanAiRangeMs": [
+      1.2424062819994288,
+      30.552502393999806
+    ]
+  }
+}

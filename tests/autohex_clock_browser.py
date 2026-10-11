@@ -21,5 +21,5 @@ with sync_playwright() as pw:
     assert -100<report['driftMs']<25,report
     assert report['ply']>=5 and not errors,report
     report['pauseFrozen']=True
-    (ROOT/'docs/autohex-2026-10-11/clock-regression.json').write_text(json.dumps(report,indent=2)+'\n')
+    (Path(os.environ.get('AUTOHEX_REPORT_DIR', str(ROOT/'docs/autohex-2026-10-11')))/'clock-regression.json').write_text(json.dumps(report,indent=2)+'\n')
     print(json.dumps(report,indent=2));browser.close()

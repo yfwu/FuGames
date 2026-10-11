@@ -1,0 +1,7403 @@
+{
+  "mode": "after",
+  "sample": "development",
+  "source": "autohex-engine.js",
+  "sha256": "a75d8a8fe9c372921f1937a7e4d5b40e438642a07a6f6979ea30154304a5fb26",
+  "timing": "Accelerated 2000 actions × 300 model active milliseconds. Not a real-time browser run.",
+  "seeds": [
+    17,
+    31,
+    43,
+    59,
+    71,
+    89
+  ],
+  "rotations": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5
+  ],
+  "regions": [
+    "center",
+    "middle",
+    "outer"
+  ],
+  "regionCells": [
+    127,
+    144,
+    756
+  ],
+  "games": [
+    {
+      "seed": 17,
+      "rotation": 0,
+      "first": 1,
+      "actions": 2000,
+      "meaningful": 2000,
+      "actionRegions": [
+        89,
+        257,
+        1635
+      ],
+      "combatRegions": [
+        24,
+        71,
+        954
+      ],
+      "combatSectors": [
+        265,
+        27,
+        180,
+        212,
+        303,
+        62
+      ],
+      "occupation": [
+        1063,
+        2630,
+        16843
+      ],
+      "occupationSectors": [
+        5069,
+        1085,
+        5080,
+        2690,
+        4684,
+        1928
+      ],
+      "occupationSamples": 67,
+      "playerSectors": [
+        4,
+        5,
+        6,
+        6,
+        4,
+        4
+      ],
+      "quarters": [
+        {
+          "actions": 500,
+          "meaningful": 500,
+          "combat": 231,
+          "goals": 0,
+          "air": 4
+        },
+        {
+          "actions": 500,
+          "meaningful": 500,
+          "combat": 284,
+          "goals": 2,
+          "air": 9
+        },
+        {
+          "actions": 500,
+          "meaningful": 500,
+          "combat": 271,
+          "goals": 0,
+          "air": 9
+        },
+        {
+          "actions": 500,
+          "meaningful": 500,
+          "combat": 263,
+          "goals": 1,
+          "air": 22
+        }
+      ],
+      "maxLead": 8,
+      "activeAirportSamples": 123,
+      "peakActiveAirports": 4,
+      "depotSamples": 256,
+      "airportUsers": [
+        1,
+        6,
+        2,
+        3,
+        5,
+        4
+      ],
+      "airUsers": [
+        1,
+        6,
+        2,
+        3,
+        5,
+        4
+      ],
+      "playerAirportSamples": [
+        10,
+        22,
+        40,
+        23,
+        2,
+        26
+      ],
+      "playerDepotSamples": [
+        50,
+        18,
+        51,
+        43,
+        19,
+        75
+      ],
+      "halfwayLeader": 4,
+      "scores": [
+        164,
+        183,
+        177,
+        180,
+        179,
+        164
+      ],
+      "goals": [
+        0,
+        1,
+        0,
+        2,
+        0,
+        0
+      ],
+      "winners": [
+        2
+      ],
+      "winnerProfiles": [
+        "Architect"
+      ],
+      "finalLead": 3,
+      "aiMeanMs": 5.666423068000002,
+      "telemetry": {
+        "actions": 2000,
+        "meaningful": 2000,
+        "captures": 811,
+        "destroyed": 202,
+        "supplyRetreats": 236,
+        "engineered": 58,
+        "cardsUsed": 154,
+        "reshuffles": 2,
+        "goalArrivals": 3,
+        "goalHoldingRounds": 2,
+        "offers": 14,
+        "alliances": 5,
+        "betrayals": 0,
+        "withdrawals": 15,
+        "turretShots": 173,
+        "shieldBlocks": 0,
+        "airportUnlocks": 36,
+        "airportLosses": 34,
+        "airdrops": 34,
+        "bombardments": 10,
+        "depotControls": 226,
+        "suppliesEarned": 175,
+        "suppliesSpent": 142,
+        "fortifications": 725,
+        "neutralWarnings": 27,
+        "neutralStrikes": 27,
+        "neutralRemoved": 38,
+        "neutralBlocks": 14,
+        "byType": {
+          "deploy": 1710,
+          "engineer": 58,
+          "shield": 31,
+          "bridge": 29,
+          "exchange": 36,
+          "turret": 28,
+          "destroy": 19,
+          "reroute": 11,
+          "bombard": 10,
+          "airdrop": 34,
+          "offer": 14,
+          "accept": 5,
+          "withdraw": 15
+        },
+        "byMinute": [
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 69,
+            "cardsUsed": 14
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 80,
+            "cardsUsed": 24
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 88,
+            "cardsUsed": 16
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 87,
+            "cardsUsed": 17
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 87,
+            "cardsUsed": 5
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 85,
+            "cardsUsed": 4
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 90,
+            "cardsUsed": 22
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 78,
+            "cardsUsed": 16
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 72,
+            "cardsUsed": 13
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 75,
+            "cardsUsed": 23
+          }
+        ],
+        "perPlayer": [
+          {
+            "actions": 0,
+            "captures": 0,
+            "cardsUsed": 0,
+            "goals": 0
+          },
+          {
+            "actions": 334,
+            "captures": 133,
+            "cardsUsed": 25,
+            "goals": 0
+          },
+          {
+            "actions": 334,
+            "captures": 119,
+            "cardsUsed": 47,
+            "goals": 1
+          },
+          {
+            "actions": 333,
+            "captures": 135,
+            "cardsUsed": 12,
+            "goals": 0
+          },
+          {
+            "actions": 333,
+            "captures": 151,
+            "cardsUsed": 12,
+            "goals": 2
+          },
+          {
+            "actions": 333,
+            "captures": 152,
+            "cardsUsed": 26,
+            "goals": 0
+          },
+          {
+            "actions": 333,
+            "captures": 121,
+            "cardsUsed": 32,
+            "goals": 0
+          }
+        ]
+      },
+      "finalAirports": [
+        {
+          "id": 0,
+          "cell": 891,
+          "owner": 0,
+          "supplied": false,
+          "cluster": 0,
+          "progress": 0,
+          "active": false,
+          "qualified": false
+        },
+        {
+          "id": 1,
+          "cell": 525,
+          "owner": 0,
+          "supplied": false,
+          "cluster": 0,
+          "progress": 0,
+          "active": false,
+          "qualified": false
+        },
+        {
+          "id": 2,
+          "cell": 147,
+          "owner": 3,
+          "supplied": true,
+          "cluster": 38,
+          "progress": 3,
+          "active": true,
+          "qualified": true
+        },
+        {
+          "id": 3,
+          "cell": 135,
+          "owner": 0,
+          "supplied": false,
+          "cluster": 0,
+          "progress": 0,
+          "active": false,
+          "qualified": false
+        },
+        {
+          "id": 4,
+          "cell": 501,
+          "owner": 6,
+          "supplied": true,
+          "cluster": 38,
+          "progress": 3,
+          "active": true,
+          "qualified": true
+        },
+        {
+          "id": 5,
+          "cell": 879,
+          "owner": 0,
+          "supplied": false,
+          "cluster": 0,
+          "progress": 0,
+          "active": false,
+          "qualified": false
+        }
+      ],
+      "finalDepots": [
+        {
+          "id": 0,
+          "cell": 833,
+          "owner": 1,
+          "supplied": true
+        },
+        {
+          "id": 1,
+          "cell": 693,
+          "owner": 0,
+          "supplied": false
+        },
+        {
+          "id": 2,
+          "cell": 348,
+          "owner": 0,
+          "supplied": false
+        },
+        {
+          "id": 3,
+          "cell": 193,
+          "owner": 4,
+          "supplied": true
+        },
+        {
+          "id": 4,
+          "cell": 333,
+          "owner": 0,
+          "supplied": false
+        },
+        {
+          "id": 5,
+          "cell": 678,
+          "owner": 6,
+          "supplied": true
+        }
+      ]
+    },
+    {
+      "seed": 17,
+      "rotation": 1,
+      "first": 2,
+      "actions": 2000,
+      "meaningful": 1998,
+      "actionRegions": [
+        83,
+        246,
+        1659
+      ],
+      "combatRegions": [
+        19,
+        56,
+        983
+      ],
+      "combatSectors": [
+        56,
+        214,
+        121,
+        319,
+        34,
+        314
+      ],
+      "occupation": [
+        953,
+        3424,
+        15957
+      ],
+      "occupationSectors": [
+        2100,
+        3917,
+        1929,
+        3827,
+        2268,
+        6293
+      ],
+      "occupationSamples": 67,
+      "playerSectors": [
+        5,
+        4,
+        4,
+        6,
+        3,
+        5
+      ],
+      "quarters": [
+        {
+          "actions": 500,
+          "meaningful": 500,
+          "combat": 234,
+          "goals": 0,
+          "air": 4
+        },
+        {
+          "actions": 500,
+          "meaningful": 500,
+          "combat": 277,
+          "goals": 2,
+          "air": 3
+        },
+        {
+          "actions": 500,
+          "meaningful": 500,
+          "combat": 240,
+          "goals": 1,
+          "air": 2
+        },
+        {
+          "actions": 500,
+          "meaningful": 498,
+          "combat": 307,
+          "goals": 2,
+          "air": 6
+        }
+      ],
+      "maxLead": 30,
+      "activeAirportSamples": 51,
+      "peakActiveAirports": 3,
+      "depotSamples": 283,
+      "airportUsers": [
+        3,
+        5,
+        2,
+        6,
+        4,
+        1
+      ],
+      "airUsers": [
+        3,
+        6,
+        5,
+        2
+      ],
+      "playerAirportSamples": [
+        6,
+        10,
+        4,
+        12,
+        6,
+        13
+      ],
+      "playerDepotSamples": [
+        22,
+        64,
+        49,
+        71,
+        39,
+        38
+      ],
+      "halfwayLeader": 4,
+      "scores": [
+        154,
+        173,
+        191,
+        228,
+        140,
+        196
+      ],
+      "goals": [
+        0,
+        0,
+        0,
+        2,
+        0,
+        3
+      ],
+      "winners": [
+        4
+      ],
+      "winnerProfiles": [
+        "Envoy"
+      ],
+      "finalLead": 32,
+      "aiMeanMs": 3.422792536000008,
+      "telemetry": {
+        "actions": 2000,
+        "meaningful": 1998,
+        "captures": 817,
+        "destroyed": 205,
+        "supplyRetreats": 258,
+        "engineered": 61,
+        "cardsUsed": 179,
+        "reshuffles": 2,
+        "goalArrivals": 5,
+        "goalHoldingRounds": 9,
+        "offers": 8,
+        "alliances": 2,
+        "betrayals": 0,
+        "withdrawals": 26,
+        "turretShots": 178,
+        "shieldBlocks": 0,
+        "airportUnlocks": 36,
+        "airportLosses": 35,
+        "airdrops": 14,
+        "bombardments": 1,
+        "depotControls": 167,
+        "suppliesEarned": 81,
+        "suppliesSpent": 46,
+        "fortifications": 716,
+        "neutralWarnings": 27,
+        "neutralStrikes": 27,
+        "neutralRemoved": 35,
+        "neutralBlocks": 16,
+        "byType": {
+          "deploy": 1707,
+          "engineer": 61,
+          "shield": 38,
+          "bridge": 32,
+          "exchange": 36,
+          "turret": 31,
+          "reroute": 16,
+          "airdrop": 14,
+          "destroy": 26,
+          "offer": 8,
+          "accept": 2,
+          "withdraw": 26,
+          "bombard": 1,
+          "discard": 2
+        },
+        "byMinute": [
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 69,
+            "cardsUsed": 19
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 97,
+            "cardsUsed": 8
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 83,
+            "cardsUsed": 17
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 86,
+            "cardsUsed": 24
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 79,
+            "cardsUsed": 15
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 81,
+            "cardsUsed": 12
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 81,
+            "cardsUsed": 32
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 70,
+            "cardsUsed": 20
+          },
+          {
+            "actions": 200,
+            "meaningful": 198,
+            "captures": 92,
+            "cardsUsed": 13
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 79,
+            "cardsUsed": 19
+          }
+        ],
+        "perPlayer": [
+          {
+            "actions": 0,
+            "captures": 0,
+            "cardsUsed": 0,
+            "goals": 0
+          },
+          {
+            "actions": 333,
+            "captures": 140,
+            "cardsUsed": 36,
+            "goals": 0
+          },
+          {
+            "actions": 334,
+            "captures": 132,
+            "cardsUsed": 35,
+            "goals": 0
+          },
+          {
+            "actions": 334,
+            "captures": 153,
+            "cardsUsed": 22,
+            "goals": 0
+          },
+          {
+            "actions": 333,
+            "captures": 120,
+            "cardsUsed": 55,
+            "goals": 2
+          },
+          {
+            "actions": 333,
+            "captures": 120,
+            "cardsUsed": 23,
+            "goals": 0
+          },
+          {
+            "actions": 333,
+            "captures": 152,
+            "cardsUsed": 8,
+            "goals": 3
+          }
+        ]
+      },
+      "finalAirports": [
+        {
+          "id": 0,
+          "cell": 891,
+          "owner": 0,
+          "supplied": false,
+          "cluster": 0,
+          "progress": 0,
+          "active": false,
+          "qualified": false
+        },
+        {
+          "id": 1,
+          "cell": 525,
+          "owner": 0,
+          "supplied": false,
+          "cluster": 0,
+          "progress": 0,
+          "active": false,
+          "qualified": false
+        },
+        {
+          "id": 2,
+          "cell": 147,
+          "owner": 0,
+          "supplied": false,
+          "cluster": 0,
+          "progress": 0,
+          "active": false,
+          "qualified": false
+        },
+        {
+          "id": 3,
+          "cell": 135,
+          "owner": 2,
+          "supplied": true,
+          "cluster": 14,
+          "progress": 3,
+          "active": true,
+          "qualified": true
+        },
+        {
+          "id": 4,
+          "cell": 501,
+          "owner": 0,
+          "supplied": false,
+          "cluster": 0,
+          "progress": 0,
+          "active": false,
+          "qualified": false
+        },
+        {
+          "id": 5,
+          "cell": 879,
+          "owner": 6,
+          "supplied": true,
+          "cluster": 34,
+          "progress": 1,
+          "active": false,
+          "qualified": true
+        }
+      ],
+      "finalDepots": [
+        {
+          "id": 0,
+          "cell": 833,
+          "owner": 0,
+          "supplied": false
+        },
+        {
+          "id": 1,
+          "cell": 693,
+          "owner": 2,
+          "supplied": true
+        },
+        {
+          "id": 2,
+          "cell": 348,
+          "owner": 0,
+          "supplied": false
+        },
+        {
+          "id": 3,
+          "cell": 193,
+          "owner": 5,
+          "supplied": false
+        },
+        {
+          "id": 4,
+          "cell": 333,
+          "owner": 4,
+          "supplied": true
+        },
+        {
+          "id": 5,
+          "cell": 678,
+          "owner": 4,
+          "supplied": true
+        }
+      ]
+    },
+    {
+      "seed": 17,
+      "rotation": 2,
+      "first": 3,
+      "actions": 2000,
+      "meaningful": 2000,
+      "actionRegions": [
+        79,
+        303,
+        1604
+      ],
+      "combatRegions": [
+        35,
+        84,
+        960
+      ],
+      "combatSectors": [
+        280,
+        48,
+        264,
+        173,
+        197,
+        117
+      ],
+      "occupation": [
+        467,
+        2664,
+        15813
+      ],
+      "occupationSectors": [
+        4553,
+        1621,
+        5265,
+        1978,
+        2905,
+        2622
+      ],
+      "occupationSamples": 67,
+      "playerSectors": [
+        6,
+        5,
+        5,
+        3,
+        5,
+        5
+      ],
+      "quarters": [
+        {
+          "actions": 500,
+          "meaningful": 500,
+          "combat": 229,
+          "goals": 0,
+          "air": 5
+        },
+        {
+          "actions": 500,
+          "meaningful": 500,
+          "combat": 261,
+          "goals": 0,
+          "air": 11
+        },
+        {
+          "actions": 500,
+          "meaningful": 500,
+          "combat": 289,
+          "goals": 2,
+          "air": 9
+        },
+        {
+          "actions": 500,
+          "meaningful": 500,
+          "combat": 300,
+          "goals": 5,
+          "air": 11
+        }
+      ],
+      "maxLead": 16,
+      "activeAirportSamples": 119,
+      "peakActiveAirports": 3,
+      "depotSamples": 271,
+      "airportUsers": [
+        5,
+        1,
+        2,
+        3,
+        6,
+        4
+      ],
+      "airUsers": [
+        5,
+        6,
+        3,
+        2,
+        4,
+        1
+      ],
+      "playerAirportSamples": [
+        7,
+        54,
+        36,
+        8,
+        4,
+        10
+      ],
+      "playerDepotSamples": [
+        51,
+        78,
+        63,
+        38,
+        26,
+        15
+      ],
+      "halfwayLeader": 3,
+      "scores": [
+        181,
+        198,
+        171,
+        223,
+        213,
+        156
+      ],
+      "goals": [
+        2,
+        1,
+        0,
+        0,
+        4,
+        0
+      ],
+      "winners": [
+        4
+      ],
+      "winnerProfiles": [
+        "Pathfinder"
+      ],
+      "finalLead": 10,
+      "aiMeanMs": 1.2460315360000895,
+      "telemetry": {
+        "actions": 2000,
+        "meaningful": 2000,
+        "captures": 745,
+        "destroyed": 291,
+        "supplyRetreats": 266,
+        "engineered": 58,
+        "cardsUsed": 192,
+        "reshuffles": 2,
+        "goalArrivals": 7,
+        "goalHoldingRounds": 23,
+        "offers": 10,
+        "alliances": 4,
+        "betrayals": 0,
+        "withdrawals": 10,
+        "turretShots": 255,
+        "shieldBlocks": 1,
+        "airportUnlocks": 23,
+        "airportLosses": 21,
+        "airdrops": 29,
+        "bombardments": 7,
+        "depotControls": 291,
+        "suppliesEarned": 150,
+        "suppliesSpent": 115,
+        "fortifications": 719,
+        "neutralWarnings": 27,
+        "neutralStrikes": 27,
+        "neutralRemoved": 34,
+        "neutralBlocks": 12,
+        "byType": {
+          "deploy": 1690,
+          "engineer": 58,
+          "shield": 39,
+          "bridge": 37,
+          "turret": 27,
+          "destroy": 30,
+          "exchange": 43,
+          "reroute": 16,
+          "airdrop": 29,
+          "offer": 10,
+          "bombard": 7,
+          "accept": 4,
+          "withdraw": 10
+        },
+        "byMinute": [
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 56,
+            "cardsUsed": 19
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 74,
+            "cardsUsed": 27
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 50,
+            "cardsUsed": 28
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 64,
+            "cardsUsed": 26
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 81,
+            "cardsUsed": 19
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 92,
+            "cardsUsed": 18
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 71,
+            "cardsUsed": 19
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 71,
+            "cardsUsed": 12
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 81,
+            "cardsUsed": 16
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 105,
+            "cardsUsed": 8
+          }
+        ],
+        "perPlayer": [
+          {
+            "actions": 0,
+            "captures": 0,
+            "cardsUsed": 0,
+            "goals": 0
+          },
+          {
+            "actions": 333,
+            "captures": 138,
+            "cardsUsed": 25,
+            "goals": 2
+          },
+          {
+            "actions": 333,
+            "captures": 126,
+            "cardsUsed": 50,
+            "goals": 1
+          },
+          {
+            "actions": 334,
+            "captures": 131,
+            "cardsUsed": 10,
+            "goals": 0
+          },
+          {
+            "actions": 334,
+            "captures": 145,
+            "cardsUsed": 25,
+            "goals": 0
+          },
+          {
+            "actions": 333,
+            "captures": 116,
+            "cardsUsed": 20,
+            "goals": 4
+          },
+          {
+            "actions": 333,
+            "captures": 89,
+            "cardsUsed": 62,
+            "goals": 0
+          }
+        ]
+      },
+      "finalAirports": [
+        {
+          "id": 0,
+          "cell": 891,
+          "owner": 0,
+          "supplied": false,
+          "cluster": 0,
+          "progress": 0,
+          "active": false,
+          "qualified": false
+        },
+        {
+          "id": 1,
+          "cell": 525,
+          "owner": 0,
+          "supplied": false,
+          "cluster": 0,
+          "progress": 0,
+          "active": false,
+          "qualified": false
+        },
+        {
+          "id": 2,
+          "cell": 147,
+          "owner": 4,
+          "supplied": true,
+          "cluster": 29,
+          "progress": 3,
+          "active": true,
+          "qualified": true
+        },
+        {
+          "id": 3,
+          "cell": 135,
+          "owner": 0,
+          "supplied": false,
+          "cluster": 0,
+          "progress": 0,
+          "active": false,
+          "qualified": false
+        },
+        {
+          "id": 4,
+          "cell": 501,
+          "owner": 0,
+          "supplied": false,
+          "cluster": 0,
+          "progress": 0,
+          "active": false,
+          "qualified": false
+        },
+        {
+          "id": 5,
+          "cell": 879,
+          "owner": 1,
+          "supplied": true,
+          "cluster": 17,
+          "progress": 3,
+          "active": true,
+          "qualified": true
+        }
+      ],
+      "finalDepots": [
+        {
+          "id": 0,
+          "cell": 833,
+          "owner": 2,
+          "supplied": true
+        },
+        {
+          "id": 1,
+          "cell": 693,
+          "owner": 2,
+          "supplied": true
+        },
+        {
+          "id": 2,
+          "cell": 348,
+          "owner": 4,
+          "supplied": true
+        },
+        {
+          "id": 3,
+          "cell": 193,
+          "owner": 4,
+          "supplied": true
+        },
+        {
+          "id": 4,
+          "cell": 333,
+          "owner": 0,
+          "supplied": false
+        },
+        {
+          "id": 5,
+          "cell": 678,
+          "owner": 6,
+          "supplied": true
+        }
+      ]
+    },
+    {
+      "seed": 17,
+      "rotation": 3,
+      "first": 4,
+      "actions": 2000,
+      "meaningful": 2000,
+      "actionRegions": [
+        33,
+        289,
+        1656
+      ],
+      "combatRegions": [
+        0,
+        91,
+        964
+      ],
+      "combatSectors": [
+        26,
+        277,
+        132,
+        270,
+        48,
+        302
+      ],
+      "occupation": [
+        402,
+        2326,
+        16305
+      ],
+      "occupationSectors": [
+        1207,
+        4294,
+        2382,
+        5245,
+        1371,
+        4534
+      ],
+      "occupationSamples": 67,
+      "playerSectors": [
+        5,
+        5,
+        6,
+        5,
+        4,
+        5
+      ],
+      "quarters": [
+        {
+          "actions": 500,
+          "meaningful": 500,
+          "combat": 233,
+          "goals": 0,
+          "air": 4
+        },
+        {
+          "actions": 500,
+          "meaningful": 500,
+          "combat": 276,
+          "goals": 3,
+          "air": 14
+        },
+        {
+          "actions": 500,
+          "meaningful": 500,
+          "combat": 309,
+          "goals": 0,
+          "air": 2
+        },
+        {
+          "actions": 500,
+          "meaningful": 500,
+          "combat": 237,
+          "goals": 4,
+          "air": 16
+        }
+      ],
+      "maxLead": 39,
+      "activeAirportSamples": 84,
+      "peakActiveAirports": 3,
+      "depotSamples": 305,
+      "airportUsers": [
+        1,
+        3,
+        4,
+        5,
+        6,
+        2
+      ],
+      "airUsers": [
+        1,
+        3,
+        5,
+        6,
+        2,
+        4
+      ],
+      "playerAirportSamples": [
+        33,
+        8,
+        9,
+        18,
+        14,
+        2
+      ],
+      "playerDepotSamples": [
+        45,
+        66,
+        24,
+        22,
+        86,
+        62
+      ],
+      "halfwayLeader": 1,
+      "scores": [
+        212,
+        172,
+        200,
+        176,
+        145,
+        173
+      ],
+      "goals": [
+        3,
+        1,
+        2,
+        0,
+        0,
+        1
+      ],
+      "winners": [
+        1
+      ],
+      "winnerProfiles": [
+        "Raider"
+      ],
+      "finalLead": 12,
+      "aiMeanMs": 1.3399808415000845,
+      "telemetry": {
+        "actions": 2000,
+        "meaningful": 2000,
+        "captures": 733,
+        "destroyed": 269,
+        "supplyRetreats": 236,
+        "engineered": 57,
+        "cardsUsed": 241,
+        "reshuffles": 3,
+        "goalArrivals": 7,
+        "goalHoldingRounds": 5,
+        "offers": 16,
+        "alliances": 6,
+        "betrayals": 0,
+        "withdrawals": 30,
+        "turretShots": 229,
+        "shieldBlocks": 1,
+        "airportUnlocks": 27,
+        "airportLosses": 25,
+        "airdrops": 30,
+        "bombardments": 6,
+        "depotControls": 104,
+        "suppliesEarned": 147,
+        "suppliesSpent": 114,
+        "fortifications": 714,
+        "neutralWarnings": 27,
+        "neutralStrikes": 27,
+        "neutralRemoved": 32,
+        "neutralBlocks": 15,
+        "byType": {
+          "deploy": 1614,
+          "engineer": 57,
+          "shield": 41,
+          "bridge": 49,
+          "destroy": 35,
+          "exchange": 53,
+          "airdrop": 30,
+          "turret": 45,
+          "offer": 16,
+          "reroute": 18,
+          "bombard": 6,
+          "accept": 6,
+          "withdraw": 30
+        },
+        "byMinute": [
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 68,
+            "cardsUsed": 8
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 96,
+            "cardsUsed": 5
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 82,
+            "cardsUsed": 24
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 77,
+            "cardsUsed": 37
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 55,
+            "cardsUsed": 18
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 96,
+            "cardsUsed": 35
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 90,
+            "cardsUsed": 17
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 63,
+            "cardsUsed": 15
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 56,
+            "cardsUsed": 34
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 50,
+            "cardsUsed": 48
+          }
+        ],
+        "perPlayer": [
+          {
+            "actions": 0,
+            "captures": 0,
+            "cardsUsed": 0,
+            "goals": 0
+          },
+          {
+            "actions": 333,
+            "captures": 135,
+            "cardsUsed": 50,
+            "goals": 3
+          },
+          {
+            "actions": 333,
+            "captures": 115,
+            "cardsUsed": 63,
+            "goals": 1
+          },
+          {
+            "actions": 333,
+            "captures": 101,
+            "cardsUsed": 36,
+            "goals": 2
+          },
+          {
+            "actions": 334,
+            "captures": 147,
+            "cardsUsed": 14,
+            "goals": 0
+          },
+          {
+            "actions": 334,
+            "captures": 109,
+            "cardsUsed": 36,
+            "goals": 0
+          },
+          {
+            "actions": 333,
+            "captures": 126,
+            "cardsUsed": 42,
+            "goals": 1
+          }
+        ]
+      },
+      "finalAirports": [
+        {
+          "id": 0,
+          "cell": 891,
+          "owner": 0,
+          "supplied": false,
+          "cluster": 0,
+          "progress": 0,
+          "active": false,
+          "qualified": false
+        },
+        {
+          "id": 1,
+          "cell": 525,
+          "owner": 0,
+          "supplied": false,
+          "cluster": 0,
+          "progress": 0,
+          "active": false,
+          "qualified": false
+        },
+        {
+          "id": 2,
+          "cell": 147,
+          "owner": 4,
+          "supplied": true,
+          "cluster": 19,
+          "progress": 3,
+          "active": true,
+          "qualified": true
+        },
+        {
+          "id": 3,
+          "cell": 135,
+          "owner": 0,
+          "supplied": false,
+          "cluster": 0,
+          "progress": 0,
+          "active": false,
+          "qualified": false
+        },
+        {
+          "id": 4,
+          "cell": 501,
+          "owner": 0,
+          "supplied": false,
+          "cluster": 0,
+          "progress": 0,
+          "active": false,
+          "qualified": false
+        },
+        {
+          "id": 5,
+          "cell": 879,
+          "owner": 1,
+          "supplied": true,
+          "cluster": 28,
+          "progress": 3,
+          "active": true,
+          "qualified": true
+        }
+      ],
+      "finalDepots": [
+        {
+          "id": 0,
+          "cell": 833,
+          "owner": 1,
+          "supplied": true
+        },
+        {
+          "id": 1,
+          "cell": 693,
+          "owner": 2,
+          "supplied": true
+        },
+        {
+          "id": 2,
+          "cell": 348,
+          "owner": 0,
+          "supplied": false
+        },
+        {
+          "id": 3,
+          "cell": 193,
+          "owner": 4,
+          "supplied": true
+        },
+        {
+          "id": 4,
+          "cell": 333,
+          "owner": 0,
+          "supplied": false
+        },
+        {
+          "id": 5,
+          "cell": 678,
+          "owner": 0,
+          "supplied": false
+        }
+      ]
+    },
+    {
+      "seed": 17,
+      "rotation": 4,
+      "first": 5,
+      "actions": 2000,
+      "meaningful": 1999,
+      "actionRegions": [
+        158,
+        468,
+        1354
+      ],
+      "combatRegions": [
+        60,
+        223,
+        732
+      ],
+      "combatSectors": [
+        180,
+        115,
+        277,
+        32,
+        299,
+        112
+      ],
+      "occupation": [
+        1093,
+        3433,
+        11230
+      ],
+      "occupationSectors": [
+        3889,
+        2054,
+        2722,
+        1067,
+        3677,
+        2347
+      ],
+      "occupationSamples": 67,
+      "playerSectors": [
+        4,
+        5,
+        5,
+        5,
+        4,
+        4
+      ],
+      "quarters": [
+        {
+          "actions": 500,
+          "meaningful": 500,
+          "combat": 219,
+          "goals": 0,
+          "air": 7
+        },
+        {
+          "actions": 500,
+          "meaningful": 500,
+          "combat": 271,
+          "goals": 0,
+          "air": 12
+        },
+        {
+          "actions": 500,
+          "meaningful": 500,
+          "combat": 261,
+          "goals": 2,
+          "air": 11
+        },
+        {
+          "actions": 500,
+          "meaningful": 499,
+          "combat": 264,
+          "goals": 4,
+          "air": 12
+        }
+      ],
+      "maxLead": 28,
+      "activeAirportSamples": 94,
+      "peakActiveAirports": 3,
+      "depotSamples": 235,
+      "airportUsers": [
+        1,
+        2,
+        6,
+        4,
+        5,
+        3
+      ],
+      "airUsers": [
+        1,
+        2,
+        6,
+        4,
+        5,
+        3
+      ],
+      "playerAirportSamples": [
+        23,
+        11,
+        6,
+        9,
+        40,
+        5
+      ],
+      "playerDepotSamples": [
+        48,
+        56,
+        27,
+        60,
+        29,
+        15
+      ],
+      "halfwayLeader": 4,
+      "scores": [
+        194,
+        135,
+        152,
+        177,
+        186,
+        216
+      ],
+      "goals": [
+        2,
+        0,
+        0,
+        1,
+        0,
+        3
+      ],
+      "winners": [
+        6
+      ],
+      "winnerProfiles": [
+        "Raider"
+      ],
+      "finalLead": 22,
+      "aiMeanMs": 1.7503129204999603,
+      "telemetry": {
+        "actions": 2000,
+        "meaningful": 1999,
+        "captures": 625,
+        "destroyed": 333,
+        "supplyRetreats": 308,
+        "engineered": 51,
+        "cardsUsed": 296,
+        "reshuffles": 4,
+        "goalArrivals": 6,
+        "goalHoldingRounds": 24,
+        "offers": 14,
+        "alliances": 5,
+        "betrayals": 0,
+        "withdrawals": 0,
+        "turretShots": 267,
+        "shieldBlocks": 1,
+        "airportUnlocks": 30,
+        "airportLosses": 28,
+        "airdrops": 27,
+        "bombardments": 15,
+        "depotControls": 121,
+        "suppliesEarned": 175,
+        "suppliesSpent": 141,
+        "fortifications": 651,
+        "neutralWarnings": 27,
+        "neutralStrikes": 27,
+        "neutralRemoved": 27,
+        "neutralBlocks": 21,
+        "byType": {
+          "deploy": 1591,
+          "engineer": 51,
+          "shield": 59,
+          "bridge": 57,
+          "turret": 51,
+          "exchange": 57,
+          "reroute": 20,
+          "bombard": 15,
+          "destroy": 52,
+          "airdrop": 27,
+          "offer": 14,
+          "accept": 5,
+          "discard": 1
+        },
+        "byMinute": [
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 54,
+            "cardsUsed": 21
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 45,
+            "cardsUsed": 25
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 70,
+            "cardsUsed": 27
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 53,
+            "cardsUsed": 35
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 65,
+            "cardsUsed": 33
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 58,
+            "cardsUsed": 32
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 67,
+            "cardsUsed": 31
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 63,
+            "cardsUsed": 26
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 66,
+            "cardsUsed": 30
+          },
+          {
+            "actions": 200,
+            "meaningful": 199,
+            "captures": 84,
+            "cardsUsed": 36
+          }
+        ],
+        "perPlayer": [
+          {
+            "actions": 0,
+            "captures": 0,
+            "cardsUsed": 0,
+            "goals": 0
+          },
+          {
+            "actions": 333,
+            "captures": 88,
+            "cardsUsed": 35,
+            "goals": 2
+          },
+          {
+            "actions": 333,
+            "captures": 94,
+            "cardsUsed": 47,
+            "goals": 0
+          },
+          {
+            "actions": 333,
+            "captures": 125,
+            "cardsUsed": 65,
+            "goals": 0
+          },
+          {
+            "actions": 333,
+            "captures": 98,
+            "cardsUsed": 73,
+            "goals": 1
+          },
+          {
+            "actions": 334,
+            "captures": 97,
+            "cardsUsed": 49,
+            "goals": 0
+          },
+          {
+            "actions": 334,
+            "captures": 123,
+            "cardsUsed": 27,
+            "goals": 3
+          }
+        ]
+      },
+      "finalAirports": [
+        {
+          "id": 0,
+          "cell": 891,
+          "owner": 1,
+          "supplied": true,
+          "cluster": 22,
+          "progress": 3,
+          "active": true,
+          "qualified": true
+        },
+        {
+          "id": 1,
+          "cell": 525,
+          "owner": 0,
+          "supplied": false,
+          "cluster": 0,
+          "progress": 0,
+          "active": false,
+          "qualified": false
+        },
+        {
+          "id": 2,
+          "cell": 147,
+          "owner": 0,
+          "supplied": false,
+          "cluster": 0,
+          "progress": 0,
+          "active": false,
+          "qualified": false
+        },
+        {
+          "id": 3,
+          "cell": 135,
+          "owner": 0,
+          "supplied": false,
+          "cluster": 0,
+          "progress": 0,
+          "active": false,
+          "qualified": false
+        },
+        {
+          "id": 4,
+          "cell": 501,
+          "owner": 0,
+          "supplied": false,
+          "cluster": 0,
+          "progress": 0,
+          "active": false,
+          "qualified": false
+        },
+        {
+          "id": 5,
+          "cell": 879,
+          "owner": 5,
+          "supplied": true,
+          "cluster": 16,
+          "progress": 3,
+          "active": true,
+          "qualified": true
+        }
+      ],
+      "finalDepots": [
+        {
+          "id": 0,
+          "cell": 833,
+          "owner": 2,
+          "supplied": true
+        },
+        {
+          "id": 1,
+          "cell": 693,
+          "owner": 2,
+          "supplied": true
+        },
+        {
+          "id": 2,
+          "cell": 348,
+          "owner": 0,
+          "supplied": false
+        },
+        {
+          "id": 3,
+          "cell": 193,
+          "owner": 0,
+          "supplied": false
+        },
+        {
+          "id": 4,
+          "cell": 333,
+          "owner": 0,
+          "supplied": false
+        },
+        {
+          "id": 5,
+          "cell": 678,
+          "owner": 5,
+          "supplied": true
+        }
+      ]
+    },
+    {
+      "seed": 17,
+      "rotation": 5,
+      "first": 6,
+      "actions": 2000,
+      "meaningful": 2000,
+      "actionRegions": [
+        140,
+        379,
+        1476
+      ],
+      "combatRegions": [
+        47,
+        142,
+        780
+      ],
+      "combatSectors": [
+        101,
+        321,
+        58,
+        195,
+        62,
+        232
+      ],
+      "occupation": [
+        1268,
+        3044,
+        14429
+      ],
+      "occupationSectors": [
+        2742,
+        6166,
+        2089,
+        3026,
+        1351,
+        3367
+      ],
+      "occupationSamples": 67,
+      "playerSectors": [
+        4,
+        4,
+        5,
+        6,
+        6,
+        5
+      ],
+      "quarters": [
+        {
+          "actions": 500,
+          "meaningful": 500,
+          "combat": 200,
+          "goals": 0,
+          "air": 6
+        },
+        {
+          "actions": 500,
+          "meaningful": 500,
+          "combat": 256,
+          "goals": 1,
+          "air": 7
+        },
+        {
+          "actions": 500,
+          "meaningful": 500,
+          "combat": 262,
+          "goals": 1,
+          "air": 14
+        },
+        {
+          "actions": 500,
+          "meaningful": 500,
+          "combat": 251,
+          "goals": 3,
+          "air": 9
+        }
+      ],
+      "maxLead": 39,
+      "activeAirportSamples": 77,
+      "peakActiveAirports": 3,
+      "depotSamples": 313,
+      "airportUsers": [
+        3,
+        6,
+        2,
+        5,
+        1
+      ],
+      "airUsers": [
+        3,
+        6,
+        5,
+        1
+      ],
+      "playerAirportSamples": [
+        20,
+        5,
+        13,
+        0,
+        20,
+        19
+      ],
+      "playerDepotSamples": [
+        38,
+        60,
+        23,
+        68,
+        68,
+        56
+      ],
+      "halfwayLeader": 6,
+      "scores": [
+        125,
+        160,
+        143,
+        150,
+        184,
+        215
+      ],
+      "goals": [
+        0,
+        0,
+        0,
+        4,
+        0,
+        1
+      ],
+      "winners": [
+        6
+      ],
+      "winnerProfiles": [
+        "Envoy"
+      ],
+      "finalLead": 31,
+      "aiMeanMs": 3.0305837004999523,
+      "telemetry": {
+        "actions": 2000,
+        "meaningful": 2000,
+        "captures": 667,
+        "destroyed": 260,
+        "supplyRetreats": 300,
+        "engineered": 60,
+        "cardsUsed": 223,
+        "reshuffles": 3,
+        "goalArrivals": 5,
+        "goalHoldingRounds": 4,
+        "offers": 5,
+        "alliances": 0,
+        "betrayals": 0,
+        "withdrawals": 21,
+        "turretShots": 220,
+        "shieldBlocks": 2,
+        "airportUnlocks": 29,
+        "airportLosses": 28,
+        "airdrops": 27,
+        "bombardments": 9,
+        "depotControls": 189,
+        "suppliesEarned": 148,
+        "suppliesSpent": 117,
+        "fortifications": 691,
+        "neutralWarnings": 27,
+        "neutralStrikes": 27,
+        "neutralRemoved": 35,
+        "neutralBlocks": 17,
+        "byType": {
+          "deploy": 1655,
+          "engineer": 60,
+          "shield": 44,
+          "bridge": 49,
+          "exchange": 42,
+          "turret": 39,
+          "airdrop": 27,
+          "destroy": 33,
+          "bombard": 9,
+          "reroute": 16,
+          "offer": 5,
+          "withdraw": 21
+        },
+        "byMinute": [
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 68,
+            "cardsUsed": 13
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 67,
+            "cardsUsed": 24
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 55,
+            "cardsUsed": 22
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 74,
+            "cardsUsed": 23
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 58,
+            "cardsUsed": 38
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 66,
+            "cardsUsed": 16
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 61,
+            "cardsUsed": 24
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 61,
+            "cardsUsed": 26
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 80,
+            "cardsUsed": 28
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 77,
+            "cardsUsed": 9
+          }
+        ],
+        "perPlayer": [
+          {
+            "actions": 0,
+            "captures": 0,
+            "cardsUsed": 0,
+            "goals": 0
+          },
+          {
+            "actions": 334,
+            "captures": 76,
+            "cardsUsed": 46,
+            "goals": 0
+          },
+          {
+            "actions": 333,
+            "captures": 158,
+            "cardsUsed": 13,
+            "goals": 0
+          },
+          {
+            "actions": 333,
+            "captures": 124,
+            "cardsUsed": 17,
+            "goals": 0
+          },
+          {
+            "actions": 333,
+            "captures": 101,
+            "cardsUsed": 39,
+            "goals": 4
+          },
+          {
+            "actions": 333,
+            "captures": 127,
+            "cardsUsed": 56,
+            "goals": 0
+          },
+          {
+            "actions": 334,
+            "captures": 81,
+            "cardsUsed": 52,
+            "goals": 1
+          }
+        ]
+      },
+      "finalAirports": [
+        {
+          "id": 0,
+          "cell": 891,
+          "owner": 0,
+          "supplied": false,
+          "cluster": 0,
+          "progress": 0,
+          "active": false,
+          "qualified": false
+        },
+        {
+          "id": 1,
+          "cell": 525,
+          "owner": 3,
+          "supplied": true,
+          "cluster": 32,
+          "progress": 3,
+          "active": true,
+          "qualified": true
+        },
+        {
+          "id": 2,
+          "cell": 147,
+          "owner": 0,
+          "supplied": false,
+          "cluster": 0,
+          "progress": 0,
+          "active": false,
+          "qualified": false
+        },
+        {
+          "id": 3,
+          "cell": 135,
+          "owner": 0,
+          "supplied": false,
+          "cluster": 0,
+          "progress": 0,
+          "active": false,
+          "qualified": false
+        },
+        {
+          "id": 4,
+          "cell": 501,
+          "owner": 0,
+          "supplied": false,
+          "cluster": 0,
+          "progress": 0,
+          "active": false,
+          "qualified": false
+        },
+        {
+          "id": 5,
+          "cell": 879,
+          "owner": 0,
+          "supplied": false,
+          "cluster": 0,
+          "progress": 0,
+          "active": false,
+          "qualified": false
+        }
+      ],
+      "finalDepots": [
+        {
+          "id": 0,
+          "cell": 833,
+          "owner": 6,
+          "supplied": true
+        },
+        {
+          "id": 1,
+          "cell": 693,
+          "owner": 2,
+          "supplied": true
+        },
+        {
+          "id": 2,
+          "cell": 348,
+          "owner": 2,
+          "supplied": true
+        },
+        {
+          "id": 3,
+          "cell": 193,
+          "owner": 4,
+          "supplied": true
+        },
+        {
+          "id": 4,
+          "cell": 333,
+          "owner": 5,
+          "supplied": true
+        },
+        {
+          "id": 5,
+          "cell": 678,
+          "owner": 1,
+          "supplied": true
+        }
+      ]
+    },
+    {
+      "seed": 31,
+      "rotation": 0,
+      "first": 1,
+      "actions": 2000,
+      "meaningful": 2000,
+      "actionRegions": [
+        132,
+        266,
+        1584
+      ],
+      "combatRegions": [
+        33,
+        83,
+        866
+      ],
+      "combatSectors": [
+        234,
+        38,
+        179,
+        217,
+        193,
+        121
+      ],
+      "occupation": [
+        1329,
+        2585,
+        17448
+      ],
+      "occupationSectors": [
+        4632,
+        1475,
+        4853,
+        2985,
+        4832,
+        2585
+      ],
+      "occupationSamples": 67,
+      "playerSectors": [
+        6,
+        5,
+        5,
+        6,
+        4,
+        3
+      ],
+      "quarters": [
+        {
+          "actions": 500,
+          "meaningful": 500,
+          "combat": 239,
+          "goals": 0,
+          "air": 4
+        },
+        {
+          "actions": 500,
+          "meaningful": 500,
+          "combat": 256,
+          "goals": 0,
+          "air": 12
+        },
+        {
+          "actions": 500,
+          "meaningful": 500,
+          "combat": 236,
+          "goals": 6,
+          "air": 18
+        },
+        {
+          "actions": 500,
+          "meaningful": 500,
+          "combat": 251,
+          "goals": 1,
+          "air": 20
+        }
+      ],
+      "maxLead": 29,
+      "activeAirportSamples": 118,
+      "peakActiveAirports": 3,
+      "depotSamples": 319,
+      "airportUsers": [
+        1,
+        4,
+        5,
+        6,
+        2,
+        3
+      ],
+      "airUsers": [
+        1,
+        5,
+        4,
+        2,
+        6,
+        3
+      ],
+      "playerAirportSamples": [
+        15,
+        17,
+        22,
+        21,
+        4,
+        39
+      ],
+      "playerDepotSamples": [
+        43,
+        56,
+        81,
+        40,
+        36,
+        63
+      ],
+      "halfwayLeader": 3,
+      "scores": [
+        182,
+        190,
+        157,
+        147,
+        161,
+        188
+      ],
+      "goals": [
+        2,
+        5,
+        0,
+        0,
+        0,
+        0
+      ],
+      "winners": [
+        2
+      ],
+      "winnerProfiles": [
+        "Architect"
+      ],
+      "finalLead": 2,
+      "aiMeanMs": 1.3285044369999304,
+      "telemetry": {
+        "actions": 2000,
+        "meaningful": 2000,
+        "captures": 748,
+        "destroyed": 199,
+        "supplyRetreats": 283,
+        "engineered": 77,
+        "cardsUsed": 151,
+        "reshuffles": 2,
+        "goalArrivals": 7,
+        "goalHoldingRounds": 12,
+        "offers": 14,
+        "alliances": 4,
+        "betrayals": 0,
+        "withdrawals": 44,
+        "turretShots": 149,
+        "shieldBlocks": 3,
+        "airportUnlocks": 26,
+        "airportLosses": 24,
+        "airdrops": 22,
+        "bombardments": 32,
+        "depotControls": 177,
+        "suppliesEarned": 230,
+        "suppliesSpent": 194,
+        "fortifications": 764,
+        "neutralWarnings": 27,
+        "neutralStrikes": 27,
+        "neutralRemoved": 37,
+        "neutralBlocks": 10,
+        "byType": {
+          "deploy": 1656,
+          "shield": 28,
+          "engineer": 77,
+          "bridge": 33,
+          "destroy": 21,
+          "turret": 30,
+          "exchange": 35,
+          "bombard": 32,
+          "airdrop": 22,
+          "offer": 14,
+          "withdraw": 44,
+          "accept": 4,
+          "reroute": 4
+        },
+        "byMinute": [
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 62,
+            "cardsUsed": 10
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 94,
+            "cardsUsed": 15
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 78,
+            "cardsUsed": 16
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 94,
+            "cardsUsed": 2
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 73,
+            "cardsUsed": 10
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 77,
+            "cardsUsed": 8
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 79,
+            "cardsUsed": 7
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 62,
+            "cardsUsed": 32
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 74,
+            "cardsUsed": 25
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 55,
+            "cardsUsed": 26
+          }
+        ],
+        "perPlayer": [
+          {
+            "actions": 0,
+            "captures": 0,
+            "cardsUsed": 0,
+            "goals": 0
+          },
+          {
+            "actions": 334,
+            "captures": 118,
+            "cardsUsed": 33,
+            "goals": 2
+          },
+          {
+            "actions": 334,
+            "captures": 93,
+            "cardsUsed": 38,
+            "goals": 5
+          },
+          {
+            "actions": 333,
+            "captures": 120,
+            "cardsUsed": 16,
+            "goals": 0
+          },
+          {
+            "actions": 333,
+            "captures": 137,
+            "cardsUsed": 25,
+            "goals": 0
+          },
+          {
+            "actions": 333,
+            "captures": 142,
+            "cardsUsed": 8,
+            "goals": 0
+          },
+          {
+            "actions": 333,
+            "captures": 138,
+            "cardsUsed": 31,
+            "goals": 0
+          }
+        ]
+      },
+      "finalAirports": [
+        {
+          "id": 0,
+          "cell": 891,
+          "owner": 0,
+          "supplied": false,
+          "cluster": 0,
+          "progress": 0,
+          "active": false,
+          "qualified": false
+        },
+        {
+          "id": 1,
+          "cell": 525,
+          "owner": 0,
+          "supplied": false,
+          "cluster": 0,
+          "progress": 0,
+          "active": false,
+          "qualified": false
+        },
+        {
+          "id": 2,
+          "cell": 147,
+          "owner": 0,
+          "supplied": false,
+          "cluster": 0,
+          "progress": 0,
+          "active": false,
+          "qualified": false
+        },
+        {
+          "id": 3,
+          "cell": 135,
+          "owner": 4,
+          "supplied": true,
+          "cluster": 14,
+          "progress": 3,
+          "active": true,
+          "qualified": true
+        },
+        {
+          "id": 4,
+          "cell": 501,
+          "owner": 6,
+          "supplied": true,
+          "cluster": 53,
+          "progress": 3,
+          "active": true,
+          "qualified": true
+        },
+        {
+          "id": 5,
+          "cell": 879,
+          "owner": 0,
+          "supplied": false,
+          "cluster": 0,
+          "progress": 0,
+          "active": false,
+          "qualified": false
+        }
+      ],
+      "finalDepots": [
+        {
+          "id": 0,
+          "cell": 833,
+          "owner": 4,
+          "supplied": true
+        },
+        {
+          "id": 1,
+          "cell": 693,
+          "owner": 2,
+          "supplied": true
+        },
+        {
+          "id": 2,
+          "cell": 348,
+          "owner": 0,
+          "supplied": false
+        },
+        {
+          "id": 3,
+          "cell": 193,
+          "owner": 3,
+          "supplied": false
+        },
+        {
+          "id": 4,
+          "cell": 333,
+          "owner": 5,
+          "supplied": true
+        },
+        {
+          "id": 5,
+          "cell": 678,
+          "owner": 6,
+          "supplied": true
+        }
+      ]
+    },
+    {
+      "seed": 31,
+      "rotation": 1,
+      "first": 2,
+      "actions": 2000,
+      "meaningful": 2000,
+      "actionRegions": [
+        61,
+        306,
+        1618
+      ],
+      "combatRegions": [
+        14,
+        116,
+        870
+      ],
+      "combatSectors": [
+        47,
+        271,
+        116,
+        253,
+        22,
+        291
+      ],
+      "occupation": [
+        540,
+        2459,
+        14424
+      ],
+      "occupationSectors": [
+        1930,
+        3775,
+        2251,
+        2945,
+        1341,
+        5181
+      ],
+      "occupationSamples": 67,
+      "playerSectors": [
+        4,
+        4,
+        5,
+        5,
+        4,
+        5
+      ],
+      "quarters": [
+        {
+          "actions": 500,
+          "meaningful": 500,
+          "combat": 235,
+          "goals": 0,
+          "air": 5
+        },
+        {
+          "actions": 500,
+          "meaningful": 500,
+          "combat": 228,
+          "goals": 0,
+          "air": 6
+        },
+        {
+          "actions": 500,
+          "meaningful": 500,
+          "combat": 282,
+          "goals": 0,
+          "air": 13
+        },
+        {
+          "actions": 500,
+          "meaningful": 500,
+          "combat": 255,
+          "goals": 0,
+          "air": 16
+        }
+      ],
+      "maxLead": 75,
+      "activeAirportSamples": 86,
+      "peakActiveAirports": 3,
+      "depotSamples": 240,
+      "airportUsers": [
+        6,
+        4,
+        5,
+        3,
+        2,
+        1
+      ],
+      "airUsers": [
+        5,
+        6,
+        4,
+        2,
+        1
+      ],
+      "playerAirportSamples": [
+        29,
+        37,
+        1,
+        2,
+        1,
+        16
+      ],
+      "playerDepotSamples": [
+        34,
+        7,
+        39,
+        20,
+        93,
+        47
+      ],
+      "halfwayLeader": 1,
+      "scores": [
+        169,
+        156,
+        139,
+        103,
+        237,
+        160
+      ],
+      "goals": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "winners": [
+        5
+      ],
+      "winnerProfiles": [
+        "Pathfinder"
+      ],
+      "finalLead": 68,
+      "aiMeanMs": 1.6336189565000896,
+      "telemetry": {
+        "actions": 2000,
+        "meaningful": 2000,
+        "captures": 682,
+        "destroyed": 282,
+        "supplyRetreats": 335,
+        "engineered": 62,
+        "cardsUsed": 220,
+        "reshuffles": 3,
+        "goalArrivals": 0,
+        "goalHoldingRounds": 0,
+        "offers": 11,
+        "alliances": 4,
+        "betrayals": 0,
+        "withdrawals": 22,
+        "turretShots": 240,
+        "shieldBlocks": 0,
+        "airportUnlocks": 24,
+        "airportLosses": 22,
+        "airdrops": 37,
+        "bombardments": 3,
+        "depotControls": 193,
+        "suppliesEarned": 159,
+        "suppliesSpent": 123,
+        "fortifications": 680,
+        "neutralWarnings": 27,
+        "neutralStrikes": 27,
+        "neutralRemoved": 31,
+        "neutralBlocks": 16,
+        "byType": {
+          "deploy": 1641,
+          "engineer": 62,
+          "shield": 47,
+          "bridge": 45,
+          "destroy": 39,
+          "turret": 35,
+          "exchange": 36,
+          "offer": 11,
+          "reroute": 18,
+          "airdrop": 37,
+          "bombard": 3,
+          "accept": 4,
+          "withdraw": 22
+        },
+        "byMinute": [
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 59,
+            "cardsUsed": 7
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 86,
+            "cardsUsed": 35
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 68,
+            "cardsUsed": 45
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 75,
+            "cardsUsed": 31
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 64,
+            "cardsUsed": 12
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 41,
+            "cardsUsed": 19
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 68,
+            "cardsUsed": 9
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 76,
+            "cardsUsed": 7
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 67,
+            "cardsUsed": 27
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 78,
+            "cardsUsed": 28
+          }
+        ],
+        "perPlayer": [
+          {
+            "actions": 0,
+            "captures": 0,
+            "cardsUsed": 0,
+            "goals": 0
+          },
+          {
+            "actions": 333,
+            "captures": 122,
+            "cardsUsed": 39,
+            "goals": 0
+          },
+          {
+            "actions": 334,
+            "captures": 79,
+            "cardsUsed": 69,
+            "goals": 0
+          },
+          {
+            "actions": 334,
+            "captures": 138,
+            "cardsUsed": 2,
+            "goals": 0
+          },
+          {
+            "actions": 333,
+            "captures": 93,
+            "cardsUsed": 20,
+            "goals": 0
+          },
+          {
+            "actions": 333,
+            "captures": 108,
+            "cardsUsed": 64,
+            "goals": 0
+          },
+          {
+            "actions": 333,
+            "captures": 142,
+            "cardsUsed": 26,
+            "goals": 0
+          }
+        ]
+      },
+      "finalAirports": [
+        {
+          "id": 0,
+          "cell": 891,
+          "owner": 0,
+          "supplied": false,
+          "cluster": 0,
+          "progress": 0,
+          "active": false,
+          "qualified": false
+        },
+        {
+          "id": 1,
+          "cell": 525,
+          "owner": 2,
+          "supplied": true,
+          "cluster": 32,
+          "progress": 3,
+          "active": true,
+          "qualified": true
+        },
+        {
+          "id": 2,
+          "cell": 147,
+          "owner": 0,
+          "supplied": false,
+          "cluster": 0,
+          "progress": 0,
+          "active": false,
+          "qualified": false
+        },
+        {
+          "id": 3,
+          "cell": 135,
+          "owner": 4,
+          "supplied": true,
+          "cluster": 11,
+          "progress": 0,
+          "active": false,
+          "qualified": false
+        },
+        {
+          "id": 4,
+          "cell": 501,
+          "owner": 0,
+          "supplied": false,
+          "cluster": 0,
+          "progress": 0,
+          "active": false,
+          "qualified": false
+        },
+        {
+          "id": 5,
+          "cell": 879,
+          "owner": 1,
+          "supplied": true,
+          "cluster": 42,
+          "progress": 3,
+          "active": true,
+          "qualified": true
+        }
+      ],
+      "finalDepots": [
+        {
+          "id": 0,
+          "cell": 833,
+          "owner": 1,
+          "supplied": true
+        },
+        {
+          "id": 1,
+          "cell": 693,
+          "owner": 0,
+          "supplied": false
+        },
+        {
+          "id": 2,
+          "cell": 348,
+          "owner": 0,
+          "supplied": false
+        },
+        {
+          "id": 3,
+          "cell": 193,
+          "owner": 0,
+          "supplied": false
+        },
+        {
+          "id": 4,
+          "cell": 333,
+          "owner": 5,
+          "supplied": true
+        },
+        {
+          "id": 5,
+          "cell": 678,
+          "owner": 0,
+          "supplied": false
+        }
+      ]
+    },
+    {
+      "seed": 31,
+      "rotation": 2,
+      "first": 3,
+      "actions": 2000,
+      "meaningful": 2000,
+      "actionRegions": [
+        82,
+        214,
+        1686
+      ],
+      "combatRegions": [
+        10,
+        28,
+        915
+      ],
+      "combatSectors": [
+        153,
+        137,
+        239,
+        110,
+        234,
+        80
+      ],
+      "occupation": [
+        644,
+        1648,
+        15652
+      ],
+      "occupationSectors": [
+        3299,
+        1941,
+        4488,
+        2013,
+        4414,
+        1789
+      ],
+      "occupationSamples": 67,
+      "playerSectors": [
+        4,
+        6,
+        4,
+        6,
+        4,
+        5
+      ],
+      "quarters": [
+        {
+          "actions": 500,
+          "meaningful": 500,
+          "combat": 231,
+          "goals": 0,
+          "air": 6
+        },
+        {
+          "actions": 500,
+          "meaningful": 500,
+          "combat": 261,
+          "goals": 1,
+          "air": 6
+        },
+        {
+          "actions": 500,
+          "meaningful": 500,
+          "combat": 221,
+          "goals": 1,
+          "air": 10
+        },
+        {
+          "actions": 500,
+          "meaningful": 500,
+          "combat": 240,
+          "goals": 0,
+          "air": 6
+        }
+      ],
+      "maxLead": 25,
+      "activeAirportSamples": 78,
+      "peakActiveAirports": 3,
+      "depotSamples": 270,
+      "airportUsers": [
+        5,
+        1,
+        3,
+        2,
+        4,
+        6
+      ],
+      "airUsers": [
+        5,
+        1,
+        3,
+        4,
+        6
+      ],
+      "playerAirportSamples": [
+        18,
+        5,
+        26,
+        7,
+        13,
+        9
+      ],
+      "playerDepotSamples": [
+        36,
+        78,
+        26,
+        50,
+        54,
+        26
+      ],
+      "halfwayLeader": 2,
+      "scores": [
+        154,
+        181,
+        138,
+        149,
+        167,
+        145
+      ],
+      "goals": [
+        0,
+        2,
+        0,
+        0,
+        0,
+        0
+      ],
+      "winners": [
+        2
+      ],
+      "winnerProfiles": [
+        "Raider"
+      ],
+      "finalLead": 14,
+      "aiMeanMs": 2.6513317685001385,
+      "telemetry": {
+        "actions": 2000,
+        "meaningful": 2000,
+        "captures": 762,
+        "destroyed": 148,
+        "supplyRetreats": 351,
+        "engineered": 77,
+        "cardsUsed": 193,
+        "reshuffles": 2,
+        "goalArrivals": 2,
+        "goalHoldingRounds": 3,
+        "offers": 14,
+        "alliances": 4,
+        "betrayals": 0,
+        "withdrawals": 3,
+        "turretShots": 112,
+        "shieldBlocks": 0,
+        "airportUnlocks": 28,
+        "airportLosses": 27,
+        "airdrops": 21,
+        "bombardments": 7,
+        "depotControls": 283,
+        "suppliesEarned": 127,
+        "suppliesSpent": 91,
+        "fortifications": 718,
+        "neutralWarnings": 27,
+        "neutralStrikes": 27,
+        "neutralRemoved": 38,
+        "neutralBlocks": 6,
+        "byType": {
+          "deploy": 1681,
+          "engineer": 77,
+          "shield": 43,
+          "bridge": 39,
+          "turret": 28,
+          "destroy": 29,
+          "airdrop": 21,
+          "exchange": 43,
+          "reroute": 11,
+          "offer": 14,
+          "accept": 4,
+          "bombard": 7,
+          "withdraw": 3
+        },
+        "byMinute": [
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 43,
+            "cardsUsed": 14
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 82,
+            "cardsUsed": 18
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 79,
+            "cardsUsed": 27
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 84,
+            "cardsUsed": 27
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 90,
+            "cardsUsed": 16
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 69,
+            "cardsUsed": 24
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 60,
+            "cardsUsed": 22
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 78,
+            "cardsUsed": 12
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 90,
+            "cardsUsed": 10
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 87,
+            "cardsUsed": 23
+          }
+        ],
+        "perPlayer": [
+          {
+            "actions": 0,
+            "captures": 0,
+            "cardsUsed": 0,
+            "goals": 0
+          },
+          {
+            "actions": 333,
+            "captures": 126,
+            "cardsUsed": 26,
+            "goals": 0
+          },
+          {
+            "actions": 333,
+            "captures": 154,
+            "cardsUsed": 22,
+            "goals": 2
+          },
+          {
+            "actions": 334,
+            "captures": 106,
+            "cardsUsed": 45,
+            "goals": 0
+          },
+          {
+            "actions": 334,
+            "captures": 121,
+            "cardsUsed": 53,
+            "goals": 0
+          },
+          {
+            "actions": 333,
+            "captures": 135,
+            "cardsUsed": 12,
+            "goals": 0
+          },
+          {
+            "actions": 333,
+            "captures": 120,
+            "cardsUsed": 35,
+            "goals": 0
+          }
+        ]
+      },
+      "finalAirports": [
+        {
+          "id": 0,
+          "cell": 891,
+          "owner": 1,
+          "supplied": true,
+          "cluster": 25,
+          "progress": 3,
+          "active": true,
+          "qualified": true
+        },
+        {
+          "id": 1,
+          "cell": 525,
+          "owner": 0,
+          "supplied": false,
+          "cluster": 0,
+          "progress": 0,
+          "active": false,
+          "qualified": false
+        },
+        {
+          "id": 2,
+          "cell": 147,
+          "owner": 0,
+          "supplied": false,
+          "cluster": 0,
+          "progress": 0,
+          "active": false,
+          "qualified": false
+        },
+        {
+          "id": 3,
+          "cell": 135,
+          "owner": 0,
+          "supplied": false,
+          "cluster": 0,
+          "progress": 0,
+          "active": false,
+          "qualified": false
+        },
+        {
+          "id": 4,
+          "cell": 501,
+          "owner": 6,
+          "supplied": true,
+          "cluster": 36,
+          "progress": 1,
+          "active": false,
+          "qualified": true
+        },
+        {
+          "id": 5,
+          "cell": 879,
+          "owner": 0,
+          "supplied": false,
+          "cluster": 0,
+          "progress": 0,
+          "active": false,
+          "qualified": false
+        }
+      ],
+      "finalDepots": [
+        {
+          "id": 0,
+          "cell": 833,
+          "owner": 1,
+          "supplied": true
+        },
+        {
+          "id": 1,
+          "cell": 693,
+          "owner": 2,
+          "supplied": true
+        },
+        {
+          "id": 2,
+          "cell": 348,
+          "owner": 4,
+          "supplied": true
+        },
+        {
+          "id": 3,
+          "cell": 193,
+          "owner": 4,
+          "supplied": true
+        },
+        {
+          "id": 4,
+          "cell": 333,
+          "owner": 3,
+          "supplied": true
+        },
+        {
+          "id": 5,
+          "cell": 678,
+          "owner": 0,
+          "supplied": false
+        }
+      ]
+    },
+    {
+      "seed": 31,
+      "rotation": 3,
+      "first": 4,
+      "actions": 2000,
+      "meaningful": 2000,
+      "actionRegions": [
+        100,
+        331,
+        1558
+      ],
+      "combatRegions": [
+        11,
+        108,
+        888
+      ],
+      "combatSectors": [
+        52,
+        293,
+        139,
+        268,
+        16,
+        239
+      ],
+      "occupation": [
+        624,
+        2899,
+        15718
+      ],
+      "occupationSectors": [
+        2176,
+        4847,
+        1916,
+        5278,
+        800,
+        4224
+      ],
+      "occupationSamples": 67,
+      "playerSectors": [
+        4,
+        4,
+        4,
+        6,
+        4,
+        5
+      ],
+      "quarters": [
+        {
+          "actions": 500,
+          "meaningful": 500,
+          "combat": 233,
+          "goals": 0,
+          "air": 1
+        },
+        {
+          "actions": 500,
+          "meaningful": 500,
+          "combat": 274,
+          "goals": 0,
+          "air": 3
+        },
+        {
+          "actions": 500,
+          "meaningful": 500,
+          "combat": 234,
+          "goals": 2,
+          "air": 18
+        },
+        {
+          "actions": 500,
+          "meaningful": 500,
+          "combat": 266,
+          "goals": 2,
+          "air": 13
+        }
+      ],
+      "maxLead": 34,
+      "activeAirportSamples": 88,
+      "peakActiveAirports": 4,
+      "depotSamples": 313,
+      "airportUsers": [
+        6,
+        1,
+        3,
+        2,
+        4,
+        5
+      ],
+      "airUsers": [
+        6,
+        2,
+        4,
+        5,
+        1,
+        3
+      ],
+      "playerAirportSamples": [
+        22,
+        28,
+        5,
+        3,
+        29,
+        1
+      ],
+      "playerDepotSamples": [
+        53,
+        26,
+        55,
+        48,
+        70,
+        61
+      ],
+      "halfwayLeader": 3,
+      "scores": [
+        156,
+        160,
+        188,
+        147,
+        184,
+        189
+      ],
+      "goals": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        4
+      ],
+      "winners": [
+        6
+      ],
+      "winnerProfiles": [
+        "Sentinel"
+      ],
+      "finalLead": 1,
+      "aiMeanMs": 2.851541081000178,
+      "telemetry": {
+        "actions": 2000,
+        "meaningful": 2000,
+        "captures": 739,
+        "destroyed": 227,
+        "supplyRetreats": 307,
+        "engineered": 69,
+        "cardsUsed": 199,
+        "reshuffles": 2,
+        "goalArrivals": 4,
+        "goalHoldingRounds": 16,
+        "offers": 8,
+        "alliances": 2,
+        "betrayals": 1,
+        "withdrawals": 25,
+        "turretShots": 191,
+        "shieldBlocks": 1,
+        "airportUnlocks": 26,
+        "airportLosses": 22,
+        "airdrops": 25,
+        "bombardments": 10,
+        "depotControls": 161,
+        "suppliesEarned": 149,
+        "suppliesSpent": 115,
+        "fortifications": 625,
+        "neutralWarnings": 27,
+        "neutralStrikes": 27,
+        "neutralRemoved": 33,
+        "neutralBlocks": 16,
+        "byType": {
+          "deploy": 1661,
+          "engineer": 69,
+          "shield": 38,
+          "bridge": 41,
+          "turret": 32,
+          "exchange": 41,
+          "reroute": 20,
+          "offer": 8,
+          "destroy": 27,
+          "bombard": 10,
+          "accept": 2,
+          "airdrop": 25,
+          "withdraw": 25,
+          "betray": 1
+        },
+        "byMinute": [
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 63,
+            "cardsUsed": 11
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 94,
+            "cardsUsed": 9
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 92,
+            "cardsUsed": 13
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 97,
+            "cardsUsed": 17
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 64,
+            "cardsUsed": 27
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 67,
+            "cardsUsed": 23
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 58,
+            "cardsUsed": 18
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 67,
+            "cardsUsed": 19
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 65,
+            "cardsUsed": 26
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 72,
+            "cardsUsed": 36
+          }
+        ],
+        "perPlayer": [
+          {
+            "actions": 0,
+            "captures": 0,
+            "cardsUsed": 0,
+            "goals": 0
+          },
+          {
+            "actions": 333,
+            "captures": 150,
+            "cardsUsed": 37,
+            "goals": 0
+          },
+          {
+            "actions": 333,
+            "captures": 97,
+            "cardsUsed": 62,
+            "goals": 0
+          },
+          {
+            "actions": 333,
+            "captures": 140,
+            "cardsUsed": 38,
+            "goals": 0
+          },
+          {
+            "actions": 334,
+            "captures": 129,
+            "cardsUsed": 22,
+            "goals": 0
+          },
+          {
+            "actions": 334,
+            "captures": 118,
+            "cardsUsed": 10,
+            "goals": 0
+          },
+          {
+            "actions": 333,
+            "captures": 105,
+            "cardsUsed": 30,
+            "goals": 4
+          }
+        ]
+      },
+      "finalAirports": [
+        {
+          "id": 0,
+          "cell": 891,
+          "owner": 3,
+          "supplied": true,
+          "cluster": 15,
+          "progress": 3,
+          "active": true,
+          "qualified": true
+        },
+        {
+          "id": 1,
+          "cell": 525,
+          "owner": 2,
+          "supplied": true,
+          "cluster": 42,
+          "progress": 3,
+          "active": true,
+          "qualified": true
+        },
+        {
+          "id": 2,
+          "cell": 147,
+          "owner": 0,
+          "supplied": false,
+          "cluster": 0,
+          "progress": 0,
+          "active": false,
+          "qualified": false
+        },
+        {
+          "id": 3,
+          "cell": 135,
+          "owner": 5,
+          "supplied": true,
+          "cluster": 48,
+          "progress": 3,
+          "active": true,
+          "qualified": true
+        },
+        {
+          "id": 4,
+          "cell": 501,
+          "owner": 0,
+          "supplied": false,
+          "cluster": 0,
+          "progress": 0,
+          "active": false,
+          "qualified": false
+        },
+        {
+          "id": 5,
+          "cell": 879,
+          "owner": 1,
+          "supplied": true,
+          "cluster": 47,
+          "progress": 3,
+          "active": true,
+          "qualified": true
+        }
+      ],
+      "finalDepots": [
+        {
+          "id": 0,
+          "cell": 833,
+          "owner": 1,
+          "supplied": true
+        },
+        {
+          "id": 1,
+          "cell": 693,
+          "owner": 2,
+          "supplied": true
+        },
+        {
+          "id": 2,
+          "cell": 348,
+          "owner": 3,
+          "supplied": true
+        },
+        {
+          "id": 3,
+          "cell": 193,
+          "owner": 4,
+          "supplied": true
+        },
+        {
+          "id": 4,
+          "cell": 333,
+          "owner": 5,
+          "supplied": true
+        },
+        {
+          "id": 5,
+          "cell": 678,
+          "owner": 0,
+          "supplied": false
+        }
+      ]
+    },
+    {
+      "seed": 31,
+      "rotation": 4,
+      "first": 5,
+      "actions": 2000,
+      "meaningful": 2000,
+      "actionRegions": [
+        94,
+        366,
+        1528
+      ],
+      "combatRegions": [
+        19,
+        129,
+        880
+      ],
+      "combatSectors": [
+        250,
+        104,
+        272,
+        169,
+        178,
+        55
+      ],
+      "occupation": [
+        586,
+        3579,
+        13446
+      ],
+      "occupationSectors": [
+        4280,
+        2247,
+        2945,
+        1922,
+        4592,
+        1625
+      ],
+      "occupationSamples": 67,
+      "playerSectors": [
+        4,
+        5,
+        5,
+        5,
+        4,
+        4
+      ],
+      "quarters": [
+        {
+          "actions": 500,
+          "meaningful": 500,
+          "combat": 231,
+          "goals": 0,
+          "air": 5
+        },
+        {
+          "actions": 500,
+          "meaningful": 500,
+          "combat": 271,
+          "goals": 0,
+          "air": 7
+        },
+        {
+          "actions": 500,
+          "meaningful": 500,
+          "combat": 238,
+          "goals": 3,
+          "air": 9
+        },
+        {
+          "actions": 500,
+          "meaningful": 500,
+          "combat": 288,
+          "goals": 0,
+          "air": 13
+        }
+      ],
+      "maxLead": 94,
+      "activeAirportSamples": 114,
+      "peakActiveAirports": 3,
+      "depotSamples": 305,
+      "airportUsers": [
+        4,
+        6,
+        2
+      ],
+      "airUsers": [
+        4,
+        6,
+        2
+      ],
+      "playerAirportSamples": [
+        0,
+        12,
+        0,
+        54,
+        0,
+        48
+      ],
+      "playerDepotSamples": [
+        48,
+        10,
+        25,
+        91,
+        46,
+        85
+      ],
+      "halfwayLeader": 4,
+      "scores": [
+        166,
+        173,
+        111,
+        266,
+        149,
+        172
+      ],
+      "goals": [
+        1,
+        1,
+        0,
+        0,
+        1,
+        0
+      ],
+      "winners": [
+        4
+      ],
+      "winnerProfiles": [
+        "Architect"
+      ],
+      "finalLead": 93,
+      "aiMeanMs": 1.8439769175001275,
+      "telemetry": {
+        "actions": 2000,
+        "meaningful": 2000,
+        "captures": 690,
+        "destroyed": 291,
+        "supplyRetreats": 280,
+        "engineered": 64,
+        "cardsUsed": 243,
+        "reshuffles": 3,
+        "goalArrivals": 3,
+        "goalHoldingRounds": 10,
+        "offers": 7,
+        "alliances": 5,
+        "betrayals": 0,
+        "withdrawals": 23,
+        "turretShots": 252,
+        "shieldBlocks": 3,
+        "airportUnlocks": 14,
+        "airportLosses": 12,
+        "airdrops": 26,
+        "bombardments": 8,
+        "depotControls": 189,
+        "suppliesEarned": 144,
+        "suppliesSpent": 110,
+        "fortifications": 670,
+        "neutralWarnings": 27,
+        "neutralStrikes": 27,
+        "neutralRemoved": 34,
+        "neutralBlocks": 18,
+        "byType": {
+          "deploy": 1624,
+          "shield": 46,
+          "engineer": 64,
+          "bridge": 48,
+          "turret": 44,
+          "exchange": 47,
+          "reroute": 24,
+          "destroy": 34,
+          "bombard": 8,
+          "airdrop": 26,
+          "offer": 7,
+          "accept": 5,
+          "withdraw": 23
+        },
+        "byMinute": [
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 71,
+            "cardsUsed": 11
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 73,
+            "cardsUsed": 14
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 70,
+            "cardsUsed": 23
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 54,
+            "cardsUsed": 40
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 64,
+            "cardsUsed": 23
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 63,
+            "cardsUsed": 27
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 55,
+            "cardsUsed": 35
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 78,
+            "cardsUsed": 27
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 75,
+            "cardsUsed": 22
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 87,
+            "cardsUsed": 21
+          }
+        ],
+        "perPlayer": [
+          {
+            "actions": 0,
+            "captures": 0,
+            "cardsUsed": 0,
+            "goals": 0
+          },
+          {
+            "actions": 333,
+            "captures": 116,
+            "cardsUsed": 53,
+            "goals": 1
+          },
+          {
+            "actions": 333,
+            "captures": 117,
+            "cardsUsed": 49,
+            "goals": 1
+          },
+          {
+            "actions": 333,
+            "captures": 110,
+            "cardsUsed": 19,
+            "goals": 0
+          },
+          {
+            "actions": 333,
+            "captures": 106,
+            "cardsUsed": 58,
+            "goals": 0
+          },
+          {
+            "actions": 334,
+            "captures": 111,
+            "cardsUsed": 27,
+            "goals": 1
+          },
+          {
+            "actions": 334,
+            "captures": 130,
+            "cardsUsed": 37,
+            "goals": 0
+          }
+        ]
+      },
+      "finalAirports": [
+        {
+          "id": 0,
+          "cell": 891,
+          "owner": 2,
+          "supplied": true,
+          "cluster": 34,
+          "progress": 3,
+          "active": true,
+          "qualified": true
+        },
+        {
+          "id": 1,
+          "cell": 525,
+          "owner": 0,
+          "supplied": false,
+          "cluster": 0,
+          "progress": 0,
+          "active": false,
+          "qualified": false
+        },
+        {
+          "id": 2,
+          "cell": 147,
+          "owner": 0,
+          "supplied": false,
+          "cluster": 0,
+          "progress": 0,
+          "active": false,
+          "qualified": false
+        },
+        {
+          "id": 3,
+          "cell": 135,
+          "owner": 0,
+          "supplied": false,
+          "cluster": 0,
+          "progress": 0,
+          "active": false,
+          "qualified": false
+        },
+        {
+          "id": 4,
+          "cell": 501,
+          "owner": 6,
+          "supplied": true,
+          "cluster": 44,
+          "progress": 3,
+          "active": true,
+          "qualified": true
+        },
+        {
+          "id": 5,
+          "cell": 879,
+          "owner": 0,
+          "supplied": false,
+          "cluster": 0,
+          "progress": 0,
+          "active": false,
+          "qualified": false
+        }
+      ],
+      "finalDepots": [
+        {
+          "id": 0,
+          "cell": 833,
+          "owner": 0,
+          "supplied": false
+        },
+        {
+          "id": 1,
+          "cell": 693,
+          "owner": 4,
+          "supplied": true
+        },
+        {
+          "id": 2,
+          "cell": 348,
+          "owner": 0,
+          "supplied": false
+        },
+        {
+          "id": 3,
+          "cell": 193,
+          "owner": 4,
+          "supplied": true
+        },
+        {
+          "id": 4,
+          "cell": 333,
+          "owner": 6,
+          "supplied": true
+        },
+        {
+          "id": 5,
+          "cell": 678,
+          "owner": 6,
+          "supplied": true
+        }
+      ]
+    },
+    {
+      "seed": 31,
+      "rotation": 5,
+      "first": 6,
+      "actions": 2000,
+      "meaningful": 2000,
+      "actionRegions": [
+        111,
+        378,
+        1486
+      ],
+      "combatRegions": [
+        29,
+        135,
+        825
+      ],
+      "combatSectors": [
+        40,
+        245,
+        67,
+        245,
+        92,
+        300
+      ],
+      "occupation": [
+        801,
+        3546,
+        15285
+      ],
+      "occupationSectors": [
+        1593,
+        4099,
+        1473,
+        3856,
+        2919,
+        5692
+      ],
+      "occupationSamples": 67,
+      "playerSectors": [
+        4,
+        5,
+        6,
+        5,
+        5,
+        5
+      ],
+      "quarters": [
+        {
+          "actions": 500,
+          "meaningful": 500,
+          "combat": 175,
+          "goals": 0,
+          "air": 6
+        },
+        {
+          "actions": 500,
+          "meaningful": 500,
+          "combat": 257,
+          "goals": 1,
+          "air": 8
+        },
+        {
+          "actions": 500,
+          "meaningful": 500,
+          "combat": 258,
+          "goals": 2,
+          "air": 5
+        },
+        {
+          "actions": 500,
+          "meaningful": 500,
+          "combat": 299,
+          "goals": 0,
+          "air": 8
+        }
+      ],
+      "maxLead": 9,
+      "activeAirportSamples": 90,
+      "peakActiveAirports": 3,
+      "depotSamples": 300,
+      "airportUsers": [
+        5,
+        1,
+        2,
+        4,
+        6,
+        3
+      ],
+      "airUsers": [
+        5,
+        1,
+        4,
+        6,
+        3,
+        2
+      ],
+      "playerAirportSamples": [
+        14,
+        24,
+        2,
+        7,
+        39,
+        4
+      ],
+      "playerDepotSamples": [
+        75,
+        71,
+        53,
+        22,
+        65,
+        14
+      ],
+      "halfwayLeader": 5,
+      "scores": [
+        167,
+        163,
+        178,
+        148,
+        171,
+        145
+      ],
+      "goals": [
+        0,
+        0,
+        2,
+        0,
+        1,
+        0
+      ],
+      "winners": [
+        3
+      ],
+      "winnerProfiles": [
+        "Architect"
+      ],
+      "finalLead": 7,
+      "aiMeanMs": 1.6270888695000976,
+      "telemetry": {
+        "actions": 2000,
+        "meaningful": 2000,
+        "captures": 731,
+        "destroyed": 209,
+        "supplyRetreats": 279,
+        "engineered": 61,
+        "cardsUsed": 237,
+        "reshuffles": 3,
+        "goalArrivals": 3,
+        "goalHoldingRounds": 1,
+        "offers": 16,
+        "alliances": 9,
+        "betrayals": 0,
+        "withdrawals": 17,
+        "turretShots": 169,
+        "shieldBlocks": 1,
+        "airportUnlocks": 38,
+        "airportLosses": 36,
+        "airdrops": 21,
+        "bombardments": 6,
+        "depotControls": 177,
+        "suppliesEarned": 120,
+        "suppliesSpent": 87,
+        "fortifications": 734,
+        "neutralWarnings": 27,
+        "neutralStrikes": 27,
+        "neutralRemoved": 28,
+        "neutralBlocks": 22,
+        "byType": {
+          "deploy": 1633,
+          "engineer": 61,
+          "bridge": 38,
+          "reroute": 20,
+          "turret": 44,
+          "destroy": 35,
+          "shield": 51,
+          "bombard": 6,
+          "airdrop": 21,
+          "exchange": 49,
+          "offer": 16,
+          "accept": 9,
+          "withdraw": 17
+        },
+        "byMinute": [
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 21,
+            "cardsUsed": 19
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 67,
+            "cardsUsed": 17
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 62,
+            "cardsUsed": 27
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 91,
+            "cardsUsed": 22
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 75,
+            "cardsUsed": 14
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 90,
+            "cardsUsed": 16
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 78,
+            "cardsUsed": 24
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 73,
+            "cardsUsed": 27
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 87,
+            "cardsUsed": 33
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 87,
+            "cardsUsed": 38
+          }
+        ],
+        "perPlayer": [
+          {
+            "actions": 0,
+            "captures": 0,
+            "cardsUsed": 0,
+            "goals": 0
+          },
+          {
+            "actions": 334,
+            "captures": 130,
+            "cardsUsed": 51,
+            "goals": 0
+          },
+          {
+            "actions": 333,
+            "captures": 131,
+            "cardsUsed": 75,
+            "goals": 0
+          },
+          {
+            "actions": 333,
+            "captures": 108,
+            "cardsUsed": 36,
+            "goals": 2
+          },
+          {
+            "actions": 333,
+            "captures": 110,
+            "cardsUsed": 49,
+            "goals": 0
+          },
+          {
+            "actions": 333,
+            "captures": 136,
+            "cardsUsed": 9,
+            "goals": 1
+          },
+          {
+            "actions": 334,
+            "captures": 116,
+            "cardsUsed": 17,
+            "goals": 0
+          }
+        ]
+      },
+      "finalAirports": [
+        {
+          "id": 0,
+          "cell": 891,
+          "owner": 0,
+          "supplied": false,
+          "cluster": 0,
+          "progress": 0,
+          "active": false,
+          "qualified": false
+        },
+        {
+          "id": 1,
+          "cell": 525,
+          "owner": 0,
+          "supplied": false,
+          "cluster": 0,
+          "progress": 0,
+          "active": false,
+          "qualified": false
+        },
+        {
+          "id": 2,
+          "cell": 147,
+          "owner": 0,
+          "supplied": false,
+          "cluster": 0,
+          "progress": 0,
+          "active": false,
+          "qualified": false
+        },
+        {
+          "id": 3,
+          "cell": 135,
+          "owner": 5,
+          "supplied": true,
+          "cluster": 40,
+          "progress": 3,
+          "active": true,
+          "qualified": true
+        },
+        {
+          "id": 4,
+          "cell": 501,
+          "owner": 0,
+          "supplied": false,
+          "cluster": 0,
+          "progress": 0,
+          "active": false,
+          "qualified": false
+        },
+        {
+          "id": 5,
+          "cell": 879,
+          "owner": 6,
+          "supplied": true,
+          "cluster": 29,
+          "progress": 3,
+          "active": true,
+          "qualified": true
+        }
+      ],
+      "finalDepots": [
+        {
+          "id": 0,
+          "cell": 833,
+          "owner": 2,
+          "supplied": true
+        },
+        {
+          "id": 1,
+          "cell": 693,
+          "owner": 0,
+          "supplied": false
+        },
+        {
+          "id": 2,
+          "cell": 348,
+          "owner": 0,
+          "supplied": false
+        },
+        {
+          "id": 3,
+          "cell": 193,
+          "owner": 4,
+          "supplied": true
+        },
+        {
+          "id": 4,
+          "cell": 333,
+          "owner": 5,
+          "supplied": true
+        },
+        {
+          "id": 5,
+          "cell": 678,
+          "owner": 6,
+          "supplied": true
+        }
+      ]
+    },
+    {
+      "seed": 43,
+      "rotation": 0,
+      "first": 1,
+      "actions": 2000,
+      "meaningful": 2000,
+      "actionRegions": [
+        126,
+        365,
+        1501
+      ],
+      "combatRegions": [
+        36,
+        135,
+        817
+      ],
+      "combatSectors": [
+        214,
+        142,
+        220,
+        98,
+        225,
+        89
+      ],
+      "occupation": [
+        892,
+        3079,
+        15038
+      ],
+      "occupationSectors": [
+        4429,
+        2450,
+        4006,
+        1415,
+        4250,
+        2459
+      ],
+      "occupationSamples": 67,
+      "playerSectors": [
+        4,
+        3,
+        6,
+        5,
+        4,
+        4
+      ],
+      "quarters": [
+        {
+          "actions": 500,
+          "meaningful": 500,
+          "combat": 208,
+          "goals": 0,
+          "air": 9
+        },
+        {
+          "actions": 500,
+          "meaningful": 500,
+          "combat": 283,
+          "goals": 0,
+          "air": 5
+        },
+        {
+          "actions": 500,
+          "meaningful": 500,
+          "combat": 251,
+          "goals": 0,
+          "air": 15
+        },
+        {
+          "actions": 500,
+          "meaningful": 500,
+          "combat": 246,
+          "goals": 2,
+          "air": 13
+        }
+      ],
+      "maxLead": 16,
+      "activeAirportSamples": 129,
+      "peakActiveAirports": 3,
+      "depotSamples": 317,
+      "airportUsers": [
+        4,
+        6,
+        2,
+        3,
+        1
+      ],
+      "airUsers": [
+        4,
+        2,
+        6,
+        1,
+        3
+      ],
+      "playerAirportSamples": [
+        39,
+        1,
+        3,
+        51,
+        0,
+        35
+      ],
+      "playerDepotSamples": [
+        47,
+        48,
+        17,
+        73,
+        66,
+        66
+      ],
+      "halfwayLeader": 5,
+      "scores": [
+        174,
+        146,
+        152,
+        168,
+        168,
+        160
+      ],
+      "goals": [
+        0,
+        0,
+        1,
+        1,
+        0,
+        0
+      ],
+      "winners": [
+        1
+      ],
+      "winnerProfiles": [
+        "Vanguard"
+      ],
+      "finalLead": 6,
+      "aiMeanMs": 6.220386511999874,
+      "telemetry": {
+        "actions": 2000,
+        "meaningful": 2000,
+        "captures": 668,
+        "destroyed": 272,
+        "supplyRetreats": 314,
+        "engineered": 55,
+        "cardsUsed": 224,
+        "reshuffles": 3,
+        "goalArrivals": 2,
+        "goalHoldingRounds": 2,
+        "offers": 5,
+        "alliances": 3,
+        "betrayals": 0,
+        "withdrawals": 14,
+        "turretShots": 218,
+        "shieldBlocks": 1,
+        "airportUnlocks": 27,
+        "airportLosses": 25,
+        "airdrops": 24,
+        "bombardments": 18,
+        "depotControls": 262,
+        "suppliesEarned": 180,
+        "suppliesSpent": 144,
+        "fortifications": 767,
+        "neutralWarnings": 27,
+        "neutralStrikes": 27,
+        "neutralRemoved": 36,
+        "neutralBlocks": 13,
+        "byType": {
+          "deploy": 1657,
+          "engineer": 55,
+          "shield": 47,
+          "turret": 42,
+          "exchange": 48,
+          "bridge": 41,
+          "destroy": 37,
+          "reroute": 9,
+          "airdrop": 24,
+          "bombard": 18,
+          "offer": 5,
+          "accept": 3,
+          "withdraw": 14
+        },
+        "byMinute": [
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 62,
+            "cardsUsed": 19
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 49,
+            "cardsUsed": 35
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 55,
+            "cardsUsed": 28
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 79,
+            "cardsUsed": 19
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 84,
+            "cardsUsed": 23
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 87,
+            "cardsUsed": 11
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 59,
+            "cardsUsed": 21
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 67,
+            "cardsUsed": 23
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 65,
+            "cardsUsed": 23
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 61,
+            "cardsUsed": 22
+          }
+        ],
+        "perPlayer": [
+          {
+            "actions": 0,
+            "captures": 0,
+            "cardsUsed": 0,
+            "goals": 0
+          },
+          {
+            "actions": 334,
+            "captures": 134,
+            "cardsUsed": 67,
+            "goals": 0
+          },
+          {
+            "actions": 334,
+            "captures": 107,
+            "cardsUsed": 15,
+            "goals": 0
+          },
+          {
+            "actions": 333,
+            "captures": 122,
+            "cardsUsed": 21,
+            "goals": 1
+          },
+          {
+            "actions": 333,
+            "captures": 109,
+            "cardsUsed": 11,
+            "goals": 1
+          },
+          {
+            "actions": 333,
+            "captures": 100,
+            "cardsUsed": 61,
+            "goals": 0
+          },
+          {
+            "actions": 333,
+            "captures": 96,
+            "cardsUsed": 49,
+            "goals": 0
+          }
+        ]
+      },
+      "finalAirports": [
+        {
+          "id": 0,
+          "cell": 891,
+          "owner": 1,
+          "supplied": true,
+          "cluster": 21,
+          "progress": 3,
+          "active": true,
+          "qualified": true
+        },
+        {
+          "id": 1,
+          "cell": 525,
+          "owner": 0,
+          "supplied": false,
+          "cluster": 0,
+          "progress": 0,
+          "active": false,
+          "qualified": false
+        },
+        {
+          "id": 2,
+          "cell": 147,
+          "owner": 4,
+          "supplied": true,
+          "cluster": 34,
+          "progress": 3,
+          "active": true,
+          "qualified": true
+        },
+        {
+          "id": 3,
+          "cell": 135,
+          "owner": 0,
+          "supplied": false,
+          "cluster": 0,
+          "progress": 0,
+          "active": false,
+          "qualified": false
+        },
+        {
+          "id": 4,
+          "cell": 501,
+          "owner": 0,
+          "supplied": false,
+          "cluster": 0,
+          "progress": 0,
+          "active": false,
+          "qualified": false
+        },
+        {
+          "id": 5,
+          "cell": 879,
+          "owner": 2,
+          "supplied": true,
+          "cluster": 9,
+          "progress": 0,
+          "active": false,
+          "qualified": false
+        }
+      ],
+      "finalDepots": [
+        {
+          "id": 0,
+          "cell": 833,
+          "owner": 1,
+          "supplied": true
+        },
+        {
+          "id": 1,
+          "cell": 693,
+          "owner": 3,
+          "supplied": true
+        },
+        {
+          "id": 2,
+          "cell": 348,
+          "owner": 3,
+          "supplied": true
+        },
+        {
+          "id": 3,
+          "cell": 193,
+          "owner": 4,
+          "supplied": true
+        },
+        {
+          "id": 4,
+          "cell": 333,
+          "owner": 5,
+          "supplied": true
+        },
+        {
+          "id": 5,
+          "cell": 678,
+          "owner": 6,
+          "supplied": true
+        }
+      ]
+    },
+    {
+      "seed": 43,
+      "rotation": 1,
+      "first": 2,
+      "actions": 2000,
+      "meaningful": 2000,
+      "actionRegions": [
+        103,
+        324,
+        1556
+      ],
+      "combatRegions": [
+        21,
+        115,
+        943
+      ],
+      "combatSectors": [
+        53,
+        324,
+        20,
+        318,
+        115,
+        249
+      ],
+      "occupation": [
+        616,
+        2925,
+        16262
+      ],
+      "occupationSectors": [
+        2714,
+        5426,
+        563,
+        3075,
+        3529,
+        4496
+      ],
+      "occupationSamples": 67,
+      "playerSectors": [
+        4,
+        4,
+        5,
+        4,
+        5,
+        5
+      ],
+      "quarters": [
+        {
+          "actions": 500,
+          "meaningful": 500,
+          "combat": 227,
+          "goals": 0,
+          "air": 2
+        },
+        {
+          "actions": 500,
+          "meaningful": 500,
+          "combat": 294,
+          "goals": 2,
+          "air": 6
+        },
+        {
+          "actions": 500,
+          "meaningful": 500,
+          "combat": 290,
+          "goals": 2,
+          "air": 7
+        },
+        {
+          "actions": 500,
+          "meaningful": 500,
+          "combat": 268,
+          "goals": 2,
+          "air": 11
+        }
+      ],
+      "maxLead": 64,
+      "activeAirportSamples": 76,
+      "peakActiveAirports": 4,
+      "depotSamples": 250,
+      "airportUsers": [
+        4,
+        6,
+        3,
+        1,
+        2
+      ],
+      "airUsers": [
+        6,
+        4,
+        3,
+        1,
+        2
+      ],
+      "playerAirportSamples": [
+        40,
+        3,
+        12,
+        6,
+        0,
+        15
+      ],
+      "playerDepotSamples": [
+        23,
+        26,
+        60,
+        27,
+        55,
+        59
+      ],
+      "halfwayLeader": 4,
+      "scores": [
+        163,
+        176,
+        204,
+        266,
+        133,
+        168
+      ],
+      "goals": [
+        0,
+        0,
+        3,
+        2,
+        0,
+        1
+      ],
+      "winners": [
+        4
+      ],
+      "winnerProfiles": [
+        "Envoy"
+      ],
+      "finalLead": 62,
+      "aiMeanMs": 6.464500405499872,
+      "telemetry": {
+        "actions": 2000,
+        "meaningful": 2000,
+        "captures": 769,
+        "destroyed": 267,
+        "supplyRetreats": 313,
+        "engineered": 38,
+        "cardsUsed": 210,
+        "reshuffles": 3,
+        "goalArrivals": 6,
+        "goalHoldingRounds": 10,
+        "offers": 14,
+        "alliances": 3,
+        "betrayals": 0,
+        "withdrawals": 31,
+        "turretShots": 232,
+        "shieldBlocks": 0,
+        "airportUnlocks": 40,
+        "airportLosses": 39,
+        "airdrops": 18,
+        "bombardments": 8,
+        "depotControls": 194,
+        "suppliesEarned": 119,
+        "suppliesSpent": 86,
+        "fortifications": 636,
+        "neutralWarnings": 27,
+        "neutralStrikes": 27,
+        "neutralRemoved": 33,
+        "neutralBlocks": 11,
+        "byType": {
+          "deploy": 1678,
+          "engineer": 38,
+          "shield": 40,
+          "destroy": 27,
+          "turret": 36,
+          "bridge": 46,
+          "exchange": 43,
+          "airdrop": 18,
+          "reroute": 18,
+          "bombard": 8,
+          "offer": 14,
+          "accept": 3,
+          "withdraw": 31
+        },
+        "byMinute": [
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 54,
+            "cardsUsed": 18
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 93,
+            "cardsUsed": 17
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 68,
+            "cardsUsed": 25
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 73,
+            "cardsUsed": 26
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 83,
+            "cardsUsed": 25
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 93,
+            "cardsUsed": 21
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 89,
+            "cardsUsed": 21
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 78,
+            "cardsUsed": 9
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 62,
+            "cardsUsed": 22
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 76,
+            "cardsUsed": 26
+          }
+        ],
+        "perPlayer": [
+          {
+            "actions": 0,
+            "captures": 0,
+            "cardsUsed": 0,
+            "goals": 0
+          },
+          {
+            "actions": 333,
+            "captures": 132,
+            "cardsUsed": 37,
+            "goals": 0
+          },
+          {
+            "actions": 334,
+            "captures": 157,
+            "cardsUsed": 10,
+            "goals": 0
+          },
+          {
+            "actions": 334,
+            "captures": 150,
+            "cardsUsed": 4,
+            "goals": 3
+          },
+          {
+            "actions": 333,
+            "captures": 92,
+            "cardsUsed": 87,
+            "goals": 2
+          },
+          {
+            "actions": 333,
+            "captures": 103,
+            "cardsUsed": 38,
+            "goals": 0
+          },
+          {
+            "actions": 333,
+            "captures": 135,
+            "cardsUsed": 34,
+            "goals": 1
+          }
+        ]
+      },
+      "finalAirports": [
+        {
+          "id": 0,
+          "cell": 891,
+          "owner": 0,
+          "supplied": false,
+          "cluster": 0,
+          "progress": 0,
+          "active": false,
+          "qualified": false
+        },
+        {
+          "id": 1,
+          "cell": 525,
+          "owner": 3,
+          "supplied": true,
+          "cluster": 25,
+          "progress": 1,
+          "active": false,
+          "qualified": true
+        },
+        {
+          "id": 2,
+          "cell": 147,
+          "owner": 0,
+          "supplied": false,
+          "cluster": 0,
+          "progress": 0,
+          "active": false,
+          "qualified": false
+        },
+        {
+          "id": 3,
+          "cell": 135,
+          "owner": 0,
+          "supplied": false,
+          "cluster": 0,
+          "progress": 0,
+          "active": false,
+          "qualified": false
+        },
+        {
+          "id": 4,
+          "cell": 501,
+          "owner": 0,
+          "supplied": false,
+          "cluster": 0,
+          "progress": 0,
+          "active": false,
+          "qualified": false
+        },
+        {
+          "id": 5,
+          "cell": 879,
+          "owner": 1,
+          "supplied": true,
+          "cluster": 38,
+          "progress": 3,
+          "active": true,
+          "qualified": true
+        }
+      ],
+      "finalDepots": [
+        {
+          "id": 0,
+          "cell": 833,
+          "owner": 1,
+          "supplied": true
+        },
+        {
+          "id": 1,
+          "cell": 693,
+          "owner": 2,
+          "supplied": true
+        },
+        {
+          "id": 2,
+          "cell": 348,
+          "owner": 3,
+          "supplied": true
+        },
+        {
+          "id": 3,
+          "cell": 193,
+          "owner": 0,
+          "supplied": false
+        },
+        {
+          "id": 4,
+          "cell": 333,
+          "owner": 5,
+          "supplied": true
+        },
+        {
+          "id": 5,
+          "cell": 678,
+          "owner": 0,
+          "supplied": false
+        }
+      ]
+    },
+    {
+      "seed": 43,
+      "rotation": 2,
+      "first": 3,
+      "actions": 2000,
+      "meaningful": 2000,
+      "actionRegions": [
+        91,
+        247,
+        1648
+      ],
+      "combatRegions": [
+        24,
+        80,
+        937
+      ],
+      "combatSectors": [
+        230,
+        65,
+        197,
+        189,
+        235,
+        125
+      ],
+      "occupation": [
+        416,
+        2645,
+        15001
+      ],
+      "occupationSectors": [
+        5150,
+        1874,
+        2564,
+        1933,
+        3281,
+        3260
+      ],
+      "occupationSamples": 67,
+      "playerSectors": [
+        6,
+        5,
+        4,
+        6,
+        5,
+        3
+      ],
+      "quarters": [
+        {
+          "actions": 500,
+          "meaningful": 500,
+          "combat": 215,
+          "goals": 0,
+          "air": 0
+        },
+        {
+          "actions": 500,
+          "meaningful": 500,
+          "combat": 304,
+          "goals": 0,
+          "air": 6
+        },
+        {
+          "actions": 500,
+          "meaningful": 500,
+          "combat": 264,
+          "goals": 1,
+          "air": 14
+        },
+        {
+          "actions": 500,
+          "meaningful": 500,
+          "combat": 258,
+          "goals": 2,
+          "air": 13
+        }
+      ],
+      "maxLead": 16,
+      "activeAirportSamples": 106,
+      "peakActiveAirports": 4,
+      "depotSamples": 294,
+      "airportUsers": [
+        2,
+        5,
+        1,
+        3,
+        6
+      ],
+      "airUsers": [
+        5,
+        1,
+        3,
+        6,
+        2
+      ],
+      "playerAirportSamples": [
+        8,
+        29,
+        30,
+        0,
+        11,
+        28
+      ],
+      "playerDepotSamples": [
+        46,
+        34,
+        23,
+        75,
+        85,
+        31
+      ],
+      "halfwayLeader": 4,
+      "scores": [
+        164,
+        173,
+        129,
+        203,
+        205,
+        152
+      ],
+      "goals": [
+        1,
+        0,
+        0,
+        2,
+        0,
+        0
+      ],
+      "winners": [
+        5
+      ],
+      "winnerProfiles": [
+        "Vanguard"
+      ],
+      "finalLead": 2,
+      "aiMeanMs": 5.075569213999799,
+      "telemetry": {
+        "actions": 2000,
+        "meaningful": 2000,
+        "captures": 704,
+        "destroyed": 286,
+        "supplyRetreats": 339,
+        "engineered": 41,
+        "cardsUsed": 255,
+        "reshuffles": 3,
+        "goalArrivals": 3,
+        "goalHoldingRounds": 3,
+        "offers": 10,
+        "alliances": 4,
+        "betrayals": 0,
+        "withdrawals": 10,
+        "turretShots": 237,
+        "shieldBlocks": 0,
+        "airportUnlocks": 31,
+        "airportLosses": 28,
+        "airdrops": 23,
+        "bombardments": 10,
+        "depotControls": 265,
+        "suppliesEarned": 142,
+        "suppliesSpent": 109,
+        "fortifications": 678,
+        "neutralWarnings": 27,
+        "neutralStrikes": 27,
+        "neutralRemoved": 39,
+        "neutralBlocks": 12,
+        "byType": {
+          "deploy": 1647,
+          "engineer": 41,
+          "shield": 55,
+          "destroy": 39,
+          "bridge": 48,
+          "exchange": 51,
+          "reroute": 21,
+          "turret": 41,
+          "airdrop": 23,
+          "offer": 10,
+          "accept": 4,
+          "bombard": 10,
+          "withdraw": 10
+        },
+        "byMinute": [
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 69,
+            "cardsUsed": 10
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 82,
+            "cardsUsed": 21
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 74,
+            "cardsUsed": 30
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 71,
+            "cardsUsed": 44
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 75,
+            "cardsUsed": 16
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 64,
+            "cardsUsed": 27
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 82,
+            "cardsUsed": 25
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 63,
+            "cardsUsed": 36
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 56,
+            "cardsUsed": 37
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 68,
+            "cardsUsed": 9
+          }
+        ],
+        "perPlayer": [
+          {
+            "actions": 0,
+            "captures": 0,
+            "cardsUsed": 0,
+            "goals": 0
+          },
+          {
+            "actions": 333,
+            "captures": 104,
+            "cardsUsed": 25,
+            "goals": 1
+          },
+          {
+            "actions": 333,
+            "captures": 145,
+            "cardsUsed": 12,
+            "goals": 0
+          },
+          {
+            "actions": 334,
+            "captures": 86,
+            "cardsUsed": 51,
+            "goals": 0
+          },
+          {
+            "actions": 334,
+            "captures": 108,
+            "cardsUsed": 69,
+            "goals": 2
+          },
+          {
+            "actions": 333,
+            "captures": 137,
+            "cardsUsed": 40,
+            "goals": 0
+          },
+          {
+            "actions": 333,
+            "captures": 124,
+            "cardsUsed": 58,
+            "goals": 0
+          }
+        ]
+      },
+      "finalAirports": [
+        {
+          "id": 0,
+          "cell": 891,
+          "owner": 2,
+          "supplied": true,
+          "cluster": 33,
+          "progress": 3,
+          "active": true,
+          "qualified": true
+        },
+        {
+          "id": 1,
+          "cell": 525,
+          "owner": 0,
+          "supplied": false,
+          "cluster": 0,
+          "progress": 0,
+          "active": false,
+          "qualified": false
+        },
+        {
+          "id": 2,
+          "cell": 147,
+          "owner": 3,
+          "supplied": true,
+          "cluster": 18,
+          "progress": 3,
+          "active": true,
+          "qualified": true
+        },
+        {
+          "id": 3,
+          "cell": 135,
+          "owner": 0,
+          "supplied": false,
+          "cluster": 0,
+          "progress": 0,
+          "active": false,
+          "qualified": false
+        },
+        {
+          "id": 4,
+          "cell": 501,
+          "owner": 6,
+          "supplied": true,
+          "cluster": 27,
+          "progress": 3,
+          "active": true,
+          "qualified": true
+        },
+        {
+          "id": 5,
+          "cell": 879,
+          "owner": 5,
+          "supplied": true,
+          "cluster": 18,
+          "progress": 1,
+          "active": false,
+          "qualified": true
+        }
+      ],
+      "finalDepots": [
+        {
+          "id": 0,
+          "cell": 833,
+          "owner": 0,
+          "supplied": false
+        },
+        {
+          "id": 1,
+          "cell": 693,
+          "owner": 2,
+          "supplied": true
+        },
+        {
+          "id": 2,
+          "cell": 348,
+          "owner": 0,
+          "supplied": false
+        },
+        {
+          "id": 3,
+          "cell": 193,
+          "owner": 3,
+          "supplied": true
+        },
+        {
+          "id": 4,
+          "cell": 333,
+          "owner": 6,
+          "supplied": true
+        },
+        {
+          "id": 5,
+          "cell": 678,
+          "owner": 5,
+          "supplied": true
+        }
+      ]
+    },
+    {
+      "seed": 43,
+      "rotation": 3,
+      "first": 4,
+      "actions": 2000,
+      "meaningful": 2000,
+      "actionRegions": [
+        27,
+        225,
+        1737
+      ],
+      "combatRegions": [
+        1,
+        86,
+        994
+      ],
+      "combatSectors": [
+        42,
+        288,
+        41,
+        279,
+        133,
+        298
+      ],
+      "occupation": [
+        158,
+        2207,
+        15370
+      ],
+      "occupationSectors": [
+        1673,
+        3471,
+        1197,
+        3642,
+        2938,
+        4814
+      ],
+      "occupationSamples": 67,
+      "playerSectors": [
+        4,
+        3,
+        6,
+        5,
+        3,
+        4
+      ],
+      "quarters": [
+        {
+          "actions": 500,
+          "meaningful": 500,
+          "combat": 245,
+          "goals": 0,
+          "air": 2
+        },
+        {
+          "actions": 500,
+          "meaningful": 500,
+          "combat": 291,
+          "goals": 1,
+          "air": 6
+        },
+        {
+          "actions": 500,
+          "meaningful": 500,
+          "combat": 276,
+          "goals": 0,
+          "air": 11
+        },
+        {
+          "actions": 500,
+          "meaningful": 500,
+          "combat": 269,
+          "goals": 0,
+          "air": 8
+        }
+      ],
+      "maxLead": 74,
+      "activeAirportSamples": 87,
+      "peakActiveAirports": 4,
+      "depotSamples": 322,
+      "airportUsers": [
+        2,
+        3,
+        6,
+        5,
+        4,
+        1
+      ],
+      "airUsers": [
+        2,
+        3,
+        6,
+        1,
+        4,
+        5
+      ],
+      "playerAirportSamples": [
+        27,
+        5,
+        22,
+        20,
+        5,
+        8
+      ],
+      "playerDepotSamples": [
+        84,
+        19,
+        93,
+        69,
+        30,
+        27
+      ],
+      "halfwayLeader": 3,
+      "scores": [
+        191,
+        122,
+        261,
+        217,
+        120,
+        161
+      ],
+      "goals": [
+        0,
+        0,
+        1,
+        0,
+        0,
+        0
+      ],
+      "winners": [
+        3
+      ],
+      "winnerProfiles": [
+        "Pathfinder"
+      ],
+      "finalLead": 44,
+      "aiMeanMs": 6.919963701500165,
+      "telemetry": {
+        "actions": 2000,
+        "meaningful": 2000,
+        "captures": 742,
+        "destroyed": 292,
+        "supplyRetreats": 218,
+        "engineered": 40,
+        "cardsUsed": 224,
+        "reshuffles": 3,
+        "goalArrivals": 1,
+        "goalHoldingRounds": 13,
+        "offers": 9,
+        "alliances": 2,
+        "betrayals": 0,
+        "withdrawals": 22,
+        "turretShots": 257,
+        "shieldBlocks": 1,
+        "airportUnlocks": 44,
+        "airportLosses": 43,
+        "airdrops": 18,
+        "bombardments": 9,
+        "depotControls": 154,
+        "suppliesEarned": 124,
+        "suppliesSpent": 90,
+        "fortifications": 676,
+        "neutralWarnings": 27,
+        "neutralStrikes": 27,
+        "neutralRemoved": 35,
+        "neutralBlocks": 13,
+        "byType": {
+          "deploy": 1676,
+          "engineer": 40,
+          "shield": 48,
+          "turret": 43,
+          "exchange": 47,
+          "bridge": 48,
+          "reroute": 11,
+          "destroy": 27,
+          "bombard": 9,
+          "airdrop": 18,
+          "offer": 9,
+          "accept": 2,
+          "withdraw": 22
+        },
+        "byMinute": [
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 67,
+            "cardsUsed": 17
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 89,
+            "cardsUsed": 23
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 78,
+            "cardsUsed": 17
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 62,
+            "cardsUsed": 20
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 94,
+            "cardsUsed": 23
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 51,
+            "cardsUsed": 38
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 72,
+            "cardsUsed": 26
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 78,
+            "cardsUsed": 27
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 84,
+            "cardsUsed": 9
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 67,
+            "cardsUsed": 24
+          }
+        ],
+        "perPlayer": [
+          {
+            "actions": 0,
+            "captures": 0,
+            "cardsUsed": 0,
+            "goals": 0
+          },
+          {
+            "actions": 333,
+            "captures": 158,
+            "cardsUsed": 23,
+            "goals": 0
+          },
+          {
+            "actions": 333,
+            "captures": 113,
+            "cardsUsed": 41,
+            "goals": 0
+          },
+          {
+            "actions": 333,
+            "captures": 122,
+            "cardsUsed": 51,
+            "goals": 1
+          },
+          {
+            "actions": 334,
+            "captures": 123,
+            "cardsUsed": 56,
+            "goals": 0
+          },
+          {
+            "actions": 334,
+            "captures": 79,
+            "cardsUsed": 32,
+            "goals": 0
+          },
+          {
+            "actions": 333,
+            "captures": 147,
+            "cardsUsed": 21,
+            "goals": 0
+          }
+        ]
+      },
+      "finalAirports": [
+        {
+          "id": 0,
+          "cell": 891,
+          "owner": 0,
+          "supplied": false,
+          "cluster": 0,
+          "progress": 0,
+          "active": false,
+          "qualified": false
+        },
+        {
+          "id": 1,
+          "cell": 525,
+          "owner": 2,
+          "supplied": true,
+          "cluster": 40,
+          "progress": 3,
+          "active": true,
+          "qualified": true
+        },
+        {
+          "id": 2,
+          "cell": 147,
+          "owner": 0,
+          "supplied": false,
+          "cluster": 0,
+          "progress": 0,
+          "active": false,
+          "qualified": false
+        },
+        {
+          "id": 3,
+          "cell": 135,
+          "owner": 0,
+          "supplied": false,
+          "cluster": 0,
+          "progress": 0,
+          "active": false,
+          "qualified": false
+        },
+        {
+          "id": 4,
+          "cell": 501,
+          "owner": 0,
+          "supplied": false,
+          "cluster": 0,
+          "progress": 0,
+          "active": false,
+          "qualified": false
+        },
+        {
+          "id": 5,
+          "cell": 879,
+          "owner": 0,
+          "supplied": false,
+          "cluster": 0,
+          "progress": 0,
+          "active": false,
+          "qualified": false
+        }
+      ],
+      "finalDepots": [
+        {
+          "id": 0,
+          "cell": 833,
+          "owner": 0,
+          "supplied": false
+        },
+        {
+          "id": 1,
+          "cell": 693,
+          "owner": 3,
+          "supplied": true
+        },
+        {
+          "id": 2,
+          "cell": 348,
+          "owner": 0,
+          "supplied": false
+        },
+        {
+          "id": 3,
+          "cell": 193,
+          "owner": 4,
+          "supplied": true
+        },
+        {
+          "id": 4,
+          "cell": 333,
+          "owner": 0,
+          "supplied": false
+        },
+        {
+          "id": 5,
+          "cell": 678,
+          "owner": 0,
+          "supplied": false
+        }
+      ]
+    },
+    {
+      "seed": 43,
+      "rotation": 4,
+      "first": 5,
+      "actions": 2000,
+      "meaningful": 2000,
+      "actionRegions": [
+        128,
+        243,
+        1615
+      ],
+      "combatRegions": [
+        39,
+        89,
+        955
+      ],
+      "combatSectors": [
+        236,
+        87,
+        329,
+        187,
+        133,
+        111
+      ],
+      "occupation": [
+        1026,
+        2744,
+        14034
+      ],
+      "occupationSectors": [
+        4048,
+        2446,
+        4024,
+        2247,
+        3054,
+        1985
+      ],
+      "occupationSamples": 67,
+      "playerSectors": [
+        5,
+        6,
+        4,
+        4,
+        5,
+        6
+      ],
+      "quarters": [
+        {
+          "actions": 500,
+          "meaningful": 500,
+          "combat": 212,
+          "goals": 0,
+          "air": 5
+        },
+        {
+          "actions": 500,
+          "meaningful": 500,
+          "combat": 309,
+          "goals": 0,
+          "air": 10
+        },
+        {
+          "actions": 500,
+          "meaningful": 500,
+          "combat": 278,
+          "goals": 2,
+          "air": 18
+        },
+        {
+          "actions": 500,
+          "meaningful": 500,
+          "combat": 284,
+          "goals": 0,
+          "air": 13
+        }
+      ],
+      "maxLead": 15,
+      "activeAirportSamples": 114,
+      "peakActiveAirports": 3,
+      "depotSamples": 305,
+      "airportUsers": [
+        3,
+        2,
+        6,
+        5,
+        4,
+        1
+      ],
+      "airUsers": [
+        4,
+        6,
+        3,
+        2,
+        5,
+        1
+      ],
+      "playerAirportSamples": [
+        16,
+        12,
+        27,
+        10,
+        46,
+        3
+      ],
+      "playerDepotSamples": [
+        34,
+        77,
+        38,
+        7,
+        111,
+        38
+      ],
+      "halfwayLeader": 5,
+      "scores": [
+        197,
+        163,
+        188,
+        173,
+        181,
+        151
+      ],
+      "goals": [
+        2,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "winners": [
+        1
+      ],
+      "winnerProfiles": [
+        "Envoy"
+      ],
+      "finalLead": 9,
+      "aiMeanMs": 4.677238898499796,
+      "telemetry": {
+        "actions": 2000,
+        "meaningful": 2000,
+        "captures": 742,
+        "destroyed": 293,
+        "supplyRetreats": 245,
+        "engineered": 37,
+        "cardsUsed": 242,
+        "reshuffles": 3,
+        "goalArrivals": 2,
+        "goalHoldingRounds": 0,
+        "offers": 13,
+        "alliances": 1,
+        "betrayals": 0,
+        "withdrawals": 18,
+        "turretShots": 247,
+        "shieldBlocks": 1,
+        "airportUnlocks": 32,
+        "airportLosses": 31,
+        "airdrops": 29,
+        "bombardments": 17,
+        "depotControls": 193,
+        "suppliesEarned": 189,
+        "suppliesSpent": 155,
+        "fortifications": 683,
+        "neutralWarnings": 27,
+        "neutralStrikes": 27,
+        "neutralRemoved": 30,
+        "neutralBlocks": 21,
+        "byType": {
+          "deploy": 1643,
+          "engineer": 37,
+          "shield": 52,
+          "destroy": 30,
+          "turret": 43,
+          "exchange": 48,
+          "bridge": 48,
+          "reroute": 21,
+          "airdrop": 29,
+          "bombard": 17,
+          "offer": 13,
+          "accept": 1,
+          "withdraw": 18
+        },
+        "byMinute": [
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 59,
+            "cardsUsed": 13
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 66,
+            "cardsUsed": 22
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 82,
+            "cardsUsed": 37
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 87,
+            "cardsUsed": 23
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 72,
+            "cardsUsed": 22
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 50,
+            "cardsUsed": 26
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 64,
+            "cardsUsed": 32
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 84,
+            "cardsUsed": 36
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 85,
+            "cardsUsed": 18
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 93,
+            "cardsUsed": 13
+          }
+        ],
+        "perPlayer": [
+          {
+            "actions": 0,
+            "captures": 0,
+            "cardsUsed": 0,
+            "goals": 0
+          },
+          {
+            "actions": 333,
+            "captures": 128,
+            "cardsUsed": 30,
+            "goals": 2
+          },
+          {
+            "actions": 333,
+            "captures": 128,
+            "cardsUsed": 28,
+            "goals": 0
+          },
+          {
+            "actions": 333,
+            "captures": 130,
+            "cardsUsed": 65,
+            "goals": 0
+          },
+          {
+            "actions": 333,
+            "captures": 107,
+            "cardsUsed": 58,
+            "goals": 0
+          },
+          {
+            "actions": 334,
+            "captures": 130,
+            "cardsUsed": 22,
+            "goals": 0
+          },
+          {
+            "actions": 334,
+            "captures": 119,
+            "cardsUsed": 39,
+            "goals": 0
+          }
+        ]
+      },
+      "finalAirports": [
+        {
+          "id": 0,
+          "cell": 891,
+          "owner": 0,
+          "supplied": false,
+          "cluster": 0,
+          "progress": 0,
+          "active": false,
+          "qualified": false
+        },
+        {
+          "id": 1,
+          "cell": 525,
+          "owner": 0,
+          "supplied": false,
+          "cluster": 0,
+          "progress": 0,
+          "active": false,
+          "qualified": false
+        },
+        {
+          "id": 2,
+          "cell": 147,
+          "owner": 0,
+          "supplied": false,
+          "cluster": 0,
+          "progress": 0,
+          "active": false,
+          "qualified": false
+        },
+        {
+          "id": 3,
+          "cell": 135,
+          "owner": 0,
+          "supplied": false,
+          "cluster": 0,
+          "progress": 0,
+          "active": false,
+          "qualified": false
+        },
+        {
+          "id": 4,
+          "cell": 501,
+          "owner": 5,
+          "supplied": true,
+          "cluster": 19,
+          "progress": 3,
+          "active": true,
+          "qualified": true
+        },
+        {
+          "id": 5,
+          "cell": 879,
+          "owner": 0,
+          "supplied": false,
+          "cluster": 0,
+          "progress": 0,
+          "active": false,
+          "qualified": false
+        }
+      ],
+      "finalDepots": [
+        {
+          "id": 0,
+          "cell": 833,
+          "owner": 5,
+          "supplied": true
+        },
+        {
+          "id": 1,
+          "cell": 693,
+          "owner": 2,
+          "supplied": true
+        },
+        {
+          "id": 2,
+          "cell": 348,
+          "owner": 0,
+          "supplied": false
+        },
+        {
+          "id": 3,
+          "cell": 193,
+          "owner": 3,
+          "supplied": true
+        },
+        {
+          "id": 4,
+          "cell": 333,
+          "owner": 5,
+          "supplied": true
+        },
+        {
+          "id": 5,
+          "cell": 678,
+          "owner": 0,
+          "supplied": false
+        }
+      ]
+    },
+    {
+      "seed": 43,
+      "rotation": 5,
+      "first": 6,
+      "actions": 2000,
+      "meaningful": 2000,
+      "actionRegions": [
+        112,
+        364,
+        1505
+      ],
+      "combatRegions": [
+        43,
+        135,
+        882
+      ],
+      "combatSectors": [
+        29,
+        341,
+        124,
+        253,
+        118,
+        195
+      ],
+      "occupation": [
+        676,
+        3545,
+        15414
+      ],
+      "occupationSectors": [
+        2356,
+        5267,
+        2422,
+        2853,
+        2967,
+        3770
+      ],
+      "occupationSamples": 67,
+      "playerSectors": [
+        5,
+        4,
+        4,
+        5,
+        6,
+        5
+      ],
+      "quarters": [
+        {
+          "actions": 500,
+          "meaningful": 500,
+          "combat": 227,
+          "goals": 0,
+          "air": 2
+        },
+        {
+          "actions": 500,
+          "meaningful": 500,
+          "combat": 285,
+          "goals": 0,
+          "air": 0
+        },
+        {
+          "actions": 500,
+          "meaningful": 500,
+          "combat": 283,
+          "goals": 2,
+          "air": 9
+        },
+        {
+          "actions": 500,
+          "meaningful": 500,
+          "combat": 265,
+          "goals": 1,
+          "air": 24
+        }
+      ],
+      "maxLead": 36,
+      "activeAirportSamples": 99,
+      "peakActiveAirports": 4,
+      "depotSamples": 291,
+      "airportUsers": [
+        5,
+        1,
+        2,
+        6
+      ],
+      "airUsers": [
+        1,
+        6,
+        2,
+        5
+      ],
+      "playerAirportSamples": [
+        9,
+        42,
+        0,
+        0,
+        19,
+        29
+      ],
+      "playerDepotSamples": [
+        73,
+        38,
+        59,
+        24,
+        53,
+        44
+      ],
+      "halfwayLeader": 3,
+      "scores": [
+        168,
+        167,
+        218,
+        146,
+        188,
+        149
+      ],
+      "goals": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        2
+      ],
+      "winners": [
+        3
+      ],
+      "winnerProfiles": [
+        "Architect"
+      ],
+      "finalLead": 30,
+      "aiMeanMs": 5.66862426550001,
+      "telemetry": {
+        "actions": 2000,
+        "meaningful": 2000,
+        "captures": 761,
+        "destroyed": 245,
+        "supplyRetreats": 224,
+        "engineered": 40,
+        "cardsUsed": 247,
+        "reshuffles": 3,
+        "goalArrivals": 3,
+        "goalHoldingRounds": 0,
+        "offers": 12,
+        "alliances": 7,
+        "betrayals": 0,
+        "withdrawals": 15,
+        "turretShots": 207,
+        "shieldBlocks": 0,
+        "airportUnlocks": 29,
+        "airportLosses": 25,
+        "airdrops": 26,
+        "bombardments": 9,
+        "depotControls": 254,
+        "suppliesEarned": 147,
+        "suppliesSpent": 114,
+        "fortifications": 694,
+        "neutralWarnings": 27,
+        "neutralStrikes": 27,
+        "neutralRemoved": 36,
+        "neutralBlocks": 15,
+        "byType": {
+          "deploy": 1644,
+          "engineer": 40,
+          "shield": 53,
+          "exchange": 54,
+          "bridge": 50,
+          "turret": 42,
+          "destroy": 29,
+          "reroute": 19,
+          "bombard": 9,
+          "airdrop": 26,
+          "offer": 12,
+          "accept": 7,
+          "withdraw": 15
+        },
+        "byMinute": [
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 69,
+            "cardsUsed": 15
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 87,
+            "cardsUsed": 23
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 76,
+            "cardsUsed": 22
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 90,
+            "cardsUsed": 32
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 91,
+            "cardsUsed": 13
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 87,
+            "cardsUsed": 14
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 72,
+            "cardsUsed": 29
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 70,
+            "cardsUsed": 33
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 49,
+            "cardsUsed": 29
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 70,
+            "cardsUsed": 37
+          }
+        ],
+        "perPlayer": [
+          {
+            "actions": 0,
+            "captures": 0,
+            "cardsUsed": 0,
+            "goals": 0
+          },
+          {
+            "actions": 334,
+            "captures": 137,
+            "cardsUsed": 77,
+            "goals": 1
+          },
+          {
+            "actions": 333,
+            "captures": 138,
+            "cardsUsed": 27,
+            "goals": 0
+          },
+          {
+            "actions": 333,
+            "captures": 155,
+            "cardsUsed": 45,
+            "goals": 0
+          },
+          {
+            "actions": 333,
+            "captures": 108,
+            "cardsUsed": 58,
+            "goals": 0
+          },
+          {
+            "actions": 333,
+            "captures": 129,
+            "cardsUsed": 28,
+            "goals": 0
+          },
+          {
+            "actions": 334,
+            "captures": 94,
+            "cardsUsed": 12,
+            "goals": 2
+          }
+        ]
+      },
+      "finalAirports": [
+        {
+          "id": 0,
+          "cell": 891,
+          "owner": 6,
+          "supplied": true,
+          "cluster": 18,
+          "progress": 3,
+          "active": true,
+          "qualified": true
+        },
+        {
+          "id": 1,
+          "cell": 525,
+          "owner": 2,
+          "supplied": true,
+          "cluster": 45,
+          "progress": 3,
+          "active": true,
+          "qualified": true
+        },
+        {
+          "id": 2,
+          "cell": 147,
+          "owner": 0,
+          "supplied": false,
+          "cluster": 0,
+          "progress": 0,
+          "active": false,
+          "qualified": false
+        },
+        {
+          "id": 3,
+          "cell": 135,
+          "owner": 0,
+          "supplied": false,
+          "cluster": 0,
+          "progress": 0,
+          "active": false,
+          "qualified": false
+        },
+        {
+          "id": 4,
+          "cell": 501,
+          "owner": 5,
+          "supplied": true,
+          "cluster": 27,
+          "progress": 3,
+          "active": true,
+          "qualified": true
+        },
+        {
+          "id": 5,
+          "cell": 879,
+          "owner": 1,
+          "supplied": true,
+          "cluster": 19,
+          "progress": 3,
+          "active": true,
+          "qualified": true
+        }
+      ],
+      "finalDepots": [
+        {
+          "id": 0,
+          "cell": 833,
+          "owner": 6,
+          "supplied": true
+        },
+        {
+          "id": 1,
+          "cell": 693,
+          "owner": 2,
+          "supplied": true
+        },
+        {
+          "id": 2,
+          "cell": 348,
+          "owner": 3,
+          "supplied": true
+        },
+        {
+          "id": 3,
+          "cell": 193,
+          "owner": 0,
+          "supplied": false
+        },
+        {
+          "id": 4,
+          "cell": 333,
+          "owner": 5,
+          "supplied": true
+        },
+        {
+          "id": 5,
+          "cell": 678,
+          "owner": 5,
+          "supplied": true
+        }
+      ]
+    },
+    {
+      "seed": 59,
+      "rotation": 0,
+      "first": 1,
+      "actions": 2000,
+      "meaningful": 2000,
+      "actionRegions": [
+        118,
+        303,
+        1567
+      ],
+      "combatRegions": [
+        39,
+        89,
+        870
+      ],
+      "combatSectors": [
+        280,
+        66,
+        246,
+        133,
+        168,
+        105
+      ],
+      "occupation": [
+        964,
+        2898,
+        15840
+      ],
+      "occupationSectors": [
+        4304,
+        1648,
+        4439,
+        2597,
+        4011,
+        2703
+      ],
+      "occupationSamples": 67,
+      "playerSectors": [
+        5,
+        6,
+        4,
+        5,
+        5,
+        5
+      ],
+      "quarters": [
+        {
+          "actions": 500,
+          "meaningful": 500,
+          "combat": 226,
+          "goals": 0,
+          "air": 1
+        },
+        {
+          "actions": 500,
+          "meaningful": 500,
+          "combat": 266,
+          "goals": 3,
+          "air": 8
+        },
+        {
+          "actions": 500,
+          "meaningful": 500,
+          "combat": 261,
+          "goals": 3,
+          "air": 11
+        },
+        {
+          "actions": 500,
+          "meaningful": 500,
+          "combat": 245,
+          "goals": 4,
+          "air": 13
+        }
+      ],
+      "maxLead": 39,
+      "activeAirportSamples": 93,
+      "peakActiveAirports": 3,
+      "depotSamples": 281,
+      "airportUsers": [
+        6,
+        3,
+        1,
+        2
+      ],
+      "airUsers": [
+        3,
+        1,
+        2
+      ],
+      "playerAirportSamples": [
+        19,
+        16,
+        54,
+        0,
+        0,
+        4
+      ],
+      "playerDepotSamples": [
+        45,
+        29,
+        77,
+        41,
+        47,
+        42
+      ],
+      "halfwayLeader": 1,
+      "scores": [
+        201,
+        171,
+        164,
+        159,
+        200,
+        169
+      ],
+      "goals": [
+        5,
+        0,
+        0,
+        0,
+        5,
+        0
+      ],
+      "winners": [
+        1
+      ],
+      "winnerProfiles": [
+        "Vanguard"
+      ],
+      "finalLead": 1,
+      "aiMeanMs": 6.71386244949972,
+      "telemetry": {
+        "actions": 2000,
+        "meaningful": 2000,
+        "captures": 781,
+        "destroyed": 181,
+        "supplyRetreats": 285,
+        "engineered": 27,
+        "cardsUsed": 175,
+        "reshuffles": 2,
+        "goalArrivals": 10,
+        "goalHoldingRounds": 15,
+        "offers": 11,
+        "alliances": 1,
+        "betrayals": 0,
+        "withdrawals": 46,
+        "turretShots": 162,
+        "shieldBlocks": 2,
+        "airportUnlocks": 35,
+        "airportLosses": 32,
+        "airdrops": 30,
+        "bombardments": 3,
+        "depotControls": 231,
+        "suppliesEarned": 137,
+        "suppliesSpent": 102,
+        "fortifications": 726,
+        "neutralWarnings": 27,
+        "neutralStrikes": 27,
+        "neutralRemoved": 38,
+        "neutralBlocks": 13,
+        "byType": {
+          "deploy": 1707,
+          "engineer": 27,
+          "turret": 30,
+          "exchange": 36,
+          "bridge": 36,
+          "reroute": 14,
+          "shield": 41,
+          "destroy": 18,
+          "airdrop": 30,
+          "bombard": 3,
+          "offer": 11,
+          "withdraw": 46,
+          "accept": 1
+        },
+        "byMinute": [
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 66,
+            "cardsUsed": 12
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 98,
+            "cardsUsed": 22
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 78,
+            "cardsUsed": 25
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 69,
+            "cardsUsed": 13
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 82,
+            "cardsUsed": 18
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 72,
+            "cardsUsed": 26
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 61,
+            "cardsUsed": 23
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 92,
+            "cardsUsed": 12
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 85,
+            "cardsUsed": 8
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 78,
+            "cardsUsed": 16
+          }
+        ],
+        "perPlayer": [
+          {
+            "actions": 0,
+            "captures": 0,
+            "cardsUsed": 0,
+            "goals": 0
+          },
+          {
+            "actions": 334,
+            "captures": 141,
+            "cardsUsed": 41,
+            "goals": 5
+          },
+          {
+            "actions": 334,
+            "captures": 104,
+            "cardsUsed": 43,
+            "goals": 0
+          },
+          {
+            "actions": 333,
+            "captures": 125,
+            "cardsUsed": 19,
+            "goals": 0
+          },
+          {
+            "actions": 333,
+            "captures": 159,
+            "cardsUsed": 6,
+            "goals": 0
+          },
+          {
+            "actions": 333,
+            "captures": 115,
+            "cardsUsed": 36,
+            "goals": 5
+          },
+          {
+            "actions": 333,
+            "captures": 137,
+            "cardsUsed": 30,
+            "goals": 0
+          }
+        ]
+      },
+      "finalAirports": [
+        {
+          "id": 0,
+          "cell": 891,
+          "owner": 2,
+          "supplied": true,
+          "cluster": 25,
+          "progress": 3,
+          "active": true,
+          "qualified": true
+        },
+        {
+          "id": 1,
+          "cell": 525,
+          "owner": 0,
+          "supplied": false,
+          "cluster": 0,
+          "progress": 0,
+          "active": false,
+          "qualified": false
+        },
+        {
+          "id": 2,
+          "cell": 147,
+          "owner": 3,
+          "supplied": true,
+          "cluster": 36,
+          "progress": 3,
+          "active": true,
+          "qualified": true
+        },
+        {
+          "id": 3,
+          "cell": 135,
+          "owner": 0,
+          "supplied": false,
+          "cluster": 0,
+          "progress": 0,
+          "active": false,
+          "qualified": false
+        },
+        {
+          "id": 4,
+          "cell": 501,
+          "owner": 3,
+          "supplied": true,
+          "cluster": 7,
+          "progress": 0,
+          "active": false,
+          "qualified": false
+        },
+        {
+          "id": 5,
+          "cell": 879,
+          "owner": 1,
+          "supplied": true,
+          "cluster": 29,
+          "progress": 3,
+          "active": true,
+          "qualified": true
+        }
+      ],
+      "finalDepots": [
+        {
+          "id": 0,
+          "cell": 833,
+          "owner": 6,
+          "supplied": true
+        },
+        {
+          "id": 1,
+          "cell": 693,
+          "owner": 2,
+          "supplied": true
+        },
+        {
+          "id": 2,
+          "cell": 348,
+          "owner": 3,
+          "supplied": true
+        },
+        {
+          "id": 3,
+          "cell": 193,
+          "owner": 3,
+          "supplied": true
+        },
+        {
+          "id": 4,
+          "cell": 333,
+          "owner": 4,
+          "supplied": true
+        },
+        {
+          "id": 5,
+          "cell": 678,
+          "owner": 0,
+          "supplied": false
+        }
+      ]
+    }
+  ],
+  "status": "partial: stopped to reduce CPU contention during real-time browser acceptance",
+  "plannedGames": 36,
+  "completedGames": 19,
+  "note": "Exploratory evidence only. Use the paired full heldout comparison for final before/after claims."
+}

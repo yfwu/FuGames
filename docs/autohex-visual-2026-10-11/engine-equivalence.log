@@ -1,0 +1,26 @@
+SUCCESS: 12 complete visual-only intermediate campaign comparisons, 24,000 actions per version.
+The successful final invocation resumed six already-completed comparisons from the identical captured source hash. Earlier intentionally interrupted harness attempts are excluded from this final log.
+The current strategic engine was not compared and is not claimed equivalent.
+
+Captured immutable visual-only engine 767905f8761d17216a444f60f341812a52427e7bbe364fb163133bb87c18a9e6; resuming 6/12 campaigns.
+Equivalent campaigns: 7/12; seed=1000003, first=4, rotation=3
+Equivalent campaigns: 8/12; seed=1000003, first=6, rotation=0
+Equivalent campaigns: 9/12; seed=1007922, first=5, rotation=4
+Equivalent campaigns: 10/12; seed=1007922, first=1, rotation=1
+Equivalent campaigns: 11/12; seed=1015841, first=6, rotation=5
+Equivalent campaigns: 12/12; seed=1015841, first=2, rotation=2
+✔ AutoHex visual events retain both exact turret origins when one simultaneous shot is shielded and another destroys (14.264847ms)
+✔ AutoHex allied targets produce no turret damage animation event (9.349935ms)
+✔ AutoHex demolition metadata uses an explicit null origin and reports the public target owner (10.140626ms)
+✔ AutoHex supply-retreat metadata lists exactly the stones removed in that settlement (3.738144ms)
+✔ AutoHex public visual metadata is detached from engine storage and exposes no private hands or deck order (15.994151ms)
+✔ AutoHex event IDs remain increasing across truncation and restart deterministically after reset (49.489854ms)
+✔ AutoHex visual metadata preserves 12 complete baseline campaign traces and all gameplay state (139041.088764ms)
+ℹ tests 7
+ℹ suites 0
+ℹ pass 7
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 139407.779831

@@ -1,0 +1,9 @@
+{"mode":"after","sample":"tuning","seed":211,"rotation":0,"goals":3,"combat":[42,95,890],"lastQuarter":{"actions":500,"meaningful":497,"combat":287,"goals":0,"air":22},"airports":38,"air":43,"ms":3.29}
+{"mode":"after","sample":"tuning","seed":211,"rotation":2,"goals":2,"combat":[37,97,884],"lastQuarter":{"actions":500,"meaningful":500,"combat":259,"goals":2,"air":13},"airports":26,"air":48,"ms":1.82}
+{"mode":"after","sample":"tuning","seed":211,"rotation":4,"goals":1,"combat":[29,97,949],"lastQuarter":{"actions":500,"meaningful":497,"combat":277,"goals":0,"air":6},"airports":40,"air":24,"ms":2.06}
+{"mode":"after","sample":"tuning","seed":307,"rotation":0,"goals":1,"combat":[8,155,935],"lastQuarter":{"actions":500,"meaningful":500,"combat":290,"goals":0,"air":8},"airports":36,"air":29,"ms":1.8}
+{"mode":"after","sample":"tuning","seed":307,"rotation":2,"goals":2,"combat":[33,98,867],"lastQuarter":{"actions":500,"meaningful":500,"combat":257,"goals":2,"air":5},"airports":33,"air":21,"ms":2.22}
+{"mode":"after","sample":"tuning","seed":307,"rotation":4,"goals":2,"combat":[64,122,876],"lastQuarter":{"actions":500,"meaningful":500,"combat":259,"goals":1,"air":15},"airports":29,"air":47,"ms":1.81}
+{"mode":"after","sample":"tuning","seed":401,"rotation":0,"goals":4,"combat":[38,101,943],"lastQuarter":{"actions":500,"meaningful":500,"combat":298,"goals":2,"air":10},"airports":25,"air":23,"ms":1.75}
+{"mode":"after","sample":"tuning","seed":401,"rotation":2,"goals":6,"combat":[48,147,890],"lastQuarter":{"actions":500,"meaningful":500,"combat":282,"goals":4,"air":11},"airports":24,"air":25,"ms":1.96}
+{"mode":"after","sample":"tuning","seed":401,"rotation":4,"goals":3,"combat":[12,208,848],"lastQuarter":{"actions":500,"meaningful":500,"combat":297,"goals":1,"air":7},"airports":24,"air":35,"ms":1.99}

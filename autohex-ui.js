@@ -2,8 +2,9 @@
 (() => {
   'use strict';
   const E = window.AutoHex;
+  const V = window.AutoHexVisuals;
   const $ = id => document.getElementById(id);
-  if (!E) { $('status').textContent = '戰場載入失敗，請重新整理此頁。'; return; }
+  if (!E || !V) { $('status').textContent = '戰場載入失敗，請重新整理此頁。'; return; }
   const canvas = $('board'), ctx = canvas.getContext('2d');
   const mini = $('minimap'), mctx = mini.getContext('2d');
   const P = E.PLAYERS || [1, 2, 3, 4, 5, 6];
@@ -12,8 +13,10 @@
   const NAMES = ['', '青綠', '珊瑚', '紫藤', '藍灰', '草綠', '琥珀'];
   const LETTER = p => String.fromCharCode(64 + p);
   const LABELS = { deploy: '鋪子 / 攻占', engineer: '築路', withdraw: '撤回', rest: '休整', turret: '炮台', destroy: '拆除', bridge: '橋梁', reroute: '改接', shield: '護盾', exchange: '換位', discard: '棄牌', offer: '提議停戰', accept: '接受停戰', reject: '拒絕停戰', betray: '背盟', ready: '戰場就緒' };
+  Object.assign(LABELS, { airdrop: '空投炮台', bombard: '航空轟炸', 'airport-unlocked': '機場啟用', 'airport-lost': '機場停用', 'depot-control': '物資站易主', fortified: '老兵工事完成' });
   const MARKS = { turret: '✣', destroy: '×', bridge: '⌁', reroute: '↗', shield: '◎', exchange: '⇄' };
   const HINTS = { deploy: '空格鋪子花 2 能量，攻占敵子花 4；攻占須有足夠相鄰支援。河流先築路。', engineer: '選一格空河流，建成各方都能使用的道路。', withdraw: '選自己的非家園棋子撤回，移除其設施並回復 1 能量。', turret: '選自己的非家園棋子架炮台。每 3 次自己回合射擊，射程 3 格。', destroy: '選敵方非家園棋子拆除；護盾可吸收一次拆除，山丘無法抵擋。', bridge: '依序選兩個自己的端點，相距 2–5 格；橋梁運送補給。', reroute: '依序選保留端點、舊端點、新端點；三格都是自己的棋子。', shield: '選自己的非家園棋子，加 2 防守並吸收一次拆除或炮擊。', exchange: '先選自己的普通棋子，再選相鄰的空格或敵方普通棋子。' };
+  Object.assign(HINTS, { airdrop: '先選已啟用的己方機場，再選機場 10 格內空的可通行格空投炮台。花 6 能量、3 物資。', bombard: '先選已啟用的己方機場，再選機場 12 格內敵方非家園棋子。花 7 能量、4 物資。' });
   const CARD_GUIDE = {
     turret: '在自己既有的非家園棋子架設炮台；每 3 次自己的回合，射擊 3 格內一個非盟友敵子，持續 30 回合。最多同時 3 座。護盾會吸收一次炮擊。',
     destroy: '拆除自己 5 格範圍內的敵方棋子。不能拆家園或盟友；護盾會吸收一次拆除，山丘不抵擋拆除。',
@@ -30,6 +33,9 @@
   let hovered = -1, focused = -1, message = '', error = false, generation = 0;
   let aiTimer = null, frame = null, timing = false, lastStamp = 0, lastClockPaint = 0;
   let wasStarted = false, rangeValid = new Set(), lastViewTurn = null;
+  const effects = new V.Effects(), reducedQuery = matchMedia('(prefers-reduced-motion: reduce)');
+  let supplyLinks = [], inspectedCell = -1, inspectedRange = null, inspectMode = false, airRangeCells = [];
+  let lastEffectPaint = 0, effectsDirty = false;
   const pointers = new Map();
   let drag = null, pinch = null, dragged = false;
   const meta = type => E.CARD_META[type] || E.ACTION_META?.[type] || FALLBACK[type] || { cost: 0, slots: 1 };
@@ -40,15 +46,20 @@
   const node = (tag, className, text) => { const el = document.createElement(tag); if (className) el.className = className; if (text !== undefined) el.textContent = text; return el; };
   const can = action => E.legalAction(view, { cells: [], ...action });
   const actionFor = cells => ({ type: selection.type, cells, ...(selection.cardIndex !== undefined ? { cardIndex: selection.cardIndex } : {}) });
+  const isAirAction = () => selection.type === 'airdrop' || selection.type === 'bombard';
 
   function readRecipe() {
-    return { seed: $('seed').value.trim() || 'autohex-2026', first: Number($('starter').value), rotation: Number($('rotation').value), durationMs: 600000 };
+    return { seed: $('seed').value.trim() || 'autohex-2026', first: Number($('starter').value), rotation: Number($('rotation').value), durationMs: 600000, neutralEvents: $('neutral-events').value !== 'off' };
   }
   function flushClock(now = performance.now()) {
     // A RAF timestamp is captured before its callback runs. Timer work can have
     // already advanced the clock beyond it; never move our time origin backward.
     const nextStamp = Math.max(lastStamp, now);
-    if (timing && game?.phase === 'running') game.advanceTime(nextStamp - lastStamp);
+    if (timing && game?.phase === 'running') {
+      const before = game.activeMs;
+      game.advanceTime(nextStamp - lastStamp);
+      effectsDirty = effects.advance(game.activeMs - before) || effectsDirty;
+    }
     lastStamp = nextStamp;
   }
   function stopTimers() {
@@ -68,6 +79,11 @@
       // Count actual foreground time, including AI/render work in this frame.
       flushClock();
       if (now - lastClockPaint > 100) { paintClock(); lastClockPaint = now; }
+      if (effectsDirty && now - lastEffectPaint >= 33) {
+        // Effects share this clock. No DOM rebuilds, independent timers or AI delays.
+        if (!reducedQuery.matches || !effects.effects.length) draw();
+        effectsDirty = false; lastEffectPaint = now;
+      }
       if (game.phase === 'over') { stopTimers(); render(); return; }
       frame = requestAnimationFrame(tick);
     };
@@ -93,6 +109,7 @@
     mode = $('match-mode').value;
     recipe = readRecipe();
     game = new E.Game(recipe); window.autoHexGame = game;
+    effects.clear(); effectsDirty = false; inspectedCell = -1; inspectedRange = null; inspectMode = false;
     selection = { type: 'deploy', cells: [] }; hovered = -1; focused = -1;
     lastViewTurn = null; message = ''; error = false; wasStarted = start;
     if (start) game.start();
@@ -110,6 +127,11 @@
   }
   function render() {
     view = game.observation(mode === 'human' ? 1 : 0);
+    effects.ingest(view.events, game.activeMs);
+    supplyLinks = V.supplyForest(view, E.ADJ);
+    inspectedRange = V.inspectTurret(view, inspectedCell, E.CELLS, E.distance);
+    if (!inspectedRange && !(view.airports || []).some(a => a.cell === inspectedCell) && !(view.depots || []).some(d => d.cell === inspectedCell)) inspectedCell = -1;
+    paintInspection();
     if (lastViewTurn !== game.turn || !isHumanTurn()) { selection.cells = []; if (!isHumanTurn()) selection = { type: 'deploy', cells: [] }; }
     lastViewTurn = game.turn;
     if (selection.cardIndex !== undefined && view.hand[selection.cardIndex] !== selection.type) selection = { type: 'deploy', cells: [] };
@@ -124,13 +146,14 @@
     $('turn-label').textContent = ready ? '等待開局' : game.phase === 'over' ? '最終排名已出爐' : `${localName(game.turn)}${mode === 'human' && game.turn === 1 ? ' · 你' : ' · AI'} 行動`;
     $('turn-label').style.color = COLORS[game.turn]; $('turn-label').style.background = TINTS[game.turn];
     const notice = $('map-notice'); notice.hidden = running;
+    notice.classList.toggle('is-paused', paused);
     if (!running) {
-      notice.children[0].textContent = ready ? '六個家園，六個方向' : paused ? '戰場暫停中' : '十分鐘到，戰役結算';
+      notice.children[0].textContent = ready ? '六個家園，六個方向' : paused ? '已暫停 · 地圖仍可查看' : '十分鐘到，戰役結算';
       notice.children[1].textContent = ready ? '按「開始戰役」，從家園向同色對岸出發。' : paused ? '時間與 AI 都已停下；仍可移動地圖查看前線。' : '查看最終排名，或繼續不限時的自由對戰。';
     }
     $('home-view').textContent = mode === 'human' ? '我的家園' : '目前家園';
     $('show-range').disabled = mode !== 'human';
-    renderPlayers(); renderActions(); renderDiplomacy(); renderEvents(); renderResult();
+    renderPlayers(); renderActions(); renderFacilities(); renderDiplomacy(); renderEvents(); renderResult();
     paintClock(); computeLegalTargets(); draw();
   }
   function directionAt(i) {
@@ -153,7 +176,7 @@
       const score = node('div', 'ah-faction-score'); score.append(node('strong', '', player.score || 0), node('span', '', '分'));
       const count = view.board.reduce((n, owner) => n + (owner === p ? 1 : 0), 0);
       const goal = goalPoint(p), gi = points.reduce((best, c, i) => Math.hypot(c.x - goal.x, c.y - goal.y) < Math.hypot(points[best].x - goal.x, points[best].y - goal.y) ? i : best, 0);
-      el.append(top, score, node('small', 'ah-direction', `⌂ ${directionAt(player.home)} → ${directionAt(gi)}`), node('small', '', `能量 ${player.energy}/8 · 棋子 ${count}/96`), node('small', '', `手牌 ${view.handCounts?.[p] || 0}/5${player.goalActive ? ' · 已接通對岸' : ''}`));
+      el.append(top, score, node('small', 'ah-direction', `⌂ ${directionAt(player.home)} → ${directionAt(gi)}`), node('small', '', `能量 ${player.energy}/8 · 棋子 ${count}/96`), node('small', '', `物資 ${player.supplies || 0}/6 · 手牌 ${view.handCounts?.[p] || 0}/5${player.goalActive ? ' · 已接通' : ''}`));
       fragment.append(el);
     }
     $('players').replaceChildren(fragment);
@@ -171,6 +194,16 @@
     const yourTurn = isHumanTurn(), human = mode === 'human';
     $('action-heading').textContent = human ? '你的回合工具' : '觀戰資訊';
     $('energy').textContent = human ? `能量 ${view.players[1].energy} / 8` : '六位本機 AI';
+    const resourcePlayer = human ? 1 : game.turn, resources = view.players[resourcePlayer];
+    $('supplies').textContent = `${human ? '' : LETTER(resourcePlayer) + ' · '}物資 ${resources.supplies || 0} / 6 · 航空冷卻 ${resources.airCooldown || 0} 次己方行動`;
+    $('air-actions').hidden = !human;
+    const activeAirports = (view.airports || []).filter(a => a.owner === 1 && a.active);
+    for (const type of ['airdrop', 'bombard']) {
+      const m = E.ACTION_META?.[type], button = $(type);
+      button.disabled = !yourTurn || !m || !activeAirports.length || resources.energy < m.cost || resources.supplies < m.supplyCost || resources.airCooldown > 0;
+      button.setAttribute('aria-pressed', String(selection.type === type));
+    }
+    $('air-action-note').textContent = human ? activeAirports.length ? `已有 ${activeAirports.length} 座可用機場；先選機場再選目標，不需手牌。` : '先取得並啟用外圍機場，才能空投或轟炸。不需手牌。' : '航空出手與物資都是公開的；檢視外圍據點可追蹤機場進度。';
     $('status').textContent = statusText(); $('status').classList.toggle('error', error);
     $('base-actions').hidden = !human; $('selection').hidden = !human; $('hand').previousElementSibling.hidden = !human; $('discard-card').parentElement.hidden = !human;
     for (const type of ['deploy', 'engineer', 'withdraw', 'rest']) {
@@ -201,6 +234,24 @@
     $('selection-label').textContent = `已選：${label(selection.type)}${selection.cells.length ? ` · ${selection.cells.length}/${meta(selection.type).slots} 格` : ''}`;
     $('cancel-selection').disabled = !yourTurn || selection.type === 'deploy' && !selection.cells.length;
   }
+  function renderFacilities() {
+    $('facilities').replaceChildren(...(view.airports || []).map((a, i) => {
+      const button = node('button', `btn ah-facility${a.active ? ' active' : ''}`); button.dataset.airport = a.cell; button.style.setProperty('--facility', COLORS[a.owner] || '#657283');
+      button.append(node('strong', '', `✈ 機場 ${i + 1} · ${a.owner ? LETTER(a.owner) : '中立'}`), node('small', '', a.active ? '已啟用 · 可航空出手' : `連片 ${a.cluster}/12 · 維持 ${a.progress}/3`), node('small', '', a.owner ? a.supplied ? '已連回家園' : '尚未連回家園' : '占領中心開始建設'));
+      button.addEventListener('click', () => inspectFacility(a.cell)); return button;
+    }));
+    $('depots').replaceChildren(...(view.depots || []).map((d, i) => {
+      const button = node('button', 'btn', `◇ ${i + 1} · ${d.owner ? LETTER(d.owner) : '中立'}${d.supplied ? ' ✓' : ''}`); button.dataset.depot = d.cell; button.style.setProperty('--facility', COLORS[d.owner] || '#657283'); button.setAttribute('aria-label', `物資站 ${i + 1}，${d.owner ? localName(d.owner) : '中立'}，${d.supplied ? '補給連通' : '未連通'}`); button.addEventListener('click', () => inspectFacility(d.cell)); return button;
+    }));
+    const warning = view.neutralWarning, status = $('neutral-warning'); status.classList.toggle('active', !!warning);
+    if (!view.neutralEvents) status.textContent = '中立事件已關閉。本局不會出現中立游擊或災害。';
+    else if (!warning) status.textContent = '中立事件開啟 · 每 12 輪發生，提前 2 輪公開受影響棋子；工事可防護。';
+    else {
+      status.replaceChildren(document.createTextNode(`${warning.kind === 'guerrilla' ? '游擊' : '災害'}預警 · 扇區 ${warning.sector + 1} · ${Math.max(0, warning.resolveRound - game.round)} 輪後發生 · ${(warning.cells || []).length} 格 `));
+      (warning.cells || []).forEach((cell, i) => { const button = node('button', 'btn ah-warning-target', `查看 ${i + 1}`); button.addEventListener('click', () => focusCell(cell)); status.append(button); });
+    }
+  }
+  function inspectFacility(cell) { inspectedCell = cell; inspectedRange = V.inspectTurret(view, cell, E.CELLS, E.distance); inspectMode = true; focusCell(cell); paintInspection(); }
   function renderDiplomacy() {
     const alliances = view.alliances || [], offers = view.offers || [], publicNames = pair => `${localName(pair[0])} ↔ ${localName(pair[1])}`;
     $('alliances').replaceChildren(...alliances.map(a => { const el = node('div', 'ah-alliance', publicNames([a.a, a.b])); el.append(node('small', '', `停戰剩餘 ${Math.max(0, a.expiresRound - game.round)} 輪`)); return el; }));
@@ -234,6 +285,7 @@
       const el = node('li'); if (e.round !== undefined) el.append(node('time', '', `R${e.round}`));
       const named = e.player ? `${localName(e.player)} ` : '', target = e.target ? ` → ${localName(e.target)}` : '';
       const descriptions = { ready: '六方戰場就緒，從家園向對岸出發。', sandbox: '進入不限時自由對戰；戰役排名已保存。', 'campaign-end': '十分鐘到，六方分數已一起結算。', reshuffle: '共享抽牌池用盡，棄牌已洗回牌池。', capture: `${named}攻占 ${e.from ? localName(e.from) : '敵方'} 棋子。`, destroy: `${named}拆除 ${e.from ? localName(e.from) : '敵方'} 棋子。`, 'shield-block': `${named}的攻擊被護盾吸收。`, 'supply-retreat': `${named}有 ${e.count} 枚斷補棋子撤退。`, 'offer-expired': `${named}的停戰提議已到期${target}。`, 'alliance-expired': `${named}的停戰已到期${target}。`, 'goal-arrival': `${named}接通對岸，+${e.points} 分。`, 'goal-hold': `${named}持續守住對岸，本輪 +${e.points} 分。`, 'goal-lost': `${named}的對岸補給連線中斷。`, betray: `${named}背盟${target}，−4 分。` };
+      Object.assign(descriptions, { 'neutral-warning': `${e.kind === 'guerrilla' ? '游擊' : '災害'}預警：扇區 ${e.sector + 1}，目標已公開。`, 'neutral-strike': `${e.kind === 'guerrilla' || e.source === 'guerrilla' ? '游擊' : '災害'}造成 ${e.from ? localName(e.from) : ''} 棋子崩解，地形保留。`, 'neutral-block': '工事、家園或護盾抵擋了中立事件。', 'airport-unlocked': `${named}機場已啟用，可進行航空行動。`, 'airport-lost': `${named}機場條件失去，立即停用。`, airdrop: `${named}從機場空投炮台。`, bombard: `${named}進行航空轟炸。`, fortified: `${named}棋子持守超過 30 次己方行動，工事完成。` });
       el.append(document.createTextNode(descriptions[e.type] || `${named}${label(e.type)}${target}。`)); return el;
     }));
     if (!events.length) $('event-log').append(node('li', '', '戰場已就緒。外交與重要戰況會公開記錄於此。'));
@@ -248,6 +300,7 @@
   }
   function selectAction(type, cardIndex) {
     if (!isHumanTurn()) return;
+    inspectMode = false;
     selection = { type, cells: [], ...(cardIndex !== undefined ? { cardIndex } : {}) }; message = ''; error = false;
     render();
   }
@@ -256,7 +309,7 @@
     if (!isHumanTurn()) { render(); schedule(); return false; }
     view = game.observation(1);
     if (!E.legalAction(view, action) || !game.act(action)) {
-      message = '這個目標目前不能使用：請檢查距離、地形、棋子與停戰關係。沒有花費能量或卡牌。'; error = true; render(); return false;
+      message = '這個目標目前不能使用：請檢查距離、地形、棋子、資源、冷卻與停戰關係。沒有花費能量、物資或卡牌。'; error = true; render(); return false;
     }
     selection = { type: 'deploy', cells: [] }; message = ''; error = false;
     render(); schedule(); return true;
@@ -264,6 +317,7 @@
   function partialValid(i) {
     const type = selection.type, p = 1;
     if (selection.cells.includes(i)) return false;
+    if (isAirAction()) return (view.airports || []).some(a => a.cell === i && a.owner === p && a.active);
     if (!view.range?.[i] && view.board[i] !== p) return false;
     if (type === 'bridge' || type === 'reroute') {
       if (view.board[i] !== p) return false;
@@ -276,17 +330,23 @@
   function pickCell(i) {
     if (i < 0) return;
     focused = hovered = i; describeCell(i);
+    if (inspectMode || !isHumanTurn()) {
+      inspectedCell = i; inspectedRange = V.inspectTurret(view, i, E.CELLS, E.distance);
+      paintInspection(); draw(); return;
+    }
     if (!isHumanTurn()) { draw(); return; }
     const slots = meta(selection.type).slots || 1, cells = [...selection.cells, i];
     if (cells.length < slots) {
-      if (!partialValid(i)) { message = '這格不能作為目前的端點。請從自己的可用棋子選擇；沒有花費資源。'; error = true; render(); return; }
+      if (!partialValid(i)) { message = isAirAction() ? '第一格須選已啟用的己方機場；尚未花費資源。' : '這格不能作為目前的端點。請從自己的可用棋子選擇；沒有花費資源。'; error = true; render(); return; }
       selection.cells = cells; message = ''; error = false; render(); return;
     }
     perform(actionFor(cells));
   }
   function computeLegalTargets() {
-    rangeValid = new Set();
+    rangeValid = new Set(); airRangeCells = [];
     if (!isHumanTurn() || !$('show-range').checked) return;
+    if (isAirAction() && !selection.cells.length) { for (const a of view.airports || []) if (a.owner === 1 && a.active) rangeValid.add(a.cell); return; }
+    if (isAirAction() && selection.cells.length) airRangeCells = E.CELLS.filter(c => E.distance(selection.cells[0], c.i) <= meta(selection.type).range).map(c => c.i);
     if (selection.cells.length + 1 === meta(selection.type).slots) {
       for (const c of E.CELLS) if (can(actionFor([...selection.cells, c.i]))) rangeValid.add(c.i);
     }
@@ -296,7 +356,18 @@
     const c = E.CELLS[i], owner = view.board[i], anchor = view.anchors[i];
     const terrain = terrainIs(view.terrain[i], 'river') ? view.roads[i] ? '已築路河流' : '河流' : terrainIs(view.terrain[i], 'hill') ? '山丘' : '平地';
     const turret = view.turrets.find(t => t.cell === i);
-    $('cell-info').textContent = `格 (${c.q}, ${c.r}) · ${anchor ? localName(anchor) + ' 永久家園' : owner ? localName(owner) + ' 棋子' : '空格'} · ${terrain}${owner ? view.supplied?.[i] ? ' · 補給連通' : ` · 斷補 ${view.unsupplied?.[i] || 0}/6 回合` : ''}${view.shields?.[i] ? ` · 護盾 ${view.shields[i]} 回合` : ''}${turret ? ` · 炮擊倒數 ${turret.countdown} / 壽命 ${turret.life}` : ''}${mode === 'human' && view.range?.[i] ? ' · 你的 5 格範圍內' : ''}`;
+    $('cell-info').textContent = `格 (${c.q}, ${c.r}) · ${anchor ? localName(anchor) + ' 永久家園' : owner ? localName(owner) + ' 棋子' : '空格'} · ${terrain}${owner ? view.supplied?.[i] ? ' · 補給連通' : ` · 斷補 ${view.unsupplied?.[i] || 0}/6 回合` : ''}${owner && !anchor ? ` · 持守 ${view.age?.[i] || 0} 次己方行動${view.fortified?.[i] ? '，工事已成（防中立事件）' : '/31 成工事'}` : ''}${view.shields?.[i] ? ` · 護盾 ${view.shields[i]} 回合` : ''}${turret ? ` · 炮擊倒數 ${turret.countdown} / 壽命 ${turret.life}` : ''}${mode === 'human' && view.range?.[i] ? ' · 你的 5 格範圍內' : ''}`;
+  }
+  function paintInspection() {
+    $('inspect-mode').setAttribute('aria-pressed', String(inspectMode));
+    $('inspect-mode').textContent = inspectMode ? '查看中 · 不出手' : '查看設施';
+    $('clear-inspection').disabled = inspectedCell < 0;
+    const airport = (view.airports || []).find(a => a.cell === inspectedCell), depot = (view.depots || []).find(d => d.cell === inspectedCell);
+    $('turret-info').textContent = inspectedRange
+      ? `${localName(inspectedRange.owner)} 炮台 · 射程 3 格 · 射擊倒數 ${inspectedRange.countdown} 次己方回合 · 壽命 ${inspectedRange.life} 回合。圈內標靶是目前可攻擊的 ${inspectedRange.targets.length} 枚敵子，並非預告下一個命中目標。`
+      : airport ? `✈ 機場 · ${airport.owner ? localName(airport.owner) : '中立'} · ${airport.supplied ? '家園補給連通' : '尚未連回家園'} · 4 格內連片 ${airport.cluster}/12 子 · 維持 ${airport.progress}/3 次己方行動 · ${airport.active ? '已啟用：空投 10 格 / 轟炸 12 格' : '未啟用：持續占領並擴大連片'}`
+      : depot ? `◇ 物資站 · ${depot.owner ? localName(depot.owner) : '中立'} · ${depot.supplied ? '連回家園，每 3 次己方行動提供物資加成' : '占領並連回家園後提供物資加成'}`
+      : inspectMode ? '查看模式：點按炮台、機場或物資站。點格只查看，不會花費能量或出牌。' : '選「查看設施」後點按炮台顯示射程，或查看機場與物資站。';
   }
   function resize() {
     const rect = canvas.getBoundingClientRect(), dpr = Math.min(devicePixelRatio || 1, 2.5), ratio = camera.scale / camera.fit;
@@ -323,6 +394,115 @@
   function hexPath(context, x, y, radius = .93) {
     context.beginPath(); for (let k = 0; k < 6; k++) { const a = Math.PI / 3 * k + Math.PI / 6; const px = x + Math.cos(a) * radius, py = y + Math.sin(a) * radius; k ? context.lineTo(px, py) : context.moveTo(px, py); } context.closePath();
   }
+  function ownerPath(owner, x, y, radius) {
+    ctx.beginPath();
+    if (owner === 1) { ctx.arc(x, y, radius, 0, Math.PI * 2); return; }
+    const sides = [0, 0, 4, 3, 4, 5, 6][owner], turn = owner === 2 ? 0 : -Math.PI / 2 + (owner === 4 ? Math.PI / 4 : 0);
+    for (let k = 0; k < sides; k++) { const a = turn + k * Math.PI * 2 / sides, px = x + Math.cos(a) * radius, py = y + Math.sin(a) * radius; k ? ctx.lineTo(px, py) : ctx.moveTo(px, py); }
+    ctx.closePath();
+  }
+  function shownSupplyLinks() { const mode = $('supply-mode').value; return mode === 'off' ? [] : supplyLinks.filter(link => mode === 'all' || link.owner === Number(mode)); }
+  function drawSupply(scale) {
+    const all = $('supply-mode').value === 'all';
+    ctx.save(); ctx.globalAlpha = all ? .42 : .85; ctx.lineWidth = Math.max(all ? .075 : .12, (all ? 1 : 1.6) / scale);
+    for (const link of shownSupplyLinks()) {
+      const a = points[link.a], b = points[link.b], dx = b.x - a.x, dy = b.y - a.y, d = Math.hypot(dx, dy), inset = Math.min(.62, d / 3);
+      ctx.strokeStyle = COLORS[link.owner]; ctx.beginPath(); ctx.moveTo(a.x + dx / d * inset, a.y + dy / d * inset); ctx.lineTo(b.x - dx / d * inset, b.y - dy / d * inset); ctx.stroke();
+    }
+    ctx.restore();
+  }
+  function crosshair(i, color, scale, radius = .8) {
+    const p = points[i], r = Math.max(radius, 5 / scale);
+    ctx.strokeStyle = color; ctx.lineWidth = Math.max(.1, 1.3 / scale); ctx.beginPath(); ctx.arc(p.x, p.y, r * .7, 0, Math.PI * 2);
+    for (let k = 0; k < 4; k++) { const a = k * Math.PI / 2; ctx.moveTo(p.x + Math.cos(a) * r * .5, p.y + Math.sin(a) * r * .5); ctx.lineTo(p.x + Math.cos(a) * r * 1.2, p.y + Math.sin(a) * r * 1.2); } ctx.stroke();
+  }
+  function drawTurretRange(scale) {
+    if (!inspectedRange) return;
+    const included = new Set(inspectedRange.cells), color = COLORS[inspectedRange.owner];
+    ctx.save(); ctx.strokeStyle = color; ctx.lineWidth = Math.max(.12, 1.5 / scale); ctx.setLineDash([5 / scale, 3 / scale]);
+    for (const i of inspectedRange.cells) {
+      const c = E.CELLS[i], p = points[i];
+      hexPath(ctx, p.x, p.y); ctx.fillStyle = color + '12'; ctx.fill();
+      // Each outer hex side is drawn once, giving the actual clipped radius-3 boundary.
+      for (const [dq, dr, angle] of [[1, 0, 0], [0, 1, 60], [-1, 1, 120], [-1, 0, 180], [0, -1, 240], [1, -1, 300]]) {
+        if (included.has(E.index(c.q + dq, c.r + dr))) continue;
+        const a = (angle - 30) * Math.PI / 180, b = (angle + 30) * Math.PI / 180;
+        ctx.beginPath(); ctx.moveTo(p.x + Math.cos(a), p.y + Math.sin(a)); ctx.lineTo(p.x + Math.cos(b), p.y + Math.sin(b)); ctx.stroke();
+      }
+    }
+    ctx.setLineDash([]); for (const i of inspectedRange.targets) crosshair(i, '#a65e46', scale, .7); ctx.restore();
+  }
+  function drawTurrets(scale, visible) {
+    for (const t of view.turrets || []) {
+      const p = points[t.cell]; if (!visible(p)) continue;
+      const size = Math.max(12, scale * 1.35) / scale, x = p.x, y = p.y, color = COLORS[t.owner];
+      ctx.save(); ctx.strokeStyle = '#fff'; ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+      if (!view.supplied[t.cell]) { ctx.strokeStyle = '#a87534'; ctx.lineWidth = 1.4 / scale; ctx.setLineDash([2.5 / scale, 2 / scale]); ctx.beginPath(); ctx.arc(x, y, size * .8, 0, Math.PI * 2); ctx.stroke(); ctx.setLineDash([]); ctx.strokeStyle = '#fff'; }
+      // Solid plinth, armored body and raised barrel remain legible at whole-map zoom.
+      ctx.lineWidth = Math.max(.12, 2.4 / scale); ctx.fillStyle = color;
+      ctx.beginPath(); ctx.moveTo(x - size * .48, y + size * .36); ctx.lineTo(x + size * .48, y + size * .36); ctx.lineTo(x + size * .34, y - size * .13); ctx.lineTo(x - size * .34, y - size * .13); ctx.closePath(); ctx.stroke(); ctx.fill();
+      ctx.beginPath(); ctx.moveTo(x, y - size * .1); ctx.lineTo(x + size * .31, y - size * .62); ctx.lineWidth = size * .25 + 2 / scale; ctx.stroke(); ctx.strokeStyle = color; ctx.lineWidth = size * .25; ctx.stroke();
+      ctx.fillStyle = '#fff'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.font = `bold ${Math.max(6.5 / scale, size * .42)}px sans-serif`; ctx.fillText(LETTER(t.owner), x - size * .03, y + size * .1);
+      ctx.fillStyle = '#fff'; ctx.strokeStyle = color; ctx.lineWidth = 1 / scale; ctx.beginPath(); ctx.arc(x + size * .58, y - size * .35, Math.max(4.7 / scale, size * .28), 0, Math.PI * 2); ctx.fill(); ctx.stroke(); ctx.fillStyle = color; ctx.font = `bold ${Math.max(7 / scale, size * .4)}px sans-serif`; ctx.fillText(t.countdown, x + size * .58, y - size * .35);
+      ctx.restore();
+    }
+  }
+  function drawFacilities(scale, visible) {
+    for (const a of view.airports || []) {
+      const p = points[a.cell]; if (!visible(p)) continue;
+      const size = Math.max(13, scale * 1.42) / scale, color = COLORS[a.owner] || '#708090', x = p.x, y = p.y;
+      ctx.save(); ctx.fillStyle = a.active ? '#e5f2ed' : '#f9fbfc'; ctx.strokeStyle = color; ctx.lineWidth = Math.max(.11, 1.4 / scale); ctx.fillRect(x - size * .59, y - size * .59, size * 1.18, size * 1.18); ctx.strokeRect(x - size * .59, y - size * .59, size * 1.18, size * 1.18);
+      // Aircraft planform: fuselage, swept wings and tail, distinct from a cannon.
+      ctx.fillStyle = color; ctx.beginPath(); ctx.moveTo(x, y - size * .46); ctx.lineTo(x + size * .09, y - size * .07); ctx.lineTo(x + size * .42, y + size * .13); ctx.lineTo(x + size * .4, y + size * .24); ctx.lineTo(x + size * .08, y + size * .12); ctx.lineTo(x + size * .07, y + size * .33); ctx.lineTo(x + size * .18, y + size * .42); ctx.lineTo(x - size * .18, y + size * .42); ctx.lineTo(x - size * .07, y + size * .33); ctx.lineTo(x - size * .08, y + size * .12); ctx.lineTo(x - size * .4, y + size * .24); ctx.lineTo(x - size * .42, y + size * .13); ctx.lineTo(x - size * .09, y - size * .07); ctx.closePath(); ctx.fill();
+      for (let k = 0; k < 3; k++) { ctx.fillStyle = a.active || a.progress > k ? color : '#d9e1e7'; ctx.fillRect(x - size * .59 + k * size * .42, y + size * .68, size * .34, Math.max(.12, 2 / scale)); }
+      if (a.owner && scale > 7) { ctx.font = `bold ${Math.max(.48, 7 / scale)}px sans-serif`; ctx.textAlign = 'left'; ctx.fillStyle = color; ctx.fillText(LETTER(a.owner), x + size * .68, y + size * .12); }
+      ctx.restore();
+    }
+    for (const d of view.depots || []) {
+      const p = points[d.cell]; if (!visible(p)) continue;
+      const size = Math.max(9, scale * 1.06) / scale, color = COLORS[d.owner] || '#918368';
+      ctx.save(); ctx.fillStyle = '#fffcf2'; ctx.strokeStyle = color; ctx.lineWidth = Math.max(.1, 1.2 / scale); ctx.beginPath(); ctx.moveTo(p.x, p.y - size * .66); ctx.lineTo(p.x + size * .66, p.y); ctx.lineTo(p.x, p.y + size * .66); ctx.lineTo(p.x - size * .66, p.y); ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.fillStyle = color; ctx.fillRect(p.x - size * .27, p.y - size * .24, size * .54, size * .48); ctx.strokeStyle = '#fff'; ctx.lineWidth = 1 / scale; ctx.beginPath(); ctx.moveTo(p.x, p.y - size * .23); ctx.lineTo(p.x, p.y + size * .23); ctx.stroke(); ctx.restore();
+    }
+  }
+  function drawStrategicOverlays(scale) {
+    if (airRangeCells.length) {
+      const included = new Set(airRangeCells); ctx.save(); ctx.strokeStyle = '#4d739e'; ctx.lineWidth = Math.max(.12, 1.6 / scale); ctx.setLineDash([6 / scale, 3 / scale]);
+      for (const i of airRangeCells) { const c = E.CELLS[i], p = points[i]; for (const [dq, dr, angle] of [[1, 0, 0], [0, 1, 60], [-1, 1, 120], [-1, 0, 180], [0, -1, 240], [1, -1, 300]]) if (!included.has(E.index(c.q + dq, c.r + dr))) { const a = (angle - 30) * Math.PI / 180, b = (angle + 30) * Math.PI / 180; ctx.beginPath(); ctx.moveTo(p.x + Math.cos(a), p.y + Math.sin(a)); ctx.lineTo(p.x + Math.cos(b), p.y + Math.sin(b)); ctx.stroke(); } } ctx.restore();
+    }
+    for (const i of view.neutralWarning?.cells || []) {
+      const p = points[i]; if (!p) continue;
+      ctx.save(); hexPath(ctx, p.x, p.y, 1.07); ctx.strokeStyle = '#a36520'; ctx.lineWidth = Math.max(.14, 2 / scale); ctx.stroke();
+      const radius = Math.max(.28, 4.5 / scale), x = p.x + Math.max(.7, 6 / scale), y = p.y - Math.max(.7, 6 / scale); ctx.fillStyle = '#ffe6af'; ctx.lineWidth = 1 / scale; ctx.beginPath(); ctx.moveTo(x, y - radius); ctx.lineTo(x + radius, y + radius * .8); ctx.lineTo(x - radius, y + radius * .8); ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.font = `bold ${Math.max(.35, 7 / scale)}px sans-serif`; ctx.fillStyle = '#80551c'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('!', x, y + radius * .15); ctx.restore();
+    }
+  }
+  function drawEffects(scale) {
+    for (const effect of effects.effects) {
+      const reduced = reducedQuery.matches, progress = Math.min(1, effect.age / effect.duration), color = COLORS[effect.from || effect.player] || '#a65e46';
+      ctx.save(); ctx.globalAlpha = reduced ? .9 : Math.min(1, (1 - progress) * 2.5);
+      for (const i of effect.cells.slice(0, 16)) {
+        const p = points[i]; if (!p) continue;
+        const radius = Math.max(.5, 4 / scale);
+        if (['turret', 'bombard', 'airdrop'].includes(effect.source) && points[effect.origin]) {
+          const source = points[effect.origin]; ctx.strokeStyle = '#b67729'; ctx.lineWidth = Math.max(.1, 1.5 / scale); ctx.setLineDash(reduced ? [3 / scale, 2 / scale] : []); ctx.beginPath(); ctx.moveTo(source.x, source.y); ctx.lineTo(p.x, p.y); ctx.stroke(); ctx.setLineDash([]);
+          if (!reduced && progress < .45) { const t = Math.min(1, progress / .45); ctx.fillStyle = '#a65e46'; ctx.beginPath(); ctx.arc(source.x + (p.x - source.x) * t, source.y + (p.y - source.y) * t, Math.max(.13, 2 / scale), 0, Math.PI * 2); ctx.fill(); }
+        }
+        ctx.strokeStyle = ['shield-block', 'neutral-block'].includes(effect.type) ? '#4d739e' : color; ctx.lineWidth = Math.max(.11, 1.4 / scale);
+        if (['shield-block', 'neutral-block'].includes(effect.type)) { ctx.beginPath(); ctx.arc(p.x, p.y, radius * (reduced ? 1.35 : 1 + progress), 0, Math.PI * 2); ctx.stroke(); }
+        else if (effect.type === 'capture' || effect.type === 'airdrop') crosshair(i, COLORS[effect.player], scale, radius);
+        else {
+          // Fragments are ghosts of the removed piece. The underlying terrain is untouched.
+          ctx.fillStyle = color;
+          for (let k = 0; k < 4; k++) { const angle = k * Math.PI / 2 + .4, travel = reduced ? .3 : .12 + progress * .75, x = p.x + Math.cos(angle) * radius * travel, y = p.y + Math.sin(angle) * radius * travel;
+            ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + Math.cos(angle - .55) * radius * .65, y + Math.sin(angle - .55) * radius * .65); ctx.lineTo(x + Math.cos(angle + .55) * radius * .65, y + Math.sin(angle + .55) * radius * .65); ctx.closePath(); ctx.fill();
+          }
+          ctx.beginPath(); ctx.moveTo(p.x - radius * .35, p.y - radius * .35); ctx.lineTo(p.x + radius * .35, p.y + radius * .35); ctx.moveTo(p.x + radius * .35, p.y - radius * .35); ctx.lineTo(p.x - radius * .35, p.y + radius * .35); ctx.stroke();
+        }
+      }
+      const p = points[effect.cells[0]];
+      if (p) { const title = ['destroy', 'neutral-strike'].includes(effect.type) ? '棋子崩解' : effect.type === 'supply-retreat' ? '斷補撤退' : effect.type === 'shield-block' ? '護盾吸收' : effect.type === 'neutral-block' ? '防護生效' : effect.type === 'airdrop' ? '炮台空投' : '攻占'; const font = Math.max(.45, 8.5 / scale), y = p.y - Math.max(1.2, 13 / scale); ctx.font = `bold ${font}px sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; const width = ctx.measureText(title).width + 4 / scale; ctx.fillStyle = '#ffffffed'; ctx.fillRect(p.x - width / 2, y - font * .8, width, font * 1.6); ctx.fillStyle = '#795633'; ctx.fillText(title, p.x, y); }
+      ctx.restore();
+    }
+  }
   function draw() {
     if (!view || !camera.width) return;
     const dpr = canvas.width / camera.width;
@@ -334,24 +514,31 @@
       const owner = view.board[i], river = terrainIs(view.terrain[i], 'river'), hill = terrainIs(view.terrain[i], 'hill');
       ctx.fillStyle = owner ? TINTS[owner] : river ? '#dcecf4' : hill ? '#f2ebd9' : '#ffffff';
       hexPath(ctx, pt.x, pt.y); ctx.fill(); ctx.strokeStyle = '#dbe3e7'; ctx.lineWidth = .06; ctx.stroke();
-      if (mode === 'human' && $('show-range').checked && isHumanTurn() && view.range?.[i] && !owner) { ctx.fillStyle = rangeValid.has(i) ? '#5ebcbf22' : '#5ebcbf0b'; ctx.fill(); }
+      if (mode === 'human' && $('show-range').checked && isHumanTurn() && (isAirAction() ? rangeValid.has(i) : view.range?.[i]) && !owner) { ctx.fillStyle = rangeValid.has(i) ? '#5ebcbf30' : '#5ebcbf0b'; ctx.fill(); }
       if (river && !owner && scale > 10) { ctx.strokeStyle = '#93b3c5'; ctx.lineWidth = .08; ctx.beginPath(); ctx.moveTo(pt.x - .4, pt.y + .12); ctx.bezierCurveTo(pt.x - .1, pt.y - .18, pt.x + .1, pt.y + .4, pt.x + .4, pt.y + .1); ctx.stroke(); }
       if (hill && !owner && scale > 10) { ctx.strokeStyle = '#bcaa78'; ctx.lineWidth = .07; ctx.beginPath(); ctx.moveTo(pt.x - .32, pt.y + .2); ctx.lineTo(pt.x, pt.y - .28); ctx.lineTo(pt.x + .32, pt.y + .2); ctx.stroke(); }
       if (view.roads[i]) { ctx.strokeStyle = '#8da5aa'; ctx.lineWidth = .15; ctx.beginPath(); ctx.moveTo(pt.x - .5, pt.y + .28); ctx.lineTo(pt.x + .5, pt.y - .28); ctx.stroke(); }
       if (owner) {
-        ctx.fillStyle = COLORS[owner]; ctx.strokeStyle = COLORS[owner]; ctx.lineWidth = .08;
-        ctx.beginPath(); ctx.arc(pt.x, pt.y, .48, 0, Math.PI * 2); ctx.fill();
-        if (view.supplied && !view.supplied[i]) { ctx.setLineDash([.13, .13]); ctx.beginPath(); ctx.arc(pt.x, pt.y, .72, 0, Math.PI * 2); ctx.stroke(); ctx.setLineDash([]); }
-        if (scale > 20 && !view.anchors[i]) { ctx.fillStyle = '#fff'; ctx.font = 'bold .51px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(LETTER(owner), pt.x, pt.y + .02); }
+        const broken = view.supplied && !view.supplied[i], radius = Math.max(.48, (broken ? 3.5 : 2.3) / scale);
+        ctx.fillStyle = broken ? '#fff' : COLORS[owner]; ctx.strokeStyle = COLORS[owner]; ctx.lineWidth = Math.max(.09, 1.1 / scale);
+        ownerPath(owner, pt.x, pt.y, radius); ctx.fill(); if (broken) ctx.stroke();
+        if (broken) { ctx.strokeStyle = '#a87534'; ctx.lineWidth = Math.max(.1, 1.3 / scale); ctx.setLineDash([2.2 / scale, 1.5 / scale]); ctx.beginPath(); ctx.arc(pt.x, pt.y, radius + 1.9 / scale, 0, Math.PI * 2); ctx.stroke(); ctx.setLineDash([]); ctx.fillStyle = COLORS[owner]; ctx.font = `bold ${Math.max(.5, 7 / scale)}px sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(Math.max(0, 6 - (view.unsupplied?.[i] || 0)), pt.x, pt.y + .03); }
+        else if (scale > 20 && !view.anchors[i]) { ctx.fillStyle = '#fff'; ctx.font = 'bold .51px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(LETTER(owner), pt.x, pt.y + .02); }
       }
       if (view.shields?.[i]) { ctx.strokeStyle = COLORS[owner] || '#708090'; ctx.lineWidth = .1; ctx.beginPath(); ctx.arc(pt.x, pt.y, .69, 0, Math.PI * 2); ctx.stroke(); }
+      if (owner && view.fortified?.[i] && !view.anchors[i]) {
+        const r = Math.max(.65, 4.5 / scale); ctx.strokeStyle = COLORS[owner]; ctx.lineWidth = Math.max(.1, 1.2 / scale); ctx.strokeRect(pt.x - r, pt.y - r * .72, r * 2, r * 1.6); ctx.fillStyle = COLORS[owner]; for (let k = 0; k < 3; k++) ctx.fillRect(pt.x - r + k * r * .78, pt.y - r * .97, r * .45, r * .4);
+      }
       if (view.anchors[i]) {
         ctx.fillStyle = '#fff'; ctx.font = 'bold .85px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('⌂', pt.x, pt.y - .05);
       }
       if (rangeValid.has(i) && !owner && scale > 12) { ctx.fillStyle = '#26747760'; ctx.beginPath(); ctx.arc(pt.x, pt.y, .1, 0, Math.PI * 2); ctx.fill(); }
     }
+    drawSupply(scale);
     for (const b of view.bridges || []) { const a = points[b.a], z = points[b.b]; ctx.strokeStyle = COLORS[b.owner]; ctx.lineWidth = .18; ctx.setLineDash([.28, .17]); ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(z.x, z.y); ctx.stroke(); ctx.setLineDash([]); }
-    for (const t of view.turrets || []) { const p = points[t.cell]; if (!visible(p)) continue; ctx.strokeStyle = '#fff'; ctx.lineWidth = .14; ctx.beginPath(); ctx.moveTo(p.x - .32, p.y); ctx.lineTo(p.x + .32, p.y); ctx.moveTo(p.x, p.y - .32); ctx.lineTo(p.x, p.y + .32); ctx.stroke(); if (scale > 15) { ctx.fillStyle = COLORS[t.owner]; ctx.font = 'bold .4px sans-serif'; ctx.textAlign = 'center'; ctx.fillText(String(t.countdown ?? ''), p.x + .48, p.y - .5); } }
+    drawTurretRange(scale);
+    if (['destroy', 'bombard'].includes(selection.type) && isHumanTurn()) for (const i of rangeValid) crosshair(i, '#a65e46', scale);
+    drawFacilities(scale, visible); drawTurrets(scale, visible); drawStrategicOverlays(scale); drawEffects(scale);
     drawGoals(ctx, scale);
     for (const [n, i] of selection.cells.entries()) {
       const p = points[i]; hexPath(ctx, p.x, p.y, 1.02); ctx.strokeStyle = '#2e3440'; ctx.lineWidth = .18; ctx.stroke(); ctx.fillStyle = '#2e3440'; ctx.beginPath(); ctx.arc(p.x + .65, p.y - .65, .4, 0, Math.PI * 2); ctx.fill(); ctx.fillStyle = '#fff'; ctx.font = 'bold .55px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(n + 1, p.x + .65, p.y - .63);
@@ -379,6 +566,9 @@
     const dpr = mini.width / m.width; mctx.setTransform(dpr, 0, 0, dpr, 0, 0); mctx.clearRect(0, 0, m.width, m.height); mctx.translate(m.width / 2, m.height / 2); mctx.scale(m.scale, m.scale);
     for (const c of E.CELLS) { const i = c.i, p = points[i]; mctx.fillStyle = view.board[i] ? COLORS[view.board[i]] : terrainIs(view.terrain[i], 'river') ? '#d5e6ed' : terrainIs(view.terrain[i], 'hill') ? '#e6dec9' : '#e9eff0'; hexPath(mctx, p.x, p.y, .98); mctx.fill(); }
     for (const p of P) { const h = points[view.players[p].home]; mctx.fillStyle = '#fff'; mctx.strokeStyle = COLORS[p]; mctx.lineWidth = .5; mctx.beginPath(); mctx.arc(h.x, h.y, 1.25, 0, Math.PI * 2); mctx.fill(); mctx.stroke(); }
+    for (const a of view.airports || []) { const p = points[a.cell], r = 1.5 / m.scale; mctx.fillStyle = a.active ? COLORS[a.owner] : '#fff'; mctx.strokeStyle = COLORS[a.owner] || '#566576'; mctx.lineWidth = .85 / m.scale; mctx.fillRect(p.x - r, p.y - r, r * 2, r * 2); mctx.strokeRect(p.x - r, p.y - r, r * 2, r * 2); }
+    for (const d of view.depots || []) { const p = points[d.cell], r = 1.4 / m.scale; mctx.fillStyle = COLORS[d.owner] || '#a28b56'; mctx.beginPath(); mctx.moveTo(p.x, p.y - r); mctx.lineTo(p.x + r, p.y); mctx.lineTo(p.x, p.y + r); mctx.lineTo(p.x - r, p.y); mctx.closePath(); mctx.fill(); }
+    for (const i of view.neutralWarning?.cells || []) { const p = points[i]; mctx.strokeStyle = '#a36520'; mctx.lineWidth = 1 / m.scale; mctx.beginPath(); mctx.arc(p.x, p.y, 3 / m.scale, 0, Math.PI * 2); mctx.stroke(); }
     const w = camera.width / camera.scale, h = camera.height / camera.scale;
     mctx.fillStyle = '#ffffff12'; mctx.strokeStyle = '#fff'; mctx.lineWidth = 2.5 / m.scale; mctx.fillRect(camera.x - w / 2, camera.y - h / 2, w, h); mctx.strokeRect(camera.x - w / 2, camera.y - h / 2, w, h); mctx.strokeStyle = '#267477'; mctx.lineWidth = 1 / m.scale; mctx.strokeRect(camera.x - w / 2, camera.y - h / 2, w, h);
   }
@@ -420,17 +610,17 @@
   mini.addEventListener('pointerdown', event => { mini.setPointerCapture(event.pointerId); miniPan(event); });
   mini.addEventListener('pointermove', event => { if (mini.hasPointerCapture(event.pointerId)) miniPan(event); });
   mini.addEventListener('keydown', event => { const delta = { ArrowLeft: [-4, 0], ArrowRight: [4, 0], ArrowUp: [0, -4], ArrowDown: [0, 4] }[event.key]; if (delta) { event.preventDefault(); camera.x += delta[0]; camera.y += delta[1]; draw(); } });
-  $('play').addEventListener('click', () => { if (game.phase === 'ready') { recipe = readRecipe(); mode = $('match-mode').value; game = new E.Game(recipe); window.autoHexGame = game; game.start(); wasStarted = true; message = ''; render(); if (mode === 'human' && innerWidth <= 520) focusHome(); schedule(); } });
+  $('play').addEventListener('click', () => { if (game.phase === 'ready') { recipe = readRecipe(); mode = $('match-mode').value; game = new E.Game(recipe); window.autoHexGame = game; effects.clear(); inspectedCell = -1; inspectedRange = null; game.start(); wasStarted = true; message = ''; render(); if (mode === 'human' && innerWidth <= 520) focusHome(); schedule(); } });
   $('pause').addEventListener('click', () => { flushClock(); if (game.phase === 'running') game.pause(); else if (game.phase === 'paused') game.start(); message = ''; error = false; render(); schedule(); });
   $('restart').addEventListener('click', () => reset({ fresh: true, start: wasStarted }));
-  $('replay').addEventListener('click', () => { if (recipe) { $('seed').value = recipe.seed; $('starter').value = recipe.first; $('rotation').value = recipe.rotation; } reset({ start: wasStarted }); });
+  $('replay').addEventListener('click', () => { if (recipe) { $('seed').value = recipe.seed; $('starter').value = recipe.first; $('rotation').value = recipe.rotation; $('neutral-events').value = recipe.neutralEvents ? 'on' : 'off'; } reset({ start: wasStarted }); });
   $('match-mode').addEventListener('change', () => reset());
   $('seed').addEventListener('change', () => { if (game.phase === 'ready') reset(); });
-  for (const id of ['starter', 'rotation']) $(id).addEventListener('change', () => { if (game.phase === 'ready') reset(); });
+  for (const id of ['starter', 'rotation', 'neutral-events']) $(id).addEventListener('change', () => { if (game.phase === 'ready') reset(); });
   $('step-seconds').addEventListener('change', () => { $('step-seconds').value = Math.max(.05, Math.min(10, Number($('step-seconds').value) || .3)).toFixed(2); schedule(); });
-  $('step').addEventListener('click', () => { if (mode !== 'spectator' || !['ready', 'paused'].includes(game.phase)) return; stopTimers(); game.start(); const action = E.chooseAction(game.observation(game.turn)); if (!action || !game.act(action)) game.act({ type: 'rest', cells: [] }); game.pause(); wasStarted = true; message = ''; render(); });
+  $('step').addEventListener('click', () => { if (mode !== 'spectator' || !['ready', 'paused'].includes(game.phase)) return; stopTimers(); effects.clearActive(); game.start(); const action = E.chooseAction(game.observation(game.turn)); if (!action || !game.act(action)) game.act({ type: 'rest', cells: [] }); game.pause(); wasStarted = true; message = ''; render(); });
   $('sandbox').addEventListener('click', () => { game.continueSandbox(); message = ''; render(); schedule(); });
-  for (const type of ['deploy', 'engineer', 'withdraw']) $(type).addEventListener('click', () => selectAction(type));
+  for (const type of ['deploy', 'engineer', 'withdraw', 'airdrop', 'bombard']) $(type).addEventListener('click', () => selectAction(type));
   $('rest').addEventListener('click', () => perform({ type: 'rest', cells: [] }));
   $('discard').addEventListener('click', () => perform({ type: 'discard', cells: [], cardIndex: Number($('discard-card').value) }));
   $('cancel-selection').addEventListener('click', () => selectAction('deploy'));
@@ -438,6 +628,10 @@
   for (const type of ['offer', 'betray']) $(type).addEventListener('click', () => perform({ type, target: Number($('diplomacy-target').value), cells: [] }));
   $('zoom-in').addEventListener('click', () => zoom(1.4)); $('zoom-out').addEventListener('click', () => zoom(1 / 1.4)); $('fit-map').addEventListener('click', fitMap); $('home-view').addEventListener('click', focusHome);
   $('show-range').addEventListener('change', () => { computeLegalTargets(); draw(); });
+  $('supply-mode').addEventListener('change', draw);
+  $('inspect-mode').addEventListener('click', () => { inspectMode = !inspectMode; selection.cells = []; paintInspection(); draw(); });
+  $('clear-inspection').addEventListener('click', () => { inspectedCell = -1; inspectedRange = null; paintInspection(); draw(); });
+  reducedQuery.addEventListener('change', draw);
   document.addEventListener('visibilitychange', () => { if (document.hidden && game.phase === 'running') { flushClock(); game.pause(); message = '頁面移到背景，戰役已自動暫停。回來後按「繼續」。'; } render(); schedule(); });
   window.addEventListener('pagehide', () => { flushClock(); if (game.phase === 'running') game.pause(); stopTimers(); });
   const rules = Object.entries(E.CARD_META).map(([type, m]) => { const el = node('div', 'ah-card-rule'); el.append(node('strong', '', `${MARKS[type] || '◇'} ${label(type)} · ${m.cost} 能量 · ${m.slots} 格`), node('p', '', CARD_GUIDE[type] || m.description)); return el; });
@@ -447,6 +641,7 @@
   window.autoHexCellPoint = i => { const p = points[i], r = canvas.getBoundingClientRect(); return p ? { x: r.left + camera.width / 2 + (p.x - camera.x) * camera.scale, y: r.top + camera.height / 2 + (p.y - camera.y) * camera.scale } : null; };
   window.autoHexFocusCell = focusCell;
   window.autoHexUI = () => ({ mode, camera: { ...camera }, selection: { ...selection, cells: selection.cells.slice() }, generation, timing, scheduled: aiTimer !== null, observer: mode === 'human' ? 1 : 0 });
+  window.autoHexVisualDebug = () => ({ ...effects.snapshot(), activeEffects: effects.effects.length, turretCount: view.turrets.length, minTurretPixel: 12, turretPixel: Math.max(12, camera.scale * 1.35), supplyLinks: shownSupplyLinks().map(link => ({ ...link })), supplyMode: $('supply-mode').value, range: inspectedRange ? { ...inspectedRange, cells: inspectedRange.cells.slice(), targets: inspectedRange.targets.slice() } : null, reduced: reducedQuery.matches, inspectMode, airports: (view.airports || []).map(a => ({ ...a })), depots: (view.depots || []).map(d => ({ ...d })), fortifiedCells: (view.fortified || []).map((v, i) => v ? i : -1).filter(i => i >= 0), airRange: { type: isAirAction() ? selection.type : null, source: selection.cells[0] ?? null, cells: airRangeCells.slice(), targets: [...rangeValid] }, neutralWarning: view.neutralWarning ? { ...view.neutralWarning, cells: view.neutralWarning.cells.slice() } : null, styles: { supply: 'home-rooted tree', disconnected: 'hollow dashed countdown', turret: 'base barrel faction countdown', collapse: 'piece fragments, terrain retained' } });
   reset(); resize(); fitMap();
   new ResizeObserver(resize).observe($('board-wrap'));
 })();

@@ -1,0 +1,39 @@
+✔ AutoHex facilities occupy six symmetric outer sectors and start neutral with public zero stock (13.631737ms)
+✔ AutoHex airports require 12 locally connected own stones, home supply and three completed owner actions (32.260627ms)
+✔ AutoHex airport clusters exclude allied stones and remote bridge islands, and loss of center or supply disables flight immediately (15.031328ms)
+✔ AutoHex stock regenerates equally every three owner actions, supplied depots add at most one, and cap is six (95.564898ms)
+✔ AutoHex airdrop extends only from an active airport to distance 10, costs energy/stock, and uses no card (44.929692ms)
+✔ AutoHex air abilities share six subsequent owner-action cooldowns and still obey footprint/turret caps (153.127564ms)
+✔ AutoHex bombard reaches distance 12, rejects 13/allies/anchors, and shields absorb the paid strike (15.059493ms)
+✔ AutoHex fortification requires 31 unchanged completed owner actions; enemy turns and pauses do not age a stone (39.377455ms)
+✔ AutoHex new placement, capture and both exchanged cells reset fortification age; fortified isolation still retreats (8.212202ms)
+✔ AutoHex neutral warnings are public, deterministic, two rounds ahead, bounded to two non-anchor cells, and optional (13.457296ms)
+✔ AutoHex neutral events respect new fortification/shields, remove only warned unprotected stones, and award no combat score (4.945294ms)
+✔ AutoHex AI spends ready airport stock on a remote enemy bombardment and respects the shared cooldown (33.379648ms)
+✔ AutoHex AI uses a supplied combat airdrop when bombardment stock is unavailable (9.953751ms)
+✔ AutoHex AI protects a publicly warned vulnerable airport with an available shield (33.604809ms)
+✔ AutoHex strategic observations expose public readiness but keep private hand/deck permutations out of AI choices (23.278878ms)
+✔ AutoHex final shared-top results do not break ties using airports, stock, fortifications or allies (10.4683ms)
+✔ AutoHex neutral randomness does not alter the shared deck or seeded reshuffles (586.770131ms)
+✔ AutoHex visual events retain both exact turret origins when one simultaneous shot is shielded and another destroys (19.411098ms)
+✔ AutoHex allied targets produce no turret damage animation event (5.761107ms)
+✔ AutoHex demolition metadata uses an explicit null origin and reports the public target owner (11.66732ms)
+✔ AutoHex supply-retreat metadata lists exactly the stones removed in that settlement (6.7635ms)
+✔ AutoHex public visual metadata is detached from engine storage and exposes no private hands or deck order (59.93733ms)
+✔ AutoHex event IDs remain increasing across truncation and restart deterministically after reset (95.329458ms)
+✔ AutoHex visual supply forest starts at homes, follows own supplied neighbors/bridges, and contains no cycles (9.655889ms)
+✔ AutoHex visual turret range is exactly three and excludes active allies, anchors, and own stones (3.929069ms)
+✔ AutoHex effects retain distinct same-turn hit IDs and never restart an animation on repeated observations (2.164504ms)
+✔ AutoHex effect storage, seen IDs and cell lists remain bounded with detached snapshots (4.745233ms)
+✔ AutoHex effects expire by active age, reject stale observations, and clear correctly for manual steps and restart (1.310631ms)
+✔ AutoHex visual helpers use public observation fields and never copy private card data into effects (0.881336ms)
+✔ AutoHex air effects mark the landing cell and use one damage-resolution effect per bombardment (9.172586ms)
+✔ AutoHex neutral warning is not rendered as a hit and strike/block resolutions remain distinct public effects (0.548024ms)
+ℹ tests 31
+ℹ suites 0
+ℹ pass 31
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1550.176788

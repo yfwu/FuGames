@@ -8,7 +8,7 @@ from datetime import datetime, timezone
 from collections import Counter
 import json, os, time
 from playwright.sync_api import sync_playwright
-ROOT=Path(__file__).resolve().parents[1];OUT=ROOT/'docs/autohex-2026-10-11'
+ROOT=Path(__file__).resolve().parents[1];OUT=Path(os.environ.get('AUTOHEX_REPORT_DIR', str(ROOT/'docs/autohex-2026-10-11')))
 BASE=os.environ.get('FUGAMES_BASE_URL','http://127.0.0.1:8011')
 report={'mode':'scripted human policy, real mobile controls, virtual AI clock','pageErrors':[]}
 with sync_playwright() as pw:
