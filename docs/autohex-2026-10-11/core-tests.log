@@ -1,0 +1,33 @@
+✔ AutoHex geometry is radius 18 / 1,027 cells with reciprocal neighbors and six directed edge goals (21.05406ms)
+✔ AutoHex terrain is seeded, sixfold symmetric and each home has an occupiable foothold (186.363992ms)
+✔ AutoHex range permits distance 5 and rejects distance 6 using only pre-action own stones (23.27107ms)
+✔ AutoHex river occupation requires public engineering and engineering itself obeys range (29.786717ms)
+✔ AutoHex hills add one defense while shields absorb one demolition without changing ownership (13.124473ms)
+✔ AutoHex every spatial card applies the same public range; invalid pair/triple actions are atomic (185.349065ms)
+✔ AutoHex all six spatial cards have legal positive fixtures, including remote own bridge/reroute endpoints (44.787812ms)
+✔ AutoHex bridge geometry rejects duplicate/reverse/partial overlap/crossing/T but permits shared endpoints (266.343917ms)
+✔ AutoHex finite shared deck conserves its recipe through draws, discards and repeated reshuffles (135.747705ms)
+✔ AutoHex hand cap, equal replenishment and ordinary action/energy budgets apply to all six seats (16.323378ms)
+✔ AutoHex private hands and draw order never reach observers or influence the current AI decision (45.44122ms)
+✔ AutoHex diplomacy needs consent, consumes turns, exposes pacts and supports rejection/expiry (52.303612ms)
+✔ AutoHex pacts block ally attacks until an explicit costly betrayal and enforce limits/cooldowns (45.207934ms)
+✔ AutoHex automatic turrets honor an active pact and can target the former ally after betrayal (42.069358ms)
+✔ AutoHex 96-stone cap permits voluntary withdrawal and rebuilding (10.583845ms)
+✔ AutoHex six profile rotations give each seat every profile with unchanged seed/deck/terrain rules (38.612755ms)
+✔ AutoHex supply follows home-connected own neighbors and own bridges, not enemy/allied stones (7.323865ms)
+✔ AutoHex unsupplied fronts retreat after six owner turns and reconnection preserves recovered stones (45.40105ms)
+✔ AutoHex permanent anchors survive hostile cards and allow rebuilding after every other stone is lost (105.754585ms)
+✔ AutoHex each directed opposite-edge arrival scores and keeps the campaign running, then holding scores (39.11092ms)
+✔ AutoHex antipodal factions can score distinct supplied routes together at a round boundary (7.173451ms)
+✔ AutoHex only running foreground clock reaches timeout, results are simultaneous and sandbox is explicit (38.379968ms)
+✔ AutoHex invalid clock deltas and malformed actions do not corrupt or advance state (21.262919ms)
+✔ AutoHex reset clears previous actions, score, elapsed time, diplomacy and hidden shuffle state (18.224578ms)
+✔ AutoHex deterministic seeded replay has legal bounded actions and no dependence on wall time (5045.055004ms)
+ℹ tests 25
+ℹ suites 0
+ℹ pass 25
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 6901.647625

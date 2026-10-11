@@ -1,0 +1,452 @@
+/* AutoHex presentation. Game rules and all spending stay in autohex-engine.js. */
+(() => {
+  'use strict';
+  const E = window.AutoHex;
+  const $ = id => document.getElementById(id);
+  if (!E) { $('status').textContent = '戰場載入失敗，請重新整理此頁。'; return; }
+  const canvas = $('board'), ctx = canvas.getContext('2d');
+  const mini = $('minimap'), mctx = mini.getContext('2d');
+  const P = E.PLAYERS || [1, 2, 3, 4, 5, 6];
+  const COLORS = ['', '#267477', '#a65e46', '#84618c', '#4d739e', '#668047', '#ad7b23'];
+  const TINTS = ['', '#e2f1ef', '#f4e5df', '#eee5f1', '#e3ebf4', '#eaf0df', '#f7edda'];
+  const NAMES = ['', '青綠', '珊瑚', '紫藤', '藍灰', '草綠', '琥珀'];
+  const LETTER = p => String.fromCharCode(64 + p);
+  const LABELS = { deploy: '鋪子 / 攻占', engineer: '築路', withdraw: '撤回', rest: '休整', turret: '炮台', destroy: '拆除', bridge: '橋梁', reroute: '改接', shield: '護盾', exchange: '換位', discard: '棄牌', offer: '提議停戰', accept: '接受停戰', reject: '拒絕停戰', betray: '背盟', ready: '戰場就緒' };
+  const MARKS = { turret: '✣', destroy: '×', bridge: '⌁', reroute: '↗', shield: '◎', exchange: '⇄' };
+  const HINTS = { deploy: '空格鋪子花 2 能量，攻占敵子花 4；攻占須有足夠相鄰支援。河流先築路。', engineer: '選一格空河流，建成各方都能使用的道路。', withdraw: '選自己的非家園棋子撤回，移除其設施並回復 1 能量。', turret: '選自己的非家園棋子架炮台。每 3 次自己回合射擊，射程 3 格。', destroy: '選敵方非家園棋子拆除；護盾可吸收一次拆除，山丘無法抵擋。', bridge: '依序選兩個自己的端點，相距 2–5 格；橋梁運送補給。', reroute: '依序選保留端點、舊端點、新端點；三格都是自己的棋子。', shield: '選自己的非家園棋子，加 2 防守並吸收一次拆除或炮擊。', exchange: '先選自己的普通棋子，再選相鄰的空格或敵方普通棋子。' };
+  const CARD_GUIDE = {
+    turret: '在自己既有的非家園棋子架設炮台；每 3 次自己的回合，射擊 3 格內一個非盟友敵子，持續 30 回合。最多同時 3 座。護盾會吸收一次炮擊。',
+    destroy: '拆除自己 5 格範圍內的敵方棋子。不能拆家園或盟友；護盾會吸收一次拆除，山丘不抵擋拆除。',
+    bridge: '選兩個既有己方端點，相距 2–5 格。橋梁可傳遞補給；不可交叉、重疊、重複或形成 T 型接點，可共用端點。',
+    reroute: '依序選既有橋梁的保留端點、舊另一端點，再選新己方端點。重新接橋後仍須相距 2–5 格，且符合全部橋梁碰撞限制。',
+    shield: '保護一個自己的非家園棋子，持續 8 次自己的回合。防守力 +2；吸收一次拆除或炮擊後消失。',
+    exchange: '將一個自己的普通棋子，與相鄰空格或非盟友敵方普通棋子互換。雙方不能是家園、炮台或橋梁端點；河流須已築路，兩格都須在行動前的自己 5 格範圍內。'
+  };
+  const FALLBACK = { deploy: { cost: 2, slots: 1 }, engineer: { cost: 2, slots: 1 }, withdraw: { cost: 0, slots: 1 }, rest: { cost: 0, slots: 0 } };
+  const points = E.CELLS.map(c => ({ x: Math.sqrt(3) * (c.q + c.r / 2), y: 1.5 * c.r }));
+  const bounds = { minX: Math.min(...points.map(c => c.x)) - 2, maxX: Math.max(...points.map(c => c.x)) + 2, minY: Math.min(...points.map(c => c.y)) - 2, maxY: Math.max(...points.map(c => c.y)) + 2 };
+  const camera = { x: 0, y: 0, scale: 1, fit: 1, width: 1, height: 1 };
+  let game, view, recipe, mode = 'human', selection = { type: 'deploy', cells: [] };
+  let hovered = -1, focused = -1, message = '', error = false, generation = 0;
+  let aiTimer = null, frame = null, timing = false, lastStamp = 0, lastClockPaint = 0;
+  let wasStarted = false, rangeValid = new Set(), lastViewTurn = null;
+  const pointers = new Map();
+  let drag = null, pinch = null, dragged = false;
+  const meta = type => E.CARD_META[type] || E.ACTION_META?.[type] || FALLBACK[type] || { cost: 0, slots: 1 };
+  const label = type => LABELS[type] || meta(type).label || type;
+  const localName = p => `${LETTER(p)} ${NAMES[p]}`;
+  const isHumanTurn = () => mode === 'human' && game.phase === 'running' && game.turn === 1;
+  const terrainIs = (v, type) => v === type || v === ({ river: 1, hill: 2, plain: 0 })[type];
+  const node = (tag, className, text) => { const el = document.createElement(tag); if (className) el.className = className; if (text !== undefined) el.textContent = text; return el; };
+  const can = action => E.legalAction(view, { cells: [], ...action });
+  const actionFor = cells => ({ type: selection.type, cells, ...(selection.cardIndex !== undefined ? { cardIndex: selection.cardIndex } : {}) });
+
+  function readRecipe() {
+    return { seed: $('seed').value.trim() || 'autohex-2026', first: Number($('starter').value), rotation: Number($('rotation').value), durationMs: 600000 };
+  }
+  function flushClock(now = performance.now()) {
+    // A RAF timestamp is captured before its callback runs. Timer work can have
+    // already advanced the clock beyond it; never move our time origin backward.
+    const nextStamp = Math.max(lastStamp, now);
+    if (timing && game?.phase === 'running') game.advanceTime(nextStamp - lastStamp);
+    lastStamp = nextStamp;
+  }
+  function stopTimers() {
+    generation++;
+    clearTimeout(aiTimer); aiTimer = null;
+    cancelAnimationFrame(frame); frame = null;
+    timing = false;
+  }
+  function schedule() {
+    flushClock(); stopTimers();
+    if (game.phase !== 'running' || document.hidden) { paintClock(); return; }
+    const token = generation;
+    timing = true; lastStamp = performance.now();
+    const tick = now => {
+      if (token !== generation) return;
+      if (document.hidden || game.phase !== 'running') { stopTimers(); paintClock(); return; }
+      // Count actual foreground time, including AI/render work in this frame.
+      flushClock();
+      if (now - lastClockPaint > 100) { paintClock(); lastClockPaint = now; }
+      if (game.phase === 'over') { stopTimers(); render(); return; }
+      frame = requestAnimationFrame(tick);
+    };
+    frame = requestAnimationFrame(tick);
+    if (mode === 'spectator' || game.turn !== 1) {
+      const seconds = Math.max(.05, Math.min(10, Number($('step-seconds').value) || .3));
+      aiTimer = setTimeout(() => {
+        if (token !== generation || document.hidden || game.phase !== 'running') return;
+        flushClock();
+        if (game.phase === 'running') {
+          const observation = game.observation(game.turn);
+          const action = E.chooseAction(observation);
+          if (!action || !game.act(action)) game.act({ type: 'rest', cells: [] });
+          message = ''; error = false;
+        }
+        render(); schedule();
+      }, seconds * 1000);
+    }
+  }
+  function reset({ fresh = false, start = false } = {}) {
+    stopTimers();
+    if (fresh) $('seed').value = `hex-${Math.random().toString(36).slice(2, 9)}`;
+    mode = $('match-mode').value;
+    recipe = readRecipe();
+    game = new E.Game(recipe); window.autoHexGame = game;
+    selection = { type: 'deploy', cells: [] }; hovered = -1; focused = -1;
+    lastViewTurn = null; message = ''; error = false; wasStarted = start;
+    if (start) game.start();
+    render(); fitMap();
+    if (start && mode === 'human' && innerWidth <= 520) focusHome();
+    schedule();
+  }
+  function paintClock() {
+    const left = Math.max(0, game.durationMs - game.activeMs);
+    const seconds = Math.ceil(left / 1000);
+    $('clock').textContent = game.sandbox ? '∞' : `${Math.floor(seconds / 60).toString().padStart(2, '0')}:${(seconds % 60).toString().padStart(2, '0')}`;
+    $('campaign-progress-fill').style.width = `${Math.min(100, game.activeMs / game.durationMs * 100)}%`;
+    $('campaign-progress').setAttribute('aria-valuenow', String(Math.min(600, Math.floor(game.activeMs / 1000))));
+    $('clock-note').textContent = game.sandbox ? '自由對戰 · 不限時' : game.phase === 'paused' ? '已暫停 · 時間凍結' : game.phase === 'over' ? '十分鐘戰役已結算' : game.phase === 'running' ? '前景進行中 · 思考也計時' : '前景、未暫停才計時';
+  }
+  function render() {
+    view = game.observation(mode === 'human' ? 1 : 0);
+    if (lastViewTurn !== game.turn || !isHumanTurn()) { selection.cells = []; if (!isHumanTurn()) selection = { type: 'deploy', cells: [] }; }
+    lastViewTurn = game.turn;
+    if (selection.cardIndex !== undefined && view.hand[selection.cardIndex] !== selection.type) selection = { type: 'deploy', cells: [] };
+    const running = game.phase === 'running', paused = game.phase === 'paused', ready = game.phase === 'ready';
+    $('phase-label').textContent = ready ? '準備出發' : paused ? '戰役已暫停' : game.phase === 'over' ? '戰役已結算' : game.sandbox ? '自由對戰' : mode === 'human' ? '你的六方戰役' : '六方 AI 觀戰';
+    $('play').hidden = !ready;
+    $('pause').disabled = ready || game.phase === 'over'; $('pause').textContent = paused ? '繼續' : '暫停';
+    $('step').disabled = mode !== 'spectator' || running || game.phase === 'over';
+    for (const el of $('setup').querySelectorAll('input,select')) el.disabled = !ready && game.phase !== 'over';
+    $('round-count').textContent = `第 ${game.round} 輪`;
+    $('turn-count').textContent = `${game.ply.toLocaleString()} 次行動`;
+    $('turn-label').textContent = ready ? '等待開局' : game.phase === 'over' ? '最終排名已出爐' : `${localName(game.turn)}${mode === 'human' && game.turn === 1 ? ' · 你' : ' · AI'} 行動`;
+    $('turn-label').style.color = COLORS[game.turn]; $('turn-label').style.background = TINTS[game.turn];
+    const notice = $('map-notice'); notice.hidden = running;
+    if (!running) {
+      notice.children[0].textContent = ready ? '六個家園，六個方向' : paused ? '戰場暫停中' : '十分鐘到，戰役結算';
+      notice.children[1].textContent = ready ? '按「開始戰役」，從家園向同色對岸出發。' : paused ? '時間與 AI 都已停下；仍可移動地圖查看前線。' : '查看最終排名，或繼續不限時的自由對戰。';
+    }
+    $('home-view').textContent = mode === 'human' ? '我的家園' : '目前家園';
+    $('show-range').disabled = mode !== 'human';
+    renderPlayers(); renderActions(); renderDiplomacy(); renderEvents(); renderResult();
+    paintClock(); computeLegalTargets(); draw();
+  }
+  function directionAt(i) {
+    const c = points[i]; if (!c) return '';
+    const a = Math.atan2(c.y, c.x) * 180 / Math.PI;
+    if (a < -120) return '西北'; if (a < -60) return '北'; if (a < 0) return '東北';
+    if (a < 60) return '東南'; if (a < 120) return '南'; return '西南';
+  }
+  function goalPoint(p) {
+    const player = view.players[p], goalCells = E.CELLS.filter(c => c[player.axis] === -player.sign * E.RADIUS);
+    if (!goalCells.length) return { x: -points[player.home].x, y: -points[player.home].y };
+    return { x: goalCells.reduce((s, c) => s + points[c.i].x, 0) / goalCells.length, y: goalCells.reduce((s, c) => s + points[c.i].y, 0) / goalCells.length };
+  }
+  function renderPlayers() {
+    const fragment = document.createDocumentFragment();
+    for (const p of P) {
+      const player = view.players[p], el = node('article', `ah-faction${game.turn === p && game.phase !== 'ready' ? ' current' : ''}`);
+      el.id = `player-${p}`; el.style.setProperty('--faction', COLORS[p]); el.style.setProperty('--faction-tint', TINTS[p]);
+      const top = node('div', 'ah-faction-top'); top.append(node('span', 'ah-faction-letter', LETTER(p)), node('span', '', `${NAMES[p]}${mode === 'human' && p === 1 ? ' / 你' : ' AI'}`));
+      const score = node('div', 'ah-faction-score'); score.append(node('strong', '', player.score || 0), node('span', '', '分'));
+      const count = view.board.reduce((n, owner) => n + (owner === p ? 1 : 0), 0);
+      const goal = goalPoint(p), gi = points.reduce((best, c, i) => Math.hypot(c.x - goal.x, c.y - goal.y) < Math.hypot(points[best].x - goal.x, points[best].y - goal.y) ? i : best, 0);
+      el.append(top, score, node('small', 'ah-direction', `⌂ ${directionAt(player.home)} → ${directionAt(gi)}`), node('small', '', `能量 ${player.energy}/8 · 棋子 ${count}/96`), node('small', '', `手牌 ${view.handCounts?.[p] || 0}/5${player.goalActive ? ' · 已接通對岸' : ''}`));
+      fragment.append(el);
+    }
+    $('players').replaceChildren(fragment);
+  }
+  function statusText() {
+    if (message) return message;
+    if (game.phase === 'ready') return mode === 'human' ? '你是 A 青綠。從 ⌂ 家園向同色對岸推進；開始後可放大地圖選格。' : '六位本機 AI 獨立競爭。開始後可自由巡看戰場，或暫停逐步觀察。';
+    if (game.phase === 'paused') return '已暫停。可查看戰場；按「繼續」恢復計時與出手。';
+    if (game.phase === 'over') return '戰役已完成。排名依各方分數計算；可繼續自由對戰。';
+    if (mode === 'spectator') return `${localName(game.turn)} AI 思考中。手牌不公開；可調整 AI 每步間隔或暫停。`;
+    if (game.turn !== 1) return `${localName(game.turn)} AI 行動中。下一次輪到青綠，就能出手。`;
+    return `${HINTS[selection.type] || meta(selection.type).description || '請選擇目標。'}${selection.cells.length ? ` 已選 ${selection.cells.length}/${meta(selection.type).slots} 格。` : ''}`;
+  }
+  function renderActions() {
+    const yourTurn = isHumanTurn(), human = mode === 'human';
+    $('action-heading').textContent = human ? '你的回合工具' : '觀戰資訊';
+    $('energy').textContent = human ? `能量 ${view.players[1].energy} / 8` : '六位本機 AI';
+    $('status').textContent = statusText(); $('status').classList.toggle('error', error);
+    $('base-actions').hidden = !human; $('selection').hidden = !human; $('hand').previousElementSibling.hidden = !human; $('discard-card').parentElement.hidden = !human;
+    for (const type of ['deploy', 'engineer', 'withdraw', 'rest']) {
+      const button = $(type), m = meta(type);
+      button.disabled = !yourTurn || view.players[1].energy < m.cost;
+      button.setAttribute('aria-pressed', String(type === selection.type));
+      button.replaceChildren(node('span', '', label(type)), node('small', '', type === 'deploy' ? '2 / 4 能量' : `${m.cost} 能量`));
+    }
+    const hand = view.hand || [];
+    $('hand-count').textContent = `${hand.length} / 5`;
+    $('pool-count').textContent = `牌池 ${view.drawCount} · 棄牌 ${view.discardCount}`;
+    const cards = document.createDocumentFragment();
+    if (!human) cards.append(node('p', 'ah-empty', '觀戰時不展示任何陣營的手牌。每方牌數、能量、分數與外交都是公開的。'));
+    else if (!hand.length) cards.append(node('p', 'ah-empty', '目前沒有手牌；仍可鋪子、築路、撤回或休整。'));
+    else hand.forEach((type, i) => {
+      const m = meta(type), button = node('button', 'btn ah-card-button'); button.type = 'button'; button.id = `card-${i}`; button.dataset.cardIndex = String(i); button.dataset.action = type;
+      button.setAttribute('aria-pressed', String(selection.cardIndex === i)); button.disabled = !yourTurn || view.players[1].energy < m.cost;
+      const copy = node('span', 'ah-card-copy'); copy.append(node('strong', '', label(type)), node('small', '', `${m.slots} 格 · ${HINTS[type] || m.description}`));
+      const cost = node('span', 'ah-card-cost', m.cost); cost.append(node('small', '', '能量'));
+      button.append(node('span', 'ah-card-mark', MARKS[type] || '◇'), copy, cost);
+      button.addEventListener('click', () => selectAction(type, i)); cards.append(button);
+    });
+    $('hand').replaceChildren(cards);
+    const selectedDiscard = $('discard-card').value;
+    $('discard-card').replaceChildren(...hand.map((type, i) => { const option = node('option', '', `${i + 1}. ${label(type)}`); option.value = i; return option; }));
+    if ([...$('discard-card').options].some(o => o.value === selectedDiscard)) $('discard-card').value = selectedDiscard;
+    $('discard-card').disabled = !yourTurn || !hand.length; $('discard').disabled = !yourTurn || !hand.length;
+    $('selection-label').textContent = `已選：${label(selection.type)}${selection.cells.length ? ` · ${selection.cells.length}/${meta(selection.type).slots} 格` : ''}`;
+    $('cancel-selection').disabled = !yourTurn || selection.type === 'deploy' && !selection.cells.length;
+  }
+  function renderDiplomacy() {
+    const alliances = view.alliances || [], offers = view.offers || [], publicNames = pair => `${localName(pair[0])} ↔ ${localName(pair[1])}`;
+    $('alliances').replaceChildren(...alliances.map(a => { const el = node('div', 'ah-alliance', publicNames([a.a, a.b])); el.append(node('small', '', `停戰剩餘 ${Math.max(0, a.expiresRound - game.round)} 輪`)); return el; }));
+    if (!alliances.length) $('alliances').append(node('p', 'ah-empty', '目前沒有生效中的停戰協議。'));
+    $('offers').replaceChildren(...offers.map(o => {
+      const el = node('div', 'ah-offer', `${localName(o.from)} → ${localName(o.to)} 提議停戰`);
+      el.append(node('small', '', `提議剩餘 ${Math.max(0, o.expiresRound - game.round)} 輪`));
+      if (mode === 'human' && o.to === 1) {
+        const buttons = node('div', 'ah-offer-buttons');
+        for (const [type, title] of [['accept', '接受'], ['reject', '拒絕']]) {
+          const button = node('button', 'btn', title); button.id = `${type}-${o.from}`; button.disabled = !isHumanTurn() || !can({ type, target: o.from });
+          button.addEventListener('click', () => perform({ type, target: o.from, cells: [] })); buttons.append(button);
+        }
+        el.append(buttons);
+      }
+      return el;
+    }));
+    $('diplomacy-controls').hidden = mode !== 'human';
+    const target = Number($('diplomacy-target').value) || 2;
+    $('diplomacy-target').replaceChildren(...P.filter(p => p !== 1).map(p => { const option = node('option', '', localName(p)); option.value = p; return option; }));
+    $('diplomacy-target').value = target;
+    $('diplomacy-target').disabled = !isHumanTurn();
+    $('offer').disabled = !isHumanTurn() || !can({ type: 'offer', target });
+    $('betray').disabled = !isHumanTurn() || !can({ type: 'betray', target });
+    const cooldown = Math.max(0, (view.players[1]?.diplomacyUntil || 0) - game.round);
+    $('diplomacy-note').textContent = `${cooldown ? `交涉冷卻剩餘 ${cooldown} 輪。` : '停戰 12 輪，提議有效 3 輪。'}背盟：3 能量、−4 分、−2 聲望，並有 18 輪冷卻。`;
+  }
+  function renderEvents() {
+    const events = (view.events || []).slice(-14).reverse();
+    $('event-log').replaceChildren(...events.map(e => {
+      const el = node('li'); if (e.round !== undefined) el.append(node('time', '', `R${e.round}`));
+      const named = e.player ? `${localName(e.player)} ` : '', target = e.target ? ` → ${localName(e.target)}` : '';
+      const descriptions = { ready: '六方戰場就緒，從家園向對岸出發。', sandbox: '進入不限時自由對戰；戰役排名已保存。', 'campaign-end': '十分鐘到，六方分數已一起結算。', reshuffle: '共享抽牌池用盡，棄牌已洗回牌池。', capture: `${named}攻占 ${e.from ? localName(e.from) : '敵方'} 棋子。`, destroy: `${named}拆除 ${e.from ? localName(e.from) : '敵方'} 棋子。`, 'shield-block': `${named}的攻擊被護盾吸收。`, 'supply-retreat': `${named}有 ${e.count} 枚斷補棋子撤退。`, 'offer-expired': `${named}的停戰提議已到期${target}。`, 'alliance-expired': `${named}的停戰已到期${target}。`, 'goal-arrival': `${named}接通對岸，+${e.points} 分。`, 'goal-hold': `${named}持續守住對岸，本輪 +${e.points} 分。`, 'goal-lost': `${named}的對岸補給連線中斷。`, betray: `${named}背盟${target}，−4 分。` };
+      el.append(document.createTextNode(descriptions[e.type] || `${named}${label(e.type)}${target}。`)); return el;
+    }));
+    if (!events.length) $('event-log').append(node('li', '', '戰場已就緒。外交與重要戰況會公開記錄於此。'));
+  }
+  function renderResult() {
+    $('result').hidden = game.phase !== 'over'; if (game.phase !== 'over') return;
+    const result = view.result || game.result, standings = result?.standings || P.map(p => ({ player: p, score: view.players[p].score })).sort((a, b) => b.score - a.score);
+    const winners = result?.winners || standings.filter(p => p.score === standings[0].score).map(p => p.player);
+    $('result-title').textContent = winners.length > 1 ? `${winners.map(localName).join('、')} 並列第一` : `${localName(winners[0])} 贏得戰役`;
+    $('result-description').textContent = `已完成 ${Math.round(game.activeMs / 1000)} 秒前景戰役、${game.round} 輪、${game.ply} 次行動。結盟各自計分。`;
+    $('standings').replaceChildren(...standings.map((s, i) => node('li', '', `${s.rank || i + 1}. ${localName(s.player)} · ${s.score} 分`)));
+  }
+  function selectAction(type, cardIndex) {
+    if (!isHumanTurn()) return;
+    selection = { type, cells: [], ...(cardIndex !== undefined ? { cardIndex } : {}) }; message = ''; error = false;
+    render();
+  }
+  function perform(action) {
+    flushClock();
+    if (!isHumanTurn()) { render(); schedule(); return false; }
+    view = game.observation(1);
+    if (!E.legalAction(view, action) || !game.act(action)) {
+      message = '這個目標目前不能使用：請檢查距離、地形、棋子與停戰關係。沒有花費能量或卡牌。'; error = true; render(); return false;
+    }
+    selection = { type: 'deploy', cells: [] }; message = ''; error = false;
+    render(); schedule(); return true;
+  }
+  function partialValid(i) {
+    const type = selection.type, p = 1;
+    if (selection.cells.includes(i)) return false;
+    if (!view.range?.[i] && view.board[i] !== p) return false;
+    if (type === 'bridge' || type === 'reroute') {
+      if (view.board[i] !== p) return false;
+      if (type === 'reroute' && selection.cells.length === 0 && !view.bridges.some(b => b.owner === p && (b.a === i || b.b === i))) return false;
+      if (type === 'reroute' && selection.cells.length === 1 && !view.bridges.some(b => b.owner === p && (b.a === i && b.b === selection.cells[0] || b.b === i && b.a === selection.cells[0]))) return false;
+    }
+    if (type === 'exchange' && !selection.cells.length && (view.board[i] !== p || view.anchors[i])) return false;
+    return true;
+  }
+  function pickCell(i) {
+    if (i < 0) return;
+    focused = hovered = i; describeCell(i);
+    if (!isHumanTurn()) { draw(); return; }
+    const slots = meta(selection.type).slots || 1, cells = [...selection.cells, i];
+    if (cells.length < slots) {
+      if (!partialValid(i)) { message = '這格不能作為目前的端點。請從自己的可用棋子選擇；沒有花費資源。'; error = true; render(); return; }
+      selection.cells = cells; message = ''; error = false; render(); return;
+    }
+    perform(actionFor(cells));
+  }
+  function computeLegalTargets() {
+    rangeValid = new Set();
+    if (!isHumanTurn() || !$('show-range').checked) return;
+    if (selection.cells.length + 1 === meta(selection.type).slots) {
+      for (const c of E.CELLS) if (can(actionFor([...selection.cells, c.i]))) rangeValid.add(c.i);
+    }
+  }
+  function describeCell(i) {
+    if (i < 0) return;
+    const c = E.CELLS[i], owner = view.board[i], anchor = view.anchors[i];
+    const terrain = terrainIs(view.terrain[i], 'river') ? view.roads[i] ? '已築路河流' : '河流' : terrainIs(view.terrain[i], 'hill') ? '山丘' : '平地';
+    const turret = view.turrets.find(t => t.cell === i);
+    $('cell-info').textContent = `格 (${c.q}, ${c.r}) · ${anchor ? localName(anchor) + ' 永久家園' : owner ? localName(owner) + ' 棋子' : '空格'} · ${terrain}${owner ? view.supplied?.[i] ? ' · 補給連通' : ` · 斷補 ${view.unsupplied?.[i] || 0}/6 回合` : ''}${view.shields?.[i] ? ` · 護盾 ${view.shields[i]} 回合` : ''}${turret ? ` · 炮擊倒數 ${turret.countdown} / 壽命 ${turret.life}` : ''}${mode === 'human' && view.range?.[i] ? ' · 你的 5 格範圍內' : ''}`;
+  }
+  function resize() {
+    const rect = canvas.getBoundingClientRect(), dpr = Math.min(devicePixelRatio || 1, 2.5), ratio = camera.scale / camera.fit;
+    camera.width = rect.width; camera.height = rect.height;
+    canvas.width = Math.round(rect.width * dpr); canvas.height = Math.round(rect.height * dpr);
+    camera.fit = Math.min((rect.width - 52) / (bounds.maxX - bounds.minX + 4), (rect.height - 60) / (bounds.maxY - bounds.minY + 4));
+    camera.scale = camera.fit * (Number.isFinite(ratio) ? ratio : 1);
+    const mr = mini.getBoundingClientRect(); mini.width = Math.round(mr.width * dpr); mini.height = Math.round(mr.height * dpr);
+    draw();
+  }
+  function fitMap() { camera.x = 0; camera.y = 0; camera.scale = camera.fit; draw(); }
+  function focusCell(i, scale = Math.max(camera.fit * 3, 24)) { if (!points[i]) return; camera.x = points[i].x; camera.y = points[i].y; camera.scale = Math.min(camera.fit * 8, scale); focused = i; describeCell(i); draw(); }
+  function focusHome() { focusCell(view.players[mode === 'human' ? 1 : game.turn].home); }
+  function toWorld(x, y) { return { x: (x - camera.width / 2) / camera.scale + camera.x, y: (y - camera.height / 2) / camera.scale + camera.y }; }
+  function nearest(x, y) {
+    const world = toWorld(x, y); let best = -1, dist = 1.1;
+    for (let i = 0; i < points.length; i++) { const d = Math.hypot(points[i].x - world.x, points[i].y - world.y); if (d < dist) { best = i; dist = d; } }
+    return best;
+  }
+  function zoom(factor, x = camera.width / 2, y = camera.height / 2) {
+    const before = toWorld(x, y); camera.scale = Math.max(camera.fit * .75, Math.min(camera.fit * 8, camera.scale * factor));
+    const after = toWorld(x, y); camera.x += before.x - after.x; camera.y += before.y - after.y; draw();
+  }
+  function hexPath(context, x, y, radius = .93) {
+    context.beginPath(); for (let k = 0; k < 6; k++) { const a = Math.PI / 3 * k + Math.PI / 6; const px = x + Math.cos(a) * radius, py = y + Math.sin(a) * radius; k ? context.lineTo(px, py) : context.moveTo(px, py); } context.closePath();
+  }
+  function draw() {
+    if (!view || !camera.width) return;
+    const dpr = canvas.width / camera.width;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, camera.width, camera.height);
+    ctx.translate(camera.width / 2, camera.height / 2); ctx.scale(camera.scale, camera.scale); ctx.translate(-camera.x, -camera.y);
+    const scale = camera.scale, visible = (c, padding = 3) => Math.abs(c.x - camera.x) < camera.width / scale / 2 + padding && Math.abs(c.y - camera.y) < camera.height / scale / 2 + padding;
+    for (const c of E.CELLS) {
+      const i = c.i, pt = points[i]; if (!visible(pt)) continue;
+      const owner = view.board[i], river = terrainIs(view.terrain[i], 'river'), hill = terrainIs(view.terrain[i], 'hill');
+      ctx.fillStyle = owner ? TINTS[owner] : river ? '#dcecf4' : hill ? '#f2ebd9' : '#ffffff';
+      hexPath(ctx, pt.x, pt.y); ctx.fill(); ctx.strokeStyle = '#dbe3e7'; ctx.lineWidth = .06; ctx.stroke();
+      if (mode === 'human' && $('show-range').checked && isHumanTurn() && view.range?.[i] && !owner) { ctx.fillStyle = rangeValid.has(i) ? '#5ebcbf22' : '#5ebcbf0b'; ctx.fill(); }
+      if (river && !owner && scale > 10) { ctx.strokeStyle = '#93b3c5'; ctx.lineWidth = .08; ctx.beginPath(); ctx.moveTo(pt.x - .4, pt.y + .12); ctx.bezierCurveTo(pt.x - .1, pt.y - .18, pt.x + .1, pt.y + .4, pt.x + .4, pt.y + .1); ctx.stroke(); }
+      if (hill && !owner && scale > 10) { ctx.strokeStyle = '#bcaa78'; ctx.lineWidth = .07; ctx.beginPath(); ctx.moveTo(pt.x - .32, pt.y + .2); ctx.lineTo(pt.x, pt.y - .28); ctx.lineTo(pt.x + .32, pt.y + .2); ctx.stroke(); }
+      if (view.roads[i]) { ctx.strokeStyle = '#8da5aa'; ctx.lineWidth = .15; ctx.beginPath(); ctx.moveTo(pt.x - .5, pt.y + .28); ctx.lineTo(pt.x + .5, pt.y - .28); ctx.stroke(); }
+      if (owner) {
+        ctx.fillStyle = COLORS[owner]; ctx.strokeStyle = COLORS[owner]; ctx.lineWidth = .08;
+        ctx.beginPath(); ctx.arc(pt.x, pt.y, .48, 0, Math.PI * 2); ctx.fill();
+        if (view.supplied && !view.supplied[i]) { ctx.setLineDash([.13, .13]); ctx.beginPath(); ctx.arc(pt.x, pt.y, .72, 0, Math.PI * 2); ctx.stroke(); ctx.setLineDash([]); }
+        if (scale > 20 && !view.anchors[i]) { ctx.fillStyle = '#fff'; ctx.font = 'bold .51px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(LETTER(owner), pt.x, pt.y + .02); }
+      }
+      if (view.shields?.[i]) { ctx.strokeStyle = COLORS[owner] || '#708090'; ctx.lineWidth = .1; ctx.beginPath(); ctx.arc(pt.x, pt.y, .69, 0, Math.PI * 2); ctx.stroke(); }
+      if (view.anchors[i]) {
+        ctx.fillStyle = '#fff'; ctx.font = 'bold .85px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('⌂', pt.x, pt.y - .05);
+      }
+      if (rangeValid.has(i) && !owner && scale > 12) { ctx.fillStyle = '#26747760'; ctx.beginPath(); ctx.arc(pt.x, pt.y, .1, 0, Math.PI * 2); ctx.fill(); }
+    }
+    for (const b of view.bridges || []) { const a = points[b.a], z = points[b.b]; ctx.strokeStyle = COLORS[b.owner]; ctx.lineWidth = .18; ctx.setLineDash([.28, .17]); ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(z.x, z.y); ctx.stroke(); ctx.setLineDash([]); }
+    for (const t of view.turrets || []) { const p = points[t.cell]; if (!visible(p)) continue; ctx.strokeStyle = '#fff'; ctx.lineWidth = .14; ctx.beginPath(); ctx.moveTo(p.x - .32, p.y); ctx.lineTo(p.x + .32, p.y); ctx.moveTo(p.x, p.y - .32); ctx.lineTo(p.x, p.y + .32); ctx.stroke(); if (scale > 15) { ctx.fillStyle = COLORS[t.owner]; ctx.font = 'bold .4px sans-serif'; ctx.textAlign = 'center'; ctx.fillText(String(t.countdown ?? ''), p.x + .48, p.y - .5); } }
+    drawGoals(ctx, scale);
+    for (const [n, i] of selection.cells.entries()) {
+      const p = points[i]; hexPath(ctx, p.x, p.y, 1.02); ctx.strokeStyle = '#2e3440'; ctx.lineWidth = .18; ctx.stroke(); ctx.fillStyle = '#2e3440'; ctx.beginPath(); ctx.arc(p.x + .65, p.y - .65, .4, 0, Math.PI * 2); ctx.fill(); ctx.fillStyle = '#fff'; ctx.font = 'bold .55px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(n + 1, p.x + .65, p.y - .63);
+    }
+    if (focused >= 0 || hovered >= 0) { const i = hovered >= 0 ? hovered : focused, p = points[i]; hexPath(ctx, p.x, p.y, 1.02); ctx.strokeStyle = isHumanTurn() && !rangeValid.has(i) && selection.cells.length + 1 === meta(selection.type).slots ? '#a65e46' : '#2e3440'; ctx.lineWidth = .14; ctx.stroke(); }
+    $('zoom-level').textContent = `${Math.round(camera.scale / camera.fit * 100)}%`;
+    drawMini();
+  }
+  function drawGoals(context, scale) {
+    for (const p of P) {
+      const player = view.players[p], cells = E.CELLS.filter(c => c[player.axis] === -player.sign * E.RADIUS), goal = goalPoint(p), length = Math.hypot(goal.x, goal.y), nx = goal.x / length, ny = goal.y / length;
+      const ordered = cells.map(c => points[c.i]).sort((a, b) => a.x * -ny + a.y * nx - (b.x * -ny + b.y * nx));
+      if (ordered.length) { context.strokeStyle = COLORS[p]; context.globalAlpha = .72; context.lineWidth = .25; context.beginPath(); context.moveTo(ordered[0].x + nx * 1.1, ordered[0].y + ny * 1.1); for (const q of ordered.slice(1)) context.lineTo(q.x + nx * 1.1, q.y + ny * 1.1); context.stroke(); context.globalAlpha = 1; }
+      const home = points[player.home];
+      context.fillStyle = COLORS[p]; context.textAlign = 'center'; context.textBaseline = 'middle'; context.font = `bold ${Math.max(.72, 9 / scale)}px sans-serif`;
+      const arrow = Math.abs(nx) < .3 ? (ny < 0 ? '↑' : '↓') : nx < 0 ? (ny < 0 ? '↖' : '↙') : ny < 0 ? '↗' : '↘';
+      context.fillText(`${LETTER(p)} ${arrow}`, goal.x + nx * 2.4, goal.y + ny * 2.4);
+      context.font = `bold ${Math.max(.7, 8 / scale)}px sans-serif`;
+      context.fillStyle = '#fff'; context.fillRect(home.x - 1.65, home.y + .95, 3.3, 1.12); context.fillStyle = COLORS[p]; context.fillText(`${LETTER(p)} ⌂`, home.x, home.y + 1.48);
+    }
+  }
+  function miniTransform() { const rect = mini.getBoundingClientRect(); return { width: rect.width, height: rect.height, scale: Math.min((rect.width - 12) / (bounds.maxX - bounds.minX), (rect.height - 10) / (bounds.maxY - bounds.minY)) }; }
+  function drawMini() {
+    const m = miniTransform(); if (!m.width) return;
+    const dpr = mini.width / m.width; mctx.setTransform(dpr, 0, 0, dpr, 0, 0); mctx.clearRect(0, 0, m.width, m.height); mctx.translate(m.width / 2, m.height / 2); mctx.scale(m.scale, m.scale);
+    for (const c of E.CELLS) { const i = c.i, p = points[i]; mctx.fillStyle = view.board[i] ? COLORS[view.board[i]] : terrainIs(view.terrain[i], 'river') ? '#d5e6ed' : terrainIs(view.terrain[i], 'hill') ? '#e6dec9' : '#e9eff0'; hexPath(mctx, p.x, p.y, .98); mctx.fill(); }
+    for (const p of P) { const h = points[view.players[p].home]; mctx.fillStyle = '#fff'; mctx.strokeStyle = COLORS[p]; mctx.lineWidth = .5; mctx.beginPath(); mctx.arc(h.x, h.y, 1.25, 0, Math.PI * 2); mctx.fill(); mctx.stroke(); }
+    const w = camera.width / camera.scale, h = camera.height / camera.scale;
+    mctx.fillStyle = '#ffffff12'; mctx.strokeStyle = '#fff'; mctx.lineWidth = 2.5 / m.scale; mctx.fillRect(camera.x - w / 2, camera.y - h / 2, w, h); mctx.strokeRect(camera.x - w / 2, camera.y - h / 2, w, h); mctx.strokeStyle = '#267477'; mctx.lineWidth = 1 / m.scale; mctx.strokeRect(camera.x - w / 2, camera.y - h / 2, w, h);
+  }
+  function localPoint(event, element = canvas) { const rect = element.getBoundingClientRect(); return { x: event.clientX - rect.left, y: event.clientY - rect.top }; }
+  canvas.addEventListener('pointerdown', event => {
+    canvas.setPointerCapture(event.pointerId); const p = localPoint(event); pointers.set(event.pointerId, p);
+    if (pointers.size === 1) { drag = { ...p, cx: camera.x, cy: camera.y }; dragged = false; }
+    if (pointers.size === 2) { const [a, b] = [...pointers.values()]; pinch = { distance: Math.hypot(a.x - b.x, a.y - b.y), middle: { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 } }; dragged = true; }
+  });
+  canvas.addEventListener('pointermove', event => {
+    const p = localPoint(event);
+    if (!pointers.has(event.pointerId)) { const i = nearest(p.x, p.y); if (i !== hovered) { hovered = i; describeCell(i); draw(); } return; }
+    pointers.set(event.pointerId, p);
+    if (pointers.size >= 2 && pinch) {
+      const [a, b] = [...pointers.values()], distance = Math.hypot(a.x - b.x, a.y - b.y), middle = { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
+      zoom(distance / Math.max(1, pinch.distance), middle.x, middle.y); camera.x -= (middle.x - pinch.middle.x) / camera.scale; camera.y -= (middle.y - pinch.middle.y) / camera.scale; pinch = { distance, middle }; draw();
+    } else if (drag) { const dx = p.x - drag.x, dy = p.y - drag.y; if (Math.hypot(dx, dy) > 7) dragged = true; if (dragged) { camera.x = drag.cx - dx / camera.scale; camera.y = drag.cy - dy / camera.scale; draw(); } }
+  });
+  function endPointer(event, cancelled) {
+    const p = localPoint(event), click = !cancelled && !dragged && pointers.size === 1;
+    pointers.delete(event.pointerId); pinch = null;
+    if (click) pickCell(nearest(p.x, p.y));
+    if (pointers.size === 1) { const remaining = [...pointers.values()][0]; drag = { ...remaining, cx: camera.x, cy: camera.y }; } else drag = null;
+  }
+  canvas.addEventListener('pointerup', e => endPointer(e, false)); canvas.addEventListener('pointercancel', e => endPointer(e, true));
+  canvas.addEventListener('pointerleave', () => { if (!pointers.size) { hovered = -1; draw(); } });
+  canvas.addEventListener('wheel', event => { event.preventDefault(); const p = localPoint(event); zoom(Math.exp(-event.deltaY * .0015), p.x, p.y); }, { passive: false });
+  canvas.addEventListener('keydown', event => {
+    if (event.key === 'Escape') { selectAction('deploy'); return; }
+    if (event.key === '+' || event.key === '=') { zoom(1.35); event.preventDefault(); return; }
+    if (event.key === '-') { zoom(1 / 1.35); event.preventDefault(); return; }
+    if (event.key === 'Home') { focusHome(); event.preventDefault(); return; }
+    if (focused < 0) focused = view.players[mode === 'human' ? 1 : game.turn].home;
+    if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); pickCell(focused); return; }
+    const deltas = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1], q: [1, -1], e: [-1, 1] };
+    if (deltas[event.key]) { event.preventDefault(); const c = E.CELLS[focused], d = deltas[event.key], i = E.index(c.q + d[0], c.r + d[1]); if (i >= 0) { focused = i; hovered = -1; describeCell(i); const p = points[i]; if (Math.abs(p.x - camera.x) > camera.width / camera.scale * .4 || Math.abs(p.y - camera.y) > camera.height / camera.scale * .4) { camera.x = p.x; camera.y = p.y; } draw(); } }
+  });
+  function miniPan(event) { const p = localPoint(event, mini), m = miniTransform(); camera.x = (p.x - m.width / 2) / m.scale; camera.y = (p.y - m.height / 2) / m.scale; draw(); }
+  mini.addEventListener('pointerdown', event => { mini.setPointerCapture(event.pointerId); miniPan(event); });
+  mini.addEventListener('pointermove', event => { if (mini.hasPointerCapture(event.pointerId)) miniPan(event); });
+  mini.addEventListener('keydown', event => { const delta = { ArrowLeft: [-4, 0], ArrowRight: [4, 0], ArrowUp: [0, -4], ArrowDown: [0, 4] }[event.key]; if (delta) { event.preventDefault(); camera.x += delta[0]; camera.y += delta[1]; draw(); } });
+  $('play').addEventListener('click', () => { if (game.phase === 'ready') { recipe = readRecipe(); mode = $('match-mode').value; game = new E.Game(recipe); window.autoHexGame = game; game.start(); wasStarted = true; message = ''; render(); if (mode === 'human' && innerWidth <= 520) focusHome(); schedule(); } });
+  $('pause').addEventListener('click', () => { flushClock(); if (game.phase === 'running') game.pause(); else if (game.phase === 'paused') game.start(); message = ''; error = false; render(); schedule(); });
+  $('restart').addEventListener('click', () => reset({ fresh: true, start: wasStarted }));
+  $('replay').addEventListener('click', () => { if (recipe) { $('seed').value = recipe.seed; $('starter').value = recipe.first; $('rotation').value = recipe.rotation; } reset({ start: wasStarted }); });
+  $('match-mode').addEventListener('change', () => reset());
+  $('seed').addEventListener('change', () => { if (game.phase === 'ready') reset(); });
+  for (const id of ['starter', 'rotation']) $(id).addEventListener('change', () => { if (game.phase === 'ready') reset(); });
+  $('step-seconds').addEventListener('change', () => { $('step-seconds').value = Math.max(.05, Math.min(10, Number($('step-seconds').value) || .3)).toFixed(2); schedule(); });
+  $('step').addEventListener('click', () => { if (mode !== 'spectator' || !['ready', 'paused'].includes(game.phase)) return; stopTimers(); game.start(); const action = E.chooseAction(game.observation(game.turn)); if (!action || !game.act(action)) game.act({ type: 'rest', cells: [] }); game.pause(); wasStarted = true; message = ''; render(); });
+  $('sandbox').addEventListener('click', () => { game.continueSandbox(); message = ''; render(); schedule(); });
+  for (const type of ['deploy', 'engineer', 'withdraw']) $(type).addEventListener('click', () => selectAction(type));
+  $('rest').addEventListener('click', () => perform({ type: 'rest', cells: [] }));
+  $('discard').addEventListener('click', () => perform({ type: 'discard', cells: [], cardIndex: Number($('discard-card').value) }));
+  $('cancel-selection').addEventListener('click', () => selectAction('deploy'));
+  $('diplomacy-target').addEventListener('change', renderDiplomacy);
+  for (const type of ['offer', 'betray']) $(type).addEventListener('click', () => perform({ type, target: Number($('diplomacy-target').value), cells: [] }));
+  $('zoom-in').addEventListener('click', () => zoom(1.4)); $('zoom-out').addEventListener('click', () => zoom(1 / 1.4)); $('fit-map').addEventListener('click', fitMap); $('home-view').addEventListener('click', focusHome);
+  $('show-range').addEventListener('change', () => { computeLegalTargets(); draw(); });
+  document.addEventListener('visibilitychange', () => { if (document.hidden && game.phase === 'running') { flushClock(); game.pause(); message = '頁面移到背景，戰役已自動暫停。回來後按「繼續」。'; } render(); schedule(); });
+  window.addEventListener('pagehide', () => { flushClock(); if (game.phase === 'running') game.pause(); stopTimers(); });
+  const rules = Object.entries(E.CARD_META).map(([type, m]) => { const el = node('div', 'ah-card-rule'); el.append(node('strong', '', `${MARKS[type] || '◇'} ${label(type)} · ${m.cost} 能量 · ${m.slots} 格`), node('p', '', CARD_GUIDE[type] || m.description)); return el; });
+  $('card-rules').replaceChildren(...rules);
+  const params = new URLSearchParams(location.search); if (params.get('seed')) $('seed').value = params.get('seed').slice(0, 64); if (params.get('mode') === 'spectator') $('match-mode').value = 'spectator';
+  window.autoHexRender = render; window.autoHexSchedule = schedule;
+  window.autoHexCellPoint = i => { const p = points[i], r = canvas.getBoundingClientRect(); return p ? { x: r.left + camera.width / 2 + (p.x - camera.x) * camera.scale, y: r.top + camera.height / 2 + (p.y - camera.y) * camera.scale } : null; };
+  window.autoHexFocusCell = focusCell;
+  window.autoHexUI = () => ({ mode, camera: { ...camera }, selection: { ...selection, cells: selection.cells.slice() }, generation, timing, scheduled: aiTimer !== null, observer: mode === 'human' ? 1 : 0 });
+  reset(); resize(); fitMap();
+  new ResizeObserver(resize).observe($('board-wrap'));
+})();

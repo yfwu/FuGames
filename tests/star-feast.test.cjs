@@ -18,8 +18,8 @@ test('all pages parse and share the shell; no missing catalogue links or remote 
   for (const name of fs.readdirSync(root).filter(name => name.endsWith('.html'))) {
     const source = fs.readFileSync(path.join(root, name), 'utf8');
     assert.match(source, /href="fulab-theme.css"/);
-    assert.match(source, /class="site-nav"/); assert.match(source, /class="page-header"/);
-    if (name !== 'index.html') { assert.match(source, /class="card play-panel"/); assert.match(source, /<details class="card rules">/); }
+    assert.match(source, /class="[^"]*\bsite-nav\b[^"]*"/); assert.match(source, /class="[^"]*\bpage-header\b[^"]*"/);
+    if (name !== 'index.html') { assert.match(source, /class="card play-panel(?: [^"]*)?"/); assert.match(source, /<details class="card rules(?: [^"]*)?">/); }
     for (const [, script] of source.matchAll(/<script[^>]*>([\s\S]*?)<\/script>/g)) assert.doesNotThrow(() => new vm.Script(script), name);
     for (const [, href] of source.matchAll(/href="([^"]+)"/g)) {
       const [file, fragment] = href.split('#');

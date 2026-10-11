@@ -16,6 +16,7 @@ python -m http.server 8000 --bind 0.0.0.0
 
 ## 遊戲
 
+- AutoHex：`autohex.html`（獨立六方大型戰場；六 AI 觀戰或人類下場）
 - 抽牌 Hex：`card_hex.html`
 - 重力大亂鬥：`gravity_brawl.html`
 - 翻轉五子棋：`flip_five.html`
@@ -40,6 +41,8 @@ python -m http.server 8000 --bind 0.0.0.0
 
 
 原版 Hex 另新增可選的改接／封格／換位戰術牌組；原隨機仍是預設。360 局保留種子對照未支持增加落後者勝率，因此保留為明確可選擴充。見 [戰術牌規則、測試與限制](docs/hex-tactics-2026-10-11/validation.md)。
+
+獨立新增 AutoHex：1,027 格六方大型戰役，五格部署範圍、循環共用牌池、補給線、結盟背叛及十分鐘前景戰役。可六 AI 觀戰或親自出戰，支援手機縮放與小地圖。見 [AutoHex 規則、實測與限制](docs/autohex-2026-10-11/validation.md)。
 
 ### 共用介面
 

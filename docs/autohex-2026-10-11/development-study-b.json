@@ -1,0 +1,3629 @@
+{
+  "generatedAt": "2026-10-11T13:04:39.939Z",
+  "mode": "accelerated model-time simulation",
+  "complete": false,
+  "engineSha256": "761c1704b726c4bf49691549cfa74b91d922c68935980d124ac6f7f22bce6b61",
+  "config": {
+    "seedStart": 1000003,
+    "seedCount": 12,
+    "rotations": 6,
+    "stepMs": 300,
+    "durationMs": 600000
+  },
+  "games": 7,
+  "independentSeeds": 2,
+  "elapsedSeconds": 67.09437788100001,
+  "gamesPerMinute": 6.2598389502160785,
+  "actionsPerSecond": 208.66129834053595,
+  "winsBySeat": [
+    1,
+    2,
+    1,
+    0,
+    2,
+    0
+  ],
+  "sharedTop": 1,
+  "winsByProfile": {
+    "Vanguard": 2,
+    "Architect": 1,
+    "Sentinel": 0,
+    "Raider": 2,
+    "Envoy": 1,
+    "Pathfinder": 0
+  },
+  "score": {
+    "count": 42,
+    "min": 139,
+    "median": 161,
+    "p95": 183,
+    "max": 193,
+    "mean": 161
+  },
+  "chooseActionMs": {
+    "count": 14000,
+    "min": 0.2846460000000661,
+    "median": 1.425427000001946,
+    "p95": 6.433767000000444,
+    "max": 167.62889500000165,
+    "mean": 2.401928109642855
+  },
+  "campaignWallSeconds": {
+    "count": 7,
+    "min": 7.3860443799999995,
+    "median": 9.445770001000001,
+    "p95": 12.206861181,
+    "max": 12.206861181,
+    "mean": 9.578054223142857
+  },
+  "counts": {
+    "actions": {
+      "deploy": 12048,
+      "engineer": 365,
+      "turret": 158,
+      "destroy": 49,
+      "bridge": 145,
+      "exchange": 164,
+      "offer": 195,
+      "shield": 163,
+      "reroute": 22,
+      "accept": 115,
+      "reject": 5,
+      "withdraw": 564,
+      "discard": 7
+    },
+    "events": {
+      "ready": 7,
+      "deploy": 12048,
+      "engineer": 365,
+      "capture": 6412,
+      "turret": 158,
+      "destroy": 256,
+      "bridge": 145,
+      "exchange": 164,
+      "offer": 195,
+      "offer-expired": 74,
+      "supply-retreat": 189,
+      "shield": 163,
+      "reroute": 22,
+      "accept": 115,
+      "alliance-expired": 109,
+      "reshuffle": 8,
+      "reject": 5,
+      "withdraw": 564,
+      "goal-arrival": 7,
+      "goal-hold": 4,
+      "goal-lost": 10,
+      "shield-block": 1,
+      "discard": 7
+    },
+    "captures": 6573,
+    "removals": 2289,
+    "occupations": 5798,
+    "engineeredCells": 365,
+    "boardChanges": 14660,
+    "meaningfulActions": 13992,
+    "cardUses": 701,
+    "diplomacyActions": 315,
+    "supplyRetreats": 1471,
+    "observedUnsuppliedStoneTurns": 84168,
+    "goalArrivals": 7,
+    "goalHoldingRounds": 8,
+    "turretShots": 208
+  },
+  "gamesWithGoalArrival": 4,
+  "lateMeaningfulActions": {
+    "count": 7,
+    "min": 495,
+    "median": 500,
+    "p95": 500,
+    "max": 500,
+    "mean": 499.14285714285717
+  },
+  "passiveLateGames": [],
+  "limitations": [
+    "Each game advances exactly 600,000 model milliseconds at 300 ms per accepted action by default. Execution is accelerated; this is not evidence of ten minutes of real foreground browser play.",
+    "Rotations within each seed are correlated; independent seed count is reported separately.",
+    "Winner and profile frequencies describe this sample and do not establish balance or causal profile strength.",
+    "Node timings omit canvas rendering, input latency, scheduling, background throttling and mobile costs.",
+    "Captures count ownership transfers; removals include attacks and supply retreats. Event totals depend on public engine event classification."
+  ],
+  "matches": [
+    {
+      "seed": 1000003,
+      "rotation": 0,
+      "first": 1,
+      "profiles": [
+        "Vanguard",
+        "Architect",
+        "Sentinel",
+        "Raider",
+        "Envoy",
+        "Pathfinder"
+      ],
+      "modelActiveMs": 600000,
+      "actions": 2000,
+      "completedRounds": 333,
+      "wallSeconds": 9.552910004000001,
+      "scores": [
+        193,
+        154,
+        168,
+        185,
+        148,
+        141
+      ],
+      "top": [
+        1
+      ],
+      "winner": 1,
+      "result": {
+        "winners": [
+          1
+        ],
+        "standings": [
+          {
+            "player": 1,
+            "score": 193,
+            "name": "Azure",
+            "rank": 1
+          },
+          {
+            "player": 4,
+            "score": 185,
+            "name": "Gold",
+            "rank": 2
+          },
+          {
+            "player": 3,
+            "score": 168,
+            "name": "Violet",
+            "rank": 3
+          },
+          {
+            "player": 2,
+            "score": 154,
+            "name": "Ember",
+            "rank": 4
+          },
+          {
+            "player": 5,
+            "score": 148,
+            "name": "Jade",
+            "rank": 5
+          },
+          {
+            "player": 6,
+            "score": 141,
+            "name": "Rose",
+            "rank": 6
+          }
+        ],
+        "draw": false,
+        "reason": "timeout",
+        "activeMs": 600000
+      },
+      "counts": {
+        "actions": {
+          "deploy": 1714,
+          "engineer": 56,
+          "turret": 23,
+          "destroy": 9,
+          "bridge": 25,
+          "exchange": 26,
+          "offer": 24,
+          "shield": 29,
+          "reroute": 5,
+          "accept": 8,
+          "reject": 1,
+          "withdraw": 80
+        },
+        "events": {
+          "ready": 1,
+          "deploy": 1714,
+          "engineer": 56,
+          "capture": 918,
+          "turret": 23,
+          "destroy": 55,
+          "bridge": 25,
+          "exchange": 26,
+          "offer": 24,
+          "offer-expired": 15,
+          "supply-retreat": 27,
+          "shield": 29,
+          "reroute": 5,
+          "accept": 8,
+          "alliance-expired": 8,
+          "reshuffle": 1,
+          "reject": 1,
+          "withdraw": 80,
+          "goal-arrival": 1,
+          "goal-hold": 1,
+          "goal-lost": 1
+        },
+        "captures": 943,
+        "removals": 325,
+        "occupations": 821,
+        "engineeredCells": 56,
+        "boardChanges": 2089,
+        "meaningfulActions": 1999,
+        "cardUses": 117,
+        "diplomacyActions": 33,
+        "supplyRetreats": 191,
+        "observedUnsuppliedStoneTurns": 10633,
+        "goalArrivals": 1,
+        "goalHoldingRounds": 2,
+        "turretShots": 46
+      },
+      "quarters": [
+        {
+          "actions": {
+            "deploy": 426,
+            "engineer": 19,
+            "turret": 12,
+            "destroy": 5,
+            "bridge": 12,
+            "exchange": 11,
+            "offer": 2,
+            "shield": 12,
+            "reroute": 1
+          },
+          "events": {
+            "ready": 1,
+            "deploy": 426,
+            "engineer": 19,
+            "capture": 178,
+            "turret": 12,
+            "destroy": 24,
+            "bridge": 12,
+            "exchange": 11,
+            "offer": 2,
+            "offer-expired": 2,
+            "supply-retreat": 7,
+            "shield": 12,
+            "reroute": 1
+          },
+          "captures": 189,
+          "removals": 39,
+          "occupations": 258,
+          "engineeredCells": 19,
+          "boardChanges": 486,
+          "meaningfulActions": 499,
+          "cardUses": 53,
+          "diplomacyActions": 2,
+          "supplyRetreats": 16,
+          "observedUnsuppliedStoneTurns": 1554,
+          "goalArrivals": 0,
+          "goalHoldingRounds": 0,
+          "turretShots": 19
+        },
+        {
+          "actions": {
+            "deploy": 432,
+            "engineer": 17,
+            "offer": 5,
+            "accept": 5,
+            "bridge": 8,
+            "turret": 8,
+            "shield": 11,
+            "exchange": 8,
+            "reroute": 4,
+            "destroy": 2
+          },
+          "events": {
+            "deploy": 432,
+            "capture": 219,
+            "engineer": 17,
+            "destroy": 25,
+            "offer": 5,
+            "accept": 5,
+            "bridge": 8,
+            "alliance-expired": 5,
+            "supply-retreat": 6,
+            "turret": 8,
+            "shield": 11,
+            "exchange": 8,
+            "reroute": 4,
+            "reshuffle": 1
+          },
+          "captures": 226,
+          "removals": 61,
+          "occupations": 221,
+          "engineeredCells": 17,
+          "boardChanges": 508,
+          "meaningfulActions": 500,
+          "cardUses": 41,
+          "diplomacyActions": 10,
+          "supplyRetreats": 36,
+          "observedUnsuppliedStoneTurns": 3311,
+          "goalArrivals": 0,
+          "goalHoldingRounds": 0,
+          "turretShots": 23
+        },
+        {
+          "actions": {
+            "destroy": 2,
+            "deploy": 430,
+            "offer": 7,
+            "bridge": 4,
+            "engineer": 15,
+            "exchange": 3,
+            "reject": 1,
+            "accept": 1,
+            "turret": 2,
+            "withdraw": 31,
+            "shield": 4
+          },
+          "events": {
+            "destroy": 6,
+            "deploy": 430,
+            "offer": 7,
+            "capture": 242,
+            "bridge": 4,
+            "offer-expired": 4,
+            "engineer": 15,
+            "exchange": 3,
+            "reject": 1,
+            "accept": 1,
+            "turret": 2,
+            "supply-retreat": 8,
+            "alliance-expired": 1,
+            "withdraw": 31,
+            "shield": 4
+          },
+          "captures": 245,
+          "removals": 109,
+          "occupations": 191,
+          "engineeredCells": 15,
+          "boardChanges": 545,
+          "meaningfulActions": 500,
+          "cardUses": 15,
+          "diplomacyActions": 9,
+          "supplyRetreats": 72,
+          "observedUnsuppliedStoneTurns": 2923,
+          "goalArrivals": 0,
+          "goalHoldingRounds": 0,
+          "turretShots": 4
+        },
+        {
+          "actions": {
+            "withdraw": 49,
+            "deploy": 426,
+            "engineer": 5,
+            "offer": 10,
+            "bridge": 1,
+            "exchange": 4,
+            "turret": 1,
+            "accept": 2,
+            "shield": 2
+          },
+          "events": {
+            "withdraw": 49,
+            "capture": 279,
+            "deploy": 426,
+            "engineer": 5,
+            "offer": 10,
+            "offer-expired": 9,
+            "bridge": 1,
+            "exchange": 4,
+            "turret": 1,
+            "supply-retreat": 6,
+            "accept": 2,
+            "alliance-expired": 2,
+            "goal-arrival": 1,
+            "goal-hold": 1,
+            "shield": 2,
+            "goal-lost": 1
+          },
+          "captures": 283,
+          "removals": 116,
+          "occupations": 151,
+          "engineeredCells": 5,
+          "boardChanges": 550,
+          "meaningfulActions": 500,
+          "cardUses": 8,
+          "diplomacyActions": 12,
+          "supplyRetreats": 67,
+          "observedUnsuppliedStoneTurns": 2845,
+          "goalArrivals": 1,
+          "goalHoldingRounds": 2,
+          "turretShots": 0
+        }
+      ],
+      "telemetry": {
+        "actions": 2000,
+        "meaningful": 2000,
+        "captures": 918,
+        "destroyed": 55,
+        "supplyRetreats": 191,
+        "engineered": 56,
+        "cardsUsed": 117,
+        "reshuffles": 1,
+        "goalArrivals": 1,
+        "goalHoldingRounds": 2,
+        "offers": 24,
+        "alliances": 8,
+        "betrayals": 0,
+        "withdrawals": 80,
+        "turretShots": 46,
+        "shieldBlocks": 0,
+        "byType": {
+          "deploy": 1714,
+          "engineer": 56,
+          "turret": 23,
+          "destroy": 9,
+          "bridge": 25,
+          "exchange": 26,
+          "offer": 24,
+          "shield": 29,
+          "reroute": 5,
+          "accept": 8,
+          "reject": 1,
+          "withdraw": 80
+        },
+        "byMinute": [
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 50,
+            "cardsUsed": 15
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 83,
+            "cardsUsed": 30
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 89,
+            "cardsUsed": 9
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 93,
+            "cardsUsed": 8
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 82,
+            "cardsUsed": 32
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 96,
+            "cardsUsed": 8
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 89,
+            "cardsUsed": 6
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 115,
+            "cardsUsed": 5
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 107,
+            "cardsUsed": 2
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 114,
+            "cardsUsed": 2
+          }
+        ],
+        "perPlayer": [
+          {
+            "actions": 0,
+            "captures": 0,
+            "cardsUsed": 0,
+            "goals": 0
+          },
+          {
+            "actions": 334,
+            "captures": 171,
+            "cardsUsed": 18,
+            "goals": 1
+          },
+          {
+            "actions": 334,
+            "captures": 152,
+            "cardsUsed": 15,
+            "goals": 0
+          },
+          {
+            "actions": 333,
+            "captures": 143,
+            "cardsUsed": 43,
+            "goals": 0
+          },
+          {
+            "actions": 333,
+            "captures": 173,
+            "cardsUsed": 12,
+            "goals": 0
+          },
+          {
+            "actions": 333,
+            "captures": 144,
+            "cardsUsed": 16,
+            "goals": 0
+          },
+          {
+            "actions": 333,
+            "captures": 135,
+            "cardsUsed": 13,
+            "goals": 0
+          }
+        ]
+      },
+      "peakFootprint": [
+        96,
+        96,
+        96,
+        96,
+        95,
+        96
+      ],
+      "finalFootprint": [
+        71,
+        95,
+        96,
+        95,
+        61,
+        96
+      ],
+      "perSeat": [
+        {
+          "actions": 334,
+          "cards": 18,
+          "captures": 173,
+          "deployments": 124
+        },
+        {
+          "actions": 334,
+          "cards": 15,
+          "captures": 158,
+          "deployments": 141
+        },
+        {
+          "actions": 333,
+          "cards": 43,
+          "captures": 154,
+          "deployments": 136
+        },
+        {
+          "actions": 333,
+          "cards": 12,
+          "captures": 175,
+          "deployments": 103
+        },
+        {
+          "actions": 333,
+          "cards": 16,
+          "captures": 146,
+          "deployments": 152
+        },
+        {
+          "actions": 333,
+          "cards": 13,
+          "captures": 137,
+          "deployments": 165
+        }
+      ],
+      "bounds": {
+        "maxOffers": 2,
+        "maxAlliances": 2,
+        "maxEvents": 96,
+        "maxBridges": 5,
+        "maxTurrets": 4
+      },
+      "maxQuietModelMs": 600,
+      "lateMeaningfulActions": 500,
+      "passiveLateGame": false
+    },
+    {
+      "seed": 1000003,
+      "rotation": 1,
+      "first": 2,
+      "profiles": [
+        "Architect",
+        "Sentinel",
+        "Raider",
+        "Envoy",
+        "Pathfinder",
+        "Vanguard"
+      ],
+      "modelActiveMs": 600000,
+      "actions": 2000,
+      "completedRounds": 333,
+      "wallSeconds": 9.445770001000001,
+      "scores": [
+        139,
+        140,
+        167,
+        165,
+        166,
+        158
+      ],
+      "top": [
+        3
+      ],
+      "winner": 3,
+      "result": {
+        "winners": [
+          3
+        ],
+        "standings": [
+          {
+            "player": 3,
+            "score": 167,
+            "name": "Violet",
+            "rank": 1
+          },
+          {
+            "player": 5,
+            "score": 166,
+            "name": "Jade",
+            "rank": 2
+          },
+          {
+            "player": 4,
+            "score": 165,
+            "name": "Gold",
+            "rank": 3
+          },
+          {
+            "player": 6,
+            "score": 158,
+            "name": "Rose",
+            "rank": 4
+          },
+          {
+            "player": 2,
+            "score": 140,
+            "name": "Ember",
+            "rank": 5
+          },
+          {
+            "player": 1,
+            "score": 139,
+            "name": "Azure",
+            "rank": 6
+          }
+        ],
+        "draw": false,
+        "reason": "timeout",
+        "activeMs": 600000
+      },
+      "counts": {
+        "actions": {
+          "deploy": 1744,
+          "engineer": 49,
+          "turret": 30,
+          "bridge": 25,
+          "exchange": 28,
+          "shield": 26,
+          "destroy": 7,
+          "reroute": 4,
+          "offer": 25,
+          "accept": 9,
+          "reject": 2,
+          "withdraw": 51
+        },
+        "events": {
+          "ready": 1,
+          "deploy": 1744,
+          "engineer": 49,
+          "turret": 30,
+          "capture": 829,
+          "bridge": 25,
+          "exchange": 28,
+          "supply-retreat": 43,
+          "shield": 26,
+          "destroy": 70,
+          "reroute": 4,
+          "goal-arrival": 3,
+          "goal-hold": 2,
+          "goal-lost": 5,
+          "offer": 25,
+          "offer-expired": 14,
+          "accept": 9,
+          "alliance-expired": 8,
+          "reshuffle": 1,
+          "shield-block": 1,
+          "reject": 2,
+          "withdraw": 51
+        },
+        "captures": 857,
+        "removals": 465,
+        "occupations": 943,
+        "engineeredCells": 49,
+        "boardChanges": 2265,
+        "meaningfulActions": 2000,
+        "cardUses": 120,
+        "diplomacyActions": 36,
+        "supplyRetreats": 344,
+        "observedUnsuppliedStoneTurns": 18653,
+        "goalArrivals": 3,
+        "goalHoldingRounds": 3,
+        "turretShots": 64
+      },
+      "quarters": [
+        {
+          "actions": {
+            "deploy": 435,
+            "engineer": 16,
+            "turret": 15,
+            "bridge": 13,
+            "exchange": 10,
+            "shield": 5,
+            "destroy": 3,
+            "reroute": 2,
+            "offer": 1
+          },
+          "events": {
+            "ready": 1,
+            "deploy": 435,
+            "engineer": 16,
+            "turret": 15,
+            "capture": 139,
+            "bridge": 13,
+            "exchange": 10,
+            "supply-retreat": 13,
+            "shield": 5,
+            "destroy": 16,
+            "reroute": 2,
+            "goal-arrival": 1,
+            "goal-hold": 2,
+            "goal-lost": 2,
+            "offer": 1,
+            "offer-expired": 1
+          },
+          "captures": 149,
+          "removals": 126,
+          "occupations": 306,
+          "engineeredCells": 16,
+          "boardChanges": 581,
+          "meaningfulActions": 500,
+          "cardUses": 48,
+          "diplomacyActions": 1,
+          "supplyRetreats": 110,
+          "observedUnsuppliedStoneTurns": 5475,
+          "goalArrivals": 1,
+          "goalHoldingRounds": 3,
+          "turretShots": 13
+        },
+        {
+          "actions": {
+            "deploy": 443,
+            "exchange": 8,
+            "shield": 12,
+            "offer": 5,
+            "accept": 2,
+            "engineer": 15,
+            "destroy": 2,
+            "bridge": 5,
+            "reroute": 2,
+            "turret": 6
+          },
+          "events": {
+            "deploy": 443,
+            "capture": 189,
+            "exchange": 8,
+            "shield": 12,
+            "supply-retreat": 16,
+            "offer": 5,
+            "accept": 2,
+            "engineer": 15,
+            "destroy": 8,
+            "bridge": 5,
+            "reroute": 2,
+            "alliance-expired": 2,
+            "offer-expired": 3,
+            "turret": 6,
+            "reshuffle": 1,
+            "goal-arrival": 1,
+            "goal-lost": 2,
+            "shield-block": 1
+          },
+          "captures": 197,
+          "removals": 168,
+          "occupations": 262,
+          "engineeredCells": 15,
+          "boardChanges": 627,
+          "meaningfulActions": 500,
+          "cardUses": 35,
+          "diplomacyActions": 7,
+          "supplyRetreats": 160,
+          "observedUnsuppliedStoneTurns": 7074,
+          "goalArrivals": 1,
+          "goalHoldingRounds": 0,
+          "turretShots": 7
+        },
+        {
+          "actions": {
+            "deploy": 446,
+            "engineer": 16,
+            "offer": 8,
+            "destroy": 2,
+            "turret": 6,
+            "shield": 4,
+            "bridge": 5,
+            "exchange": 5,
+            "accept": 3,
+            "reject": 1,
+            "withdraw": 4
+          },
+          "events": {
+            "deploy": 446,
+            "capture": 230,
+            "destroy": 24,
+            "engineer": 16,
+            "offer": 8,
+            "goal-arrival": 1,
+            "goal-lost": 1,
+            "offer-expired": 4,
+            "turret": 6,
+            "supply-retreat": 8,
+            "shield": 4,
+            "bridge": 5,
+            "exchange": 5,
+            "accept": 3,
+            "reject": 1,
+            "alliance-expired": 2,
+            "withdraw": 4
+          },
+          "captures": 235,
+          "removals": 83,
+          "occupations": 221,
+          "engineeredCells": 16,
+          "boardChanges": 539,
+          "meaningfulActions": 500,
+          "cardUses": 22,
+          "diplomacyActions": 12,
+          "supplyRetreats": 55,
+          "observedUnsuppliedStoneTurns": 4345,
+          "goalArrivals": 1,
+          "goalHoldingRounds": 0,
+          "turretShots": 22
+        },
+        {
+          "actions": {
+            "deploy": 420,
+            "bridge": 2,
+            "withdraw": 47,
+            "offer": 11,
+            "shield": 5,
+            "turret": 3,
+            "exchange": 5,
+            "engineer": 2,
+            "accept": 4,
+            "reject": 1
+          },
+          "events": {
+            "capture": 271,
+            "deploy": 420,
+            "bridge": 2,
+            "withdraw": 47,
+            "offer": 11,
+            "offer-expired": 6,
+            "alliance-expired": 4,
+            "shield": 5,
+            "turret": 3,
+            "supply-retreat": 6,
+            "destroy": 22,
+            "exchange": 5,
+            "engineer": 2,
+            "accept": 4,
+            "reject": 1
+          },
+          "captures": 276,
+          "removals": 88,
+          "occupations": 154,
+          "engineeredCells": 2,
+          "boardChanges": 518,
+          "meaningfulActions": 500,
+          "cardUses": 15,
+          "diplomacyActions": 16,
+          "supplyRetreats": 19,
+          "observedUnsuppliedStoneTurns": 1759,
+          "goalArrivals": 0,
+          "goalHoldingRounds": 0,
+          "turretShots": 22
+        }
+      ],
+      "telemetry": {
+        "actions": 2000,
+        "meaningful": 2000,
+        "captures": 829,
+        "destroyed": 70,
+        "supplyRetreats": 344,
+        "engineered": 49,
+        "cardsUsed": 120,
+        "reshuffles": 1,
+        "goalArrivals": 3,
+        "goalHoldingRounds": 3,
+        "offers": 25,
+        "alliances": 9,
+        "betrayals": 0,
+        "withdrawals": 51,
+        "turretShots": 64,
+        "shieldBlocks": 1,
+        "byType": {
+          "deploy": 1744,
+          "engineer": 49,
+          "turret": 30,
+          "bridge": 25,
+          "exchange": 28,
+          "shield": 26,
+          "destroy": 7,
+          "reroute": 4,
+          "offer": 25,
+          "accept": 9,
+          "reject": 2,
+          "withdraw": 51
+        },
+        "byMinute": [
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 32,
+            "cardsUsed": 12
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 68,
+            "cardsUsed": 28
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 89,
+            "cardsUsed": 19
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 77,
+            "cardsUsed": 11
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 62,
+            "cardsUsed": 13
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 86,
+            "cardsUsed": 12
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 99,
+            "cardsUsed": 6
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 101,
+            "cardsUsed": 7
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 105,
+            "cardsUsed": 6
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 110,
+            "cardsUsed": 6
+          }
+        ],
+        "perPlayer": [
+          {
+            "actions": 0,
+            "captures": 0,
+            "cardsUsed": 0,
+            "goals": 0
+          },
+          {
+            "actions": 333,
+            "captures": 112,
+            "cardsUsed": 21,
+            "goals": 2
+          },
+          {
+            "actions": 334,
+            "captures": 137,
+            "cardsUsed": 28,
+            "goals": 0
+          },
+          {
+            "actions": 334,
+            "captures": 166,
+            "cardsUsed": 13,
+            "goals": 0
+          },
+          {
+            "actions": 333,
+            "captures": 163,
+            "cardsUsed": 6,
+            "goals": 0
+          },
+          {
+            "actions": 333,
+            "captures": 118,
+            "cardsUsed": 37,
+            "goals": 1
+          },
+          {
+            "actions": 333,
+            "captures": 133,
+            "cardsUsed": 15,
+            "goals": 0
+          }
+        ]
+      },
+      "peakFootprint": [
+        72,
+        96,
+        96,
+        96,
+        67,
+        96
+      ],
+      "finalFootprint": [
+        50,
+        93,
+        96,
+        94,
+        67,
+        96
+      ],
+      "perSeat": [
+        {
+          "actions": 333,
+          "cards": 21,
+          "captures": 119,
+          "deployments": 182
+        },
+        {
+          "actions": 334,
+          "cards": 28,
+          "captures": 144,
+          "deployments": 159
+        },
+        {
+          "actions": 334,
+          "cards": 13,
+          "captures": 169,
+          "deployments": 123
+        },
+        {
+          "actions": 333,
+          "cards": 6,
+          "captures": 164,
+          "deployments": 130
+        },
+        {
+          "actions": 333,
+          "cards": 37,
+          "captures": 125,
+          "deployments": 172
+        },
+        {
+          "actions": 333,
+          "cards": 15,
+          "captures": 136,
+          "deployments": 177
+        }
+      ],
+      "bounds": {
+        "maxOffers": 2,
+        "maxAlliances": 2,
+        "maxEvents": 96,
+        "maxBridges": 4,
+        "maxTurrets": 3
+      },
+      "maxQuietModelMs": 300,
+      "lateMeaningfulActions": 500,
+      "passiveLateGame": false
+    },
+    {
+      "seed": 1000003,
+      "rotation": 2,
+      "first": 3,
+      "profiles": [
+        "Sentinel",
+        "Raider",
+        "Envoy",
+        "Pathfinder",
+        "Vanguard",
+        "Architect"
+      ],
+      "modelActiveMs": 600000,
+      "actions": 2000,
+      "completedRounds": 333,
+      "wallSeconds": 7.3860443799999995,
+      "scores": [
+        149,
+        183,
+        167,
+        153,
+        143,
+        167
+      ],
+      "top": [
+        2
+      ],
+      "winner": 2,
+      "result": {
+        "winners": [
+          2
+        ],
+        "standings": [
+          {
+            "player": 2,
+            "score": 183,
+            "name": "Ember",
+            "rank": 1
+          },
+          {
+            "player": 3,
+            "score": 167,
+            "name": "Violet",
+            "rank": 2
+          },
+          {
+            "player": 6,
+            "score": 167,
+            "name": "Rose",
+            "rank": 2
+          },
+          {
+            "player": 4,
+            "score": 153,
+            "name": "Gold",
+            "rank": 4
+          },
+          {
+            "player": 1,
+            "score": 149,
+            "name": "Azure",
+            "rank": 5
+          },
+          {
+            "player": 5,
+            "score": 143,
+            "name": "Jade",
+            "rank": 6
+          }
+        ],
+        "draw": false,
+        "reason": "timeout",
+        "activeMs": 600000
+      },
+      "counts": {
+        "actions": {
+          "deploy": 1733,
+          "engineer": 44,
+          "turret": 16,
+          "bridge": 15,
+          "exchange": 17,
+          "shield": 16,
+          "destroy": 3,
+          "reroute": 1,
+          "offer": 31,
+          "accept": 23,
+          "withdraw": 101
+        },
+        "events": {
+          "ready": 1,
+          "deploy": 1733,
+          "engineer": 44,
+          "capture": 944,
+          "turret": 16,
+          "bridge": 15,
+          "exchange": 17,
+          "shield": 16,
+          "supply-retreat": 24,
+          "destroy": 18,
+          "reroute": 1,
+          "offer": 31,
+          "accept": 23,
+          "alliance-expired": 21,
+          "offer-expired": 8,
+          "withdraw": 101,
+          "reshuffle": 1
+        },
+        "captures": 961,
+        "removals": 348,
+        "occupations": 806,
+        "engineeredCells": 44,
+        "boardChanges": 2115,
+        "meaningfulActions": 2000,
+        "cardUses": 68,
+        "diplomacyActions": 54,
+        "supplyRetreats": 229,
+        "observedUnsuppliedStoneTurns": 14300,
+        "goalArrivals": 0,
+        "goalHoldingRounds": 0,
+        "turretShots": 15
+      },
+      "quarters": [
+        {
+          "actions": {
+            "deploy": 438,
+            "engineer": 17,
+            "turret": 15,
+            "bridge": 11,
+            "exchange": 11,
+            "shield": 5,
+            "destroy": 1,
+            "reroute": 1,
+            "offer": 1
+          },
+          "events": {
+            "ready": 1,
+            "deploy": 438,
+            "engineer": 17,
+            "capture": 147,
+            "turret": 15,
+            "bridge": 11,
+            "exchange": 11,
+            "shield": 5,
+            "supply-retreat": 15,
+            "destroy": 13,
+            "reroute": 1,
+            "offer": 1
+          },
+          "captures": 158,
+          "removals": 93,
+          "occupations": 302,
+          "engineeredCells": 17,
+          "boardChanges": 553,
+          "meaningfulActions": 500,
+          "cardUses": 44,
+          "diplomacyActions": 1,
+          "supplyRetreats": 80,
+          "observedUnsuppliedStoneTurns": 4999,
+          "goalArrivals": 0,
+          "goalHoldingRounds": 0,
+          "turretShots": 12
+        },
+        {
+          "actions": {
+            "deploy": 453,
+            "accept": 11,
+            "shield": 7,
+            "engineer": 12,
+            "exchange": 3,
+            "bridge": 2,
+            "offer": 11,
+            "destroy": 1
+          },
+          "events": {
+            "capture": 267,
+            "deploy": 453,
+            "accept": 11,
+            "shield": 7,
+            "engineer": 12,
+            "exchange": 3,
+            "bridge": 2,
+            "offer": 11,
+            "alliance-expired": 9,
+            "supply-retreat": 5,
+            "destroy": 1,
+            "offer-expired": 1
+          },
+          "captures": 270,
+          "removals": 12,
+          "occupations": 189,
+          "engineeredCells": 12,
+          "boardChanges": 471,
+          "meaningfulActions": 500,
+          "cardUses": 13,
+          "diplomacyActions": 22,
+          "supplyRetreats": 11,
+          "observedUnsuppliedStoneTurns": 2152,
+          "goalArrivals": 0,
+          "goalHoldingRounds": 0,
+          "turretShots": 0
+        },
+        {
+          "actions": {
+            "deploy": 431,
+            "engineer": 9,
+            "shield": 4,
+            "bridge": 2,
+            "withdraw": 42,
+            "offer": 4,
+            "turret": 1,
+            "destroy": 1,
+            "exchange": 3,
+            "accept": 3
+          },
+          "events": {
+            "capture": 256,
+            "deploy": 431,
+            "engineer": 9,
+            "shield": 4,
+            "alliance-expired": 4,
+            "supply-retreat": 3,
+            "bridge": 2,
+            "withdraw": 42,
+            "offer": 4,
+            "turret": 1,
+            "offer-expired": 1,
+            "destroy": 4,
+            "exchange": 3,
+            "reshuffle": 1,
+            "accept": 3
+          },
+          "captures": 259,
+          "removals": 141,
+          "occupations": 178,
+          "engineeredCells": 9,
+          "boardChanges": 578,
+          "meaningfulActions": 500,
+          "cardUses": 11,
+          "diplomacyActions": 7,
+          "supplyRetreats": 95,
+          "observedUnsuppliedStoneTurns": 5793,
+          "goalArrivals": 0,
+          "goalHoldingRounds": 0,
+          "turretShots": 3
+        },
+        {
+          "actions": {
+            "withdraw": 59,
+            "deploy": 411,
+            "offer": 15,
+            "accept": 9,
+            "engineer": 6
+          },
+          "events": {
+            "withdraw": 59,
+            "deploy": 411,
+            "capture": 274,
+            "supply-retreat": 1,
+            "alliance-expired": 8,
+            "offer": 15,
+            "accept": 9,
+            "engineer": 6,
+            "offer-expired": 6
+          },
+          "captures": 274,
+          "removals": 102,
+          "occupations": 137,
+          "engineeredCells": 6,
+          "boardChanges": 513,
+          "meaningfulActions": 500,
+          "cardUses": 0,
+          "diplomacyActions": 24,
+          "supplyRetreats": 43,
+          "observedUnsuppliedStoneTurns": 1356,
+          "goalArrivals": 0,
+          "goalHoldingRounds": 0,
+          "turretShots": 0
+        }
+      ],
+      "telemetry": {
+        "actions": 2000,
+        "meaningful": 2000,
+        "captures": 944,
+        "destroyed": 18,
+        "supplyRetreats": 229,
+        "engineered": 44,
+        "cardsUsed": 68,
+        "reshuffles": 1,
+        "goalArrivals": 0,
+        "goalHoldingRounds": 0,
+        "offers": 31,
+        "alliances": 23,
+        "betrayals": 0,
+        "withdrawals": 101,
+        "turretShots": 15,
+        "shieldBlocks": 0,
+        "byType": {
+          "deploy": 1733,
+          "engineer": 44,
+          "turret": 16,
+          "bridge": 15,
+          "exchange": 17,
+          "shield": 16,
+          "destroy": 3,
+          "reroute": 1,
+          "offer": 31,
+          "accept": 23,
+          "withdraw": 101
+        },
+        "byMinute": [
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 37,
+            "cardsUsed": 19
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 65,
+            "cardsUsed": 21
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 100,
+            "cardsUsed": 11
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 107,
+            "cardsUsed": 6
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 105,
+            "cardsUsed": 0
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 95,
+            "cardsUsed": 7
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 101,
+            "cardsUsed": 4
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 107,
+            "cardsUsed": 0
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 112,
+            "cardsUsed": 0
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 115,
+            "cardsUsed": 0
+          }
+        ],
+        "perPlayer": [
+          {
+            "actions": 0,
+            "captures": 0,
+            "cardsUsed": 0,
+            "goals": 0
+          },
+          {
+            "actions": 333,
+            "captures": 148,
+            "cardsUsed": 5,
+            "goals": 0
+          },
+          {
+            "actions": 333,
+            "captures": 180,
+            "cardsUsed": 10,
+            "goals": 0
+          },
+          {
+            "actions": 334,
+            "captures": 166,
+            "cardsUsed": 10,
+            "goals": 0
+          },
+          {
+            "actions": 334,
+            "captures": 150,
+            "cardsUsed": 8,
+            "goals": 0
+          },
+          {
+            "actions": 333,
+            "captures": 137,
+            "cardsUsed": 20,
+            "goals": 0
+          },
+          {
+            "actions": 333,
+            "captures": 163,
+            "cardsUsed": 15,
+            "goals": 0
+          }
+        ]
+      },
+      "peakFootprint": [
+        64,
+        96,
+        96,
+        93,
+        70,
+        96
+      ],
+      "finalFootprint": [
+        30,
+        94,
+        96,
+        92,
+        69,
+        95
+      ],
+      "perSeat": [
+        {
+          "actions": 333,
+          "cards": 5,
+          "captures": 148,
+          "deployments": 158
+        },
+        {
+          "actions": 333,
+          "cards": 10,
+          "captures": 182,
+          "deployments": 116
+        },
+        {
+          "actions": 334,
+          "cards": 10,
+          "captures": 168,
+          "deployments": 95
+        },
+        {
+          "actions": 334,
+          "cards": 8,
+          "captures": 153,
+          "deployments": 154
+        },
+        {
+          "actions": 333,
+          "cards": 20,
+          "captures": 142,
+          "deployments": 171
+        },
+        {
+          "actions": 333,
+          "cards": 15,
+          "captures": 168,
+          "deployments": 112
+        }
+      ],
+      "bounds": {
+        "maxOffers": 2,
+        "maxAlliances": 3,
+        "maxEvents": 96,
+        "maxBridges": 4,
+        "maxTurrets": 5
+      },
+      "maxQuietModelMs": 300,
+      "lateMeaningfulActions": 500,
+      "passiveLateGame": false
+    },
+    {
+      "seed": 1000003,
+      "rotation": 3,
+      "first": 4,
+      "profiles": [
+        "Raider",
+        "Envoy",
+        "Pathfinder",
+        "Vanguard",
+        "Architect",
+        "Sentinel"
+      ],
+      "modelActiveMs": 600000,
+      "actions": 2000,
+      "completedRounds": 333,
+      "wallSeconds": 10.558527260000002,
+      "scores": [
+        176,
+        155,
+        159,
+        154,
+        181,
+        157
+      ],
+      "top": [
+        5
+      ],
+      "winner": 5,
+      "result": {
+        "winners": [
+          5
+        ],
+        "standings": [
+          {
+            "player": 5,
+            "score": 181,
+            "name": "Jade",
+            "rank": 1
+          },
+          {
+            "player": 1,
+            "score": 176,
+            "name": "Azure",
+            "rank": 2
+          },
+          {
+            "player": 3,
+            "score": 159,
+            "name": "Violet",
+            "rank": 3
+          },
+          {
+            "player": 6,
+            "score": 157,
+            "name": "Rose",
+            "rank": 4
+          },
+          {
+            "player": 2,
+            "score": 155,
+            "name": "Ember",
+            "rank": 5
+          },
+          {
+            "player": 4,
+            "score": 154,
+            "name": "Gold",
+            "rank": 6
+          }
+        ],
+        "draw": false,
+        "reason": "timeout",
+        "activeMs": 600000
+      },
+      "counts": {
+        "actions": {
+          "deploy": 1726,
+          "engineer": 49,
+          "turret": 17,
+          "shield": 18,
+          "offer": 34,
+          "accept": 21,
+          "bridge": 14,
+          "exchange": 18,
+          "destroy": 6,
+          "reroute": 1,
+          "discard": 1,
+          "withdraw": 95
+        },
+        "events": {
+          "ready": 1,
+          "deploy": 1726,
+          "engineer": 49,
+          "turret": 17,
+          "capture": 966,
+          "destroy": 16,
+          "shield": 18,
+          "offer": 34,
+          "accept": 21,
+          "bridge": 14,
+          "exchange": 18,
+          "supply-retreat": 15,
+          "alliance-expired": 20,
+          "offer-expired": 13,
+          "reroute": 1,
+          "discard": 1,
+          "withdraw": 95,
+          "reshuffle": 1
+        },
+        "captures": 984,
+        "removals": 229,
+        "occupations": 778,
+        "engineeredCells": 49,
+        "boardChanges": 1991,
+        "meaningfulActions": 1999,
+        "cardUses": 74,
+        "diplomacyActions": 55,
+        "supplyRetreats": 118,
+        "observedUnsuppliedStoneTurns": 9528,
+        "goalArrivals": 0,
+        "goalHoldingRounds": 0,
+        "turretShots": 10
+      },
+      "quarters": [
+        {
+          "actions": {
+            "deploy": 443,
+            "engineer": 22,
+            "turret": 9,
+            "shield": 8,
+            "offer": 2,
+            "accept": 1,
+            "bridge": 9,
+            "exchange": 6
+          },
+          "events": {
+            "ready": 1,
+            "deploy": 443,
+            "engineer": 22,
+            "turret": 9,
+            "capture": 161,
+            "destroy": 7,
+            "shield": 8,
+            "offer": 2,
+            "accept": 1,
+            "bridge": 9,
+            "exchange": 6,
+            "supply-retreat": 8,
+            "alliance-expired": 1,
+            "offer-expired": 1
+          },
+          "captures": 167,
+          "removals": 43,
+          "occupations": 288,
+          "engineeredCells": 22,
+          "boardChanges": 498,
+          "meaningfulActions": 500,
+          "cardUses": 32,
+          "diplomacyActions": 3,
+          "supplyRetreats": 36,
+          "observedUnsuppliedStoneTurns": 3621,
+          "goalArrivals": 0,
+          "goalHoldingRounds": 0,
+          "turretShots": 7
+        },
+        {
+          "actions": {
+            "deploy": 444,
+            "exchange": 8,
+            "engineer": 16,
+            "offer": 12,
+            "bridge": 4,
+            "turret": 5,
+            "destroy": 3,
+            "shield": 3,
+            "reroute": 1,
+            "accept": 4
+          },
+          "events": {
+            "capture": 236,
+            "deploy": 444,
+            "exchange": 8,
+            "engineer": 16,
+            "offer": 12,
+            "supply-retreat": 4,
+            "destroy": 6,
+            "bridge": 4,
+            "offer-expired": 8,
+            "turret": 5,
+            "shield": 3,
+            "reroute": 1,
+            "accept": 4,
+            "alliance-expired": 2
+          },
+          "captures": 244,
+          "removals": 71,
+          "occupations": 216,
+          "engineeredCells": 16,
+          "boardChanges": 531,
+          "meaningfulActions": 500,
+          "cardUses": 24,
+          "diplomacyActions": 16,
+          "supplyRetreats": 65,
+          "observedUnsuppliedStoneTurns": 4861,
+          "goalArrivals": 0,
+          "goalHoldingRounds": 0,
+          "turretShots": 3
+        },
+        {
+          "actions": {
+            "deploy": 432,
+            "offer": 10,
+            "accept": 8,
+            "discard": 1,
+            "shield": 5,
+            "engineer": 6,
+            "withdraw": 32,
+            "turret": 1,
+            "destroy": 2,
+            "exchange": 3
+          },
+          "events": {
+            "capture": 267,
+            "deploy": 432,
+            "alliance-expired": 9,
+            "offer": 10,
+            "accept": 8,
+            "discard": 1,
+            "shield": 5,
+            "engineer": 6,
+            "supply-retreat": 2,
+            "withdraw": 32,
+            "offer-expired": 2,
+            "turret": 1,
+            "destroy": 2,
+            "exchange": 3,
+            "reshuffle": 1
+          },
+          "captures": 270,
+          "removals": 50,
+          "occupations": 168,
+          "engineeredCells": 6,
+          "boardChanges": 488,
+          "meaningfulActions": 499,
+          "cardUses": 11,
+          "diplomacyActions": 18,
+          "supplyRetreats": 16,
+          "observedUnsuppliedStoneTurns": 958,
+          "goalArrivals": 0,
+          "goalHoldingRounds": 0,
+          "turretShots": 0
+        },
+        {
+          "actions": {
+            "deploy": 407,
+            "withdraw": 63,
+            "offer": 10,
+            "engineer": 5,
+            "accept": 8,
+            "turret": 2,
+            "shield": 2,
+            "destroy": 1,
+            "bridge": 1,
+            "exchange": 1
+          },
+          "events": {
+            "capture": 302,
+            "deploy": 407,
+            "withdraw": 63,
+            "offer": 10,
+            "alliance-expired": 8,
+            "offer-expired": 2,
+            "engineer": 5,
+            "accept": 8,
+            "supply-retreat": 1,
+            "turret": 2,
+            "shield": 2,
+            "destroy": 1,
+            "bridge": 1,
+            "exchange": 1
+          },
+          "captures": 303,
+          "removals": 65,
+          "occupations": 106,
+          "engineeredCells": 5,
+          "boardChanges": 474,
+          "meaningfulActions": 500,
+          "cardUses": 7,
+          "diplomacyActions": 18,
+          "supplyRetreats": 1,
+          "observedUnsuppliedStoneTurns": 88,
+          "goalArrivals": 0,
+          "goalHoldingRounds": 0,
+          "turretShots": 0
+        }
+      ],
+      "telemetry": {
+        "actions": 2000,
+        "meaningful": 1999,
+        "captures": 966,
+        "destroyed": 16,
+        "supplyRetreats": 118,
+        "engineered": 49,
+        "cardsUsed": 74,
+        "reshuffles": 1,
+        "goalArrivals": 0,
+        "goalHoldingRounds": 0,
+        "offers": 34,
+        "alliances": 21,
+        "betrayals": 0,
+        "withdrawals": 95,
+        "turretShots": 10,
+        "shieldBlocks": 0,
+        "byType": {
+          "deploy": 1726,
+          "engineer": 49,
+          "turret": 17,
+          "shield": 18,
+          "offer": 34,
+          "accept": 21,
+          "bridge": 14,
+          "exchange": 18,
+          "destroy": 6,
+          "reroute": 1,
+          "discard": 1,
+          "withdraw": 95
+        },
+        "byMinute": [
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 40,
+            "cardsUsed": 15
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 82,
+            "cardsUsed": 6
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 73,
+            "cardsUsed": 31
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 103,
+            "cardsUsed": 3
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 99,
+            "cardsUsed": 1
+          },
+          {
+            "actions": 200,
+            "meaningful": 199,
+            "captures": 106,
+            "cardsUsed": 4
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 107,
+            "cardsUsed": 2
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 113,
+            "cardsUsed": 5
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 122,
+            "cardsUsed": 2
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 121,
+            "cardsUsed": 5
+          }
+        ],
+        "perPlayer": [
+          {
+            "actions": 0,
+            "captures": 0,
+            "cardsUsed": 0,
+            "goals": 0
+          },
+          {
+            "actions": 333,
+            "captures": 174,
+            "cardsUsed": 19,
+            "goals": 0
+          },
+          {
+            "actions": 333,
+            "captures": 153,
+            "cardsUsed": 6,
+            "goals": 0
+          },
+          {
+            "actions": 333,
+            "captures": 151,
+            "cardsUsed": 16,
+            "goals": 0
+          },
+          {
+            "actions": 334,
+            "captures": 153,
+            "cardsUsed": 7,
+            "goals": 0
+          },
+          {
+            "actions": 334,
+            "captures": 178,
+            "cardsUsed": 14,
+            "goals": 0
+          },
+          {
+            "actions": 333,
+            "captures": 157,
+            "cardsUsed": 12,
+            "goals": 0
+          }
+        ]
+      },
+      "peakFootprint": [
+        96,
+        96,
+        96,
+        96,
+        96,
+        96
+      ],
+      "finalFootprint": [
+        95,
+        95,
+        93,
+        94,
+        96,
+        94
+      ],
+      "perSeat": [
+        {
+          "actions": 333,
+          "cards": 19,
+          "captures": 179,
+          "deployments": 122
+        },
+        {
+          "actions": 333,
+          "cards": 6,
+          "captures": 156,
+          "deployments": 114
+        },
+        {
+          "actions": 333,
+          "cards": 16,
+          "captures": 153,
+          "deployments": 146
+        },
+        {
+          "actions": 334,
+          "cards": 7,
+          "captures": 155,
+          "deployments": 157
+        },
+        {
+          "actions": 334,
+          "cards": 14,
+          "captures": 180,
+          "deployments": 98
+        },
+        {
+          "actions": 333,
+          "cards": 12,
+          "captures": 161,
+          "deployments": 141
+        }
+      ],
+      "bounds": {
+        "maxOffers": 3,
+        "maxAlliances": 3,
+        "maxEvents": 96,
+        "maxBridges": 4,
+        "maxTurrets": 3
+      },
+      "maxQuietModelMs": 600,
+      "lateMeaningfulActions": 500,
+      "passiveLateGame": false
+    },
+    {
+      "seed": 1000003,
+      "rotation": 4,
+      "first": 5,
+      "profiles": [
+        "Envoy",
+        "Pathfinder",
+        "Vanguard",
+        "Architect",
+        "Sentinel",
+        "Raider"
+      ],
+      "modelActiveMs": 600000,
+      "actions": 2000,
+      "completedRounds": 333,
+      "wallSeconds": 12.206861181,
+      "scores": [
+        163,
+        154,
+        150,
+        156,
+        160,
+        163
+      ],
+      "top": [
+        1,
+        6
+      ],
+      "winner": 0,
+      "result": {
+        "winners": [
+          1,
+          6
+        ],
+        "standings": [
+          {
+            "player": 1,
+            "score": 163,
+            "name": "Azure",
+            "rank": 1
+          },
+          {
+            "player": 6,
+            "score": 163,
+            "name": "Rose",
+            "rank": 1
+          },
+          {
+            "player": 5,
+            "score": 160,
+            "name": "Jade",
+            "rank": 3
+          },
+          {
+            "player": 4,
+            "score": 156,
+            "name": "Gold",
+            "rank": 4
+          },
+          {
+            "player": 2,
+            "score": 154,
+            "name": "Ember",
+            "rank": 5
+          },
+          {
+            "player": 3,
+            "score": 150,
+            "name": "Violet",
+            "rank": 6
+          }
+        ],
+        "draw": true,
+        "reason": "timeout",
+        "activeMs": 600000
+      },
+      "counts": {
+        "actions": {
+          "deploy": 1768,
+          "engineer": 52,
+          "turret": 21,
+          "exchange": 23,
+          "bridge": 20,
+          "destroy": 11,
+          "offer": 21,
+          "shield": 24,
+          "reroute": 4,
+          "accept": 14,
+          "withdraw": 42
+        },
+        "events": {
+          "ready": 1,
+          "deploy": 1768,
+          "engineer": 52,
+          "capture": 888,
+          "turret": 21,
+          "exchange": 23,
+          "bridge": 20,
+          "destroy": 34,
+          "supply-retreat": 31,
+          "offer": 21,
+          "shield": 24,
+          "offer-expired": 6,
+          "reroute": 4,
+          "accept": 14,
+          "goal-arrival": 2,
+          "alliance-expired": 13,
+          "goal-lost": 2,
+          "reshuffle": 1,
+          "withdraw": 42
+        },
+        "captures": 910,
+        "removals": 368,
+        "occupations": 902,
+        "engineeredCells": 52,
+        "boardChanges": 2180,
+        "meaningfulActions": 2000,
+        "cardUses": 103,
+        "diplomacyActions": 35,
+        "supplyRetreats": 293,
+        "observedUnsuppliedStoneTurns": 15142,
+        "goalArrivals": 2,
+        "goalHoldingRounds": 0,
+        "turretShots": 23
+      },
+      "quarters": [
+        {
+          "actions": {
+            "deploy": 424,
+            "engineer": 21,
+            "turret": 12,
+            "exchange": 13,
+            "bridge": 13,
+            "destroy": 2,
+            "offer": 2,
+            "shield": 12,
+            "reroute": 1
+          },
+          "events": {
+            "ready": 1,
+            "deploy": 424,
+            "engineer": 21,
+            "capture": 149,
+            "turret": 12,
+            "exchange": 13,
+            "bridge": 13,
+            "destroy": 8,
+            "supply-retreat": 15,
+            "offer": 2,
+            "shield": 12,
+            "offer-expired": 2,
+            "reroute": 1
+          },
+          "captures": 161,
+          "removals": 75,
+          "occupations": 287,
+          "engineeredCells": 21,
+          "boardChanges": 523,
+          "meaningfulActions": 500,
+          "cardUses": 53,
+          "diplomacyActions": 2,
+          "supplyRetreats": 68,
+          "observedUnsuppliedStoneTurns": 3866,
+          "goalArrivals": 0,
+          "goalHoldingRounds": 0,
+          "turretShots": 6
+        },
+        {
+          "actions": {
+            "deploy": 457,
+            "engineer": 13,
+            "shield": 4,
+            "offer": 5,
+            "reroute": 3,
+            "exchange": 5,
+            "bridge": 4,
+            "accept": 3,
+            "destroy": 2,
+            "turret": 4
+          },
+          "events": {
+            "deploy": 457,
+            "capture": 215,
+            "engineer": 13,
+            "shield": 4,
+            "offer": 5,
+            "reroute": 3,
+            "offer-expired": 2,
+            "exchange": 5,
+            "supply-retreat": 11,
+            "bridge": 4,
+            "accept": 3,
+            "goal-arrival": 1,
+            "alliance-expired": 3,
+            "goal-lost": 1,
+            "destroy": 7,
+            "turret": 4,
+            "reshuffle": 1
+          },
+          "captures": 220,
+          "removals": 128,
+          "occupations": 247,
+          "engineeredCells": 13,
+          "boardChanges": 595,
+          "meaningfulActions": 500,
+          "cardUses": 22,
+          "diplomacyActions": 8,
+          "supplyRetreats": 121,
+          "observedUnsuppliedStoneTurns": 6522,
+          "goalArrivals": 1,
+          "goalHoldingRounds": 0,
+          "turretShots": 5
+        },
+        {
+          "actions": {
+            "deploy": 470,
+            "engineer": 12,
+            "destroy": 1,
+            "turret": 4,
+            "exchange": 4,
+            "bridge": 1,
+            "shield": 3,
+            "offer": 3,
+            "accept": 2
+          },
+          "events": {
+            "deploy": 470,
+            "capture": 239,
+            "destroy": 3,
+            "engineer": 12,
+            "supply-retreat": 5,
+            "turret": 4,
+            "exchange": 4,
+            "bridge": 1,
+            "shield": 3,
+            "offer": 3,
+            "offer-expired": 1,
+            "goal-arrival": 1,
+            "goal-lost": 1,
+            "accept": 2,
+            "alliance-expired": 2
+          },
+          "captures": 243,
+          "removals": 107,
+          "occupations": 235,
+          "engineeredCells": 12,
+          "boardChanges": 585,
+          "meaningfulActions": 500,
+          "cardUses": 13,
+          "diplomacyActions": 5,
+          "supplyRetreats": 104,
+          "observedUnsuppliedStoneTurns": 4597,
+          "goalArrivals": 1,
+          "goalHoldingRounds": 0,
+          "turretShots": 2
+        },
+        {
+          "actions": {
+            "engineer": 6,
+            "deploy": 417,
+            "offer": 11,
+            "destroy": 6,
+            "accept": 9,
+            "shield": 5,
+            "withdraw": 42,
+            "bridge": 2,
+            "turret": 1,
+            "exchange": 1
+          },
+          "events": {
+            "engineer": 6,
+            "capture": 285,
+            "deploy": 417,
+            "offer": 11,
+            "destroy": 16,
+            "accept": 9,
+            "shield": 5,
+            "withdraw": 42,
+            "bridge": 2,
+            "alliance-expired": 8,
+            "turret": 1,
+            "exchange": 1,
+            "offer-expired": 1
+          },
+          "captures": 286,
+          "removals": 58,
+          "occupations": 133,
+          "engineeredCells": 6,
+          "boardChanges": 477,
+          "meaningfulActions": 500,
+          "cardUses": 15,
+          "diplomacyActions": 20,
+          "supplyRetreats": 0,
+          "observedUnsuppliedStoneTurns": 157,
+          "goalArrivals": 0,
+          "goalHoldingRounds": 0,
+          "turretShots": 10
+        }
+      ],
+      "telemetry": {
+        "actions": 2000,
+        "meaningful": 2000,
+        "captures": 888,
+        "destroyed": 34,
+        "supplyRetreats": 293,
+        "engineered": 52,
+        "cardsUsed": 103,
+        "reshuffles": 1,
+        "goalArrivals": 2,
+        "goalHoldingRounds": 0,
+        "offers": 21,
+        "alliances": 14,
+        "betrayals": 0,
+        "withdrawals": 42,
+        "turretShots": 23,
+        "shieldBlocks": 0,
+        "byType": {
+          "deploy": 1768,
+          "engineer": 52,
+          "turret": 21,
+          "exchange": 23,
+          "bridge": 20,
+          "destroy": 11,
+          "offer": 21,
+          "shield": 24,
+          "reroute": 4,
+          "accept": 14,
+          "withdraw": 42
+        },
+        "byMinute": [
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 28,
+            "cardsUsed": 14
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 74,
+            "cardsUsed": 26
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 89,
+            "cardsUsed": 17
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 84,
+            "cardsUsed": 4
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 89,
+            "cardsUsed": 14
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 84,
+            "cardsUsed": 12
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 104,
+            "cardsUsed": 1
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 100,
+            "cardsUsed": 4
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 105,
+            "cardsUsed": 9
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 131,
+            "cardsUsed": 2
+          }
+        ],
+        "perPlayer": [
+          {
+            "actions": 0,
+            "captures": 0,
+            "cardsUsed": 0,
+            "goals": 0
+          },
+          {
+            "actions": 333,
+            "captures": 134,
+            "cardsUsed": 29,
+            "goals": 1
+          },
+          {
+            "actions": 333,
+            "captures": 153,
+            "cardsUsed": 8,
+            "goals": 0
+          },
+          {
+            "actions": 333,
+            "captures": 132,
+            "cardsUsed": 18,
+            "goals": 1
+          },
+          {
+            "actions": 333,
+            "captures": 148,
+            "cardsUsed": 22,
+            "goals": 0
+          },
+          {
+            "actions": 334,
+            "captures": 158,
+            "cardsUsed": 15,
+            "goals": 0
+          },
+          {
+            "actions": 334,
+            "captures": 163,
+            "cardsUsed": 11,
+            "goals": 0
+          }
+        ]
+      },
+      "peakFootprint": [
+        95,
+        95,
+        96,
+        96,
+        96,
+        96
+      ],
+      "finalFootprint": [
+        93,
+        82,
+        95,
+        94,
+        92,
+        96
+      ],
+      "perSeat": [
+        {
+          "actions": 333,
+          "cards": 29,
+          "captures": 137,
+          "deployments": 158
+        },
+        {
+          "actions": 333,
+          "cards": 8,
+          "captures": 155,
+          "deployments": 150
+        },
+        {
+          "actions": 333,
+          "cards": 18,
+          "captures": 136,
+          "deployments": 168
+        },
+        {
+          "actions": 333,
+          "cards": 22,
+          "captures": 155,
+          "deployments": 151
+        },
+        {
+          "actions": 334,
+          "cards": 15,
+          "captures": 161,
+          "deployments": 137
+        },
+        {
+          "actions": 334,
+          "cards": 11,
+          "captures": 166,
+          "deployments": 138
+        }
+      ],
+      "bounds": {
+        "maxOffers": 2,
+        "maxAlliances": 3,
+        "maxEvents": 96,
+        "maxBridges": 5,
+        "maxTurrets": 2
+      },
+      "maxQuietModelMs": 300,
+      "lateMeaningfulActions": 500,
+      "passiveLateGame": false
+    },
+    {
+      "seed": 1000003,
+      "rotation": 5,
+      "first": 6,
+      "profiles": [
+        "Pathfinder",
+        "Vanguard",
+        "Architect",
+        "Sentinel",
+        "Raider",
+        "Envoy"
+      ],
+      "modelActiveMs": 600000,
+      "actions": 2000,
+      "completedRounds": 333,
+      "wallSeconds": 8.746138129999999,
+      "scores": [
+        139,
+        171,
+        168,
+        161,
+        163,
+        154
+      ],
+      "top": [
+        2
+      ],
+      "winner": 2,
+      "result": {
+        "winners": [
+          2
+        ],
+        "standings": [
+          {
+            "player": 2,
+            "score": 171,
+            "name": "Ember",
+            "rank": 1
+          },
+          {
+            "player": 3,
+            "score": 168,
+            "name": "Violet",
+            "rank": 2
+          },
+          {
+            "player": 5,
+            "score": 163,
+            "name": "Jade",
+            "rank": 3
+          },
+          {
+            "player": 4,
+            "score": 161,
+            "name": "Gold",
+            "rank": 4
+          },
+          {
+            "player": 6,
+            "score": 154,
+            "name": "Rose",
+            "rank": 5
+          },
+          {
+            "player": 1,
+            "score": 139,
+            "name": "Azure",
+            "rank": 6
+          }
+        ],
+        "draw": false,
+        "reason": "timeout",
+        "activeMs": 600000
+      },
+      "counts": {
+        "actions": {
+          "deploy": 1665,
+          "engineer": 51,
+          "turret": 35,
+          "destroy": 9,
+          "exchange": 36,
+          "bridge": 30,
+          "shield": 34,
+          "offer": 38,
+          "reroute": 6,
+          "accept": 25,
+          "withdraw": 64,
+          "reject": 2,
+          "discard": 5
+        },
+        "events": {
+          "ready": 1,
+          "deploy": 1665,
+          "engineer": 51,
+          "capture": 889,
+          "turret": 35,
+          "destroy": 49,
+          "exchange": 36,
+          "bridge": 30,
+          "shield": 34,
+          "offer": 38,
+          "supply-retreat": 30,
+          "offer-expired": 11,
+          "reroute": 6,
+          "goal-arrival": 1,
+          "goal-hold": 1,
+          "goal-lost": 2,
+          "accept": 25,
+          "alliance-expired": 24,
+          "reshuffle": 2,
+          "withdraw": 64,
+          "reject": 2,
+          "discard": 5
+        },
+        "captures": 924,
+        "removals": 358,
+        "occupations": 812,
+        "engineeredCells": 51,
+        "boardChanges": 2094,
+        "meaningfulActions": 1995,
+        "cardUses": 150,
+        "diplomacyActions": 65,
+        "supplyRetreats": 245,
+        "observedUnsuppliedStoneTurns": 12165,
+        "goalArrivals": 1,
+        "goalHoldingRounds": 3,
+        "turretShots": 40
+      },
+      "quarters": [
+        {
+          "actions": {
+            "deploy": 424,
+            "engineer": 13,
+            "turret": 15,
+            "destroy": 4,
+            "exchange": 14,
+            "bridge": 12,
+            "shield": 10,
+            "offer": 5,
+            "reroute": 3
+          },
+          "events": {
+            "ready": 1,
+            "deploy": 424,
+            "engineer": 13,
+            "capture": 159,
+            "turret": 15,
+            "destroy": 22,
+            "exchange": 14,
+            "bridge": 12,
+            "shield": 10,
+            "offer": 5,
+            "supply-retreat": 11,
+            "offer-expired": 5,
+            "reroute": 3,
+            "goal-arrival": 1,
+            "goal-hold": 1,
+            "goal-lost": 2
+          },
+          "captures": 173,
+          "removals": 84,
+          "occupations": 279,
+          "engineeredCells": 13,
+          "boardChanges": 536,
+          "meaningfulActions": 500,
+          "cardUses": 58,
+          "diplomacyActions": 5,
+          "supplyRetreats": 62,
+          "observedUnsuppliedStoneTurns": 3237,
+          "goalArrivals": 1,
+          "goalHoldingRounds": 3,
+          "turretShots": 18
+        },
+        {
+          "actions": {
+            "deploy": 446,
+            "engineer": 22,
+            "offer": 9,
+            "accept": 9,
+            "shield": 4,
+            "bridge": 5,
+            "turret": 2,
+            "exchange": 3
+          },
+          "events": {
+            "deploy": 446,
+            "engineer": 22,
+            "capture": 223,
+            "offer": 9,
+            "accept": 9,
+            "supply-retreat": 6,
+            "shield": 4,
+            "alliance-expired": 8,
+            "bridge": 5,
+            "turret": 2,
+            "exchange": 3,
+            "reshuffle": 1,
+            "destroy": 1
+          },
+          "captures": 226,
+          "removals": 33,
+          "occupations": 226,
+          "engineeredCells": 22,
+          "boardChanges": 485,
+          "meaningfulActions": 500,
+          "cardUses": 14,
+          "diplomacyActions": 18,
+          "supplyRetreats": 32,
+          "observedUnsuppliedStoneTurns": 3000,
+          "goalArrivals": 0,
+          "goalHoldingRounds": 0,
+          "turretShots": 1
+        },
+        {
+          "actions": {
+            "deploy": 410,
+            "shield": 9,
+            "turret": 9,
+            "engineer": 9,
+            "offer": 10,
+            "destroy": 3,
+            "withdraw": 29,
+            "accept": 7,
+            "bridge": 4,
+            "reroute": 3,
+            "exchange": 5,
+            "reject": 2
+          },
+          "events": {
+            "capture": 263,
+            "deploy": 410,
+            "supply-retreat": 8,
+            "shield": 9,
+            "turret": 9,
+            "destroy": 13,
+            "alliance-expired": 8,
+            "engineer": 9,
+            "offer": 10,
+            "offer-expired": 1,
+            "withdraw": 29,
+            "accept": 7,
+            "bridge": 4,
+            "reroute": 3,
+            "exchange": 5,
+            "reject": 2
+          },
+          "captures": 268,
+          "removals": 116,
+          "occupations": 152,
+          "engineeredCells": 9,
+          "boardChanges": 536,
+          "meaningfulActions": 500,
+          "cardUses": 33,
+          "diplomacyActions": 19,
+          "supplyRetreats": 74,
+          "observedUnsuppliedStoneTurns": 2998,
+          "goalArrivals": 0,
+          "goalHoldingRounds": 0,
+          "turretShots": 10
+        },
+        {
+          "actions": {
+            "withdraw": 35,
+            "deploy": 385,
+            "exchange": 14,
+            "bridge": 9,
+            "offer": 14,
+            "accept": 9,
+            "shield": 11,
+            "discard": 5,
+            "turret": 9,
+            "engineer": 7,
+            "destroy": 2
+          },
+          "events": {
+            "withdraw": 35,
+            "capture": 244,
+            "deploy": 385,
+            "exchange": 14,
+            "bridge": 9,
+            "offer": 14,
+            "accept": 9,
+            "shield": 11,
+            "supply-retreat": 5,
+            "discard": 5,
+            "turret": 9,
+            "alliance-expired": 8,
+            "engineer": 7,
+            "reshuffle": 1,
+            "offer-expired": 5,
+            "destroy": 13
+          },
+          "captures": 257,
+          "removals": 125,
+          "occupations": 155,
+          "engineeredCells": 7,
+          "boardChanges": 537,
+          "meaningfulActions": 495,
+          "cardUses": 45,
+          "diplomacyActions": 23,
+          "supplyRetreats": 77,
+          "observedUnsuppliedStoneTurns": 2930,
+          "goalArrivals": 0,
+          "goalHoldingRounds": 0,
+          "turretShots": 11
+        }
+      ],
+      "telemetry": {
+        "actions": 2000,
+        "meaningful": 1995,
+        "captures": 889,
+        "destroyed": 49,
+        "supplyRetreats": 245,
+        "engineered": 51,
+        "cardsUsed": 150,
+        "reshuffles": 2,
+        "goalArrivals": 1,
+        "goalHoldingRounds": 3,
+        "offers": 38,
+        "alliances": 25,
+        "betrayals": 0,
+        "withdrawals": 64,
+        "turretShots": 40,
+        "shieldBlocks": 0,
+        "byType": {
+          "deploy": 1665,
+          "engineer": 51,
+          "turret": 35,
+          "destroy": 9,
+          "exchange": 36,
+          "bridge": 30,
+          "shield": 34,
+          "offer": 38,
+          "reroute": 6,
+          "accept": 25,
+          "withdraw": 64,
+          "reject": 2,
+          "discard": 5
+        },
+        "byMinute": [
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 35,
+            "cardsUsed": 10
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 82,
+            "cardsUsed": 34
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 90,
+            "cardsUsed": 17
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 86,
+            "cardsUsed": 6
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 89,
+            "cardsUsed": 5
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 84,
+            "cardsUsed": 14
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 119,
+            "cardsUsed": 8
+          },
+          {
+            "actions": 200,
+            "meaningful": 198,
+            "captures": 117,
+            "cardsUsed": 24
+          },
+          {
+            "actions": 200,
+            "meaningful": 197,
+            "captures": 97,
+            "cardsUsed": 23
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 90,
+            "cardsUsed": 9
+          }
+        ],
+        "perPlayer": [
+          {
+            "actions": 0,
+            "captures": 0,
+            "cardsUsed": 0,
+            "goals": 0
+          },
+          {
+            "actions": 334,
+            "captures": 134,
+            "cardsUsed": 24,
+            "goals": 0
+          },
+          {
+            "actions": 333,
+            "captures": 164,
+            "cardsUsed": 37,
+            "goals": 0
+          },
+          {
+            "actions": 333,
+            "captures": 152,
+            "cardsUsed": 47,
+            "goals": 0
+          },
+          {
+            "actions": 333,
+            "captures": 154,
+            "cardsUsed": 6,
+            "goals": 0
+          },
+          {
+            "actions": 333,
+            "captures": 133,
+            "cardsUsed": 26,
+            "goals": 1
+          },
+          {
+            "actions": 334,
+            "captures": 152,
+            "cardsUsed": 10,
+            "goals": 0
+          }
+        ]
+      },
+      "peakFootprint": [
+        88,
+        96,
+        96,
+        91,
+        96,
+        96
+      ],
+      "finalFootprint": [
+        81,
+        22,
+        90,
+        88,
+        96,
+        95
+      ],
+      "perSeat": [
+        {
+          "actions": 334,
+          "cards": 24,
+          "captures": 139,
+          "deployments": 150
+        },
+        {
+          "actions": 333,
+          "cards": 37,
+          "captures": 176,
+          "deployments": 123
+        },
+        {
+          "actions": 333,
+          "cards": 47,
+          "captures": 162,
+          "deployments": 119
+        },
+        {
+          "actions": 333,
+          "cards": 6,
+          "captures": 155,
+          "deployments": 158
+        },
+        {
+          "actions": 333,
+          "cards": 26,
+          "captures": 139,
+          "deployments": 161
+        },
+        {
+          "actions": 334,
+          "cards": 10,
+          "captures": 153,
+          "deployments": 101
+        }
+      ],
+      "bounds": {
+        "maxOffers": 2,
+        "maxAlliances": 3,
+        "maxEvents": 96,
+        "maxBridges": 4,
+        "maxTurrets": 3
+      },
+      "maxQuietModelMs": 600,
+      "lateMeaningfulActions": 495,
+      "passiveLateGame": false
+    },
+    {
+      "seed": 1007922,
+      "rotation": 0,
+      "first": 6,
+      "profiles": [
+        "Vanguard",
+        "Architect",
+        "Sentinel",
+        "Raider",
+        "Envoy",
+        "Pathfinder"
+      ],
+      "modelActiveMs": 600000,
+      "actions": 2000,
+      "completedRounds": 333,
+      "wallSeconds": 9.150128605999999,
+      "scores": [
+        169,
+        146,
+        170,
+        173,
+        176,
+        158
+      ],
+      "top": [
+        5
+      ],
+      "winner": 5,
+      "result": {
+        "winners": [
+          5
+        ],
+        "standings": [
+          {
+            "player": 5,
+            "score": 176,
+            "name": "Jade",
+            "rank": 1
+          },
+          {
+            "player": 4,
+            "score": 173,
+            "name": "Gold",
+            "rank": 2
+          },
+          {
+            "player": 3,
+            "score": 170,
+            "name": "Violet",
+            "rank": 3
+          },
+          {
+            "player": 1,
+            "score": 169,
+            "name": "Azure",
+            "rank": 4
+          },
+          {
+            "player": 6,
+            "score": 158,
+            "name": "Rose",
+            "rank": 5
+          },
+          {
+            "player": 2,
+            "score": 146,
+            "name": "Ember",
+            "rank": 6
+          }
+        ],
+        "draw": false,
+        "reason": "timeout",
+        "activeMs": 600000
+      },
+      "counts": {
+        "actions": {
+          "deploy": 1698,
+          "engineer": 64,
+          "turret": 16,
+          "bridge": 16,
+          "exchange": 16,
+          "destroy": 4,
+          "shield": 16,
+          "offer": 22,
+          "accept": 15,
+          "reroute": 1,
+          "withdraw": 131,
+          "discard": 1
+        },
+        "events": {
+          "ready": 1,
+          "deploy": 1698,
+          "engineer": 64,
+          "turret": 16,
+          "capture": 978,
+          "bridge": 16,
+          "destroy": 14,
+          "supply-retreat": 19,
+          "exchange": 16,
+          "shield": 16,
+          "offer": 22,
+          "offer-expired": 7,
+          "accept": 15,
+          "alliance-expired": 15,
+          "reroute": 1,
+          "withdraw": 131,
+          "reshuffle": 1,
+          "discard": 1
+        },
+        "captures": 994,
+        "removals": 196,
+        "occupations": 736,
+        "engineeredCells": 64,
+        "boardChanges": 1926,
+        "meaningfulActions": 1999,
+        "cardUses": 69,
+        "diplomacyActions": 37,
+        "supplyRetreats": 51,
+        "observedUnsuppliedStoneTurns": 3747,
+        "goalArrivals": 0,
+        "goalHoldingRounds": 0,
+        "turretShots": 10
+      },
+      "quarters": [
+        {
+          "actions": {
+            "deploy": 422,
+            "engineer": 30,
+            "turret": 13,
+            "bridge": 10,
+            "exchange": 12,
+            "destroy": 1,
+            "shield": 9,
+            "offer": 2,
+            "accept": 1
+          },
+          "events": {
+            "ready": 1,
+            "deploy": 422,
+            "engineer": 30,
+            "turret": 13,
+            "capture": 181,
+            "bridge": 10,
+            "destroy": 8,
+            "supply-retreat": 13,
+            "exchange": 12,
+            "shield": 9,
+            "offer": 2,
+            "offer-expired": 1,
+            "accept": 1,
+            "alliance-expired": 1
+          },
+          "captures": 193,
+          "removals": 31,
+          "occupations": 253,
+          "engineeredCells": 30,
+          "boardChanges": 477,
+          "meaningfulActions": 500,
+          "cardUses": 45,
+          "diplomacyActions": 3,
+          "supplyRetreats": 23,
+          "observedUnsuppliedStoneTurns": 1543,
+          "goalArrivals": 0,
+          "goalHoldingRounds": 0,
+          "turretShots": 7
+        },
+        {
+          "actions": {
+            "exchange": 4,
+            "deploy": 468,
+            "bridge": 5,
+            "reroute": 1,
+            "shield": 6,
+            "engineer": 13,
+            "turret": 2,
+            "offer": 1
+          },
+          "events": {
+            "capture": 242,
+            "exchange": 4,
+            "deploy": 468,
+            "bridge": 5,
+            "reroute": 1,
+            "shield": 6,
+            "engineer": 13,
+            "turret": 2,
+            "supply-retreat": 3,
+            "destroy": 2,
+            "offer": 1,
+            "offer-expired": 1
+          },
+          "captures": 246,
+          "removals": 27,
+          "occupations": 230,
+          "engineeredCells": 13,
+          "boardChanges": 503,
+          "meaningfulActions": 500,
+          "cardUses": 18,
+          "diplomacyActions": 1,
+          "supplyRetreats": 25,
+          "observedUnsuppliedStoneTurns": 1695,
+          "goalArrivals": 0,
+          "goalHoldingRounds": 0,
+          "turretShots": 2
+        },
+        {
+          "actions": {
+            "deploy": 422,
+            "withdraw": 44,
+            "engineer": 15,
+            "offer": 10,
+            "accept": 9
+          },
+          "events": {
+            "capture": 270,
+            "deploy": 422,
+            "withdraw": 44,
+            "engineer": 15,
+            "offer": 10,
+            "accept": 9,
+            "alliance-expired": 8,
+            "offer-expired": 1,
+            "supply-retreat": 2
+          },
+          "captures": 270,
+          "removals": 46,
+          "occupations": 152,
+          "engineeredCells": 15,
+          "boardChanges": 468,
+          "meaningfulActions": 500,
+          "cardUses": 0,
+          "diplomacyActions": 19,
+          "supplyRetreats": 2,
+          "observedUnsuppliedStoneTurns": 337,
+          "goalArrivals": 0,
+          "goalHoldingRounds": 0,
+          "turretShots": 0
+        },
+        {
+          "actions": {
+            "deploy": 386,
+            "withdraw": 87,
+            "offer": 9,
+            "accept": 5,
+            "engineer": 6,
+            "turret": 1,
+            "destroy": 3,
+            "shield": 1,
+            "bridge": 1,
+            "discard": 1
+          },
+          "events": {
+            "deploy": 386,
+            "capture": 285,
+            "withdraw": 87,
+            "offer": 9,
+            "accept": 5,
+            "alliance-expired": 6,
+            "engineer": 6,
+            "turret": 1,
+            "destroy": 4,
+            "offer-expired": 4,
+            "supply-retreat": 1,
+            "reshuffle": 1,
+            "shield": 1,
+            "bridge": 1,
+            "discard": 1
+          },
+          "captures": 285,
+          "removals": 92,
+          "occupations": 101,
+          "engineeredCells": 6,
+          "boardChanges": 478,
+          "meaningfulActions": 499,
+          "cardUses": 6,
+          "diplomacyActions": 14,
+          "supplyRetreats": 1,
+          "observedUnsuppliedStoneTurns": 172,
+          "goalArrivals": 0,
+          "goalHoldingRounds": 0,
+          "turretShots": 1
+        }
+      ],
+      "telemetry": {
+        "actions": 2000,
+        "meaningful": 1999,
+        "captures": 978,
+        "destroyed": 14,
+        "supplyRetreats": 51,
+        "engineered": 64,
+        "cardsUsed": 69,
+        "reshuffles": 1,
+        "goalArrivals": 0,
+        "goalHoldingRounds": 0,
+        "offers": 22,
+        "alliances": 15,
+        "betrayals": 0,
+        "withdrawals": 131,
+        "turretShots": 10,
+        "shieldBlocks": 0,
+        "byType": {
+          "deploy": 1698,
+          "engineer": 64,
+          "turret": 16,
+          "bridge": 16,
+          "exchange": 16,
+          "destroy": 4,
+          "shield": 16,
+          "offer": 22,
+          "accept": 15,
+          "reroute": 1,
+          "withdraw": 131,
+          "discard": 1
+        },
+        "byMinute": [
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 27,
+            "cardsUsed": 19
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 101,
+            "cardsUsed": 26
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 100,
+            "cardsUsed": 11
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 98,
+            "cardsUsed": 7
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 97,
+            "cardsUsed": 0
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 112,
+            "cardsUsed": 0
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 101,
+            "cardsUsed": 0
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 114,
+            "cardsUsed": 0
+          },
+          {
+            "actions": 200,
+            "meaningful": 200,
+            "captures": 104,
+            "cardsUsed": 4
+          },
+          {
+            "actions": 200,
+            "meaningful": 199,
+            "captures": 124,
+            "cardsUsed": 2
+          }
+        ],
+        "perPlayer": [
+          {
+            "actions": 0,
+            "captures": 0,
+            "cardsUsed": 0,
+            "goals": 0
+          },
+          {
+            "actions": 334,
+            "captures": 167,
+            "cardsUsed": 9,
+            "goals": 0
+          },
+          {
+            "actions": 333,
+            "captures": 145,
+            "cardsUsed": 16,
+            "goals": 0
+          },
+          {
+            "actions": 333,
+            "captures": 170,
+            "cardsUsed": 4,
+            "goals": 0
+          },
+          {
+            "actions": 333,
+            "captures": 166,
+            "cardsUsed": 14,
+            "goals": 0
+          },
+          {
+            "actions": 333,
+            "captures": 173,
+            "cardsUsed": 12,
+            "goals": 0
+          },
+          {
+            "actions": 334,
+            "captures": 157,
+            "cardsUsed": 14,
+            "goals": 0
+          }
+        ]
+      },
+      "peakFootprint": [
+        96,
+        96,
+        96,
+        96,
+        96,
+        96
+      ],
+      "finalFootprint": [
+        96,
+        94,
+        81,
+        96,
+        96,
+        95
+      ],
+      "perSeat": [
+        {
+          "actions": 334,
+          "cards": 9,
+          "captures": 169,
+          "deployments": 127
+        },
+        {
+          "actions": 333,
+          "cards": 16,
+          "captures": 150,
+          "deployments": 135
+        },
+        {
+          "actions": 333,
+          "cards": 4,
+          "captures": 171,
+          "deployments": 135
+        },
+        {
+          "actions": 333,
+          "cards": 14,
+          "captures": 169,
+          "deployments": 125
+        },
+        {
+          "actions": 333,
+          "cards": 12,
+          "captures": 177,
+          "deployments": 86
+        },
+        {
+          "actions": 334,
+          "cards": 14,
+          "captures": 158,
+          "deployments": 128
+        }
+      ],
+      "bounds": {
+        "maxOffers": 1,
+        "maxAlliances": 3,
+        "maxEvents": 96,
+        "maxBridges": 3,
+        "maxTurrets": 4
+      },
+      "maxQuietModelMs": 600,
+      "lateMeaningfulActions": 499,
+      "passiveLateGame": false
+    }
+  ]
+}

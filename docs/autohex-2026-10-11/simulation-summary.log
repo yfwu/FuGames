@@ -1,0 +1,968 @@
+{
+  "generatedAt": "2026-10-11T13:14:33.493Z",
+  "mode": "accelerated model-time simulation",
+  "engineSha256": "b9f70d993c417964899feea6dbd7cc2bd971d524a7a3fd048a5b9948f0f57cdb",
+  "evidence": [
+    "study-a.json",
+    "study-b.json",
+    "study-a.log",
+    "study-b.log",
+    "core-tests.log"
+  ],
+  "campaigns": 144,
+  "independentSeeds": 24,
+  "rotationsPerSeed": 6,
+  "acceptedActions": 288000,
+  "modelMsPerCampaign": 600000,
+  "modelMsPerAction": 300,
+  "batches": [
+    {
+      "seedStart": 101,
+      "games": 72,
+      "elapsedSeconds": 448.948756372,
+      "actionsPerSecond": 320.74930146522394,
+      "chooseActionMs": {
+        "count": 144000,
+        "min": 0.2832040000357665,
+        "median": 0.9047760000103153,
+        "p95": 4.310416000000259,
+        "max": 615.7983280000044,
+        "mean": 1.58809069499309
+      }
+    },
+    {
+      "seedStart": 1000003,
+      "games": 72,
+      "elapsedSeconds": 523.908348153,
+      "actionsPerSecond": 274.8572350634635,
+      "chooseActionMs": {
+        "count": 144000,
+        "min": 0.28522200000043085,
+        "median": 1.0854770000005374,
+        "p95": 5.681882000004407,
+        "max": 608.3792709999834,
+        "mean": 1.84338152385414
+      }
+    }
+  ],
+  "winnersBySeat": [
+    19,
+    23,
+    21,
+    30,
+    21,
+    18
+  ],
+  "winnersByStartingTurnOffset": [
+    21,
+    21,
+    22,
+    21,
+    17,
+    30
+  ],
+  "winsByProfile": {
+    "Vanguard": 25,
+    "Architect": 13,
+    "Sentinel": 20,
+    "Raider": 26,
+    "Envoy": 31,
+    "Pathfinder": 17
+  },
+  "sharedTopGames": 12,
+  "sharedTopFixtures": [
+    {
+      "seed": 8020,
+      "rotation": 5,
+      "scores": [
+        139,
+        166,
+        130,
+        174,
+        174,
+        159
+      ],
+      "top": [
+        4,
+        5
+      ]
+    },
+    {
+      "seed": 23858,
+      "rotation": 0,
+      "scores": [
+        173,
+        172,
+        132,
+        153,
+        173,
+        143
+      ],
+      "top": [
+        1,
+        5
+      ]
+    },
+    {
+      "seed": 63453,
+      "rotation": 2,
+      "scores": [
+        178,
+        176,
+        134,
+        178,
+        160,
+        140
+      ],
+      "top": [
+        1,
+        4
+      ]
+    },
+    {
+      "seed": 87210,
+      "rotation": 5,
+      "scores": [
+        168,
+        168,
+        179,
+        179,
+        171,
+        168
+      ],
+      "top": [
+        3,
+        4
+      ]
+    },
+    {
+      "seed": 1000003,
+      "rotation": 4,
+      "scores": [
+        163,
+        154,
+        150,
+        156,
+        160,
+        163
+      ],
+      "top": [
+        1,
+        6
+      ]
+    },
+    {
+      "seed": 1015841,
+      "rotation": 2,
+      "scores": [
+        186,
+        158,
+        173,
+        185,
+        144,
+        186
+      ],
+      "top": [
+        1,
+        6
+      ]
+    },
+    {
+      "seed": 1015841,
+      "rotation": 3,
+      "scores": [
+        181,
+        154,
+        168,
+        181,
+        164,
+        133
+      ],
+      "top": [
+        1,
+        4
+      ]
+    },
+    {
+      "seed": 1023760,
+      "rotation": 5,
+      "scores": [
+        175,
+        144,
+        143,
+        182,
+        182,
+        131
+      ],
+      "top": [
+        4,
+        5
+      ]
+    },
+    {
+      "seed": 1039598,
+      "rotation": 0,
+      "scores": [
+        148,
+        176,
+        144,
+        176,
+        139,
+        139
+      ],
+      "top": [
+        2,
+        4
+      ]
+    },
+    {
+      "seed": 1039598,
+      "rotation": 1,
+      "scores": [
+        153,
+        156,
+        170,
+        170,
+        156,
+        146
+      ],
+      "top": [
+        3,
+        4
+      ]
+    },
+    {
+      "seed": 1047517,
+      "rotation": 5,
+      "scores": [
+        130,
+        151,
+        156,
+        161,
+        161,
+        153
+      ],
+      "top": [
+        4,
+        5
+      ]
+    },
+    {
+      "seed": 1079193,
+      "rotation": 5,
+      "scores": [
+        187,
+        180,
+        159,
+        177,
+        187,
+        113
+      ],
+      "top": [
+        1,
+        5
+      ]
+    }
+  ],
+  "scores": {
+    "min": 105,
+    "median": 163,
+    "max": 266,
+    "mean": 162.56365740740742
+  },
+  "scoreSpreadWithinGame": {
+    "min": 11,
+    "median": 42,
+    "max": 111,
+    "mean": 44.18055555555556
+  },
+  "goals": {
+    "gamesWithArrival": 106,
+    "totalArrivals": 300,
+    "totalHoldingRounds": 668,
+    "arrivalsPerGame": {
+      "min": 0,
+      "median": 1,
+      "max": 13,
+      "mean": 2.0833333333333335
+    },
+    "firstArrivalQuarter": [
+      63,
+      31,
+      8,
+      4
+    ],
+    "noArrivalFixtures": [
+      {
+        "seed": 101,
+        "rotation": 0,
+        "scores": [
+          169,
+          185,
+          177,
+          176,
+          155,
+          159
+        ]
+      },
+      {
+        "seed": 101,
+        "rotation": 3,
+        "scores": [
+          168,
+          164,
+          179,
+          159,
+          176,
+          189
+        ]
+      },
+      {
+        "seed": 8020,
+        "rotation": 0,
+        "scores": [
+          154,
+          134,
+          180,
+          173,
+          155,
+          125
+        ]
+      },
+      {
+        "seed": 8020,
+        "rotation": 3,
+        "scores": [
+          149,
+          170,
+          154,
+          163,
+          126,
+          146
+        ]
+      },
+      {
+        "seed": 8020,
+        "rotation": 4,
+        "scores": [
+          164,
+          165,
+          164,
+          141,
+          143,
+          186
+        ]
+      },
+      {
+        "seed": 15939,
+        "rotation": 3,
+        "scores": [
+          188,
+          182,
+          183,
+          144,
+          157,
+          170
+        ]
+      },
+      {
+        "seed": 15939,
+        "rotation": 4,
+        "scores": [
+          170,
+          171,
+          162,
+          187,
+          151,
+          179
+        ]
+      },
+      {
+        "seed": 23858,
+        "rotation": 3,
+        "scores": [
+          166,
+          191,
+          143,
+          166,
+          183,
+          141
+        ]
+      },
+      {
+        "seed": 23858,
+        "rotation": 5,
+        "scores": [
+          147,
+          171,
+          139,
+          184,
+          157,
+          149
+        ]
+      },
+      {
+        "seed": 31777,
+        "rotation": 1,
+        "scores": [
+          136,
+          132,
+          172,
+          158,
+          178,
+          170
+        ]
+      },
+      {
+        "seed": 31777,
+        "rotation": 4,
+        "scores": [
+          186,
+          159,
+          172,
+          129,
+          165,
+          181
+        ]
+      },
+      {
+        "seed": 31777,
+        "rotation": 5,
+        "scores": [
+          188,
+          180,
+          139,
+          184,
+          183,
+          178
+        ]
+      },
+      {
+        "seed": 39696,
+        "rotation": 1,
+        "scores": [
+          150,
+          137,
+          170,
+          171,
+          161,
+          155
+        ]
+      },
+      {
+        "seed": 47615,
+        "rotation": 2,
+        "scores": [
+          171,
+          147,
+          161,
+          158,
+          157,
+          173
+        ]
+      },
+      {
+        "seed": 55534,
+        "rotation": 4,
+        "scores": [
+          143,
+          167,
+          151,
+          161,
+          152,
+          175
+        ]
+      },
+      {
+        "seed": 79291,
+        "rotation": 0,
+        "scores": [
+          147,
+          128,
+          182,
+          148,
+          185,
+          169
+        ]
+      },
+      {
+        "seed": 79291,
+        "rotation": 3,
+        "scores": [
+          145,
+          179,
+          166,
+          172,
+          177,
+          159
+        ]
+      },
+      {
+        "seed": 87210,
+        "rotation": 1,
+        "scores": [
+          173,
+          192,
+          173,
+          169,
+          189,
+          161
+        ]
+      },
+      {
+        "seed": 87210,
+        "rotation": 4,
+        "scores": [
+          153,
+          173,
+          154,
+          144,
+          173,
+          184
+        ]
+      },
+      {
+        "seed": 1000003,
+        "rotation": 2,
+        "scores": [
+          149,
+          183,
+          167,
+          153,
+          143,
+          167
+        ]
+      },
+      {
+        "seed": 1000003,
+        "rotation": 3,
+        "scores": [
+          176,
+          155,
+          159,
+          154,
+          181,
+          157
+        ]
+      },
+      {
+        "seed": 1007922,
+        "rotation": 0,
+        "scores": [
+          169,
+          146,
+          170,
+          173,
+          176,
+          158
+        ]
+      },
+      {
+        "seed": 1015841,
+        "rotation": 2,
+        "scores": [
+          186,
+          158,
+          173,
+          185,
+          144,
+          186
+        ]
+      },
+      {
+        "seed": 1015841,
+        "rotation": 3,
+        "scores": [
+          181,
+          154,
+          168,
+          181,
+          164,
+          133
+        ]
+      },
+      {
+        "seed": 1015841,
+        "rotation": 4,
+        "scores": [
+          165,
+          182,
+          150,
+          166,
+          170,
+          183
+        ]
+      },
+      {
+        "seed": 1023760,
+        "rotation": 4,
+        "scores": [
+          181,
+          170,
+          177,
+          120,
+          138,
+          158
+        ]
+      },
+      {
+        "seed": 1023760,
+        "rotation": 5,
+        "scores": [
+          175,
+          144,
+          143,
+          182,
+          182,
+          131
+        ]
+      },
+      {
+        "seed": 1031679,
+        "rotation": 2,
+        "scores": [
+          154,
+          179,
+          188,
+          170,
+          155,
+          141
+        ]
+      },
+      {
+        "seed": 1031679,
+        "rotation": 3,
+        "scores": [
+          189,
+          150,
+          187,
+          193,
+          139,
+          182
+        ]
+      },
+      {
+        "seed": 1039598,
+        "rotation": 1,
+        "scores": [
+          153,
+          156,
+          170,
+          170,
+          156,
+          146
+        ]
+      },
+      {
+        "seed": 1047517,
+        "rotation": 0,
+        "scores": [
+          147,
+          169,
+          115,
+          138,
+          171,
+          155
+        ]
+      },
+      {
+        "seed": 1047517,
+        "rotation": 1,
+        "scores": [
+          133,
+          178,
+          192,
+          189,
+          170,
+          177
+        ]
+      },
+      {
+        "seed": 1055436,
+        "rotation": 2,
+        "scores": [
+          169,
+          148,
+          174,
+          183,
+          159,
+          188
+        ]
+      },
+      {
+        "seed": 1063355,
+        "rotation": 4,
+        "scores": [
+          147,
+          168,
+          164,
+          152,
+          167,
+          169
+        ]
+      },
+      {
+        "seed": 1063355,
+        "rotation": 5,
+        "scores": [
+          155,
+          175,
+          166,
+          180,
+          179,
+          173
+        ]
+      },
+      {
+        "seed": 1071274,
+        "rotation": 3,
+        "scores": [
+          152,
+          172,
+          174,
+          164,
+          140,
+          180
+        ]
+      },
+      {
+        "seed": 1079193,
+        "rotation": 1,
+        "scores": [
+          168,
+          174,
+          147,
+          131,
+          167,
+          155
+        ]
+      },
+      {
+        "seed": 1079193,
+        "rotation": 2,
+        "scores": [
+          151,
+          168,
+          171,
+          191,
+          168,
+          139
+        ]
+      }
+    ]
+  },
+  "totals": {
+    "actions": {
+      "deploy": 246229,
+      "engineer": 7787,
+      "turret": 3721,
+      "bridge": 3390,
+      "exchange": 3930,
+      "shield": 3692,
+      "reroute": 682,
+      "destroy": 1306,
+      "offer": 3648,
+      "accept": 1959,
+      "withdraw": 11388,
+      "discard": 224,
+      "reject": 29,
+      "betray": 15
+    },
+    "captures": 132967,
+    "removals": 50358,
+    "cardUses": 16721,
+    "supplyRetreatedStones": 31989,
+    "engineeredCells": 7787,
+    "diplomacyActions": 5651
+  },
+  "quarters": [
+    {
+      "modelMinutes": [
+        0,
+        2.5
+      ],
+      "games": 144,
+      "actions": {
+        "deploy": 61748,
+        "engineer": 3032,
+        "turret": 1706,
+        "bridge": 1619,
+        "exchange": 1672,
+        "shield": 1073,
+        "reroute": 358,
+        "destroy": 375,
+        "offer": 291,
+        "accept": 121,
+        "betray": 3,
+        "discard": 1,
+        "reject": 1
+      },
+      "captures": 24012,
+      "removals": 10329,
+      "occupations": 41004,
+      "engineeredCells": 3032,
+      "boardChanges": 75345,
+      "meaningfulActions": 71962,
+      "cardUses": 6803,
+      "diplomacyActions": 416,
+      "supplyRetreats": 8162,
+      "goalArrivals": 83,
+      "goalHoldingRounds": 64,
+      "turretShots": 1849
+    },
+    {
+      "modelMinutes": [
+        2.5,
+        5
+      ],
+      "games": 144,
+      "actions": {
+        "deploy": 64497,
+        "exchange": 837,
+        "shield": 1197,
+        "offer": 893,
+        "bridge": 651,
+        "engineer": 2038,
+        "reroute": 134,
+        "turret": 700,
+        "accept": 528,
+        "destroy": 316,
+        "discard": 21,
+        "withdraw": 186,
+        "reject": 1,
+        "betray": 1
+      },
+      "captures": 33210,
+      "removals": 13335,
+      "occupations": 32930,
+      "engineeredCells": 2038,
+      "boardChanges": 79475,
+      "meaningfulActions": 71964,
+      "cardUses": 3835,
+      "diplomacyActions": 1423,
+      "supplyRetreats": 11500,
+      "goalArrivals": 109,
+      "goalHoldingRounds": 245,
+      "turretShots": 1356
+    },
+    {
+      "modelMinutes": [
+        5,
+        7.5
+      ],
+      "games": 144,
+      "actions": {
+        "deploy": 61440,
+        "offer": 1226,
+        "accept": 707,
+        "bridge": 624,
+        "engineer": 1583,
+        "exchange": 730,
+        "destroy": 335,
+        "withdraw": 3661,
+        "shield": 772,
+        "turret": 718,
+        "discard": 88,
+        "reroute": 102,
+        "reject": 11,
+        "betray": 3
+      },
+      "captures": 36311,
+      "removals": 12607,
+      "occupations": 26554,
+      "engineeredCells": 1583,
+      "boardChanges": 75472,
+      "meaningfulActions": 71900,
+      "cardUses": 3281,
+      "diplomacyActions": 1947,
+      "supplyRetreats": 7347,
+      "goalArrivals": 62,
+      "goalHoldingRounds": 159,
+      "turretShots": 1291
+    },
+    {
+      "modelMinutes": [
+        7.5,
+        10
+      ],
+      "games": 144,
+      "actions": {
+        "engineer": 1134,
+        "deploy": 58544,
+        "withdraw": 7541,
+        "offer": 1238,
+        "accept": 603,
+        "bridge": 496,
+        "exchange": 691,
+        "shield": 650,
+        "turret": 597,
+        "destroy": 280,
+        "reroute": 88,
+        "reject": 16,
+        "discard": 114,
+        "betray": 8
+      },
+      "captures": 39434,
+      "removals": 14087,
+      "occupations": 20431,
+      "engineeredCells": 1134,
+      "boardChanges": 73952,
+      "meaningfulActions": 71845,
+      "cardUses": 2802,
+      "diplomacyActions": 1865,
+      "supplyRetreats": 4980,
+      "goalArrivals": 46,
+      "goalHoldingRounds": 200,
+      "turretShots": 1338
+    }
+  ],
+  "lateGame": {
+    "modelMinutes": [
+      7.5,
+      10
+    ],
+    "meaningfulActionsPerGame": {
+      "min": 479,
+      "median": 500,
+      "max": 500,
+      "mean": 498.9236111111111
+    },
+    "boardChangesPerGame": {
+      "min": 447,
+      "median": 494,
+      "max": 716,
+      "mean": 513.5555555555555
+    },
+    "captureTransfersPerGame": {
+      "min": 193,
+      "median": 276,
+      "max": 342,
+      "mean": 273.84722222222223
+    },
+    "cardUsesPerGame": {
+      "min": 0,
+      "median": 17,
+      "max": 63,
+      "mean": 19.458333333333332
+    },
+    "passiveGames": 0,
+    "maximumQuietModelMs": 600
+  },
+  "bounds": {
+    "maxFootprint": 96,
+    "maxEvents": 96,
+    "maxBridges": 8,
+    "maxTurrets": 7,
+    "maxOffers": 3,
+    "maxAlliances": 4
+  },
+  "limitations": [
+    "144 campaigns include six correlated seat/profile rotations per seed; independent seed count is 24.",
+    "All 600,000 ms clocks were accelerated model clocks. This summary does not prove ten minutes of real unpaused foreground browser operation.",
+    "Wins are descriptive, not a balance guarantee or significance claim. Draws use shared top score across all factions.",
+    "Active board changes do not by themselves prove strategically diverse play; repeated border exchanges can dominate score.",
+    "Ownership-transfer captures include both cells of an enemy exchange; engine telemetry records that card as one capture. Removals include destruction, withdrawal, and supply attrition.",
+    "Node action timings were measured while both batches and browser QA shared the container. They exclude rendering and browser scheduling.",
+    "The initial development smoke and interrupted development batches are excluded. Their engine hashes differ from the frozen final engine."
+  ]
+}

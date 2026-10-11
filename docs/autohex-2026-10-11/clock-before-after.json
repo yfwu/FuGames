@@ -1,0 +1,22 @@
+[
+  {
+    "elapsedMs": 4120.4000000003725,
+    "activeMs": 5359.999999998883,
+    "ply": 11,
+    "phase": "paused",
+    "revision": "before",
+    "driftMs": 1239.5999999985106,
+    "errors": [],
+    "pauseFrozen": true
+  },
+  {
+    "elapsedMs": 4103.9000000003725,
+    "activeMs": 4025.300000000745,
+    "ply": 11,
+    "phase": "paused",
+    "revision": "after",
+    "driftMs": -78.59999999962747,
+    "errors": [],
+    "pauseFrozen": true
+  }
+]

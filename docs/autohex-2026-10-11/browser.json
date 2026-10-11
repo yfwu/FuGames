@@ -1,0 +1,64 @@
+{
+  "clock": "virtual time for control tests; not ten-minute wall-clock evidence",
+  "viewports": [
+    {
+      "label": "desktop",
+      "width": 1440,
+      "height": 1100,
+      "dpr": 1,
+      "illegalAtomic": true,
+      "humanDeploy": true,
+      "pauseFreezes": true,
+      "zoomPanMinimap": true,
+      "overflow": false
+    },
+    {
+      "label": "mobile",
+      "width": 390,
+      "height": 844,
+      "dpr": 3,
+      "illegalAtomic": true,
+      "humanDeploy": true,
+      "pauseFreezes": true,
+      "zoomPanMinimap": true,
+      "overflow": false
+    },
+    {
+      "label": "narrow",
+      "width": 320,
+      "height": 740,
+      "dpr": 2,
+      "illegalAtomic": true,
+      "humanDeploy": true,
+      "pauseFreezes": true,
+      "zoomPanMinimap": true,
+      "overflow": false
+    },
+    {
+      "label": "landscape",
+      "width": 844,
+      "height": 390,
+      "dpr": 2,
+      "illegalAtomic": true,
+      "humanDeploy": true,
+      "pauseFreezes": true,
+      "zoomPanMinimap": true,
+      "overflow": false
+    }
+  ],
+  "checks": [
+    "one AI timer after speed change",
+    "paused single-step does not run clock",
+    "same-seed first-three-action replay",
+    "spectator hand/deck permutations leave public DOM unchanged",
+    "visibility pauses action and active clocks",
+    "mobile real taps: all six cards and engineering",
+    "cross-owner bridge collision rejection is atomic; legal reroute then succeeds",
+    "human offer/accept/reject/betray each consume one ordinary action"
+  ],
+  "pageErrors": [],
+  "publicSite": {
+    "status": "blocked",
+    "error": "Page.goto: net::ERR_TUNNEL_CONNECTION_FAILED at https://yfwu.github.io/FuGames/autohex.html"
+  }
+}

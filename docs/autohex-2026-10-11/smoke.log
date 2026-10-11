@@ -1,0 +1,120 @@
+{"completed":1,"total":1,"seed":101,"rotation":0,"seconds":10.05,"scores":[169,174,173,176,177,176],"winner":5,"lateMeaningfulActions":494,"passiveLateGame":false}
+{
+  "generatedAt": "2026-10-11T13:00:50.063Z",
+  "mode": "accelerated model-time simulation",
+  "complete": true,
+  "engineSha256": "391685e9a5e4fe1733e3c54ad52978096ac53116e0b182a3fd170549cc4655b5",
+  "config": {
+    "seedStart": 101,
+    "seedCount": 1,
+    "rotations": 1,
+    "stepMs": 300,
+    "durationMs": 600000
+  },
+  "games": 1,
+  "independentSeeds": 1,
+  "elapsedSeconds": 10.070913736,
+  "gamesPerMinute": 5.9577513592953295,
+  "actionsPerSecond": 198.59171197651096,
+  "winsBySeat": [
+    0,
+    0,
+    0,
+    0,
+    1,
+    0
+  ],
+  "sharedTop": 0,
+  "winsByProfile": {
+    "[object Object]": 0
+  },
+  "score": {
+    "count": 6,
+    "min": 169,
+    "median": 176,
+    "p95": 177,
+    "max": 177,
+    "mean": 174.16666666666666
+  },
+  "chooseActionMs": {
+    "count": 2000,
+    "min": 0.42333200000030047,
+    "median": 1.5195009999997637,
+    "p95": 5.649590000000899,
+    "max": 456.3673530000001,
+    "mean": 2.929436681999985
+  },
+  "campaignWallSeconds": {
+    "count": 1,
+    "min": 10.051550365999999,
+    "median": 10.051550365999999,
+    "p95": 10.051550365999999,
+    "max": 10.051550365999999,
+    "mean": 10.051550365999999
+  },
+  "counts": {
+    "actions": {
+      "deploy": 1632,
+      "engineer": 46,
+      "destroy": 20,
+      "turret": 57,
+      "bridge": 50,
+      "shield": 59,
+      "reroute": 13,
+      "exchange": 45,
+      "offer": 37,
+      "accept": 30,
+      "reject": 2,
+      "discard": 6,
+      "withdraw": 3
+    },
+    "events": {
+      "ready": 1,
+      "deploy": 1632,
+      "engineer": 46,
+      "destroy": 95,
+      "turret": 57,
+      "bridge": 50,
+      "shield": 59,
+      "shield-block": 10,
+      "capture": 950,
+      "reroute": 13,
+      "exchange": 45,
+      "offer": 37,
+      "accept": 30,
+      "supply-retreat": 35,
+      "alliance-expired": 30,
+      "reshuffle": 3,
+      "offer-expired": 5,
+      "reject": 2,
+      "discard": 6,
+      "withdraw": 3
+    },
+    "captures": 992,
+    "removals": 233,
+    "occupations": 725,
+    "engineeredCells": 46,
+    "boardChanges": 1950,
+    "meaningfulActions": 1992,
+    "cardUses": 244,
+    "diplomacyActions": 69,
+    "supplyRetreats": 35,
+    "observedUnsuppliedStoneTurns": 7988
+  },
+  "lateMeaningfulActions": {
+    "count": 1,
+    "min": 494,
+    "median": 494,
+    "p95": 494,
+    "max": 494,
+    "mean": 494
+  },
+  "passiveLateGames": [],
+  "limitations": [
+    "Each game advances exactly 600,000 model milliseconds at 300 ms per accepted action by default. Execution is accelerated; this is not evidence of ten minutes of real foreground browser play.",
+    "Rotations within each seed are correlated; independent seed count is reported separately.",
+    "Winner and profile frequencies describe this sample and do not establish balance or causal profile strength.",
+    "Node timings omit canvas rendering, input latency, scheduling, background throttling and mobile costs.",
+    "Captures count ownership transfers; removals include attacks and supply retreats. Event totals depend on public engine event classification."
+  ]
+}

@@ -1,0 +1,107 @@
+{
+  "mode": "scripted human policy, real mobile controls, virtual AI clock",
+  "pageErrors": [],
+  "humanActions": {
+    "deploy": 49,
+    "engineer": 2,
+    "bridge": 4,
+    "turret": 1,
+    "exchange": 2,
+    "shield": 2
+  },
+  "totalPly": 355,
+  "wallSeconds": 78.70527484000013,
+  "telemetry": {
+    "actions": 355,
+    "meaningful": 355,
+    "captures": 96,
+    "destroyed": 4,
+    "supplyRetreats": 32,
+    "engineered": 21,
+    "cardsUsed": 38,
+    "reshuffles": 0,
+    "goalArrivals": 0,
+    "goalHoldingRounds": 0,
+    "offers": 1,
+    "alliances": 1,
+    "betrayals": 0,
+    "withdrawals": 0,
+    "turretShots": 3,
+    "shieldBlocks": 0,
+    "byType": {
+      "deploy": 294,
+      "engineer": 21,
+      "bridge": 12,
+      "turret": 8,
+      "destroy": 1,
+      "exchange": 9,
+      "shield": 8,
+      "offer": 1,
+      "accept": 1
+    },
+    "byMinute": [
+      {
+        "actions": 239,
+        "meaningful": 239,
+        "captures": 52,
+        "cardsUsed": 25
+      },
+      {
+        "actions": 116,
+        "meaningful": 116,
+        "captures": 44,
+        "cardsUsed": 13
+      }
+    ],
+    "perPlayer": [
+      {
+        "actions": 0,
+        "captures": 0,
+        "cardsUsed": 0,
+        "goals": 0
+      },
+      {
+        "actions": 60,
+        "captures": 18,
+        "cardsUsed": 9,
+        "goals": 0
+      },
+      {
+        "actions": 59,
+        "captures": 15,
+        "cardsUsed": 8,
+        "goals": 0
+      },
+      {
+        "actions": 59,
+        "captures": 19,
+        "cardsUsed": 8,
+        "goals": 0
+      },
+      {
+        "actions": 59,
+        "captures": 18,
+        "cardsUsed": 5,
+        "goals": 0
+      },
+      {
+        "actions": 59,
+        "captures": 14,
+        "cardsUsed": 4,
+        "goals": 0
+      },
+      {
+        "actions": 59,
+        "captures": 12,
+        "cardsUsed": 4,
+        "goals": 0
+      }
+    ]
+  },
+  "twoFingerPinch": true,
+  "lifecycle": [
+    "restart clears state and schedules exactly one AI turn",
+    "timeout stops actions and renders result",
+    "sandbox resumes combat while preserving campaign result"
+  ]
+}

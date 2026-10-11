@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg">
   <!-- FuGames original geometry. Every symbol owns its stroke and safe area. -->
+  <symbol id="autohex" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M24 17 30.062178 20.5V27.5L24 31 17.937822 27.5V20.5Z"/><circle cx="24" cy="10" r="2.5"/><circle cx="36.124356" cy="17" r="2.5"/><circle cx="36.124356" cy="31" r="2.5"/><circle cx="24" cy="38" r="2.5"/><circle cx="11.875644" cy="31" r="2.5"/><circle cx="11.875644" cy="17" r="2.5"/>
+  </symbol>
   <symbol id="card_hex" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
     <path d="M24 7 38.722432 15.5V32.5L24 41 9.277568 32.5V15.5Z"/><path d="M24 21V17M26.598076 25.5 30.062178 27.5M21.401924 25.5 17.937822 27.5"/><circle cx="24" cy="24" r="3"/><circle cx="24" cy="14" r="3"/><circle cx="32.660254" cy="29" r="3"/><circle cx="15.339746" cy="29" r="3"/>
   </symbol>
