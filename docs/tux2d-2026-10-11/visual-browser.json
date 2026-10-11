@@ -1,0 +1,326 @@
+{
+  "mode": "Chromium device emulation, controlled browser clock, actual DOM/keyboard/touch input",
+  "sourceSha256": {
+    "tux2d-engine.js": "d136ac5ee7870a17900473d11878c3e7800c5a6a1502c449326300af604ac99e",
+    "tux2d-ui.js": "88bfae2a1da6842016bc87de60038ab70b720c3eb1bc0def1d6b7c5cb63c7318",
+    "tux2d.html": "ce39fe33224a7b8ebb1c5c20b4d027d945294b5f732f0c57b5e253a63511ab88",
+    "tux2d.css": "cb195df172f7f283674464bed7c932c24128b996a29810e3b0f8cdb809645b28"
+  },
+  "viewports": [
+    {
+      "label": "desktop",
+      "viewport": [
+        1440,
+        1100
+      ],
+      "dpr": 1,
+      "overflow": false,
+      "multiTouch": null,
+      "pauseFrozen": true,
+      "restartClear": {
+        "phase": "ready",
+        "ticks": 0,
+        "elapsed": 0,
+        "events": 0,
+        "hazards": 0,
+        "projectiles": 0,
+        "laps": [
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "ticksInOneSecondAfterRestart": 60,
+      "syntheticVisibilityPause": true,
+      "errors": []
+    },
+    {
+      "label": "mobile",
+      "viewport": [
+        390,
+        844
+      ],
+      "dpr": 3,
+      "overflow": false,
+      "multiTouch": {
+        "bounds": {
+          "left": {
+            "x": 28,
+            "y": 526.5625,
+            "width": 107.328125,
+            "height": 57.078125,
+            "bottom": 583.640625,
+            "right": 135.328125
+          },
+          "right": {
+            "x": 254.65625,
+            "y": 526.5625,
+            "width": 107.34375,
+            "height": 57.078125,
+            "bottom": 583.640625,
+            "right": 362
+          },
+          "drift": {
+            "x": 28,
+            "y": 589.640625,
+            "width": 107.328125,
+            "height": 57.078125,
+            "bottom": 646.71875,
+            "right": 135.328125
+          },
+          "brake": {
+            "x": 141.328125,
+            "y": 589.640625,
+            "width": 107.328125,
+            "height": 57.078125,
+            "bottom": 646.71875,
+            "right": 248.65625
+          },
+          "throttle": {
+            "x": 141.328125,
+            "y": 526.5625,
+            "width": 107.328125,
+            "height": 57.078125,
+            "bottom": 583.640625,
+            "right": 248.65625
+          },
+          "item": {
+            "x": 254.65625,
+            "y": 589.640625,
+            "width": 107.34375,
+            "height": 57.078125,
+            "bottom": 646.71875,
+            "right": 362
+          }
+        },
+        "stage": {
+          "x": 20,
+          "y": 66.5625,
+          "width": 350,
+          "height": 390,
+          "bottom": 456.5625,
+          "right": 370
+        },
+        "simultaneousSteerAndDrift": true,
+        "releasedTogether": true,
+        "charged": {
+          "angle": 2.5220958479718156,
+          "charge": 0.7000000000000005,
+          "drifts": 0
+        }
+      },
+      "pauseFrozen": true,
+      "restartClear": {
+        "phase": "ready",
+        "ticks": 0,
+        "elapsed": 0,
+        "events": 0,
+        "hazards": 0,
+        "projectiles": 0,
+        "laps": [
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "ticksInOneSecondAfterRestart": 60,
+      "syntheticVisibilityPause": true,
+      "errors": []
+    },
+    {
+      "label": "narrow",
+      "viewport": [
+        320,
+        740
+      ],
+      "dpr": 2,
+      "overflow": false,
+      "multiTouch": {
+        "bounds": {
+          "left": {
+            "x": 28,
+            "y": 526.9375,
+            "width": 84,
+            "height": 57.078125,
+            "bottom": 584.015625,
+            "right": 112
+          },
+          "right": {
+            "x": 208,
+            "y": 526.9375,
+            "width": 84,
+            "height": 57.078125,
+            "bottom": 584.015625,
+            "right": 292
+          },
+          "drift": {
+            "x": 28,
+            "y": 590.015625,
+            "width": 84,
+            "height": 57.078125,
+            "bottom": 647.09375,
+            "right": 112
+          },
+          "brake": {
+            "x": 118,
+            "y": 590.015625,
+            "width": 84,
+            "height": 57.078125,
+            "bottom": 647.09375,
+            "right": 202
+          },
+          "throttle": {
+            "x": 118,
+            "y": 526.9375,
+            "width": 84,
+            "height": 57.078125,
+            "bottom": 584.015625,
+            "right": 202
+          },
+          "item": {
+            "x": 208,
+            "y": 590.015625,
+            "width": 84,
+            "height": 57.078125,
+            "bottom": 647.09375,
+            "right": 292
+          }
+        },
+        "stage": {
+          "x": 20,
+          "y": 66.75,
+          "width": 280,
+          "height": 390,
+          "bottom": 456.75,
+          "right": 300
+        },
+        "simultaneousSteerAndDrift": true,
+        "releasedTogether": true,
+        "charged": {
+          "angle": 2.5220958479718156,
+          "charge": 0.7000000000000005,
+          "drifts": 0
+        }
+      },
+      "pauseFrozen": true,
+      "restartClear": {
+        "phase": "ready",
+        "ticks": 0,
+        "elapsed": 0,
+        "events": 0,
+        "hazards": 0,
+        "projectiles": 0,
+        "laps": [
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "ticksInOneSecondAfterRestart": 60,
+      "syntheticVisibilityPause": true,
+      "errors": []
+    },
+    {
+      "label": "landscape",
+      "viewport": [
+        844,
+        390
+      ],
+      "dpr": 2,
+      "overflow": false,
+      "multiTouch": {
+        "bounds": {
+          "left": {
+            "x": 29,
+            "y": 278.140625,
+            "width": 126.828125,
+            "height": 49.6875,
+            "bottom": 327.828125,
+            "right": 155.828125
+          },
+          "right": {
+            "x": 292.65625,
+            "y": 278.140625,
+            "width": 126.84375,
+            "height": 49.6875,
+            "bottom": 327.828125,
+            "right": 419.5
+          },
+          "drift": {
+            "x": 424.5,
+            "y": 278.140625,
+            "width": 126.828125,
+            "height": 49.6875,
+            "bottom": 327.828125,
+            "right": 551.328125
+          },
+          "brake": {
+            "x": 556.328125,
+            "y": 278.140625,
+            "width": 126.828125,
+            "height": 49.6875,
+            "bottom": 327.828125,
+            "right": 683.15625
+          },
+          "throttle": {
+            "x": 160.828125,
+            "y": 278.140625,
+            "width": 126.828125,
+            "height": 49.6875,
+            "bottom": 327.828125,
+            "right": 287.65625
+          },
+          "item": {
+            "x": 688.15625,
+            "y": 278.140625,
+            "width": 126.84375,
+            "height": 49.6875,
+            "bottom": 327.828125,
+            "right": 815
+          }
+        },
+        "stage": {
+          "x": 24,
+          "y": 57.0625,
+          "width": 796,
+          "height": 167.6875,
+          "bottom": 224.75,
+          "right": 820
+        },
+        "simultaneousSteerAndDrift": true,
+        "releasedTogether": true,
+        "charged": {
+          "angle": 2.5220958479718156,
+          "charge": 0.7000000000000005,
+          "drifts": 0
+        }
+      },
+      "pauseFrozen": true,
+      "restartClear": {
+        "phase": "ready",
+        "ticks": 0,
+        "elapsed": 0,
+        "events": 0,
+        "hazards": 0,
+        "projectiles": 0,
+        "laps": [
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "ticksInOneSecondAfterRestart": 59,
+      "syntheticVisibilityPause": true,
+      "errors": []
+    }
+  ],
+  "sourceUnchanged": true
+}

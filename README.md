@@ -16,6 +16,7 @@ python -m http.server 8000 --bind 0.0.0.0
 
 ## 遊戲
 
+- Tux 2D：`tux2d.html`（原創雪港企鵝卡丁車；三圈、漂移加速、道具與四位 AI）
 - AutoHex：`autohex.html`（獨立六方大型戰場；六 AI 觀戰或人類下場）
 - 抽牌 Hex：`card_hex.html`
 - 重力大亂鬥：`gravity_brawl.html`
@@ -45,6 +46,8 @@ python -m http.server 8000 --bind 0.0.0.0
 獨立新增 AutoHex：1,027 格六方大型戰役，五格部署範圍、循環共用牌池、補給線、結盟背叛及十分鐘前景戰役。可六 AI 觀戰或親自出戰，支援手機縮放與小地圖。見 [AutoHex 規則、實測與限制](docs/autohex-2026-10-11/validation.md)。
 
 AutoHex 接續新增外圈機場／補給站、物資空中行動、持有超過 30 次己方行動的固守，以及可關閉的中立事件；炮台、炮擊與斷補也直接呈現在棋盤。見 [外圍戰略、畫面對照與實測](docs/autohex-visual-2026-10-11/validation.md)。
+
+獨立新增 Tux 2D：原創雪港賽道，預設你與四位 AI 跑三圈，也可觀看五 AI 競速。每圈依序通過十二個檢查點；甩尾蓄力後放開加速，雪球、香蕉皮、護盾與加速道具使用共同規則。預設自動油門，方向鍵／WASD 轉向，Shift／Z 甩尾，Space 使用道具，P／Esc 暫停；手機有可同時按住的觸控按鈕。賽道、美術與程式為原創，僅以 [SuperTuxKart](https://supertuxkart.net/Main_Page) 為玩法靈感。見 [規則、完整賽事與手機驗證](docs/tux2d-2026-10-11/validation.md)。
 
 ### 共用介面
 
@@ -109,6 +112,10 @@ python tests/expansion_browser.py
 python tests/hex_seeded_browser.py
 python tests/hex_icons_revision_browser.py
 node tests/hex-seeded-balance.cjs
+FUGAMES_BASE_URL=http://127.0.0.1:8000 python tests/tux2d_browser.py
+FUGAMES_BASE_URL=http://127.0.0.1:8000 python tests/tux2d_visual_browser.py
+FUGAMES_BASE_URL=http://127.0.0.1:8000 python tests/tux2d_ui_browser.py
+FUGAMES_BASE_URL=http://127.0.0.1:8000 python tests/tux2d_performance_browser.py
 ```
 
 若環境尚未有測試工具，可安裝 Python 的 `playwright` 並提供 Chromium 執行檔。環境變數：

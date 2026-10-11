@@ -1,0 +1,347 @@
+{
+  "mode": "real wall-clock human-mode race; public-observation controller emits keyboard input",
+  "virtualClock": false,
+  "engineMutation": false,
+  "errors": [],
+  "checkpoints": [
+    {
+      "elapsed": 0.966666666666668,
+      "gatePassed": 0,
+      "nextGate": 1,
+      "lap": 0
+    },
+    {
+      "elapsed": 2.4833333333333294,
+      "gatePassed": 1,
+      "nextGate": 2,
+      "lap": 0
+    },
+    {
+      "elapsed": 3.649999999999992,
+      "gatePassed": 2,
+      "nextGate": 3,
+      "lap": 0
+    },
+    {
+      "elapsed": 5.016666666666654,
+      "gatePassed": 3,
+      "nextGate": 4,
+      "lap": 0
+    },
+    {
+      "elapsed": 6.499999999999982,
+      "gatePassed": 4,
+      "nextGate": 5,
+      "lap": 0
+    },
+    {
+      "elapsed": 7.949999999999977,
+      "gatePassed": 5,
+      "nextGate": 6,
+      "lap": 0
+    },
+    {
+      "elapsed": 9.383333333333379,
+      "gatePassed": 6,
+      "nextGate": 7,
+      "lap": 0
+    },
+    {
+      "elapsed": 10.600000000000106,
+      "gatePassed": 7,
+      "nextGate": 8,
+      "lap": 0
+    },
+    {
+      "elapsed": 11.950000000000173,
+      "gatePassed": 8,
+      "nextGate": 9,
+      "lap": 0
+    },
+    {
+      "elapsed": 13.283333333333573,
+      "gatePassed": 9,
+      "nextGate": 10,
+      "lap": 0
+    },
+    {
+      "elapsed": 14.533333333333635,
+      "gatePassed": 10,
+      "nextGate": 11,
+      "lap": 0
+    },
+    {
+      "elapsed": 15.783333333333697,
+      "gatePassed": 11,
+      "nextGate": 0,
+      "lap": 0
+    },
+    {
+      "elapsed": 17.116666666666976,
+      "gatePassed": 0,
+      "nextGate": 1,
+      "lap": 1
+    },
+    {
+      "elapsed": 18.283333333333577,
+      "gatePassed": 1,
+      "nextGate": 2,
+      "lap": 1
+    },
+    {
+      "elapsed": 19.48333333333351,
+      "gatePassed": 2,
+      "nextGate": 3,
+      "lap": 1
+    },
+    {
+      "elapsed": 20.750000000000103,
+      "gatePassed": 3,
+      "nextGate": 4,
+      "lap": 1
+    },
+    {
+      "elapsed": 22.066666666666695,
+      "gatePassed": 4,
+      "nextGate": 5,
+      "lap": 1
+    },
+    {
+      "elapsed": 23.316666666666624,
+      "gatePassed": 5,
+      "nextGate": 6,
+      "lap": 1
+    },
+    {
+      "elapsed": 24.61666666666655,
+      "gatePassed": 6,
+      "nextGate": 7,
+      "lap": 1
+    },
+    {
+      "elapsed": 25.916666666666476,
+      "gatePassed": 7,
+      "nextGate": 8,
+      "lap": 1
+    },
+    {
+      "elapsed": 27.316666666666396,
+      "gatePassed": 8,
+      "nextGate": 9,
+      "lap": 1
+    },
+    {
+      "elapsed": 28.66666666666632,
+      "gatePassed": 9,
+      "nextGate": 10,
+      "lap": 1
+    },
+    {
+      "elapsed": 29.94999999999958,
+      "gatePassed": 10,
+      "nextGate": 11,
+      "lap": 1
+    },
+    {
+      "elapsed": 31.249999999999506,
+      "gatePassed": 11,
+      "nextGate": 0,
+      "lap": 1
+    },
+    {
+      "elapsed": 32.5666666666661,
+      "gatePassed": 0,
+      "nextGate": 1,
+      "lap": 2
+    },
+    {
+      "elapsed": 33.799999999999365,
+      "gatePassed": 1,
+      "nextGate": 2,
+      "lap": 2
+    },
+    {
+      "elapsed": 35.03333333333263,
+      "gatePassed": 2,
+      "nextGate": 3,
+      "lap": 2
+    },
+    {
+      "elapsed": 36.23333333333256,
+      "gatePassed": 3,
+      "nextGate": 4,
+      "lap": 2
+    },
+    {
+      "elapsed": 37.58333333333248,
+      "gatePassed": 4,
+      "nextGate": 5,
+      "lap": 2
+    },
+    {
+      "elapsed": 38.83333333333241,
+      "gatePassed": 5,
+      "nextGate": 6,
+      "lap": 2
+    },
+    {
+      "elapsed": 40.149999999999004,
+      "gatePassed": 6,
+      "nextGate": 7,
+      "lap": 2
+    },
+    {
+      "elapsed": 41.44999999999893,
+      "gatePassed": 7,
+      "nextGate": 8,
+      "lap": 2
+    },
+    {
+      "elapsed": 42.79999999999885,
+      "gatePassed": 8,
+      "nextGate": 9,
+      "lap": 2
+    },
+    {
+      "elapsed": 44.149999999998776,
+      "gatePassed": 9,
+      "nextGate": 10,
+      "lap": 2
+    },
+    {
+      "elapsed": 45.483333333332034,
+      "gatePassed": 10,
+      "nextGate": 11,
+      "lap": 2
+    },
+    {
+      "elapsed": 46.81666666666529,
+      "gatePassed": 11,
+      "nextGate": 0,
+      "lap": 2
+    },
+    {
+      "elapsed": 48.09999999999855,
+      "gatePassed": 0,
+      "nextGate": 1,
+      "lap": 3
+    }
+  ],
+  "laps": [
+    {
+      "lap": 1,
+      "elapsed": 17.116666666666976
+    },
+    {
+      "lap": 2,
+      "elapsed": 32.5666666666661
+    },
+    {
+      "lap": 3,
+      "elapsed": 48.09999999999855
+    }
+  ],
+  "sourceSha256": {
+    "tux2d-engine.js": "d136ac5ee7870a17900473d11878c3e7800c5a6a1502c449326300af604ac99e",
+    "tux2d-ui.js": "daab7a3dc186f62a4ee6b7571021e1356b75822290cbe02894b7929e9260523a"
+  },
+  "countdownPauseFrozen": true,
+  "racingPauseFrozen": true,
+  "complete": true,
+  "wallSeconds": 52.260883631999604,
+  "samples": 863,
+  "keyTransitions": 831,
+  "largestObservedMove": 56.949427313446,
+  "humanFinishSeconds": 48.083333333331886,
+  "result": {
+    "standings": [
+      {
+        "id": 1,
+        "name": "Pip",
+        "rank": 1,
+        "lap": 3,
+        "finished": true,
+        "time": 47.18333333333194,
+        "progress": 7947.504814684586
+      },
+      {
+        "id": 2,
+        "name": "Nova",
+        "rank": 2,
+        "lap": 3,
+        "finished": true,
+        "time": 47.266666666665266,
+        "progress": 7949.435534514225
+      },
+      {
+        "id": 0,
+        "name": "Tux",
+        "rank": 3,
+        "lap": 3,
+        "finished": true,
+        "time": 48.083333333331886,
+        "progress": 7948.569030255994
+      },
+      {
+        "id": 4,
+        "name": "Sunny",
+        "rank": 4,
+        "lap": 3,
+        "finished": true,
+        "time": 51.14999999999838,
+        "progress": 7947.579007695474
+      },
+      {
+        "id": 3,
+        "name": "Mochi",
+        "rank": 5,
+        "lap": 3,
+        "finished": true,
+        "time": 51.433333333331696,
+        "progress": 7947.5954926354625
+      }
+    ],
+    "time": 51.433333333331696
+  },
+  "telemetry": {
+    "collisions": 70,
+    "walls": 0,
+    "drifts": 12,
+    "pickups": 16,
+    "items": 11,
+    "hits": 3,
+    "blocks": 0,
+    "checkpoints": 185,
+    "laps": 15,
+    "recoveryTicks": 0
+  },
+  "humanFinal": {
+    "id": 0,
+    "name": "Tux",
+    "color": "#267477",
+    "x": 302.4729571719938,
+    "y": 701.665356234561,
+    "angle": 0.37546634704911597,
+    "speed": 0,
+    "trackS": 2.884517059596874,
+    "progress": 7948.569030255994,
+    "lap": 3,
+    "checkpoint": 1,
+    "started": true,
+    "finished": true,
+    "finishTime": 48.083333333331886,
+    "item": "banana",
+    "hasItem": true,
+    "driftCharge": 0,
+    "drifting": false,
+    "boost": 0,
+    "shield": 0,
+    "stun": 0,
+    "invulnerable": 0,
+    "driverError": 0,
+    "stuck": 0.016666666666666666,
+    "profile": "Tux"
+  },
+  "overflow": false,
+  "restartClean": true
+}

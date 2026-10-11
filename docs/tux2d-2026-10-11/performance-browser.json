@@ -1,0 +1,86 @@
+{
+  "mode": "real requestAnimationFrame callback cost in headless Chromium; emulated viewport/DPR",
+  "sourceSha256": {
+    "tux2d-engine.js": "d136ac5ee7870a17900473d11878c3e7800c5a6a1502c449326300af604ac99e",
+    "tux2d-ui.js": "db2320cb94ca1a312501c41a1bc56d861f28154768cef24510cd5340f66bc2e8",
+    "tux2d.css": "cb195df172f7f283674464bed7c932c24128b996a29810e3b0f8cdb809645b28",
+    "tux2d.html": "ce39fe33224a7b8ebb1c5c20b4d027d945294b5f732f0c57b5e253a63511ab88"
+  },
+  "devices": [
+    {
+      "label": "desktop",
+      "viewport": [
+        1440,
+        1100
+      ],
+      "dpr": 1,
+      "wallSeconds": 12.0145,
+      "modelSeconds": 12.016666666666843,
+      "rafCallbackCost": {
+        "count": 715,
+        "medianMs": 1,
+        "p95Ms": 2.699999999254942,
+        "maxMs": 31.800000000745058,
+        "meanMs": 1.2598601398299207
+      },
+      "rafInterval": {
+        "count": 714,
+        "medianMs": 16.69999999999891,
+        "p95Ms": 16.700000000000728,
+        "maxMs": 83.20000000000073,
+        "meanMs": 16.829411764705885
+      },
+      "telemetry": {
+        "collisions": 62,
+        "walls": 0,
+        "drifts": 0,
+        "pickups": 5,
+        "items": 4,
+        "hits": 0,
+        "blocks": 0,
+        "checkpoints": 44,
+        "laps": 0,
+        "recoveryTicks": 0
+      },
+      "errors": []
+    },
+    {
+      "label": "mobile",
+      "viewport": [
+        390,
+        844
+      ],
+      "dpr": 3,
+      "wallSeconds": 12.1145,
+      "modelSeconds": 11.133333333333466,
+      "rafCallbackCost": {
+        "count": 612,
+        "medianMs": 1.199999999254942,
+        "p95Ms": 4,
+        "maxMs": 438.40000000037253,
+        "meanMs": 2.512091503238147
+      },
+      "rafInterval": {
+        "count": 611,
+        "medianMs": 16.699999999999818,
+        "p95Ms": 33.29999999999927,
+        "maxMs": 566.7000000000007,
+        "meanMs": 19.038952536824876
+      },
+      "telemetry": {
+        "collisions": 59,
+        "walls": 0,
+        "drifts": 0,
+        "pickups": 5,
+        "items": 4,
+        "hits": 0,
+        "blocks": 0,
+        "checkpoints": 40,
+        "laps": 0,
+        "recoveryTicks": 0
+      },
+      "errors": []
+    }
+  ],
+  "sourceUnchanged": true
+}

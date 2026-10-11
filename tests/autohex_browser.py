@@ -65,7 +65,7 @@ with sync_playwright() as pw:
         p.screenshot(path=str(OUT/f'screenshots/{label}.png'),full_page=True)
         report['viewports'].append({'label':label,'width':w,'height':h,'dpr':dpr,'illegalAtomic':True,'humanDeploy':True,'pauseFreezes':True,'zoomPanMinimap':True,'overflow':False})
         # The new catalogue icon shares exactly the same source as the game header.
-        p.goto(BASE+'/index.html');assert p.locator('.game-card').count()==14
+        p.goto(BASE+'/index.html');assert p.locator('.game-card').count()==15
         p.screenshot(path=str(OUT/f'screenshots/catalog-{label}.png'),full_page=True)
         ctx.close()
 

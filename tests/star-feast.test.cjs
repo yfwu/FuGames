@@ -21,7 +21,9 @@ test('all pages parse and share the shell; no missing catalogue links or remote 
     assert.match(source, /class="[^"]*\bsite-nav\b[^"]*"/); assert.match(source, /class="[^"]*\bpage-header\b[^"]*"/);
     if (name !== 'index.html') { assert.match(source, /class="card play-panel(?: [^"]*)?"/); assert.match(source, /<details class="card rules(?: [^"]*)?">/); }
     for (const [, script] of source.matchAll(/<script[^>]*>([\s\S]*?)<\/script>/g)) assert.doesNotThrow(() => new vm.Script(script), name);
-    for (const [, href] of source.matchAll(/href="([^"]+)"/g)) {
+    for (const [, tag, href] of source.matchAll(/<([a-z]+)\b[^>]*\bhref="([^"]+)"/g)) {
+      // A credit is an optional navigation link, not a fetched game asset.
+      if (/^https:\/\//.test(href)) { assert.equal(tag, 'a', name + ' -> remote asset ' + href); continue; }
       const [file, fragment] = href.split('#');
       if (!file) continue;
       const target = path.join(root, file);
@@ -30,6 +32,10 @@ test('all pages parse and share the shell; no missing catalogue links or remote 
       if (fragment && !fragment.includes('${') && file.endsWith('.svg')) {
         assert.ok(fs.readFileSync(target, 'utf8').includes('id="' + fragment + '"'), name + ' -> missing SVG symbol ' + href);
       }
+    }
+    for (const [, src] of source.matchAll(/\bsrc="([^"]+)"/g)) {
+      assert.doesNotMatch(src, /^(?:[a-z]+:)?\/\//i, name + ' -> remote dependency ' + src);
+      assert.ok(fs.existsSync(path.join(root, src)), name + ' -> missing dependency ' + src);
     }
   }
   // The SVG namespace identifies a DOM type; it makes no request. Remote resources remain forbidden.

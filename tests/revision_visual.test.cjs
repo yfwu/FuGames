@@ -6,7 +6,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const ROOT = path.join(__dirname, '..');
-const GAMES = ['autohex','cyclic_tictactoe','cyclic_connect4_torus','trackgame','card_hex',
+const GAMES = ['tux2d','autohex','cyclic_tictactoe','cyclic_connect4_torus','trackgame','card_hex',
   'gravity_brawl','flip_five','effect_snake','duplicate_bridge','blackjack',
   'tank_arena','pulse_arena','territory_loop','star_feast'];
 const CONTROLS = ['arrow-up','arrow-down','arrow-left','arrow-right','launch','play',
@@ -37,7 +37,7 @@ test('sprite is entirely local vector geometry with no font, raster or executabl
   for(const m of source.matchAll(/\b(?:href|xlink:href)\s*=\s*["']([^"']+)["']/g))assert.match(m[1],/^#[a-z][a-z0-9_-]*$/,`external sprite dependency ${m[1]}`);
 });
 
-test('homepage has exactly fourteen valid game links and uses each matching shared icon',()=>{
+test('homepage has exactly fifteen valid game links and uses each matching shared icon',()=>{
   const source=read('index.html');
   const articles=[...source.matchAll(/<article\b[^>]*class=["'][^"']*\bgame-card\b[^"']*["'][^>]*>([\s\S]*?)<\/article>/g)];
   assert.equal(articles.length,GAMES.length);

@@ -1,0 +1,96 @@
+{
+  "mode": "real wall-clock human-mode race; public-observation controller emits keyboard input",
+  "virtualClock": false,
+  "engineMutation": false,
+  "errors": [],
+  "laps": [
+    {
+      "lap": 1,
+      "elapsed": 17.116666666666976
+    },
+    {
+      "lap": 2,
+      "elapsed": 32.5666666666661
+    },
+    {
+      "lap": 3,
+      "elapsed": 48.09999999999855
+    }
+  ],
+  "sourceSha256": {
+    "tux2d-engine.js": "d136ac5ee7870a17900473d11878c3e7800c5a6a1502c449326300af604ac99e",
+    "tux2d-ui.js": "daab7a3dc186f62a4ee6b7571021e1356b75822290cbe02894b7929e9260523a"
+  },
+  "countdownPauseFrozen": true,
+  "racingPauseFrozen": true,
+  "complete": true,
+  "wallSeconds": 52.260883631999604,
+  "samples": 863,
+  "keyTransitions": 831,
+  "largestObservedMove": 56.949427313446,
+  "humanFinishSeconds": 48.083333333331886,
+  "result": {
+    "standings": [
+      {
+        "id": 1,
+        "name": "Pip",
+        "rank": 1,
+        "lap": 3,
+        "finished": true,
+        "time": 47.18333333333194,
+        "progress": 7947.504814684586
+      },
+      {
+        "id": 2,
+        "name": "Nova",
+        "rank": 2,
+        "lap": 3,
+        "finished": true,
+        "time": 47.266666666665266,
+        "progress": 7949.435534514225
+      },
+      {
+        "id": 0,
+        "name": "Tux",
+        "rank": 3,
+        "lap": 3,
+        "finished": true,
+        "time": 48.083333333331886,
+        "progress": 7948.569030255994
+      },
+      {
+        "id": 4,
+        "name": "Sunny",
+        "rank": 4,
+        "lap": 3,
+        "finished": true,
+        "time": 51.14999999999838,
+        "progress": 7947.579007695474
+      },
+      {
+        "id": 3,
+        "name": "Mochi",
+        "rank": 5,
+        "lap": 3,
+        "finished": true,
+        "time": 51.433333333331696,
+        "progress": 7947.5954926354625
+      }
+    ],
+    "time": 51.433333333331696
+  },
+  "telemetry": {
+    "collisions": 70,
+    "walls": 0,
+    "drifts": 12,
+    "pickups": 16,
+    "items": 11,
+    "hits": 3,
+    "blocks": 0,
+    "checkpoints": 185,
+    "laps": 15,
+    "recoveryTicks": 0
+  },
+  "overflow": false,
+  "restartClean": true
+}

@@ -1,0 +1,27 @@
+{
+  "mode": "real browser keyboard/pointer UI checks",
+  "virtualClock": false,
+  "controlledFixtures": [
+    "grant held shield to human for keyboard use",
+    "grant held boost to human for pointer use"
+  ],
+  "sourceSha256": {
+    "tux2d-engine.js": "d136ac5ee7870a17900473d11878c3e7800c5a6a1502c449326300af604ac99e",
+    "tux2d-ui.js": "db2320cb94ca1a312501c41a1bc56d861f28154768cef24510cd5340f66bc2e8",
+    "tux2d.html": "ce39fe33224a7b8ebb1c5c20b4d027d945294b5f732f0c57b5e253a63511ab88",
+    "tux2d.css": "cb195df172f7f283674464bed7c932c24128b996a29810e3b0f8cdb809645b28"
+  },
+  "errors": [],
+  "checks": {
+    "reducedMotionAndLocalAssets": true,
+    "nativeSpaceStartsAndFocusesCanvas": true,
+    "nativeSpacePausesAndPResumesOnCanvas": true,
+    "raceRunsOfflineAfterPageLoad": true,
+    "resumeThenSpaceUsesShieldWithoutPausing": true,
+    "itemButtonClickUsesBoost": true,
+    "restartReturnsToEditableReady": true,
+    "landscapeTrackAndSixTouchTargetsFit": true,
+    "briefTouchItemTapUsesBoost": true
+  },
+  "pass": true
+}

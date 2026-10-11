@@ -188,7 +188,7 @@ if __name__ == '__main__':
             page.on('requestfailed', lambda request: failed.append(request.url))
             page.clock.install()
             page.goto(BASE + '/index.html')
-            assert page.locator('.game-card').count() == 13
+            assert page.locator('.game-card').count() == 15
             snapshot(page, 'catalogue-' + label)
             for game in GAMES:
                 page.goto(BASE + '/' + game + '.html')
@@ -206,7 +206,7 @@ if __name__ == '__main__':
                 if label in ['desktop', 'mobile']:
                     interactions(page, game, mobile)
                 page.get_by_role('link', name='所有遊戲 ↗', exact=True).click()
-                assert page.locator('.game-card').count() == 13
+                assert page.locator('.game-card').count() == 15
             context.close()
         assert len(set(signatures)) == 1, signatures
         assert not errors, errors

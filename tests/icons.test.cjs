@@ -6,7 +6,7 @@ const path = require('node:path');
 const root = path.join(__dirname, '..');
 const svg = fs.readFileSync(path.join(root, 'icons.svg'), 'utf8');
 const home = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
-const games = ['autohex','card_hex','gravity_brawl','flip_five','effect_snake','duplicate_bridge','blackjack','tank_arena','pulse_arena','star_feast','territory_loop','cyclic_tictactoe','cyclic_connect4_torus','trackgame'];
+const games = ['tux2d','autohex','card_hex','gravity_brawl','flip_five','effect_snake','duplicate_bridge','blackjack','tank_arena','pulse_arena','star_feast','territory_loop','cyclic_tictactoe','cyclic_connect4_torus','trackgame'];
 const actions = ['arrow-up','arrow-down','arrow-left','arrow-right','launch','play','pause','restart','rotate','undo','hint','shield','turret','trap','double','remove','bridge','suit-club','suit-diamond','suit-heart','suit-spade','fruit','star','poison','slow'];
 const attrs = s => Object.fromEntries([...s.matchAll(/([\w:-]+)="([^"]*)"/g)].map(m => [m[1],m[2]]));
 const icons = new Map([...svg.matchAll(/<symbol\s+([^>]+)>([\s\S]*?)<\/symbol>/g)].map(m=>{const a=attrs(m[1]);return[a.id,{attrs:a,body:m[2]}];}));
@@ -61,8 +61,8 @@ function equivalentCloud(id,transform,other=id){
  }
 }
 
-test('the shared collection has the exact 14 game and 25 action IDs with a uniform native SVG contract',()=>{
- assert.equal(icons.size,39);assert.equal([...svg.matchAll(/<symbol /g)].length,39);
+test('the shared collection has the exact 15 game and 25 action IDs with a uniform native SVG contract',()=>{
+ assert.equal(icons.size,40);assert.equal([...svg.matchAll(/<symbol /g)].length,40);
  assert.deepEqual([...icons.keys()].sort(),[...games,...actions].sort());
  assert.doesNotMatch(svg,/<(?:text|image|foreignObject|script|use)\b|\btransform=|font-|data:|https?:\/\/(?!www\.w3\.org\/2000\/svg)/i);
  for(const [id,{attrs:a}]of icons){assert.equal(a.viewBox,'0 0 48 48',id);assert.equal(a.stroke,'currentColor',id);assert.equal(a['stroke-width'],'2',id);assert.equal(a['stroke-linecap'],'round',id);assert.equal(a['stroke-linejoin'],'round',id);assert.equal(a.fill,'none',id);}
@@ -80,7 +80,7 @@ test('all painted geometry including stroke stays at least 6 px inside the 48 px
 });
 
 test('mirror-symmetric tokens and gameplay shapes preserve their declared centerline',()=>{
- const vertical=['tank_arena','pulse_arena','trackgame','arrow-up','arrow-down','pause','hint','shield','trap','double','remove','bridge','suit-club','suit-diamond','suit-heart','suit-spade','star','poison','slow'];
+ const vertical=['tux2d','tank_arena','pulse_arena','trackgame','arrow-up','arrow-down','pause','hint','shield','trap','double','remove','bridge','suit-club','suit-diamond','suit-heart','suit-spade','star','poison','slow'];
  for(const id of vertical)equivalentCloud(id,([x,y])=>[48-x,y]);
  for(const id of ['pulse_arena','trackgame','arrow-left','arrow-right','pause','remove','suit-diamond'])equivalentCloud(id,([x,y])=>[x,48-y]);
 });
@@ -103,7 +103,7 @@ test('filled suit silhouettes remain distinct and use a consistent visible area 
 });
 
 test('homepage maps every game to its own shared icon and keeps each accessible entry link',()=>{
- const cards=[...home.matchAll(/<article class="game-card">([\s\S]*?)<\/article>/g)];assert.equal(cards.length,14);
+ const cards=[...home.matchAll(/<article class="game-card">([\s\S]*?)<\/article>/g)];assert.equal(cards.length,15);
  const found=[];
  for(const [,card]of cards){
   const stem=card.match(/<a\b[^>]*href="([^"#]+)\.html"/)[1];found.push(stem);

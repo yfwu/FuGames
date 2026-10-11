@@ -22,20 +22,20 @@ with sync_playwright() as p:
         page.on('pageerror',lambda e:errors.append(str(e)))
         page.on('console',lambda m:errors.append(m.text) if m.type=='error' else None)
         page.goto(BASE+'index.html');page.wait_for_load_state('networkidle')
-        assert page.locator('.game-card').count()==13
+        assert page.locator('.game-card').count()==15
         assert page.evaluate('document.documentElement.scrollWidth <= innerWidth')
         measures=page.locator('.game-icon').evaluate_all('(nodes)=>nodes.map(n=>({width:n.getBoundingClientRect().width,height:n.getBoundingClientRect().height,view:n.getAttribute("viewBox"),use:{width:n.querySelector("use").getBBox().width,height:n.querySelector("use").getBBox().height}}))')
         assert len({(i['width'],i['height']) for i in measures})==1
         assert all(i['width']==i['height'] and i['view']=='0 0 48 48' and i['use']['width']>0 for i in measures)
         names=page.get_by_role('link',name=re.compile('開始遊玩')).all()
-        assert len(names)==13
+        assert len(names)==15
         for link in names:
             target=link.get_attribute('href')
             assert target.endswith('.html') and (ROOT/target).is_file()
             assert link.get_attribute('aria-label').startswith('開始遊玩')
         assert not errors,errors
         page.screenshot(path=str(OUT/f'homepage-{label}.png'),full_page=True)
-        report['homepage'].append({'viewport':[w,h],'cards':13,'uniform_square_icons':True,'overflow':False,'console_errors':errors})
+        report['homepage'].append({'viewport':[w,h],'cards':15,'uniform_square_icons':True,'overflow':False,'console_errors':errors})
         page.close()
     page=browser.new_page(viewport={'width':1020,'height':1300},device_scale_factor=1)
     page.goto(BASE+'index.html')

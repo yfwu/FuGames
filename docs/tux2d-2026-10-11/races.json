@@ -1,0 +1,5475 @@
+{
+  "mode": "accelerated fixed-step Node simulation; not live browser play",
+  "engineSha256": "d136ac5ee7870a17900473d11878c3e7800c5a6a1502c449326300af604ac99e",
+  "fixedDt": 0.016666666666666666,
+  "seedCount": 36,
+  "seedStart": 101,
+  "expectedLaps": 3,
+  "scope": "Complete races on the one original track with five fixed driver profiles; this does not establish broad balance or human difficulty.",
+  "complete": true,
+  "races": [
+    {
+      "seed": "tux-race-study-101",
+      "ticks": 3370,
+      "elapsed": 53.16666666666493,
+      "modelSeconds": 56.166666666666664,
+      "traceSha256": "bd1dd1fc8a128286499371387b12ca127913a650f8223993fbc0808798ae8ad2",
+      "result": {
+        "standings": [
+          {
+            "id": 1,
+            "name": "Pip",
+            "rank": 1,
+            "lap": 3,
+            "finished": true,
+            "time": 48.88333333333184,
+            "progress": 7949.700009362692
+          },
+          {
+            "id": 0,
+            "name": "Tux",
+            "rank": 2,
+            "lap": 3,
+            "finished": true,
+            "time": 49.59999999999847,
+            "progress": 7948.466058027459
+          },
+          {
+            "id": 2,
+            "name": "Nova",
+            "rank": 3,
+            "lap": 3,
+            "finished": true,
+            "time": 49.766666666665124,
+            "progress": 7948.05523484677
+          },
+          {
+            "id": 4,
+            "name": "Sunny",
+            "rank": 4,
+            "lap": 3,
+            "finished": true,
+            "time": 50.116666666665104,
+            "progress": 7945.019198794642
+          },
+          {
+            "id": 3,
+            "name": "Mochi",
+            "rank": 5,
+            "lap": 3,
+            "finished": true,
+            "time": 53.16666666666493,
+            "progress": 7947.780260414531
+          }
+        ],
+        "time": 53.16666666666493
+      },
+      "telemetry": {
+        "collisions": 86,
+        "walls": 0,
+        "drifts": 17,
+        "pickups": 22,
+        "items": 22,
+        "hits": 5,
+        "blocks": 3,
+        "checkpoints": 185,
+        "laps": 15,
+        "recoveryTicks": 0
+      },
+      "resourceMax": {
+        "events": 64,
+        "projectiles": 1,
+        "hazards": 1
+      },
+      "racers": [
+        {
+          "id": 0,
+          "maxSpeed": 191.2232273776777,
+          "distanceTravelled": 7952.656499793849,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 32.32352605323146,
+          "errorTicks": 87,
+          "maxContinuousErrorTicks": 22,
+          "name": "Tux",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 49.59999999999847
+        },
+        {
+          "id": 1,
+          "maxSpeed": 185.13523829484873,
+          "distanceTravelled": 7881.679291338507,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 34.576203152092155,
+          "errorTicks": 87,
+          "maxContinuousErrorTicks": 22,
+          "name": "Pip",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 48.88333333333184
+        },
+        {
+          "id": 2,
+          "maxSpeed": 197.32558851564093,
+          "distanceTravelled": 8192.94784312849,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 34.083270361095416,
+          "errorTicks": 87,
+          "maxContinuousErrorTicks": 22,
+          "name": "Nova",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 49.766666666665124
+        },
+        {
+          "id": 3,
+          "maxSpeed": 179.60878949357172,
+          "distanceTravelled": 7915.927652688753,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 34.166725958462685,
+          "errorTicks": 87,
+          "maxContinuousErrorTicks": 22,
+          "name": "Mochi",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 53.16666666666493
+        },
+        {
+          "id": 4,
+          "maxSpeed": 191.8549081003301,
+          "distanceTravelled": 8237.83037013381,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 30.373626837564693,
+          "errorTicks": 87,
+          "maxContinuousErrorTicks": 22,
+          "name": "Sunny",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 50.116666666665104
+        }
+      ]
+    },
+    {
+      "seed": "tux-race-study-102",
+      "ticks": 3312,
+      "elapsed": 52.19999999999832,
+      "modelSeconds": 55.199999999999996,
+      "traceSha256": "3f49d1861370388c129b7bca12883e56a9cc07319ce6dbc04ef34c1dbbdf09d4",
+      "result": {
+        "standings": [
+          {
+            "id": 1,
+            "name": "Pip",
+            "rank": 1,
+            "lap": 3,
+            "finished": true,
+            "time": 48.68333333333185,
+            "progress": 7949.017617378959
+          },
+          {
+            "id": 2,
+            "name": "Nova",
+            "rank": 2,
+            "lap": 3,
+            "finished": true,
+            "time": 49.066666666665164,
+            "progress": 7945.917367062551
+          },
+          {
+            "id": 0,
+            "name": "Tux",
+            "rank": 3,
+            "lap": 3,
+            "finished": true,
+            "time": 49.216666666665155,
+            "progress": 7948.61483627786
+          },
+          {
+            "id": 4,
+            "name": "Sunny",
+            "rank": 4,
+            "lap": 3,
+            "finished": true,
+            "time": 50.1666666666651,
+            "progress": 7946.187527839242
+          },
+          {
+            "id": 3,
+            "name": "Mochi",
+            "rank": 5,
+            "lap": 3,
+            "finished": true,
+            "time": 52.19999999999832,
+            "progress": 7948.339053129597
+          }
+        ],
+        "time": 52.19999999999832
+      },
+      "telemetry": {
+        "collisions": 75,
+        "walls": 0,
+        "drifts": 12,
+        "pickups": 22,
+        "items": 17,
+        "hits": 3,
+        "blocks": 0,
+        "checkpoints": 185,
+        "laps": 15,
+        "recoveryTicks": 0
+      },
+      "resourceMax": {
+        "events": 64,
+        "projectiles": 1,
+        "hazards": 2
+      },
+      "racers": [
+        {
+          "id": 0,
+          "maxSpeed": 190.09484498149203,
+          "distanceTravelled": 8060.268110545852,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 35.066190974544135,
+          "errorTicks": 87,
+          "maxContinuousErrorTicks": 22,
+          "name": "Tux",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 49.216666666665155
+        },
+        {
+          "id": 1,
+          "maxSpeed": 186.48230111538257,
+          "distanceTravelled": 7839.780355497873,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 34.583966201994286,
+          "errorTicks": 82,
+          "maxContinuousErrorTicks": 22,
+          "name": "Pip",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 48.68333333333185
+        },
+        {
+          "id": 2,
+          "maxSpeed": 197.00479434777904,
+          "distanceTravelled": 8231.595215994079,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 35.18192205972055,
+          "errorTicks": 87,
+          "maxContinuousErrorTicks": 22,
+          "name": "Nova",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 49.066666666665164
+        },
+        {
+          "id": 3,
+          "maxSpeed": 180.10133119653455,
+          "distanceTravelled": 7921.383571166812,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 28.343533304291235,
+          "errorTicks": 87,
+          "maxContinuousErrorTicks": 22,
+          "name": "Mochi",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 52.19999999999832
+        },
+        {
+          "id": 4,
+          "maxSpeed": 190.78118996677662,
+          "distanceTravelled": 8102.908039432776,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.15,
+          "maxDistanceFromCenter": 28.229046228630096,
+          "errorTicks": 87,
+          "maxContinuousErrorTicks": 22,
+          "name": "Sunny",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 50.1666666666651
+        }
+      ]
+    },
+    {
+      "seed": "tux-race-study-103",
+      "ticks": 3386,
+      "elapsed": 53.43333333333158,
+      "modelSeconds": 56.43333333333333,
+      "traceSha256": "c4ebe3a13a7bcd51fa5672c1e6a97480a10a74b0712f85b9dcdd47e9d8929b36",
+      "result": {
+        "standings": [
+          {
+            "id": 0,
+            "name": "Tux",
+            "rank": 1,
+            "lap": 3,
+            "finished": true,
+            "time": 48.58333333333186,
+            "progress": 7948.159953735136
+          },
+          {
+            "id": 4,
+            "name": "Sunny",
+            "rank": 2,
+            "lap": 3,
+            "finished": true,
+            "time": 48.666666666665186,
+            "progress": 7946.374011653888
+          },
+          {
+            "id": 1,
+            "name": "Pip",
+            "rank": 3,
+            "lap": 3,
+            "finished": true,
+            "time": 49.14999999999849,
+            "progress": 7947.975105360631
+          },
+          {
+            "id": 2,
+            "name": "Nova",
+            "rank": 4,
+            "lap": 3,
+            "finished": true,
+            "time": 49.31666666666515,
+            "progress": 7947.6811869814765
+          },
+          {
+            "id": 3,
+            "name": "Mochi",
+            "rank": 5,
+            "lap": 3,
+            "finished": true,
+            "time": 53.43333333333158,
+            "progress": 7948.383492050272
+          }
+        ],
+        "time": 53.43333333333158
+      },
+      "telemetry": {
+        "collisions": 114,
+        "walls": 0,
+        "drifts": 15,
+        "pickups": 23,
+        "items": 21,
+        "hits": 3,
+        "blocks": 1,
+        "checkpoints": 185,
+        "laps": 15,
+        "recoveryTicks": 0
+      },
+      "resourceMax": {
+        "events": 64,
+        "projectiles": 1,
+        "hazards": 2
+      },
+      "racers": [
+        {
+          "id": 0,
+          "maxSpeed": 188.75897632537055,
+          "distanceTravelled": 7924.022920101906,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 36.23336613054897,
+          "errorTicks": 87,
+          "maxContinuousErrorTicks": 22,
+          "name": "Tux",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 48.58333333333186
+        },
+        {
+          "id": 1,
+          "maxSpeed": 185.75752022456547,
+          "distanceTravelled": 7888.64619576634,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 35.28400998931858,
+          "errorTicks": 87,
+          "maxContinuousErrorTicks": 22,
+          "name": "Pip",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 49.14999999999849
+        },
+        {
+          "id": 2,
+          "maxSpeed": 197.1104322121794,
+          "distanceTravelled": 8280.44717125659,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 30.691030415958185,
+          "errorTicks": 87,
+          "maxContinuousErrorTicks": 22,
+          "name": "Nova",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 49.31666666666515
+        },
+        {
+          "id": 3,
+          "maxSpeed": 181.2750790310821,
+          "distanceTravelled": 7965.868946108482,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 28.343533304291235,
+          "errorTicks": 87,
+          "maxContinuousErrorTicks": 22,
+          "name": "Mochi",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 53.43333333333158
+        },
+        {
+          "id": 4,
+          "maxSpeed": 190.93806252321886,
+          "distanceTravelled": 8028.67259745542,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 36.01142838600163,
+          "errorTicks": 65,
+          "maxContinuousErrorTicks": 22,
+          "name": "Sunny",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 48.666666666665186
+        }
+      ]
+    },
+    {
+      "seed": "tux-race-study-104",
+      "ticks": 3403,
+      "elapsed": 53.7166666666649,
+      "modelSeconds": 56.71666666666667,
+      "traceSha256": "c5f63bc77118d464452d4068ce302a2e7e338f7607aff40127cfae392e96c9af",
+      "result": {
+        "standings": [
+          {
+            "id": 2,
+            "name": "Nova",
+            "rank": 1,
+            "lap": 3,
+            "finished": true,
+            "time": 47.48333333333192,
+            "progress": 7947.133035167386
+          },
+          {
+            "id": 0,
+            "name": "Tux",
+            "rank": 2,
+            "lap": 3,
+            "finished": true,
+            "time": 48.666666666665186,
+            "progress": 7946.28426181911
+          },
+          {
+            "id": 1,
+            "name": "Pip",
+            "rank": 3,
+            "lap": 3,
+            "finished": true,
+            "time": 49.19999999999849,
+            "progress": 7949.357226868064
+          },
+          {
+            "id": 4,
+            "name": "Sunny",
+            "rank": 4,
+            "lap": 3,
+            "finished": true,
+            "time": 49.59999999999847,
+            "progress": 7944.750097350896
+          },
+          {
+            "id": 3,
+            "name": "Mochi",
+            "rank": 5,
+            "lap": 3,
+            "finished": true,
+            "time": 53.7166666666649,
+            "progress": 7948.964664927661
+          }
+        ],
+        "time": 53.7166666666649
+      },
+      "telemetry": {
+        "collisions": 75,
+        "walls": 0,
+        "drifts": 13,
+        "pickups": 23,
+        "items": 20,
+        "hits": 2,
+        "blocks": 1,
+        "checkpoints": 185,
+        "laps": 15,
+        "recoveryTicks": 0
+      },
+      "resourceMax": {
+        "events": 64,
+        "projectiles": 1,
+        "hazards": 2
+      },
+      "racers": [
+        {
+          "id": 0,
+          "maxSpeed": 189.12038258131193,
+          "distanceTravelled": 7960.960014433406,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 35.36883873528405,
+          "errorTicks": 87,
+          "maxContinuousErrorTicks": 22,
+          "name": "Tux",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 48.666666666665186
+        },
+        {
+          "id": 1,
+          "maxSpeed": 185.28896222376252,
+          "distanceTravelled": 7909.942326010908,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 34.62539721021649,
+          "errorTicks": 87,
+          "maxContinuousErrorTicks": 22,
+          "name": "Pip",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 49.19999999999849
+        },
+        {
+          "id": 2,
+          "maxSpeed": 196.61304334652652,
+          "distanceTravelled": 8162.986316578192,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 26.827988821998353,
+          "errorTicks": 65,
+          "maxContinuousErrorTicks": 22,
+          "name": "Nova",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 47.48333333333192
+        },
+        {
+          "id": 3,
+          "maxSpeed": 181.46151542376194,
+          "distanceTravelled": 8001.956453077533,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 33.319151652869294,
+          "errorTicks": 87,
+          "maxContinuousErrorTicks": 22,
+          "name": "Mochi",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 53.7166666666649
+        },
+        {
+          "id": 4,
+          "maxSpeed": 190.55082058276128,
+          "distanceTravelled": 8166.840443851672,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 22.81028736233528,
+          "errorTicks": 87,
+          "maxContinuousErrorTicks": 22,
+          "name": "Sunny",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 49.59999999999847
+        }
+      ]
+    },
+    {
+      "seed": "tux-race-study-105",
+      "ticks": 3511,
+      "elapsed": 55.5166666666648,
+      "modelSeconds": 58.516666666666666,
+      "traceSha256": "f397a52e4b6e34a99a8773dfc9ab5cd72c3a75c500442520601ea8b224bdb241",
+      "result": {
+        "standings": [
+          {
+            "id": 2,
+            "name": "Nova",
+            "rank": 1,
+            "lap": 3,
+            "finished": true,
+            "time": 47.36666666666526,
+            "progress": 7947.042911345276
+          },
+          {
+            "id": 1,
+            "name": "Pip",
+            "rank": 2,
+            "lap": 3,
+            "finished": true,
+            "time": 48.49999999999853,
+            "progress": 7948.69746730398
+          },
+          {
+            "id": 4,
+            "name": "Sunny",
+            "rank": 3,
+            "lap": 3,
+            "finished": true,
+            "time": 48.93333333333184,
+            "progress": 7947.210294982135
+          },
+          {
+            "id": 0,
+            "name": "Tux",
+            "rank": 4,
+            "lap": 3,
+            "finished": true,
+            "time": 49.03333333333183,
+            "progress": 7947.1153081750745
+          },
+          {
+            "id": 3,
+            "name": "Mochi",
+            "rank": 5,
+            "lap": 3,
+            "finished": true,
+            "time": 55.5166666666648,
+            "progress": 7946.514549638621
+          }
+        ],
+        "time": 55.5166666666648
+      },
+      "telemetry": {
+        "collisions": 154,
+        "walls": 0,
+        "drifts": 16,
+        "pickups": 22,
+        "items": 19,
+        "hits": 5,
+        "blocks": 0,
+        "checkpoints": 185,
+        "laps": 15,
+        "recoveryTicks": 0
+      },
+      "resourceMax": {
+        "events": 64,
+        "projectiles": 1,
+        "hazards": 3
+      },
+      "racers": [
+        {
+          "id": 0,
+          "maxSpeed": 190.13505328782523,
+          "distanceTravelled": 7786.091270417618,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.3,
+          "maxDistanceFromCenter": 39.28485193889654,
+          "errorTicks": 87,
+          "maxContinuousErrorTicks": 22,
+          "name": "Tux",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 49.03333333333183
+        },
+        {
+          "id": 1,
+          "maxSpeed": 186.89334941212087,
+          "distanceTravelled": 7711.935448751076,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 42.52306843937542,
+          "errorTicks": 87,
+          "maxContinuousErrorTicks": 22,
+          "name": "Pip",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 48.49999999999853
+        },
+        {
+          "id": 2,
+          "maxSpeed": 196.03655774136877,
+          "distanceTravelled": 8155.914919230805,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 26.827988821998353,
+          "errorTicks": 87,
+          "maxContinuousErrorTicks": 22,
+          "name": "Nova",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 47.36666666666526
+        },
+        {
+          "id": 3,
+          "maxSpeed": 180.63532970551813,
+          "distanceTravelled": 7961.246274072706,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 34.166725958462685,
+          "errorTicks": 87,
+          "maxContinuousErrorTicks": 22,
+          "name": "Mochi",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 55.5166666666648
+        },
+        {
+          "id": 4,
+          "maxSpeed": 191.99455106442736,
+          "distanceTravelled": 8114.447291593826,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 23.395719178753254,
+          "errorTicks": 87,
+          "maxContinuousErrorTicks": 22,
+          "name": "Sunny",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 48.93333333333184
+        }
+      ]
+    },
+    {
+      "seed": "tux-race-study-106",
+      "ticks": 3287,
+      "elapsed": 51.783333333331676,
+      "modelSeconds": 54.78333333333333,
+      "traceSha256": "852e04305da9a037b5a82d10851c0eab899ffd26ab684f7ce4b6c556c8466df6",
+      "result": {
+        "standings": [
+          {
+            "id": 1,
+            "name": "Pip",
+            "rank": 1,
+            "lap": 3,
+            "finished": true,
+            "time": 48.166666666665215,
+            "progress": 7948.5529969259605
+          },
+          {
+            "id": 2,
+            "name": "Nova",
+            "rank": 2,
+            "lap": 3,
+            "finished": true,
+            "time": 48.4666666666652,
+            "progress": 7945.552184361118
+          },
+          {
+            "id": 4,
+            "name": "Sunny",
+            "rank": 3,
+            "lap": 3,
+            "finished": true,
+            "time": 48.866666666665175,
+            "progress": 7944.691414627582
+          },
+          {
+            "id": 0,
+            "name": "Tux",
+            "rank": 4,
+            "lap": 3,
+            "finished": true,
+            "time": 49.19999999999849,
+            "progress": 7947.791878013299
+          },
+          {
+            "id": 3,
+            "name": "Mochi",
+            "rank": 5,
+            "lap": 3,
+            "finished": true,
+            "time": 51.783333333331676,
+            "progress": 7947.671137053505
+          }
+        ],
+        "time": 51.783333333331676
+      },
+      "telemetry": {
+        "collisions": 63,
+        "walls": 0,
+        "drifts": 13,
+        "pickups": 23,
+        "items": 22,
+        "hits": 2,
+        "blocks": 1,
+        "checkpoints": 185,
+        "laps": 15,
+        "recoveryTicks": 0
+      },
+      "resourceMax": {
+        "events": 64,
+        "projectiles": 1,
+        "hazards": 2
+      },
+      "racers": [
+        {
+          "id": 0,
+          "maxSpeed": 190.7587854555047,
+          "distanceTravelled": 8083.147573011591,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 36.313769493831835,
+          "errorTicks": 87,
+          "maxContinuousErrorTicks": 22,
+          "name": "Tux",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 49.19999999999849
+        },
+        {
+          "id": 1,
+          "maxSpeed": 186.3001172654534,
+          "distanceTravelled": 7777.151279298171,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 33.71643161874341,
+          "errorTicks": 109,
+          "maxContinuousErrorTicks": 22,
+          "name": "Pip",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 48.166666666665215
+        },
+        {
+          "id": 2,
+          "maxSpeed": 195.91336653322838,
+          "distanceTravelled": 8150.332197685775,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 26.827988821998353,
+          "errorTicks": 87,
+          "maxContinuousErrorTicks": 22,
+          "name": "Nova",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 48.4666666666652
+        },
+        {
+          "id": 3,
+          "maxSpeed": 179.9838344977984,
+          "distanceTravelled": 7876.081844422338,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 33.56471692695267,
+          "errorTicks": 87,
+          "maxContinuousErrorTicks": 22,
+          "name": "Mochi",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 51.783333333331676
+        },
+        {
+          "id": 4,
+          "maxSpeed": 191.4909862953178,
+          "distanceTravelled": 8103.5659455617,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 33.58680423883267,
+          "errorTicks": 87,
+          "maxContinuousErrorTicks": 22,
+          "name": "Sunny",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 48.866666666665175
+        }
+      ]
+    },
+    {
+      "seed": "tux-race-study-107",
+      "ticks": 3262,
+      "elapsed": 51.36666666666503,
+      "modelSeconds": 54.36666666666667,
+      "traceSha256": "3ab870ec979ddd145caf09e46eca0913d56d03cc9e69a166ef1624d30c521391",
+      "result": {
+        "standings": [
+          {
+            "id": 2,
+            "name": "Nova",
+            "rank": 1,
+            "lap": 3,
+            "finished": true,
+            "time": 47.43333333333192,
+            "progress": 7947.678234739577
+          },
+          {
+            "id": 1,
+            "name": "Pip",
+            "rank": 2,
+            "lap": 3,
+            "finished": true,
+            "time": 48.58333333333186,
+            "progress": 7948.899072701537
+          },
+          {
+            "id": 4,
+            "name": "Sunny",
+            "rank": 3,
+            "lap": 3,
+            "finished": true,
+            "time": 48.96666666666517,
+            "progress": 7945.084805706086
+          },
+          {
+            "id": 0,
+            "name": "Tux",
+            "rank": 4,
+            "lap": 3,
+            "finished": true,
+            "time": 49.533333333331804,
+            "progress": 7948.630241265235
+          },
+          {
+            "id": 3,
+            "name": "Mochi",
+            "rank": 5,
+            "lap": 3,
+            "finished": true,
+            "time": 51.36666666666503,
+            "progress": 7946.798519216447
+          }
+        ],
+        "time": 51.36666666666503
+      },
+      "telemetry": {
+        "collisions": 57,
+        "walls": 0,
+        "drifts": 14,
+        "pickups": 9,
+        "items": 4,
+        "hits": 0,
+        "blocks": 0,
+        "checkpoints": 185,
+        "laps": 15,
+        "recoveryTicks": 0
+      },
+      "resourceMax": {
+        "events": 48,
+        "projectiles": 1,
+        "hazards": 0
+      },
+      "racers": [
+        {
+          "id": 0,
+          "maxSpeed": 188.50966158164746,
+          "distanceTravelled": 8128.931899860643,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 35.667477346691356,
+          "errorTicks": 87,
+          "maxContinuousErrorTicks": 22,
+          "name": "Tux",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 49.533333333331804
+        },
+        {
+          "id": 1,
+          "maxSpeed": 185.65246354186036,
+          "distanceTravelled": 7838.69443253109,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 35.23427499008639,
+          "errorTicks": 87,
+          "maxContinuousErrorTicks": 22,
+          "name": "Pip",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 48.58333333333186
+        },
+        {
+          "id": 2,
+          "maxSpeed": 197.0669266449975,
+          "distanceTravelled": 8147.955520464511,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 26.827988821998353,
+          "errorTicks": 65,
+          "maxContinuousErrorTicks": 22,
+          "name": "Nova",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 47.43333333333192
+        },
+        {
+          "id": 3,
+          "maxSpeed": 179.13272748069704,
+          "distanceTravelled": 7950.965166097384,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 32.35934588171306,
+          "errorTicks": 65,
+          "maxContinuousErrorTicks": 22,
+          "name": "Mochi",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 51.36666666666503
+        },
+        {
+          "id": 4,
+          "maxSpeed": 191.99156878803703,
+          "distanceTravelled": 8102.135171421145,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 28.718228044562835,
+          "errorTicks": 87,
+          "maxContinuousErrorTicks": 22,
+          "name": "Sunny",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 48.96666666666517
+        }
+      ]
+    },
+    {
+      "seed": "tux-race-study-108",
+      "ticks": 3266,
+      "elapsed": 51.433333333331696,
+      "modelSeconds": 54.43333333333333,
+      "traceSha256": "ba6ab8fc6b821331c50aa53a46e3b791cb76939bf38b36fa3813aa7451db5d39",
+      "result": {
+        "standings": [
+          {
+            "id": 2,
+            "name": "Nova",
+            "rank": 1,
+            "lap": 3,
+            "finished": true,
+            "time": 47.44999999999859,
+            "progress": 7946.544982982219
+          },
+          {
+            "id": 1,
+            "name": "Pip",
+            "rank": 2,
+            "lap": 3,
+            "finished": true,
+            "time": 48.71666666666518,
+            "progress": 7949.306364678645
+          },
+          {
+            "id": 4,
+            "name": "Sunny",
+            "rank": 3,
+            "lap": 3,
+            "finished": true,
+            "time": 48.93333333333184,
+            "progress": 7944.684124184294
+          },
+          {
+            "id": 0,
+            "name": "Tux",
+            "rank": 4,
+            "lap": 3,
+            "finished": true,
+            "time": 49.51666666666514,
+            "progress": 7949.245754951021
+          },
+          {
+            "id": 3,
+            "name": "Mochi",
+            "rank": 5,
+            "lap": 3,
+            "finished": true,
+            "time": 51.433333333331696,
+            "progress": 7948.620096319959
+          }
+        ],
+        "time": 51.433333333331696
+      },
+      "telemetry": {
+        "collisions": 74,
+        "walls": 0,
+        "drifts": 17,
+        "pickups": 8,
+        "items": 3,
+        "hits": 0,
+        "blocks": 0,
+        "checkpoints": 185,
+        "laps": 15,
+        "recoveryTicks": 0
+      },
+      "resourceMax": {
+        "events": 49,
+        "projectiles": 0,
+        "hazards": 1
+      },
+      "racers": [
+        {
+          "id": 0,
+          "maxSpeed": 190.7426674021401,
+          "distanceTravelled": 8116.249763191012,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 35.70550760997019,
+          "errorTicks": 87,
+          "maxContinuousErrorTicks": 22,
+          "name": "Tux",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 49.51666666666514
+        },
+        {
+          "id": 1,
+          "maxSpeed": 186.14276916812645,
+          "distanceTravelled": 7840.745685579297,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 34.10097897494746,
+          "errorTicks": 87,
+          "maxContinuousErrorTicks": 22,
+          "name": "Pip",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 48.71666666666518
+        },
+        {
+          "id": 2,
+          "maxSpeed": 196.62652376820648,
+          "distanceTravelled": 8150.322948378443,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 26.827988821998353,
+          "errorTicks": 87,
+          "maxContinuousErrorTicks": 22,
+          "name": "Nova",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 47.44999999999859
+        },
+        {
+          "id": 3,
+          "maxSpeed": 179.53886579486246,
+          "distanceTravelled": 7963.578476491775,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 28.343533304291235,
+          "errorTicks": 87,
+          "maxContinuousErrorTicks": 22,
+          "name": "Mochi",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 51.433333333331696
+        },
+        {
+          "id": 4,
+          "maxSpeed": 191.9844351343811,
+          "distanceTravelled": 8083.651261823821,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 27.762391426146003,
+          "errorTicks": 65,
+          "maxContinuousErrorTicks": 22,
+          "name": "Sunny",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 48.93333333333184
+        }
+      ]
+    },
+    {
+      "seed": "tux-race-study-109",
+      "ticks": 3326,
+      "elapsed": 52.43333333333164,
+      "modelSeconds": 55.43333333333333,
+      "traceSha256": "1a64af73c785c4f896f3b6e1d59f7184d223ef513c13057a33639cb9ddc4f678",
+      "result": {
+        "standings": [
+          {
+            "id": 2,
+            "name": "Nova",
+            "rank": 1,
+            "lap": 3,
+            "finished": true,
+            "time": 47.43333333333192,
+            "progress": 7946.381441150928
+          },
+          {
+            "id": 1,
+            "name": "Pip",
+            "rank": 2,
+            "lap": 3,
+            "finished": true,
+            "time": 48.01666666666522,
+            "progress": 7948.904251054762
+          },
+          {
+            "id": 4,
+            "name": "Sunny",
+            "rank": 3,
+            "lap": 3,
+            "finished": true,
+            "time": 48.866666666665175,
+            "progress": 7945.83723873131
+          },
+          {
+            "id": 0,
+            "name": "Tux",
+            "rank": 4,
+            "lap": 3,
+            "finished": true,
+            "time": 50.41666666666509,
+            "progress": 7946.630189346231
+          },
+          {
+            "id": 3,
+            "name": "Mochi",
+            "rank": 5,
+            "lap": 3,
+            "finished": true,
+            "time": 52.43333333333164,
+            "progress": 7948.82112985924
+          }
+        ],
+        "time": 52.43333333333164
+      },
+      "telemetry": {
+        "collisions": 53,
+        "walls": 0,
+        "drifts": 19,
+        "pickups": 21,
+        "items": 17,
+        "hits": 3,
+        "blocks": 3,
+        "checkpoints": 185,
+        "laps": 15,
+        "recoveryTicks": 0
+      },
+      "resourceMax": {
+        "events": 64,
+        "projectiles": 1,
+        "hazards": 2
+      },
+      "racers": [
+        {
+          "id": 0,
+          "maxSpeed": 190.8218987691929,
+          "distanceTravelled": 7987.021646024785,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.26666666666666666,
+          "maxDistanceFromCenter": 24.040645855644517,
+          "errorTicks": 109,
+          "maxContinuousErrorTicks": 22,
+          "name": "Tux",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 50.41666666666509
+        },
+        {
+          "id": 1,
+          "maxSpeed": 185.42388657259696,
+          "distanceTravelled": 7726.004447884744,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 37.96490379046628,
+          "errorTicks": 87,
+          "maxContinuousErrorTicks": 22,
+          "name": "Pip",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 48.01666666666522
+        },
+        {
+          "id": 2,
+          "maxSpeed": 196.09245419185726,
+          "distanceTravelled": 8147.016252993702,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 26.827988821998353,
+          "errorTicks": 87,
+          "maxContinuousErrorTicks": 22,
+          "name": "Nova",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 47.43333333333192
+        },
+        {
+          "id": 3,
+          "maxSpeed": 181.1103333913416,
+          "distanceTravelled": 7960.559656428042,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 28.343533304291235,
+          "errorTicks": 65,
+          "maxContinuousErrorTicks": 22,
+          "name": "Mochi",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 52.43333333333164
+        },
+        {
+          "id": 4,
+          "maxSpeed": 190.5997886755765,
+          "distanceTravelled": 8108.353572458785,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 20.99943199002511,
+          "errorTicks": 65,
+          "maxContinuousErrorTicks": 22,
+          "name": "Sunny",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 48.866666666665175
+        }
+      ]
+    },
+    {
+      "seed": "tux-race-study-110",
+      "ticks": 3316,
+      "elapsed": 52.26666666666498,
+      "modelSeconds": 55.266666666666666,
+      "traceSha256": "596aab5a76628e602c3807747a7a4e202c3c75fb47ab45eee1b1ce785abeed4f",
+      "result": {
+        "standings": [
+          {
+            "id": 2,
+            "name": "Nova",
+            "rank": 1,
+            "lap": 3,
+            "finished": true,
+            "time": 47.36666666666526,
+            "progress": 7945.772629394212
+          },
+          {
+            "id": 1,
+            "name": "Pip",
+            "rank": 2,
+            "lap": 3,
+            "finished": true,
+            "time": 48.4166666666652,
+            "progress": 7949.194237661477
+          },
+          {
+            "id": 0,
+            "name": "Tux",
+            "rank": 3,
+            "lap": 3,
+            "finished": true,
+            "time": 49.11666666666516,
+            "progress": 7949.2127893547695
+          },
+          {
+            "id": 4,
+            "name": "Sunny",
+            "rank": 4,
+            "lap": 3,
+            "finished": true,
+            "time": 51.23333333333171,
+            "progress": 7944.696369921071
+          },
+          {
+            "id": 3,
+            "name": "Mochi",
+            "rank": 5,
+            "lap": 3,
+            "finished": true,
+            "time": 52.26666666666498,
+            "progress": 7947.865302678137
+          }
+        ],
+        "time": 52.26666666666498
+      },
+      "telemetry": {
+        "collisions": 87,
+        "walls": 0,
+        "drifts": 13,
+        "pickups": 23,
+        "items": 21,
+        "hits": 3,
+        "blocks": 0,
+        "checkpoints": 185,
+        "laps": 15,
+        "recoveryTicks": 0
+      },
+      "resourceMax": {
+        "events": 64,
+        "projectiles": 1,
+        "hazards": 3
+      },
+      "racers": [
+        {
+          "id": 0,
+          "maxSpeed": 190.18088326105382,
+          "distanceTravelled": 8036.418935501788,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 36.16180973266395,
+          "errorTicks": 87,
+          "maxContinuousErrorTicks": 22,
+          "name": "Tux",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 49.11666666666516
+        },
+        {
+          "id": 1,
+          "maxSpeed": 185.41693844340818,
+          "distanceTravelled": 7779.146117568102,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 42.01247796654793,
+          "errorTicks": 87,
+          "maxContinuousErrorTicks": 22,
+          "name": "Pip",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 48.4166666666652
+        },
+        {
+          "id": 2,
+          "maxSpeed": 196.37191688107444,
+          "distanceTravelled": 8148.515668203195,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 26.827988821998353,
+          "errorTicks": 87,
+          "maxContinuousErrorTicks": 22,
+          "name": "Nova",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 47.36666666666526
+        },
+        {
+          "id": 3,
+          "maxSpeed": 179.25668445075212,
+          "distanceTravelled": 7927.760570144211,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 34.772807899197026,
+          "errorTicks": 65,
+          "maxContinuousErrorTicks": 22,
+          "name": "Mochi",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 52.26666666666498
+        },
+        {
+          "id": 4,
+          "maxSpeed": 190.59351145899618,
+          "distanceTravelled": 8104.140368674382,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 34.05538725775791,
+          "errorTicks": 87,
+          "maxContinuousErrorTicks": 22,
+          "name": "Sunny",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 51.23333333333171
+        }
+      ]
+    },
+    {
+      "seed": "tux-race-study-111",
+      "ticks": 3256,
+      "elapsed": 51.26666666666504,
+      "modelSeconds": 54.266666666666666,
+      "traceSha256": "960fd900ea0c044c6b4393d558f3aa5e693bb77705940bc26100c16169c0cb8a",
+      "result": {
+        "standings": [
+          {
+            "id": 2,
+            "name": "Nova",
+            "rank": 1,
+            "lap": 3,
+            "finished": true,
+            "time": 47.44999999999859,
+            "progress": 7945.634022433131
+          },
+          {
+            "id": 1,
+            "name": "Pip",
+            "rank": 2,
+            "lap": 3,
+            "finished": true,
+            "time": 49.74999999999846,
+            "progress": 7948.443136029258
+          },
+          {
+            "id": 4,
+            "name": "Sunny",
+            "rank": 3,
+            "lap": 3,
+            "finished": true,
+            "time": 50.19999999999843,
+            "progress": 7945.891033596679
+          },
+          {
+            "id": 0,
+            "name": "Tux",
+            "rank": 4,
+            "lap": 3,
+            "finished": true,
+            "time": 50.29999999999843,
+            "progress": 7948.17379831084
+          },
+          {
+            "id": 3,
+            "name": "Mochi",
+            "rank": 5,
+            "lap": 3,
+            "finished": true,
+            "time": 51.26666666666504,
+            "progress": 7946.830893443111
+          }
+        ],
+        "time": 51.26666666666504
+      },
+      "telemetry": {
+        "collisions": 92,
+        "walls": 0,
+        "drifts": 10,
+        "pickups": 21,
+        "items": 20,
+        "hits": 3,
+        "blocks": 3,
+        "checkpoints": 185,
+        "laps": 15,
+        "recoveryTicks": 0
+      },
+      "resourceMax": {
+        "events": 64,
+        "projectiles": 1,
+        "hazards": 2
+      },
+      "racers": [
+        {
+          "id": 0,
+          "maxSpeed": 190.14067802801213,
+          "distanceTravelled": 8048.569560478555,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.15,
+          "maxDistanceFromCenter": 35.59517468476516,
+          "errorTicks": 87,
+          "maxContinuousErrorTicks": 22,
+          "name": "Tux",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 50.29999999999843
+        },
+        {
+          "id": 1,
+          "maxSpeed": 187.24997971088857,
+          "distanceTravelled": 7844.57527934986,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 38.4131684751831,
+          "errorTicks": 65,
+          "maxContinuousErrorTicks": 22,
+          "name": "Pip",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 49.74999999999846
+        },
+        {
+          "id": 2,
+          "maxSpeed": 197.65788297270768,
+          "distanceTravelled": 8149.961094369451,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 26.827988821998353,
+          "errorTicks": 87,
+          "maxContinuousErrorTicks": 22,
+          "name": "Nova",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 47.44999999999859
+        },
+        {
+          "id": 3,
+          "maxSpeed": 179.8938747676376,
+          "distanceTravelled": 7894.983243832547,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 40.001501073961045,
+          "errorTicks": 87,
+          "maxContinuousErrorTicks": 22,
+          "name": "Mochi",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 51.26666666666504
+        },
+        {
+          "id": 4,
+          "maxSpeed": 190.6040400563122,
+          "distanceTravelled": 8138.368378162296,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 26.318981522493676,
+          "errorTicks": 65,
+          "maxContinuousErrorTicks": 22,
+          "name": "Sunny",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 50.19999999999843
+        }
+      ]
+    },
+    {
+      "seed": "tux-race-study-112",
+      "ticks": 3384,
+      "elapsed": 53.39999999999825,
+      "modelSeconds": 56.4,
+      "traceSha256": "bcf447345ecca2701a809ddc358c148dfd701836dc4d42da54fc5a7e47dbf9f7",
+      "result": {
+        "standings": [
+          {
+            "id": 0,
+            "name": "Tux",
+            "rank": 1,
+            "lap": 3,
+            "finished": true,
+            "time": 48.4666666666652,
+            "progress": 7948.26695688797
+          },
+          {
+            "id": 2,
+            "name": "Nova",
+            "rank": 2,
+            "lap": 3,
+            "finished": true,
+            "time": 48.549999999998526,
+            "progress": 7947.342198833912
+          },
+          {
+            "id": 1,
+            "name": "Pip",
+            "rank": 3,
+            "lap": 3,
+            "finished": true,
+            "time": 49.03333333333183,
+            "progress": 7948.732558381906
+          },
+          {
+            "id": 4,
+            "name": "Sunny",
+            "rank": 4,
+            "lap": 3,
+            "finished": true,
+            "time": 50.41666666666509,
+            "progress": 7944.5576602427045
+          },
+          {
+            "id": 3,
+            "name": "Mochi",
+            "rank": 5,
+            "lap": 3,
+            "finished": true,
+            "time": 53.39999999999825,
+            "progress": 7947.121291050922
+          }
+        ],
+        "time": 53.39999999999825
+      },
+      "telemetry": {
+        "collisions": 80,
+        "walls": 0,
+        "drifts": 16,
+        "pickups": 21,
+        "items": 18,
+        "hits": 4,
+        "blocks": 0,
+        "checkpoints": 185,
+        "laps": 15,
+        "recoveryTicks": 0
+      },
+      "resourceMax": {
+        "events": 64,
+        "projectiles": 2,
+        "hazards": 3
+      },
+      "racers": [
+        {
+          "id": 0,
+          "maxSpeed": 189.87852886269573,
+          "distanceTravelled": 7944.836767013168,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 35.33454152837858,
+          "errorTicks": 87,
+          "maxContinuousErrorTicks": 22,
+          "name": "Tux",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 48.4666666666652
+        },
+        {
+          "id": 1,
+          "maxSpeed": 188.70147289679645,
+          "distanceTravelled": 7895.307866127559,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 34.56158149810268,
+          "errorTicks": 87,
+          "maxContinuousErrorTicks": 22,
+          "name": "Pip",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 49.03333333333183
+        },
+        {
+          "id": 2,
+          "maxSpeed": 196.62046790895812,
+          "distanceTravelled": 8162.152205246802,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 26.827988821998353,
+          "errorTicks": 87,
+          "maxContinuousErrorTicks": 22,
+          "name": "Nova",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 48.549999999998526
+        },
+        {
+          "id": 3,
+          "maxSpeed": 180.1543774051792,
+          "distanceTravelled": 7969.710410762552,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 34.61392282150968,
+          "errorTicks": 87,
+          "maxContinuousErrorTicks": 22,
+          "name": "Mochi",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 53.39999999999825
+        },
+        {
+          "id": 4,
+          "maxSpeed": 190.56492846583424,
+          "distanceTravelled": 8156.533350160091,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 28.52817568929335,
+          "errorTicks": 87,
+          "maxContinuousErrorTicks": 22,
+          "name": "Sunny",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 50.41666666666509
+        }
+      ]
+    },
+    {
+      "seed": "tux-race-study-113",
+      "ticks": 3319,
+      "elapsed": 52.31666666666498,
+      "modelSeconds": 55.31666666666666,
+      "traceSha256": "2afabe51cffa2a7c8d1ea84f6e63a592f13d55f2be45dd3281a5f5d41ed2cee0",
+      "result": {
+        "standings": [
+          {
+            "id": 2,
+            "name": "Nova",
+            "rank": 1,
+            "lap": 3,
+            "finished": true,
+            "time": 47.44999999999859,
+            "progress": 7948.081818087799
+          },
+          {
+            "id": 1,
+            "name": "Pip",
+            "rank": 2,
+            "lap": 3,
+            "finished": true,
+            "time": 48.61666666666519,
+            "progress": 7947.995208790366
+          },
+          {
+            "id": 4,
+            "name": "Sunny",
+            "rank": 3,
+            "lap": 3,
+            "finished": true,
+            "time": 49.099999999998495,
+            "progress": 7946.633195105067
+          },
+          {
+            "id": 0,
+            "name": "Tux",
+            "rank": 4,
+            "lap": 3,
+            "finished": true,
+            "time": 49.183333333331824,
+            "progress": 7949.0871212237025
+          },
+          {
+            "id": 3,
+            "name": "Mochi",
+            "rank": 5,
+            "lap": 3,
+            "finished": true,
+            "time": 52.31666666666498,
+            "progress": 7947.88454369672
+          }
+        ],
+        "time": 52.31666666666498
+      },
+      "telemetry": {
+        "collisions": 65,
+        "walls": 0,
+        "drifts": 17,
+        "pickups": 19,
+        "items": 17,
+        "hits": 1,
+        "blocks": 1,
+        "checkpoints": 185,
+        "laps": 15,
+        "recoveryTicks": 0
+      },
+      "resourceMax": {
+        "events": 64,
+        "projectiles": 1,
+        "hazards": 2
+      },
+      "racers": [
+        {
+          "id": 0,
+          "maxSpeed": 191.2220910816869,
+          "distanceTravelled": 8066.758889059138,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 34.4521429203394,
+          "errorTicks": 87,
+          "maxContinuousErrorTicks": 22,
+          "name": "Tux",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 49.183333333331824
+        },
+        {
+          "id": 1,
+          "maxSpeed": 185.1711699171604,
+          "distanceTravelled": 7840.42434024455,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 34.58274074916817,
+          "errorTicks": 87,
+          "maxContinuousErrorTicks": 22,
+          "name": "Pip",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 48.61666666666519
+        },
+        {
+          "id": 2,
+          "maxSpeed": 196.61304334652652,
+          "distanceTravelled": 8149.677556323539,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 26.827988821998353,
+          "errorTicks": 65,
+          "maxContinuousErrorTicks": 22,
+          "name": "Nova",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 47.44999999999859
+        },
+        {
+          "id": 3,
+          "maxSpeed": 179.15877952341756,
+          "distanceTravelled": 7943.352151143468,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 28.343533304291235,
+          "errorTicks": 65,
+          "maxContinuousErrorTicks": 22,
+          "name": "Mochi",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 52.31666666666498
+        },
+        {
+          "id": 4,
+          "maxSpeed": 189.94126608196996,
+          "distanceTravelled": 8102.572853544451,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 28.00171840165888,
+          "errorTicks": 87,
+          "maxContinuousErrorTicks": 22,
+          "name": "Sunny",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 49.099999999998495
+        }
+      ]
+    },
+    {
+      "seed": "tux-race-study-114",
+      "ticks": 3392,
+      "elapsed": 53.533333333331576,
+      "modelSeconds": 56.53333333333333,
+      "traceSha256": "f49e1345957769a49aef79c3adfd45419906b89193e0e079fbc5f3b27ac23f6a",
+      "result": {
+        "standings": [
+          {
+            "id": 2,
+            "name": "Nova",
+            "rank": 1,
+            "lap": 3,
+            "finished": true,
+            "time": 47.43333333333192,
+            "progress": 7948.430010128393
+          },
+          {
+            "id": 1,
+            "name": "Pip",
+            "rank": 2,
+            "lap": 3,
+            "finished": true,
+            "time": 48.26666666666521,
+            "progress": 7949.27405646637
+          },
+          {
+            "id": 0,
+            "name": "Tux",
+            "rank": 3,
+            "lap": 3,
+            "finished": true,
+            "time": 48.899999999998506,
+            "progress": 7948.148388385987
+          },
+          {
+            "id": 4,
+            "name": "Sunny",
+            "rank": 4,
+            "lap": 3,
+            "finished": true,
+            "time": 49.13333333333183,
+            "progress": 7944.690226996007
+          },
+          {
+            "id": 3,
+            "name": "Mochi",
+            "rank": 5,
+            "lap": 3,
+            "finished": true,
+            "time": 53.533333333331576,
+            "progress": 7947.598858537434
+          }
+        ],
+        "time": 53.533333333331576
+      },
+      "telemetry": {
+        "collisions": 74,
+        "walls": 0,
+        "drifts": 12,
+        "pickups": 18,
+        "items": 13,
+        "hits": 2,
+        "blocks": 1,
+        "checkpoints": 185,
+        "laps": 15,
+        "recoveryTicks": 0
+      },
+      "resourceMax": {
+        "events": 64,
+        "projectiles": 1,
+        "hazards": 3
+      },
+      "racers": [
+        {
+          "id": 0,
+          "maxSpeed": 190.0433231448533,
+          "distanceTravelled": 8008.555311882255,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 35.1249074167649,
+          "errorTicks": 87,
+          "maxContinuousErrorTicks": 22,
+          "name": "Tux",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 48.899999999998506
+        },
+        {
+          "id": 1,
+          "maxSpeed": 184.89758312228716,
+          "distanceTravelled": 7784.5923219419155,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 33.90263154130009,
+          "errorTicks": 87,
+          "maxContinuousErrorTicks": 22,
+          "name": "Pip",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 48.26666666666521
+        },
+        {
+          "id": 2,
+          "maxSpeed": 196.55908367036903,
+          "distanceTravelled": 8152.782871877754,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 26.827988821998353,
+          "errorTicks": 87,
+          "maxContinuousErrorTicks": 22,
+          "name": "Nova",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 47.43333333333192
+        },
+        {
+          "id": 3,
+          "maxSpeed": 179.66781020620866,
+          "distanceTravelled": 7976.21446850233,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 32.969973221968935,
+          "errorTicks": 93,
+          "maxContinuousErrorTicks": 22,
+          "name": "Mochi",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 53.533333333331576
+        },
+        {
+          "id": 4,
+          "maxSpeed": 190.0240363795236,
+          "distanceTravelled": 8111.011113107262,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 27.899391091364407,
+          "errorTicks": 87,
+          "maxContinuousErrorTicks": 22,
+          "name": "Sunny",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 49.13333333333183
+        }
+      ]
+    },
+    {
+      "seed": "tux-race-study-115",
+      "ticks": 3432,
+      "elapsed": 54.199999999998205,
+      "modelSeconds": 57.199999999999996,
+      "traceSha256": "4920c93844b058a5b15c61d8ea2eb712de0eb9e013edaac714116fbe6e51db97",
+      "result": {
+        "standings": [
+          {
+            "id": 0,
+            "name": "Tux",
+            "rank": 1,
+            "lap": 3,
+            "finished": true,
+            "time": 48.59999999999852,
+            "progress": 7947.118963237631
+          },
+          {
+            "id": 1,
+            "name": "Pip",
+            "rank": 2,
+            "lap": 3,
+            "finished": true,
+            "time": 49.916666666665115,
+            "progress": 7947.70705685434
+          },
+          {
+            "id": 4,
+            "name": "Sunny",
+            "rank": 3,
+            "lap": 3,
+            "finished": true,
+            "time": 50.89999999999839,
+            "progress": 7946.937829305979
+          },
+          {
+            "id": 2,
+            "name": "Nova",
+            "rank": 4,
+            "lap": 3,
+            "finished": true,
+            "time": 51.06666666666505,
+            "progress": 7946.092586177774
+          },
+          {
+            "id": 3,
+            "name": "Mochi",
+            "rank": 5,
+            "lap": 3,
+            "finished": true,
+            "time": 54.199999999998205,
+            "progress": 7948.904118245391
+          }
+        ],
+        "time": 54.199999999998205
+      },
+      "telemetry": {
+        "collisions": 141,
+        "walls": 0,
+        "drifts": 16,
+        "pickups": 24,
+        "items": 21,
+        "hits": 8,
+        "blocks": 0,
+        "checkpoints": 185,
+        "laps": 15,
+        "recoveryTicks": 0
+      },
+      "resourceMax": {
+        "events": 64,
+        "projectiles": 2,
+        "hazards": 3
+      },
+      "racers": [
+        {
+          "id": 0,
+          "maxSpeed": 188.7044965449169,
+          "distanceTravelled": 7956.599048846985,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 35.93651916215291,
+          "errorTicks": 65,
+          "maxContinuousErrorTicks": 22,
+          "name": "Tux",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 48.59999999999852
+        },
+        {
+          "id": 1,
+          "maxSpeed": 185.54457270487566,
+          "distanceTravelled": 7876.555186293594,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 34.140488337109836,
+          "errorTicks": 87,
+          "maxContinuousErrorTicks": 22,
+          "name": "Pip",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 49.916666666665115
+        },
+        {
+          "id": 2,
+          "maxSpeed": 196.141089524903,
+          "distanceTravelled": 8131.736989358772,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.13333333333333333,
+          "maxDistanceFromCenter": 35.697947328875806,
+          "errorTicks": 87,
+          "maxContinuousErrorTicks": 22,
+          "name": "Nova",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 51.06666666666505
+        },
+        {
+          "id": 3,
+          "maxSpeed": 179.66153627285354,
+          "distanceTravelled": 7920.472269175367,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 28.343533304291235,
+          "errorTicks": 109,
+          "maxContinuousErrorTicks": 22,
+          "name": "Mochi",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 54.199999999998205
+        },
+        {
+          "id": 4,
+          "maxSpeed": 191.23982085179753,
+          "distanceTravelled": 8125.018247653528,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 33.5191332257178,
+          "errorTicks": 87,
+          "maxContinuousErrorTicks": 22,
+          "name": "Sunny",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 50.89999999999839
+        }
+      ]
+    },
+    {
+      "seed": "tux-race-study-116",
+      "ticks": 3265,
+      "elapsed": 51.41666666666503,
+      "modelSeconds": 54.416666666666664,
+      "traceSha256": "4680ca84f40d3385b0d335d928dfaf782addcc48c838ef38230c0c4f67dde4ab",
+      "result": {
+        "standings": [
+          {
+            "id": 2,
+            "name": "Nova",
+            "rank": 1,
+            "lap": 3,
+            "finished": true,
+            "time": 47.43333333333192,
+            "progress": 7945.831737405598
+          },
+          {
+            "id": 1,
+            "name": "Pip",
+            "rank": 2,
+            "lap": 3,
+            "finished": true,
+            "time": 48.91666666666517,
+            "progress": 7949.802774447458
+          },
+          {
+            "id": 4,
+            "name": "Sunny",
+            "rank": 3,
+            "lap": 3,
+            "finished": true,
+            "time": 48.949999999998504,
+            "progress": 7946.378410683103
+          },
+          {
+            "id": 0,
+            "name": "Tux",
+            "rank": 4,
+            "lap": 3,
+            "finished": true,
+            "time": 49.449999999998475,
+            "progress": 7947.533381385405
+          },
+          {
+            "id": 3,
+            "name": "Mochi",
+            "rank": 5,
+            "lap": 3,
+            "finished": true,
+            "time": 51.41666666666503,
+            "progress": 7947.677698304519
+          }
+        ],
+        "time": 51.41666666666503
+      },
+      "telemetry": {
+        "collisions": 67,
+        "walls": 0,
+        "drifts": 13,
+        "pickups": 8,
+        "items": 3,
+        "hits": 0,
+        "blocks": 0,
+        "checkpoints": 185,
+        "laps": 15,
+        "recoveryTicks": 0
+      },
+      "resourceMax": {
+        "events": 45,
+        "projectiles": 1,
+        "hazards": 1
+      },
+      "racers": [
+        {
+          "id": 0,
+          "maxSpeed": 189.14781392074295,
+          "distanceTravelled": 8108.615248693377,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 35.57389953744898,
+          "errorTicks": 87,
+          "maxContinuousErrorTicks": 22,
+          "name": "Tux",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 49.449999999998475
+        },
+        {
+          "id": 1,
+          "maxSpeed": 187.3657436905022,
+          "distanceTravelled": 7872.466510446787,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 35.07317540669946,
+          "errorTicks": 87,
+          "maxContinuousErrorTicks": 22,
+          "name": "Pip",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 48.91666666666517
+        },
+        {
+          "id": 2,
+          "maxSpeed": 197.16722439889296,
+          "distanceTravelled": 8148.62767543044,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 26.827988821998353,
+          "errorTicks": 65,
+          "maxContinuousErrorTicks": 22,
+          "name": "Nova",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 47.43333333333192
+        },
+        {
+          "id": 3,
+          "maxSpeed": 181.89224409926405,
+          "distanceTravelled": 7963.348641781575,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 28.343533304291235,
+          "errorTicks": 87,
+          "maxContinuousErrorTicks": 22,
+          "name": "Mochi",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 51.41666666666503
+        },
+        {
+          "id": 4,
+          "maxSpeed": 190.71052397920636,
+          "distanceTravelled": 8085.734314920533,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 27.357730666557767,
+          "errorTicks": 87,
+          "maxContinuousErrorTicks": 22,
+          "name": "Sunny",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 48.949999999998504
+        }
+      ]
+    },
+    {
+      "seed": "tux-race-study-117",
+      "ticks": 3316,
+      "elapsed": 52.26666666666498,
+      "modelSeconds": 55.266666666666666,
+      "traceSha256": "11c12cbfc987fcc1c9844e3d4fd04f0dd09a0ab217b76a47e77d620895d5d759",
+      "result": {
+        "standings": [
+          {
+            "id": 2,
+            "name": "Nova",
+            "rank": 1,
+            "lap": 3,
+            "finished": true,
+            "time": 47.48333333333192,
+            "progress": 7946.689491935111
+          },
+          {
+            "id": 1,
+            "name": "Pip",
+            "rank": 2,
+            "lap": 3,
+            "finished": true,
+            "time": 48.69999999999852,
+            "progress": 7948.412955755073
+          },
+          {
+            "id": 4,
+            "name": "Sunny",
+            "rank": 3,
+            "lap": 3,
+            "finished": true,
+            "time": 49.066666666665164,
+            "progress": 7946.556037243192
+          },
+          {
+            "id": 0,
+            "name": "Tux",
+            "rank": 4,
+            "lap": 3,
+            "finished": true,
+            "time": 49.34999999999848,
+            "progress": 7947.947810141304
+          },
+          {
+            "id": 3,
+            "name": "Mochi",
+            "rank": 5,
+            "lap": 3,
+            "finished": true,
+            "time": 52.26666666666498,
+            "progress": 7947.735378028137
+          }
+        ],
+        "time": 52.26666666666498
+      },
+      "telemetry": {
+        "collisions": 68,
+        "walls": 0,
+        "drifts": 15,
+        "pickups": 12,
+        "items": 7,
+        "hits": 1,
+        "blocks": 0,
+        "checkpoints": 185,
+        "laps": 15,
+        "recoveryTicks": 0
+      },
+      "resourceMax": {
+        "events": 56,
+        "projectiles": 1,
+        "hazards": 2
+      },
+      "racers": [
+        {
+          "id": 0,
+          "maxSpeed": 190.6916796539928,
+          "distanceTravelled": 8092.947252766503,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 35.891429980116044,
+          "errorTicks": 87,
+          "maxContinuousErrorTicks": 22,
+          "name": "Tux",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 49.34999999999848
+        },
+        {
+          "id": 1,
+          "maxSpeed": 184.99073063074843,
+          "distanceTravelled": 7842.688060091945,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 34.51314892523399,
+          "errorTicks": 87,
+          "maxContinuousErrorTicks": 22,
+          "name": "Pip",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 48.69999999999852
+        },
+        {
+          "id": 2,
+          "maxSpeed": 197.4278331547855,
+          "distanceTravelled": 8158.940200025693,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 26.827988821998353,
+          "errorTicks": 87,
+          "maxContinuousErrorTicks": 22,
+          "name": "Nova",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 47.48333333333192
+        },
+        {
+          "id": 3,
+          "maxSpeed": 179.36944082263292,
+          "distanceTravelled": 7945.1627721936065,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 33.88755211381664,
+          "errorTicks": 87,
+          "maxContinuousErrorTicks": 22,
+          "name": "Mochi",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 52.26666666666498
+        },
+        {
+          "id": 4,
+          "maxSpeed": 189.76667941870576,
+          "distanceTravelled": 8097.327207407803,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 28.850433461586963,
+          "errorTicks": 87,
+          "maxContinuousErrorTicks": 22,
+          "name": "Sunny",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 49.066666666665164
+        }
+      ]
+    },
+    {
+      "seed": "tux-race-study-118",
+      "ticks": 3337,
+      "elapsed": 52.61666666666496,
+      "modelSeconds": 55.61666666666667,
+      "traceSha256": "44a1a643086fee7e90ace976fde4e7ab9c0564407c2e9816c24578f06529eb4e",
+      "result": {
+        "standings": [
+          {
+            "id": 2,
+            "name": "Nova",
+            "rank": 1,
+            "lap": 3,
+            "finished": true,
+            "time": 47.43333333333192,
+            "progress": 7946.842019619011
+          },
+          {
+            "id": 1,
+            "name": "Pip",
+            "rank": 2,
+            "lap": 3,
+            "finished": true,
+            "time": 48.48333333333186,
+            "progress": 7948.814220714691
+          },
+          {
+            "id": 4,
+            "name": "Sunny",
+            "rank": 3,
+            "lap": 3,
+            "finished": true,
+            "time": 48.899999999998506,
+            "progress": 7945.042204942514
+          },
+          {
+            "id": 0,
+            "name": "Tux",
+            "rank": 4,
+            "lap": 3,
+            "finished": true,
+            "time": 49.19999999999849,
+            "progress": 7946.401267777808
+          },
+          {
+            "id": 3,
+            "name": "Mochi",
+            "rank": 5,
+            "lap": 3,
+            "finished": true,
+            "time": 52.61666666666496,
+            "progress": 7947.110409025265
+          }
+        ],
+        "time": 52.61666666666496
+      },
+      "telemetry": {
+        "collisions": 63,
+        "walls": 0,
+        "drifts": 15,
+        "pickups": 23,
+        "items": 22,
+        "hits": 1,
+        "blocks": 2,
+        "checkpoints": 185,
+        "laps": 15,
+        "recoveryTicks": 0
+      },
+      "resourceMax": {
+        "events": 64,
+        "projectiles": 1,
+        "hazards": 2
+      },
+      "racers": [
+        {
+          "id": 0,
+          "maxSpeed": 192.8273248642453,
+          "distanceTravelled": 8101.908909866988,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 36.04446769658024,
+          "errorTicks": 87,
+          "maxContinuousErrorTicks": 22,
+          "name": "Tux",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 49.19999999999849
+        },
+        {
+          "id": 1,
+          "maxSpeed": 186.78979387512462,
+          "distanceTravelled": 7826.769485749177,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 36.125009511023265,
+          "errorTicks": 87,
+          "maxContinuousErrorTicks": 22,
+          "name": "Pip",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 48.48333333333186
+        },
+        {
+          "id": 2,
+          "maxSpeed": 196.62046790895812,
+          "distanceTravelled": 8147.879403598116,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 26.827988821998353,
+          "errorTicks": 87,
+          "maxContinuousErrorTicks": 22,
+          "name": "Nova",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 47.43333333333192
+        },
+        {
+          "id": 3,
+          "maxSpeed": 180.01047011891214,
+          "distanceTravelled": 7984.850530742233,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 28.343533304291235,
+          "errorTicks": 65,
+          "maxContinuousErrorTicks": 22,
+          "name": "Mochi",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 52.61666666666496
+        },
+        {
+          "id": 4,
+          "maxSpeed": 190.62199035372402,
+          "distanceTravelled": 8088.012840001515,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 28.759021696738706,
+          "errorTicks": 87,
+          "maxContinuousErrorTicks": 22,
+          "name": "Sunny",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 48.899999999998506
+        }
+      ]
+    },
+    {
+      "seed": "tux-race-study-119",
+      "ticks": 3319,
+      "elapsed": 52.31666666666498,
+      "modelSeconds": 55.31666666666666,
+      "traceSha256": "9fc8853fe451c89308cfbf3a85fc789df904fa814355c317e4039fe8c936040b",
+      "result": {
+        "standings": [
+          {
+            "id": 2,
+            "name": "Nova",
+            "rank": 1,
+            "lap": 3,
+            "finished": true,
+            "time": 47.48333333333192,
+            "progress": 7947.993910259433
+          },
+          {
+            "id": 1,
+            "name": "Pip",
+            "rank": 2,
+            "lap": 3,
+            "finished": true,
+            "time": 48.33333333333187,
+            "progress": 7949.331434882683
+          },
+          {
+            "id": 4,
+            "name": "Sunny",
+            "rank": 3,
+            "lap": 3,
+            "finished": true,
+            "time": 48.91666666666517,
+            "progress": 7946.080241420005
+          },
+          {
+            "id": 0,
+            "name": "Tux",
+            "rank": 4,
+            "lap": 3,
+            "finished": true,
+            "time": 49.533333333331804,
+            "progress": 7946.531426952322
+          },
+          {
+            "id": 3,
+            "name": "Mochi",
+            "rank": 5,
+            "lap": 3,
+            "finished": true,
+            "time": 52.31666666666498,
+            "progress": 7948.491465830086
+          }
+        ],
+        "time": 52.31666666666498
+      },
+      "telemetry": {
+        "collisions": 57,
+        "walls": 0,
+        "drifts": 11,
+        "pickups": 19,
+        "items": 17,
+        "hits": 1,
+        "blocks": 2,
+        "checkpoints": 185,
+        "laps": 15,
+        "recoveryTicks": 0
+      },
+      "resourceMax": {
+        "events": 64,
+        "projectiles": 1,
+        "hazards": 1
+      },
+      "racers": [
+        {
+          "id": 0,
+          "maxSpeed": 192.00344543377227,
+          "distanceTravelled": 8136.447491125827,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 35.61828296524954,
+          "errorTicks": 87,
+          "maxContinuousErrorTicks": 22,
+          "name": "Tux",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 49.533333333331804
+        },
+        {
+          "id": 1,
+          "maxSpeed": 185.63584467977205,
+          "distanceTravelled": 7799.442194593245,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 34.6013836503896,
+          "errorTicks": 85,
+          "maxContinuousErrorTicks": 22,
+          "name": "Pip",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 48.33333333333187
+        },
+        {
+          "id": 2,
+          "maxSpeed": 196.63510747414063,
+          "distanceTravelled": 8154.976078869313,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 26.827988821998353,
+          "errorTicks": 87,
+          "maxContinuousErrorTicks": 22,
+          "name": "Nova",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 47.48333333333192
+        },
+        {
+          "id": 3,
+          "maxSpeed": 179.44829569365064,
+          "distanceTravelled": 7971.093597993233,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 33.936143891216005,
+          "errorTicks": 87,
+          "maxContinuousErrorTicks": 22,
+          "name": "Mochi",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 52.31666666666498
+        },
+        {
+          "id": 4,
+          "maxSpeed": 191.13495931494603,
+          "distanceTravelled": 8095.852009516472,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 32.44719000321481,
+          "errorTicks": 65,
+          "maxContinuousErrorTicks": 22,
+          "name": "Sunny",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 48.91666666666517
+        }
+      ]
+    },
+    {
+      "seed": "tux-race-study-120",
+      "ticks": 3251,
+      "elapsed": 51.18333333333171,
+      "modelSeconds": 54.18333333333333,
+      "traceSha256": "18aebe1f987387a71ac5ba7be731dce37b4646cee113f735ad97fc35b40d223a",
+      "result": {
+        "standings": [
+          {
+            "id": 2,
+            "name": "Nova",
+            "rank": 1,
+            "lap": 3,
+            "finished": true,
+            "time": 47.44999999999859,
+            "progress": 7947.827860224716
+          },
+          {
+            "id": 1,
+            "name": "Pip",
+            "rank": 2,
+            "lap": 3,
+            "finished": true,
+            "time": 48.88333333333184,
+            "progress": 7948.357822435395
+          },
+          {
+            "id": 4,
+            "name": "Sunny",
+            "rank": 3,
+            "lap": 3,
+            "finished": true,
+            "time": 48.899999999998506,
+            "progress": 7945.165701501226
+          },
+          {
+            "id": 0,
+            "name": "Tux",
+            "rank": 4,
+            "lap": 3,
+            "finished": true,
+            "time": 49.38333333333181,
+            "progress": 7947.807244242109
+          },
+          {
+            "id": 3,
+            "name": "Mochi",
+            "rank": 5,
+            "lap": 3,
+            "finished": true,
+            "time": 51.18333333333171,
+            "progress": 7948.277871476372
+          }
+        ],
+        "time": 51.18333333333171
+      },
+      "telemetry": {
+        "collisions": 62,
+        "walls": 0,
+        "drifts": 16,
+        "pickups": 11,
+        "items": 6,
+        "hits": 0,
+        "blocks": 0,
+        "checkpoints": 185,
+        "laps": 15,
+        "recoveryTicks": 0
+      },
+      "resourceMax": {
+        "events": 54,
+        "projectiles": 0,
+        "hazards": 1
+      },
+      "racers": [
+        {
+          "id": 0,
+          "maxSpeed": 191.85975604407992,
+          "distanceTravelled": 8116.173635735021,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 35.578572394110026,
+          "errorTicks": 87,
+          "maxContinuousErrorTicks": 22,
+          "name": "Tux",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 49.38333333333181
+        },
+        {
+          "id": 1,
+          "maxSpeed": 186.57909916824954,
+          "distanceTravelled": 7871.944620450217,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 35.23281178077463,
+          "errorTicks": 65,
+          "maxContinuousErrorTicks": 22,
+          "name": "Pip",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 48.88333333333184
+        },
+        {
+          "id": 2,
+          "maxSpeed": 196.63510747414063,
+          "distanceTravelled": 8149.53734109588,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 26.827988821998353,
+          "errorTicks": 87,
+          "maxContinuousErrorTicks": 22,
+          "name": "Nova",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 47.44999999999859
+        },
+        {
+          "id": 3,
+          "maxSpeed": 180.63714858582262,
+          "distanceTravelled": 7936.452709765897,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 32.75454339008945,
+          "errorTicks": 87,
+          "maxContinuousErrorTicks": 22,
+          "name": "Mochi",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 51.18333333333171
+        },
+        {
+          "id": 4,
+          "maxSpeed": 190.6747556707778,
+          "distanceTravelled": 8094.629211614075,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 27.660911466424675,
+          "errorTicks": 91,
+          "maxContinuousErrorTicks": 22,
+          "name": "Sunny",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 48.899999999998506
+        }
+      ]
+    },
+    {
+      "seed": "tux-race-study-121",
+      "ticks": 3334,
+      "elapsed": 52.566666666664965,
+      "modelSeconds": 55.56666666666666,
+      "traceSha256": "07fbb4475d053a4ecc0fab80fbe2e868ac6a4117340d8acf9ec11f09a33f661a",
+      "result": {
+        "standings": [
+          {
+            "id": 2,
+            "name": "Nova",
+            "rank": 1,
+            "lap": 3,
+            "finished": true,
+            "time": 47.44999999999859,
+            "progress": 7948.322136391673
+          },
+          {
+            "id": 4,
+            "name": "Sunny",
+            "rank": 2,
+            "lap": 3,
+            "finished": true,
+            "time": 48.866666666665175,
+            "progress": 7946.149851815613
+          },
+          {
+            "id": 0,
+            "name": "Tux",
+            "rank": 3,
+            "lap": 3,
+            "finished": true,
+            "time": 50.43333333333175,
+            "progress": 7948.096841884855
+          },
+          {
+            "id": 1,
+            "name": "Pip",
+            "rank": 4,
+            "lap": 3,
+            "finished": true,
+            "time": 52.11666666666499,
+            "progress": 7949.3776753560305
+          },
+          {
+            "id": 3,
+            "name": "Mochi",
+            "rank": 5,
+            "lap": 3,
+            "finished": true,
+            "time": 52.566666666664965,
+            "progress": 7948.942161164214
+          }
+        ],
+        "time": 52.566666666664965
+      },
+      "telemetry": {
+        "collisions": 59,
+        "walls": 0,
+        "drifts": 18,
+        "pickups": 19,
+        "items": 17,
+        "hits": 5,
+        "blocks": 1,
+        "checkpoints": 185,
+        "laps": 15,
+        "recoveryTicks": 0
+      },
+      "resourceMax": {
+        "events": 64,
+        "projectiles": 1,
+        "hazards": 1
+      },
+      "racers": [
+        {
+          "id": 0,
+          "maxSpeed": 192.52434365185402,
+          "distanceTravelled": 8112.385311172567,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 35.755312058369675,
+          "errorTicks": 87,
+          "maxContinuousErrorTicks": 22,
+          "name": "Tux",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 50.43333333333175
+        },
+        {
+          "id": 1,
+          "maxSpeed": 185.63584467977205,
+          "distanceTravelled": 7929.821567074722,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 34.461802952178594,
+          "errorTicks": 87,
+          "maxContinuousErrorTicks": 22,
+          "name": "Pip",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 52.11666666666499
+        },
+        {
+          "id": 2,
+          "maxSpeed": 196.63510747414063,
+          "distanceTravelled": 8154.189971437654,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 26.827988821998353,
+          "errorTicks": 65,
+          "maxContinuousErrorTicks": 22,
+          "name": "Nova",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 47.44999999999859
+        },
+        {
+          "id": 3,
+          "maxSpeed": 181.31436585102952,
+          "distanceTravelled": 7988.645902599585,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 28.343533304291235,
+          "errorTicks": 87,
+          "maxContinuousErrorTicks": 22,
+          "name": "Mochi",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 52.566666666664965
+        },
+        {
+          "id": 4,
+          "maxSpeed": 189.68971114018484,
+          "distanceTravelled": 8092.169999203071,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 26.403110378107762,
+          "errorTicks": 87,
+          "maxContinuousErrorTicks": 22,
+          "name": "Sunny",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 48.866666666665175
+        }
+      ]
+    },
+    {
+      "seed": "tux-race-study-122",
+      "ticks": 3327,
+      "elapsed": 52.449999999998305,
+      "modelSeconds": 55.449999999999996,
+      "traceSha256": "13e8514dc1c8fc33897e08ee1cd717593bc8c2b6068fc3858ce230f97f593809",
+      "result": {
+        "standings": [
+          {
+            "id": 2,
+            "name": "Nova",
+            "rank": 1,
+            "lap": 3,
+            "finished": true,
+            "time": 47.383333333331926,
+            "progress": 7948.321956859048
+          },
+          {
+            "id": 1,
+            "name": "Pip",
+            "rank": 2,
+            "lap": 3,
+            "finished": true,
+            "time": 48.283333333331875,
+            "progress": 7949.797191234909
+          },
+          {
+            "id": 0,
+            "name": "Tux",
+            "rank": 3,
+            "lap": 3,
+            "finished": true,
+            "time": 48.866666666665175,
+            "progress": 7949.104250742141
+          },
+          {
+            "id": 4,
+            "name": "Sunny",
+            "rank": 4,
+            "lap": 3,
+            "finished": true,
+            "time": 48.983333333331835,
+            "progress": 7944.801719836978
+          },
+          {
+            "id": 3,
+            "name": "Mochi",
+            "rank": 5,
+            "lap": 3,
+            "finished": true,
+            "time": 52.449999999998305,
+            "progress": 7947.98526977998
+          }
+        ],
+        "time": 52.449999999998305
+      },
+      "telemetry": {
+        "collisions": 71,
+        "walls": 0,
+        "drifts": 16,
+        "pickups": 14,
+        "items": 9,
+        "hits": 1,
+        "blocks": 0,
+        "checkpoints": 185,
+        "laps": 15,
+        "recoveryTicks": 0
+      },
+      "resourceMax": {
+        "events": 61,
+        "projectiles": 0,
+        "hazards": 1
+      },
+      "racers": [
+        {
+          "id": 0,
+          "maxSpeed": 190.13688945939742,
+          "distanceTravelled": 8021.336198911581,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 34.87971710856594,
+          "errorTicks": 81,
+          "maxContinuousErrorTicks": 22,
+          "name": "Tux",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 48.866666666665175
+        },
+        {
+          "id": 1,
+          "maxSpeed": 185.40795646011722,
+          "distanceTravelled": 7785.016347153902,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 34.62721082344103,
+          "errorTicks": 87,
+          "maxContinuousErrorTicks": 22,
+          "name": "Pip",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 48.283333333331875
+        },
+        {
+          "id": 2,
+          "maxSpeed": 196.15602161610215,
+          "distanceTravelled": 8154.036316381126,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 26.827988821998353,
+          "errorTicks": 87,
+          "maxContinuousErrorTicks": 22,
+          "name": "Nova",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 47.383333333331926
+        },
+        {
+          "id": 3,
+          "maxSpeed": 179.98440931512175,
+          "distanceTravelled": 7954.723399969884,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 34.166725958462685,
+          "errorTicks": 87,
+          "maxContinuousErrorTicks": 22,
+          "name": "Mochi",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 52.449999999998305
+        },
+        {
+          "id": 4,
+          "maxSpeed": 190.6778027667073,
+          "distanceTravelled": 8100.266235211895,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 31.300408056581798,
+          "errorTicks": 87,
+          "maxContinuousErrorTicks": 22,
+          "name": "Sunny",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 48.983333333331835
+        }
+      ]
+    },
+    {
+      "seed": "tux-race-study-123",
+      "ticks": 3326,
+      "elapsed": 52.43333333333164,
+      "modelSeconds": 55.43333333333333,
+      "traceSha256": "d89c439e837cf0bdf11da46803d680f4c5c1898bf5cc0e4865850246752f3b52",
+      "result": {
+        "standings": [
+          {
+            "id": 1,
+            "name": "Pip",
+            "rank": 1,
+            "lap": 3,
+            "finished": true,
+            "time": 48.06666666666522,
+            "progress": 7948.5561741345
+          },
+          {
+            "id": 4,
+            "name": "Sunny",
+            "rank": 2,
+            "lap": 3,
+            "finished": true,
+            "time": 49.416666666665144,
+            "progress": 7944.969420418239
+          },
+          {
+            "id": 2,
+            "name": "Nova",
+            "rank": 3,
+            "lap": 3,
+            "finished": true,
+            "time": 49.916666666665115,
+            "progress": 7946.934527780824
+          },
+          {
+            "id": 0,
+            "name": "Tux",
+            "rank": 4,
+            "lap": 3,
+            "finished": true,
+            "time": 50.499999999998415,
+            "progress": 7948.704811257656
+          },
+          {
+            "id": 3,
+            "name": "Mochi",
+            "rank": 5,
+            "lap": 3,
+            "finished": true,
+            "time": 52.43333333333164,
+            "progress": 7947.452040306425
+          }
+        ],
+        "time": 52.43333333333164
+      },
+      "telemetry": {
+        "collisions": 68,
+        "walls": 0,
+        "drifts": 22,
+        "pickups": 18,
+        "items": 13,
+        "hits": 5,
+        "blocks": 0,
+        "checkpoints": 185,
+        "laps": 15,
+        "recoveryTicks": 0
+      },
+      "resourceMax": {
+        "events": 64,
+        "projectiles": 1,
+        "hazards": 1
+      },
+      "racers": [
+        {
+          "id": 0,
+          "maxSpeed": 189.28894726015238,
+          "distanceTravelled": 7977.186814987843,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.24999999999999997,
+          "maxDistanceFromCenter": 30.153073282599262,
+          "errorTicks": 87,
+          "maxContinuousErrorTicks": 22,
+          "name": "Tux",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 50.499999999998415
+        },
+        {
+          "id": 1,
+          "maxSpeed": 186.9539248709676,
+          "distanceTravelled": 7736.222401045481,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 40.22757176080248,
+          "errorTicks": 65,
+          "maxContinuousErrorTicks": 22,
+          "name": "Pip",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 48.06666666666522
+        },
+        {
+          "id": 2,
+          "maxSpeed": 197.48025601140628,
+          "distanceTravelled": 8217.565647089546,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 28.559457898598172,
+          "errorTicks": 87,
+          "maxContinuousErrorTicks": 22,
+          "name": "Nova",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 49.916666666665115
+        },
+        {
+          "id": 3,
+          "maxSpeed": 179.89930659961558,
+          "distanceTravelled": 7955.745923972332,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 34.166725958462685,
+          "errorTicks": 87,
+          "maxContinuousErrorTicks": 22,
+          "name": "Mochi",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 52.43333333333164
+        },
+        {
+          "id": 4,
+          "maxSpeed": 191.46760785795217,
+          "distanceTravelled": 8166.067015327404,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 25.717090456705456,
+          "errorTicks": 87,
+          "maxContinuousErrorTicks": 22,
+          "name": "Sunny",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 49.416666666665144
+        }
+      ]
+    },
+    {
+      "seed": "tux-race-study-124",
+      "ticks": 3431,
+      "elapsed": 54.18333333333154,
+      "modelSeconds": 57.18333333333333,
+      "traceSha256": "2b73dbf03611012683144363cc098e41b7b64e68c9b8d669aca07bd927e3cd59",
+      "result": {
+        "standings": [
+          {
+            "id": 2,
+            "name": "Nova",
+            "rank": 1,
+            "lap": 3,
+            "finished": true,
+            "time": 47.41666666666526,
+            "progress": 7946.577582955326
+          },
+          {
+            "id": 1,
+            "name": "Pip",
+            "rank": 2,
+            "lap": 3,
+            "finished": true,
+            "time": 48.399999999998535,
+            "progress": 7949.317295319877
+          },
+          {
+            "id": 0,
+            "name": "Tux",
+            "rank": 3,
+            "lap": 3,
+            "finished": true,
+            "time": 50.29999999999843,
+            "progress": 7946.458285997984
+          },
+          {
+            "id": 4,
+            "name": "Sunny",
+            "rank": 4,
+            "lap": 3,
+            "finished": true,
+            "time": 52.11666666666499,
+            "progress": 7947.261472089396
+          },
+          {
+            "id": 3,
+            "name": "Mochi",
+            "rank": 5,
+            "lap": 3,
+            "finished": true,
+            "time": 54.18333333333154,
+            "progress": 7948.183752852267
+          }
+        ],
+        "time": 54.18333333333154
+      },
+      "telemetry": {
+        "collisions": 60,
+        "walls": 0,
+        "drifts": 17,
+        "pickups": 19,
+        "items": 15,
+        "hits": 7,
+        "blocks": 1,
+        "checkpoints": 185,
+        "laps": 15,
+        "recoveryTicks": 0
+      },
+      "resourceMax": {
+        "events": 64,
+        "projectiles": 1,
+        "hazards": 2
+      },
+      "racers": [
+        {
+          "id": 0,
+          "maxSpeed": 189.60032811715882,
+          "distanceTravelled": 8107.724684003378,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.31666666666666665,
+          "maxDistanceFromCenter": 28.255260558662,
+          "errorTicks": 87,
+          "maxContinuousErrorTicks": 22,
+          "name": "Tux",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 50.29999999999843
+        },
+        {
+          "id": 1,
+          "maxSpeed": 188.1359032131182,
+          "distanceTravelled": 7779.72945319491,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 39.5382668229229,
+          "errorTicks": 87,
+          "maxContinuousErrorTicks": 22,
+          "name": "Pip",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 48.399999999998535
+        },
+        {
+          "id": 2,
+          "maxSpeed": 196.61304334652652,
+          "distanceTravelled": 8150.925896231671,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 26.827988821998353,
+          "errorTicks": 87,
+          "maxContinuousErrorTicks": 22,
+          "name": "Nova",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 47.41666666666526
+        },
+        {
+          "id": 3,
+          "maxSpeed": 179.9339173366928,
+          "distanceTravelled": 7912.413158796595,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 28.343533304291235,
+          "errorTicks": 87,
+          "maxContinuousErrorTicks": 22,
+          "name": "Mochi",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 54.18333333333154
+        },
+        {
+          "id": 4,
+          "maxSpeed": 190.19101652652967,
+          "distanceTravelled": 8103.447160021875,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.08333333333333333,
+          "maxDistanceFromCenter": 17.805908055106034,
+          "errorTicks": 87,
+          "maxContinuousErrorTicks": 22,
+          "name": "Sunny",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 52.11666666666499
+        }
+      ]
+    },
+    {
+      "seed": "tux-race-study-125",
+      "ticks": 3260,
+      "elapsed": 51.3333333333317,
+      "modelSeconds": 54.333333333333336,
+      "traceSha256": "2df74fe7d2b72b23c55a3f621fadbed8ca92887a8f0dfc4f2b650afcfd170428",
+      "result": {
+        "standings": [
+          {
+            "id": 2,
+            "name": "Nova",
+            "rank": 1,
+            "lap": 3,
+            "finished": true,
+            "time": 47.466666666665255,
+            "progress": 7947.371836238607
+          },
+          {
+            "id": 1,
+            "name": "Pip",
+            "rank": 2,
+            "lap": 3,
+            "finished": true,
+            "time": 48.633333333331855,
+            "progress": 7947.693994744406
+          },
+          {
+            "id": 0,
+            "name": "Tux",
+            "rank": 3,
+            "lap": 3,
+            "finished": true,
+            "time": 49.19999999999849,
+            "progress": 7947.84557555953
+          },
+          {
+            "id": 3,
+            "name": "Mochi",
+            "rank": 4,
+            "lap": 3,
+            "finished": true,
+            "time": 51.21666666666504,
+            "progress": 7948.036959782168
+          },
+          {
+            "id": 4,
+            "name": "Sunny",
+            "rank": 5,
+            "lap": 3,
+            "finished": true,
+            "time": 51.3333333333317,
+            "progress": 7947.273440921514
+          }
+        ],
+        "time": 51.3333333333317
+      },
+      "telemetry": {
+        "collisions": 80,
+        "walls": 0,
+        "drifts": 10,
+        "pickups": 21,
+        "items": 16,
+        "hits": 2,
+        "blocks": 1,
+        "checkpoints": 185,
+        "laps": 15,
+        "recoveryTicks": 0
+      },
+      "resourceMax": {
+        "events": 64,
+        "projectiles": 1,
+        "hazards": 1
+      },
+      "racers": [
+        {
+          "id": 0,
+          "maxSpeed": 190.45634098177035,
+          "distanceTravelled": 8073.825946315764,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 35.70901879782252,
+          "errorTicks": 65,
+          "maxContinuousErrorTicks": 22,
+          "name": "Tux",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 49.19999999999849
+        },
+        {
+          "id": 1,
+          "maxSpeed": 187.03447464292185,
+          "distanceTravelled": 7829.975069769271,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 35.297325586332036,
+          "errorTicks": 87,
+          "maxContinuousErrorTicks": 22,
+          "name": "Pip",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 48.633333333331855
+        },
+        {
+          "id": 2,
+          "maxSpeed": 196.6190992057748,
+          "distanceTravelled": 8155.642343484527,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 26.827988821998353,
+          "errorTicks": 87,
+          "maxContinuousErrorTicks": 22,
+          "name": "Nova",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 47.466666666665255
+        },
+        {
+          "id": 3,
+          "maxSpeed": 177.80774213227153,
+          "distanceTravelled": 7931.8433693934,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 32.28960130285926,
+          "errorTicks": 65,
+          "maxContinuousErrorTicks": 22,
+          "name": "Mochi",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 51.21666666666504
+        },
+        {
+          "id": 4,
+          "maxSpeed": 190.52588249006243,
+          "distanceTravelled": 8133.69549911431,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 31.133566089180533,
+          "errorTicks": 87,
+          "maxContinuousErrorTicks": 22,
+          "name": "Sunny",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 51.3333333333317
+        }
+      ]
+    },
+    {
+      "seed": "tux-race-study-126",
+      "ticks": 3302,
+      "elapsed": 52.03333333333166,
+      "modelSeconds": 55.03333333333333,
+      "traceSha256": "61b1a8c7f060ebd470747e92c26eb2f368bdf16c99a04cebd8c43b63db0876bb",
+      "result": {
+        "standings": [
+          {
+            "id": 2,
+            "name": "Nova",
+            "rank": 1,
+            "lap": 3,
+            "finished": true,
+            "time": 47.44999999999859,
+            "progress": 7946.896478989018
+          },
+          {
+            "id": 1,
+            "name": "Pip",
+            "rank": 2,
+            "lap": 3,
+            "finished": true,
+            "time": 48.79999999999851,
+            "progress": 7948.8563844266155
+          },
+          {
+            "id": 4,
+            "name": "Sunny",
+            "rank": 3,
+            "lap": 3,
+            "finished": true,
+            "time": 48.84999999999851,
+            "progress": 7945.391274046711
+          },
+          {
+            "id": 3,
+            "name": "Mochi",
+            "rank": 4,
+            "lap": 3,
+            "finished": true,
+            "time": 51.03333333333172,
+            "progress": 7948.438785704922
+          },
+          {
+            "id": 0,
+            "name": "Tux",
+            "rank": 5,
+            "lap": 3,
+            "finished": true,
+            "time": 52.03333333333166,
+            "progress": 7948.316658988426
+          }
+        ],
+        "time": 52.03333333333166
+      },
+      "telemetry": {
+        "collisions": 54,
+        "walls": 0,
+        "drifts": 14,
+        "pickups": 16,
+        "items": 11,
+        "hits": 3,
+        "blocks": 0,
+        "checkpoints": 185,
+        "laps": 15,
+        "recoveryTicks": 0
+      },
+      "resourceMax": {
+        "events": 64,
+        "projectiles": 1,
+        "hazards": 1
+      },
+      "racers": [
+        {
+          "id": 0,
+          "maxSpeed": 190.37586631114186,
+          "distanceTravelled": 8033.160324296033,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 34.30357299723024,
+          "errorTicks": 65,
+          "maxContinuousErrorTicks": 22,
+          "name": "Tux",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 52.03333333333166
+        },
+        {
+          "id": 1,
+          "maxSpeed": 186.73851599534964,
+          "distanceTravelled": 7861.16790713692,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 34.536064556941525,
+          "errorTicks": 87,
+          "maxContinuousErrorTicks": 22,
+          "name": "Pip",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 48.79999999999851
+        },
+        {
+          "id": 2,
+          "maxSpeed": 196.03655774136877,
+          "distanceTravelled": 8161.539321699841,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 26.827988821998353,
+          "errorTicks": 87,
+          "maxContinuousErrorTicks": 22,
+          "name": "Nova",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 47.44999999999859
+        },
+        {
+          "id": 3,
+          "maxSpeed": 180.80453594520785,
+          "distanceTravelled": 7904.659459573145,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 34.166725958462685,
+          "errorTicks": 87,
+          "maxContinuousErrorTicks": 22,
+          "name": "Mochi",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 51.03333333333172
+        },
+        {
+          "id": 4,
+          "maxSpeed": 190.7971591177219,
+          "distanceTravelled": 8099.671042305096,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 20.421787574197253,
+          "errorTicks": 87,
+          "maxContinuousErrorTicks": 22,
+          "name": "Sunny",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 48.84999999999851
+        }
+      ]
+    },
+    {
+      "seed": "tux-race-study-127",
+      "ticks": 3273,
+      "elapsed": 51.549999999998356,
+      "modelSeconds": 54.55,
+      "traceSha256": "d88a86c440a9380a3a9e0ccb685900c5c31884839a3662a474092da4a92ebe94",
+      "result": {
+        "standings": [
+          {
+            "id": 1,
+            "name": "Pip",
+            "rank": 1,
+            "lap": 3,
+            "finished": true,
+            "time": 48.749999999998515,
+            "progress": 7948.235542516413
+          },
+          {
+            "id": 0,
+            "name": "Tux",
+            "rank": 2,
+            "lap": 3,
+            "finished": true,
+            "time": 49.23333333333182,
+            "progress": 7946.508956799022
+          },
+          {
+            "id": 4,
+            "name": "Sunny",
+            "rank": 3,
+            "lap": 3,
+            "finished": true,
+            "time": 49.26666666666515,
+            "progress": 7945.329844367581
+          },
+          {
+            "id": 2,
+            "name": "Nova",
+            "rank": 4,
+            "lap": 3,
+            "finished": true,
+            "time": 49.38333333333181,
+            "progress": 7946.151679821023
+          },
+          {
+            "id": 3,
+            "name": "Mochi",
+            "rank": 5,
+            "lap": 3,
+            "finished": true,
+            "time": 51.549999999998356,
+            "progress": 7949.229657015455
+          }
+        ],
+        "time": 51.549999999998356
+      },
+      "telemetry": {
+        "collisions": 126,
+        "walls": 0,
+        "drifts": 10,
+        "pickups": 23,
+        "items": 20,
+        "hits": 1,
+        "blocks": 1,
+        "checkpoints": 185,
+        "laps": 15,
+        "recoveryTicks": 0
+      },
+      "resourceMax": {
+        "events": 64,
+        "projectiles": 1,
+        "hazards": 3
+      },
+      "racers": [
+        {
+          "id": 0,
+          "maxSpeed": 190.71432844118536,
+          "distanceTravelled": 8049.421364057963,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 35.71958264529603,
+          "errorTicks": 65,
+          "maxContinuousErrorTicks": 22,
+          "name": "Tux",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 49.23333333333182
+        },
+        {
+          "id": 1,
+          "maxSpeed": 185.70324653664133,
+          "distanceTravelled": 7852.401278794521,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 34.58412441063186,
+          "errorTicks": 87,
+          "maxContinuousErrorTicks": 22,
+          "name": "Pip",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 48.749999999998515
+        },
+        {
+          "id": 2,
+          "maxSpeed": 196.59638492809444,
+          "distanceTravelled": 8250.822282918522,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 35.06285862410525,
+          "errorTicks": 65,
+          "maxContinuousErrorTicks": 22,
+          "name": "Nova",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 49.38333333333181
+        },
+        {
+          "id": 3,
+          "maxSpeed": 179.897944949053,
+          "distanceTravelled": 7986.027971129149,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 33.46158947003913,
+          "errorTicks": 87,
+          "maxContinuousErrorTicks": 22,
+          "name": "Mochi",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 51.549999999998356
+        },
+        {
+          "id": 4,
+          "maxSpeed": 190.38117541537747,
+          "distanceTravelled": 8078.323161593838,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 27.939914603121398,
+          "errorTicks": 65,
+          "maxContinuousErrorTicks": 22,
+          "name": "Sunny",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 49.26666666666515
+        }
+      ]
+    },
+    {
+      "seed": "tux-race-study-128",
+      "ticks": 3341,
+      "elapsed": 52.683333333331625,
+      "modelSeconds": 55.68333333333333,
+      "traceSha256": "cf1f43a70024fb961b52b4e748700ed20b3e1232c1954ae850dc05b0d504d9c0",
+      "result": {
+        "standings": [
+          {
+            "id": 1,
+            "name": "Pip",
+            "rank": 1,
+            "lap": 3,
+            "finished": true,
+            "time": 48.399999999998535,
+            "progress": 7948.985083438376
+          },
+          {
+            "id": 2,
+            "name": "Nova",
+            "rank": 2,
+            "lap": 3,
+            "finished": true,
+            "time": 48.633333333331855,
+            "progress": 7946.544785188043
+          },
+          {
+            "id": 4,
+            "name": "Sunny",
+            "rank": 3,
+            "lap": 3,
+            "finished": true,
+            "time": 49.333333333331815,
+            "progress": 7946.104206322465
+          },
+          {
+            "id": 0,
+            "name": "Tux",
+            "rank": 4,
+            "lap": 3,
+            "finished": true,
+            "time": 50.43333333333175,
+            "progress": 7946.348624403159
+          },
+          {
+            "id": 3,
+            "name": "Mochi",
+            "rank": 5,
+            "lap": 3,
+            "finished": true,
+            "time": 52.683333333331625,
+            "progress": 7947.03643753468
+          }
+        ],
+        "time": 52.683333333331625
+      },
+      "telemetry": {
+        "collisions": 113,
+        "walls": 0,
+        "drifts": 17,
+        "pickups": 21,
+        "items": 16,
+        "hits": 3,
+        "blocks": 0,
+        "checkpoints": 185,
+        "laps": 15,
+        "recoveryTicks": 0
+      },
+      "resourceMax": {
+        "events": 64,
+        "projectiles": 1,
+        "hazards": 3
+      },
+      "racers": [
+        {
+          "id": 0,
+          "maxSpeed": 191.00995691296873,
+          "distanceTravelled": 8109.261431713165,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 37.23837215535017,
+          "errorTicks": 109,
+          "maxContinuousErrorTicks": 22,
+          "name": "Tux",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 50.43333333333175
+        },
+        {
+          "id": 1,
+          "maxSpeed": 185.63584467977205,
+          "distanceTravelled": 7782.607097350279,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 34.55223892513642,
+          "errorTicks": 65,
+          "maxContinuousErrorTicks": 22,
+          "name": "Pip",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 48.399999999998535
+        },
+        {
+          "id": 2,
+          "maxSpeed": 196.63510747414063,
+          "distanceTravelled": 8061.001119718418,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 40.53857616855014,
+          "errorTicks": 87,
+          "maxContinuousErrorTicks": 22,
+          "name": "Nova",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 48.633333333331855
+        },
+        {
+          "id": 3,
+          "maxSpeed": 181.05295882681375,
+          "distanceTravelled": 7996.698909664896,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 28.343533304291235,
+          "errorTicks": 87,
+          "maxContinuousErrorTicks": 22,
+          "name": "Mochi",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 52.683333333331625
+        },
+        {
+          "id": 4,
+          "maxSpeed": 190.5067595573117,
+          "distanceTravelled": 8127.527297744239,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 32.11641978437518,
+          "errorTicks": 65,
+          "maxContinuousErrorTicks": 22,
+          "name": "Sunny",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 49.333333333331815
+        }
+      ]
+    },
+    {
+      "seed": "tux-race-study-129",
+      "ticks": 3325,
+      "elapsed": 52.41666666666497,
+      "modelSeconds": 55.416666666666664,
+      "traceSha256": "ddb94dcbdc1c31b9aafa894695583949acad8f03fc95771409e80caef969322d",
+      "result": {
+        "standings": [
+          {
+            "id": 2,
+            "name": "Nova",
+            "rank": 1,
+            "lap": 3,
+            "finished": true,
+            "time": 47.41666666666526,
+            "progress": 7945.74708296658
+          },
+          {
+            "id": 1,
+            "name": "Pip",
+            "rank": 2,
+            "lap": 3,
+            "finished": true,
+            "time": 48.18333333333188,
+            "progress": 7947.812793154058
+          },
+          {
+            "id": 4,
+            "name": "Sunny",
+            "rank": 3,
+            "lap": 3,
+            "finished": true,
+            "time": 48.88333333333184,
+            "progress": 7946.355425395799
+          },
+          {
+            "id": 0,
+            "name": "Tux",
+            "rank": 4,
+            "lap": 3,
+            "finished": true,
+            "time": 50.28333333333176,
+            "progress": 7948.938120041119
+          },
+          {
+            "id": 3,
+            "name": "Mochi",
+            "rank": 5,
+            "lap": 3,
+            "finished": true,
+            "time": 52.41666666666497,
+            "progress": 7949.329033173873
+          }
+        ],
+        "time": 52.41666666666497
+      },
+      "telemetry": {
+        "collisions": 62,
+        "walls": 0,
+        "drifts": 15,
+        "pickups": 19,
+        "items": 14,
+        "hits": 2,
+        "blocks": 0,
+        "checkpoints": 185,
+        "laps": 15,
+        "recoveryTicks": 0
+      },
+      "resourceMax": {
+        "events": 64,
+        "projectiles": 0,
+        "hazards": 2
+      },
+      "racers": [
+        {
+          "id": 0,
+          "maxSpeed": 189.61520063533544,
+          "distanceTravelled": 8090.928910161704,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 36.55593569126892,
+          "errorTicks": 91,
+          "maxContinuousErrorTicks": 22,
+          "name": "Tux",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 50.28333333333176
+        },
+        {
+          "id": 1,
+          "maxSpeed": 187.87771374823743,
+          "distanceTravelled": 7780.862046687302,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 34.873908659558815,
+          "errorTicks": 87,
+          "maxContinuousErrorTicks": 22,
+          "name": "Pip",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 48.18333333333188
+        },
+        {
+          "id": 2,
+          "maxSpeed": 197.55367002741795,
+          "distanceTravelled": 8152.147315627549,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 26.827988821998353,
+          "errorTicks": 87,
+          "maxContinuousErrorTicks": 22,
+          "name": "Nova",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 47.41666666666526
+        },
+        {
+          "id": 3,
+          "maxSpeed": 179.5982109595132,
+          "distanceTravelled": 7974.379387223347,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 28.343533304291235,
+          "errorTicks": 87,
+          "maxContinuousErrorTicks": 22,
+          "name": "Mochi",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 52.41666666666497
+        },
+        {
+          "id": 4,
+          "maxSpeed": 191.25457203199466,
+          "distanceTravelled": 8091.122394041026,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 27.13930185252786,
+          "errorTicks": 87,
+          "maxContinuousErrorTicks": 22,
+          "name": "Sunny",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 48.88333333333184
+        }
+      ]
+    },
+    {
+      "seed": "tux-race-study-130",
+      "ticks": 3281,
+      "elapsed": 51.68333333333168,
+      "modelSeconds": 54.68333333333333,
+      "traceSha256": "9528ceaf3f8eaae76b40fec8efa469261896ba9a33c149676af7620679227cb7",
+      "result": {
+        "standings": [
+          {
+            "id": 2,
+            "name": "Nova",
+            "rank": 1,
+            "lap": 3,
+            "finished": true,
+            "time": 47.349999999998595,
+            "progress": 7946.616200347449
+          },
+          {
+            "id": 1,
+            "name": "Pip",
+            "rank": 2,
+            "lap": 3,
+            "finished": true,
+            "time": 48.73333333333185,
+            "progress": 7947.8930534267065
+          },
+          {
+            "id": 0,
+            "name": "Tux",
+            "rank": 3,
+            "lap": 3,
+            "finished": true,
+            "time": 49.28333333333182,
+            "progress": 7946.566031504397
+          },
+          {
+            "id": 4,
+            "name": "Sunny",
+            "rank": 4,
+            "lap": 3,
+            "finished": true,
+            "time": 50.99999999999839,
+            "progress": 7946.870583093321
+          },
+          {
+            "id": 3,
+            "name": "Mochi",
+            "rank": 5,
+            "lap": 3,
+            "finished": true,
+            "time": 51.68333333333168,
+            "progress": 7947.8317025643955
+          }
+        ],
+        "time": 51.68333333333168
+      },
+      "telemetry": {
+        "collisions": 76,
+        "walls": 0,
+        "drifts": 14,
+        "pickups": 20,
+        "items": 17,
+        "hits": 3,
+        "blocks": 1,
+        "checkpoints": 185,
+        "laps": 15,
+        "recoveryTicks": 0
+      },
+      "resourceMax": {
+        "events": 64,
+        "projectiles": 1,
+        "hazards": 2
+      },
+      "racers": [
+        {
+          "id": 0,
+          "maxSpeed": 189.6261254161032,
+          "distanceTravelled": 8077.475311636473,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 35.50913786709238,
+          "errorTicks": 87,
+          "maxContinuousErrorTicks": 22,
+          "name": "Tux",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 49.28333333333182
+        },
+        {
+          "id": 1,
+          "maxSpeed": 186.00089460593924,
+          "distanceTravelled": 7836.221032313234,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 36.48300030119753,
+          "errorTicks": 87,
+          "maxContinuousErrorTicks": 22,
+          "name": "Pip",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 48.73333333333185
+        },
+        {
+          "id": 2,
+          "maxSpeed": 197.31706705558088,
+          "distanceTravelled": 8152.126520753702,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 26.827988821998353,
+          "errorTicks": 87,
+          "maxContinuousErrorTicks": 22,
+          "name": "Nova",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 47.349999999998595
+        },
+        {
+          "id": 3,
+          "maxSpeed": 179.47488105484422,
+          "distanceTravelled": 7846.140832882366,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.16666666666666666,
+          "maxDistanceFromCenter": 34.557218156914516,
+          "errorTicks": 65,
+          "maxContinuousErrorTicks": 22,
+          "name": "Mochi",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 51.68333333333168
+        },
+        {
+          "id": 4,
+          "maxSpeed": 190.14323252134457,
+          "distanceTravelled": 8097.591454005738,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.09999999999999999,
+          "maxDistanceFromCenter": 24.613670491609497,
+          "errorTicks": 87,
+          "maxContinuousErrorTicks": 22,
+          "name": "Sunny",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 50.99999999999839
+        }
+      ]
+    },
+    {
+      "seed": "tux-race-study-131",
+      "ticks": 3341,
+      "elapsed": 52.683333333331625,
+      "modelSeconds": 55.68333333333333,
+      "traceSha256": "db07a20a39bcf07e038da383338bc9e922b7d5215f9756454b8296a359f9c7fb",
+      "result": {
+        "standings": [
+          {
+            "id": 2,
+            "name": "Nova",
+            "rank": 1,
+            "lap": 3,
+            "finished": true,
+            "time": 47.43333333333192,
+            "progress": 7946.888588422338
+          },
+          {
+            "id": 0,
+            "name": "Tux",
+            "rank": 2,
+            "lap": 3,
+            "finished": true,
+            "time": 48.749999999998515,
+            "progress": 7948.9265358647635
+          },
+          {
+            "id": 4,
+            "name": "Sunny",
+            "rank": 3,
+            "lap": 3,
+            "finished": true,
+            "time": 49.08333333333183,
+            "progress": 7946.821295133806
+          },
+          {
+            "id": 1,
+            "name": "Pip",
+            "rank": 4,
+            "lap": 3,
+            "finished": true,
+            "time": 51.23333333333171,
+            "progress": 7947.74877946734
+          },
+          {
+            "id": 3,
+            "name": "Mochi",
+            "rank": 5,
+            "lap": 3,
+            "finished": true,
+            "time": 52.683333333331625,
+            "progress": 7948.681645214487
+          }
+        ],
+        "time": 52.683333333331625
+      },
+      "telemetry": {
+        "collisions": 69,
+        "walls": 0,
+        "drifts": 17,
+        "pickups": 21,
+        "items": 18,
+        "hits": 3,
+        "blocks": 3,
+        "checkpoints": 185,
+        "laps": 15,
+        "recoveryTicks": 0
+      },
+      "resourceMax": {
+        "events": 64,
+        "projectiles": 1,
+        "hazards": 2
+      },
+      "racers": [
+        {
+          "id": 0,
+          "maxSpeed": 190.7250363115936,
+          "distanceTravelled": 7997.011361741489,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 35.60868758444858,
+          "errorTicks": 65,
+          "maxContinuousErrorTicks": 22,
+          "name": "Tux",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 48.749999999998515
+        },
+        {
+          "id": 1,
+          "maxSpeed": 185.9268396651719,
+          "distanceTravelled": 7916.873340328509,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.11666666666666665,
+          "maxDistanceFromCenter": 35.41352381441505,
+          "errorTicks": 87,
+          "maxContinuousErrorTicks": 22,
+          "name": "Pip",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 51.23333333333171
+        },
+        {
+          "id": 2,
+          "maxSpeed": 196.7018994151067,
+          "distanceTravelled": 8153.582376923698,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 26.827988821998353,
+          "errorTicks": 65,
+          "maxContinuousErrorTicks": 22,
+          "name": "Nova",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 47.43333333333192
+        },
+        {
+          "id": 3,
+          "maxSpeed": 179.4695387529259,
+          "distanceTravelled": 8001.91671133145,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.06666666666666667,
+          "maxDistanceFromCenter": 28.343533304291235,
+          "errorTicks": 65,
+          "maxContinuousErrorTicks": 22,
+          "name": "Mochi",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 52.683333333331625
+        },
+        {
+          "id": 4,
+          "maxSpeed": 190.34250661147166,
+          "distanceTravelled": 8117.289917614946,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 31.561435284227436,
+          "errorTicks": 65,
+          "maxContinuousErrorTicks": 22,
+          "name": "Sunny",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 49.08333333333183
+        }
+      ]
+    },
+    {
+      "seed": "tux-race-study-132",
+      "ticks": 3328,
+      "elapsed": 52.46666666666497,
+      "modelSeconds": 55.46666666666667,
+      "traceSha256": "9dfdefedbcb7560931cfd627b41f3d3cad5317227374f720393e2c5c4fd58951",
+      "result": {
+        "standings": [
+          {
+            "id": 2,
+            "name": "Nova",
+            "rank": 1,
+            "lap": 3,
+            "finished": true,
+            "time": 47.383333333331926,
+            "progress": 7946.226015477473
+          },
+          {
+            "id": 1,
+            "name": "Pip",
+            "rank": 2,
+            "lap": 3,
+            "finished": true,
+            "time": 48.4166666666652,
+            "progress": 7949.307937961483
+          },
+          {
+            "id": 0,
+            "name": "Tux",
+            "rank": 3,
+            "lap": 3,
+            "finished": true,
+            "time": 48.866666666665175,
+            "progress": 7949.038572168734
+          },
+          {
+            "id": 4,
+            "name": "Sunny",
+            "rank": 4,
+            "lap": 3,
+            "finished": true,
+            "time": 49.48333333333181,
+            "progress": 7945.697211619829
+          },
+          {
+            "id": 3,
+            "name": "Mochi",
+            "rank": 5,
+            "lap": 3,
+            "finished": true,
+            "time": 52.46666666666497,
+            "progress": 7947.799024088068
+          }
+        ],
+        "time": 52.46666666666497
+      },
+      "telemetry": {
+        "collisions": 94,
+        "walls": 0,
+        "drifts": 19,
+        "pickups": 23,
+        "items": 20,
+        "hits": 1,
+        "blocks": 1,
+        "checkpoints": 185,
+        "laps": 15,
+        "recoveryTicks": 0
+      },
+      "resourceMax": {
+        "events": 64,
+        "projectiles": 2,
+        "hazards": 1
+      },
+      "racers": [
+        {
+          "id": 0,
+          "maxSpeed": 189.0756880087573,
+          "distanceTravelled": 8004.721309256681,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 35.43344471094781,
+          "errorTicks": 87,
+          "maxContinuousErrorTicks": 22,
+          "name": "Tux",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 48.866666666665175
+        },
+        {
+          "id": 1,
+          "maxSpeed": 186.94718225232106,
+          "distanceTravelled": 7752.52754156496,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 41.27729622090992,
+          "errorTicks": 87,
+          "maxContinuousErrorTicks": 22,
+          "name": "Pip",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 48.4166666666652
+        },
+        {
+          "id": 2,
+          "maxSpeed": 196.6982114366554,
+          "distanceTravelled": 8154.164619436024,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 26.827988821998353,
+          "errorTicks": 87,
+          "maxContinuousErrorTicks": 22,
+          "name": "Nova",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 47.383333333331926
+        },
+        {
+          "id": 3,
+          "maxSpeed": 179.9404514712898,
+          "distanceTravelled": 7956.127994828251,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 34.166725958462685,
+          "errorTicks": 87,
+          "maxContinuousErrorTicks": 22,
+          "name": "Mochi",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 52.46666666666497
+        },
+        {
+          "id": 4,
+          "maxSpeed": 189.74626363946354,
+          "distanceTravelled": 8172.029149989613,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 27.640669741619817,
+          "errorTicks": 87,
+          "maxContinuousErrorTicks": 22,
+          "name": "Sunny",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 49.48333333333181
+        }
+      ]
+    },
+    {
+      "seed": "tux-race-study-133",
+      "ticks": 3318,
+      "elapsed": 52.29999999999831,
+      "modelSeconds": 55.3,
+      "traceSha256": "c37df4a1c01d75fa6d761652393dbdb7b39f86f301ea8743fc8ed4114004fd73",
+      "result": {
+        "standings": [
+          {
+            "id": 2,
+            "name": "Nova",
+            "rank": 1,
+            "lap": 3,
+            "finished": true,
+            "time": 47.466666666665255,
+            "progress": 7946.177068221377
+          },
+          {
+            "id": 4,
+            "name": "Sunny",
+            "rank": 2,
+            "lap": 3,
+            "finished": true,
+            "time": 48.91666666666517,
+            "progress": 7944.4302688834405
+          },
+          {
+            "id": 1,
+            "name": "Pip",
+            "rank": 3,
+            "lap": 3,
+            "finished": true,
+            "time": 48.949999999998504,
+            "progress": 7948.306530297605
+          },
+          {
+            "id": 0,
+            "name": "Tux",
+            "rank": 4,
+            "lap": 3,
+            "finished": true,
+            "time": 49.416666666665144,
+            "progress": 7946.266616166769
+          },
+          {
+            "id": 3,
+            "name": "Mochi",
+            "rank": 5,
+            "lap": 3,
+            "finished": true,
+            "time": 52.29999999999831,
+            "progress": 7947.755493989411
+          }
+        ],
+        "time": 52.29999999999831
+      },
+      "telemetry": {
+        "collisions": 64,
+        "walls": 0,
+        "drifts": 18,
+        "pickups": 13,
+        "items": 8,
+        "hits": 1,
+        "blocks": 0,
+        "checkpoints": 185,
+        "laps": 15,
+        "recoveryTicks": 0
+      },
+      "resourceMax": {
+        "events": 61,
+        "projectiles": 1,
+        "hazards": 2
+      },
+      "racers": [
+        {
+          "id": 0,
+          "maxSpeed": 190.96586005146128,
+          "distanceTravelled": 8115.188667108337,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 35.0673887259337,
+          "errorTicks": 87,
+          "maxContinuousErrorTicks": 22,
+          "name": "Tux",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 49.416666666665144
+        },
+        {
+          "id": 1,
+          "maxSpeed": 185.26426675749482,
+          "distanceTravelled": 7878.995824581991,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 34.88357938644615,
+          "errorTicks": 65,
+          "maxContinuousErrorTicks": 22,
+          "name": "Pip",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 48.949999999998504
+        },
+        {
+          "id": 2,
+          "maxSpeed": 198.03390277713564,
+          "distanceTravelled": 8157.754543143662,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 26.827988821998353,
+          "errorTicks": 87,
+          "maxContinuousErrorTicks": 22,
+          "name": "Nova",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 47.466666666665255
+        },
+        {
+          "id": 3,
+          "maxSpeed": 178.92103160486573,
+          "distanceTravelled": 7960.468481850139,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 28.343533304291235,
+          "errorTicks": 87,
+          "maxContinuousErrorTicks": 22,
+          "name": "Mochi",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 52.29999999999831
+        },
+        {
+          "id": 4,
+          "maxSpeed": 190.77672577359144,
+          "distanceTravelled": 8091.7402600130745,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 28.06189448931149,
+          "errorTicks": 87,
+          "maxContinuousErrorTicks": 22,
+          "name": "Sunny",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 48.91666666666517
+        }
+      ]
+    },
+    {
+      "seed": "tux-race-study-134",
+      "ticks": 3242,
+      "elapsed": 51.03333333333172,
+      "modelSeconds": 54.03333333333333,
+      "traceSha256": "f8894a1d8fa26e04fa2e49963d11b9969d0be5a6edc5ac28c56bff9828fff321",
+      "result": {
+        "standings": [
+          {
+            "id": 2,
+            "name": "Nova",
+            "rank": 1,
+            "lap": 3,
+            "finished": true,
+            "time": 47.41666666666526,
+            "progress": 7946.135459122262
+          },
+          {
+            "id": 1,
+            "name": "Pip",
+            "rank": 2,
+            "lap": 3,
+            "finished": true,
+            "time": 48.983333333331835,
+            "progress": 7947.1984180841955
+          },
+          {
+            "id": 4,
+            "name": "Sunny",
+            "rank": 3,
+            "lap": 3,
+            "finished": true,
+            "time": 48.983333333331835,
+            "progress": 7945.794785261715
+          },
+          {
+            "id": 0,
+            "name": "Tux",
+            "rank": 4,
+            "lap": 3,
+            "finished": true,
+            "time": 49.48333333333181,
+            "progress": 7948.8204368806855
+          },
+          {
+            "id": 3,
+            "name": "Mochi",
+            "rank": 5,
+            "lap": 3,
+            "finished": true,
+            "time": 51.03333333333172,
+            "progress": 7948.463051090888
+          }
+        ],
+        "time": 51.03333333333172
+      },
+      "telemetry": {
+        "collisions": 69,
+        "walls": 0,
+        "drifts": 9,
+        "pickups": 9,
+        "items": 4,
+        "hits": 0,
+        "blocks": 0,
+        "checkpoints": 185,
+        "laps": 15,
+        "recoveryTicks": 0
+      },
+      "resourceMax": {
+        "events": 43,
+        "projectiles": 1,
+        "hazards": 0
+      },
+      "racers": [
+        {
+          "id": 0,
+          "maxSpeed": 190.91799915375253,
+          "distanceTravelled": 8114.904221023714,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 35.859663392723434,
+          "errorTicks": 87,
+          "maxContinuousErrorTicks": 22,
+          "name": "Tux",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 49.48333333333181
+        },
+        {
+          "id": 1,
+          "maxSpeed": 186.65093005460102,
+          "distanceTravelled": 7880.64215793364,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 35.122758335861036,
+          "errorTicks": 65,
+          "maxContinuousErrorTicks": 22,
+          "name": "Pip",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 48.983333333331835
+        },
+        {
+          "id": 2,
+          "maxSpeed": 196.62046790895812,
+          "distanceTravelled": 8145.459602976885,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 26.827988821998353,
+          "errorTicks": 65,
+          "maxContinuousErrorTicks": 22,
+          "name": "Nova",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 47.41666666666526
+        },
+        {
+          "id": 3,
+          "maxSpeed": 178.92103160486573,
+          "distanceTravelled": 7899.302645764601,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 32.7535775467644,
+          "errorTicks": 65,
+          "maxContinuousErrorTicks": 22,
+          "name": "Mochi",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 51.03333333333172
+        },
+        {
+          "id": 4,
+          "maxSpeed": 190.16760011169296,
+          "distanceTravelled": 8088.88460979155,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 26.876618687070092,
+          "errorTicks": 87,
+          "maxContinuousErrorTicks": 22,
+          "name": "Sunny",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 48.983333333331835
+        }
+      ]
+    },
+    {
+      "seed": "tux-race-study-135",
+      "ticks": 3317,
+      "elapsed": 52.28333333333165,
+      "modelSeconds": 55.28333333333333,
+      "traceSha256": "985f53c2b870c40eb2eafbb0716b3f96b553dc4a70fe8f9da691944c748e4ac3",
+      "result": {
+        "standings": [
+          {
+            "id": 2,
+            "name": "Nova",
+            "rank": 1,
+            "lap": 3,
+            "finished": true,
+            "time": 47.43333333333192,
+            "progress": 7948.39444087035
+          },
+          {
+            "id": 1,
+            "name": "Pip",
+            "rank": 2,
+            "lap": 3,
+            "finished": true,
+            "time": 48.433333333331866,
+            "progress": 7949.6861580327195
+          },
+          {
+            "id": 4,
+            "name": "Sunny",
+            "rank": 3,
+            "lap": 3,
+            "finished": true,
+            "time": 48.96666666666517,
+            "progress": 7945.899055053864
+          },
+          {
+            "id": 0,
+            "name": "Tux",
+            "rank": 4,
+            "lap": 3,
+            "finished": true,
+            "time": 50.383333333331755,
+            "progress": 7947.716392666502
+          },
+          {
+            "id": 3,
+            "name": "Mochi",
+            "rank": 5,
+            "lap": 3,
+            "finished": true,
+            "time": 52.28333333333165,
+            "progress": 7948.097169926754
+          }
+        ],
+        "time": 52.28333333333165
+      },
+      "telemetry": {
+        "collisions": 66,
+        "walls": 0,
+        "drifts": 16,
+        "pickups": 23,
+        "items": 20,
+        "hits": 2,
+        "blocks": 2,
+        "checkpoints": 185,
+        "laps": 15,
+        "recoveryTicks": 0
+      },
+      "resourceMax": {
+        "events": 64,
+        "projectiles": 1,
+        "hazards": 2
+      },
+      "racers": [
+        {
+          "id": 0,
+          "maxSpeed": 190.39716031614958,
+          "distanceTravelled": 8098.8752580639775,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 35.6112663702237,
+          "errorTicks": 87,
+          "maxContinuousErrorTicks": 22,
+          "name": "Tux",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 50.383333333331755
+        },
+        {
+          "id": 1,
+          "maxSpeed": 186.58508094805507,
+          "distanceTravelled": 7811.212264052781,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 34.6013836503896,
+          "errorTicks": 87,
+          "maxContinuousErrorTicks": 22,
+          "name": "Pip",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 48.433333333331866
+        },
+        {
+          "id": 2,
+          "maxSpeed": 196.63510747414063,
+          "distanceTravelled": 8152.25609261624,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 26.827988821998353,
+          "errorTicks": 65,
+          "maxContinuousErrorTicks": 22,
+          "name": "Nova",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 47.43333333333192
+        },
+        {
+          "id": 3,
+          "maxSpeed": 179.83131996400465,
+          "distanceTravelled": 7947.861689973237,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 30.51439049382549,
+          "errorTicks": 87,
+          "maxContinuousErrorTicks": 22,
+          "name": "Mochi",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 52.28333333333165
+        },
+        {
+          "id": 4,
+          "maxSpeed": 191.6852346157349,
+          "distanceTravelled": 8090.4994977506285,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 33.01910432899976,
+          "errorTicks": 87,
+          "maxContinuousErrorTicks": 22,
+          "name": "Sunny",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 48.96666666666517
+        }
+      ]
+    },
+    {
+      "seed": "tux-race-study-136",
+      "ticks": 3326,
+      "elapsed": 52.43333333333164,
+      "modelSeconds": 55.43333333333333,
+      "traceSha256": "90b78ac84e879ec107c9661bd4d81691fc6e7405fa3044a8b20a0e1e32e5b751",
+      "result": {
+        "standings": [
+          {
+            "id": 2,
+            "name": "Nova",
+            "rank": 1,
+            "lap": 3,
+            "finished": true,
+            "time": 47.43333333333192,
+            "progress": 7946.751008754431
+          },
+          {
+            "id": 1,
+            "name": "Pip",
+            "rank": 2,
+            "lap": 3,
+            "finished": true,
+            "time": 48.64999999999852,
+            "progress": 7948.8529641516325
+          },
+          {
+            "id": 0,
+            "name": "Tux",
+            "rank": 3,
+            "lap": 3,
+            "finished": true,
+            "time": 49.34999999999848,
+            "progress": 7948.673454698583
+          },
+          {
+            "id": 4,
+            "name": "Sunny",
+            "rank": 4,
+            "lap": 3,
+            "finished": true,
+            "time": 50.149999999998435,
+            "progress": 7945.584578962324
+          },
+          {
+            "id": 3,
+            "name": "Mochi",
+            "rank": 5,
+            "lap": 3,
+            "finished": true,
+            "time": 52.43333333333164,
+            "progress": 7948.719720337203
+          }
+        ],
+        "time": 52.43333333333164
+      },
+      "telemetry": {
+        "collisions": 76,
+        "walls": 0,
+        "drifts": 18,
+        "pickups": 15,
+        "items": 10,
+        "hits": 2,
+        "blocks": 0,
+        "checkpoints": 185,
+        "laps": 15,
+        "recoveryTicks": 0
+      },
+      "resourceMax": {
+        "events": 64,
+        "projectiles": 1,
+        "hazards": 2
+      },
+      "racers": [
+        {
+          "id": 0,
+          "maxSpeed": 189.60431238248054,
+          "distanceTravelled": 8079.625658866009,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 35.09516925283501,
+          "errorTicks": 87,
+          "maxContinuousErrorTicks": 22,
+          "name": "Tux",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 49.34999999999848
+        },
+        {
+          "id": 1,
+          "maxSpeed": 187.75273908368803,
+          "distanceTravelled": 7814.55229371904,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 34.51619670041203,
+          "errorTicks": 87,
+          "maxContinuousErrorTicks": 22,
+          "name": "Pip",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 48.64999999999852
+        },
+        {
+          "id": 2,
+          "maxSpeed": 197.0403198902488,
+          "distanceTravelled": 8152.209519181157,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 26.827988821998353,
+          "errorTicks": 87,
+          "maxContinuousErrorTicks": 22,
+          "name": "Nova",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 47.43333333333192
+        },
+        {
+          "id": 3,
+          "maxSpeed": 181.03819787072376,
+          "distanceTravelled": 7960.735307298027,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 28.343533304291235,
+          "errorTicks": 87,
+          "maxContinuousErrorTicks": 22,
+          "name": "Mochi",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 52.43333333333164
+        },
+        {
+          "id": 4,
+          "maxSpeed": 190.39401481388003,
+          "distanceTravelled": 8113.90463046924,
+          "checkpointChanges": 37,
+          "lapChanges": 3,
+          "maxStationarySeconds": 0.05,
+          "maxDistanceFromCenter": 17.618272128552412,
+          "errorTicks": 67,
+          "maxContinuousErrorTicks": 22,
+          "name": "Sunny",
+          "lap": 3,
+          "finished": true,
+          "finishTime": 50.149999999998435
+        }
+      ]
+    }
+  ],
+  "wallSeconds": 72.05036602099999,
+  "finishedKarts": 180,
+  "finishTimeRange": [
+    47.349999999998595,
+    55.5166666666648
+  ],
+  "modelSecondsTotal": 1996.3666666666668,
+  "telemetryTotals": {
+    "collisions": 2814,
+    "walls": 0,
+    "drifts": 540,
+    "pickups": 666,
+    "items": 538,
+    "hits": 88,
+    "blocks": 29,
+    "checkpoints": 6660,
+    "laps": 540,
+    "recoveryTicks": 0
+  },
+  "winsByProfile": {
+    "Pip": 6,
+    "Tux": 3,
+    "Nova": 27
+  },
+  "maxStationarySeconds": 0.31666666666666665,
+  "maxDistanceFromCenter": 42.52306843937542,
+  "maxContinuousErrorTicks": 22
+}

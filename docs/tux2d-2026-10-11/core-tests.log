@@ -1,0 +1,29 @@
+✔ the closed track has finite ordered samples and twelve distinct checkpoint gates (10.484357ms)
+✔ ready, paused and finished phases never advance simulation time or objects (19.385936ms)
+✔ identical seed and external inputs replay every complete state exactly (1751.894465ms)
+✔ reset clears transient objects, resources, race progress and random state (445.237997ms)
+✔ public observations conceal rival held-item identities and are detached from private state (2.658233ms)
+✔ steering, braking, reverse and off-track friction use continuous bounded physics (9.847994ms)
+✔ a held moving drift charges, release boosts, and short or stationary drifts give no boost (14.634204ms)
+✔ items require a fresh press; shield and boost expire on simulation time (42.186439ms)
+✔ snowballs have a visible arming interval and a shield absorbs exactly one hit (15.447813ms)
+✔ banana telegraphs delay collision, briefly protect its owner and expire without targets (47.939573ms)
+✔ pickup boxes share one cooldown, never replace a held item, and use the shared seeded item pool (25.516295ms)
+✔ gates require their exact order and forward crossings; the first start crossing is not a lap (1.216833ms)
+✔ three validated laps finish; simultaneous finish times resolve consistently by racer id (1.343082ms)
+✔ AI controller and human controls receive identical physical outcomes for identical inputs (272.220603ms)
+✔ AI corrects a backwards slow kart by driving, and seeded driver mistakes remain bounded (712.306147ms)
+✔ complete seeded AI race crosses all gates three times and bounds transient resources (1172.62408ms)
+✔ a collision push across the expected gate receives one checkpoint credit (1.323377ms)
+✔ exactly overlapping karts separate deterministically without relocation or lap credit (3.368615ms)
+✔ expired hazards and wall-discarded snowballs cannot still hit a nearby kart (1.407436ms)
+✔ a discontinuous position change cannot earn checkpoint or lap distance (0.244933ms)
+✔ AI item choices depend on visible threats and its own inventory (2.937768ms)
+ℹ tests 21
+ℹ suites 0
+ℹ pass 21
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4889.099739

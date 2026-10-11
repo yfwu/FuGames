@@ -116,7 +116,7 @@ with sync_playwright() as p:
                 page.locator("summary").click(); fits(page)
                 page.locator("summary").click()
                 page.get_by_role("link", name="所有遊戲 ↗", exact=True).click()
-                assert page.locator(".game-card").count() == 13
+                assert page.locator(".game-card").count() == 15
         if label in ["desktop", "mobile"]:
             board_games(page, mobile, label)
         if label == "landscape":
