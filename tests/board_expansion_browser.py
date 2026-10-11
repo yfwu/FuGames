@@ -29,7 +29,7 @@ with sync_playwright() as p:
         page.on('requestfailed', lambda request: failed.append(request.url))
         page.clock.install()
         for name, state, cell in [('card_hex', 'hexGame', '.hex-cell'), ('flip_five', 'flipGame', '.flip-cell')]:
-            page.goto(BASE + '/' + name + '.html')
+            page.goto(BASE + '/' + name + '.html' + ('?terrain=classic&cards=classic&seed=legacy-fixture' if name=='card_hex' else ''))
             assert page.evaluate(state + '.phase') == 'ready'
             assert not page.locator('details').evaluate('e=>e.open')
             fit(page)
@@ -75,7 +75,7 @@ with sync_playwright() as p:
     page = context.new_page()
     page.clock.install()
     page.on('pageerror', lambda error: errors.append(str(error)))
-    page.goto(BASE + '/card_hex.html');page.locator('#play').click()
+    page.goto(BASE + '/card_hex.html?terrain=classic&cards=classic&seed=legacy-fixture');page.locator('#play').click()
     page.evaluate("hexGame.hands[1]=['double']; hexRender()")
     page.locator('#double').click();page.locator('[data-cell="24"]').click()
     assert page.locator('.hex-cell.selected').count() == 1
@@ -102,7 +102,7 @@ with sync_playwright() as p:
 
     # Drive the human side via real DOM and let scheduled AI callbacks play every reply.
     for name, state, engine, render in [('card_hex', 'hexGame', 'CardHex', 'hexRender'), ('flip_five', 'flipGame', 'FlipFive', 'flipRender')]:
-        page.goto(BASE + '/' + name + '.html');page.locator('#play').click()
+        page.goto(BASE + '/' + name + '.html' + ('?terrain=classic&cards=classic&seed=legacy-fixture' if name=='card_hex' else ''));page.locator('#play').click()
         for _ in range(400 if name == 'card_hex' else 100):
             status = page.evaluate('({phase:' + state + '.phase,turn:' + state + '.turn,pending:' + state + '.pending})')
             if status['phase'] == 'over':

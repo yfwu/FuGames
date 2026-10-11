@@ -1,0 +1,77 @@
+{
+  "viewports": [
+    {
+      "label": "desktop",
+      "width": 1366,
+      "dpr": 1,
+      "overflow": false,
+      "riverIllegalAtomic": true,
+      "engineeringAndPause": true
+    },
+    {
+      "label": "mobile",
+      "width": 390,
+      "dpr": 3,
+      "overflow": false,
+      "riverIllegalAtomic": true,
+      "engineeringAndPause": true
+    },
+    {
+      "label": "narrow",
+      "width": 320,
+      "dpr": 2,
+      "overflow": false,
+      "riverIllegalAtomic": true,
+      "engineeringAndPause": true
+    },
+    {
+      "label": "landscape",
+      "width": 844,
+      "dpr": 2,
+      "overflow": false,
+      "riverIllegalAtomic": true,
+      "engineeringAndPause": true
+    }
+  ],
+  "games": [
+    {
+      "mode": "spectator",
+      "result": {
+        "winner": 0,
+        "reason": "滿盤：比較連線代價（己子 0／空格 1／敵子 3），最低者勝；同分和局。",
+        "ply": 118,
+        "scores": [
+          3,
+          9,
+          3
+        ]
+      },
+      "wallSeconds": 6.507981094999877
+    },
+    {
+      "mode": "human-mobile",
+      "result": {
+        "winner": 0,
+        "reason": "滿盤：比較連線代價（己子 0／空格 1／敵子 3），最低者勝；同分和局。",
+        "ply": 121,
+        "scores": [
+          6,
+          3,
+          3
+        ]
+      },
+      "wallSeconds": 13.410336145999963
+    }
+  ],
+  "checks": [
+    "speed cancels old timer",
+    "single step remains paused",
+    "seed replay identical after 3 steps",
+    "visibility pauses until explicit resume",
+    "restart has one timer",
+    "spectator DOM hides all private traps",
+    "cross-owner partially overlapping bridge rejected via real clicks without cost",
+    "hill and turret countdowns remain distinct on the same occupied tile"
+  ],
+  "pageErrors": []
+}

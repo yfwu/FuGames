@@ -1,0 +1,7 @@
+{
+  "classicHex": "Hex revision browser passed:91cells/3players,four viewports,keyboard/touch,hidden-trap DOM permutation+reveal,own7-cell zone,turretwarning/friendlyfire/expiry,bridgewin,full mobile round,pause/visibility/restart; no JS errors or overflow.",
+  "boards": "Board browser checks passed: four viewports, keyboard/touch, pause/resume, restart, shield/accept, two full DOM matches, capture win, no console errors.",
+  "gravity": "PASS: desktop/mobile/narrow inputs, full match, four gravities, pause/blur/visibility, rapid click, draw, restart; no JS console errors\nScreenshots: /tmp/fugames-gravity-brawl",
+  "duplicateBridge": "desktop: complete 52-card game, score comparison, keyboard/touch, pause, restart, no overflow\nmobile-dummy: complete 52-card game, score comparison, keyboard/touch, pause, restart, no overflow\nnarrow: complete 52-card game, score comparison, keyboard/touch, pause, restart, no overflow\nlandscape: complete 52-card game, score comparison, keyboard/touch, pause, restart, no overflow\nmobile-defense: complete 52-card game, score comparison, keyboard/touch, pause, restart, no overflow\nNo console/page errors or failed requests. Screenshots: /tmp/fugames-bridge-review",
+  "icons": "Homepage/header shared geometry and overflow checks passed; DPR 1/2/3 contact sheets saved."
+}

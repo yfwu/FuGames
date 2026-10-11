@@ -1,0 +1,3121 @@
+{
+  "generatedAt": "2026-10-11T11:00:56.822Z",
+  "engineSha256": "e9e7eed8e92e0d6048b89cf37e8f83b84a0ac06647357a1ad087817c86987a7c",
+  "seeds": [
+    101,
+    307,
+    509,
+    719,
+    929,
+    1151
+  ],
+  "matches": 144,
+  "matrix": {
+    "rush": {
+      "cutter": {
+        "games": 36,
+        "wins": 13,
+        "losses": 9,
+        "draws": 14
+      },
+      "multi": {
+        "games": 36,
+        "wins": 10,
+        "losses": 8,
+        "draws": 18
+      }
+    },
+    "cutter": {
+      "rush": {
+        "games": 36,
+        "wins": 9,
+        "losses": 13,
+        "draws": 14
+      },
+      "multi": {
+        "games": 36,
+        "wins": 8,
+        "losses": 13,
+        "draws": 15
+      }
+    },
+    "multi": {
+      "rush": {
+        "games": 36,
+        "wins": 8,
+        "losses": 10,
+        "draws": 18
+      },
+      "cutter": {
+        "games": 36,
+        "wins": 13,
+        "losses": 8,
+        "draws": 15
+      }
+    }
+  },
+  "threeWay": {
+    "games": 36,
+    "wins": {
+      "rush": 7,
+      "cutter": 7,
+      "multi": 7
+    },
+    "draws": 15,
+    "winsBySeat": [
+      9,
+      8,
+      4
+    ],
+    "winsByStartOrder": [
+      8,
+      5,
+      8
+    ]
+  },
+  "counts": {
+    "actions": {
+      "double": 1335,
+      "engineer": 1841,
+      "place": 10598,
+      "remove": 686,
+      "trap": 595,
+      "turret": 698,
+      "terraform": 410,
+      "bridge": 282,
+      "disarm": 1
+    },
+    "events": {
+      "trap": 573,
+      "hill": 1407,
+      "fire": 1047,
+      "expiry": 1156,
+      "warning": 361,
+      "neutral": 358
+    },
+    "illegal": 0
+  },
+  "length": {
+    "mean": 114.20833333333333,
+    "median": 126,
+    "p95": 156,
+    "max": 180
+  },
+  "chooseActionMs": {
+    "mean": 28.69319449963515,
+    "median": 23.075983000002452,
+    "p95": 67.44579199998407,
+    "max": 632.0320139999967
+  },
+  "elapsedSeconds": 474.780081559,
+  "gamesPerMinute": 18.197899060191144,
+  "cycleObserved": false,
+  "limitations": [
+    "Six independent seeds; seat/mirror matches for the same seed are correlated.",
+    "A descriptive three-player mirrored matchup, not a two-player game or significance test.",
+    "Timings measured in this Node/Linux container; excludes rendering and configured delays.",
+    "Profiles share legal rules, tactical search depth and scoring for wins; no cyclic win bonus."
+  ],
+  "fixtures": [
+    {
+      "seed": 101,
+      "lineup": [
+        "rush",
+        "cutter",
+        "cutter"
+      ],
+      "first": 1,
+      "axis": 0,
+      "timed": false,
+      "neutral": false,
+      "group": "rush/cutter",
+      "winner": 0,
+      "winningProfile": null,
+      "ply": 127,
+      "reason": "滿盤：比較連線代價（己子 0／空格 1／敵子 3），最低者勝；同分和局。",
+      "scores": [
+        6,
+        3,
+        3
+      ]
+    },
+    {
+      "seed": 101,
+      "lineup": [
+        "cutter",
+        "rush",
+        "cutter"
+      ],
+      "first": 2,
+      "axis": 1,
+      "timed": false,
+      "neutral": false,
+      "group": "rush/cutter",
+      "winner": 0,
+      "winningProfile": null,
+      "ply": 125,
+      "reason": "滿盤：比較連線代價（己子 0／空格 1／敵子 3），最低者勝；同分和局。",
+      "scores": [
+        3,
+        3,
+        6
+      ]
+    },
+    {
+      "seed": 101,
+      "lineup": [
+        "cutter",
+        "cutter",
+        "rush"
+      ],
+      "first": 3,
+      "axis": 2,
+      "timed": false,
+      "neutral": false,
+      "group": "rush/cutter",
+      "winner": 2,
+      "winningProfile": "cutter",
+      "ply": 78,
+      "reason": "完成本手全部效果後，率先接通自己的對邊。",
+      "scores": null
+    },
+    {
+      "seed": 101,
+      "lineup": [
+        "cutter",
+        "rush",
+        "rush"
+      ],
+      "first": 1,
+      "axis": 0,
+      "timed": false,
+      "neutral": false,
+      "group": "rush/cutter",
+      "winner": 3,
+      "winningProfile": "rush",
+      "ply": 69,
+      "reason": "完成本手全部效果後，率先接通自己的對邊。",
+      "scores": null
+    },
+    {
+      "seed": 101,
+      "lineup": [
+        "rush",
+        "cutter",
+        "rush"
+      ],
+      "first": 2,
+      "axis": 1,
+      "timed": false,
+      "neutral": false,
+      "group": "rush/cutter",
+      "winner": 0,
+      "winningProfile": null,
+      "ply": 127,
+      "reason": "滿盤：比較連線代價（己子 0／空格 1／敵子 3），最低者勝；同分和局。",
+      "scores": [
+        3,
+        6,
+        3
+      ]
+    },
+    {
+      "seed": 101,
+      "lineup": [
+        "rush",
+        "rush",
+        "cutter"
+      ],
+      "first": 3,
+      "axis": 2,
+      "timed": false,
+      "neutral": false,
+      "group": "rush/cutter",
+      "winner": 0,
+      "winningProfile": null,
+      "ply": 127,
+      "reason": "滿盤：比較連線代價（己子 0／空格 1／敵子 3），最低者勝；同分和局。",
+      "scores": [
+        3,
+        9,
+        3
+      ]
+    },
+    {
+      "seed": 307,
+      "lineup": [
+        "rush",
+        "cutter",
+        "cutter"
+      ],
+      "first": 2,
+      "axis": 1,
+      "timed": true,
+      "neutral": true,
+      "group": "rush/cutter",
+      "winner": 0,
+      "winningProfile": null,
+      "ply": 124,
+      "reason": "滿盤：比較連線代價（己子 0／空格 1／敵子 3），最低者勝；同分和局。",
+      "scores": [
+        3,
+        6,
+        3
+      ]
+    },
+    {
+      "seed": 307,
+      "lineup": [
+        "cutter",
+        "rush",
+        "cutter"
+      ],
+      "first": 3,
+      "axis": 2,
+      "timed": true,
+      "neutral": true,
+      "group": "rush/cutter",
+      "winner": 2,
+      "winningProfile": "rush",
+      "ply": 48,
+      "reason": "完成本手全部效果後，率先接通自己的對邊。",
+      "scores": null
+    },
+    {
+      "seed": 307,
+      "lineup": [
+        "cutter",
+        "cutter",
+        "rush"
+      ],
+      "first": 1,
+      "axis": 0,
+      "timed": true,
+      "neutral": true,
+      "group": "rush/cutter",
+      "winner": 2,
+      "winningProfile": "cutter",
+      "ply": 118,
+      "reason": "滿盤：比較連線代價（己子 0／空格 1／敵子 3），最低者勝；同分和局。",
+      "scores": [
+        6,
+        3,
+        6
+      ]
+    },
+    {
+      "seed": 307,
+      "lineup": [
+        "cutter",
+        "rush",
+        "rush"
+      ],
+      "first": 2,
+      "axis": 1,
+      "timed": true,
+      "neutral": true,
+      "group": "rush/cutter",
+      "winner": 3,
+      "winningProfile": "rush",
+      "ply": 180,
+      "reason": "180 手上限：比較連線代價（己子 0／空格 1／敵子 3），最低者勝；同分和局。",
+      "scores": [
+        6,
+        6,
+        3
+      ]
+    },
+    {
+      "seed": 307,
+      "lineup": [
+        "rush",
+        "cutter",
+        "rush"
+      ],
+      "first": 3,
+      "axis": 2,
+      "timed": true,
+      "neutral": true,
+      "group": "rush/cutter",
+      "winner": 3,
+      "winningProfile": "rush",
+      "ply": 118,
+      "reason": "滿盤：比較連線代價（己子 0／空格 1／敵子 3），最低者勝；同分和局。",
+      "scores": [
+        9,
+        9,
+        6
+      ]
+    },
+    {
+      "seed": 307,
+      "lineup": [
+        "rush",
+        "rush",
+        "cutter"
+      ],
+      "first": 1,
+      "axis": 0,
+      "timed": true,
+      "neutral": true,
+      "group": "rush/cutter",
+      "winner": 0,
+      "winningProfile": null,
+      "ply": 180,
+      "reason": "180 手上限：比較連線代價（己子 0／空格 1／敵子 3），最低者勝；同分和局。",
+      "scores": [
+        6,
+        6,
+        6
+      ]
+    },
+    {
+      "seed": 509,
+      "lineup": [
+        "rush",
+        "cutter",
+        "cutter"
+      ],
+      "first": 3,
+      "axis": 2,
+      "timed": false,
+      "neutral": true,
+      "group": "rush/cutter",
+      "winner": 2,
+      "winningProfile": "cutter",
+      "ply": 141,
+      "reason": "滿盤：比較連線代價（己子 0／空格 1／敵子 3），最低者勝；同分和局。",
+      "scores": [
+        6,
+        3,
+        6
+      ]
+    },
+    {
+      "seed": 509,
+      "lineup": [
+        "cutter",
+        "rush",
+        "cutter"
+      ],
+      "first": 1,
+      "axis": 0,
+      "timed": false,
+      "neutral": true,
+      "group": "rush/cutter",
+      "winner": 3,
+      "winningProfile": "cutter",
+      "ply": 99,
+      "reason": "完成本手全部效果後，率先接通自己的對邊。",
+      "scores": null
+    },
+    {
+      "seed": 509,
+      "lineup": [
+        "cutter",
+        "cutter",
+        "rush"
+      ],
+      "first": 2,
+      "axis": 1,
+      "timed": false,
+      "neutral": true,
+      "group": "rush/cutter",
+      "winner": 3,
+      "winningProfile": "rush",
+      "ply": 80,
+      "reason": "完成本手全部效果後，率先接通自己的對邊。",
+      "scores": null
+    },
+    {
+      "seed": 509,
+      "lineup": [
+        "cutter",
+        "rush",
+        "rush"
+      ],
+      "first": 3,
+      "axis": 2,
+      "timed": false,
+      "neutral": true,
+      "group": "rush/cutter",
+      "winner": 1,
+      "winningProfile": "cutter",
+      "ply": 62,
+      "reason": "完成本手全部效果後，率先接通自己的對邊。",
+      "scores": null
+    },
+    {
+      "seed": 509,
+      "lineup": [
+        "rush",
+        "cutter",
+        "rush"
+      ],
+      "first": 1,
+      "axis": 0,
+      "timed": false,
+      "neutral": true,
+      "group": "rush/cutter",
+      "winner": 2,
+      "winningProfile": "cutter",
+      "ply": 80,
+      "reason": "完成本手全部效果後，率先接通自己的對邊。",
+      "scores": null
+    },
+    {
+      "seed": 509,
+      "lineup": [
+        "rush",
+        "rush",
+        "cutter"
+      ],
+      "first": 2,
+      "axis": 1,
+      "timed": false,
+      "neutral": true,
+      "group": "rush/cutter",
+      "winner": 0,
+      "winningProfile": null,
+      "ply": 180,
+      "reason": "180 手上限：比較連線代價（己子 0／空格 1／敵子 3），最低者勝；同分和局。",
+      "scores": [
+        3,
+        3,
+        6
+      ]
+    },
+    {
+      "seed": 719,
+      "lineup": [
+        "rush",
+        "cutter",
+        "cutter"
+      ],
+      "first": 1,
+      "axis": 0,
+      "timed": true,
+      "neutral": false,
+      "group": "rush/cutter",
+      "winner": 1,
+      "winningProfile": "rush",
+      "ply": 107,
+      "reason": "滿盤：比較連線代價（己子 0／空格 1／敵子 3），最低者勝；同分和局。",
+      "scores": [
+        3,
+        6,
+        6
+      ]
+    },
+    {
+      "seed": 719,
+      "lineup": [
+        "cutter",
+        "rush",
+        "cutter"
+      ],
+      "first": 2,
+      "axis": 1,
+      "timed": true,
+      "neutral": false,
+      "group": "rush/cutter",
+      "winner": 2,
+      "winningProfile": "rush",
+      "ply": 52,
+      "reason": "完成本手全部效果後，率先接通自己的對邊。",
+      "scores": null
+    },
+    {
+      "seed": 719,
+      "lineup": [
+        "cutter",
+        "cutter",
+        "rush"
+      ],
+      "first": 3,
+      "axis": 2,
+      "timed": true,
+      "neutral": false,
+      "group": "rush/cutter",
+      "winner": 0,
+      "winningProfile": null,
+      "ply": 129,
+      "reason": "滿盤：比較連線代價（己子 0／空格 1／敵子 3），最低者勝；同分和局。",
+      "scores": [
+        6,
+        3,
+        3
+      ]
+    },
+    {
+      "seed": 719,
+      "lineup": [
+        "cutter",
+        "rush",
+        "rush"
+      ],
+      "first": 1,
+      "axis": 0,
+      "timed": true,
+      "neutral": false,
+      "group": "rush/cutter",
+      "winner": 3,
+      "winningProfile": "rush",
+      "ply": 157,
+      "reason": "滿盤：比較連線代價（己子 0／空格 1／敵子 3），最低者勝；同分和局。",
+      "scores": [
+        6,
+        9,
+        3
+      ]
+    },
+    {
+      "seed": 719,
+      "lineup": [
+        "rush",
+        "cutter",
+        "rush"
+      ],
+      "first": 2,
+      "axis": 1,
+      "timed": true,
+      "neutral": false,
+      "group": "rush/cutter",
+      "winner": 3,
+      "winningProfile": "rush",
+      "ply": 142,
+      "reason": "滿盤：比較連線代價（己子 0／空格 1／敵子 3），最低者勝；同分和局。",
+      "scores": [
+        9,
+        6,
+        3
+      ]
+    },
+    {
+      "seed": 719,
+      "lineup": [
+        "rush",
+        "rush",
+        "cutter"
+      ],
+      "first": 3,
+      "axis": 2,
+      "timed": true,
+      "neutral": false,
+      "group": "rush/cutter",
+      "winner": 1,
+      "winningProfile": "rush",
+      "ply": 145,
+      "reason": "滿盤：比較連線代價（己子 0／空格 1／敵子 3），最低者勝；同分和局。",
+      "scores": [
+        3,
+        6,
+        6
+      ]
+    },
+    {
+      "seed": 929,
+      "lineup": [
+        "rush",
+        "cutter",
+        "cutter"
+      ],
+      "first": 2,
+      "axis": 1,
+      "timed": false,
+      "neutral": true,
+      "group": "rush/cutter",
+      "winner": 2,
+      "winningProfile": "cutter",
+      "ply": 148,
+      "reason": "滿盤：比較連線代價（己子 0／空格 1／敵子 3），最低者勝；同分和局。",
+      "scores": [
+        6,
+        3,
+        6
+      ]
+    },
+    {
+      "seed": 929,
+      "lineup": [
+        "cutter",
+        "rush",
+        "cutter"
+      ],
+      "first": 3,
+      "axis": 2,
+      "timed": false,
+      "neutral": true,
+      "group": "rush/cutter",
+      "winner": 0,
+      "winningProfile": null,
+      "ply": 180,
+      "reason": "180 手上限：比較連線代價（己子 0／空格 1／敵子 3），最低者勝；同分和局。",
+      "scores": [
+        3,
+        3,
+        6
+      ]
+    },
+    {
+      "seed": 929,
+      "lineup": [
+        "cutter",
+        "cutter",
+        "rush"
+      ],
+      "first": 1,
+      "axis": 0,
+      "timed": false,
+      "neutral": true,
+      "group": "rush/cutter",
+      "winner": 0,
+      "winningProfile": null,
+      "ply": 135,
+      "reason": "滿盤：比較連線代價（己子 0／空格 1／敵子 3），最低者勝；同分和局。",
+      "scores": [
+        3,
+        9,
+        3
+      ]
+    },
+    {
+      "seed": 929,
+      "lineup": [
+        "cutter",
+        "rush",
+        "rush"
+      ],
+      "first": 2,
+      "axis": 1,
+      "timed": false,
+      "neutral": true,
+      "group": "rush/cutter",
+      "winner": 0,
+      "winningProfile": null,
+      "ply": 147,
+      "reason": "滿盤：比較連線代價（己子 0／空格 1／敵子 3），最低者勝；同分和局。",
+      "scores": [
+        6,
+        3,
+        3
+      ]
+    },
+    {
+      "seed": 929,
+      "lineup": [
+        "rush",
+        "cutter",
+        "rush"
+      ],
+      "first": 3,
+      "axis": 2,
+      "timed": false,
+      "neutral": true,
+      "group": "rush/cutter",
+      "winner": 1,
+      "winningProfile": "rush",
+      "ply": 41,
+      "reason": "完成本手全部效果後，率先接通自己的對邊。",
+      "scores": null
+    },
+    {
+      "seed": 929,
+      "lineup": [
+        "rush",
+        "rush",
+        "cutter"
+      ],
+      "first": 1,
+      "axis": 0,
+      "timed": false,
+      "neutral": true,
+      "group": "rush/cutter",
+      "winner": 2,
+      "winningProfile": "rush",
+      "ply": 74,
+      "reason": "完成本手全部效果後，率先接通自己的對邊。",
+      "scores": null
+    },
+    {
+      "seed": 1151,
+      "lineup": [
+        "rush",
+        "cutter",
+        "cutter"
+      ],
+      "first": 3,
+      "axis": 2,
+      "timed": true,
+      "neutral": true,
+      "group": "rush/cutter",
+      "winner": 3,
+      "winningProfile": "cutter",
+      "ply": 131,
+      "reason": "滿盤：比較連線代價（己子 0／空格 1／敵子 3），最低者勝；同分和局。",
+      "scores": [
+        9,
+        9,
+        3
+      ]
+    },
+    {
+      "seed": 1151,
+      "lineup": [
+        "cutter",
+        "rush",
+        "cutter"
+      ],
+      "first": 1,
+      "axis": 0,
+      "timed": true,
+      "neutral": true,
+      "group": "rush/cutter",
+      "winner": 0,
+      "winningProfile": null,
+      "ply": 149,
+      "reason": "滿盤：比較連線代價（己子 0／空格 1／敵子 3），最低者勝；同分和局。",
+      "scores": [
+        6,
+        3,
+        3
+      ]
+    },
+    {
+      "seed": 1151,
+      "lineup": [
+        "cutter",
+        "cutter",
+        "rush"
+      ],
+      "first": 2,
+      "axis": 1,
+      "timed": true,
+      "neutral": true,
+      "group": "rush/cutter",
+      "winner": 0,
+      "winningProfile": null,
+      "ply": 156,
+      "reason": "滿盤：比較連線代價（己子 0／空格 1／敵子 3），最低者勝；同分和局。",
+      "scores": [
+        3,
+        3,
+        3
+      ]
+    },
+    {
+      "seed": 1151,
+      "lineup": [
+        "cutter",
+        "rush",
+        "rush"
+      ],
+      "first": 3,
+      "axis": 2,
+      "timed": true,
+      "neutral": true,
+      "group": "rush/cutter",
+      "winner": 1,
+      "winningProfile": "cutter",
+      "ply": 130,
+      "reason": "滿盤：比較連線代價（己子 0／空格 1／敵子 3），最低者勝；同分和局。",
+      "scores": [
+        3,
+        6,
+        6
+      ]
+    },
+    {
+      "seed": 1151,
+      "lineup": [
+        "rush",
+        "cutter",
+        "rush"
+      ],
+      "first": 1,
+      "axis": 0,
+      "timed": true,
+      "neutral": true,
+      "group": "rush/cutter",
+      "winner": 1,
+      "winningProfile": "rush",
+      "ply": 180,
+      "reason": "180 手上限：比較連線代價（己子 0／空格 1／敵子 3），最低者勝；同分和局。",
+      "scores": [
+        3,
+        9,
+        6
+      ]
+    },
+    {
+      "seed": 1151,
+      "lineup": [
+        "rush",
+        "rush",
+        "cutter"
+      ],
+      "first": 2,
+      "axis": 1,
+      "timed": true,
+      "neutral": true,
+      "group": "rush/cutter",
+      "winner": 0,
+      "winningProfile": null,
+      "ply": 129,
+      "reason": "滿盤：比較連線代價（己子 0／空格 1／敵子 3），最低者勝；同分和局。",
+      "scores": [
+        9,
+        6,
+        6
+      ]
+    },
+    {
+      "seed": 101,
+      "lineup": [
+        "rush",
+        "multi",
+        "multi"
+      ],
+      "first": 1,
+      "axis": 0,
+      "timed": false,
+      "neutral": false,
+      "group": "rush/multi",
+      "winner": 0,
+      "winningProfile": null,
+      "ply": 130,
+      "reason": "滿盤：比較連線代價（己子 0／空格 1／敵子 3），最低者勝；同分和局。",
+      "scores": [
+        6,
+        3,
+        3
+      ]
+    },
+    {
+      "seed": 101,
+      "lineup": [
+        "multi",
+        "rush",
+        "multi"
+      ],
+      "first": 2,
+      "axis": 1,
+      "timed": false,
+      "neutral": false,
+      "group": "rush/multi",
+      "winner": 0,
+      "winningProfile": null,
+      "ply": 126,
+      "reason": "滿盤：比較連線代價（己子 0／空格 1／敵子 3），最低者勝；同分和局。",
+      "scores": [
+        6,
+        3,
+        3
+      ]
+    },
+    {
+      "seed": 101,
+      "lineup": [
+        "multi",
+        "multi",
+        "rush"
+      ],
+      "first": 3,
+      "axis": 2,
+      "timed": false,
+      "neutral": false,
+      "group": "rush/multi",
+      "winner": 0,
+      "winningProfile": null,
+      "ply": 126,
+      "reason": "滿盤：比較連線代價（己子 0／空格 1／敵子 3），最低者勝；同分和局。",
+      "scores": [
+        3,
+        9,
+        3
+      ]
+    },
+    {
+      "seed": 101,
+      "lineup": [
+        "multi",
+        "rush",
+        "rush"
+      ],
+      "first": 1,
+      "axis": 0,
+      "timed": false,
+      "neutral": false,
+      "group": "rush/multi",
+      "winner": 0,
+      "winningProfile": null,
+      "ply": 119,
+      "reason": "滿盤：比較連線代價（己子 0／空格 1／敵子 3），最低者勝；同分和局。",
+      "scores": [
+        3,
+        3,
+        9
+      ]
+    },
+    {
+      "seed": 101,
+      "lineup": [
+        "rush",
+        "multi",
+        "rush"
+      ],
+      "first": 2,
+      "axis": 1,
+      "timed": false,
+      "neutral": false,
+      "group": "rush/multi",
+      "winner": 0,
+      "winningProfile": null,
+      "ply": 131,
+      "reason": "滿盤：比較連線代價（己子 0／空格 1／敵子 3），最低者勝；同分和局。",
+      "scores": [
+        6,
+        3,
+        3
+      ]
+    },
+    {
+      "seed": 101,
+      "lineup": [
+        "rush",
+        "rush",
+        "multi"
+      ],
+      "first": 3,
+      "axis": 2,
+      "timed": false,
+      "neutral": false,
+      "group": "rush/multi",
+      "winner": 0,
+      "winningProfile": null,
+      "ply": 134,
+      "reason": "滿盤：比較連線代價（己子 0／空格 1／敵子 3），最低者勝；同分和局。",
+      "scores": [
+        3,
+        3,
+        9
+      ]
+    },
+    {
+      "seed": 307,
+      "lineup": [
+        "rush",
+        "multi",
+        "multi"
+      ],
+      "first": 2,
+      "axis": 1,
+      "timed": true,
+      "neutral": true,
+      "group": "rush/multi",
+      "winner": 0,
+      "winningProfile": null,
+      "ply": 116,
+      "reason": "滿盤：比較連線代價（己子 0／空格 1／敵子 3），最低者勝；同分和局。",
+      "scores": [
+        3,
+        9,
+        3
+      ]
+    },
+    {
+      "seed": 307,
+      "lineup": [
+        "multi",
+        "rush",
+        "multi"
+      ],
+      "first": 3,
+      "axis": 2,
+      "timed": true,
+      "neutral": true,
+      "group": "rush/multi",
+      "winner": 1,
+      "winningProfile": "multi",
+      "ply": 122,
+      "reason": "滿盤：比較連線代價（己子 0／空格 1／敵子 3），最低者勝；同分和局。",
+      "scores": [
+        3,
+        6,
+        9
+      ]
+    },
+    {
+      "seed": 307,
+      "lineup": [
+        "multi",
+        "multi",
+        "rush"
+      ],
+      "first": 1,
+      "axis": 0,
+      "timed": true,
+      "neutral": true,
+      "group": "rush/multi",
+      "winner": 2,
+      "winningProfile": "multi",
+      "ply": 125,
+      "reason": "滿盤：比較連線代價（己子 0／空格 1／敵子 3），最低者勝；同分和局。",
+      "scores": [
+        6,
+        3,
+        6
+      ]
+    },
+    {
+      "seed": 307,
+      "lineup": [
+        "multi",
+        "rush",
+        "rush"
+      ],
+      "first": 2,
+      "axis": 1,
+      "timed": true,
+      "neutral": true,
+      "group": "rush/multi",
+      "winner": 0,
+      "winningProfile": null,
+      "ply": 118,
+      "reason": "滿盤：比較連線代價（己子 0／空格 1／敵子 3），最低者勝；同分和局。",
+      "scores": [
+        3,
+        6,
+        3
+      ]
+    },
+    {
+      "seed": 307,
+      "lineup": [
+        "rush",
+        "multi",
+        "rush"
+      ],
+      "first": 3,
+      "axis": 2,
+      "timed": true,
+      "neutral": true,
+      "group": "rush/multi",
+      "winner": 2,
+      "winningProfile": "multi",
+      "ply": 133,
+      "reason": "滿盤：比較連線代價（己子 0／空格 1／敵子 3），最低者勝；同分和局。",
+      "scores": [
+        6,
+        3,
+        6
+      ]
+    },
+    {
+      "seed": 307,
+      "lineup": [
+        "rush",
+        "rush",
+        "multi"
+      ],
+      "first": 1,
+      "axis": 0,
+      "timed": true,
+      "neutral": true,
+      "group": "rush/multi",
+      "winner": 0,
+      "winningProfile": null,
+      "ply": 118,
+      "reason": "滿盤：比較連線代價（己子 0／空格 1／敵子 3），最低者勝；同分和局。",
+      "scores": [
+        3,
+        3,
+        3
+      ]
+    },
+    {
+      "seed": 509,
+      "lineup": [
+        "rush",
+        "multi",
+        "multi"
+      ],
+      "first": 3,
+      "axis": 2,
+      "timed": false,
+      "neutral": true,
+      "group": "rush/multi",
+      "winner": 1,
+      "winningProfile": "rush",
+      "ply": 95,
+      "reason": "完成本手全部效果後，率先接通自己的對邊。",
+      "scores": null
+    },
+    {
+      "seed": 509,
+      "lineup": [
+        "multi",
+        "rush",
+        "multi"
+      ],
+      "first": 1,
+      "axis": 0,
+      "timed": false,
+      "neutral": true,
+      "group": "rush/multi",
+      "winner": 2,
+      "winningProfile": "rush",
+      "ply": 71,
+      "reason": "完成本手全部效果後，率先接通自己的對邊。",
+      "scores": null
+    },
+    {
+      "seed": 509,
+      "lineup": [
+        "multi",
+        "multi",
+        "rush"
+      ],
+      "first": 2,
+      "axis": 1,
+      "timed": false,
+      "neutral": true,
+      "group": "rush/multi",
+      "winner": 3,
+      "winningProfile": "rush",
+      "ply": 62,
+      "reason": "完成本手全部效果後，率先接通自己的對邊。",
+      "scores": null
+    },
+    {
+      "seed": 509,
+      "lineup": [
+        "multi",
+        "rush",
+        "rush"
+      ],
+      "first": 3,
+      "axis": 2,
+      "timed": false,
+      "neutral": true,
+      "group": "rush/multi",
+      "winner": 1,
+      "winningProfile": "multi",
+      "ply": 74,
+      "reason": "完成本手全部效果後，率先接通自己的對邊。",
+      "scores": null
+    },
+    {
+      "seed": 509,
+      "lineup": [
+        "rush",
+        "multi",
+        "rush"
+      ],
+      "first": 1,
+      "axis": 0,
+      "timed": false,
+      "neutral": true,
+      "group": "rush/multi",
+      "winner": 3,
+      "winningProfile": "rush",
+      "ply": 69,
+      "reason": "完成本手全部效果後，率先接通自己的對邊。",
+      "scores": null
+    },
+    {
+      "seed": 509,
+      "lineup": [
+        "rush",
+        "rush",
+        "multi"
+      ],
+      "first": 2,
+      "axis": 1,
+      "timed": false,
+      "neutral": true,
+      "group": "rush/multi",
+      "winner": 2,
+      "winningProfile": "rush",
+      "ply": 52,
+      "reason": "完成本手全部效果後，率先接通自己的對邊。",
+      "scores": null
+    },
+    {
+      "seed": 719,
+      "lineup": [
+        "rush",
+        "multi",
+        "multi"
+      ],
+      "first": 1,
+      "axis": 0,
+      "timed": true,
+      "neutral": false,
+      "group": "rush/multi",
+      "winner": 0,
+      "winningProfile": null,
+      "ply": 129,
+      "reason": "滿盤：比較連線代價（己子 0／空格 1／敵子 3），最低者勝；同分和局。",
+      "scores": [
+        3,
+        3,
+        3
+      ]
+    },
+    {
+      "seed": 719,
+      "lineup": [
+        "multi",
+        "rush",
+        "multi"
+      ],
+      "first": 2,
+      "axis": 1,
+      "timed": true,
+      "neutral": false,
+      "group": "rush/multi",
+      "winner": 0,
+      "winningProfile": null,
+      "ply": 132,
+      "reason": "滿盤：比較連線代價（己子 0／空格 1／敵子 3），最低者勝；同分和局。",
+      "scores": [
+        3,
+        3,
+        6
+      ]
+    },
+    {
+      "seed": 719,
+      "lineup": [
+        "multi",
+        "multi",
+        "rush"
+      ],
+      "first": 3,
+      "axis": 2,
+      "timed": true,
+      "neutral": false,
+      "group": "rush/multi",
+      "winner": 0,
+      "winningProfile": null,
+      "ply": 132,
+      "reason": "滿盤：比較連線代價（己子 0／空格 1／敵子 3），最低者勝；同分和局。",
+      "scores": [
+        6,
+        3,
+        3
+      ]
+    },
+    {
+      "seed": 719,
+      "lineup": [
+        "multi",
+        "rush",
+        "rush"
+      ],
+      "first": 1,
+      "axis": 0,
+      "timed": true,
+      "neutral": false,
+      "group": "rush/multi",
+      "winner": 0,
+      "winningProfile": null,
+      "ply": 128,
+      "reason": "滿盤：比較連線代價（己子 0／空格 1／敵子 3），最低者勝；同分和局。",
+      "scores": [
+        3,
+        3,
+        3
+      ]
+    },
+    {
+      "seed": 719,
+      "lineup": [
+        "rush",
+        "multi",
+        "rush"
+      ],
+      "first": 2,
+      "axis": 1,
+      "timed": true,
+      "neutral": false,
+      "group": "rush/multi",
+      "winner": 2,
+      "winningProfile": "multi",
+      "ply": 37,
+      "reason": "完成本手全部效果後，率先接通自己的對邊。",
+      "scores": null
+    },
+    {
+      "seed": 719,
+      "lineup": [
+        "rush",
+        "rush",
+        "multi"
+      ],
+      "first": 3,
+      "axis": 2,
+      "timed": true,
+      "neutral": false,
+      "group": "rush/multi",
+      "winner": 0,
+      "winningProfile": null,
+      "ply": 132,
+      "reason": "滿盤：比較連線代價（己子 0／空格 1／敵子 3），最低者勝；同分和局。",
+      "scores": [
+        3,
+        3,
+        6
+      ]
+    },
+    {
+      "seed": 929,
+      "lineup": [
+        "rush",
+        "multi",
+        "multi"
+      ],
+      "first": 2,
+      "axis": 1,
+      "timed": false,
+      "neutral": true,
+      "group": "rush/multi",
+      "winner": 1,
+      "winningProfile": "rush",
+      "ply": 45,
+      "reason": "完成本手全部效果後，率先接通自己的對邊。",
+      "scores": null
+    },
+    {
+      "seed": 929,
+      "lineup": [
+        "multi",
+        "rush",
+        "multi"
+      ],
+      "first": 3,
+      "axis": 2,
+      "timed": false,
+      "neutral": true,
+      "group": "rush/multi",
+      "winner": 1,
+      "winningProfile": "multi",
+      "ply": 62,
+      "reason": "完成本手全部效果後，率先接通自己的對邊。",
+      "scores": null
+    },
+    {
+      "seed": 929,
+      "lineup": [
+        "multi",
+        "multi",
+        "rush"
+      ],
+      "first": 1,
+      "axis": 0,
+      "timed": false,
+      "neutral": true,
+      "group": "rush/multi",
+      "winner": 3,
+      "winningProfile": "rush",
+      "ply": 72,
+      "reason": "完成本手全部效果後，率先接通自己的對邊。",
+      "scores": null
+    },
+    {
+      "seed": 929,
+      "lineup": [
+        "multi",
+        "rush",
+        "rush"
+      ],
+      "first": 2,
+      "axis": 1,
+      "timed": false,
+      "neutral": true,
+      "group": "rush/multi",
+      "winner": 3,
+      "winningProfile": "rush",
+      "ply": 35,
+      "reason": "完成本手全部效果後，率先接通自己的對邊。",
+      "scores": null
+    },
+    {
+      "seed": 929,
+      "lineup": [
+        "rush",
+        "multi",
+        "rush"
+      ],
+      "first": 3,
+      "axis": 2,
+      "timed": false,
+      "neutral": true,
+      "group": "rush/multi",
+      "winner": 0,
+      "winningProfile": null,
+      "ply": 148,
+      "reason": "滿盤：比較連線代價（己子 0／空格 1／敵子 3），最低者勝；同分和局。",
+      "scores": [
+        3,
+        3,
+        6
+      ]
+    },
+    {
+      "seed": 929,
+      "lineup": [
+        "rush",
+        "rush",
+        "multi"
+      ],
+      "first": 1,
+      "axis": 0,
+      "timed": false,
+      "neutral": true,
+      "group": "rush/multi",
+      "winner": 3,
+      "winningProfile": "multi",
+      "ply": 78,
+      "reason": "完成本手全部效果後，率先接通自己的對邊。",
+      "scores": null
+    },
+    {
+      "seed": 1151,
+      "lineup": [
+        "rush",
+        "multi",
+        "multi"
+      ],
+      "first": 3,
+      "axis": 2,
+      "timed": true,
+      "neutral": true,
+      "group": "rush/multi",
+      "winner": 1,
+      "winningProfile": "rush",
+      "ply": 127,
+      "reason": "滿盤：比較連線代價（己子 0／空格 1／敵子 3），最低者勝；同分和局。",
+      "scores": [
+        3,
+        6,
+        6
+      ]
+    },
+    {
+      "seed": 1151,
+      "lineup": [
+        "multi",
+        "rush",
+        "multi"
+      ],
+      "first": 1,
+      "axis": 0,
+      "timed": true,
+      "neutral": true,
+      "group": "rush/multi",
+      "winner": 0,
+      "winningProfile": null,
+      "ply": 121,
+      "reason": "滿盤：比較連線代價（己子 0／空格 1／敵子 3），最低者勝；同分和局。",
+      "scores": [
+        3,
+        3,
+        6
+      ]
+    },
+    {
+      "seed": 1151,
+      "lineup": [
+        "multi",
+        "multi",
+        "rush"
+      ],
+      "first": 2,
+      "axis": 1,
+      "timed": true,
+      "neutral": true,
+      "group": "rush/multi",
+      "winner": 3,
+      "winningProfile": "rush",
+      "ply": 137,
+      "reason": "滿盤：比較連線代價（己子 0／空格 1／敵子 3），最低者勝；同分和局。",
+      "scores": [
+        6,
+        6,
+        3
+      ]
+    },
+    {
+      "seed": 1151,
+      "lineup": [
+        "multi",
+        "rush",
+        "rush"
+      ],
+      "first": 3,
+      "axis": 2,
+      "timed": true,
+      "neutral": true,
+      "group": "rush/multi",
+      "winner": 1,
+      "winningProfile": "multi",
+      "ply": 138,
+      "reason": "滿盤：比較連線代價（己子 0／空格 1／敵子 3），最低者勝；同分和局。",
+      "scores": [
+        3,
+        6,
+        6
+      ]
+    },
+    {
+      "seed": 1151,
+      "lineup": [
+        "rush",
+        "multi",
+        "rush"
+      ],
+      "first": 1,
+      "axis": 0,
+      "timed": true,
+      "neutral": true,
+      "group": "rush/multi",
+      "winner": 0,
+      "winningProfile": null,
+      "ply": 132,
+      "reason": "滿盤：比較連線代價（己子 0／空格 1／敵子 3），最低者勝；同分和局。",
+      "scores": [
+        3,
+        9,
+        3
+      ]
+    },
+    {
+      "seed": 1151,
+      "lineup": [
+        "rush",
+        "rush",
+        "multi"
+      ],
+      "first": 2,
+      "axis": 1,
+      "timed": true,
+      "neutral": true,
+      "group": "rush/multi",
+      "winner": 0,
+      "winningProfile": null,
+      "ply": 135,
+      "reason": "滿盤：比較連線代價（己子 0／空格 1／敵子 3），最低者勝；同分和局。",
+      "scores": [
+        6,
+        3,
+        3
+      ]
+    },
+    {
+      "seed": 101,
+      "lineup": [
+        "cutter",
+        "multi",
+        "multi"
+      ],
+      "first": 1,
+      "axis": 0,
+      "timed": false,
+      "neutral": false,
+      "group": "cutter/multi",
+      "winner": 2,
+      "winningProfile": "multi",
+      "ply": 123,
+      "reason": "滿盤：比較連線代價（己子 0／空格 1／敵子 3），最低者勝；同分和局。",
+      "scores": [
+        9,
+        3,
+        9
+      ]
+    },
+    {
+      "seed": 101,
+      "lineup": [
+        "multi",
+        "cutter",
+        "multi"
+      ],
+      "first": 2,
+      "axis": 1,
+      "timed": false,
+      "neutral": false,
+      "group": "cutter/multi",
+      "winner": 1,
+      "winningProfile": "multi",
+      "ply": 130,
+      "reason": "滿盤：比較連線代價（己子 0／空格 1／敵子 3），最低者勝；同分和局。",
+      "scores": [
+        3,
+        9,
+        6
+      ]
+    },
+    {
+      "seed": 101,
+      "lineup": [
+        "multi",
+        "multi",
+        "cutter"
+      ],
+      "first": 3,
+      "axis": 2,
+      "timed": false,
+      "neutral": false,
+      "group": "cutter/multi",
+      "winner": 0,
+      "winningProfile": null,
+      "ply": 126,
+      "reason": "滿盤：比較連線代價（己子 0／空格 1／敵子 3），最低者勝；同分和局。",
+      "scores": [
+        3,
+        3,
+        9
+      ]
+    },
+    {
+      "seed": 101,
+      "lineup": [
+        "multi",
+        "cutter",
+        "cutter"
+      ],
+      "first": 1,
+      "axis": 0,
+      "timed": false,
+      "neutral": false,
+      "group": "cutter/multi",
+      "winner": 0,
+      "winningProfile": null,
+      "ply": 128,
+      "reason": "滿盤：比較連線代價（己子 0／空格 1／敵子 3），最低者勝；同分和局。",
+      "scores": [
+        3,
+        6,
+        3
+      ]
+    },
+    {
+      "seed": 101,
+      "lineup": [
+        "cutter",
+        "multi",
+        "cutter"
+      ],
+      "first": 2,
+      "axis": 1,
+      "timed": false,
+      "neutral": false,
+      "group": "cutter/multi",
+      "winner": 0,
+      "winningProfile": null,
+      "ply": 119,
+      "reason": "滿盤：比較連線代價（己子 0／空格 1／敵子 3），最低者勝；同分和局。",
+      "scores": [
+        3,
+        3,
+        6
+      ]
+    },
+    {
+      "seed": 101,
+      "lineup": [
+        "cutter",
+        "cutter",
+        "multi"
+      ],
+      "first": 3,
+      "axis": 2,
+      "timed": false,
+      "neutral": false,
+      "group": "cutter/multi",
+      "winner": 2,
+      "winningProfile": "cutter",
+      "ply": 78,
+      "reason": "完成本手全部效果後，率先接通自己的對邊。",
+      "scores": null
+    },
+    {
+      "seed": 307,
+      "lineup": [
+        "cutter",
+        "multi",
+        "multi"
+      ],
+      "first": 2,
+      "axis": 1,
+      "timed": true,
+      "neutral": true,
+      "group": "cutter/multi",
+      "winner": 3,
+      "winningProfile": "multi",
+      "ply": 119,
+      "reason": "滿盤：比較連線代價（己子 0／空格 1／敵子 3），最低者勝；同分和局。",
+      "scores": [
+        6,
+        9,
+        3
+      ]
+    },
+    {
+      "seed": 307,
+      "lineup": [
+        "multi",
+        "cutter",
+        "multi"
+      ],
+      "first": 3,
+      "axis": 2,
+      "timed": true,
+      "neutral": true,
+      "group": "cutter/multi",
+      "winner": 3,
+      "winningProfile": "multi",
+      "ply": 119,
+      "reason": "滿盤：比較連線代價（己子 0／空格 1／敵子 3），最低者勝；同分和局。",
+      "scores": [
+        6,
+        6,
+        3
+      ]
+    },
+    {
+      "seed": 307,
+      "lineup": [
+        "multi",
+        "multi",
+        "cutter"
+      ],
+      "first": 1,
+      "axis": 0,
+      "timed": true,
+      "neutral": true,
+      "group": "cutter/multi",
+      "winner": 2,
+      "winningProfile": "multi",
+      "ply": 125,
+      "reason": "滿盤：比較連線代價（己子 0／空格 1／敵子 3），最低者勝；同分和局。",
+      "scores": [
+        6,
+        3,
+        6
+      ]
+    },
+    {
+      "seed": 307,
+      "lineup": [
+        "multi",
+        "cutter",
+        "cutter"
+      ],
+      "first": 2,
+      "axis": 1,
+      "timed": true,
+      "neutral": true,
+      "group": "cutter/multi",
+      "winner": 0,
+      "winningProfile": null,
+      "ply": 109,
+      "reason": "滿盤：比較連線代價（己子 0／空格 1／敵子 3），最低者勝；同分和局。",
+      "scores": [
+        3,
+        6,
+        3
+      ]
+    },
+    {
+      "seed": 307,
+      "lineup": [
+        "cutter",
+        "multi",
+        "cutter"
+      ],
+      "first": 3,
+      "axis": 2,
+      "timed": true,
+      "neutral": true,
+      "group": "cutter/multi",
+      "winner": 2,
+      "winningProfile": "multi",
+      "ply": 124,
+      "reason": "滿盤：比較連線代價（己子 0／空格 1／敵子 3），最低者勝；同分和局。",
+      "scores": [
+        6,
+        3,
+        6
+      ]
+    },
+    {
+      "seed": 307,
+      "lineup": [
+        "cutter",
+        "cutter",
+        "multi"
+      ],
+      "first": 1,
+      "axis": 0,
+      "timed": true,
+      "neutral": true,
+      "group": "cutter/multi",
+      "winner": 0,
+      "winningProfile": null,
+      "ply": 121,
+      "reason": "滿盤：比較連線代價（己子 0／空格 1／敵子 3），最低者勝；同分和局。",
+      "scores": [
+        3,
+        3,
+        9
+      ]
+    },
+    {
+      "seed": 509,
+      "lineup": [
+        "cutter",
+        "multi",
+        "multi"
+      ],
+      "first": 3,
+      "axis": 2,
+      "timed": false,
+      "neutral": true,
+      "group": "cutter/multi",
+      "winner": 3,
+      "winningProfile": "multi",
+      "ply": 82,
+      "reason": "完成本手全部效果後，率先接通自己的對邊。",
+      "scores": null
+    },
+    {
+      "seed": 509,
+      "lineup": [
+        "multi",
+        "cutter",
+        "multi"
+      ],
+      "first": 1,
+      "axis": 0,
+      "timed": false,
+      "neutral": true,
+      "group": "cutter/multi",
+      "winner": 1,
+      "winningProfile": "multi",
+      "ply": 61,
+      "reason": "完成本手全部效果後，率先接通自己的對邊。",
+      "scores": null
+    },
+    {
+      "seed": 509,
+      "lineup": [
+        "multi",
+        "multi",
+        "cutter"
+      ],
+      "first": 2,
+      "axis": 1,
+      "timed": false,
+      "neutral": true,
+      "group": "cutter/multi",
+      "winner": 0,
+      "winningProfile": null,
+      "ply": 145,
+      "reason": "滿盤：比較連線代價（己子 0／空格 1／敵子 3），最低者勝；同分和局。",
+      "scores": [
+        3,
+        6,
+        3
+      ]
+    },
+    {
+      "seed": 509,
+      "lineup": [
+        "multi",
+        "cutter",
+        "cutter"
+      ],
+      "first": 3,
+      "axis": 2,
+      "timed": false,
+      "neutral": true,
+      "group": "cutter/multi",
+      "winner": 0,
+      "winningProfile": null,
+      "ply": 147,
+      "reason": "滿盤：比較連線代價（己子 0／空格 1／敵子 3），最低者勝；同分和局。",
+      "scores": [
+        3,
+        3,
+        6
+      ]
+    },
+    {
+      "seed": 509,
+      "lineup": [
+        "cutter",
+        "multi",
+        "cutter"
+      ],
+      "first": 1,
+      "axis": 0,
+      "timed": false,
+      "neutral": true,
+      "group": "cutter/multi",
+      "winner": 0,
+      "winningProfile": null,
+      "ply": 144,
+      "reason": "滿盤：比較連線代價（己子 0／空格 1／敵子 3），最低者勝；同分和局。",
+      "scores": [
+        3,
+        3,
+        9
+      ]
+    },
+    {
+      "seed": 509,
+      "lineup": [
+        "cutter",
+        "cutter",
+        "multi"
+      ],
+      "first": 2,
+      "axis": 1,
+      "timed": false,
+      "neutral": true,
+      "group": "cutter/multi",
+      "winner": 3,
+      "winningProfile": "multi",
+      "ply": 80,
+      "reason": "完成本手全部效果後，率先接通自己的對邊。",
+      "scores": null
+    },
+    {
+      "seed": 719,
+      "lineup": [
+        "cutter",
+        "multi",
+        "multi"
+      ],
+      "first": 1,
+      "axis": 0,
+      "timed": true,
+      "neutral": false,
+      "group": "cutter/multi",
+      "winner": 0,
+      "winningProfile": null,
+      "ply": 129,
+      "reason": "滿盤：比較連線代價（己子 0／空格 1／敵子 3），最低者勝；同分和局。",
+      "scores": [
+        6,
+        6,
+        6
+      ]
+    },
+    {
+      "seed": 719,
+      "lineup": [
+        "multi",
+        "cutter",
+        "multi"
+      ],
+      "first": 2,
+      "axis": 1,
+      "timed": true,
+      "neutral": false,
+      "group": "cutter/multi",
+      "winner": 3,
+      "winningProfile": "multi",
+      "ply": 126,
+      "reason": "滿盤：比較連線代價（己子 0／空格 1／敵子 3），最低者勝；同分和局。",
+      "scores": [
+        9,
+        6,
+        3
+      ]
+    },
+    {
+      "seed": 719,
+      "lineup": [
+        "multi",
+        "multi",
+        "cutter"
+      ],
+      "first": 3,
+      "axis": 2,
+      "timed": true,
+      "neutral": false,
+      "group": "cutter/multi",
+      "winner": 0,
+      "winningProfile": null,
+      "ply": 135,
+      "reason": "滿盤：比較連線代價（己子 0／空格 1／敵子 3），最低者勝；同分和局。",
+      "scores": [
+        3,
+        3,
+        9
+      ]
+    },
+    {
+      "seed": 719,
+      "lineup": [
+        "multi",
+        "cutter",
+        "cutter"
+      ],
+      "first": 1,
+      "axis": 0,
+      "timed": true,
+      "neutral": false,
+      "group": "cutter/multi",
+      "winner": 0,
+      "winningProfile": null,
+      "ply": 122,
+      "reason": "滿盤：比較連線代價（己子 0／空格 1／敵子 3），最低者勝；同分和局。",
+      "scores": [
+        3,
+        3,
+        9
+      ]
+    },
+    {
+      "seed": 719,
+      "lineup": [
+        "cutter",
+        "multi",
+        "cutter"
+      ],
+      "first": 2,
+      "axis": 1,
+      "timed": true,
+      "neutral": false,
+      "group": "cutter/multi",
+      "winner": 0,
+      "winningProfile": null,
+      "ply": 131,
+      "reason": "滿盤：比較連線代價（己子 0／空格 1／敵子 3），最低者勝；同分和局。",
+      "scores": [
+        3,
+        3,
+        9
+      ]
+    },
+    {
+      "seed": 719,
+      "lineup": [
+        "cutter",
+        "cutter",
+        "multi"
+      ],
+      "first": 3,
+      "axis": 2,
+      "timed": true,
+      "neutral": false,
+      "group": "cutter/multi",
+      "winner": 0,
+      "winningProfile": null,
+      "ply": 131,
+      "reason": "滿盤：比較連線代價（己子 0／空格 1／敵子 3），最低者勝；同分和局。",
+      "scores": [
+        3,
+        3,
+        6
+      ]
+    },
+    {
+      "seed": 929,
+      "lineup": [
+        "cutter",
+        "multi",
+        "multi"
+      ],
+      "first": 2,
+      "axis": 1,
+      "timed": false,
+      "neutral": true,
+      "group": "cutter/multi",
+      "winner": 3,
+      "winningProfile": "multi",
+      "ply": 59,
+      "reason": "完成本手全部效果後，率先接通自己的對邊。",
+      "scores": null
+    },
+    {
+      "seed": 929,
+      "lineup": [
+        "multi",
+        "cutter",
+        "multi"
+      ],
+      "first": 3,
+      "axis": 2,
+      "timed": false,
+      "neutral": true,
+      "group": "cutter/multi",
+      "winner": 2,
+      "winningProfile": "cutter",
+      "ply": 137,
+      "reason": "滿盤：比較連線代價（己子 0／空格 1／敵子 3），最低者勝；同分和局。",
+      "scores": [
+        6,
+        3,
+        6
+      ]
+    },
+    {
+      "seed": 929,
+      "lineup": [
+        "multi",
+        "multi",
+        "cutter"
+      ],
+      "first": 1,
+      "axis": 0,
+      "timed": false,
+      "neutral": true,
+      "group": "cutter/multi",
+      "winner": 2,
+      "winningProfile": "multi",
+      "ply": 62,
+      "reason": "完成本手全部效果後，率先接通自己的對邊。",
+      "scores": null
+    },
+    {
+      "seed": 929,
+      "lineup": [
+        "multi",
+        "cutter",
+        "cutter"
+      ],
+      "first": 2,
+      "axis": 1,
+      "timed": false,
+      "neutral": true,
+      "group": "cutter/multi",
+      "winner": 3,
+      "winningProfile": "cutter",
+      "ply": 74,
+      "reason": "完成本手全部效果後，率先接通自己的對邊。",
+      "scores": null
+    },
+    {
+      "seed": 929,
+      "lineup": [
+        "cutter",
+        "multi",
+        "cutter"
+      ],
+      "first": 3,
+      "axis": 2,
+      "timed": false,
+      "neutral": true,
+      "group": "cutter/multi",
+      "winner": 1,
+      "winningProfile": "cutter",
+      "ply": 50,
+      "reason": "完成本手全部效果後，率先接通自己的對邊。",
+      "scores": null
+    },
+    {
+      "seed": 929,
+      "lineup": [
+        "cutter",
+        "cutter",
+        "multi"
+      ],
+      "first": 1,
+      "axis": 0,
+      "timed": false,
+      "neutral": true,
+      "group": "cutter/multi",
+      "winner": 3,
+      "winningProfile": "multi",
+      "ply": 57,
+      "reason": "完成本手全部效果後，率先接通自己的對邊。",
+      "scores": null
+    },
+    {
+      "seed": 1151,
+      "lineup": [
+        "cutter",
+        "multi",
+        "multi"
+      ],
+      "first": 3,
+      "axis": 2,
+      "timed": true,
+      "neutral": true,
+      "group": "cutter/multi",
+      "winner": 1,
+      "winningProfile": "cutter",
+      "ply": 121,
+      "reason": "滿盤：比較連線代價（己子 0／空格 1／敵子 3），最低者勝；同分和局。",
+      "scores": [
+        3,
+        6,
+        6
+      ]
+    },
+    {
+      "seed": 1151,
+      "lineup": [
+        "multi",
+        "cutter",
+        "multi"
+      ],
+      "first": 1,
+      "axis": 0,
+      "timed": true,
+      "neutral": true,
+      "group": "cutter/multi",
+      "winner": 0,
+      "winningProfile": null,
+      "ply": 121,
+      "reason": "滿盤：比較連線代價（己子 0／空格 1／敵子 3），最低者勝；同分和局。",
+      "scores": [
+        3,
+        3,
+        6
+      ]
+    },
+    {
+      "seed": 1151,
+      "lineup": [
+        "multi",
+        "multi",
+        "cutter"
+      ],
+      "first": 2,
+      "axis": 1,
+      "timed": true,
+      "neutral": true,
+      "group": "cutter/multi",
+      "winner": 3,
+      "winningProfile": "cutter",
+      "ply": 139,
+      "reason": "滿盤：比較連線代價（己子 0／空格 1／敵子 3），最低者勝；同分和局。",
+      "scores": [
+        6,
+        6,
+        3
+      ]
+    },
+    {
+      "seed": 1151,
+      "lineup": [
+        "multi",
+        "cutter",
+        "cutter"
+      ],
+      "first": 3,
+      "axis": 2,
+      "timed": true,
+      "neutral": true,
+      "group": "cutter/multi",
+      "winner": 2,
+      "winningProfile": "cutter",
+      "ply": 63,
+      "reason": "完成本手全部效果後，率先接通自己的對邊。",
+      "scores": null
+    },
+    {
+      "seed": 1151,
+      "lineup": [
+        "cutter",
+        "multi",
+        "cutter"
+      ],
+      "first": 1,
+      "axis": 0,
+      "timed": true,
+      "neutral": true,
+      "group": "cutter/multi",
+      "winner": 3,
+      "winningProfile": "cutter",
+      "ply": 141,
+      "reason": "滿盤：比較連線代價（己子 0／空格 1／敵子 3），最低者勝；同分和局。",
+      "scores": [
+        6,
+        6,
+        3
+      ]
+    },
+    {
+      "seed": 1151,
+      "lineup": [
+        "cutter",
+        "cutter",
+        "multi"
+      ],
+      "first": 2,
+      "axis": 1,
+      "timed": true,
+      "neutral": true,
+      "group": "cutter/multi",
+      "winner": 0,
+      "winningProfile": null,
+      "ply": 132,
+      "reason": "滿盤：比較連線代價（己子 0／空格 1／敵子 3），最低者勝；同分和局。",
+      "scores": [
+        3,
+        3,
+        3
+      ]
+    },
+    {
+      "seed": 101,
+      "lineup": [
+        "rush",
+        "cutter",
+        "multi"
+      ],
+      "first": 1,
+      "axis": 0,
+      "timed": false,
+      "neutral": false,
+      "group": "three-way",
+      "winner": 2,
+      "winningProfile": "cutter",
+      "ply": 119,
+      "reason": "完成本手全部效果後，率先接通自己的對邊。",
+      "scores": null
+    },
+    {
+      "seed": 101,
+      "lineup": [
+        "rush",
+        "multi",
+        "cutter"
+      ],
+      "first": 2,
+      "axis": 0,
+      "timed": false,
+      "neutral": false,
+      "group": "three-way",
+      "winner": 1,
+      "winningProfile": "rush",
+      "ply": 63,
+      "reason": "完成本手全部效果後，率先接通自己的對邊。",
+      "scores": null
+    },
+    {
+      "seed": 101,
+      "lineup": [
+        "cutter",
+        "rush",
+        "multi"
+      ],
+      "first": 3,
+      "axis": 1,
+      "timed": false,
+      "neutral": false,
+      "group": "three-way",
+      "winner": 2,
+      "winningProfile": "rush",
+      "ply": 48,
+      "reason": "完成本手全部效果後，率先接通自己的對邊。",
+      "scores": null
+    },
+    {
+      "seed": 101,
+      "lineup": [
+        "cutter",
+        "multi",
+        "rush"
+      ],
+      "first": 1,
+      "axis": 1,
+      "timed": false,
+      "neutral": false,
+      "group": "three-way",
+      "winner": 3,
+      "winningProfile": "rush",
+      "ply": 127,
+      "reason": "滿盤：比較連線代價（己子 0／空格 1／敵子 3），最低者勝；同分和局。",
+      "scores": [
+        6,
+        6,
+        3
+      ]
+    },
+    {
+      "seed": 101,
+      "lineup": [
+        "multi",
+        "rush",
+        "cutter"
+      ],
+      "first": 2,
+      "axis": 2,
+      "timed": false,
+      "neutral": false,
+      "group": "three-way",
+      "winner": 0,
+      "winningProfile": null,
+      "ply": 127,
+      "reason": "滿盤：比較連線代價（己子 0／空格 1／敵子 3），最低者勝；同分和局。",
+      "scores": [
+        3,
+        3,
+        3
+      ]
+    },
+    {
+      "seed": 101,
+      "lineup": [
+        "multi",
+        "cutter",
+        "rush"
+      ],
+      "first": 3,
+      "axis": 2,
+      "timed": false,
+      "neutral": false,
+      "group": "three-way",
+      "winner": 1,
+      "winningProfile": "multi",
+      "ply": 71,
+      "reason": "完成本手全部效果後，率先接通自己的對邊。",
+      "scores": null
+    },
+    {
+      "seed": 307,
+      "lineup": [
+        "rush",
+        "cutter",
+        "multi"
+      ],
+      "first": 2,
+      "axis": 1,
+      "timed": true,
+      "neutral": true,
+      "group": "three-way",
+      "winner": 0,
+      "winningProfile": null,
+      "ply": 123,
+      "reason": "滿盤：比較連線代價（己子 0／空格 1／敵子 3），最低者勝；同分和局。",
+      "scores": [
+        3,
+        9,
+        3
+      ]
+    },
+    {
+      "seed": 307,
+      "lineup": [
+        "rush",
+        "multi",
+        "cutter"
+      ],
+      "first": 3,
+      "axis": 1,
+      "timed": true,
+      "neutral": true,
+      "group": "three-way",
+      "winner": 0,
+      "winningProfile": null,
+      "ply": 130,
+      "reason": "滿盤：比較連線代價（己子 0／空格 1／敵子 3），最低者勝；同分和局。",
+      "scores": [
+        3,
+        3,
+        6
+      ]
+    },
+    {
+      "seed": 307,
+      "lineup": [
+        "cutter",
+        "rush",
+        "multi"
+      ],
+      "first": 1,
+      "axis": 2,
+      "timed": true,
+      "neutral": true,
+      "group": "three-way",
+      "winner": 0,
+      "winningProfile": null,
+      "ply": 133,
+      "reason": "滿盤：比較連線代價（己子 0／空格 1／敵子 3），最低者勝；同分和局。",
+      "scores": [
+        6,
+        3,
+        3
+      ]
+    },
+    {
+      "seed": 307,
+      "lineup": [
+        "cutter",
+        "multi",
+        "rush"
+      ],
+      "first": 2,
+      "axis": 2,
+      "timed": true,
+      "neutral": true,
+      "group": "three-way",
+      "winner": 0,
+      "winningProfile": null,
+      "ply": 119,
+      "reason": "滿盤：比較連線代價（己子 0／空格 1／敵子 3），最低者勝；同分和局。",
+      "scores": [
+        3,
+        9,
+        3
+      ]
+    },
+    {
+      "seed": 307,
+      "lineup": [
+        "multi",
+        "rush",
+        "cutter"
+      ],
+      "first": 3,
+      "axis": 0,
+      "timed": true,
+      "neutral": true,
+      "group": "three-way",
+      "winner": 2,
+      "winningProfile": "rush",
+      "ply": 121,
+      "reason": "滿盤：比較連線代價（己子 0／空格 1／敵子 3），最低者勝；同分和局。",
+      "scores": [
+        6,
+        3,
+        6
+      ]
+    },
+    {
+      "seed": 307,
+      "lineup": [
+        "multi",
+        "cutter",
+        "rush"
+      ],
+      "first": 1,
+      "axis": 0,
+      "timed": true,
+      "neutral": true,
+      "group": "three-way",
+      "winner": 1,
+      "winningProfile": "multi",
+      "ply": 125,
+      "reason": "滿盤：比較連線代價（己子 0／空格 1／敵子 3），最低者勝；同分和局。",
+      "scores": [
+        3,
+        6,
+        9
+      ]
+    },
+    {
+      "seed": 509,
+      "lineup": [
+        "rush",
+        "cutter",
+        "multi"
+      ],
+      "first": 3,
+      "axis": 2,
+      "timed": false,
+      "neutral": true,
+      "group": "three-way",
+      "winner": 3,
+      "winningProfile": "multi",
+      "ply": 67,
+      "reason": "完成本手全部效果後，率先接通自己的對邊。",
+      "scores": null
+    },
+    {
+      "seed": 509,
+      "lineup": [
+        "rush",
+        "multi",
+        "cutter"
+      ],
+      "first": 1,
+      "axis": 2,
+      "timed": false,
+      "neutral": true,
+      "group": "three-way",
+      "winner": 1,
+      "winningProfile": "rush",
+      "ply": 61,
+      "reason": "完成本手全部效果後，率先接通自己的對邊。",
+      "scores": null
+    },
+    {
+      "seed": 509,
+      "lineup": [
+        "cutter",
+        "rush",
+        "multi"
+      ],
+      "first": 2,
+      "axis": 0,
+      "timed": false,
+      "neutral": true,
+      "group": "three-way",
+      "winner": 0,
+      "winningProfile": null,
+      "ply": 150,
+      "reason": "滿盤：比較連線代價（己子 0／空格 1／敵子 3），最低者勝；同分和局。",
+      "scores": [
+        6,
+        3,
+        3
+      ]
+    },
+    {
+      "seed": 509,
+      "lineup": [
+        "cutter",
+        "multi",
+        "rush"
+      ],
+      "first": 3,
+      "axis": 0,
+      "timed": false,
+      "neutral": true,
+      "group": "three-way",
+      "winner": 1,
+      "winningProfile": "cutter",
+      "ply": 92,
+      "reason": "完成本手全部效果後，率先接通自己的對邊。",
+      "scores": null
+    },
+    {
+      "seed": 509,
+      "lineup": [
+        "multi",
+        "rush",
+        "cutter"
+      ],
+      "first": 1,
+      "axis": 1,
+      "timed": false,
+      "neutral": true,
+      "group": "three-way",
+      "winner": 1,
+      "winningProfile": "multi",
+      "ply": 152,
+      "reason": "滿盤：比較連線代價（己子 0／空格 1／敵子 3），最低者勝；同分和局。",
+      "scores": [
+        3,
+        6,
+        6
+      ]
+    },
+    {
+      "seed": 509,
+      "lineup": [
+        "multi",
+        "cutter",
+        "rush"
+      ],
+      "first": 2,
+      "axis": 1,
+      "timed": false,
+      "neutral": true,
+      "group": "three-way",
+      "winner": 0,
+      "winningProfile": null,
+      "ply": 157,
+      "reason": "滿盤：比較連線代價（己子 0／空格 1／敵子 3），最低者勝；同分和局。",
+      "scores": [
+        9,
+        3,
+        3
+      ]
+    },
+    {
+      "seed": 719,
+      "lineup": [
+        "rush",
+        "cutter",
+        "multi"
+      ],
+      "first": 1,
+      "axis": 0,
+      "timed": true,
+      "neutral": false,
+      "group": "three-way",
+      "winner": 2,
+      "winningProfile": "cutter",
+      "ply": 124,
+      "reason": "滿盤：比較連線代價（己子 0／空格 1／敵子 3），最低者勝；同分和局。",
+      "scores": [
+        9,
+        3,
+        6
+      ]
+    },
+    {
+      "seed": 719,
+      "lineup": [
+        "rush",
+        "multi",
+        "cutter"
+      ],
+      "first": 2,
+      "axis": 0,
+      "timed": true,
+      "neutral": false,
+      "group": "three-way",
+      "winner": 0,
+      "winningProfile": null,
+      "ply": 131,
+      "reason": "滿盤：比較連線代價（己子 0／空格 1／敵子 3），最低者勝；同分和局。",
+      "scores": [
+        3,
+        3,
+        9
+      ]
+    },
+    {
+      "seed": 719,
+      "lineup": [
+        "cutter",
+        "rush",
+        "multi"
+      ],
+      "first": 3,
+      "axis": 1,
+      "timed": true,
+      "neutral": false,
+      "group": "three-way",
+      "winner": 2,
+      "winningProfile": "rush",
+      "ply": 119,
+      "reason": "滿盤：比較連線代價（己子 0／空格 1／敵子 3），最低者勝；同分和局。",
+      "scores": [
+        6,
+        3,
+        9
+      ]
+    },
+    {
+      "seed": 719,
+      "lineup": [
+        "cutter",
+        "multi",
+        "rush"
+      ],
+      "first": 1,
+      "axis": 1,
+      "timed": true,
+      "neutral": false,
+      "group": "three-way",
+      "winner": 0,
+      "winningProfile": null,
+      "ply": 135,
+      "reason": "滿盤：比較連線代價（己子 0／空格 1／敵子 3），最低者勝；同分和局。",
+      "scores": [
+        3,
+        3,
+        9
+      ]
+    },
+    {
+      "seed": 719,
+      "lineup": [
+        "multi",
+        "rush",
+        "cutter"
+      ],
+      "first": 2,
+      "axis": 2,
+      "timed": true,
+      "neutral": false,
+      "group": "three-way",
+      "winner": 0,
+      "winningProfile": null,
+      "ply": 133,
+      "reason": "滿盤：比較連線代價（己子 0／空格 1／敵子 3），最低者勝；同分和局。",
+      "scores": [
+        3,
+        6,
+        3
+      ]
+    },
+    {
+      "seed": 719,
+      "lineup": [
+        "multi",
+        "cutter",
+        "rush"
+      ],
+      "first": 3,
+      "axis": 2,
+      "timed": true,
+      "neutral": false,
+      "group": "three-way",
+      "winner": 1,
+      "winningProfile": "multi",
+      "ply": 132,
+      "reason": "滿盤：比較連線代價（己子 0／空格 1／敵子 3），最低者勝；同分和局。",
+      "scores": [
+        3,
+        6,
+        6
+      ]
+    },
+    {
+      "seed": 929,
+      "lineup": [
+        "rush",
+        "cutter",
+        "multi"
+      ],
+      "first": 2,
+      "axis": 1,
+      "timed": false,
+      "neutral": true,
+      "group": "three-way",
+      "winner": 0,
+      "winningProfile": null,
+      "ply": 141,
+      "reason": "滿盤：比較連線代價（己子 0／空格 1／敵子 3），最低者勝；同分和局。",
+      "scores": [
+        3,
+        6,
+        3
+      ]
+    },
+    {
+      "seed": 929,
+      "lineup": [
+        "rush",
+        "multi",
+        "cutter"
+      ],
+      "first": 3,
+      "axis": 1,
+      "timed": false,
+      "neutral": true,
+      "group": "three-way",
+      "winner": 2,
+      "winningProfile": "multi",
+      "ply": 60,
+      "reason": "完成本手全部效果後，率先接通自己的對邊。",
+      "scores": null
+    },
+    {
+      "seed": 929,
+      "lineup": [
+        "cutter",
+        "rush",
+        "multi"
+      ],
+      "first": 1,
+      "axis": 2,
+      "timed": false,
+      "neutral": true,
+      "group": "three-way",
+      "winner": 1,
+      "winningProfile": "cutter",
+      "ply": 124,
+      "reason": "完成本手全部效果後，率先接通自己的對邊。",
+      "scores": null
+    },
+    {
+      "seed": 929,
+      "lineup": [
+        "cutter",
+        "multi",
+        "rush"
+      ],
+      "first": 2,
+      "axis": 2,
+      "timed": false,
+      "neutral": true,
+      "group": "three-way",
+      "winner": 1,
+      "winningProfile": "cutter",
+      "ply": 48,
+      "reason": "完成本手全部效果後，率先接通自己的對邊。",
+      "scores": null
+    },
+    {
+      "seed": 929,
+      "lineup": [
+        "multi",
+        "rush",
+        "cutter"
+      ],
+      "first": 3,
+      "axis": 0,
+      "timed": false,
+      "neutral": true,
+      "group": "three-way",
+      "winner": 0,
+      "winningProfile": null,
+      "ply": 138,
+      "reason": "滿盤：比較連線代價（己子 0／空格 1／敵子 3），最低者勝；同分和局。",
+      "scores": [
+        3,
+        3,
+        3
+      ]
+    },
+    {
+      "seed": 929,
+      "lineup": [
+        "multi",
+        "cutter",
+        "rush"
+      ],
+      "first": 1,
+      "axis": 0,
+      "timed": false,
+      "neutral": true,
+      "group": "three-way",
+      "winner": 0,
+      "winningProfile": null,
+      "ply": 134,
+      "reason": "滿盤：比較連線代價（己子 0／空格 1／敵子 3），最低者勝；同分和局。",
+      "scores": [
+        3,
+        9,
+        3
+      ]
+    },
+    {
+      "seed": 1151,
+      "lineup": [
+        "rush",
+        "cutter",
+        "multi"
+      ],
+      "first": 3,
+      "axis": 2,
+      "timed": true,
+      "neutral": true,
+      "group": "three-way",
+      "winner": 3,
+      "winningProfile": "multi",
+      "ply": 131,
+      "reason": "滿盤：比較連線代價（己子 0／空格 1／敵子 3），最低者勝；同分和局。",
+      "scores": [
+        6,
+        6,
+        3
+      ]
+    },
+    {
+      "seed": 1151,
+      "lineup": [
+        "rush",
+        "multi",
+        "cutter"
+      ],
+      "first": 1,
+      "axis": 2,
+      "timed": true,
+      "neutral": true,
+      "group": "three-way",
+      "winner": 3,
+      "winningProfile": "cutter",
+      "ply": 130,
+      "reason": "滿盤：比較連線代價（己子 0／空格 1／敵子 3），最低者勝；同分和局。",
+      "scores": [
+        6,
+        6,
+        3
+      ]
+    },
+    {
+      "seed": 1151,
+      "lineup": [
+        "cutter",
+        "rush",
+        "multi"
+      ],
+      "first": 2,
+      "axis": 0,
+      "timed": true,
+      "neutral": true,
+      "group": "three-way",
+      "winner": 2,
+      "winningProfile": "rush",
+      "ply": 144,
+      "reason": "滿盤：比較連線代價（己子 0／空格 1／敵子 3），最低者勝；同分和局。",
+      "scores": [
+        6,
+        3,
+        9
+      ]
+    },
+    {
+      "seed": 1151,
+      "lineup": [
+        "cutter",
+        "multi",
+        "rush"
+      ],
+      "first": 3,
+      "axis": 0,
+      "timed": true,
+      "neutral": true,
+      "group": "three-way",
+      "winner": 0,
+      "winningProfile": null,
+      "ply": 126,
+      "reason": "滿盤：比較連線代價（己子 0／空格 1／敵子 3），最低者勝；同分和局。",
+      "scores": [
+        6,
+        6,
+        6
+      ]
+    },
+    {
+      "seed": 1151,
+      "lineup": [
+        "multi",
+        "rush",
+        "cutter"
+      ],
+      "first": 1,
+      "axis": 1,
+      "timed": true,
+      "neutral": true,
+      "group": "three-way",
+      "winner": 0,
+      "winningProfile": null,
+      "ply": 133,
+      "reason": "滿盤：比較連線代價（己子 0／空格 1／敵子 3），最低者勝；同分和局。",
+      "scores": [
+        6,
+        6,
+        6
+      ]
+    },
+    {
+      "seed": 1151,
+      "lineup": [
+        "multi",
+        "cutter",
+        "rush"
+      ],
+      "first": 2,
+      "axis": 1,
+      "timed": true,
+      "neutral": true,
+      "group": "three-way",
+      "winner": 2,
+      "winningProfile": "cutter",
+      "ply": 132,
+      "reason": "滿盤：比較連線代價（己子 0／空格 1／敵子 3），最低者勝；同分和局。",
+      "scores": [
+        6,
+        3,
+        6
+      ]
+    }
+  ]
+}

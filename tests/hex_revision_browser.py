@@ -14,7 +14,7 @@ def activate(page, selector, mobile=False):
 
 
 def load(page):
-    page.goto(BASE + '/card_hex.html')
+    page.goto(BASE + '/card_hex.html?terrain=classic&cards=classic&seed=legacy-fixture')
     page.locator('#play').click()
 
 
@@ -32,7 +32,7 @@ with sync_playwright() as p:
         page = context.new_page();page.clock.install()
         page.on('pageerror', lambda e: errors.append(str(e)))
         page.on('requestfailed', lambda r: failed.append(r.url))
-        page.goto(BASE + '/card_hex.html')
+        page.goto(BASE + '/card_hex.html?terrain=classic&cards=classic&seed=legacy-fixture')
         assert page.locator('.hex-cell').count() == 91
         assert page.locator('.hex-goal-line').count() == 6
         assert page.locator('#play svg').count() == 1

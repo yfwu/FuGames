@@ -1,0 +1,67 @@
+[
+  {
+    "path": "blackjack.html",
+    "sha256": "9bc8cd8af4c9e22734194f50c5f05eaa62a72ed4ceed84d65eb90c372e10f9c8",
+    "identicalToBaseline": true
+  },
+  {
+    "path": "cyclic_connect4_torus.html",
+    "sha256": "1c7a141682a52cd9e0d330d25f8d172413df7ceb6b429b9072e57cecc7b3d80c",
+    "identicalToBaseline": true
+  },
+  {
+    "path": "cyclic_tictactoe.html",
+    "sha256": "f25de39c10204ae4c8bc9eff77d3587eeb6f73a51b83c5586c0dad3ef4c8c8d4",
+    "identicalToBaseline": true
+  },
+  {
+    "path": "duplicate_bridge.html",
+    "sha256": "92e59d4e9aa2e623ae5e98bec6c48b533b1283d3e7579652acb9f81ace235f7c",
+    "identicalToBaseline": true
+  },
+  {
+    "path": "effect_snake.html",
+    "sha256": "f3c63fb9679bae8dd8ff290b5d152e5dc0e23092e1ba821f01dd674b5cb4a5d9",
+    "identicalToBaseline": true
+  },
+  {
+    "path": "flip_five.html",
+    "sha256": "331bd07414231a34a12f57eb5768d1e108fb2fed0459f37be8c68e8ed0c28120",
+    "identicalToBaseline": true
+  },
+  {
+    "path": "gravity_brawl.html",
+    "sha256": "9b47964c9218e409f8e815a96debdd28ca546ff1751af04400cc0fd67b38f962",
+    "identicalToBaseline": true
+  },
+  {
+    "path": "index.html",
+    "sha256": "d9c83a0f19d4efd7ce9e0c9da38501746ba008b2332502b849202bbbd1df5c62",
+    "identicalToBaseline": true
+  },
+  {
+    "path": "pulse_arena.html",
+    "sha256": "fc4d9f05c1f7ee327b408d62097b578c19947083ce015868ddbbb5af9f12c354",
+    "identicalToBaseline": true
+  },
+  {
+    "path": "star_feast.html",
+    "sha256": "f40483e33578474428c7a86223a1ea237cc33d9ff1d687c5906b94d3fba4fc89",
+    "identicalToBaseline": true
+  },
+  {
+    "path": "tank_arena.html",
+    "sha256": "e0554e79886cfd8a2c41c3bb4ca70afbdddede496ebb71ccd161f8fd732820dd",
+    "identicalToBaseline": true
+  },
+  {
+    "path": "territory_loop.html",
+    "sha256": "72bfa15653b18838475ccf539aade21e09a9a024152f1ba274c5e6de0342d523",
+    "identicalToBaseline": true
+  },
+  {
+    "path": "trackgame.html",
+    "sha256": "9ae96b578cb7ddc7bd86cbb78a0cd6ad97e5e0bd082fd5652cd47715c61cba45",
+    "identicalToBaseline": true
+  }
+]

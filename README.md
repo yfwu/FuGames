@@ -34,6 +34,8 @@ python -m http.server 8000 --bind 0.0.0.0
 
 2026-10-11 的三方 Hex 升級與全站圖示整理，另見 [修訂計畫](docs/revision-2026-10-11/plan.md)、[Hex 規則與平衡](docs/revision-2026-10-11/hex.md)、[圖示規格](docs/revision-2026-10-11/icons.md)、[前後畫面](docs/revision-2026-10-11/comparison.md) 與 [本輪驗證](docs/revision-2026-10-11/validation.md)。
 
+2026-10-11 接續修正：Hex 新增 seed 地形與變動牌組、三種 AI、限時牌、中立事件及觀戰；同時修正橋線重疊並簡化重力／橋牌圖示。見 [本輪規則與驗證](docs/hex-seeded-2026-10-11/validation.md)。
+
 ### 共用介面
 
 首頁與所有遊戲都共用 `fulab-theme.css` 的配色、字體、導覽、標題、卡片、狀態列與按鈕。各頁只保留棋盤或遊戲畫面的專用樣式。玩法與設定預設收合；圈地漫遊以棋盤、領地比例、助手數量、遊玩時間和操作為主，不再同時展示側欄排行、進度卡與三步教學。
@@ -94,6 +96,9 @@ git diff --check
 python tests/browser_smoke.py
 python tests/site_browser.py
 python tests/expansion_browser.py
+python tests/hex_seeded_browser.py
+python tests/hex_icons_revision_browser.py
+node tests/hex-seeded-balance.cjs
 ```
 
 若環境尚未有測試工具，可安裝 Python 的 `playwright` 並提供 Chromium 執行檔。環境變數：

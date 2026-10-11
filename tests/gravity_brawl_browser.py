@@ -1,5 +1,6 @@
 """Gravity Brawl interaction regression. Start a local server on port 8000 first."""
 import os
+from datetime import datetime, timezone
 from pathlib import Path
 from playwright.sync_api import sync_playwright
 
@@ -15,7 +16,9 @@ with sync_playwright() as p:
         page = context.new_page()
         page.on('pageerror', lambda e: errors.append(str(e)))
         page.on('console', lambda m: errors.append(m.text) if m.type == 'error' and '404' not in m.text else None)
-        page.clock.install()
+        # Freeze wall time so CPU/load between protocol calls cannot defeat the 220 ms double-click assertion.
+        page.clock.install(time=datetime(2026,10,11,12,0,tzinfo=timezone.utc))
+        page.clock.pause_at(datetime(2026,10,11,12,1,tzinfo=timezone.utc))
         page.goto(BASE + '/gravity_brawl.html')
         assert page.evaluate('game.phase') == 'ready'
         assert page.evaluate('document.documentElement.scrollWidth <= innerWidth')

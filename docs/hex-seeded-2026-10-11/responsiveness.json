@@ -1,0 +1,18 @@
+[
+  {
+    "cpuSlowdown": 1,
+    "decisions": 29,
+    "meanMs": 35.179310344858095,
+    "p95Ms": 60.89999999990687,
+    "maxMs": 148.80000000004657,
+    "pauseAndZoomResponded": true
+  },
+  {
+    "cpuSlowdown": 4,
+    "decisions": 29,
+    "meanMs": 99.72068965515315,
+    "p95Ms": 158.5999999998603,
+    "maxMs": 210.5,
+    "pauseAndZoomResponded": true
+  }
+]
