@@ -1,0 +1,176 @@
+{
+  "viewports": [
+    {
+      "label": "desktop",
+      "width": 1366,
+      "dpr": 1,
+      "overflow": false,
+      "exchangeIllegalAtomic": true,
+      "hiddenTrapDomUnchanged": true,
+      "blockCountdownAndClear": true,
+      "rerouteCrossingRejected": true,
+      "rerouteSuccess": true
+    },
+    {
+      "label": "mobile",
+      "width": 390,
+      "dpr": 3,
+      "overflow": false,
+      "exchangeIllegalAtomic": true,
+      "hiddenTrapDomUnchanged": true,
+      "blockCountdownAndClear": true,
+      "rerouteCrossingRejected": true,
+      "rerouteSuccess": true
+    },
+    {
+      "label": "narrow",
+      "width": 320,
+      "dpr": 2,
+      "overflow": false,
+      "exchangeIllegalAtomic": true,
+      "hiddenTrapDomUnchanged": true,
+      "blockCountdownAndClear": true,
+      "rerouteCrossingRejected": true,
+      "rerouteSuccess": true
+    },
+    {
+      "label": "landscape",
+      "width": 844,
+      "dpr": 2,
+      "overflow": false,
+      "exchangeIllegalAtomic": true,
+      "hiddenTrapDomUnchanged": true,
+      "blockCountdownAndClear": true,
+      "rerouteCrossingRejected": true,
+      "rerouteSuccess": true
+    }
+  ],
+  "games": [
+    {
+      "mode": "desktop-spectator",
+      "timed": false,
+      "neutral": false,
+      "result": {
+        "winner": 3,
+        "reason": "完成本手全部效果後，率先接通自己的對邊。",
+        "ply": 57,
+        "scores": null
+      },
+      "used": [
+        null,
+        {
+          "double": 1,
+          "remove": 0,
+          "turret": 1,
+          "trap": 1,
+          "bridge": 0,
+          "shield": 0,
+          "terraform": 0,
+          "reroute": 0,
+          "block": 0,
+          "exchange": 1
+        },
+        {
+          "double": 2,
+          "remove": 1,
+          "turret": 2,
+          "trap": 0,
+          "bridge": 0,
+          "shield": 0,
+          "terraform": 0,
+          "reroute": 0,
+          "block": 1,
+          "exchange": 0
+        },
+        {
+          "double": 1,
+          "remove": 0,
+          "turret": 1,
+          "trap": 1,
+          "bridge": 2,
+          "shield": 0,
+          "terraform": 1,
+          "reroute": 0,
+          "block": 0,
+          "exchange": 0
+        }
+      ],
+      "humanUiActions": {},
+      "wallSeconds": 26.788439537999693
+    },
+    {
+      "mode": "mobile-player",
+      "timed": true,
+      "neutral": true,
+      "result": {
+        "winner": 2,
+        "reason": "滿盤：比較連線代價（己子 0／空格 1／敵子 3），最低者勝；同分和局。",
+        "ply": 127,
+        "scores": [
+          6,
+          3,
+          9
+        ]
+      },
+      "used": [
+        null,
+        {
+          "double": 2,
+          "remove": 0,
+          "turret": 0,
+          "trap": 2,
+          "bridge": 0,
+          "shield": 0,
+          "terraform": 0,
+          "reroute": 0,
+          "block": 0,
+          "exchange": 0
+        },
+        {
+          "double": 2,
+          "remove": 0,
+          "turret": 1,
+          "trap": 2,
+          "bridge": 0,
+          "shield": 0,
+          "terraform": 0,
+          "reroute": 0,
+          "block": 0,
+          "exchange": 0
+        },
+        {
+          "double": 1,
+          "remove": 1,
+          "turret": 1,
+          "trap": 2,
+          "bridge": 1,
+          "shield": 0,
+          "terraform": 1,
+          "reroute": 0,
+          "block": 0,
+          "exchange": 1
+        }
+      ],
+      "humanUiActions": {
+        "trap": 2,
+        "place": 37,
+        "double": 2,
+        "engineer": 2
+      },
+      "wallSeconds": 57.25163014099962
+    }
+  ],
+  "checks": [
+    "speed cancels previous timer",
+    "pause/single-step/replay deterministic",
+    "restart clears all blockers and has one timer",
+    "spectator hides enemy traps with blockers present",
+    "visibility pauses until explicit resume",
+    "own-trap/hill icon never obscures blocked-cell countdown (mobile DPR3)"
+  ],
+  "publicSite": {
+    "status": "blocked",
+    "error": "Page.goto: net::ERR_TUNNEL_CONNECTION_FAILED at https://yfwu.github.io/FuGames/"
+  },
+  "pageErrors": []
+}

@@ -36,7 +36,7 @@ test('hill retreat removes attached bridges/turrets before a connection can win;
  const safe=game();safe.terrain[center]='hill';safe.board[center]=1;safe.hillUntil[center]=1;assert.ok(safe.act({type:'engineer',cells:[center]}));assert.equal(safe.terrain[center],'plain');assert.equal(safe.board[center],1);
 });
 test('mixed deck composition varies, bounds hold, each seat gets same 13-card recipe and only one shield',()=>{
- const recipes=new Set();for(let seed=0;seed<150;seed++){const g=game({seed,cards:'mixed'});recipes.add(g.deckRecipe.slice().sort().join());assert.equal(g.deckRecipe.length,13);for(const p of H.PLAYERS)assert.deepEqual([...g.hands[p],...g.decks[p]].sort(),Array.from(g.deckRecipe).sort());for(const c of H.CARD_TYPES){const n=g.deckRecipe.filter(x=>x===c).length;assert.ok(n>0);assert.ok(n<=(c==='shield'?1:c==='double'?4:3));}}
+ const recipes=new Set();for(let seed=0;seed<150;seed++){const g=game({seed,cards:'mixed'});recipes.add(g.deckRecipe.slice().sort().join());assert.equal(g.deckRecipe.length,13);for(const p of H.PLAYERS)assert.deepEqual([...g.hands[p],...g.decks[p]].sort(),Array.from(g.deckRecipe).sort());for(const c of H.MIXED_TYPES){const n=g.deckRecipe.filter(x=>x===c).length;assert.ok(n>0);assert.ok(n<=(c==='shield'?1:c==='double'?4:3));}}
  assert.ok(recipes.size>40);
 });
 test('timed cards include acquisition turn, expire only after third owner action, free hand space, and conserve all cards',()=>{
