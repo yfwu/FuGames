@@ -7,6 +7,14 @@
   <title>星點吞噬 - FuGames</title>
   <link rel="icon" href="favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="fulab-theme.css">
   <style>
+    .io-key { display:inline-flex; align-items:center; gap:6px; }
+    .io-key .ui-icon { width:20px; height:20px; }
+    .io-hint-row { display:flex; flex-wrap:wrap; gap:8px 14px; align-items:center; }
+    .ring-key { display:inline-block; width:16px; height:16px; flex:none; border:2px solid currentColor; border-radius:50%; }
+    .ring-key.dashed { border-style:dashed; }
+    .game-dialog .dialog-art { flex:none; }
+    @media(max-width:600px) { .io-hint-row { gap:8px 12px; } }
+
     .boost-button { min-width: 96px; }
     .boost-button:not(:disabled) { border-color: var(--fulab-teal); color: var(--fulab-ink-teal); background: var(--fulab-tint-teal); }
     .growth-legend { display: flex; gap: 12px; color: var(--fulab-muted); font-size: 11px; }
@@ -18,24 +26,45 @@
       .growth-controls { grid-column: 2; margin: 0; justify-content: center; }
       .growth-legend { display: none; }
     }
-  </style>
+
+    .site-nav > a:last-child { display:inline-flex;align-items:center;gap:5px; }
+    .site-nav > a:last-child .ui-icon { width:16px;height:16px; }
+    .io-support { display:contents; }
+    @media(max-height:600px) and (min-width:600px) {
+      .io-page .play-panel { grid-template-columns:minmax(0,1fr) 220px; }
+      .io-page .play-panel > .io-stage { grid-column:1;grid-row:2; }
+      .io-support { display:flex;flex-direction:column;grid-column:2;grid-row:2;gap:10px;max-height:calc(100svh - 106px);overflow:auto;scrollbar-width:thin;padding:2px; }
+      .io-support .io-controls,.io-support .growth-controls,.io-support .upgrade-row { order:0; }
+      .io-support .game-actions { order:1; }
+      .io-support .io-status { order:2; }
+      .io-support .snake-effects,.io-support .charge-track { order:3; }
+      .io-support .snake-roster,.io-support .arena-roster,.io-support .pulse-roster { order:4; }
+      .io-support .food-legend,.io-support .arena-hint,.io-support .pulse-hint { order:5; }
+      .io-support > * { flex-shrink:0; }
+      .io-support .btnRow { flex-wrap:nowrap; }
+      .io-support .game-actions { justify-content:center; }
+      .io-support .upgrade-row .btn { flex-direction:column;gap:2px; }
+    }
+</style>
 </head>
 <body>
   <main class="game-page io-page">
-    <nav class="site-nav" aria-label="遊戲導覽"><a class="site-brand" href="index.html"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>FuGames</a><a href="index.html">所有遊戲 ↗</a></nav>
-    <header class="page-header"><p class="eyebrow">IO / 單人 × 4 AI</p><h1>星點吞噬</h1><p class="lead">吃光點，慢慢長大。追逐小對手，也別忘了身後的大傢伙。</p></header>
+    <nav class="site-nav" aria-label="遊戲導覽"><a class="site-brand" href="index.html"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>FuGames</a><a href="index.html" aria-label="所有遊戲 ↗"><span>所有遊戲</span><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#launch"></use></svg></a></nav>
+    <header class="page-header"><p class="eyebrow">IO / 單人 × 4 AI</p><h1><svg class="page-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#star_feast"></use></svg>星點吞噬</h1><p class="lead">吃光點，慢慢長大。追逐小對手，也別忘了身後的大傢伙。</p></header>
     <section class="card play-panel" aria-label="星點吞噬競技場">
       <div class="game-toolbar"><p class="game-status" id="phase-label">準備出發</p><div class="game-metrics"><span>質量 <strong id="mass">20</strong> / 160</span><span>排名 <strong id="rank">3 / 5</strong></span><span>剩餘 <strong id="clock">1:30</strong></span></div></div>
       <div class="io-stage"><canvas id="board" width="720" height="720" tabindex="0" aria-label="星點吞噬。你是青綠色圓球，使用方向鍵、WASD、滑鼠或觸控拖曳移動。" aria-describedby="status">需要支援 Canvas 的瀏覽器。</canvas>
         <div class="board-overlay" id="overlay"><div class="game-dialog" role="dialog" aria-labelledby="dialog-title" aria-describedby="dialog-copy">
-          <svg class="dialog-art" id="dialog-art" viewBox="0 0 80 54" aria-hidden="true"><circle cx="28" cy="28" r="20" fill="#cbeaea" stroke="#267477" stroke-width="2"/><circle cx="64" cy="12" r="5" fill="#ebcb8b"/><circle cx="68" cy="38" r="7" fill="#d08770"/><circle cx="31" cy="24" r="3" fill="#267477"/></svg>
-          <p class="eyebrow" id="dialog-kicker">你是青綠色圓球 ●</p><h2 id="dialog-title">小小一顆，也能稱霸</h2><p id="dialog-copy">移動吃光點，長大後吞噬小對手。先達 160 質量，或 90 秒後最大即勝。</p><button class="btn primary" id="play">開始吞噬 →</button><button class="btn" id="dialog-secondary" hidden>保留本局，繼續</button>
+          <svg class="dialog-art" id="dialog-art" viewBox="0 0 96 72" aria-hidden="true"><circle cx="36" cy="39" r="21" fill="#cbeaea" stroke="#267477" stroke-width="2"/><circle cx="36" cy="39" r="26" fill="none" stroke="#5ebcbf" stroke-width="2" stroke-dasharray="3 5"/><circle cx="40" cy="35" r="3" fill="#267477"/><path d="M71 13l2.5 5 5.5.8-4 3.8 1 5.4-5-2.6-5 2.6 1-5.4-4-3.8 5.5-.8z" fill="#ebcb8b" stroke="#85662a" stroke-width="1.5"/><circle cx="76" cy="48" r="7" fill="#efdad1" stroke="#99553f" stroke-width="2"/></svg>
+          <p class="eyebrow" id="dialog-kicker">你是青綠色圓球</p><h2 id="dialog-title">小小一顆，也能稱霸</h2><p id="dialog-copy">移動吃光點，長大後吞噬小對手。先達 160 質量，或 90 秒後最大即勝。</p><button class="btn primary" id="play" aria-label="開始吞噬 →"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#play"></use></svg><span>開始吞噬</span></button><button class="btn" id="dialog-secondary" hidden>保留本局，繼續</button>
         </div></div>
       </div>
-      <p class="game-status io-status" id="status" role="status" aria-live="polite">方向鍵／WASD、移動滑鼠，或拖曳棋盤來移動。</p>
-      <div class="game-actions"><div class="growth-legend"><span>○ 青綠框：可吞噬</span><span>○ 珊瑚框：危險</span></div><div class="btnRow"><button class="btn" id="pause" disabled>暫停</button><button class="btn primary" id="restart">重新開始</button></div></div>
-      <div class="growth-controls"><p class="action-note">空白鍵或按鈕衝刺 · P / Esc 暫停<br>觸控：按住並拖曳，放開就停</p><button class="btn boost-button" id="boost" disabled>衝刺 ↗</button></div>
-    </section>
+      <div class="io-support">
+<p class="game-status io-status" id="status" role="status" aria-live="polite">方向鍵／WASD、移動滑鼠，或拖曳棋盤來移動。</p>
+      <div class="game-actions"><div class="growth-legend"><span class="io-key"><i class="ring-key" aria-hidden="true"></i>實框：可吞噬</span><span class="io-key"><i class="ring-key dashed" aria-hidden="true"></i>虛框：危險</span></div><div class="btnRow"><button class="btn" id="pause" disabled aria-label="暫停"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#pause"></use></svg><span>暫停</span></button><button class="btn primary" id="restart" aria-label="重新開始"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#restart"></use></svg><span>重新開始</span></button></div></div>
+      <div class="growth-controls"><p class="action-note">空白鍵或按鈕衝刺 · P / Esc 暫停<br>觸控：按住並拖曳，放開就停</p><button class="btn boost-button" id="boost" disabled aria-label="衝刺 ↗"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#arrow-right"></use></svg><span>衝刺</span></button></div>
+    </div>
+</section>
     <details class="card rules"><summary>玩法與操作</summary><div class="rules-body"><ul class="list">
       <li>你是青綠色圓球，其他四顆是本機 AI。吃小光點增加 2 質量，大光點增加 5；光點會慢慢補充。</li>
       <li>質量比對手高至少 20%，並包住對手中心時才能吞噬，獲得對手 80% 的質量。數字是質量；青綠框表示可吞噬，珊瑚框表示對方能吃你，灰框則大小相近。</li>
@@ -159,6 +188,16 @@
   })();
   </script>
   <script id="growth-ui">
+'use strict';
+  // SVG controls share the same native geometry as the catalogue icons.
+  function setButton(button,label,icon) {
+    const signature=icon+'|'+label;if(button.dataset.visualLabel===signature)return;
+    button.dataset.visualLabel=signature;button.setAttribute('aria-label',label);
+    const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');svg.setAttribute('class','ui-icon');svg.setAttribute('viewBox','0 0 48 48');svg.setAttribute('aria-hidden','true');
+    const use=document.createElementNS(svg.namespaceURI,'use');use.setAttribute('href','icons.svg#'+icon);svg.append(use);
+    const text=document.createElement('span');text.textContent=label.replace(/\s*[→↗]\s*$/,'').replace(/\s*→\s*/g,' / ');button.replaceChildren(svg,text);
+  }
+
   'use strict';
   const $ = id => document.getElementById(id), canvas = $('board'), ctx = canvas.getContext('2d');
   const game = new StarFeast.Game();
@@ -181,7 +220,10 @@
     ctx.fillStyle = '#d8dee988';
     for (let y = 18; y < 720; y += 24) for (let x = 18; x < 720; x += 24) { ctx.beginPath(); ctx.arc(x, y, 1, 0, Math.PI * 2); ctx.fill(); }
     for (const p of game.food) {
-      ctx.beginPath(); ctx.arc(p.x, p.y, p.value === 5 ? 6 : 4, 0, Math.PI * 2); ctx.fillStyle = p.value === 5 ? '#d4a948' : '#83ada0'; ctx.fill();
+      ctx.beginPath();
+      if(p.value===5){for(let i=0;i<10;i++){const theta=-Math.PI/2+i*Math.PI/5,r=i%2?3:7,x=p.x+Math.cos(theta)*r,y=p.y+Math.sin(theta)*r;if(i)ctx.lineTo(x,y);else ctx.moveTo(x,y);}ctx.closePath();}
+      else ctx.arc(p.x,p.y,4,0,Math.PI*2);
+      ctx.fillStyle=p.value===5?'#b48935':'#658e80';ctx.fill();
     }
     const player = game.actors[0];
     for (const a of [...game.actors].sort((a, b) => a.mass - b.mass)) {
@@ -193,7 +235,9 @@
       if (a.id) { ctx.beginPath(); ctx.arc(a.x, a.y, r + 7, 0, Math.PI * 2); ctx.strokeStyle = ink; ctx.lineWidth = 2; ctx.setLineDash(StarFeast.edible(a, player) ? [4, 4] : []); ctx.stroke(); ctx.setLineDash([]); }
       if (!a.id && game.boostTime > 0) { ctx.beginPath(); ctx.arc(a.x, a.y, r + 9, 0, Math.PI * 2); ctx.strokeStyle = '#5ebcbf88'; ctx.lineWidth = 5; ctx.stroke(); }
       ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillStyle = ink; ctx.font = 'bold 20px monospace'; ctx.fillText(String(a.mass), a.x, a.y + 1);
-      if (!a.id) { ctx.font = 'bold 15px monospace'; ctx.fillText('YOU', a.x, a.y - r - 17); }
+      ctx.font='bold '+Math.min(23,Math.max(15,Math.round(10*720/Math.max(canvas.clientWidth,1))))+'px monospace';
+      ctx.fillText(a.id?'AI '+a.id:'YOU',a.x,Math.max(14,a.y-r-17));
+      if(a.id&&StarFeast.edible(a,player)){const x=a.x,y=a.y+r+18;ctx.strokeStyle=ink;ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(x,y-7);ctx.lineTo(x+8,y+7);ctx.lineTo(x-8,y+7);ctx.closePath();ctx.stroke();ctx.beginPath();ctx.moveTo(x,y-2);ctx.lineTo(x,y+2);ctx.stroke();ctx.beginPath();ctx.arc(x,y+5,1,0,Math.PI*2);ctx.fill();}
     }
     if (touch) {
       const rect = canvas.getBoundingClientRect(), scale = 720 / rect.width;
@@ -211,12 +255,12 @@
     $('clock').textContent = `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`;
     $('phase-label').textContent = { ready: '準備出發', running: '吞噬中', paused: '已暫停', over: '本局結束' }[game.phase];
     $('pause').disabled = game.phase === 'ready' || game.phase === 'over' || restartPrompt;
-    $('pause').textContent = game.phase === 'paused' ? '繼續' : '暫停';
+    setButton($('pause'),game.phase === 'paused' ? '繼續' : '暫停',game.phase==='paused'?'play':'pause');
     $('boost').disabled = game.phase !== 'running' || game.cooldown > 0;
-    $('boost').textContent = game.cooldown > 0 ? `衝刺 ${Math.ceil(game.cooldown)}s` : '衝刺 ↗';
+    setButton($('boost'),game.cooldown > 0 ? `衝刺 ${Math.ceil(game.cooldown)}s` : '衝刺 ↗','arrow-right');
   }
   function showDialog(kicker, title, copy, action, secondary = false) {
-    $('dialog-kicker').textContent = kicker; $('dialog-title').textContent = title; $('dialog-copy').textContent = copy; $('play').textContent = action;
+    $('dialog-kicker').textContent = kicker; $('dialog-title').textContent = title; $('dialog-copy').textContent = copy; setButton($('play'),action,game.phase==='over'?'restart':'play');
     $('dialog-secondary').hidden = !secondary; $('dialog-art').hidden = game.phase !== 'ready'; $('overlay').hidden = false; $('play').focus({ preventScroll: true });
   }
   function stopFrames() { cancelAnimationFrame(frameId); frameId = 0; lastTime = null; accumulator = 0; }

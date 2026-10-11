@@ -56,7 +56,7 @@ def interactions(page, game, mobile):
         snapshot(page, game + '-playing-' + label)
         # Winning boards use the shipped move API; tests separately validate rules.
         if stem == 'hex':
-            page.evaluate("hexGame.board.fill(0); [0,7,14,21,28,35].forEach(i=>hexGame.board[i]=1); hexGame.turn=1; hexGame.pending=null; hexGame.act({type:'place',cells:[42]}); hexRender()")
+            page.evaluate("hexGame.reset(1,0); hexGame.start(); for(let r=-CardHex.RADIUS;r<CardHex.RADIUS;r++) hexGame.board[CardHex.index(0,r)]=1; hexGame.act({type:'place',cells:[CardHex.index(0,CardHex.RADIUS)]}); hexRender()")
         else:
             page.evaluate("flipGame.board.fill(0); [0,1,2,3].forEach(i=>flipGame.board[i]=1); flipGame.turn=1; flipGame.act(4); flipRender()")
         assert page.evaluate(state + '.phase') == 'over'
@@ -64,7 +64,7 @@ def interactions(page, game, mobile):
         snapshot(page, game + '-result-' + label)
         activate(page, '#restart', mobile)
         page.clock.run_for(700)
-        assert page.evaluate(state + '.ply <= 1')
+        assert page.evaluate(state + '.ply <= ' + ('2' if stem == 'hex' else '1'))
     elif game == 'gravity_brawl':
         activate(page, '#play', mobile)
         if mobile:

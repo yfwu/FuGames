@@ -11,11 +11,15 @@
     .board { width: 100%; aspect-ratio: 1; display: grid; grid-template-columns: repeat(4, 1fr); grid-template-rows: repeat(4, 1fr); gap: 8px; position: relative; }
     .cell { appearance: none; border: 1px solid var(--fulab-silver); border-radius: 12px; background: white; cursor: pointer; min-width: 0; }
     .cell.outerRing { border-color: var(--fulab-indigo); }
-    .cell.innerRing { border-color: var(--fulab-plum); }
-    .cell.hint, .cell.win { background: var(--fulab-tint-emerald); border-color: var(--fulab-emerald); }
+    .cell.innerRing { border-color: var(--fulab-plum); border-style: dashed; background: var(--fulab-tint-plum); }
+    .cell.hint { background: var(--fulab-tint-teal); border-color: var(--fulab-ink-teal); }
+    .cell.hint::before { content: ''; position: absolute; width: 22%; height: 22%; left: 39%; top: 39%; border: 2px solid var(--fulab-ink-teal); transform: rotate(45deg); border-radius: 2px; }
+    .ring-key { display: inline-block; width: 18px; height: 12px; border: 1.5px solid var(--fulab-indigo); border-radius: 4px; }
+    .ring-key.inner { border-color: var(--fulab-plum); border-style: dashed; background: var(--fulab-tint-plum); }
+    .hint-key { display: inline-block; width: 9px; height: 9px; border: 1.5px solid var(--fulab-ink-teal); transform: rotate(45deg); margin-inline: 4px; }
     .pieceLayer { position: absolute; inset: 0; pointer-events: none; z-index: 2; }
     .pieceLayer.noTrans .piece { transition: none !important; }
-    .piece { width: 16%; height: 16%; border-radius: 50%; position: absolute; left: 0; top: 0; transform: translate(0px,0px) translate(-50%,-55%); transition: transform 260ms ease; border: 2px solid var(--fulab-silver); box-shadow: 0 2px 4px #2e344013; }
+    .piece { width: 16%; height: 16%; border-radius: 50%; position: absolute; left: 0; top: 0; transform: translate(0px,0px) translate(-50%,-50%); transition: transform 260ms ease; border: 2px solid var(--fulab-graphite); box-shadow: 0 2px 3px #2e34400d; }
     .piece.black { background: var(--fulab-graphite); border-color: var(--fulab-graphite); }
     .piece.white { background: white; }
     #aiRow { flex-wrap: wrap; gap: 14px; }
@@ -23,13 +27,14 @@
   </style>
 </head>
 <body>
-  <main class="game-page">
-    <nav class="site-nav" aria-label="遊戲導覽"><a class="site-brand" href="index.html"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>FuGames</a><a href="index.html">所有遊戲 ↗</a></nav>
-    <header class="page-header"><p class="eyebrow">棋盤 / 同機雙人・AI</p><h1>軌道棋</h1><p class="lead">每次落子，內外圈一起轉一步。旋轉後連成四子就贏。</p></header>
+  <main class="game-page classic-page">
+    <nav class="site-nav" aria-label="遊戲導覽"><a class="site-brand" href="index.html"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>FuGames</a><a href="index.html" aria-label="所有遊戲 ↗">所有遊戲<svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#launch"></use></svg></a></nav>
+    <header class="page-header"><p class="eyebrow">棋盤 / 同機雙人・AI</p><h1><svg class="page-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#trackgame"></use></svg>軌道棋</h1><p class="lead">每次落子，內外圈一起轉一步。旋轉後連成四子就贏。</p></header>
     <section class="card play-panel" aria-label="軌道棋棋盤">
       <div class="game-toolbar"><p class="game-status" id="statusText" role="status" aria-live="polite"></p><div class="game-metrics"><span>回合 <strong id="turnKpi">0</strong></span><span>落子 <strong id="playerKpi">黑</strong></span><span id="ringKpi">內外同時</span></div></div>
       <div class="boardWrap game-floor"><div class="boardFrame"><div id="board" class="board" role="grid" aria-label="四乘四軌道棋棋盤"></div></div></div>
-      <div class="game-actions"><div class="btnRow"><button class="btn" id="undo">悔棋</button><button class="btn" id="hint">提示</button></div><button class="btn primary" id="newGame">重新開始</button></div>
+      <div class="classic-legend"><span class="stone-key"><span class="ring-key" aria-hidden="true"></span>外圈</span><span class="stone-key"><span class="ring-key inner" aria-hidden="true"></span>內圈</span><span class="stone-key"><span class="hint-key" aria-hidden="true"></span>建議落點</span></div>
+      <div class="game-actions"><div class="btnRow"><button class="btn" id="undo"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#undo"></use></svg>悔棋</button><button class="btn" id="hint"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#hint"></use></svg>提示</button></div><button class="btn primary" id="newGame"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#restart"></use></svg>重新開始</button></div>
     </section>
     <details class="card rules"><summary>玩法與設定</summary><div class="rules-body">
       <div class="settings-grid"><div class="field"><label for="mode">對戰模式</label><select id="mode"><option value="pvp">雙人（同機）</option><option value="ai">對戰 AI</option></select></div><div class="field"><label for="dir">旋轉方向</label><select id="dir"><option value="cw">順時針</option><option value="ccw">逆時針</option></select></div></div>
@@ -459,8 +464,8 @@
 
     function pieceTransformForIdx(idx){
       const p = cellCenters[idx];
-      if (!p) return "translate(0px, 0px) translate(-50%, -55%)";
-      return `translate(${p.x}px, ${p.y}px) translate(-50%, -55%)`;
+      if (!p) return "translate(0px, 0px) translate(-50%, -50%)";
+      return `translate(${p.x}px, ${p.y}px) translate(-50%, -50%)`;
     }
 
     function ensurePieceEl(piece){
@@ -561,7 +566,7 @@
     function clearHint(){
       if (state.lastHint == null) return;
       const btn = cellEls[state.lastHint];
-      if (btn) btn.classList.remove("hint");
+      if (btn) { btn.classList.remove("hint"); btn.removeAttribute("aria-description"); }
       state.lastHint = null;
     }
 
@@ -710,6 +715,7 @@
       const btn = cellEls[mv];
       if (btn){
         btn.classList.add("hint");
+        btn.setAttribute("aria-description", "建議落點");
         state.lastHint = mv;
         setTimeout(() => clearHint(), 900);
       }
@@ -749,7 +755,7 @@
       for (let i=0;i<16;i++){
         const cell = cellEls[i];
         const v = state.board[i];
-        cell.setAttribute("aria-label", `${Math.floor(i / 4) + 1} 行 ${i % 4 + 1} 列，${v ? uiPlayerName(v) : "空格"}`);
+        cell.setAttribute("aria-label", `${Math.floor(i / 4) + 1} 行 ${i % 4 + 1} 列，${v ? uiPlayerName(v) : "空格"}${state.winCells.has(i) ? "，勝利連線" : ""}`);
 
         cell.classList.toggle("outerRing", OUTER_SET.has(i));
         cell.classList.toggle("innerRing", INNER_SET.has(i));

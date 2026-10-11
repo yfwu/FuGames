@@ -8,27 +8,34 @@
   <style>
 
     .board { width: min(100%, 340px); display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
-    .cell { aspect-ratio: 1; border: 1px solid var(--fulab-silver); border-radius: 12px; background: white; font-size: clamp(38px, 10vw, 54px); display: grid; place-items: center; cursor: pointer; }
+    .cell { aspect-ratio: 1; border: 1px solid var(--fulab-silver); border-radius: 12px; background: white; padding: 0; display: grid; place-items: center; cursor: pointer; }
     .cell:hover:not(:disabled) { border-color: var(--fulab-teal); }
     .cell:disabled { color: var(--fulab-graphite); -webkit-text-fill-color: var(--fulab-graphite); opacity: 1; }
     .cell.highlight { background: var(--fulab-tint-emerald); border-color: var(--fulab-emerald); }
     .cell.hint-x-next { background: var(--fulab-tint-teal); border-color: var(--fulab-teal); }
     .cell.hint-o-next { background: var(--fulab-tint-plum); border-color: var(--fulab-plum); }
-    .cell.hint-x-next2 { box-shadow: inset 0 0 0 2px var(--fulab-tint-indigo); }
-    .cell.hint-o-next2 { box-shadow: inset 0 0 0 2px var(--fulab-tint-amber); }
+    .cell.hint-x-next2, .cell.hint-o-next2 { border-style: dashed; }
+    .queue-badge { position: absolute; top: 7px; right: 7px; min-width: 19px; height: 19px; display: grid; place-items: center; border-radius: 5px; font-size: 11px; font-weight: 750; line-height: 1; background: var(--fulab-graphite); color: white; -webkit-text-fill-color: white; }
+    .queue-badge.second { border: 1px solid var(--fulab-muted); background: white; color: var(--fulab-muted); -webkit-text-fill-color: var(--fulab-muted); }
+    .cell.highlight .queue-badge { display: none; }
+    .queue-key { display: inline-grid; place-items: center; width: 18px; height: 18px; border: 1px solid var(--fulab-muted); border-radius: 4px; font-size: 10px; }
+    .queue-key.first { color: white; background: var(--fulab-graphite); border-color: var(--fulab-graphite); }
+    .hint-options input { accent-color: var(--fulab-ink-teal); width: 17px; height: 17px; }
+    @media(max-width: 400px) { .queue-badge { top: 5px; right: 5px; width: 17px; min-width: 17px; height: 17px; font-size: 10px; } }
     .hint-options { display: grid; gap: 10px; margin: 12px 0; }
     .hint-options label { display: flex; align-items: center; gap: 8px; min-height: 32px; }
 
   </style>
 </head>
 <body>
-  <main class="game-page">
-    <nav class="site-nav" aria-label="遊戲導覽"><a class="site-brand" href="index.html"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>FuGames</a><a href="index.html">所有遊戲 ↗</a></nav>
-    <header class="page-header"><p class="eyebrow">棋盤 / 單人 × AI</p><h1>三子循環棋</h1><p class="lead">先連成三子就贏；放滿三顆後，移動最早落下的棋子。</p></header>
+  <main class="game-page classic-page">
+    <nav class="site-nav" aria-label="遊戲導覽"><a class="site-brand" href="index.html"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>FuGames</a><a href="index.html" aria-label="所有遊戲 ↗">所有遊戲<svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#launch"></use></svg></a></nav>
+    <header class="page-header"><p class="eyebrow">棋盤 / 單人 × AI</p><h1><svg class="page-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#cyclic_tictactoe"></use></svg>三子循環棋</h1><p class="lead">先連成三子就贏；放滿三顆後，移動最早落下的棋子。</p></header>
     <section class="card play-panel" aria-label="三子循環棋棋盤">
       <div class="game-toolbar"><p class="game-status" id="info" role="status" aria-live="polite">你是黑子，AI 是白子</p><div class="game-metrics"><span>步數 <strong id="moveCount">0</strong></span></div></div>
       <div class="boardWrap game-floor"><div class="board" id="board" role="group" aria-label="三乘三棋盤"></div></div>
-      <div class="game-actions"><p class="action-note">● 你　○ AI</p><button class="btn primary" onclick="resetGame()">重新開始</button></div>
+      <div class="classic-legend"><span class="stone-key"><span class="queue-key first" aria-hidden="true">1</span>下一顆移動</span><span class="stone-key"><span class="queue-key" aria-hidden="true">2</span>再下一顆</span></div>
+      <div class="game-actions"><p class="action-note"><span class="stone-key"><span class="classic-stone" aria-hidden="true"></span>你</span>　<span class="stone-key"><span class="classic-stone white" aria-hidden="true"></span>AI</span></p><button class="btn primary" onclick="resetGame()"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#restart"></use></svg>重新開始</button></div>
     </section>
     <details class="card rules"><summary>玩法與設定</summary><div class="rules-body">
       <ul class="list"><li>輪流下子，先連成三子者獲勝。</li><li>每人最多三顆棋；放滿後點選空格，自動移動自己最早放下的棋子。</li><li>黑子為玩家、白子為 AI；若 AI 無法移動，直接換你下。</li></ul>
@@ -100,7 +107,12 @@
         cellDiv.setAttribute('aria-label', `${coordLabel(i)}，${cell ? playerName(cell) : '空格'}`);
         cellDiv.disabled = gameOver || isAI(currentPlayer) || Boolean(cell);
         cellDiv.className = 'cell';
-        cellDiv.textContent = symbol(cell);
+        if (cell) {
+          const stone = document.createElement('span');
+          stone.className = 'classic-stone' + (cell === 'O' ? ' white' : '');
+          stone.setAttribute('aria-hidden', 'true');
+          cellDiv.appendChild(stone);
+        }
         if (winLine.includes(i)) {
           cellDiv.classList.add('highlight');
         }
@@ -112,6 +124,17 @@
           if (hintTargets.X.next2 === i) cellDiv.classList.add('hint-x-next2');
           if (hintTargets.O.next2 === i) cellDiv.classList.add('hint-o-next2');
         }
+        const first = cellDiv.classList.contains('hint-x-next') || cellDiv.classList.contains('hint-o-next');
+        const second = cellDiv.classList.contains('hint-x-next2') || cellDiv.classList.contains('hint-o-next2');
+        if ((first || second) && !winLine.includes(i)) {
+          const badge = document.createElement('span');
+          badge.className = 'queue-badge' + (first ? '' : ' second');
+          badge.textContent = first ? '1' : '2';
+          badge.setAttribute('aria-hidden', 'true');
+          cellDiv.appendChild(badge);
+          cellDiv.setAttribute('aria-label', cellDiv.getAttribute('aria-label') + (first ? '，下一顆移動' : '，再下一顆移動'));
+        }
+        if (winLine.includes(i)) cellDiv.setAttribute('aria-label', cellDiv.getAttribute('aria-label') + '，勝利連線');
         // 只有在 X 的回合才可點擊
         if (!gameOver && !isAI(currentPlayer)) {
           cellDiv.onclick = () => handleClick(i);
@@ -361,12 +384,6 @@
 
     function playerName(p) {
       return p === 'X' ? '黑子' : '白子';
-    }
-
-    function symbol(p) {
-      if (p === 'X') return '●';
-      if (p === 'O') return '○';
-      return '';
     }
 
     // 初始化

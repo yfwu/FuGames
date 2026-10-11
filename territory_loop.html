@@ -7,23 +7,54 @@
   <title>圈地漫遊 - FuGames</title>
   <link rel="icon" href="favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="fulab-theme.css">
 
+<style>
+    .io-key { display:inline-flex; align-items:center; gap:6px; }
+    .io-key .ui-icon { width:20px; height:20px; }
+    .io-hint-row { display:flex; flex-wrap:wrap; gap:8px 14px; align-items:center; }
+    .ring-key { display:inline-block; width:16px; height:16px; flex:none; border:2px solid currentColor; border-radius:50%; }
+    .ring-key.dashed { border-style:dashed; }
+    .game-dialog .dialog-art { flex:none; }
+    @media(max-width:600px) { .io-hint-row { gap:8px 12px; } }
+@media(max-width:600px) { .play-panel { display:flex;flex-direction:column; } .game-toolbar { order:0; } .io-stage { order:1; } .io-controls { order:2; } .io-status { order:3; } .game-actions { order:4; } .game-actions .io-hint-row { width:100%; } }
+
+    .site-nav > a:last-child { display:inline-flex;align-items:center;gap:5px; }
+    .site-nav > a:last-child .ui-icon { width:16px;height:16px; }
+    .io-support { display:contents; }
+    @media(max-height:600px) and (min-width:600px) {
+      .io-page .play-panel { grid-template-columns:minmax(0,1fr) 220px; }
+      .io-page .play-panel > .io-stage { grid-column:1;grid-row:2; }
+      .io-support { display:flex;flex-direction:column;grid-column:2;grid-row:2;gap:10px;max-height:calc(100svh - 106px);overflow:auto;scrollbar-width:thin;padding:2px; }
+      .io-support .io-controls,.io-support .growth-controls,.io-support .upgrade-row { order:0; }
+      .io-support .game-actions { order:1; }
+      .io-support .io-status { order:2; }
+      .io-support .snake-effects,.io-support .charge-track { order:3; }
+      .io-support .snake-roster,.io-support .arena-roster,.io-support .pulse-roster { order:4; }
+      .io-support .food-legend,.io-support .arena-hint,.io-support .pulse-hint { order:5; }
+      .io-support > * { flex-shrink:0; }
+      .io-support .btnRow { flex-wrap:nowrap; }
+      .io-support .game-actions { justify-content:center; }
+      .io-support .upgrade-row .btn { flex-direction:column;gap:2px; }
+    }
+</style>
 </head>
 <body>
   <main class="game-page io-page">
-    <nav class="site-nav" aria-label="遊戲導覽"><a class="site-brand" href="index.html"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>FuGames</a><a href="index.html">所有遊戲 ↗</a></nav>
-    <header class="page-header"><p class="eyebrow">IO / 持續陣營戰</p><h1>圈地漫遊</h1><p class="lead">畫線回家，把土地連成一片。帶著助手，搶下下一塊版圖。</p></header>
+    <nav class="site-nav" aria-label="遊戲導覽"><a class="site-brand" href="index.html"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>FuGames</a><a href="index.html" aria-label="所有遊戲 ↗"><span>所有遊戲</span><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#launch"></use></svg></a></nav>
+    <header class="page-header"><p class="eyebrow">IO / 持續陣營戰</p><h1><svg class="page-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#territory_loop"></use></svg>圈地漫遊</h1><p class="lead">畫線回家，把土地連成一片。帶著助手，搶下下一塊版圖。</p></header>
     <section class="card play-panel" aria-label="圈地競技場">
       <div class="game-toolbar"><p class="game-status" id="phase-label">準備出發</p><div class="game-metrics"><span>領地 <strong id="score">2.8</strong>%</span><span>助手 <strong id="helpers">0</strong></span><span>已玩 <strong id="clock">0:00</strong></span></div></div>
       <div class="io-stage board-wrap"><canvas id="board" width="720" height="720" tabindex="0" aria-label="圈地棋盤。你是青綠圓形，用方向鍵或 WASD 轉向。" aria-describedby="status">需要支援 Canvas 的瀏覽器。</canvas>
         <div class="board-overlay" id="overlay"><div class="game-dialog dialog" role="dialog" aria-labelledby="dialog-title" aria-describedby="dialog-copy">
-          <svg class="dialog-art" id="loop-demo" viewBox="0 0 116 80" aria-hidden="true"><rect x="8" y="24" width="42" height="48" rx="8" fill="#5ebcbf" opacity=".25"/><path d="M30 48V10H100V56H48" fill="none" stroke="#267477" stroke-width="3" stroke-dasharray="5 4"/><circle cx="30" cy="48" r="7" fill="#267477"/></svg>
-          <p class="eyebrow" id="dialog-kicker">你是青綠圓形 ●</p><h2 id="dialog-title">繞一圈，再回家</h2><p id="dialog-copy">離開色塊畫線，回家就能圈地。土地越大，助手越多；碰到敵方小圓點可招降。失守會重生，版圖戰持續進行。</p><button class="btn primary" id="play">開始圈地 →</button><button class="btn" id="dialog-secondary" hidden>繼續遊戲</button>
+          <svg class="dialog-art" id="loop-demo" viewBox="0 0 96 72" aria-hidden="true"><rect x="14" y="25" width="34" height="33" rx="6" fill="#cbeaea"/><path d="M30 42V15H79V47H47" fill="none" stroke="#267477" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="4 4"/><path d="M25 43l7-6 7 6v11H25z" fill="#fff" stroke="#267477" stroke-width="2" stroke-linejoin="round"/><circle cx="30" cy="27" r="5" fill="#267477"/><circle cx="66" cy="47" r="3" fill="#b48ead"/></svg>
+          <p class="eyebrow" id="dialog-kicker">你是青綠圓形</p><h2 id="dialog-title">繞一圈，再回家</h2><p id="dialog-copy">離開色塊畫線，回家就能圈地。土地越大，助手越多；碰到敵方小圓點可招降。失守會重生，版圖戰持續進行。</p><button class="btn primary" id="play" aria-label="開始圈地 →"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#play"></use></svg><span>開始圈地</span></button><button class="btn" id="dialog-secondary" hidden>繼續遊戲</button>
         </div></div>
       </div>
-      <p class="game-status io-status" id="status" role="status" aria-live="polite">方向鍵／WASD 或滑動轉向。虛線要保護，小圓點可招降。</p>
-      <div class="game-actions"><p class="action-note">大角色＝首領　小圓點＝助手　⌂＝基地</p><div class="btnRow"><button class="btn" id="pause" disabled>暫停</button><button class="btn primary" id="restart">重新開始</button></div></div>
-      <div class="io-controls touch-controls"><p class="action-note">滑動棋盤或點方向<br>角色會持續前進</p><div class="dpad" role="group" aria-label="觸控方向控制"><button class="btn" data-direction="up" aria-label="向上">↑</button><button class="btn" data-direction="left" aria-label="向左">←</button><button class="btn" data-direction="down" aria-label="向下">↓</button><button class="btn" data-direction="right" aria-label="向右">→</button></div></div>
-    </section>
+      <div class="io-support">
+<p class="game-status io-status" id="status" role="status" aria-live="polite">方向鍵／WASD 或滑動轉向。虛線要保護，小圓點可招降。</p>
+      <div class="game-actions"><p class="action-note io-hint-row"><span class="io-key"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="13" fill="currentColor"/></svg>大角色：首領</span> <span class="io-key"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="7" fill="currentColor"/></svg>小圓點：助手</span> <span class="io-key"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><path d="M10 23L24 11l14 12v15H10z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>屋形：基地</span></p><div class="btnRow"><button class="btn" id="pause" disabled aria-label="暫停"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#pause"></use></svg><span>暫停</span></button><button class="btn primary" id="restart" aria-label="重新開始"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#restart"></use></svg><span>重新開始</span></button></div></div>
+      <div class="io-controls touch-controls"><p class="action-note">滑動棋盤或點方向<br>角色會持續前進</p><div class="dpad" role="group" aria-label="觸控方向控制"><button class="btn" data-direction="up" aria-label="向上"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#arrow-up"></use></svg></button><button class="btn" data-direction="left" aria-label="向左"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#arrow-left"></use></svg></button><button class="btn" data-direction="down" aria-label="向下"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#arrow-down"></use></svg></button><button class="btn" data-direction="right" aria-label="向右"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#arrow-right"></use></svg></button></div></div>
+    </div>
+</section>
     <details class="card rules"><summary>玩法與操作</summary><div class="rules-body"><ul class="list">
       <li>方向鍵、WASD、棋盤滑動或方向鈕轉向，不能直接反向。角色持續前進；撞邊界或友方虛線會停住，轉向繼續。</li>
       <li>離開己方色塊畫虛線，回到己方領地收下完整封閉區域，可搶敵方色塊。地圖邊界不算封閉線。</li>
@@ -342,6 +373,16 @@
   </script>
 
   <script id="game-ui">
+'use strict';
+  // SVG controls share the same native geometry as the catalogue icons.
+  function setButton(button,label,icon) {
+    const signature=icon+'|'+label;if(button.dataset.visualLabel===signature)return;
+    button.dataset.visualLabel=signature;button.setAttribute('aria-label',label);
+    const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');svg.setAttribute('class','ui-icon');svg.setAttribute('viewBox','0 0 48 48');svg.setAttribute('aria-hidden','true');
+    const use=document.createElementNS(svg.namespaceURI,'use');use.setAttribute('href','icons.svg#'+icon);svg.append(use);
+    const text=document.createElement('span');text.textContent=label.replace(/\s*[→↗]\s*$/,'').replace(/\s*→\s*/g,' / ');button.replaceChildren(svg,text);
+  }
+
   'use strict';
   const $ = id => document.getElementById(id);
   const canvas = $('board'), ctx = canvas.getContext('2d');
@@ -368,7 +409,12 @@
     ctx.fillStyle = '#f8f9fb'; ctx.fillRect(0, 0, 720, 720);
     for (let y = 0; y < SIZE; y++) for (let x = 0; x < SIZE; x++) {
       const owner = game.board[Territory.index(x, y)];
-      if (owner) { ctx.fillStyle = palette[owner].tint; ctx.fillRect(x * CELL, y * CELL, CELL, CELL); }
+      if (owner) {
+        ctx.fillStyle = palette[owner].tint; ctx.fillRect(x * CELL, y * CELL, CELL, CELL);
+        // Sparse faction marks remain readable without relying on territory colour.
+        if(x%3===1&&y%3===1){ctx.save();ctx.translate((x+.5)*CELL,(y+.5)*CELL);ctx.globalAlpha=.2;ctx.strokeStyle=palette[owner].ink;ctx.lineWidth=1.5;ctx.beginPath();
+          if(owner===1)ctx.arc(0,0,3,0,Math.PI*2);else if(owner===2)ctx.rect(-3,-3,6,6);else if(owner===3){ctx.moveTo(0,-4);ctx.lineTo(4,0);ctx.lineTo(0,4);ctx.lineTo(-4,0);ctx.closePath();}else{ctx.moveTo(0,-4);ctx.lineTo(4,3);ctx.lineTo(-4,3);ctx.closePath();}ctx.stroke();ctx.restore();}
+      }
     }
     ctx.strokeStyle = '#2e34400a'; ctx.lineWidth = 1; ctx.beginPath();
     for (let n = 1; n < SIZE; n++) { ctx.moveTo(n * CELL, 0); ctx.lineTo(n * CELL, 720); ctx.moveTo(0, n * CELL); ctx.lineTo(720, n * CELL); }
@@ -414,7 +460,7 @@
       ctx.fill(); ctx.stroke();
       ctx.rotate(Math.atan2(a.direction[1], a.direction[0])); if (a.role === 'helper') ctx.scale(.6, .6); ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.moveTo(5, 0); ctx.lineTo(-2, -4); ctx.lineTo(-2, 4); ctx.closePath(); ctx.fill(); ctx.restore();
       if (a.role === 'leader') {
-        const label = a.id === 1 ? 'YOU' : game.phase === 'ready' ? p.name : a.strategy;
+        const label = a.id === 1 ? 'YOU' : game.phase === 'ready' ? p.name+' AI' : 'AI · '+a.strategy;
         // Keep intentions readable when a 720-unit world is scaled down to a phone.
         const fontSize = Math.max(15, Math.min(26, Math.round(10 * 720 / Math.max(canvas.clientWidth, 1))));
         ctx.font = `bold ${fontSize}px monospace`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
@@ -435,12 +481,12 @@
     const waiting = !game.actors[0].alive;
     $('phase-label').textContent = game.phase === 'running' && waiting ? `重生 ${Math.max(1, Math.ceil((game.factions[1].respawnAt - game.tick) * Territory.STEP_MS / 1000))} 秒` : { ready: '準備出發', running: '持續角逐', paused: '已暫停' }[game.phase];
     $('pause').disabled = game.phase === 'ready' || restartPrompt;
-    $('pause').textContent = game.phase === 'paused' ? '繼續' : '暫停';
+    setButton($('pause'),game.phase === 'paused' ? '繼續' : '暫停',game.phase==='paused'?'play':'pause');
     for (const btn of document.querySelectorAll('[data-direction]')) btn.disabled = game.phase !== 'running' || waiting;
   }
   function showDialog(kicker, title, copy, action, secondary = '') {
     $('dialog-kicker').textContent = kicker; $('dialog-title').textContent = title; $('dialog-copy').textContent = copy;
-    $('play').textContent = action; $('dialog-secondary').textContent = secondary; $('dialog-secondary').hidden = !secondary;
+    setButton($('play'),action,game.phase==='over'?'restart':'play'); $('dialog-secondary').textContent = secondary; $('dialog-secondary').hidden = !secondary;
     $('loop-demo').hidden = game.phase !== 'ready'; $('overlay').hidden = false;
     $('play').focus({ preventScroll: true });
   }

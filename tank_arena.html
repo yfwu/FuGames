@@ -5,20 +5,49 @@
 <meta name="description" content="擊破能量靶、自由升級，與三位不同策略的本機 AI 競爭。FuGames 原創裝甲競技場。">
 <title>鋼芯競技場 - FuGames</title><link rel="icon" href="favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="fulab-theme.css">
 <style>
+    .io-key { display:inline-flex; align-items:center; gap:6px; }
+    .io-key .ui-icon { width:20px; height:20px; }
+    .io-hint-row { display:flex; flex-wrap:wrap; gap:8px 14px; align-items:center; }
+    .ring-key { display:inline-block; width:16px; height:16px; flex:none; border:2px solid currentColor; border-radius:50%; }
+    .ring-key.dashed { border-style:dashed; }
+    .game-dialog .dialog-art { flex:none; }
+    @media(max-width:600px) { .io-hint-row { gap:8px 12px; } }
+
 .arena-roster{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin-top:12px}.arena-seat{padding:8px;border:1px solid var(--fulab-silver);border-top:3px solid var(--seat);border-radius:9px;font-size:10px;min-width:0}.arena-seat strong{display:block;font-size:12px}.arena-seat span{display:block;color:var(--fulab-muted)}.upgrade-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}.upgrade-row .btn{flex:1;min-width:80px;font-size:11px}.arena-hint{color:var(--fulab-muted);font-size:11px;margin:10px 0 0}.io-stage{width:min(100%,560px)}@media(max-width:440px){.arena-roster{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-height:600px) and (min-width:600px){.arena-roster,.upgrade-row,.arena-hint{grid-column:2}.arena-roster{grid-template-columns:repeat(2,minmax(0,1fr));margin:0}.arena-seat{padding:4px}.upgrade-row{margin:0}.upgrade-row .btn{min-width:0;font-size:10px;padding:4px}.io-page .io-stage{grid-row:2 / span 6}}
+
+    .site-nav > a:last-child { display:inline-flex;align-items:center;gap:5px; }
+    .site-nav > a:last-child .ui-icon { width:16px;height:16px; }
+    .io-support { display:contents; }
+    @media(max-height:600px) and (min-width:600px) {
+      .io-page .play-panel { grid-template-columns:minmax(0,1fr) 220px; }
+      .io-page .play-panel > .io-stage { grid-column:1;grid-row:2; }
+      .io-support { display:flex;flex-direction:column;grid-column:2;grid-row:2;gap:10px;max-height:calc(100svh - 106px);overflow:auto;scrollbar-width:thin;padding:2px; }
+      .io-support .io-controls,.io-support .growth-controls,.io-support .upgrade-row { order:0; }
+      .io-support .game-actions { order:1; }
+      .io-support .io-status { order:2; }
+      .io-support .snake-effects,.io-support .charge-track { order:3; }
+      .io-support .snake-roster,.io-support .arena-roster,.io-support .pulse-roster { order:4; }
+      .io-support .food-legend,.io-support .arena-hint,.io-support .pulse-hint { order:5; }
+      .io-support > * { flex-shrink:0; }
+      .io-support .btnRow { flex-wrap:nowrap; }
+      .io-support .game-actions { justify-content:center; }
+      .io-support .upgrade-row .btn { flex-direction:column;gap:2px; }
+    }
 </style></head>
 <body><main class="game-page io-page">
-<nav class="site-nav" aria-label="遊戲導覽"><a class="site-brand" href="index.html"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>FuGames</a><a href="index.html">所有遊戲 ↗</a></nav>
-<header class="page-header"><p class="eyebrow">IO / 單人 × 3 AI</p><h1>鋼芯競技場</h1><p class="lead">瞄準下一個機會。擊破能量靶，升級你的裝甲。</p></header>
+<nav class="site-nav" aria-label="遊戲導覽"><a class="site-brand" href="index.html"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>FuGames</a><a href="index.html" aria-label="所有遊戲 ↗"><span>所有遊戲</span><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#launch"></use></svg></a></nav>
+<header class="page-header"><p class="eyebrow">IO / 單人 × 3 AI</p><h1><svg class="page-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#tank_arena"></use></svg>鋼芯競技場</h1><p class="lead">瞄準下一個機會。擊破能量靶，升級你的裝甲。</p></header>
 <section class="card play-panel" aria-label="鋼芯競技場競技場">
 <div class="game-toolbar"><p class="game-status" id="phase-label">準備出擊</p><div class="game-metrics"><span>裝甲 <strong id="health">5 / 5</strong></span><span>分數 <strong id="score">0</strong> / 30</span><span>剩餘 <strong id="clock">90</strong> 秒</span></div></div>
 <div class="io-stage"><canvas id="board" width="720" height="720" tabindex="0" aria-label="鋼芯競技場，方向鍵或 WASD 移動，滑鼠瞄準，手機拖曳移動並自動瞄準。" aria-describedby="status">需要支援 Canvas 的瀏覽器。</canvas>
-<div class="board-overlay" id="overlay"><div class="game-dialog" role="dialog" aria-labelledby="dialog-title" aria-describedby="dialog-copy"><svg class="dialog-art" viewBox="0 0 80 54" aria-hidden="true"><rect x="14" y="12" width="34" height="30" rx="10" fill="#cbeaea" stroke="#267477" stroke-width="2"/><path d="M32 28L61 17" stroke="#267477" stroke-width="9"/><path d="M67 30l7 7-7 7-7-7z" fill="#ebcb8b"/></svg><p class="eyebrow">你是青綠色裝甲 · 對手皆為本機 AI</p><h2 id="dialog-title">走位，也是火力</h2><p id="dialog-copy">自動開火：靶標 +1 分、擊毀對手 +5 分。每 3 經驗可升級一次，先達 30 分或 90 秒最高分獲勝。</p><button class="btn primary" id="play">開始出擊 →</button></div></div></div>
+<div class="board-overlay" id="overlay"><div class="game-dialog" role="dialog" aria-labelledby="dialog-title" aria-describedby="dialog-copy"><svg class="dialog-art" viewBox="0 0 96 72" aria-hidden="true"><rect x="17" y="18" width="38" height="8" rx="4" fill="#267477"/><rect x="17" y="48" width="38" height="8" rx="4" fill="#267477"/><rect x="18" y="24" width="36" height="26" rx="8" fill="#cbeaea" stroke="#267477" stroke-width="2"/><path d="M36 36l24-13" stroke="#267477" stroke-width="7" stroke-linecap="round"/><circle cx="35" cy="37" r="6" fill="#267477"/><path d="M76 37l10 10-10 10-10-10z" fill="#f6edda" stroke="#85662a" stroke-width="2"/><path d="M74 44h4m-4 6h4" stroke="#85662a" stroke-width="2" stroke-linecap="round"/></svg><p class="eyebrow">你是青綠色裝甲 · 對手皆為本機 AI</p><h2 id="dialog-title">走位，也是火力</h2><p id="dialog-copy">自動開火：靶標 +1 分、擊毀對手 +5 分。每 3 經驗可升級一次，先達 30 分或 90 秒最高分獲勝。</p><button class="btn primary" id="play" aria-label="開始出擊 →"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#play"></use></svg><span>開始出擊</span></button></div></div></div>
+<div class="io-support">
 <p class="game-status io-status" id="status" role="status" aria-live="polite">方向鍵／WASD 移動；手機拖曳。自動瞄準，滑鼠指向可手動瞄準。</p>
 <div class="arena-roster" id="roster" aria-label="玩家與 AI 分數"></div>
-<div class="upgrade-row" aria-label="裝甲升級"><button class="btn" id="upgrade-fire">連發 0/2</button><button class="btn" id="upgrade-speed">機動 0/2</button><button class="btn" id="upgrade-armor">裝甲 0/2</button></div>
-<div class="game-actions"><p class="action-note" id="upgrade-note">每 3 經驗獲得 1 升級點</p><div class="btnRow"><button class="btn" id="pause" disabled>暫停</button><button class="btn primary" id="restart">重新開始</button></div></div>
-<p class="arena-hint">◆ 靶標可穿越 · 圓環 = 重生護盾 · P / Esc 暫停 · 切頁自動暫停</p>
+<div class="upgrade-row" aria-label="裝甲升級"><button class="btn" id="upgrade-fire" aria-label="連發 0/2"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#turret"></use></svg><span>連發 0/2</span></button><button class="btn" id="upgrade-speed" aria-label="機動 0/2"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#arrow-right"></use></svg><span>機動 0/2</span></button><button class="btn" id="upgrade-armor" aria-label="裝甲 0/2"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#shield"></use></svg><span>裝甲 0/2</span></button></div>
+<div class="game-actions"><p class="action-note" id="upgrade-note">每 3 經驗獲得 1 升級點</p><div class="btnRow"><button class="btn" id="pause" disabled aria-label="暫停"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#pause"></use></svg><span>暫停</span></button><button class="btn primary" id="restart" aria-label="重新開始"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#restart"></use></svg><span>重新開始</span></button></div></div>
+<p class="arena-hint io-hint-row"><span class="io-key"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#suit-diamond"></use></svg>靶標可穿越</span><span class="io-key"><i class="ring-key dashed" aria-hidden="true"></i>重生護盾</span><span>P / Esc 暫停 · 切頁自動暫停</span></p>
+</div>
 </section>
 <details class="card rules"><summary>玩法與操作</summary><div class="rules-body"><ul class="list">
 <li>一位玩家加三位本機 AI。你是青綠色裝甲。所有人自動連續射擊；方向鍵／WASD 移動，滑鼠在場內指向瞄準，移出即自動瞄準最近靶標或對手。手機按住場內拖曳移動、自動瞄準，放開停止。</li>
@@ -127,6 +156,16 @@ const TankArena = (() => {
 </script>
 <script id="tank-ui">
 'use strict';
+  // SVG controls share the same native geometry as the catalogue icons.
+  function setButton(button,label,icon) {
+    const signature=icon+'|'+label;if(button.dataset.visualLabel===signature)return;
+    button.dataset.visualLabel=signature;button.setAttribute('aria-label',label);
+    const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');svg.setAttribute('class','ui-icon');svg.setAttribute('viewBox','0 0 48 48');svg.setAttribute('aria-hidden','true');
+    const use=document.createElementNS(svg.namespaceURI,'use');use.setAttribute('href','icons.svg#'+icon);svg.append(use);
+    const text=document.createElement('span');text.textContent=label.replace(/\s*[→↗]\s*$/,'').replace(/\s*→\s*/g,' / ');button.replaceChildren(svg,text);
+  }
+
+'use strict';
 const $=id=>document.getElementById(id),canvas=$('board'),ctx=canvas.getContext('2d'),game=new TankArena.Game();
 const colors=['#267477','#99553f','#617d4a','#846480'],tints=['#cbeaea','#efdad1','#e1e9d9','#e8dce5'],names=['你','獵手 AI','採集 AI','游擊 AI'];
 const keys=new Set();let pointerAim=null,touch=null,lastTime=null,accumulator=0,lastPhase='';
@@ -136,10 +175,11 @@ function moveInput(){let x=Number(keys.has('right'))-Number(keys.has('left')),y=
 function draw(){
  const ratio=Math.min(devicePixelRatio||1,2);if(canvas.width!==720*ratio)canvas.width=canvas.height=720*ratio;ctx.setTransform(ratio,0,0,ratio,0,0);ctx.fillStyle='#f8f9fb';ctx.fillRect(0,0,720,720);
  ctx.strokeStyle='#e6ebf0';ctx.lineWidth=1;for(let p=30;p<720;p+=45){ctx.beginPath();ctx.moveTo(p,0);ctx.lineTo(p,720);ctx.moveTo(0,p);ctx.lineTo(720,p);ctx.stroke();}
- for(const t of game.targets){ctx.save();ctx.translate(t.x,t.y);ctx.rotate(Math.PI/4);ctx.fillStyle=t.hp===2?'#f3e5c4':'#faf3e4';ctx.strokeStyle='#b9984d';ctx.lineWidth=2;ctx.fillRect(-10,-10,20,20);ctx.strokeRect(-10,-10,20,20);ctx.restore();ctx.fillStyle='#ad9151';ctx.beginPath();ctx.arc(t.x,t.y,2,0,Math.PI*2);ctx.fill();}
+ for(const t of game.targets){ctx.save();ctx.translate(t.x,t.y);ctx.rotate(Math.PI/4);ctx.fillStyle=t.hp===2?'#f3e5c4':'#faf3e4';ctx.strokeStyle='#b9984d';ctx.lineWidth=2;ctx.fillRect(-10,-10,20,20);ctx.strokeRect(-10,-10,20,20);ctx.restore();ctx.strokeStyle='#85662a';ctx.fillStyle='#85662a';ctx.lineWidth=2;if(t.hp===2){for(const dx of [-4,4]){ctx.beginPath();ctx.arc(t.x+dx,t.y,1.7,0,Math.PI*2);ctx.fill();}}else{ctx.beginPath();ctx.moveTo(t.x+2,t.y-8);ctx.lineTo(t.x-2,t.y-1);ctx.lineTo(t.x+3,t.y+2);ctx.lineTo(t.x-2,t.y+8);ctx.stroke();}}
  for(const b of game.bullets){ctx.strokeStyle=colors[b.owner];ctx.lineWidth=4;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(b.x-b.vx*.016,b.y-b.vy*.016);ctx.lineTo(b.x,b.y);ctx.stroke();}
  for(const e of game.effects){ctx.strokeStyle=e.kind==='target'?'#d4ad60':'#d08770';ctx.globalAlpha=e.life/.3;ctx.lineWidth=3;ctx.beginPath();ctx.arc(e.x,e.y,(.35-e.life)*70,0,Math.PI*2);ctx.stroke();ctx.globalAlpha=1;}
- for(const a of game.actors){if(!a.alive)continue;ctx.save();ctx.translate(a.x,a.y);if(a.shield>0){ctx.strokeStyle=colors[a.id];ctx.setLineDash([5,5]);ctx.lineWidth=2;ctx.beginPath();ctx.arc(0,0,26,0,Math.PI*2);ctx.stroke();ctx.setLineDash([]);}ctx.rotate(a.angle);ctx.fillStyle=colors[a.id];ctx.fillRect(-15,-20,30,7);ctx.fillRect(-15,13,30,7);ctx.fillStyle=tints[a.id];ctx.strokeStyle=colors[a.id];ctx.lineWidth=2;ctx.beginPath();ctx.roundRect(-17,-15,34,30,8);ctx.fill();ctx.stroke();ctx.fillStyle=colors[a.id];ctx.fillRect(0,-5,28,10);ctx.beginPath();ctx.arc(0,0,8,0,Math.PI*2);ctx.fill();ctx.restore();ctx.fillStyle=colors[a.id];ctx.textAlign='center';ctx.font='bold 12px monospace';ctx.fillText(names[a.id],a.x,a.y-33);ctx.fillStyle='#d8dee9';ctx.fillRect(a.x-22,a.y+28,44,4);ctx.fillStyle=colors[a.id];ctx.fillRect(a.x-22,a.y+28,44*a.hp/game.maxHP(a),4);}
+ for(const a of game.actors){if(!a.alive)continue;ctx.save();ctx.translate(a.x,a.y);if(a.shield>0){ctx.strokeStyle=colors[a.id];ctx.setLineDash([5,5]);ctx.lineWidth=2;ctx.beginPath();ctx.arc(0,0,26,0,Math.PI*2);ctx.stroke();ctx.setLineDash([]);}ctx.rotate(a.angle);ctx.fillStyle=colors[a.id];ctx.fillRect(-15,-20,30,7);ctx.fillRect(-15,13,30,7);ctx.fillStyle=tints[a.id];ctx.strokeStyle=colors[a.id];ctx.lineWidth=2;ctx.beginPath();ctx.roundRect(-17,-15,34,30,8);ctx.fill();ctx.stroke();ctx.fillStyle=colors[a.id];ctx.fillRect(0,-5,28,10);ctx.beginPath();ctx.arc(0,0,8,0,Math.PI*2);ctx.fill();ctx.restore();ctx.fillStyle=colors[a.id];ctx.textAlign='center';const font=Math.min(22,Math.max(14,Math.round(10*720/Math.max(canvas.clientWidth,1))));ctx.font='bold '+font+'px monospace';const label=a.id?names[a.id]:'YOU',width=ctx.measureText(label).width+8,lx=Math.max(width/2+3,Math.min(717-width/2,a.x)),ly=Math.max(font+2,a.y-34);ctx.fillStyle='#fffffff0';ctx.fillRect(lx-width/2,ly-font,width,font+5);ctx.fillStyle=colors[a.id];ctx.fillText(label,lx,ly);
+   const hp=game.maxHP(a),segment=48/hp;for(let i=0;i<hp;i++){ctx.fillStyle=i<a.hp?colors[a.id]:'#d8dee9';ctx.fillRect(a.x-24+i*segment,a.y+28,segment-1.5,5);}if(!a.id){ctx.strokeStyle=colors[0];ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(a.x-5,a.y+41);ctx.lineTo(a.x,a.y+36);ctx.lineTo(a.x+5,a.y+41);ctx.stroke();}}
  if(pointerAim&&game.phase==='running'){ctx.strokeStyle='#267477';ctx.lineWidth=1;ctx.beginPath();ctx.arc(pointerAim.x,pointerAim.y,9,0,Math.PI*2);ctx.moveTo(pointerAim.x-14,pointerAim.y);ctx.lineTo(pointerAim.x+14,pointerAim.y);ctx.moveTo(pointerAim.x,pointerAim.y-14);ctx.lineTo(pointerAim.x,pointerAim.y+14);ctx.stroke();}
  if(touch){const r=canvas.getBoundingClientRect(),s=720/r.width,x=(touch.ox-r.left)*s,y=(touch.oy-r.top)*s,d=TankArena.vector(touch.x-touch.ox,touch.y-touch.oy),len=Math.min(40,Math.hypot(touch.x-touch.ox,touch.y-touch.oy));ctx.strokeStyle='#26747766';ctx.fillStyle='#ffffff99';ctx.beginPath();ctx.arc(x,y,40*s,0,Math.PI*2);ctx.fill();ctx.stroke();ctx.fillStyle='#26747788';ctx.beginPath();ctx.arc(x+d.x*len*s,y+d.y*len*s,12*s,0,Math.PI*2);ctx.fill();}
 }
@@ -147,11 +187,11 @@ function hud(){
  const a=game.actors[0];$('health').textContent=a.alive?`${a.hp} / ${game.maxHP(a)}`:`重生 ${a.respawn.toFixed(1)}`;$('score').textContent=a.score;$('clock').textContent=Math.max(0,Math.ceil((TankArena.ROUND_TICKS-game.tick)*TankArena.DT));$('phase-label').textContent={ready:'準備出擊',running:'自動開火 · 奪取 30 分',paused:'已暫停',over:'本局結束'}[game.phase];
  for(const b of game.actors){$('s'+b.id).textContent=b.score;$('m'+b.id).textContent=b.alive?(b.id?b.mode:`經驗 ${b.xp} · ${pointerAim?'手動':'自動'}瞄準`):`重生 ${b.respawn.toFixed(1)} 秒`;}
  const points=game.points(a);$('upgrade-note').textContent=points?`可用 ${points} 升級點 · 請選擇`:`經驗 ${a.xp} · ${a.spent===6?'已全部升級':'每 3 經驗 +1 升級點'}`;
- for(const [kind,label]of [['fire','連發'],['speed','機動'],['armor','裝甲']]){const b=$('upgrade-'+kind);b.disabled=game.phase!=='running'||!points||a.upgrades[kind]>=2;b.textContent=`${label} ${a.upgrades[kind]}/2`;}
- $('pause').disabled=game.phase!=='running'&&game.phase!=='paused';$('pause').textContent=game.phase==='paused'?'繼續':'暫停';
+ for(const [kind,label]of [['fire','連發'],['speed','機動'],['armor','裝甲']]){const b=$('upgrade-'+kind);b.disabled=game.phase!=='running'||!points||a.upgrades[kind]>=2;setButton(b,`${label} ${a.upgrades[kind]}/2`,{fire:'turret',speed:'arrow-right',armor:'shield'}[kind]);}
+ $('pause').disabled=game.phase!=='running'&&game.phase!=='paused';setButton($('pause'),game.phase==='paused'?'繼續':'暫停',game.phase==='paused'?'play':'pause');
  if(lastPhase===game.phase)return;lastPhase=game.phase;$('overlay').hidden=game.phase==='running';
- if(game.phase==='paused'){$('dialog-title').textContent='暫停，喘口氣';$('dialog-copy').textContent='時間與所有裝甲都已停止。準備好再繼續。';$('play').textContent='繼續本局 →';}
- if(game.phase==='over'){$('dialog-title').textContent={win:'你的裝甲，脫穎而出',loss:'下回再搶先一步',draw:'這次不分高下'}[game.result.outcome];$('dialog-copy').textContent=`${game.result.reason} 你得到 ${a.score} 分；最高 ${Math.max(...game.actors.map(b=>b.score))} 分。`;$('play').textContent='再戰一局 →';$('status').textContent=$('dialog-copy').textContent;}
+ if(game.phase==='paused'){$('dialog-title').textContent='暫停，喘口氣';$('dialog-copy').textContent='時間與所有裝甲都已停止。準備好再繼續。';setButton($('play'),'繼續本局 →',game.phase==='over'?'restart':'play');}
+ if(game.phase==='over'){$('dialog-title').textContent={win:'你的裝甲，脫穎而出',loss:'下回再搶先一步',draw:'這次不分高下'}[game.result.outcome];$('dialog-copy').textContent=`${game.result.reason} 你得到 ${a.score} 分；最高 ${Math.max(...game.actors.map(b=>b.score))} 分。`;setButton($('play'),'再戰一局 →',game.phase==='over'?'restart':'play');$('status').textContent=$('dialog-copy').textContent;}
  if(game.phase!=='running')$('play').focus({preventScroll:true});
 }
 function pause(){if(game.phase==='running'){game.pause();clearInput();accumulator=0;hud();}}

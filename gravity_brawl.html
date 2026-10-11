@@ -24,16 +24,16 @@
     .brawl-side { display:flex; flex-direction:column; gap:14px; }
     .gravity-card { background:var(--fulab-bg-secondary); border:1px solid var(--fulab-silver); padding:15px; border-radius:12px; }
     .gravity-line { display:flex; align-items:center; gap:13px; }
-    .gravity-arrow { font-size:38px; line-height:1; color:var(--fulab-ink-teal); font-weight:700; }
+    .gravity-arrow { display:block; width:40px; height:40px; flex:0 0 auto; color:var(--fulab-ink-teal); }
     .gravity-card h2 { font-size:15px; margin:0 0 3px; }
     .gravity-card p { color:var(--fulab-muted); font-size:11px; margin:0; }
     .gravity-card.warning { background:var(--fulab-tint-amber); border-color:var(--fulab-amber); }
     .timer-track { height:5px; background:var(--fulab-silver); border-radius:9px; margin-top:12px; overflow:hidden; }
     .timer-track div { height:100%; width:100%; background:var(--fulab-teal); }
     .preview-row { margin-top:0; display:flex; align-items:center; gap:16px; font-size:11px; color:var(--fulab-muted); }
-    #next { width:44px; height:30px; background:var(--fulab-bg-secondary); border-radius:8px; }
+    #next { width:48px; height:auto; aspect-ratio:20/13; background:var(--fulab-bg-secondary); border-radius:8px; }
     .brawl-controls { margin-top:10px; display:grid; grid-template-columns:repeat(3,1fr); gap:7px; }
-    .brawl-controls .btn { padding:8px 4px; border-radius:10px; touch-action:manipulation; }
+    .brawl-controls .btn { gap:5px; padding:8px 4px; border-radius:10px; touch-action:manipulation; }
     #drop { grid-column:1/-1; }
     .control-note { font-size:11px; color:var(--fulab-muted); margin:0; }
     .brawl-log { color:var(--fulab-ink-teal); font-size:12px; min-height:58px; margin:0; }
@@ -51,10 +51,10 @@
       .rivals { order:4; }
       .brawl-side { display:contents; }
       .gravity-card { padding:10px 12px; }
-      .gravity-arrow { font-size:28px; }
+      .gravity-arrow { width:32px; height:32px; }
       .gravity-card h2 { font-size:13px; }
       .preview-row { gap:8px; }
-      #next { width:44px; height:30px; }
+      #next { width:48px; height:auto; aspect-ratio:20/13; }
       .rivals { gap:8px; margin-top:12px; }
       .rival h3 { font-size:10px; }
       .rival p { font-size:9px; }
@@ -67,23 +67,23 @@
 </head>
 <body>
 <main class="game-page">
-  <nav class="site-nav" aria-label="遊戲導覽"><a class="site-brand" href="index.html"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>FuGames</a><a href="index.html">所有遊戲 ↗</a></nav>
-  <header class="page-header"><p class="eyebrow">BLOCKS / 你 × 3 本機 AI</p><h1>重力大亂鬥</h1><p class="lead">四盤同拍，重力換向。把對手的干擾，變成自己的反擊。</p></header>
+  <nav class="site-nav" aria-label="遊戲導覽"><a class="site-brand" href="index.html"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>FuGames</a><a href="index.html" aria-label="所有遊戲 ↗">所有遊戲 <svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#launch"></use></svg></a></nav>
+  <header class="page-header"><p class="eyebrow">BLOCKS / 你 × 3 本機 AI</p><h1><svg class="page-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#gravity_brawl"></use></svg>重力大亂鬥</h1><p class="lead">四盤同拍，重力換向。把對手的干擾，變成自己的反擊。</p></header>
   <section class="card play-panel" aria-label="重力大亂鬥競技場">
     <div class="game-toolbar"><p class="game-status" id="phase-label">準備迎接轉向</p><div class="game-metrics"><span>拍數 <strong id="wave">1 / 24</strong></span><span>你的清行 <strong id="lines">0</strong></span><span>待收干擾 <strong id="pending">0</strong></span></div></div>
     <div class="brawl-layout">
       <div class="human-board">
         <div class="board-head"><strong>你 · 主盤</strong><div class="preview-row">下拍<canvas id="next" width="160" height="104" aria-label="下一拍共用方塊"></canvas></div></div>
         <div class="board-stage"><canvas class="brawl-canvas" id="board" width="400" height="400" tabindex="0" aria-label="你的方塊盤。左右鍵移位、向上鍵旋轉、空白鍵落下。" aria-describedby="status">請使用支援 Canvas 的瀏覽器。</canvas></div>
-        <p class="touch-hint" id="human-note">入場邊：上 · ◀ 左／右 ▶</p>
-        <div class="brawl-controls" aria-label="方塊操作"><button class="btn" id="left" aria-label="移向入場邊左方" disabled>◀ 移位</button><button class="btn" id="rotate" aria-label="旋轉方塊" disabled>↻ 旋轉</button><button class="btn" id="right" aria-label="移向入場邊右方" disabled>移位 ▶</button><button class="btn primary" id="drop" disabled>落下</button></div>
+        <p class="touch-hint" id="human-note">入場邊：上 · 左鈕往左／右鈕往右</p>
+        <div class="brawl-controls" aria-label="方塊操作"><button class="btn" id="left" aria-label="移向入場邊左方" disabled>移位</button><button class="btn" id="rotate" aria-label="旋轉方塊" disabled>旋轉</button><button class="btn" id="right" aria-label="移向入場邊右方" disabled>移位</button><button class="btn primary" id="drop" disabled>落下</button></div>
         <p class="control-note">← → / A D：沿入場邊移位<br>↑ / W：轉塊　空白鍵：落下<br>P / Esc：暫停；切換視窗後手動繼續</p>
 
       </div>
       <div class="brawl-side">
-        <div class="gravity-card" id="gravity-card"><div class="gravity-line"><span class="gravity-arrow" id="gravity">↓</span><div><h2 id="gravity-label">重力向下</h2><p id="turn-warning">4 拍後轉向 ←，鬆散方格重新沉降</p></div></div><div class="timer-track" role="progressbar" aria-label="本拍剩餘時間" aria-valuemin="0" aria-valuemax="7" aria-valuenow="7"><div id="timer-fill"></div></div></div>
+        <div class="gravity-card" id="gravity-card"><div class="gravity-line"><svg class="gravity-arrow" id="gravity" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#arrow-down"></use></svg><div><h2 id="gravity-label">重力向下</h2><p id="turn-warning">4 拍後轉向左，鬆散方格重新沉降</p></div></div><div class="timer-track" role="progressbar" aria-label="本拍剩餘時間" aria-valuemin="0" aria-valuemax="7" aria-valuenow="7"><div id="timer-fill"></div></div></div>
         <div class="start-box" id="start-box"><h2 id="dialog-title">先看落點，再換方向</h2><p id="dialog-copy">每拍 7 秒，全員同一塊。每 4 拍重力轉 90°。消一行送一行，先抵銷待收干擾。最後存活或 24 拍清行最多者勝。</p><button class="btn primary" id="play">開始對戰 →</button></div>
-        <p class="brawl-log" id="status" role="status" aria-live="polite">重力換向後，移位方向也會跟著轉。盤面邊緣的 ◀ ▶ 會帶路。</p>
+        <p class="brawl-log" id="status" role="status" aria-live="polite">重力換向後，移位方向也會跟著轉。方向按鈕的箭頭會帶路。</p>
         <div class="rivals">
           <article class="rival" id="rival-1"><h3>守平 · AI</h3><canvas class="brawl-canvas" id="board-1" width="180" height="180" aria-label="守平 AI 盤面"></canvas><p id="stats-1">0 行 · 待收 0</p><p id="intent-1">低堆疊優先</p></article>
           <article class="rival" id="rival-2"><h3>壓迫 · AI</h3><canvas class="brawl-canvas" id="board-2" width="180" height="180" aria-label="壓迫 AI 盤面"></canvas><p id="stats-2">0 行 · 待收 0</p><p id="intent-2">消行進攻優先</p></article>
@@ -95,7 +95,7 @@
   </section>
   <details class="card rules"><summary>玩法、換向與反擊</summary><div class="rules-body"><ul class="list">
     <li>一位玩家與三位本機 AI，各用 10 × 10 盤面。每拍共用同一塊方塊與下拍預告；七種方塊每袋各一塊。7 秒內選擇虛線落點，按「落下」立刻一起結算；逾時使用目前落點。</li>
-    <li>只能從入場邊直線落下，不可穿過障礙，也沒有側滑或保留方塊。左右沿入場邊移位、向上旋轉、空白鍵落下；手機點盤面或按鈕。換向後移位方向跟著盤邊的 ◀ ▶。</li>
+    <li>只能從入場邊直線落下，不可穿過障礙，也沒有側滑或保留方塊。左右沿入場邊移位、向上旋轉、空白鍵落下；手機點盤面或按鈕。換向後移位方向跟著方向按鈕的箭頭。</li>
     <li>每 4 拍後重力順時針轉 90°：向下、向左、向上、向右循環。既有方格留在原世界位置，再各自向新重力方向沉降；方塊會拆成小格。填滿垂直於重力的一整行即清除。</li>
     <li>落塊每清 1 行產生 1 行攻擊；先抵銷自己的待收干擾，餘額送給下一位存活對手（你 → 守平 → 壓迫 → 轉潮 → 你）。同拍出局仍保留已產生的攻擊。新攻擊下拍才到，有一拍消行反制。灰色干擾行有一個隨機缺口，從重力底邊推入；頂出方格即淘汰。換向沉降的清行計分但不攻擊。</li>
     <li>無合法落點或干擾頂出即淘汰。全部同拍淘汰為平手；最後存活者勝。第 24 拍後，存活者累計清行最多者勝，同分並列。你出局即結束並顯示落敗；其餘同拍淘汰判定仍會完成。</li>
@@ -313,7 +313,9 @@ const GravityBrawl = (() => {
 'use strict';
 const $=id=>document.getElementById(id), game=new GravityBrawl.Game();
 const palette=['#f8f9fb','#81a1c1','#ebcb8b','#b48ead','#a3be8c','#d08770','#5ebcbf','#9caec1','#a6adb8'];
-const arrows=['↓','←','↑','→'], names=['向下','向左','向上','向右'];
+const arrows=['arrow-down','arrow-left','arrow-up','arrow-right'], names=['向下','向左','向上','向右'];
+const icon=name=>`<svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#${name}"></use></svg>`;
+function buttonIcon(id,name){const button=$(id);button.innerHTML=icon(name)+button.textContent.replace(/\s*→/g,'');}
 let previousTime=null, uiStamp='', lockUntil=0;
 function paintBoard(canvas,actor,ghost) {
   const ctx=canvas.getContext('2d'), size=canvas.width, pad=size*.04, cell=(size-pad*2)/10;
@@ -321,7 +323,8 @@ function paintBoard(canvas,actor,ghost) {
   for(let y=0;y<10;y++) for(let x=0;x<10;x++) {
     const [wx,wy]=GravityBrawl.world(x,y,game.gravity), value=actor.board[y][x];
     ctx.fillStyle=value?palette[value]:'#f0f2f5'; ctx.fillRect(pad+wx*cell+1,pad+wy*cell+1,cell-2,cell-2);
-    if(value===8) { ctx.strokeStyle='#ffffff88';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(pad+wx*cell+4,pad+wy*cell+cell-4);ctx.lineTo(pad+wx*cell+cell-4,pad+wy*cell+4);ctx.stroke(); }
+    if(value) { ctx.strokeStyle='#647080';ctx.lineWidth=1;ctx.strokeRect(pad+wx*cell+1.5,pad+wy*cell+1.5,cell-3,cell-3); }
+    if(value===8) { ctx.strokeStyle='#596574';ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(pad+wx*cell+4,pad+wy*cell+cell-4);ctx.lineTo(pad+wx*cell+cell-4,pad+wy*cell+4);ctx.stroke(); }
   }
   if(ghost && actor.alive && game.phase!=='over') {
     for(const [dx,dy] of GravityBrawl.SHAPES[game.piece][ghost.rotation]) {
@@ -345,11 +348,11 @@ function refresh() {
   const running=game.phase==='running', over=game.phase==='over', ready=game.phase==='ready';
   $('wave').textContent=Math.min(game.wave,24)+' / 24';$('lines').textContent=game.actors[0].lines;$('pending').textContent=game.actors[0].pending;
   $('phase-label').textContent=running?'第 '+game.wave+' 拍 · '+Math.ceil(game.remaining)+' 秒':over?'本局結束':ready?'準備迎接轉向':'已暫停 · 倒數凍結';
-  $('gravity').textContent=arrows[game.gravity];$('gravity-label').textContent='重力'+names[game.gravity];
-  $('turn-warning').textContent=game.untilTurn()+' 拍後轉向 '+arrows[(game.gravity+1)%4]+'，小格重新沉降';
+  $('gravity').innerHTML=`<use href="icons.svg#${arrows[game.gravity]}"></use>`;$('gravity-label').textContent='重力'+names[game.gravity];
+  $('turn-warning').textContent=game.untilTurn()+' 拍後轉'+names[(game.gravity+1)%4]+'，小格重新沉降';
   $('gravity-card').classList.toggle('warning',game.untilTurn()===1);
   $('timer-fill').style.width=(game.remaining/7*100)+'%';document.querySelector('[role=progressbar]').setAttribute('aria-valuenow',game.remaining.toFixed(1));
-  $('human-note').textContent=['入場邊：上 · ◀ 左／右 ▶','入場邊：右 · ◀ 上／下 ▶','入場邊：下 · ◀ 右／左 ▶','入場邊：左 · ◀ 下／上 ▶'][game.gravity];
+  $('human-note').textContent=['入場邊：上 · 左鈕往左／右鈕往右','入場邊：右 · 左鈕往上／右鈕往下','入場邊：下 · 左鈕往右／右鈕往左','入場邊：左 · 左鈕往下／右鈕往上'][game.gravity];
   for(const id of ['left','right','rotate']) $(id).disabled=!running || !game.selection;
   $('drop').disabled=!running;$('pause').disabled=ready||over;$('pause').textContent=game.phase==='paused'?'繼續':'暫停';
   $('start-box').hidden=running;
@@ -361,6 +364,7 @@ function refresh() {
   } else if(ready) {
     $('dialog-title').textContent='先看落點，再換方向';$('dialog-copy').textContent='每拍 7 秒，全員同一塊。每 4 拍重力轉 90°。消一行送一行，先抵銷待收干擾。最後存活或 24 拍清行最多者勝。';$('play').textContent='開始對戰 →';
   }
+  for(const[id,name]of[['play','play'],['pause',game.phase==='paused'?'play':'pause'],['restart','restart'],['left',['arrow-left','arrow-up','arrow-right','arrow-down'][game.gravity]],['right',['arrow-right','arrow-down','arrow-left','arrow-up'][game.gravity]],['rotate','rotate'],['drop',arrows[game.gravity]]])buttonIcon(id,name);
   paintBoard($('board'),game.actors[0],game.selection);paintNext();
   for(let id=1;id<4;id++) {
     const a=game.actors[id];paintBoard($('board-'+id),a,null);$('rival-'+id).classList.toggle('out',!a.alive);

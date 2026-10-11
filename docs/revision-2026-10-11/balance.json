@@ -1,0 +1,1638 @@
+{
+  "generatedAt": "2026-10-11T08:34:05.893Z",
+  "engineSha256": "c89174e395adfb47044183ea907065d6789b264bcbca8950581aee2e64ded1c6",
+  "geometry": {
+    "radius": 5,
+    "cells": 91,
+    "edgeCells": 6,
+    "emptyRouteCost": 11
+  },
+  "design": {
+    "seeds": [
+      101,
+      238,
+      375,
+      512,
+      649,
+      786,
+      923,
+      1060,
+      1197,
+      1334,
+      1471,
+      1608,
+      1745,
+      1882,
+      2019,
+      2156,
+      2293,
+      2430,
+      2567,
+      2704,
+      2841,
+      2978,
+      3115,
+      3252
+    ],
+    "independentDeals": 24,
+    "configurationsPerDeal": 3,
+    "firstPlayers": [
+      1,
+      2,
+      3
+    ],
+    "axisRotations": [
+      0,
+      1,
+      2
+    ],
+    "identityRotations": [
+      0,
+      1,
+      2
+    ],
+    "profileAssignments": [
+      "builder/cutter/builder",
+      "cutter/builder/cutter"
+    ],
+    "note": "Balanced marginal coverage of starters, axes and private identities; not the complete factorial of every combination.",
+    "shieldPerPlayer": 1,
+    "deckWeights": {
+      "double": 4,
+      "remove": 2,
+      "turret": 2,
+      "trap": 2,
+      "bridge": 2,
+      "shield": 1
+    }
+  },
+  "balance": {
+    "matches": 72,
+    "winsBySeat": [
+      20,
+      21,
+      16
+    ],
+    "winsByStartOrder": [
+      20,
+      18,
+      19
+    ],
+    "winsByAxis": [
+      22,
+      21,
+      14
+    ],
+    "winsByProfile": {
+      "builder": 33,
+      "cutter": 24
+    },
+    "draws": 15,
+    "terminalReasons": {
+      "connection": 55,
+      "full": 17,
+      "limit": 0,
+      "simultaneous": 0
+    },
+    "cardsUsed": {
+      "double": 855,
+      "remove": 412,
+      "turret": 421,
+      "trap": 425,
+      "bridge": 272,
+      "shield": 122
+    },
+    "trapTriggers": 393,
+    "turretVolleys": 671,
+    "illegalActions": 0
+  },
+  "length": {
+    "n": 72,
+    "mean": 71.18055555555556,
+    "median": 63,
+    "p95": 116,
+    "max": 119
+  },
+  "chooseActionMs": {
+    "n": 5125,
+    "mean": 7.75351189892686,
+    "median": 7.403497999999672,
+    "p95": 13.378382000002603,
+    "max": 36.07529500000237
+  },
+  "symmetry": {
+    "description": "Cyclically relabel all players, hands, decks, private tie seeds, profiles, goal axes and starter; require identical public actions and winner after inverse label mapping.",
+    "groups": 6,
+    "matches": 18,
+    "passedGroups": 6,
+    "fixtures": [
+      {
+        "seed": 5101,
+        "first": 1,
+        "axis": 0,
+        "profile": 0,
+        "identity": 0,
+        "baseWinner": 1,
+        "basePlies": 40,
+        "rotations": [
+          {
+            "rotation": 1,
+            "plies": 40,
+            "winner": 2,
+            "mappedWinner": 1,
+            "identicalTrace": true
+          },
+          {
+            "rotation": 2,
+            "plies": 40,
+            "winner": 3,
+            "mappedWinner": 1,
+            "identicalTrace": true
+          }
+        ],
+        "passed": true
+      },
+      {
+        "seed": 5280,
+        "first": 2,
+        "axis": 0,
+        "profile": 1,
+        "identity": 1,
+        "baseWinner": 3,
+        "basePlies": 65,
+        "rotations": [
+          {
+            "rotation": 1,
+            "plies": 65,
+            "winner": 1,
+            "mappedWinner": 3,
+            "identicalTrace": true
+          },
+          {
+            "rotation": 2,
+            "plies": 65,
+            "winner": 2,
+            "mappedWinner": 3,
+            "identicalTrace": true
+          }
+        ],
+        "passed": true
+      },
+      {
+        "seed": 5459,
+        "first": 3,
+        "axis": 1,
+        "profile": 0,
+        "identity": 2,
+        "baseWinner": 3,
+        "basePlies": 40,
+        "rotations": [
+          {
+            "rotation": 1,
+            "plies": 40,
+            "winner": 1,
+            "mappedWinner": 3,
+            "identicalTrace": true
+          },
+          {
+            "rotation": 2,
+            "plies": 40,
+            "winner": 2,
+            "mappedWinner": 3,
+            "identicalTrace": true
+          }
+        ],
+        "passed": true
+      },
+      {
+        "seed": 5638,
+        "first": 1,
+        "axis": 1,
+        "profile": 1,
+        "identity": 0,
+        "baseWinner": 1,
+        "basePlies": 49,
+        "rotations": [
+          {
+            "rotation": 1,
+            "plies": 49,
+            "winner": 2,
+            "mappedWinner": 1,
+            "identicalTrace": true
+          },
+          {
+            "rotation": 2,
+            "plies": 49,
+            "winner": 3,
+            "mappedWinner": 1,
+            "identicalTrace": true
+          }
+        ],
+        "passed": true
+      },
+      {
+        "seed": 5817,
+        "first": 2,
+        "axis": 2,
+        "profile": 0,
+        "identity": 1,
+        "baseWinner": 0,
+        "basePlies": 115,
+        "rotations": [
+          {
+            "rotation": 1,
+            "plies": 115,
+            "winner": 0,
+            "mappedWinner": 0,
+            "identicalTrace": true
+          },
+          {
+            "rotation": 2,
+            "plies": 115,
+            "winner": 0,
+            "mappedWinner": 0,
+            "identicalTrace": true
+          }
+        ],
+        "passed": true
+      },
+      {
+        "seed": 5996,
+        "first": 3,
+        "axis": 2,
+        "profile": 1,
+        "identity": 2,
+        "baseWinner": 3,
+        "basePlies": 116,
+        "rotations": [
+          {
+            "rotation": 1,
+            "plies": 116,
+            "winner": 1,
+            "mappedWinner": 3,
+            "identicalTrace": true
+          },
+          {
+            "rotation": 2,
+            "plies": 116,
+            "winner": 2,
+            "mappedWinner": 3,
+            "identicalTrace": true
+          }
+        ],
+        "passed": true
+      }
+    ]
+  },
+  "baseline": {
+    "description": "One advanced AI against two greedy shortest-route bots. Baseline can place/double and counter with its own shield; ignores attack timing and rival-route search. Local heuristic benchmark, not human difficulty.",
+    "matches": 18,
+    "advancedWins": 18,
+    "baselineWins": 0,
+    "draws": 0,
+    "advancedWinsBySeat": [
+      6,
+      6,
+      6
+    ],
+    "fixtures": [
+      {
+        "seed": 401,
+        "first": 1,
+        "axis": 1,
+        "profile": 1,
+        "identity": 0,
+        "smart": 1,
+        "winner": 1,
+        "plies": 55
+      },
+      {
+        "seed": 401,
+        "first": 2,
+        "axis": 0,
+        "profile": 1,
+        "identity": 1,
+        "smart": 2,
+        "winner": 2,
+        "plies": 55
+      },
+      {
+        "seed": 401,
+        "first": 3,
+        "axis": 2,
+        "profile": 1,
+        "identity": 2,
+        "smart": 3,
+        "winner": 3,
+        "plies": 55
+      },
+      {
+        "seed": 409,
+        "first": 3,
+        "axis": 0,
+        "profile": 1,
+        "identity": 0,
+        "smart": 1,
+        "winner": 1,
+        "plies": 53
+      },
+      {
+        "seed": 409,
+        "first": 1,
+        "axis": 2,
+        "profile": 1,
+        "identity": 1,
+        "smart": 2,
+        "winner": 2,
+        "plies": 53
+      },
+      {
+        "seed": 409,
+        "first": 2,
+        "axis": 1,
+        "profile": 1,
+        "identity": 2,
+        "smart": 3,
+        "winner": 3,
+        "plies": 53
+      },
+      {
+        "seed": 419,
+        "first": 1,
+        "axis": 1,
+        "profile": 1,
+        "identity": 0,
+        "smart": 1,
+        "winner": 1,
+        "plies": 31
+      },
+      {
+        "seed": 419,
+        "first": 2,
+        "axis": 0,
+        "profile": 1,
+        "identity": 1,
+        "smart": 2,
+        "winner": 2,
+        "plies": 31
+      },
+      {
+        "seed": 419,
+        "first": 3,
+        "axis": 2,
+        "profile": 1,
+        "identity": 2,
+        "smart": 3,
+        "winner": 3,
+        "plies": 31
+      },
+      {
+        "seed": 431,
+        "first": 1,
+        "axis": 1,
+        "profile": 1,
+        "identity": 0,
+        "smart": 1,
+        "winner": 1,
+        "plies": 28
+      },
+      {
+        "seed": 431,
+        "first": 2,
+        "axis": 0,
+        "profile": 1,
+        "identity": 1,
+        "smart": 2,
+        "winner": 2,
+        "plies": 28
+      },
+      {
+        "seed": 431,
+        "first": 3,
+        "axis": 2,
+        "profile": 1,
+        "identity": 2,
+        "smart": 3,
+        "winner": 3,
+        "plies": 28
+      },
+      {
+        "seed": 443,
+        "first": 1,
+        "axis": 1,
+        "profile": 1,
+        "identity": 0,
+        "smart": 1,
+        "winner": 1,
+        "plies": 49
+      },
+      {
+        "seed": 443,
+        "first": 2,
+        "axis": 0,
+        "profile": 1,
+        "identity": 1,
+        "smart": 2,
+        "winner": 2,
+        "plies": 49
+      },
+      {
+        "seed": 443,
+        "first": 3,
+        "axis": 2,
+        "profile": 1,
+        "identity": 2,
+        "smart": 3,
+        "winner": 3,
+        "plies": 49
+      },
+      {
+        "seed": 449,
+        "first": 1,
+        "axis": 1,
+        "profile": 1,
+        "identity": 0,
+        "smart": 1,
+        "winner": 1,
+        "plies": 55
+      },
+      {
+        "seed": 449,
+        "first": 2,
+        "axis": 0,
+        "profile": 1,
+        "identity": 1,
+        "smart": 2,
+        "winner": 2,
+        "plies": 55
+      },
+      {
+        "seed": 449,
+        "first": 3,
+        "axis": 2,
+        "profile": 1,
+        "identity": 2,
+        "smart": 3,
+        "winner": 3,
+        "plies": 55
+      }
+    ]
+  },
+  "elapsedSeconds": 53.317,
+  "matches": [
+    {
+      "seed": 101,
+      "first": 1,
+      "axis": 0,
+      "profile": 0,
+      "identity": 0,
+      "profiles": [
+        "builder",
+        "cutter",
+        "builder"
+      ],
+      "winner": 0,
+      "plies": 115,
+      "scores": [
+        3,
+        3,
+        6
+      ]
+    },
+    {
+      "seed": 101,
+      "first": 2,
+      "axis": 1,
+      "profile": 1,
+      "identity": 0,
+      "profiles": [
+        "cutter",
+        "builder",
+        "cutter"
+      ],
+      "winner": 0,
+      "plies": 109,
+      "scores": [
+        9,
+        3,
+        3
+      ]
+    },
+    {
+      "seed": 101,
+      "first": 3,
+      "axis": 2,
+      "profile": 0,
+      "identity": 0,
+      "profiles": [
+        "builder",
+        "cutter",
+        "builder"
+      ],
+      "winner": 0,
+      "plies": 116,
+      "scores": [
+        6,
+        3,
+        3
+      ]
+    },
+    {
+      "seed": 238,
+      "first": 1,
+      "axis": 1,
+      "profile": 1,
+      "identity": 1,
+      "profiles": [
+        "cutter",
+        "cutter",
+        "builder"
+      ],
+      "winner": 1,
+      "plies": 61,
+      "scores": null
+    },
+    {
+      "seed": 238,
+      "first": 2,
+      "axis": 2,
+      "profile": 0,
+      "identity": 1,
+      "profiles": [
+        "builder",
+        "builder",
+        "cutter"
+      ],
+      "winner": 1,
+      "plies": 48,
+      "scores": null
+    },
+    {
+      "seed": 238,
+      "first": 3,
+      "axis": 0,
+      "profile": 1,
+      "identity": 1,
+      "profiles": [
+        "cutter",
+        "cutter",
+        "builder"
+      ],
+      "winner": 1,
+      "plies": 71,
+      "scores": null
+    },
+    {
+      "seed": 375,
+      "first": 1,
+      "axis": 2,
+      "profile": 0,
+      "identity": 2,
+      "profiles": [
+        "cutter",
+        "builder",
+        "builder"
+      ],
+      "winner": 0,
+      "plies": 109,
+      "scores": [
+        6,
+        3,
+        3
+      ]
+    },
+    {
+      "seed": 375,
+      "first": 2,
+      "axis": 0,
+      "profile": 1,
+      "identity": 2,
+      "profiles": [
+        "builder",
+        "cutter",
+        "cutter"
+      ],
+      "winner": 1,
+      "plies": 75,
+      "scores": null
+    },
+    {
+      "seed": 375,
+      "first": 3,
+      "axis": 1,
+      "profile": 0,
+      "identity": 2,
+      "profiles": [
+        "cutter",
+        "builder",
+        "builder"
+      ],
+      "winner": 1,
+      "plies": 50,
+      "scores": null
+    },
+    {
+      "seed": 512,
+      "first": 1,
+      "axis": 0,
+      "profile": 1,
+      "identity": 0,
+      "profiles": [
+        "cutter",
+        "builder",
+        "cutter"
+      ],
+      "winner": 2,
+      "plies": 65,
+      "scores": null
+    },
+    {
+      "seed": 512,
+      "first": 2,
+      "axis": 1,
+      "profile": 0,
+      "identity": 0,
+      "profiles": [
+        "builder",
+        "cutter",
+        "builder"
+      ],
+      "winner": 3,
+      "plies": 62,
+      "scores": null
+    },
+    {
+      "seed": 512,
+      "first": 3,
+      "axis": 2,
+      "profile": 1,
+      "identity": 0,
+      "profiles": [
+        "cutter",
+        "builder",
+        "cutter"
+      ],
+      "winner": 2,
+      "plies": 72,
+      "scores": null
+    },
+    {
+      "seed": 649,
+      "first": 1,
+      "axis": 1,
+      "profile": 0,
+      "identity": 1,
+      "profiles": [
+        "builder",
+        "builder",
+        "cutter"
+      ],
+      "winner": 0,
+      "plies": 111,
+      "scores": [
+        3,
+        6,
+        3
+      ]
+    },
+    {
+      "seed": 649,
+      "first": 2,
+      "axis": 2,
+      "profile": 1,
+      "identity": 1,
+      "profiles": [
+        "cutter",
+        "cutter",
+        "builder"
+      ],
+      "winner": 3,
+      "plies": 68,
+      "scores": null
+    },
+    {
+      "seed": 649,
+      "first": 3,
+      "axis": 0,
+      "profile": 0,
+      "identity": 1,
+      "profiles": [
+        "builder",
+        "builder",
+        "cutter"
+      ],
+      "winner": 2,
+      "plies": 66,
+      "scores": null
+    },
+    {
+      "seed": 786,
+      "first": 1,
+      "axis": 2,
+      "profile": 1,
+      "identity": 2,
+      "profiles": [
+        "builder",
+        "cutter",
+        "cutter"
+      ],
+      "winner": 3,
+      "plies": 51,
+      "scores": null
+    },
+    {
+      "seed": 786,
+      "first": 2,
+      "axis": 0,
+      "profile": 0,
+      "identity": 2,
+      "profiles": [
+        "cutter",
+        "builder",
+        "builder"
+      ],
+      "winner": 3,
+      "plies": 80,
+      "scores": null
+    },
+    {
+      "seed": 786,
+      "first": 3,
+      "axis": 1,
+      "profile": 1,
+      "identity": 2,
+      "profiles": [
+        "builder",
+        "cutter",
+        "cutter"
+      ],
+      "winner": 3,
+      "plies": 55,
+      "scores": null
+    },
+    {
+      "seed": 923,
+      "first": 1,
+      "axis": 0,
+      "profile": 0,
+      "identity": 0,
+      "profiles": [
+        "builder",
+        "cutter",
+        "builder"
+      ],
+      "winner": 1,
+      "plies": 34,
+      "scores": null
+    },
+    {
+      "seed": 923,
+      "first": 2,
+      "axis": 1,
+      "profile": 1,
+      "identity": 0,
+      "profiles": [
+        "cutter",
+        "builder",
+        "cutter"
+      ],
+      "winner": 0,
+      "plies": 116,
+      "scores": [
+        3,
+        6,
+        3
+      ]
+    },
+    {
+      "seed": 923,
+      "first": 3,
+      "axis": 2,
+      "profile": 0,
+      "identity": 0,
+      "profiles": [
+        "builder",
+        "cutter",
+        "builder"
+      ],
+      "winner": 0,
+      "plies": 115,
+      "scores": [
+        3,
+        3,
+        9
+      ]
+    },
+    {
+      "seed": 1060,
+      "first": 1,
+      "axis": 1,
+      "profile": 1,
+      "identity": 1,
+      "profiles": [
+        "cutter",
+        "cutter",
+        "builder"
+      ],
+      "winner": 2,
+      "plies": 59,
+      "scores": null
+    },
+    {
+      "seed": 1060,
+      "first": 2,
+      "axis": 2,
+      "profile": 0,
+      "identity": 1,
+      "profiles": [
+        "builder",
+        "builder",
+        "cutter"
+      ],
+      "winner": 2,
+      "plies": 70,
+      "scores": null
+    },
+    {
+      "seed": 1060,
+      "first": 3,
+      "axis": 0,
+      "profile": 1,
+      "identity": 1,
+      "profiles": [
+        "cutter",
+        "cutter",
+        "builder"
+      ],
+      "winner": 3,
+      "plies": 61,
+      "scores": null
+    },
+    {
+      "seed": 1197,
+      "first": 1,
+      "axis": 2,
+      "profile": 0,
+      "identity": 2,
+      "profiles": [
+        "cutter",
+        "builder",
+        "builder"
+      ],
+      "winner": 3,
+      "plies": 60,
+      "scores": null
+    },
+    {
+      "seed": 1197,
+      "first": 2,
+      "axis": 0,
+      "profile": 1,
+      "identity": 2,
+      "profiles": [
+        "builder",
+        "cutter",
+        "cutter"
+      ],
+      "winner": 2,
+      "plies": 49,
+      "scores": null
+    },
+    {
+      "seed": 1197,
+      "first": 3,
+      "axis": 1,
+      "profile": 0,
+      "identity": 2,
+      "profiles": [
+        "cutter",
+        "builder",
+        "builder"
+      ],
+      "winner": 3,
+      "plies": 40,
+      "scores": null
+    },
+    {
+      "seed": 1334,
+      "first": 1,
+      "axis": 0,
+      "profile": 1,
+      "identity": 0,
+      "profiles": [
+        "cutter",
+        "builder",
+        "cutter"
+      ],
+      "winner": 0,
+      "plies": 109,
+      "scores": [
+        3,
+        3,
+        3
+      ]
+    },
+    {
+      "seed": 1334,
+      "first": 2,
+      "axis": 1,
+      "profile": 0,
+      "identity": 0,
+      "profiles": [
+        "builder",
+        "cutter",
+        "builder"
+      ],
+      "winner": 1,
+      "plies": 63,
+      "scores": null
+    },
+    {
+      "seed": 1334,
+      "first": 3,
+      "axis": 2,
+      "profile": 1,
+      "identity": 0,
+      "profiles": [
+        "cutter",
+        "builder",
+        "cutter"
+      ],
+      "winner": 3,
+      "plies": 70,
+      "scores": null
+    },
+    {
+      "seed": 1471,
+      "first": 1,
+      "axis": 1,
+      "profile": 0,
+      "identity": 1,
+      "profiles": [
+        "builder",
+        "builder",
+        "cutter"
+      ],
+      "winner": 0,
+      "plies": 117,
+      "scores": [
+        3,
+        3,
+        3
+      ]
+    },
+    {
+      "seed": 1471,
+      "first": 2,
+      "axis": 2,
+      "profile": 1,
+      "identity": 1,
+      "profiles": [
+        "cutter",
+        "cutter",
+        "builder"
+      ],
+      "winner": 2,
+      "plies": 113,
+      "scores": [
+        6,
+        3,
+        6
+      ]
+    },
+    {
+      "seed": 1471,
+      "first": 3,
+      "axis": 0,
+      "profile": 0,
+      "identity": 1,
+      "profiles": [
+        "builder",
+        "builder",
+        "cutter"
+      ],
+      "winner": 1,
+      "plies": 29,
+      "scores": null
+    },
+    {
+      "seed": 1608,
+      "first": 1,
+      "axis": 2,
+      "profile": 1,
+      "identity": 2,
+      "profiles": [
+        "builder",
+        "cutter",
+        "cutter"
+      ],
+      "winner": 0,
+      "plies": 104,
+      "scores": [
+        6,
+        3,
+        3
+      ]
+    },
+    {
+      "seed": 1608,
+      "first": 2,
+      "axis": 0,
+      "profile": 0,
+      "identity": 2,
+      "profiles": [
+        "cutter",
+        "builder",
+        "builder"
+      ],
+      "winner": 3,
+      "plies": 62,
+      "scores": null
+    },
+    {
+      "seed": 1608,
+      "first": 3,
+      "axis": 1,
+      "profile": 1,
+      "identity": 2,
+      "profiles": [
+        "builder",
+        "cutter",
+        "cutter"
+      ],
+      "winner": 2,
+      "plies": 63,
+      "scores": null
+    },
+    {
+      "seed": 1745,
+      "first": 1,
+      "axis": 0,
+      "profile": 0,
+      "identity": 0,
+      "profiles": [
+        "builder",
+        "cutter",
+        "builder"
+      ],
+      "winner": 1,
+      "plies": 70,
+      "scores": null
+    },
+    {
+      "seed": 1745,
+      "first": 2,
+      "axis": 1,
+      "profile": 1,
+      "identity": 0,
+      "profiles": [
+        "cutter",
+        "builder",
+        "cutter"
+      ],
+      "winner": 2,
+      "plies": 55,
+      "scores": null
+    },
+    {
+      "seed": 1745,
+      "first": 3,
+      "axis": 2,
+      "profile": 0,
+      "identity": 0,
+      "profiles": [
+        "builder",
+        "cutter",
+        "builder"
+      ],
+      "winner": 3,
+      "plies": 46,
+      "scores": null
+    },
+    {
+      "seed": 1882,
+      "first": 1,
+      "axis": 1,
+      "profile": 1,
+      "identity": 1,
+      "profiles": [
+        "cutter",
+        "cutter",
+        "builder"
+      ],
+      "winner": 2,
+      "plies": 59,
+      "scores": null
+    },
+    {
+      "seed": 1882,
+      "first": 2,
+      "axis": 2,
+      "profile": 0,
+      "identity": 1,
+      "profiles": [
+        "builder",
+        "builder",
+        "cutter"
+      ],
+      "winner": 2,
+      "plies": 67,
+      "scores": null
+    },
+    {
+      "seed": 1882,
+      "first": 3,
+      "axis": 0,
+      "profile": 1,
+      "identity": 1,
+      "profiles": [
+        "cutter",
+        "cutter",
+        "builder"
+      ],
+      "winner": 2,
+      "plies": 51,
+      "scores": null
+    },
+    {
+      "seed": 2019,
+      "first": 1,
+      "axis": 2,
+      "profile": 0,
+      "identity": 2,
+      "profiles": [
+        "cutter",
+        "builder",
+        "builder"
+      ],
+      "winner": 2,
+      "plies": 44,
+      "scores": null
+    },
+    {
+      "seed": 2019,
+      "first": 2,
+      "axis": 0,
+      "profile": 1,
+      "identity": 2,
+      "profiles": [
+        "builder",
+        "cutter",
+        "cutter"
+      ],
+      "winner": 0,
+      "plies": 116,
+      "scores": [
+        3,
+        6,
+        3
+      ]
+    },
+    {
+      "seed": 2019,
+      "first": 3,
+      "axis": 1,
+      "profile": 0,
+      "identity": 2,
+      "profiles": [
+        "cutter",
+        "builder",
+        "builder"
+      ],
+      "winner": 3,
+      "plies": 58,
+      "scores": null
+    },
+    {
+      "seed": 2156,
+      "first": 1,
+      "axis": 0,
+      "profile": 1,
+      "identity": 0,
+      "profiles": [
+        "cutter",
+        "builder",
+        "cutter"
+      ],
+      "winner": 1,
+      "plies": 49,
+      "scores": null
+    },
+    {
+      "seed": 2156,
+      "first": 2,
+      "axis": 1,
+      "profile": 0,
+      "identity": 0,
+      "profiles": [
+        "builder",
+        "cutter",
+        "builder"
+      ],
+      "winner": 1,
+      "plies": 42,
+      "scores": null
+    },
+    {
+      "seed": 2156,
+      "first": 3,
+      "axis": 2,
+      "profile": 1,
+      "identity": 0,
+      "profiles": [
+        "cutter",
+        "builder",
+        "cutter"
+      ],
+      "winner": 3,
+      "plies": 112,
+      "scores": [
+        6,
+        6,
+        3
+      ]
+    },
+    {
+      "seed": 2293,
+      "first": 1,
+      "axis": 1,
+      "profile": 0,
+      "identity": 1,
+      "profiles": [
+        "builder",
+        "builder",
+        "cutter"
+      ],
+      "winner": 2,
+      "plies": 68,
+      "scores": null
+    },
+    {
+      "seed": 2293,
+      "first": 2,
+      "axis": 2,
+      "profile": 1,
+      "identity": 1,
+      "profiles": [
+        "cutter",
+        "cutter",
+        "builder"
+      ],
+      "winner": 1,
+      "plies": 63,
+      "scores": null
+    },
+    {
+      "seed": 2293,
+      "first": 3,
+      "axis": 0,
+      "profile": 0,
+      "identity": 1,
+      "profiles": [
+        "builder",
+        "builder",
+        "cutter"
+      ],
+      "winner": 2,
+      "plies": 72,
+      "scores": null
+    },
+    {
+      "seed": 2430,
+      "first": 1,
+      "axis": 2,
+      "profile": 1,
+      "identity": 2,
+      "profiles": [
+        "builder",
+        "cutter",
+        "cutter"
+      ],
+      "winner": 3,
+      "plies": 45,
+      "scores": null
+    },
+    {
+      "seed": 2430,
+      "first": 2,
+      "axis": 0,
+      "profile": 0,
+      "identity": 2,
+      "profiles": [
+        "cutter",
+        "builder",
+        "builder"
+      ],
+      "winner": 1,
+      "plies": 48,
+      "scores": null
+    },
+    {
+      "seed": 2430,
+      "first": 3,
+      "axis": 1,
+      "profile": 1,
+      "identity": 2,
+      "profiles": [
+        "builder",
+        "cutter",
+        "cutter"
+      ],
+      "winner": 1,
+      "plies": 59,
+      "scores": null
+    },
+    {
+      "seed": 2567,
+      "first": 1,
+      "axis": 0,
+      "profile": 0,
+      "identity": 0,
+      "profiles": [
+        "builder",
+        "cutter",
+        "builder"
+      ],
+      "winner": 3,
+      "plies": 72,
+      "scores": null
+    },
+    {
+      "seed": 2567,
+      "first": 2,
+      "axis": 1,
+      "profile": 1,
+      "identity": 0,
+      "profiles": [
+        "cutter",
+        "builder",
+        "cutter"
+      ],
+      "winner": 0,
+      "plies": 119,
+      "scores": [
+        9,
+        3,
+        3
+      ]
+    },
+    {
+      "seed": 2567,
+      "first": 3,
+      "axis": 2,
+      "profile": 0,
+      "identity": 0,
+      "profiles": [
+        "builder",
+        "cutter",
+        "builder"
+      ],
+      "winner": 0,
+      "plies": 115,
+      "scores": [
+        6,
+        3,
+        3
+      ]
+    },
+    {
+      "seed": 2704,
+      "first": 1,
+      "axis": 1,
+      "profile": 1,
+      "identity": 1,
+      "profiles": [
+        "cutter",
+        "cutter",
+        "builder"
+      ],
+      "winner": 2,
+      "plies": 53,
+      "scores": null
+    },
+    {
+      "seed": 2704,
+      "first": 2,
+      "axis": 2,
+      "profile": 0,
+      "identity": 1,
+      "profiles": [
+        "builder",
+        "builder",
+        "cutter"
+      ],
+      "winner": 2,
+      "plies": 70,
+      "scores": null
+    },
+    {
+      "seed": 2704,
+      "first": 3,
+      "axis": 0,
+      "profile": 1,
+      "identity": 1,
+      "profiles": [
+        "cutter",
+        "cutter",
+        "builder"
+      ],
+      "winner": 2,
+      "plies": 51,
+      "scores": null
+    },
+    {
+      "seed": 2841,
+      "first": 1,
+      "axis": 2,
+      "profile": 0,
+      "identity": 2,
+      "profiles": [
+        "cutter",
+        "builder",
+        "builder"
+      ],
+      "winner": 2,
+      "plies": 44,
+      "scores": null
+    },
+    {
+      "seed": 2841,
+      "first": 2,
+      "axis": 0,
+      "profile": 1,
+      "identity": 2,
+      "profiles": [
+        "builder",
+        "cutter",
+        "cutter"
+      ],
+      "winner": 3,
+      "plies": 59,
+      "scores": null
+    },
+    {
+      "seed": 2841,
+      "first": 3,
+      "axis": 1,
+      "profile": 0,
+      "identity": 2,
+      "profiles": [
+        "cutter",
+        "builder",
+        "builder"
+      ],
+      "winner": 1,
+      "plies": 47,
+      "scores": null
+    },
+    {
+      "seed": 2978,
+      "first": 1,
+      "axis": 0,
+      "profile": 1,
+      "identity": 0,
+      "profiles": [
+        "cutter",
+        "builder",
+        "cutter"
+      ],
+      "winner": 1,
+      "plies": 49,
+      "scores": null
+    },
+    {
+      "seed": 2978,
+      "first": 2,
+      "axis": 1,
+      "profile": 0,
+      "identity": 0,
+      "profiles": [
+        "builder",
+        "cutter",
+        "builder"
+      ],
+      "winner": 1,
+      "plies": 57,
+      "scores": null
+    },
+    {
+      "seed": 2978,
+      "first": 3,
+      "axis": 2,
+      "profile": 1,
+      "identity": 0,
+      "profiles": [
+        "cutter",
+        "builder",
+        "cutter"
+      ],
+      "winner": 2,
+      "plies": 69,
+      "scores": null
+    },
+    {
+      "seed": 3115,
+      "first": 1,
+      "axis": 1,
+      "profile": 0,
+      "identity": 1,
+      "profiles": [
+        "builder",
+        "builder",
+        "cutter"
+      ],
+      "winner": 0,
+      "plies": 116,
+      "scores": [
+        3,
+        3,
+        3
+      ]
+    },
+    {
+      "seed": 3115,
+      "first": 2,
+      "axis": 2,
+      "profile": 1,
+      "identity": 1,
+      "profiles": [
+        "cutter",
+        "cutter",
+        "builder"
+      ],
+      "winner": 2,
+      "plies": 49,
+      "scores": null
+    },
+    {
+      "seed": 3115,
+      "first": 3,
+      "axis": 0,
+      "profile": 0,
+      "identity": 1,
+      "profiles": [
+        "builder",
+        "builder",
+        "cutter"
+      ],
+      "winner": 0,
+      "plies": 112,
+      "scores": [
+        6,
+        6,
+        6
+      ]
+    },
+    {
+      "seed": 3252,
+      "first": 1,
+      "axis": 2,
+      "profile": 1,
+      "identity": 2,
+      "profiles": [
+        "builder",
+        "cutter",
+        "cutter"
+      ],
+      "winner": 1,
+      "plies": 73,
+      "scores": null
+    },
+    {
+      "seed": 3252,
+      "first": 2,
+      "axis": 0,
+      "profile": 0,
+      "identity": 2,
+      "profiles": [
+        "cutter",
+        "builder",
+        "builder"
+      ],
+      "winner": 1,
+      "plies": 48,
+      "scores": null
+    },
+    {
+      "seed": 3252,
+      "first": 3,
+      "axis": 1,
+      "profile": 1,
+      "identity": 2,
+      "profiles": [
+        "builder",
+        "cutter",
+        "cutter"
+      ],
+      "winner": 1,
+      "plies": 80,
+      "scores": null
+    }
+  ],
+  "limitations": [
+    "Finite seeded simulations do not establish perfect balance or human difficulty.",
+    "The main 72-match sample covers24deals; three configurations per deal are correlated.",
+    "CPU timings are this Linux runner with Node, not a physical mobile device.",
+    "Baseline is deliberately less tactical, not an expert or the earlier released engine."
+  ]
+}

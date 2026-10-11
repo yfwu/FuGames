@@ -21,9 +21,19 @@ test('all pages parse and share the shell; no missing catalogue links or remote 
     assert.match(source, /class="site-nav"/); assert.match(source, /class="page-header"/);
     if (name !== 'index.html') { assert.match(source, /class="card play-panel"/); assert.match(source, /<details class="card rules">/); }
     for (const [, script] of source.matchAll(/<script[^>]*>([\s\S]*?)<\/script>/g)) assert.doesNotThrow(() => new vm.Script(script), name);
-    for (const [, href] of source.matchAll(/href="([^"#]+)"/g)) assert.ok(fs.existsSync(path.join(root, href)), name + ' -> ' + href);
+    for (const [, href] of source.matchAll(/href="([^"]+)"/g)) {
+      const [file, fragment] = href.split('#');
+      if (!file) continue;
+      const target = path.join(root, file);
+      assert.ok(fs.existsSync(target), name + ' -> ' + href);
+      // Dynamic template fragments are resolved and checked by the real browser suites.
+      if (fragment && !fragment.includes('${') && file.endsWith('.svg')) {
+        assert.ok(fs.readFileSync(target, 'utf8').includes('id="' + fragment + '"'), name + ' -> missing SVG symbol ' + href);
+      }
+    }
   }
-  assert.doesNotMatch(html, /<script[^>]+src=|https?:\/\/|fetch\(|WebSocket/);
+  // The SVG namespace identifies a DOM type; it makes no request. Remote resources remain forbidden.
+  assert.doesNotMatch(html.replaceAll("document.createElementNS('http://www.w3.org/2000/svg',", "document.createElementNS('SVG_NAMESPACE',"), /<script[^>]+src=|https?:\/\/|fetch\(|WebSocket/);
 });
 
 test('ready, paused and finished games freeze; reset clears every round resource', () => {

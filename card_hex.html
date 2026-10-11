@@ -1,172 +1,200 @@
 <!doctype html>
-<html lang="zh-Hant">
-<head>
-  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="七乘七 Hex 連線加上有限抽牌、雙鋪與護盾反制。一人對本機策略 AI。">
-  <title>抽牌 Hex - FuGames</title><link rel="icon" href="favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="fulab-theme.css">
-  <style>
-    .hex-page { max-width: 860px; }.hex-settings { display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin-bottom:12px; }.hex-settings select { min-width:130px; }
-    .hex-goal { text-align:center; color:var(--fulab-ink-teal); font-size:12px; font-weight:650; margin:8px 0; }.hex-goal.ai { color:#99553f; }
-    .hex-board { --cell: min(55px, calc((100vw - 72px) / 10.4)); width:calc(var(--cell) * 10.4); margin:20px auto; padding-bottom:calc(var(--cell) * .22); user-select:none; touch-action:manipulation; }
-    .hex-row { display:flex; height:calc(var(--cell) * .87); margin-left:calc(var(--row) * var(--cell) * .5); }.hex-cell { position:relative; display:block; flex:0 0 var(--cell); width:var(--cell); height:calc(var(--cell) * 1.12); border:0; padding:2px; background:none; color:#657283; font:inherit; font-size:11px; cursor:pointer; }
-    .hex-cell::before { content:""; position:absolute; inset:1px; clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%); background:#d8dee9; }.hex-cell::after { content:""; position:absolute; inset:3px; clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%); background:#f8f9fb; }.hex-cell span { position:relative; z-index:1; }.hex-cell[data-owner="1"]::after { background:#cbeaea; }.hex-cell[data-owner="2"]::after { background:#efdad1; }.hex-cell[data-owner="1"] { color:#267477; }.hex-cell[data-owner="2"] { color:#99553f; }
-    .hex-cell:focus-visible { outline:none; }.hex-cell:focus-visible::before,.hex-cell.selected::before { background:#267477; }.hex-cell:focus-visible::after { inset:5px; }.hex-cell.last span { text-decoration:underline; text-underline-offset:3px; font-weight:bold; }.hex-cell.threat::before { background:#99553f; }.hex-cell.threat::after { background:#f8e6cb; }.hex-cell:disabled { cursor:default; }.hex-cell:not(:disabled):hover::after { background:#e1e9ed; }
-    .hex-cards { display:flex; flex-wrap:wrap; gap:8px; margin:12px 0; }.hex-cards .btn[aria-pressed="true"] { background:var(--fulab-tint-teal); border-color:var(--fulab-ink-teal); color:var(--fulab-ink-teal); }.hex-cards small { font-weight:400; margin-left:6px; }.hex-note { font-size:12px; color:var(--fulab-muted); }.hex-result { background:var(--fulab-tint-teal); padding:12px; border-radius:12px; margin:12px 0; }.hex-response { padding:12px; background:var(--fulab-tint-amber); border:1px solid var(--fulab-amber); border-radius:12px; margin:12px 0; }.hex-response p { margin:0 0 8px; }.hex-help { margin:0; min-height:44px; font-size:13px; }.hex-log { margin:8px 0 0; font-size:12px; color:var(--fulab-muted); min-height:38px; }
-    @media(max-width:480px) { .hex-page { padding:10px; gap:12px; }.hex-page .play-panel { padding:12px; }.hex-board { --cell:calc((100vw - 56px) / 10.4); }.hex-cards { gap:5px; }.hex-cards .btn { padding:8px; font-size:12px; }.hex-settings label { width:100%; } }
-  </style>
-</head>
-<body><main class="game-page hex-page">
-  <nav class="site-nav" aria-label="遊戲導覽"><a class="site-brand" href="index.html"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>FuGames</a><a href="index.html">所有遊戲 ↗</a></nav>
-  <header class="page-header"><p class="eyebrow">策略 / 你 × 1 本機 AI</p><h1>抽牌 Hex</h1><p class="lead">一條連線，一張轉機。把青綠棋子從上接到下。</p></header>
-  <section class="card play-panel" aria-label="抽牌 Hex 棋盤">
-    <div class="game-toolbar"><p class="game-status" id="phase-label">準備連線</p><div class="game-metrics"><span>回合 <strong id="turn-count">0</strong> / 64</span><span>AI 手牌 <strong id="ai-count">2</strong></span></div></div>
-    <div class="hex-settings"><label for="personality">AI 個性</label><select id="personality"><option value="builder">織路者 · 優先連線</option><option value="cutter">截路者 · 優先阻斷</option></select><span class="hex-note" id="first-player">本局你先手 · 重開輪換先手</span></div>
-    <p class="hex-help" id="status" role="status" aria-live="polite">點空格鋪一子。先把自己的兩邊連起來就贏；每回合至多使用一張特殊牌。</p>
-    <p class="hex-goal">你的青綠 ●：上 ↕ 下</p><div class="hex-board" id="board" role="group" aria-label="七乘七 Hex 棋盤。方向鍵移動焦點，Enter 或空白鍵落子。"></div><p class="hex-goal ai">AI 的珊瑚 ◆：左 ↔ 右</p>
-    <div class="hex-cards" aria-label="本回合行動"><button class="btn" id="normal" aria-pressed="true">普通鋪子</button><button class="btn" id="double" aria-pressed="false">雙鋪 × <span id="double-count">1</span></button><button class="btn" id="remove" aria-pressed="false">拆除 × <span id="remove-count">0</span></button><span class="btn" id="shield-info">護盾 × <span id="shield-count">1</span></span></div>
-    <div class="hex-response" id="response" hidden><p id="response-copy"></p><div class="btnRow"><button class="btn primary" id="counter">使用護盾</button><button class="btn" id="accept">接受拆除</button></div></div>
-    <div class="hex-result" id="result" role="status" hidden></div>
-    <div class="game-actions"><span class="hex-note" id="deck-info">雙方牌組相同 · 手牌不公開</span><div class="btnRow"><button class="btn primary" id="play">開始連線 →</button><button class="btn" id="pause" disabled>暫停</button><button class="btn" id="restart">重新開始</button></div></div>
-    <p class="hex-log" id="last-action">AI 僅使用棋盤與自己的手牌。切換視窗會自動暫停。</p>
-  </section>
-  <details class="card rules"><summary>玩法、牌組與終局</summary><div class="rules-body"><ul class="list">
-    <li>7 × 7 六角格；只有共邊算相連。你連上、下邊，AI 連左、右邊。完成連線立即勝利。先手每次重開輪換。</li>
-    <li>普通鋪子不耗牌。雙鋪代替普通行動：點兩個相鄰空格，一起落下。拆除代替落子：指定一枚對手棋子，對手有一次使用護盾保住它的機會；不論是否擋住，都輪到對手。</li>
-    <li>雙方各有 3 張雙鋪、2 張拆除、2 張護盾。開局各持雙鋪及護盾；剩下 5 張分別洗牌。自己的回合開始抽 1 張，手牌最多 4 張，滿手則本次不抽，牌留在牌堆。護盾只能在被拆除時使用，不佔自己的回合。</li>
-    <li>道具用完不補充，沒有棄牌或跳過。第 64 回合仍無連線時，比較到達對岸還需填入的最少空格，較少者勝；同數和局。完全被截斷的路視為無限長。滿盤先檢查連線，若仍無勝者則和局。</li>
-    <li>織路者優先縮短自己的連線，截路者更重視讓你的路繞遠；兩者都辨識立即連線與危險缺口。對手手牌與牌堆不會提供給 AI。這是本機雙人棋局（一位人類與一位 AI）。</li>
-    <li>點按格子或方向鍵移動焦點，Enter／空白落子。雙鋪第一格再點一次可取消；按「普通鋪子」也能取消選擇。P／Esc 暫停，切頁或視窗失焦自動暫停，按繼續才恢復。</li>
-  </ul></div></details><footer class="site-footer">FuGames · 隨時來一局</footer><noscript><p class="notice">請開啟 JavaScript，才能開始遊戲。</p></noscript>
-</main>
+<html lang="zh-Hant"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="description" content="91格正六角棋盤，一人與兩位本機AI，抽牌連線、炮台預告、隱藏陷阱與飛橋。"><title>抽牌 Hex - FuGames</title><link rel="icon" href="favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="fulab-theme.css">
+<style>
+.hex-page{max-width:960px}.hex-settings,.hex-board-tools{display:flex;align-items:center;flex-wrap:wrap;gap:8px}.hex-settings{margin:12px 0}.hex-settings select{min-width:130px}.hex-note{font-size:12px;color:var(--fulab-muted)}.hex-help{font-size:13px;min-height:44px;margin:8px 0}.hex-scroll{overflow:auto;border-radius:12px;background:var(--fulab-bg-secondary);touch-action:pan-x pan-y}.hex-board{position:relative;width:100%;max-width:720px;aspect-ratio:720/680;margin:auto;isolation:isolate}.hex-scroll.zoomed .hex-board{width:900px;max-width:none;min-width:650px}.hex-lines{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}.hex-goal-line{stroke-width:6;stroke-linecap:round;fill:none}.hex-goal-label{font-size:14px;font-weight:650;text-anchor:middle}.hex-cell{position:absolute;width:7.64%;height:9.29%;padding:0;transform:translate(-50%,-50%);background:none;border:0;cursor:pointer;color:var(--fulab-muted);font:inherit;overflow:visible;touch-action:manipulation}.hex-cell svg.cell-svg{width:100%;height:100%;overflow:visible;display:block}.hex-tile{fill:#fff;stroke:#d8dee9;stroke-width:2}.hex-cell[data-owner="1"] .hex-tile{fill:#d9eeee}.hex-cell[data-owner="2"] .hex-tile{fill:#f1dfd7}.hex-cell[data-owner="3"] .hex-tile{fill:#e8deef}.hex-cell[data-owner="1"]{color:#267477}.hex-cell[data-owner="2"]{color:#99553f}.hex-cell[data-owner="3"]{color:#785580}.hex-piece{fill:currentColor;stroke:none}.hex-cell:focus-visible{outline:0;z-index:4}.hex-cell:focus-visible .hex-tile,.hex-cell.selected .hex-tile{stroke:#267477;stroke-width:5}.hex-cell.last .hex-tile{stroke:#657283;stroke-width:3}.hex-cell.danger .hex-tile{stroke:#b27328;stroke-dasharray:5 4}.hex-cell.own-trap .hex-tile{stroke:#267477;stroke-dasharray:2 3;stroke-width:3}.hex-cell.revealed .hex-tile{fill:#f7e8c9;stroke:#b27328}.hex-cell.target .hex-tile{stroke:#99553f;stroke-width:5}.hex-cell:disabled{cursor:default}.hex-cell:not(:disabled):hover .hex-tile{fill:#e3efec}.hex-coordinate{font-size:20px;fill:#657283;text-anchor:middle;dominant-baseline:middle}.hex-countdown{font-size:19px;font-weight:bold;fill:currentColor;text-anchor:middle}.hex-bridge{fill:none;stroke-width:5;stroke-dasharray:6 4;stroke-linecap:round}.hex-legend{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:8px 0 12px}.hex-player{border:1px solid #d8dee9;border-radius:10px;padding:8px;font-size:12px}.hex-player.current{box-shadow:inset 0 0 0 1px currentColor}.hex-player strong{display:flex;align-items:center;gap:6px}.hex-player small{display:block;color:var(--fulab-muted);margin-top:3px}.hex-marker{width:12px;height:12px;display:inline-block;flex-shrink:0;background:currentColor;border-radius:50%}.hex-marker.diamond{border-radius:1px;transform:rotate(45deg);width:10px;height:10px}.hex-marker.triangle{border-radius:0;clip-path:polygon(50% 0,100% 100%,0 100%)}.hex-cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin:12px 0}.hex-cards .btn{padding:7px 8px;gap:5px;min-width:0;font-size:12px}.hex-cards .ui-icon{width:20px;height:20px;flex-shrink:0}.hex-cards .btn[aria-pressed="true"]{background:var(--fulab-tint-teal);border-color:#267477;color:#267477}.hex-response{padding:12px;background:var(--fulab-tint-amber);border:1px solid var(--fulab-amber);border-radius:12px;margin:12px 0}.hex-response p{margin-bottom:8px}.hex-result{padding:12px;background:var(--fulab-tint-teal);border-radius:12px;margin:12px 0}.hex-log{font-size:12px;color:var(--fulab-muted);min-height:40px;margin:10px 0 0}.hex-board-tools{justify-content:space-between;margin:8px 0}.hex-board-tools .btn{font-size:11px;min-height:44px;padding:5px 8px}.hex-hazards{font-size:12px;color:#8e5c22;margin:0;min-height:20px}.hex-rules-grid{display:grid;gap:8px}.hex-card-rule{font-size:13px}.hex-card-rule strong{color:var(--fulab-graphite)}
+@media(max-width:480px){.hex-page{padding:10px;gap:12px}.hex-page .play-panel{padding:12px}.hex-legend{gap:4px}.hex-player{padding:7px 5px;font-size:11px}.hex-player strong{gap:4px}.hex-player small{font-size:10px}.hex-cards .btn{font-size:11px;padding:6px 4px;gap:3px}.hex-cards .ui-icon{width:17px;height:17px}.hex-settings label{width:100%}.hex-goal-label{font-size:20px}.hex-coordinate{font-size:31px}}
+</style></head><body><main class="game-page hex-page">
+<nav class="site-nav" aria-label="遊戲導覽"><a class="site-brand" href="index.html"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>FuGames</a><a href="index.html" aria-label="所有遊戲 ↗">所有遊戲 <svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#launch"></use></svg></a></nav>
+<header class="page-header"><p class="eyebrow">策略 / 你與 2 位本機 AI</p><h1><svg class="page-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#card_hex"></use></svg>抽牌 Hex</h1><p class="lead">三方搶線，炮台與暗伏改寫戰局。</p></header>
+<section class="card play-panel" aria-label="三方抽牌 Hex 棋盤">
+<div class="game-toolbar"><p class="game-status" id="phase-label">準備連線</p><div class="game-metrics"><span>行動 <strong id="turn-count">0</strong> / 180</span><span>場地 <strong>91 格</strong></span></div></div>
+<div class="hex-settings"><label for="personality">AI 配置</label><select id="personality"><option value="builder">AI 甲織路／AI 乙截路</option><option value="cutter">AI 甲截路／AI 乙織路</option></select><span class="hex-note" id="first-player">你先手；每局輪換先手與目標軸</span></div>
+<p class="hex-help" id="status" role="status" aria-live="polite">點空格鋪一子，連起棋盤兩側同色粗線。你連青綠兩邊；特殊牌代替普通行動。</p>
+<div class="hex-legend" aria-label="玩家與連線目標"><div class="hex-player" id="player-1" style="color:#267477"><strong><i class="hex-marker" aria-hidden="true"></i>你</strong><small id="player-info-1"></small></div><div class="hex-player" id="player-2" style="color:#99553f"><strong><i class="hex-marker diamond" aria-hidden="true"></i>AI 甲</strong><small id="player-info-2"></small></div><div class="hex-player" id="player-3" style="color:#785580"><strong><i class="hex-marker triangle" aria-hidden="true"></i>AI 乙</strong><small id="player-info-3"></small></div></div>
+<div class="hex-scroll" id="board-scroll"><div class="hex-board" id="board" role="group" aria-label="91格六角棋盤。方向鍵移動焦點，Enter或空白落子。"><svg class="hex-lines" id="goal-lines" viewBox="0 0 720 680" aria-hidden="true"></svg><svg class="hex-lines" id="bridge-lines" style="z-index:2" viewBox="0 0 720 680" aria-hidden="true"></svg></div></div>
+<div class="hex-board-tools"><span class="hex-note" id="cell-hint">角格同屬相鄰兩邊 · 圓／菱／三角代表三方</span><button class="btn" id="zoom" aria-pressed="false">放大棋盤</button></div>
+<p class="hex-hazards" id="hazard-info">炮台用虛線標示射程；暗伏僅你自己的位置可見。</p>
+<div class="hex-cards" aria-label="選擇本回合行動"><button class="btn" id="normal" aria-pressed="true">普通鋪子</button>
+<button class="btn" id="double" aria-pressed="false"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#double"></use></svg>雙鋪 <span id="double-count">0</span></button>
+<button class="btn" id="remove" aria-pressed="false"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#remove"></use></svg>拆除 <span id="remove-count">0</span></button>
+<button class="btn" id="turret" aria-pressed="false"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#turret"></use></svg>炮台 <span id="turret-count">0</span></button>
+<button class="btn" id="trap" aria-pressed="false"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#trap"></use></svg>暗伏 <span id="trap-count">0</span></button>
+<button class="btn" id="bridge" aria-pressed="false"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#bridge"></use></svg>飛橋 <span id="bridge-count">0</span></button>
+<span class="btn" id="shield-info"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#shield"></use></svg>護盾 <span id="shield-count">0</span></span><span class="btn hex-note" id="deck-info"></span></div>
+<div class="hex-response" id="response" hidden><p id="response-copy"></p><div class="btnRow"><button class="btn primary" id="counter">使用護盾</button><button class="btn" id="accept">接受拆除</button></div></div>
+<div class="hex-result" id="result" role="status" hidden></div>
+<div class="game-actions"><span class="hex-note">P／Esc 暫停 · 切頁後手動繼續</span><div class="btnRow"><button class="btn primary" id="play"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#play"></use></svg><span>開始連線</span></button><button class="btn" id="pause" disabled><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#pause"></use></svg><span>暫停</span></button><button class="btn" id="restart"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#restart"></use></svg>重新開始</button></div></div>
+<p class="hex-log" id="last-action">三方同樣牌組，各自洗牌。AI 只使用公開局面與自己的手牌、暗伏。</p>
+</section>
+<details class="card rules"><summary>玩法、道具與公平資訊</summary><div class="rules-body"><ul class="list">
+<li>正六角形 91 格，三方各連一組相對邊，距離與邊格數完全相同。只有共邊或自己的飛橋相連。角格同時屬於相鄰兩條邊，但棋子仍只屬一位玩家。你與兩位本機 AI 依序行動；重開同時輪換先手與目標軸。</li>
+<li>先處理本手陷阱、所有到期炮擊，再判連線；一方接通即勝，多方同時接通則和局。滿盤即結束，無論是否還有拆除牌或未到期炮台；本手到期效果仍先結算。180 手仍未接通也結束。未接通時比較最小連線代價：己子 0、空格 1、敵子 3，可使用自己的飛橋；最低者勝，同分和局。這個代價只用於終局比較，敵子不能在實際連線中穿越。</li>
+<li>每人有限 13 張：雙鋪 4、拆除 2、炮台 2、暗伏 2、飛橋 2、護盾 1。依這個固定權重組成相同牌堆，各自公平洗牌。開局隨機取 2 張，不保證護盾；自己的回合開始抽 1 張，最多持 4 張，滿手則留牌於牌堆。用完不補，沒有跳過或棄牌。</li>
+<li><strong>雙鋪：</strong>點兩個相鄰空格，同時落子。<strong>拆除：</strong>指定一枚敵子（含炮台），該玩家可用護盾反制；無論擋住與否都花掉本手。每人護盾整局只有 1 張，比舊版 2 張減半；它只擋拆除，不能擋炮擊或陷阱。</li>
+<li><strong>炮台：</strong>點空格放置己方炮台石。公開標出周圍 6 格射程與倒數；完成其後 3 個行動時第一次開火，再隔 3 個行動第二次。射程內所有棋子一起清除，包含設置者的棋子及其他炮台；不打自身中心。所有同時到期炮台先一起開火，不會因被另一炮台擊中而少打一炮。第二次後炮台解除，中心保留為普通己子；拆除炮台可提前解除。</li>
+<li><strong>暗伏：</strong>先點空格正常鋪一子，再點另一空格作秘密中心。中心及周圍 6 格是一次性區域；只有設置者看見，別人只知道該玩家已部署幾次。任何敵方新落子進入區域，就公開中心並取消本手區域內的敵方新落子，隨即耗盡；不傷既有棋子，不傷設置者，不連鎖。雙鋪可同時損失兩子；重疊陷阱各自觸發。秘密中心的部署本身不觸發其他陷阱；同手普通鋪子仍會觸發。</li>
+<li><strong>飛橋：</strong>依序點兩枚在同一直線、恰好相隔兩步的己子，建立跨過中間一格的永久連接（中間可以是敵子）。任一端點被拆除、陷阱或炮擊清除，飛橋立刻消失。炮台也能作端點。</li>
+<li>AI 會比較自己的最短連線與兩位對手的截斷點、搜索公開回應、預估炮擊及自己的陷阱；看不到敵方暗伏、手牌或牌堆。織路者更重自己的進度，截路者更重封堵；它們是本地啟發式 AI，不是網路真人。</li>
+<li>點按或方向鍵移動焦點，Enter／空白落子；兩格操作再次點第一格取消。手機可按「放大棋盤」再橫向拖移。P／Esc 暫停，視窗失焦或切頁自動暫停，按繼續才恢復。</li>
+</ul></div></details><footer class="site-footer">FuGames · 隨時來一局</footer><noscript><p class="notice">請開啟 JavaScript，才能開始遊戲。</p></noscript></main>
 <script id="hex-engine">
 'use strict';
 const CardHex = (() => {
-  const SIZE = 7, LIMIT = 64, DIRS = [[-1,0],[1,0],[0,-1],[0,1],[-1,1],[1,-1]];
-  function neighbors(i, size = SIZE) { const r = Math.floor(i / size), c = i % size; return DIRS.map(([dr,dc]) => [r+dr,c+dc]).filter(([y,x]) => y>=0 && x>=0 && y<size && x<size).map(([y,x]) => y*size+x); }
-  const ADJ = Array.from({length:SIZE*SIZE},(_,i)=>neighbors(i));
-  function shortest(board, player, size = SIZE) {
-    const distances = Array(size*size).fill(Infinity), visited = Array(size*size).fill(false), adj = size === SIZE ? ADJ : Array.from({length:size*size},(_,i)=>neighbors(i,size));
-    for(let k=0;k<size;k++) { const i=player===1?k:k*size; if(board[i]!==3-player) distances[i]=board[i]===player?0:1; }
-    for(let k=0;k<board.length;k++) {
-      let i=-1; for(let j=0;j<board.length;j++) if(!visited[j] && (i<0 || distances[j]<distances[i])) i=j;
-      if(i<0 || distances[i]===Infinity) break;
-      if(player===1?Math.floor(i/size)===size-1:i%size===size-1) return distances[i];
-      visited[i]=true;
-      for(const j of adj[i]) if(board[j]!==3-player) distances[j]=Math.min(distances[j],distances[i]+(board[j]===player?0:1));
+  const RADIUS=5,COUNT=91,LIMIT=180,PLAYERS=[1,2,3],DIRS=[[1,0],[0,1],[-1,1],[-1,0],[0,-1],[1,-1]];
+  const CELLS=[],INDEX=new Map();
+  for(let r=-RADIUS;r<=RADIUS;r++)for(let q=Math.max(-RADIUS,-r-RADIUS);q<=Math.min(RADIUS,-r+RADIUS);q++){const i=CELLS.length;CELLS.push({q,r,s:-q-r,i,x:360+56*(q+r/2),y:340+48.4974226*r});INDEX.set(q+','+r,i);}
+  const index=(q,r)=>INDEX.get(q+','+r),axisValue=(i,a)=>[CELLS[i].r,CELLS[i].q,CELLS[i].s][a];
+  const ADJ=CELLS.map(c=>DIRS.map(([q,r])=>index(c.q+q,c.r+r)).filter(i=>i!==undefined));
+  const EDGES=[0,1,2].map(a=>[-RADIUS,RADIUS].map(v=>CELLS.filter(c=>axisValue(c.i,a)===v).map(c=>c.i)));
+  const distance=(a,b)=>Math.max(Math.abs(CELLS[a].q-CELLS[b].q),Math.abs(CELLS[a].r-CELLS[b].r),Math.abs(CELLS[a].s-CELLS[b].s));
+  const zone=i=>[i,...ADJ[i]],neighbors=i=>ADJ[i].slice(),otherPlayers=p=>[p%3+1,(p+1)%3+1];
+  const CARD_COUNTS={double:4,remove:2,turret:2,trap:2,bridge:2,shield:1};
+  const DECK=Object.entries(CARD_COUNTS).flatMap(([card,count])=>Array(count).fill(card));
+  const DEFAULT_AXES=[null,0,1,2],validCell=i=>Number.isInteger(i)&&i>=0&&i<COUNT;
+  function shuffle(cards,random){const a=cards.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+  function bridgeNeighbors(board,player,bridges){const extra={};for(const b of bridges||[])if(b.owner===player&&board[b.a]===player&&board[b.b]===player){(extra[b.a]??=[]).push(b.b);(extra[b.b]??=[]).push(b.a);}return extra;}
+  // 0/1 shortest path on the public graph. Opponents are impassable in a real connection.
+  function distances(board,player,axes=DEFAULT_AXES,bridges=[],side=0,breach=Infinity){
+    const dist=new Float64Array(COUNT);dist.fill(Infinity);const extra=bridgeNeighbors(board,player,bridges),cost=i=>board[i]===player?0:board[i]?breach:1;
+    if(breach===Infinity){const queue=new Int16Array(4096);let head=2048,tail=2048;
+      for(const i of EDGES[axes[player]][side]){const c=cost(i);if(c<Infinity){dist[i]=c;if(c===0)queue[--head]=i;else queue[tail++]=i;}}
+      while(head<tail){const i=queue[head++];for(const j of extra[i]?ADJ[i].concat(extra[i]):ADJ[i]){const c=cost(j),d=dist[i]+c;if(d<dist[j]){dist[j]=d;if(c===0)queue[--head]=j;else queue[tail++]=j;}}}
+    }else{
+      const buckets=Array.from({length:COUNT*breach+1},()=>[]);for(const i of EDGES[axes[player]][side]){const c=cost(i);dist[i]=c;buckets[c].push(i);}
+      for(let d=0;d<buckets.length;d++)while(buckets[d].length){const i=buckets[d].pop();if(dist[i]!==d)continue;for(const j of extra[i]?ADJ[i].concat(extra[i]):ADJ[i]){const n=d+cost(j);if(n<dist[j]){dist[j]=n;buckets[n].push(j);}}}
     }
-    return Infinity;
+    return dist;
   }
-  const connected = (board,p,size=SIZE) => shortest(board,p,size)===0;
-  function shuffle(cards, random) { const result=cards.slice(); for(let i=result.length-1;i>0;i--) { const j=Math.floor(random()*(i+1)); [result[i],result[j]]=[result[j],result[i]]; } return result; }
-  function candidates(board, player, hand) {
-    const empty=[]; board.forEach((v,i)=>{if(!v)empty.push(i);});
-    const actions=empty.map(i=>({type:'place',cells:[i]}));
-    if(hand.includes('double')) for(const i of empty) for(const j of ADJ[i]) if(j>i && !board[j]) actions.push({type:'double',cells:[i,j]});
-    if(hand.includes('remove')) board.forEach((v,i)=>{if(v===3-player)actions.push({type:'remove',cells:[i]});});
-    return actions;
+  function shortest(board,player,axes=DEFAULT_AXES,bridges=[],breach=Infinity){const d=distances(board,player,axes,bridges,0,breach);return Math.min(...EDGES[axes[player]][1].map(i=>d[i]));}
+  const connected=(board,p,axes=DEFAULT_AXES,bridges=[])=>shortest(board,p,axes,bridges)===0;
+  function pathInfo(board,p,axes,bridges){let a=distances(board,p,axes,bridges),b=distances(board,p,axes,bridges,1),cost=Math.min(...EDGES[axes[p]][1].map(i=>a[i]));if(cost===Infinity){a=distances(board,p,axes,bridges,0,3);b=distances(board,p,axes,bridges,1,3);cost=Math.min(...EDGES[axes[p]][1].map(i=>a[i]));}return {a,b,cost};}
+  function bridgeValid(board,p,a,b,bridges=[]){if(!validCell(a)||!validCell(b)||board[a]!==p||board[b]!==p||distance(a,b)!==2)return false;const ca=CELLS[a],cb=CELLS[b];if(ca.q!==cb.q&&ca.r!==cb.r&&ca.s!==cb.s)return false;return !bridges.some(x=>x.owner===p&&((x.a===a&&x.b===b)||(x.a===b&&x.b===a)));}
+  function cleanStructures(state){state.turrets=state.turrets.filter(t=>state.board[t.cell]===t.owner);state.bridges=state.bridges.filter(b=>state.board[b.a]===b.owner&&state.board[b.b]===b.owner);}
+  // All guns due on this action fire together; even a gun hit by another due gun fires.
+  function resolveTurrets(state,atPly){const due=state.turrets.filter(t=>t.nextFire<=atPly),hit=new Set();for(const t of due)for(const i of ADJ[t.cell])hit.add(i);const destroyed=[];for(const i of hit)if(state.board[i]){destroyed.push({cell:i,owner:state.board[i]});state.board[i]=0;}
+    for(const t of due){t.shots--;t.nextFire+=3;}state.turrets=state.turrets.filter(t=>t.shots>0);cleanStructures(state);return {guns:due.map(t=>t.cell),destroyed};}
+  function publicForecast(observation,action){const p=observation.player,state={board:observation.board.slice(),turrets:observation.turrets.map(t=>({...t})),bridges:observation.bridges.map(b=>({...b}))};
+    if(action.type==='remove')state.board[action.cells[0]]=0;
+    else if(action.type==='bridge')state.bridges.push({owner:p,a:action.cells[0],b:action.cells[1]});
+    else{const cells=action.type==='trap'?[action.cells[0]]:action.cells;for(const i of cells)state.board[i]=p;if(action.type==='turret')state.turrets.push({owner:p,cell:action.cells[0],nextFire:observation.ply+4,shots:2});}
+    cleanStructures(state);resolveTurrets(state,observation.ply+1);return state;
   }
-  function applyToBoard(board, player, action) { const next=board.slice(); for(const i of action.cells)next[i]=action.type==='remove'?0:player; return next; }
-  // This function intentionally accepts only a player's public observation and own cards.
-  function chooseAction(observation) {
-    const {board,player,hand,profile='builder'}=observation, rival=3-player;
-    const ownWeight=profile==='cutter'?6:10, otherWeight=profile==='cutter'?9:5;
-    const finite=n=>Math.min(24,n), baseOwn=finite(shortest(board,player)), baseOther=finite(shortest(board,rival));
-    let best=null, bestScore=-Infinity;
-    for(const action of candidates(board,player,hand)) {
-      const next=applyToBoard(board,player,action), own=shortest(next,player), other=shortest(next,rival);
-      let score=(baseOwn-finite(own))*ownWeight+(finite(other)-baseOther)*otherWeight;
-      if(own===0)score+=100000;
-      if(other===1)score-=2000;
-      if(action.type==='double')score-=5.5;
-      if(action.type==='remove')score-=7; // A hidden shield may counter a removal; don't assume it is guaranteed.
-      for(const i of action.cells) { const r=Math.floor(i/SIZE),c=i%SIZE; score+=(6-Math.abs(r-3)-Math.abs(c-3))*.07; if(action.type!=='remove')score+=ADJ[i].filter(j=>board[j]===player).length*.18; }
-      if(score>bestScore) { bestScore=score; best={...action,reason:own===0?'完成自己的連線':baseOther===1&&other!==1?'封住即將接通的缺口':action.type==='remove'?'拆開對手的關鍵路段':action.type==='double'?'雙鋪加速連線並壓縮空間':profile==='cutter'?'拉長對手的最短路徑':'建立自己的連線'}; }
+  function scorePaths(state,p,axes,profile){const costs=PLAYERS.map(x=>shortest(state.board,x,axes,state.bridges));const own=costs[p-1];if(own===0)return {score:1000000,costs};let score=0;
+    for(const x of [p,...otherPlayers(p)]){let d=costs[x-1];if(d===Infinity)d=14+shortest(state.board,x,axes,state.bridges,3);if(x===p)score-=d*(profile==='cutter'?18:22);else{score+=Math.min(24,d)*(profile==='cutter'?10:7);if(d===0)score-=1000000;else if(d===1)score-=18000;else if(d===2)score-=90;}}
+    return {score,costs};
+  }
+  function canonicalTie(i,p,axes,seed){const a=axes[p],u=axisValue(i,a)+5,v=axisValue(i,(a+1)%3)+5;let n=(u*131+v*997+(seed||0))|0;n=Math.imul(n^(n>>>16),0x45d9f3b);return ((n>>>0)%1000)/100000;}
+  function chooseAction(view){
+    const o={...view,axes:view.axes||DEFAULT_AXES,bridges:view.bridges||[],turrets:view.turrets||[],ownTraps:view.ownTraps||[],ply:view.ply||0},p=o.player,profile=o.profile||'builder',empty=CELLS.filter(c=>!o.board[c.i]).map(c=>c.i),paths=PLAYERS.map(x=>pathInfo(o.board,x,o.axes,o.bridges));
+    if(!empty.length)return null;
+    const danger=new Map();for(const t of o.turrets)for(const i of ADJ[t.cell])danger.set(i,Math.min(danger.get(i)||Infinity,t.nextFire-o.ply));
+    const trapScores=empty.filter(i=>!o.ownTraps.some(t=>t.cell===i)).map(i=>{const cells=zone(i);let score=0;for(const x of otherPlayers(p)){const path=paths[x-1];for(const j of cells)if(!o.board[j]){const d=path.a[j]+path.b[j]-1-path.cost;if(d<=1)score+=3/(1+Math.max(0,d));}}for(const t of o.ownTraps)if(distance(t.cell,i)<2)score-=18;return {i,score};}).sort((a,b)=>b.score-a.score||canonicalTie(a.i,p,o.axes,o.seed)-canonicalTie(b.i,p,o.axes,o.seed));
+    const candidates=[],add=action=>{const state=publicForecast(o,action),evaluated=scorePaths(state,p,o.axes,profile);let score=evaluated.score;
+      if(action.type==='double')score-=5;if(action.type==='remove')score-=8;if(action.type==='bridge')score-=3;
+      const placed=action.type==='bridge'||action.type==='remove'?[]:action.type==='trap'?[action.cells[0]]:action.cells;
+      for(const i of placed){const d=danger.get(i);if(d&&d<=3)score-=d===1?220:22/(d);score+=ADJ[i].filter(j=>o.board[j]===p).length*.2;score+=canonicalTie(i,p,o.axes,o.seed);}
+      if(action.type==='turret'){let enemy=0,ally=0;for(const i of ADJ[action.cells[0]]){if(o.board[i]===p)ally++;else if(o.board[i])enemy++;}score+=(enemy*8-ally*13)-2;}
+      if(action.type==='trap'){const entry=trapScores.find(t=>t.i===action.cells[1]);score+=(entry?entry.score:0)*.42-3;}
+      candidates.push({action,state,score,costs:evaluated.costs});};
+    for(const i of empty)add({type:'place',cells:[i]});
+    if(o.hand.includes('double'))for(const i of empty)for(const j of ADJ[i])if(j>i&&!o.board[j])add({type:'double',cells:[i,j]});
+    if(o.hand.includes('remove'))o.board.forEach((owner,i)=>{if(owner&&owner!==p)add({type:'remove',cells:[i]});});
+    if(o.hand.includes('bridge'))for(const c of CELLS)if(o.board[c.i]===p)for(const[dq,dr]of DIRS.slice(0,3)){const j=index(c.q+dq*2,c.r+dr*2);if(bridgeValid(o.board,p,c.i,j,o.bridges))add({type:'bridge',cells:[c.i,j]});}
+    const basePlaces=candidates.filter(c=>c.action.type==='place').sort((a,b)=>b.score-a.score).slice(0,10);
+    if(o.hand.includes('turret'))for(const c of basePlaces)add({type:'turret',cells:c.action.cells.slice()});
+    if(o.hand.includes('trap'))for(const c of basePlaces)for(const t of trapScores.slice(0,2))if(t.i!==c.action.cells[0])add({type:'trap',cells:[c.action.cells[0],t.i]});
+    candidates.sort((a,b)=>b.score-a.score);
+    if(candidates[0].costs[p-1]===0)return {...candidates[0].action,reason:'公開炮擊預估後嘗試接通；未知敵方陷阱仍可能攔截'};
+    // Two-ply public-information search. A rival's normal reply is always legal;
+    // hidden cards/traps are never supplied or guessed from the actual state.
+    let best=null;for(const candidate of candidates.slice(0,6)){
+      let score=candidate.score;
+      for(const rival of otherPlayers(p)){
+        const info=pathInfo(candidate.state.board,rival,o.axes,candidate.state.bridges),replyCells=CELLS.map(c=>c.i).filter(i=>!candidate.state.board[i]).sort((a,b)=>(info.a[a]+info.b[a])-(info.a[b]+info.b[b])||canonicalTie(a,rival,o.axes,o.seed)-canonicalTie(b,rival,o.axes,o.seed)).slice(0,7);
+        let worst=0;for(const cell of replyCells){const board=candidate.state.board.slice();board[cell]=rival;
+          // The AI knows its own armed zones and correctly models their effect.
+          if(o.ownTraps.some(t=>zone(t.cell).includes(cell)))board[cell]=0;
+          const replyState={board,turrets:candidate.state.turrets.map(t=>({...t})),bridges:candidate.state.bridges.map(b=>({...b}))};
+          const turns=(rival-p+3)%3;resolveTurrets(replyState,o.ply+1+turns);
+          const after=scorePaths(replyState,p,o.axes,profile);worst=Math.min(worst,after.score-candidate.score);
+        }
+        score+=worst*.25;
+      }
+      const stableScore=Math.round(score*1e6)/1e6;if(!best||stableScore>best.finalScore)best={...candidate,finalScore:stableScore};
     }
-    return best;
+    const action=best.action,reasons={place:profile==='cutter'?'搜索兩位對手的回應，優先封堵關鍵路口':'搜索兩位對手的回應，維持自己的連線',double:'用雙鋪同時推進連線與封堵',remove:'拆開對手的關鍵連接；仍可能被護盾反制',turret:'部署有預告的炮台，衡量敵我同受波及的風險',trap:'鋪子並在對手可能經過的路段暗伏',bridge:'跨過中間一格，建立兩枚己子的飛橋'};
+    return {...action,reason:reasons[action.type]};
   }
-  function chooseCounter(observation) {
-    if(!observation.hand.includes('shield') || !observation.pending) return false;
-    const before=shortest(observation.board,observation.player), after=observation.board.slice(); after[observation.pending.cell]=0;
-    return shortest(after,observation.player)>before || observation.hand.filter(c=>c==='shield').length>1 || before<=2;
+  function chooseCounter(o){if(!o.hand.includes('shield')||!o.pending)return false;const next=o.board.slice();next[o.pending.cell]=0;return shortest(next,o.player,o.axes,o.bridges)>shortest(o.board,o.player,o.axes,o.bridges)||o.bridges.some(b=>b.owner===o.player&&(b.a===o.pending.cell||b.b===o.pending.cell))||o.turrets.some(t=>t.owner===o.player&&t.cell===o.pending.cell);}
+  class Game{
+    constructor(random=Math.random,profile='builder',first=1){this.random=random;this.profile=profile;this.profiles=[null,'builder',profile,profile==='builder'?'cutter':'builder'];this.reset(first);}
+    reset(first=1,axisRotation=0){this.board=Array(COUNT).fill(0);this.axes=[null,...[0,1,2].map(a=>(a+axisRotation)%3)];this.axisRotation=axisRotation;this.turn=first;this.first=first;this.ply=0;this.phase='ready';this.result=null;this.pending=null;this.last=null;this.drawn=null;this.turrets=[];this.traps=[];this.bridges=[];this.revealed=[];this.events=[];this.hands=[null];this.decks=[null];this.seeds=[null];this.used=[null];this.trapDeployments=[null,0,0,0];for(const p of PLAYERS){const deck=shuffle(DECK,this.random);this.hands[p]=[deck.pop(),deck.pop()];this.decks[p]=deck;this.seeds[p]=Math.floor(this.random()*2147483647);this.used[p]=Object.fromEntries(Object.keys(CARD_COUNTS).map(k=>[k,0]));}}
+    start(){if(this.phase==='ready'){this.phase='running';this.draw();}else if(this.phase==='paused')this.phase='running';}
+    pause(){if(this.phase==='running')this.phase='paused';}
+    draw(){this.drawn=null;if(this.hands[this.turn].length<4&&this.decks[this.turn].length){this.drawn=this.decks[this.turn].pop();this.hands[this.turn].push(this.drawn);}}
+    observation(player=this.turn){const last=this.last?{...this.last,cells:this.last.type==='trap'&&this.last.player!==player?[this.last.cells[0]]:this.last.cells.slice()}:null;return {board:this.board.slice(),player,hand:this.hands[player].slice(),axes:this.axes.slice(),profile:this.profiles[player],seed:this.seeds[player],turn:this.turn,ply:this.ply,pending:this.pending?{...this.pending}:null,turrets:this.turrets.map(t=>({...t})),bridges:this.bridges.map(b=>({...b})),ownTraps:this.traps.filter(t=>t.owner===player).map(t=>({...t})),revealed:this.revealed.map(t=>({...t})),trapDeployments:this.trapDeployments.slice(),handCounts:this.hands.map(h=>h?h.length:0),deckCounts:this.decks.map(d=>d?d.length:0),events:this.events.map(e=>({...e})),last};}
+    finish(winner,reason,scores=null){this.phase='over';this.result={winner,reason,ply:this.ply,scores};this.pending=null;}
+    checkResult(){const winners=PLAYERS.filter(p=>connected(this.board,p,this.axes,this.bridges));if(winners.length){this.finish(winners.length===1?winners[0]:0,winners.length===1?'完成本手全部效果後，率先接通自己的對邊。':'效果結算後多方同時連線，和局。');return;}if(this.board.every(Boolean)||this.ply>=LIMIT){const scores=PLAYERS.map(p=>shortest(this.board,p,this.axes,this.bridges,3)),min=Math.min(...scores),leaders=PLAYERS.filter(p=>scores[p-1]===min);this.finish(leaders.length===1?leaders[0]:0,(this.board.every(Boolean)?'滿盤':'180 手上限')+'：比較連線代價（己子 0／空格 1／敵子 3），最低者勝；同分和局。',scores);}}
+    endTurn(){this.ply++;const fire=resolveTurrets(this,this.ply);if(fire.guns.length)this.events.push({type:'fire',guns:fire.guns,hit:fire.destroyed.map(x=>x.cell),text:`炮台齊射，清除 ${fire.destroyed.length} 枚棋子（含設置者）。`});this.checkResult();if(this.phase!=='over'){this.turn=this.turn%3+1;this.draw();}}
+    act(action){if(this.phase!=='running'||this.pending||!action||!Array.isArray(action.cells))return false;const{type,cells}=action,p=this.turn;if(!['place','double','remove','turret','trap','bridge'].includes(type)||cells.some(i=>!validCell(i)))return false;if(type!=='place'&&!this.hands[p].includes(type))return false;
+      if(['place','turret'].includes(type)&&(cells.length!==1||this.board[cells[0]]))return false;
+      if(type==='double'&&(cells.length!==2||cells[0]===cells[1]||cells.some(i=>this.board[i])||!ADJ[cells[0]].includes(cells[1])))return false;
+      if(type==='remove'&&(cells.length!==1||!this.board[cells[0]]||this.board[cells[0]]===p))return false;
+      if(type==='bridge'&&(cells.length!==2||!bridgeValid(this.board,p,cells[0],cells[1],this.bridges)))return false;
+      if(type==='trap'&&(cells.length!==2||cells[0]===cells[1]||cells.some(i=>this.board[i])||this.traps.some(t=>t.owner===p&&t.cell===cells[1])))return false;
+      if(type!=='place'){this.hands[p].splice(this.hands[p].indexOf(type),1);this.used[p][type]++;}this.events=[];this.last={player:p,type,cells:cells.slice(),reason:action.reason||''};
+      if(type==='remove'){this.pending={attacker:p,defender:this.board[cells[0]],cell:cells[0]};return true;}
+      if(type==='bridge'){this.bridges.push({owner:p,a:cells[0],b:cells[1]});this.endTurn();return true;}
+      const placed=type==='trap'?[cells[0]]:cells;for(const i of placed)this.board[i]=p;
+      if(type==='turret')this.turrets.push({owner:p,cell:cells[0],nextFire:this.ply+4,shots:2});
+      const triggered=this.traps.filter(t=>t.owner!==p&&placed.some(i=>zone(t.cell).includes(i)));
+      for(const trap of triggered){const affected=placed.filter(i=>zone(trap.cell).includes(i));for(const i of affected)this.board[i]=0;this.revealed.push({owner:trap.owner,cell:trap.cell,ply:this.ply+1});this.events.push({type:'trap',cell:trap.cell,owner:trap.owner,hit:affected,text:`陷阱揭露：${affected.length} 枚新落子被攔下。`});}
+      this.traps=this.traps.filter(t=>!triggered.includes(t));
+      if(type==='trap'){this.traps.push({owner:p,cell:cells[1]});this.trapDeployments[p]++;}
+      cleanStructures(this);this.endTurn();return true;
+    }
+    respond(useShield){if(this.phase!=='running'||!this.pending)return false;const{defender,cell}=this.pending,i=this.hands[defender].indexOf('shield');if(useShield&&i<0)return false;if(useShield){this.hands[defender].splice(i,1);this.used[defender].shield++;}else this.board[cell]=0;this.last.countered=!!useShield;this.pending=null;cleanStructures(this);this.endTurn();return true;}
   }
-  class Game {
-    constructor(random=Math.random,profile='builder',first=1) { this.random=random; this.profile=profile; this.reset(first); }
-    reset(first=1) { this.board=Array(SIZE*SIZE).fill(0); this.hands=[null,['double','shield'],['double','shield']]; this.decks=[null,shuffle(['double','double','remove','remove','shield'],this.random),shuffle(['double','double','remove','remove','shield'],this.random)]; this.turn=first; this.first=first; this.ply=0; this.phase='ready'; this.pending=null; this.result=null; this.last=null; this.drawn=null; }
-    start() { if(this.phase==='ready') {this.phase='running';this.draw();} else if(this.phase==='paused')this.phase='running'; }
-    pause() { if(this.phase==='running')this.phase='paused'; }
-    draw() { this.drawn=null; if(this.hands[this.turn].length<4 && this.decks[this.turn].length) {this.drawn=this.decks[this.turn].pop();this.hands[this.turn].push(this.drawn);} }
-    observation(player=this.turn) { return {board:this.board.slice(),player,hand:this.hands[player].slice(),profile:this.profile,turn:this.turn,ply:this.ply,pending:this.pending?{...this.pending}:null}; }
-    finish(winner,reason) { this.phase='over';this.result={winner,reason,ply:this.ply};this.pending=null; }
-    endTurn() {
-      this.ply++;
-      const winners=[1,2].filter(p=>connected(this.board,p));
-      if(winners.length) {this.finish(winners.length===1?winners[0]:0,winners.length===1?'率先連起自己的兩個對邊。':'雙方同時接通，和局。');return;}
-      if(this.board.every(Boolean)) {this.finish(0,'滿盤而無連線，和局。');return;}
-      if(this.ply>=LIMIT) {const a=shortest(this.board,1),b=shortest(this.board,2);this.finish(a===b?0:a<b?1:2,'回合上限：比較最短連線還需填入的空格。');return;}
-      this.turn=3-this.turn;this.draw();
-    }
-    act(action) {
-      if(this.phase!=='running' || this.pending || !action || !Array.isArray(action.cells))return false;
-      const {type,cells}=action, p=this.turn;
-      if(!['place','double','remove'].includes(type) || cells.some(i=>!Number.isInteger(i)||i<0||i>=this.board.length))return false;
-      if(type!=='place' && !this.hands[p].includes(type))return false;
-      if(type==='place' && (cells.length!==1 || this.board[cells[0]]))return false;
-      if(type==='double' && (cells.length!==2 || cells[0]===cells[1] || cells.some(i=>this.board[i]) || !ADJ[cells[0]].includes(cells[1])))return false;
-      if(type==='remove' && (cells.length!==1 || this.board[cells[0]]!==3-p))return false;
-      if(type!=='place')this.hands[p].splice(this.hands[p].indexOf(type),1);
-      this.last={player:p,type,cells:cells.slice(),reason:action.reason||''};
-      if(type==='remove') {this.pending={attacker:p,defender:3-p,cell:cells[0]};return true;}
-      this.board=applyToBoard(this.board,p,action);this.endTurn();return true;
-    }
-    respond(useShield) {
-      if(this.phase!=='running' || !this.pending)return false;
-      const {defender,cell}=this.pending,index=this.hands[defender].indexOf('shield');
-      if(useShield && index<0)return false;
-      if(useShield)this.hands[defender].splice(index,1);else this.board[cell]=0;
-      this.last.countered=!!useShield;this.pending=null;this.endTurn();return true;
-    }
-  }
-  return {Game,SIZE,LIMIT,neighbors,shortest,connected,candidates,applyToBoard,chooseAction,chooseCounter};
+  return {Game,RADIUS,COUNT,LIMIT,PLAYERS,CELLS,ADJ,EDGES,DEFAULT_AXES,CARD_COUNTS,DECK,index,axisValue,neighbors,zone,distance,distances,shortest,connected,bridgeValid,resolveTurrets,publicForecast,chooseAction,chooseCounter,shuffle};
 })();
 </script>
 <script id="hex-ui">
 'use strict';
 (() => {
-  const $=id=>document.getElementById(id), game=new CardHex.Game();
-  const board=$('board'), buttons=[], names={place:'普通鋪子',double:'雙鋪',remove:'拆除'}, coords=i=>`${String.fromCharCode(65+i%7)}${Math.floor(i/7)+1}`;
-  let mode='place',selected=null,focusCell=24,timer=null,first=1;
-  for(let r=0;r<7;r++) {const row=document.createElement('div');row.className='hex-row';row.style.setProperty('--row',r);for(let c=0;c<7;c++){const i=r*7+c,b=document.createElement('button');b.type='button';b.className='hex-cell';b.dataset.cell=i;b.innerHTML='<span></span>';b.addEventListener('click',()=>clickCell(i));b.addEventListener('focus',()=>{focusCell=i;buttons.forEach((x,j)=>x.tabIndex=i===j?0:-1);});row.append(b);buttons.push(b);}board.append(row);}
-  function stopTimer(){if(timer!==null)clearTimeout(timer);timer=null;}
-  function announce(message){$('status').textContent=message;}
-  function schedule(){stopTimer();if(game.phase!=='running')return;if(game.pending && game.pending.defender===2)timer=setTimeout(()=>{timer=null;if(game.phase!=='running'||!game.pending)return;game.respond(CardHex.chooseCounter(game.observation(2)));render();schedule();},750);else if(!game.pending&&game.turn===2)timer=setTimeout(()=>{timer=null;if(game.phase!=='running'||game.turn!==2||game.pending)return;const action=CardHex.chooseAction(game.observation(2));if(action)game.act(action);render();schedule();},500);}
-  function render(){
-    const active=game.phase==='running'&&game.turn===1&&!game.pending;
-    $('phase-label').textContent=game.phase==='ready'?'準備連線':game.phase==='paused'?'已暫停':game.phase==='over'?'本局結束':game.pending?'拆除反制':game.turn===1?'你的回合 · 青綠 ●':'AI 思考中 · 珊瑚 ◆';
-    $('turn-count').textContent=game.ply;$('ai-count').textContent=game.hands[2].length;
-    for(const card of ['double','remove','shield'])$(card+'-count').textContent=game.hands[1].filter(c=>c===card).length;
-    for(const [id,type] of [['normal','place'],['double','double'],['remove','remove']]){$(id).disabled=!active||(type!=='place'&&!game.hands[1].includes(type));$(id).setAttribute('aria-pressed',String(mode===type));}
-    buttons.forEach((b,i)=>{const owner=game.board[i];b.dataset.owner=owner;b.disabled=!active;b.tabIndex=i===focusCell?0:-1;b.classList.toggle('selected',selected===i);b.classList.toggle('threat',!!game.pending&&game.pending.cell===i);b.classList.toggle('last',!!game.last&&game.last.cells.includes(i));b.querySelector('span').textContent=owner===1?'●':owner===2?'◆':coords(i);b.setAttribute('aria-label',`${coords(i)}，${owner===1?'你的棋子':owner===2?'AI 棋子':'空格'}${selected===i?'，雙鋪已選第一格':''}`);});
-    $('play').hidden=game.phase==='running'||game.phase==='paused';$('play').textContent=game.phase==='over'?'再來一局 →':'開始連線 →';$('pause').disabled=game.phase==='ready'||game.phase==='over';$('pause').textContent=game.phase==='paused'?'繼續':'暫停';$('personality').disabled=game.phase!=='ready'&&game.phase!=='over';
-    $('deck-info').textContent=`你的牌堆 ${game.decks[1].length} 張 · AI 牌堆 ${game.decks[2].length} 張`;
-    $('response').hidden=!(game.pending&&game.pending.defender===1&&game.phase==='running');$('counter').disabled=!game.hands[1].includes('shield');if(game.pending)$('response-copy').textContent=`AI 要拆除 ${coords(game.pending.cell)}。${game.hands[1].includes('shield')?'使用一張護盾保住棋子？':'你沒有護盾，按接受完成拆除。'}`;
-    $('result').hidden=game.phase!=='over';if(game.result)$('result').textContent=`${game.result.winner===1?'你贏了！':game.result.winner===2?'AI 獲勝。':'本局和局。'}${game.result.reason}`;
-    if(game.phase==='paused')announce('已暫停，棋盤與 AI 都已凍結。按「繼續」恢復。');else if(game.phase==='over')announce('本局結束。按「再來一局」交換先手重新挑戰。');else if(game.phase==='running'){if(game.pending)announce(game.pending.defender===1?'你的棋子被指定拆除，請選擇是否反制。':'等待 AI 決定是否使用護盾。');else if(game.turn===2)announce('AI 正在評估連線與截斷。');else announce(mode==='double'?(selected===null?'雙鋪：先點一個空格，再點相鄰的另一個空格。':`已選 ${coords(selected)}，再點一個相鄰空格。`):mode==='remove'?'拆除：點一枚珊瑚色 AI 棋子；對手可使用護盾反制。':'你的回合：點空格鋪一子，或先選一張道具牌。');}
-    if(game.last)$('last-action').textContent=`${game.last.player===1?'你':'AI'}：${names[game.last.type]} ${game.last.cells.map(coords).join('、')}${game.last.countered===true?' · 護盾已擋下':game.last.countered===false?' · 拆除成功':''}${game.last.reason?' · '+game.last.reason:''}`;
-    if(active&&document.activeElement===document.body)buttons[focusCell].focus({preventScroll:true});
-  }
-  function clickCell(i){if(game.phase!=='running'||game.turn!==1||game.pending)return;focusCell=i;let cells=[i];if(mode==='double'){if(game.board[i]){announce('雙鋪只能選空格。');return;}if(selected===i){selected=null;render();return;}if(selected===null){selected=i;render();return;}cells=[selected,i];}const ok=game.act({type:mode,cells});if(!ok){announce(mode==='double'?'第二格必須與第一格共邊，且都是空格。':mode==='remove'?'請選擇一枚 AI 棋子。':'請選空格。');return;}selected=null;mode='place';render();schedule();}
-  function restart(){stopTimer();first=3-first;game.profile=$('personality').value;game.reset(first);mode='place';selected=null;$('first-player').textContent=`本局${first===1?'你':'AI'}先手 · 重開輪換先手`;$('last-action').textContent='雙方各獲得相同的有限牌組，已重新洗牌。';game.start();render();schedule();}
-  $('play').addEventListener('click',()=>{if(game.phase==='over'){restart();return;}game.profile=$('personality').value;game.start();render();schedule();if(game.turn===1)buttons[focusCell].focus({preventScroll:true});});
-  $('restart').addEventListener('click',restart);
-  function pause(){if(game.phase==='running'){game.pause();stopTimer();}else if(game.phase==='paused')game.start();render();schedule();}
-  $('pause').addEventListener('click',pause);
-  for(const [id,type]of[['normal','place'],['double','double'],['remove','remove']])$(id).addEventListener('click',()=>{mode=type;selected=null;render();});
-  $('counter').addEventListener('click',()=>{if(game.respond(true)){render();schedule();}});$('accept').addEventListener('click',()=>{if(game.respond(false)){render();schedule();}});
-  board.addEventListener('keydown',e=>{const delta={ArrowLeft:-1,ArrowRight:1,ArrowUp:-7,ArrowDown:7}[e.key];if(!delta)return;e.preventDefault();const next=focusCell+delta;if(next>=0&&next<49&&(!(Math.abs(delta)===1)||Math.floor(next/7)===Math.floor(focusCell/7)))buttons[next].focus();});
-  document.addEventListener('keydown',e=>{if((e.key.toLowerCase()==='p'||e.key==='Escape')&&e.target.tagName!=='SELECT'){e.preventDefault();pause();}});
-  function autoPause(){if(game.phase==='running'){game.pause();stopTimer();render();}}
-  window.addEventListener('blur',autoPause);document.addEventListener('visibilitychange',()=>{if(document.hidden)autoPause();});
-  window.hexGame=game;window.hexRender=render;
-  render();
+const $=id=>document.getElementById(id),game=new CardHex.Game(),board=$('board'),buttons=[],colors=['','#267477','#99553f','#785580'],labels=['','你','AI 甲','AI 乙'],names={place:'鋪子',double:'雙鋪',remove:'拆除',turret:'炮台',trap:'暗伏',bridge:'飛橋'},coords=i=>{const c=CardHex.CELLS[i];return `${String.fromCharCode(65+c.r+5)}${c.q-Math.max(-5,-c.r-5)+1}`;};
+let mode='place',selected=null,focusCell=CardHex.index(0,0),timer=null,first=1,rotation=0;
+const svgIcon=id=>`<svg x="24" y="34" width="52" height="52" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#${id}"></use></svg>`;
+for(const c of CardHex.CELLS){const b=document.createElement('button');b.type='button';b.className='hex-cell';b.dataset.cell=c.i;b.style.left=c.x/720*100+'%';b.style.top=c.y/680*100+'%';b.innerHTML='<svg class="cell-svg" viewBox="0 0 100 116" aria-hidden="true"><polygon class="hex-tile" points="50,2 98,30 98,86 50,114 2,86 2,30"></polygon><g class="cell-mark"></g></svg>';b.addEventListener('click',()=>clickCell(c.i));b.addEventListener('focus',()=>{focusCell=c.i;buttons.forEach((x,j)=>x.tabIndex=c.i===j?0:-1);hint(c.i);});b.addEventListener('mouseenter',()=>hint(c.i));board.append(b);buttons.push(b);}
+function hint(i){const view=game.observation(1),turret=view.turrets.find(t=>t.cell===i),trap=view.ownTraps.find(t=>t.cell===i),ranges=view.turrets.filter(t=>CardHex.ADJ[t.cell].includes(i));$('cell-hint').textContent=`${coords(i)}：${game.board[i]?labels[game.board[i]]+'的棋子':'空格'}${turret?`；炮台 ${turret.nextFire-game.ply} 手後開火，剩 ${turret.shots} 次`:''}${trap?'；你的秘密暗伏中心':''}${ranges.length?'；在公開炮台射程內':''}`;}
+function stopTimer(){if(timer!==null)clearTimeout(timer);timer=null;}
+function schedule(){stopTimer();if(game.phase!=='running')return;if(game.pending&&game.pending.defender!==1)timer=setTimeout(()=>{timer=null;if(game.phase!=='running'||!game.pending)return;game.respond(CardHex.chooseCounter(game.observation(game.pending.defender)));render();schedule();},600);else if(!game.pending&&game.turn!==1)timer=setTimeout(()=>{timer=null;if(game.phase!=='running'||game.pending||game.turn===1)return;const action=CardHex.chooseAction(game.observation());if(action&&!game.act(action)){game.act({type:'place',cells:[game.board.findIndex(x=>!x)]});}render();schedule();},460);}
+function drawGoals(view){const corners=[[220,97.513],[500,97.513],[640,340],[500,582.487],[220,582.487],[80,340]],edgeAxes=[0,1,2,0,1,2];let content='';for(let e=0;e<6;e++){const p=game.axes.indexOf(edgeAxes[e]),a=corners[e],b=corners[(e+1)%6],point=x=>[360+(x[0]-360)*1.13,340+(x[1]-340)*1.13],pa=point(a),pb=point(b),mx=(pa[0]+pb[0])/2,my=(pa[1]+pb[1])/2;content+=`<path class="hex-goal-line" stroke="${colors[p]}" ${p===2?'stroke-dasharray="15 5"':p===3?'stroke-dasharray="3 7"':''} d="M ${pa} L ${pb}"/><text class="hex-goal-label" x="${360+(mx-360)*1.075}" y="${340+(my-340)*1.075+4}" fill="${colors[p]}">${labels[p]}</text>`;}$('goal-lines').innerHTML=content;let bridgeContent='';for(const b of view.bridges){const a=CardHex.CELLS[b.a],c=CardHex.CELLS[b.b];bridgeContent+=`<path class="hex-bridge" stroke="${colors[b.owner]}" d="M ${a.x} ${a.y} L ${c.x} ${c.y}"/>`;}$('bridge-lines').innerHTML=bridgeContent;}
+function render(){const view=game.observation(1),active=game.phase==='running'&&game.turn===1&&!game.pending,danger=new Set(view.turrets.flatMap(t=>CardHex.ADJ[t.cell])),ownZones=new Set(view.ownTraps.flatMap(t=>CardHex.zone(t.cell))),recent=new Set(view.revealed.filter(t=>game.ply-t.ply<=3).map(t=>t.cell));drawGoals(view);
+$('phase-label').textContent=game.phase==='ready'?'準備連線':game.phase==='paused'?'已暫停':game.phase==='over'?'本局結束':game.pending?`${labels[game.pending.defender]}的反制機會`:`${labels[game.turn]}的回合`;$('turn-count').textContent=game.ply;
+for(const p of CardHex.PLAYERS){$('player-'+p).classList.toggle('current',game.turn===p&&game.phase==='running');$('player-info-'+p).textContent=`${p===1?'青綠':p===2?'珊瑚':'紫灰'} · 手牌 ${view.handCounts[p]} · 牌堆 ${view.deckCounts[p]}`;}
+for(const card of Object.keys(CardHex.CARD_COUNTS))$(card+'-count').textContent=view.hand.filter(x=>x===card).length;
+for(const[id,type]of[['normal','place'],['double','double'],['remove','remove'],['turret','turret'],['trap','trap'],['bridge','bridge']]){$(id).disabled=!active||(type!=='place'&&!view.hand.includes(type));$(id).setAttribute('aria-pressed',String(mode===type));}
+buttons.forEach((b,i)=>{const owner=view.board[i],turret=view.turrets.find(t=>t.cell===i),trap=view.ownTraps.find(t=>t.cell===i);b.dataset.owner=owner;b.disabled=!active;b.tabIndex=i===focusCell?0:-1;b.classList.toggle('selected',selected===i);b.classList.toggle('danger',danger.has(i));b.classList.toggle('own-trap',ownZones.has(i));b.classList.toggle('revealed',recent.has(i));b.classList.toggle('target',!!game.pending&&game.pending.cell===i);b.classList.toggle('last',!!view.last&&view.last.cells.includes(i));
+let mark=owner===1?'<circle class="hex-piece" cx="50" cy="58" r="14"/>':owner===2?'<path class="hex-piece" d="M50 39 L69 58 L50 77 L31 58Z"/>':owner===3?'<path class="hex-piece" d="M50 38 L70 74 H30Z"/>':`<text class="hex-coordinate" x="50" y="58">${coords(i)}</text>`;
+if(turret)mark=svgIcon('turret')+`<text class="hex-countdown" x="50" y="27">${turret.nextFire-game.ply}</text>`;else if(trap)mark=svgIcon('trap');else if(recent.has(i))mark+=svgIcon('trap');b.querySelector('.cell-mark').innerHTML=mark;b.setAttribute('aria-label',`${coords(i)}，${owner?labels[owner]+'的棋子':'空格'}${turret?`，炮台倒數${turret.nextFire-game.ply}手`:''}${trap?'，你的秘密陷阱':''}${recent.has(i)?'，已揭露陷阱':''}${danger.has(i)?'，炮擊射程':''}`);});
+$('play').hidden=game.phase==='running'||game.phase==='paused';$('play').querySelector('span').textContent=game.phase==='over'?'再來一局':'開始連線';$('play').querySelector('use').setAttribute('href','icons.svg#'+(game.phase==='over'?'restart':'play'));$('pause').disabled=game.phase==='ready'||game.phase==='over';$('pause').querySelector('span').textContent=game.phase==='paused'?'繼續':'暫停';$('pause').querySelector('use').setAttribute('href','icons.svg#'+(game.phase==='paused'?'play':'pause'));$('personality').disabled=game.phase!=='ready'&&game.phase!=='over';$('deck-info').textContent=`牌堆 ${view.deckCounts[1]}`;
+$('response').hidden=!(game.pending&&game.pending.defender===1&&game.phase==='running');$('counter').disabled=!view.hand.includes('shield');if(game.pending)$('response-copy').textContent=`${labels[game.pending.attacker]}要拆除 ${coords(game.pending.cell)}。${view.hand.includes('shield')?'使用整局唯一的護盾保住它？':'你沒有護盾，按接受完成拆除。'}`;
+$('hazard-info').textContent=view.turrets.length?`公開炮台 ${view.turrets.length} 座；最近 ${Math.min(...view.turrets.map(t=>t.nextFire-game.ply))} 手後開火，敵我都受波及。`:`無公開炮台；暗伏部署次數：你 ${view.trapDeployments[1]}／AI 甲 ${view.trapDeployments[2]}／AI 乙 ${view.trapDeployments[3]}。`;
+$('result').hidden=game.phase!=='over';if(game.result)$('result').textContent=`${game.result.winner?labels[game.result.winner]+'獲勝。':'本局和局。'}${game.result.reason}${game.result.scores?' 三方代價：'+game.result.scores.join('／')+'。':''}`;
+if(game.phase==='paused')$('status').textContent='已暫停，AI 與炮台倒數都凍結。按「繼續」恢復。';else if(game.phase==='over')$('status').textContent='本局結束。重開會輪換先手與目標軸，手牌重新洗牌。';else if(game.phase==='running'){if(game.pending)$('status').textContent=game.pending.defender===1?'棋子被指定拆除，請選擇是否用護盾反制。':`${labels[game.pending.defender]}正在決定反制。`;else if(game.turn!==1)$('status').textContent=`${labels[game.turn]}正在搜索兩位對手的回應與炮台時機。`;else{const hints={place:'點空格鋪一子，或選一張道具牌。',double:selected===null?'雙鋪：先點第一個空格。':`已選 ${coords(selected)}，再點相鄰空格。`,remove:'拆除：點任一對手棋子；其主人可用護盾反制。',turret:'炮台：點空格部署。其後 3 手第一次射擊周圍 6 格，會傷己方。',trap:selected===null?'暗伏：先點一個空格正常鋪子。':`鋪子選在 ${coords(selected)}，再點另一空格作秘密區域中心。`,bridge:selected===null?'飛橋：點一枚己子，再點同一直線相隔兩步的己子。':`第一端 ${coords(selected)}；再點同一直線相隔兩步的己子。`};$('status').textContent=hints[mode];}}
+if(view.last){const listed=view.last.cells.map(coords).join('、');$('last-action').textContent=`${labels[view.last.player]}：${names[view.last.type]} ${listed}${view.last.type==='trap'&&view.last.player!==1?'；秘密位置不公開':''}${view.last.countered===true?'；護盾擋下':view.last.countered===false?'；拆除成功':''}${view.last.reason?'。'+view.last.reason:''}${view.events.length?'。'+view.events.map(e=>e.text).join(' '):''}`;}
+hint(focusCell);if(active&&document.activeElement===document.body)buttons[focusCell].focus({preventScroll:true});}
+function clickCell(i){if(game.phase!=='running'||game.turn!==1||game.pending)return;focusCell=i;let cells=[i];if(['double','trap','bridge'].includes(mode)){if((mode==='bridge'&&game.board[i]!==1)||(mode!=='bridge'&&game.board[i])){$('status').textContent=mode==='bridge'?'請選自己的棋子。':'請選空格。';return;}if(selected===i){selected=null;render();return;}if(selected===null){selected=i;render();return;}cells=[selected,i];}
+if(!game.act({type:mode,cells})){$('status').textContent=mode==='double'?'兩格必須相鄰且都是空格。':mode==='bridge'?'兩端必須是同一直線相隔兩步的己子，且沒有既有飛橋。':mode==='trap'?'請選不同空格，不能重複自己的陷阱中心。':'該目標不合法，請重新選擇。';return;}mode='place';selected=null;render();schedule();}
+function setProfiles(){game.profile=$('personality').value;game.profiles=[null,'builder',game.profile,game.profile==='builder'?'cutter':'builder'];}
+function restart(){stopTimer();first=first%3+1;rotation=(rotation+1)%3;setProfiles();game.reset(first,rotation);mode='place';selected=null;$('first-player').textContent=`${labels[first]}先手；本局目標軸已輪換`;$('last-action').textContent='三方重新洗牌；每人整局最多一張護盾。';game.start();render();schedule();}
+$('play').addEventListener('click',()=>{if(game.phase==='over'){restart();return;}setProfiles();game.start();render();schedule();if(game.turn===1)buttons[focusCell].focus({preventScroll:true});});$('restart').addEventListener('click',restart);
+function pause(){if(game.phase==='running'){game.pause();stopTimer();}else if(game.phase==='paused')game.start();render();schedule();}$('pause').addEventListener('click',pause);
+for(const[id,type]of[['normal','place'],['double','double'],['remove','remove'],['turret','turret'],['trap','trap'],['bridge','bridge']])$(id).addEventListener('click',()=>{mode=type;selected=null;render();});
+$('counter').addEventListener('click',()=>{if(game.respond(true)){render();schedule();}});$('accept').addEventListener('click',()=>{if(game.respond(false)){render();schedule();}});
+$('zoom').addEventListener('click',()=>{const on=$('board-scroll').classList.toggle('zoomed');$('zoom').setAttribute('aria-pressed',String(on));$('zoom').textContent=on?'縮回棋盤':'放大棋盤';});
+board.addEventListener('keydown',e=>{const dirs={ArrowLeft:[-1,0],ArrowRight:[1,0],ArrowUp:[0,-1],ArrowDown:[0,1]},d=dirs[e.key];if(!d)return;e.preventDefault();const at=CardHex.CELLS[focusCell],options=CardHex.ADJ[focusCell].map(i=>{const c=CardHex.CELLS[i],dx=c.x-at.x,dy=c.y-at.y;return {i,value:(dx*d[0]+dy*d[1])/Math.hypot(dx,dy)};}).filter(x=>x.value>.3).sort((a,b)=>b.value-a.value);if(options.length)buttons[options[0].i].focus();});
+document.addEventListener('keydown',e=>{if((e.key.toLowerCase()==='p'||e.key==='Escape')&&e.target.tagName!=='SELECT'){e.preventDefault();pause();}});function autoPause(){if(game.phase==='running'){game.pause();stopTimer();render();}}window.addEventListener('blur',autoPause);document.addEventListener('visibilitychange',()=>{if(document.hidden)autoPause();});window.hexGame=game;window.hexRender=render;window.hexSchedule=schedule;render();
 })();
 </script></body></html>

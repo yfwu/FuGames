@@ -1,6 +1,6 @@
 # FuGames
 
-FuLab 風格的靜態網頁遊戲集。遊戲與 AI 都在瀏覽器 JavaScript 內執行，不需要遊戲伺服器、帳號、外部資源或 npm 套件。各遊戲共用 `fulab-theme.css`。
+FuLab 風格的靜態網頁遊戲集。遊戲與 AI 都在瀏覽器 JavaScript 內執行，不需要遊戲伺服器、帳號、外部資源或 npm 套件。各遊戲共用 `fulab-theme.css` 及本地 `icons.svg`。
 
 ## 本機預覽
 
@@ -32,9 +32,13 @@ python -m http.server 8000 --bind 0.0.0.0
 
 八款擴充的逐款規則與 AI 說明見 [開發文件](docs/expansion-games.md)，分工見 [實作計畫](docs/expansion-plan.md)，測試證據與限制見 [驗證紀錄](docs/expansion-validation.md)。
 
+2026-10-11 的三方 Hex 升級與全站圖示整理，另見 [修訂計畫](docs/revision-2026-10-11/plan.md)、[Hex 規則與平衡](docs/revision-2026-10-11/hex.md)、[圖示規格](docs/revision-2026-10-11/icons.md)、[前後畫面](docs/revision-2026-10-11/comparison.md) 與 [本輪驗證](docs/revision-2026-10-11/validation.md)。
+
 ### 共用介面
 
 首頁與所有遊戲都共用 `fulab-theme.css` 的配色、字體、導覽、標題、卡片、狀態列與按鈕。各頁只保留棋盤或遊戲畫面的專用樣式。玩法與設定預設收合；圈地漫遊以棋盤、領地比例、助手數量、遊玩時間和操作為主，不再同時展示側欄排行、進度卡與三步教學。
+
+本地 SVG symbol 統一 48×48 viewBox、2px 描邊、圓角端點及安全留白；首頁圖示、頁面標題、操作與花色共用同一套幾何。棋子以 CSS／SVG、場內效果以 Canvas 幾何繪製。編號、形狀、虛線及雙框補充顏色，讓待移動棋子、合法牌、提示、勝利與危險狀態可分辨。
 
 三款棋盤遊戲保留原有玩法；重複的新局／清空操作合併為「重新開始」。三子循環棋可用鍵盤啟動落子按鈕，結束後變更提示設定不會重新開放落子。軌道棋保留悔棋、提示與 AI 設定，重開時會作廢舊局尚未完成的動畫／AI 回呼。
 

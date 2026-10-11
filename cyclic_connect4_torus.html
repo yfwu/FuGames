@@ -8,25 +8,30 @@
   <style>
 
     .board { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; width: min(100%, 480px); }
-    .colBtn { min-height: 44px; padding: 0; border: 1px solid var(--fulab-silver); border-radius: 10px; background: white; color: var(--fulab-ink-teal); font-size: 18px; cursor: pointer; }
+    .colBtn { min-height: 44px; padding: 0; border: 1px solid var(--fulab-silver); border-radius: 10px; background: white; color: var(--fulab-ink-teal); display: grid; place-items: center; cursor: pointer; touch-action: manipulation; }
     .colBtn:hover { border-color: var(--fulab-teal); }
-    .colBtn:disabled { opacity: .4; cursor: default; }
+    .colBtn:disabled { color: var(--fulab-muted); background: var(--fulab-tint-slate); cursor: default; }
     .grid { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
-    .cell { aspect-ratio: 1; border: 1px solid var(--fulab-silver); border-radius: 10px; background: white; display: grid; place-items: center; font-size: clamp(23px, 6vw, 40px); min-width: 0; }
+    .cell { aspect-ratio: 1; border: 1px solid var(--fulab-silver); border-radius: 50%; background: white; display: grid; place-items: center; min-width: 0; }
     .cell.win { background: var(--fulab-tint-emerald); border-color: var(--fulab-emerald); }
-    .cell.last { box-shadow: inset 0 0 0 2px var(--fulab-tint-indigo); }
-    @media(max-width: 400px) { .board, .grid { gap: 4px; } .game-floor { padding: 8px; } .cell { border-radius: 7px; } }
+    .cell .classic-stone { width: 72%; }
+    .cell.last::before { content: ''; position: absolute; right: -1px; bottom: -1px; width: 9px; height: 9px; border-radius: 2px; background: var(--fulab-ink-teal); border: 2px solid white; z-index: 1; }
+    .classic-page .cell.win::after { inset: 3px; border-radius: 50%; }
+    .last-key { display: inline-block; width: 8px; height: 8px; background: var(--fulab-ink-teal); border-radius: 1px; }
+    .grid { outline: 1px dashed var(--fulab-silver); outline-offset: 5px; border-radius: 12px; }
+    @media(max-width: 400px) { .board, .grid { gap: 4px; } .game-floor { padding: 8px; } .grid { outline-offset: 3px; } }
 
   </style>
 </head>
 <body>
-  <main class="game-page">
-    <nav class="site-nav" aria-label="遊戲導覽"><a class="site-brand" href="index.html"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>FuGames</a><a href="index.html">所有遊戲 ↗</a></nav>
-    <header class="page-header"><p class="eyebrow">棋盤 / 同機雙人</p><h1>環面直落四子</h1><p class="lead">輪流選一欄落子，連成四子就贏；連線也能繞過棋盤邊界。</p></header>
+  <main class="game-page classic-page">
+    <nav class="site-nav" aria-label="遊戲導覽"><a class="site-brand" href="index.html"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>FuGames</a><a href="index.html" aria-label="所有遊戲 ↗">所有遊戲<svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#launch"></use></svg></a></nav>
+    <header class="page-header"><p class="eyebrow">棋盤 / 同機雙人</p><h1><svg class="page-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#cyclic_connect4_torus"></use></svg>環面直落四子</h1><p class="lead">輪流選一欄落子，連成四子就贏；連線也能繞過棋盤邊界。</p></header>
     <section class="card play-panel" aria-label="直落四子棋盤">
       <div class="game-toolbar"><p class="game-status" id="statusText" role="status" aria-live="polite"></p><div class="game-metrics"><span>回合 <strong id="turnKpi">0</strong></span><span>落子 <strong id="playerKpi">黑</strong></span></div></div>
-      <div class="boardWrap game-floor"><div class="board"><button class="colBtn" data-col="0" aria-label="第 1 欄落子">↓</button><button class="colBtn" data-col="1" aria-label="第 2 欄落子">↓</button><button class="colBtn" data-col="2" aria-label="第 3 欄落子">↓</button><button class="colBtn" data-col="3" aria-label="第 4 欄落子">↓</button><button class="colBtn" data-col="4" aria-label="第 5 欄落子">↓</button><button class="colBtn" data-col="5" aria-label="第 6 欄落子">↓</button><button class="colBtn" data-col="6" aria-label="第 7 欄落子">↓</button><div class="grid" id="grid" role="img" aria-label="七欄六列棋盤"></div></div></div>
-      <div class="game-actions"><p class="action-note">點上方箭頭，棋子會直落到底</p><button class="btn primary" id="newGame">重新開始</button></div>
+      <div class="boardWrap game-floor"><div class="board"><button class="colBtn" data-col="0" aria-label="第 1 欄落子"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#arrow-down"></use></svg></button><button class="colBtn" data-col="1" aria-label="第 2 欄落子"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#arrow-down"></use></svg></button><button class="colBtn" data-col="2" aria-label="第 3 欄落子"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#arrow-down"></use></svg></button><button class="colBtn" data-col="3" aria-label="第 4 欄落子"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#arrow-down"></use></svg></button><button class="colBtn" data-col="4" aria-label="第 5 欄落子"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#arrow-down"></use></svg></button><button class="colBtn" data-col="5" aria-label="第 6 欄落子"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#arrow-down"></use></svg></button><button class="colBtn" data-col="6" aria-label="第 7 欄落子"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#arrow-down"></use></svg></button><div class="grid" id="grid" role="group" aria-label="七欄六列棋盤"></div></div></div>
+      <div class="classic-legend"><span>虛線邊界：連線可繞回</span><span class="stone-key"><span class="last-key" aria-hidden="true"></span>最新落子</span></div>
+      <div class="game-actions"><p class="action-note">點上方箭頭，棋子會直落到底</p><button class="btn primary" id="newGame"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#restart"></use></svg>重新開始</button></div>
     </section>
     <details class="card rules"><summary>玩法與操作</summary><div class="rules-body"><ul class="list"><li>兩位玩家輪流選欄落子，棋子落到該欄最底的空格。</li><li>橫、直、斜線都可繞過邊界；連成四子即勝。</li><li>棋盤填滿且無連線則平手。</li></ul></div></details>
     <footer class="site-footer">FuGames · 隨時來一局</footer>
@@ -136,17 +141,13 @@
           cell.className = 'cell';
           const key = `${r}-${c}`;
           const v = board[r][c];
-          cell.textContent = v ? symbol(v) : '';
-          if (v === 'B') {
-            cell.style.color = '#2E3440';
-            cell.style.textShadow = '';
-          } else if (v === 'W') {
-            cell.style.color = '#FFFFFF';
-            cell.style.textShadow = '0 0 2px #2E3440, 0 0 1px #2E3440';
-          } else {
-            cell.style.color = '';
-            cell.style.textShadow = '';
+          if (v) {
+            const stone = document.createElement('span');
+            stone.className = 'classic-stone' + (v === 'W' ? ' white' : '');
+            stone.setAttribute('aria-hidden', 'true');
+            cell.appendChild(stone);
           }
+          cell.setAttribute('aria-label', `${r + 1} 行 ${c + 1} 列，${v ? (v === 'B' ? '黑子' : '白子') : '空格'}${winCells.has(key) ? '，勝利連線' : ''}${lastMove === key ? '，最新落子' : ''}`);
           if (winCells.has(key)) cell.classList.add('win');
           if (lastMove === key) cell.classList.add('last');
           gridEl.appendChild(cell);
@@ -167,11 +168,6 @@
     newBtn.addEventListener('click', reset);
     reset();
 
-    function symbol(v) {
-      if (v === 'B') return '●';
-      if (v === 'W') return '○';
-      return '';
-    }
   </script>
 </body>
 </html>

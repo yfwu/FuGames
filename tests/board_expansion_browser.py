@@ -49,7 +49,7 @@ with sync_playwright() as p:
             assert page.evaluate('JSON.stringify(' + state + ')') == frozen
             press(page, '#pause', mobile)
             page.clock.run_for(1500)
-            assert page.evaluate(state + '.ply') == 2
+            assert page.evaluate(state + '.ply') == (3 if name == 'card_hex' else 2)
             page.screenshot(path=str(OUT / (name + '-playing-' + label + '.png')), full_page=True)
             page.evaluate("window.dispatchEvent(new Event('blur'))")
             assert page.evaluate(state + '.phase') == 'paused'
@@ -65,7 +65,7 @@ with sync_playwright() as p:
             assert page.evaluate(state + '.first') == 2
             assert page.evaluate(state + '.ply') == 0
             page.clock.run_for(1500)
-            assert page.evaluate(state + '.ply') == 1
+            assert page.evaluate(state + '.ply') == (2 if name == 'card_hex' else 1)
             assert page.evaluate(state + '.turn') == 1
             page.locator('summary').click()
             fit(page)
@@ -76,6 +76,7 @@ with sync_playwright() as p:
     page.clock.install()
     page.on('pageerror', lambda error: errors.append(str(error)))
     page.goto(BASE + '/card_hex.html');page.locator('#play').click()
+    page.evaluate("hexGame.hands[1]=['double']; hexRender()")
     page.locator('#double').click();page.locator('[data-cell="24"]').click()
     assert page.locator('.hex-cell.selected').count() == 1
     page.locator('[data-cell="25"]').click()
@@ -89,7 +90,7 @@ with sync_playwright() as p:
     assert page.locator('#response').is_visible()
     page.screenshot(path=str(OUT / 'card_hex-counter.png'), full_page=True)
     page.locator('#counter').click()
-    assert page.evaluate('hexGame.board[24]===1 && hexGame.ply===1 && hexGame.turn===1')
+    assert page.evaluate('hexGame.board[24]===1 && hexGame.ply===1 && hexGame.turn===3')
     page.evaluate("""() => {
       hexGame.reset();hexGame.start();hexGame.turn=2;
       hexGame.board[24]=1;hexGame.hands[1]=[];hexGame.hands[2]=['remove'];
@@ -102,7 +103,7 @@ with sync_playwright() as p:
     # Drive the human side via real DOM and let scheduled AI callbacks play every reply.
     for name, state, engine, render in [('card_hex', 'hexGame', 'CardHex', 'hexRender'), ('flip_five', 'flipGame', 'FlipFive', 'flipRender')]:
         page.goto(BASE + '/' + name + '.html');page.locator('#play').click()
-        for _ in range(100):
+        for _ in range(400 if name == 'card_hex' else 100):
             status = page.evaluate('({phase:' + state + '.phase,turn:' + state + '.turn,pending:' + state + '.pending})')
             if status['phase'] == 'over':
                 break
@@ -111,11 +112,11 @@ with sync_playwright() as p:
                     page.locator('#counter' if page.locator('#counter').is_enabled() else '#accept').click()
                 else:
                     page.clock.run_for(1000)
-            elif status['turn'] == 2:
+            elif status['turn'] != 1:
                 page.clock.run_for(1000)
             elif name == 'card_hex':
                 action = page.evaluate('CardHex.chooseAction(hexGame.observation(1))')
-                page.locator({'place': '#normal', 'double': '#double', 'remove': '#remove'}[action['type']]).click()
+                page.locator('#normal' if action['type'] == 'place' else '#' + action['type']).click()
                 for cell in action['cells']:
                     page.locator(f'[data-cell="{cell}"]').click()
             else:

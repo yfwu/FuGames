@@ -13,7 +13,20 @@
   --fulab-muted: #657283;
   --fulab-bg-secondary: #F8F9FB;
   --fulab-bg-sidebar: #F4F6F9;
+  --fulab-space-1: 4px;
+  --fulab-space-2: 8px;
+  --fulab-space-3: 12px;
+  --fulab-space-4: 16px;
+  --fulab-space-5: 20px;
+  --fulab-space-6: 24px;
   --fulab-radius: 16px;
+  --fulab-radius-control: 12px;
+  --fulab-radius-board: 12px;
+  --fulab-touch-size: 44px;
+  --fulab-icon-page: 36px;
+  --fulab-icon-ui: 20px;
+  --fulab-font-body: 13px;
+  --fulab-font-meta: 11px;
   --fulab-tint-teal: rgba(94, 188, 191, 0.12);
   --fulab-tint-indigo: rgba(129, 161, 193, 0.15);
   --fulab-tint-emerald: rgba(163, 190, 140, 0.18);
@@ -106,16 +119,18 @@ p {
   border: 1px solid var(--fulab-silver);
   background: var(--fulab-paper);
   color: var(--fulab-graphite);
-  border-radius: var(--fulab-radius);
-  padding: 8px 12px;
+  border-radius: var(--fulab-radius-control);
+  padding: var(--fulab-space-2) var(--fulab-space-3);
   font: inherit;
   font-size: 13px;
   font-weight: 650;
   cursor: pointer;
-  min-height: 44px;
+  min-height: var(--fulab-touch-size);
+  gap: var(--fulab-space-2);
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  touch-action: manipulation;
   transition: background-color 120ms ease, border-color 120ms ease;
 }
 
@@ -262,9 +277,10 @@ button, a, summary, select, input { -webkit-tap-highlight-color: transparent; }
 .site-brand { display: inline-flex; align-items: center; gap: 8px; color: var(--fulab-graphite); font-size: 16px; font-weight: 750; }
 .brand-mark { display: inline-grid; grid-template-columns: repeat(2, 5px); gap: 3px; }
 .brand-mark i { width: 5px; height: 5px; background: var(--fulab-teal); border-radius: 2px; }
+.site-nav > a { display: inline-flex; align-items: center; gap: 6px; }
 .site-nav .nav-label { color: var(--fulab-muted); font-size: 11px; }
 .page-header { padding: 4px 0; }
-.page-header h1 { font-size: clamp(25px, 4vw, 34px); margin: 0 0 6px; letter-spacing: -.04em; }
+.page-header h1 { display: flex; align-items: center; gap: var(--fulab-space-3); font-size: clamp(25px, 4vw, 34px); margin: 0 0 6px; letter-spacing: -.04em; }
 .page-header .lead { margin: 0; font-size: 13px; }
 .eyebrow { color: var(--fulab-ink-teal); letter-spacing: .1em; font-size: 10px; font-weight: 750; margin: 0 0 6px; }
 .play-panel { padding: 18px; box-shadow: 0 8px 28px #2e344005; min-width: 0; }
@@ -297,7 +313,7 @@ button, a, summary, select, input { -webkit-tap-highlight-color: transparent; }
 .game-dialog p { font-size: 12px; }
 .game-dialog .btn { width: 100%; }
 .game-dialog .btn + .btn { margin-top: 8px; }
-.dialog-art { width: 76px; height: 52px; display: block; margin: 0 auto 12px; }
+.dialog-art { width: 96px; height: 72px; display: block; margin: 0 auto 12px; }
 .io-status { margin: 12px 0 0; font-size: 12px; min-height: 20px; }
 .io-controls { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-top: 12px; }
 .io-controls .action-note { font-size: 11px; color: var(--fulab-muted); margin: 0; }
@@ -322,7 +338,7 @@ button, a, summary, select, input { -webkit-tap-highlight-color: transparent; }
   .game-dialog { padding: 16px; }
   .game-dialog h2 { font-size: 20px; }
   .game-dialog p { margin-bottom: 10px; }
-  .dialog-art { height: 38px; margin-bottom: 8px; }
+  .dialog-art { width: 64px; height: 48px; margin-bottom: 8px; }
   .rules > summary { padding: 12px 14px; }
   .rules-body { padding: 2px 14px 14px; }
 }
@@ -339,3 +355,24 @@ button, a, summary, select, input { -webkit-tap-highlight-color: transparent; }
   .io-page .game-dialog { padding: 12px; }
 }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; scroll-behavior: auto !important; } }
+
+/* One local SVG vocabulary for navigation, controls and game identities. */
+.page-icon, .ui-icon { display: inline-block; flex: none; vertical-align: middle; overflow: visible; }
+.page-icon { width: var(--fulab-icon-page); height: var(--fulab-icon-page); color: var(--fulab-ink-teal); }
+.ui-icon { width: var(--fulab-icon-ui); height: var(--fulab-icon-ui); }
+.ui-icon.lg { width: 24px; height: 24px; }
+.btn > .ui-icon { pointer-events: none; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+
+/* Classic boards share stable black/white pieces and non-colour status marks. */
+.classic-page .game-floor { border-radius: var(--fulab-radius-board); }
+.classic-page .cell { position: relative; touch-action: manipulation; }
+.classic-page .cell:disabled { opacity: 1; color: var(--fulab-graphite); -webkit-text-fill-color: var(--fulab-graphite); }
+.classic-stone { display: block; width: 64%; max-width: 64px; aspect-ratio: 1; border-radius: 50%; border: 2px solid var(--fulab-graphite); background: var(--fulab-graphite); flex: none; box-shadow: 0 2px 3px #2e34400d; }
+.classic-stone.white { background: var(--fulab-paper); }
+.stone-key { display: inline-flex; align-items: center; gap: 6px; }
+.stone-key .classic-stone { width: 14px; height: 14px; border-width: 1.5px; box-shadow: none; }
+.classic-legend { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; font-size: 11px; color: var(--fulab-muted); margin: 12px 0 0; }
+.classic-page .cell.highlight::after, .classic-page .cell.win::after { content: ''; position: absolute; inset: 5px; border: 3px double var(--fulab-ink-teal); border-radius: 8px; pointer-events: none; }
+.classic-page .cell.highlight, .classic-page .cell.win { background: var(--fulab-tint-emerald); border-color: var(--fulab-ink-teal); }
+.classic-page .cell:focus-visible { z-index: 3; }

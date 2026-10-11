@@ -30,7 +30,8 @@ function consistent(g) {
 
 test('shipped scripts parse, local-only dependencies and endless UI', () => {
   assert.equal(scripts.length, 2); for (const [, , source] of scripts) new vm.Script(source);
-  assert.doesNotMatch(html, /<script[^>]+src=|https?:\/\/|fetch\(|WebSocket|ROUND_TICKS|35%|2 分鐘/);
+  // The DOM namespace is an identifier, not a remote resource.
+  assert.doesNotMatch(html.replaceAll("document.createElementNS('http://www.w3.org/2000/svg',", "document.createElementNS('SVG_NAMESPACE',"), /<script[^>]+src=|https?:\/\/|fetch\(|WebSocket|ROUND_TICKS|35%|2 分鐘/);
   assert.match(html, /id="helpers"/); assert.match(html, /持續陣營戰/);
 });
 
@@ -252,5 +253,11 @@ test('catalog links are valid and the removed game remains absent', () => {
   const root = path.join(__dirname, '..'), index = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
   assert.match(index, /href="territory_loop.html"/); assert.doesNotMatch(index, /西瓜棋|watermelon_chess/);
   assert.equal(fs.existsSync(path.join(root, 'watermelon_chess.html')), false);
-  for (const [, href] of index.matchAll(/href="([^"]+)"/g)) assert.ok(fs.existsSync(path.join(root, href)), href);
+  for (const [, href] of index.matchAll(/href="([^"]+)"/g)) {
+    const [file, fragment] = href.split('#');
+    if (!file) continue;
+    const target = path.join(root, file);
+    assert.ok(fs.existsSync(target), href);
+    if (fragment && file.endsWith('.svg')) assert.ok(fs.readFileSync(target, 'utf8').includes('id="' + fragment + '"'), href);
+  }
 });

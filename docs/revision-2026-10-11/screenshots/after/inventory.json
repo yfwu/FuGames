@@ -1,0 +1,422 @@
+[
+  {
+    "page": "index",
+    "viewport": "desktop",
+    "width": 1366,
+    "height": 1000,
+    "overflow": false,
+    "errors": [],
+    "console_errors": [],
+    "failed_requests": [],
+    "font": "\"Iosevka YFWU\", ui-monospace, Menlo, Consolas, \"Noto Sans TC\", monospace",
+    "screenshots": [
+      "index-desktop-ready.png",
+      "index-desktop.png"
+    ]
+  },
+  {
+    "page": "cyclic_tictactoe",
+    "viewport": "desktop",
+    "width": 1366,
+    "height": 1000,
+    "overflow": false,
+    "errors": [],
+    "console_errors": [],
+    "failed_requests": [],
+    "font": "\"Iosevka YFWU\", ui-monospace, Menlo, Consolas, \"Noto Sans TC\", monospace",
+    "screenshots": [
+      "cyclic_tictactoe-desktop-ready.png",
+      "cyclic_tictactoe-desktop.png"
+    ]
+  },
+  {
+    "page": "cyclic_connect4_torus",
+    "viewport": "desktop",
+    "width": 1366,
+    "height": 1000,
+    "overflow": false,
+    "errors": [],
+    "console_errors": [],
+    "failed_requests": [],
+    "font": "\"Iosevka YFWU\", ui-monospace, Menlo, Consolas, \"Noto Sans TC\", monospace",
+    "screenshots": [
+      "cyclic_connect4_torus-desktop-ready.png",
+      "cyclic_connect4_torus-desktop.png"
+    ]
+  },
+  {
+    "page": "trackgame",
+    "viewport": "desktop",
+    "width": 1366,
+    "height": 1000,
+    "overflow": false,
+    "errors": [],
+    "console_errors": [],
+    "failed_requests": [],
+    "font": "\"Iosevka YFWU\", ui-monospace, Menlo, Consolas, \"Noto Sans TC\", monospace",
+    "screenshots": [
+      "trackgame-desktop-ready.png",
+      "trackgame-desktop.png"
+    ]
+  },
+  {
+    "page": "card_hex",
+    "viewport": "desktop",
+    "width": 1366,
+    "height": 1000,
+    "overflow": false,
+    "errors": [],
+    "console_errors": [],
+    "failed_requests": [],
+    "font": "\"Iosevka YFWU\", ui-monospace, Menlo, Consolas, \"Noto Sans TC\", monospace",
+    "screenshots": [
+      "card_hex-desktop-ready.png",
+      "card_hex-desktop.png"
+    ]
+  },
+  {
+    "page": "gravity_brawl",
+    "viewport": "desktop",
+    "width": 1366,
+    "height": 1000,
+    "overflow": false,
+    "errors": [],
+    "console_errors": [],
+    "failed_requests": [],
+    "font": "\"Iosevka YFWU\", ui-monospace, Menlo, Consolas, \"Noto Sans TC\", monospace",
+    "screenshots": [
+      "gravity_brawl-desktop-ready.png",
+      "gravity_brawl-desktop.png"
+    ]
+  },
+  {
+    "page": "flip_five",
+    "viewport": "desktop",
+    "width": 1366,
+    "height": 1000,
+    "overflow": false,
+    "errors": [],
+    "console_errors": [],
+    "failed_requests": [],
+    "font": "\"Iosevka YFWU\", ui-monospace, Menlo, Consolas, \"Noto Sans TC\", monospace",
+    "screenshots": [
+      "flip_five-desktop-ready.png",
+      "flip_five-desktop.png"
+    ]
+  },
+  {
+    "page": "effect_snake",
+    "viewport": "desktop",
+    "width": 1366,
+    "height": 1000,
+    "overflow": false,
+    "errors": [],
+    "console_errors": [],
+    "failed_requests": [],
+    "font": "\"Iosevka YFWU\", ui-monospace, Menlo, Consolas, \"Noto Sans TC\", monospace",
+    "screenshots": [
+      "effect_snake-desktop-ready.png",
+      "effect_snake-desktop.png"
+    ]
+  },
+  {
+    "page": "duplicate_bridge",
+    "viewport": "desktop",
+    "width": 1366,
+    "height": 1000,
+    "overflow": false,
+    "errors": [],
+    "console_errors": [],
+    "failed_requests": [],
+    "font": "\"Iosevka YFWU\", ui-monospace, Menlo, Consolas, \"Noto Sans TC\", monospace",
+    "screenshots": [
+      "duplicate_bridge-desktop-ready.png",
+      "duplicate_bridge-desktop.png"
+    ]
+  },
+  {
+    "page": "blackjack",
+    "viewport": "desktop",
+    "width": 1366,
+    "height": 1000,
+    "overflow": false,
+    "errors": [],
+    "console_errors": [],
+    "failed_requests": [],
+    "font": "\"Iosevka YFWU\", ui-monospace, Menlo, Consolas, \"Noto Sans TC\", monospace",
+    "screenshots": [
+      "blackjack-desktop-ready.png",
+      "blackjack-desktop.png"
+    ]
+  },
+  {
+    "page": "tank_arena",
+    "viewport": "desktop",
+    "width": 1366,
+    "height": 1000,
+    "overflow": false,
+    "errors": [],
+    "console_errors": [],
+    "failed_requests": [],
+    "font": "\"Iosevka YFWU\", ui-monospace, Menlo, Consolas, \"Noto Sans TC\", monospace",
+    "screenshots": [
+      "tank_arena-desktop-ready.png",
+      "tank_arena-desktop.png"
+    ]
+  },
+  {
+    "page": "pulse_arena",
+    "viewport": "desktop",
+    "width": 1366,
+    "height": 1000,
+    "overflow": false,
+    "errors": [],
+    "console_errors": [],
+    "failed_requests": [],
+    "font": "\"Iosevka YFWU\", ui-monospace, Menlo, Consolas, \"Noto Sans TC\", monospace",
+    "screenshots": [
+      "pulse_arena-desktop-ready.png",
+      "pulse_arena-desktop.png"
+    ]
+  },
+  {
+    "page": "territory_loop",
+    "viewport": "desktop",
+    "width": 1366,
+    "height": 1000,
+    "overflow": false,
+    "errors": [],
+    "console_errors": [],
+    "failed_requests": [],
+    "font": "\"Iosevka YFWU\", ui-monospace, Menlo, Consolas, \"Noto Sans TC\", monospace",
+    "screenshots": [
+      "territory_loop-desktop-ready.png",
+      "territory_loop-desktop.png"
+    ]
+  },
+  {
+    "page": "star_feast",
+    "viewport": "desktop",
+    "width": 1366,
+    "height": 1000,
+    "overflow": false,
+    "errors": [],
+    "console_errors": [],
+    "failed_requests": [],
+    "font": "\"Iosevka YFWU\", ui-monospace, Menlo, Consolas, \"Noto Sans TC\", monospace",
+    "screenshots": [
+      "star_feast-desktop-ready.png",
+      "star_feast-desktop.png"
+    ]
+  },
+  {
+    "page": "index",
+    "viewport": "mobile",
+    "width": 390,
+    "height": 844,
+    "overflow": false,
+    "errors": [],
+    "console_errors": [],
+    "failed_requests": [],
+    "font": "\"Iosevka YFWU\", ui-monospace, Menlo, Consolas, \"Noto Sans TC\", monospace",
+    "screenshots": [
+      "index-mobile-ready.png",
+      "index-mobile.png"
+    ]
+  },
+  {
+    "page": "cyclic_tictactoe",
+    "viewport": "mobile",
+    "width": 390,
+    "height": 844,
+    "overflow": false,
+    "errors": [],
+    "console_errors": [],
+    "failed_requests": [],
+    "font": "\"Iosevka YFWU\", ui-monospace, Menlo, Consolas, \"Noto Sans TC\", monospace",
+    "screenshots": [
+      "cyclic_tictactoe-mobile-ready.png",
+      "cyclic_tictactoe-mobile.png"
+    ]
+  },
+  {
+    "page": "cyclic_connect4_torus",
+    "viewport": "mobile",
+    "width": 390,
+    "height": 844,
+    "overflow": false,
+    "errors": [],
+    "console_errors": [],
+    "failed_requests": [],
+    "font": "\"Iosevka YFWU\", ui-monospace, Menlo, Consolas, \"Noto Sans TC\", monospace",
+    "screenshots": [
+      "cyclic_connect4_torus-mobile-ready.png",
+      "cyclic_connect4_torus-mobile.png"
+    ]
+  },
+  {
+    "page": "trackgame",
+    "viewport": "mobile",
+    "width": 390,
+    "height": 844,
+    "overflow": false,
+    "errors": [],
+    "console_errors": [],
+    "failed_requests": [],
+    "font": "\"Iosevka YFWU\", ui-monospace, Menlo, Consolas, \"Noto Sans TC\", monospace",
+    "screenshots": [
+      "trackgame-mobile-ready.png",
+      "trackgame-mobile.png"
+    ]
+  },
+  {
+    "page": "card_hex",
+    "viewport": "mobile",
+    "width": 390,
+    "height": 844,
+    "overflow": false,
+    "errors": [],
+    "console_errors": [],
+    "failed_requests": [],
+    "font": "\"Iosevka YFWU\", ui-monospace, Menlo, Consolas, \"Noto Sans TC\", monospace",
+    "screenshots": [
+      "card_hex-mobile-ready.png",
+      "card_hex-mobile.png"
+    ]
+  },
+  {
+    "page": "gravity_brawl",
+    "viewport": "mobile",
+    "width": 390,
+    "height": 844,
+    "overflow": false,
+    "errors": [],
+    "console_errors": [],
+    "failed_requests": [],
+    "font": "\"Iosevka YFWU\", ui-monospace, Menlo, Consolas, \"Noto Sans TC\", monospace",
+    "screenshots": [
+      "gravity_brawl-mobile-ready.png",
+      "gravity_brawl-mobile.png"
+    ]
+  },
+  {
+    "page": "flip_five",
+    "viewport": "mobile",
+    "width": 390,
+    "height": 844,
+    "overflow": false,
+    "errors": [],
+    "console_errors": [],
+    "failed_requests": [],
+    "font": "\"Iosevka YFWU\", ui-monospace, Menlo, Consolas, \"Noto Sans TC\", monospace",
+    "screenshots": [
+      "flip_five-mobile-ready.png",
+      "flip_five-mobile.png"
+    ]
+  },
+  {
+    "page": "effect_snake",
+    "viewport": "mobile",
+    "width": 390,
+    "height": 844,
+    "overflow": false,
+    "errors": [],
+    "console_errors": [],
+    "failed_requests": [],
+    "font": "\"Iosevka YFWU\", ui-monospace, Menlo, Consolas, \"Noto Sans TC\", monospace",
+    "screenshots": [
+      "effect_snake-mobile-ready.png",
+      "effect_snake-mobile.png"
+    ]
+  },
+  {
+    "page": "duplicate_bridge",
+    "viewport": "mobile",
+    "width": 390,
+    "height": 844,
+    "overflow": false,
+    "errors": [],
+    "console_errors": [],
+    "failed_requests": [],
+    "font": "\"Iosevka YFWU\", ui-monospace, Menlo, Consolas, \"Noto Sans TC\", monospace",
+    "screenshots": [
+      "duplicate_bridge-mobile-ready.png",
+      "duplicate_bridge-mobile.png"
+    ]
+  },
+  {
+    "page": "blackjack",
+    "viewport": "mobile",
+    "width": 390,
+    "height": 844,
+    "overflow": false,
+    "errors": [],
+    "console_errors": [],
+    "failed_requests": [],
+    "font": "\"Iosevka YFWU\", ui-monospace, Menlo, Consolas, \"Noto Sans TC\", monospace",
+    "screenshots": [
+      "blackjack-mobile-ready.png",
+      "blackjack-mobile.png"
+    ]
+  },
+  {
+    "page": "tank_arena",
+    "viewport": "mobile",
+    "width": 390,
+    "height": 844,
+    "overflow": false,
+    "errors": [],
+    "console_errors": [],
+    "failed_requests": [],
+    "font": "\"Iosevka YFWU\", ui-monospace, Menlo, Consolas, \"Noto Sans TC\", monospace",
+    "screenshots": [
+      "tank_arena-mobile-ready.png",
+      "tank_arena-mobile.png"
+    ]
+  },
+  {
+    "page": "pulse_arena",
+    "viewport": "mobile",
+    "width": 390,
+    "height": 844,
+    "overflow": false,
+    "errors": [],
+    "console_errors": [],
+    "failed_requests": [],
+    "font": "\"Iosevka YFWU\", ui-monospace, Menlo, Consolas, \"Noto Sans TC\", monospace",
+    "screenshots": [
+      "pulse_arena-mobile-ready.png",
+      "pulse_arena-mobile.png"
+    ]
+  },
+  {
+    "page": "territory_loop",
+    "viewport": "mobile",
+    "width": 390,
+    "height": 844,
+    "overflow": false,
+    "errors": [],
+    "console_errors": [],
+    "failed_requests": [],
+    "font": "\"Iosevka YFWU\", ui-monospace, Menlo, Consolas, \"Noto Sans TC\", monospace",
+    "screenshots": [
+      "territory_loop-mobile-ready.png",
+      "territory_loop-mobile.png"
+    ]
+  },
+  {
+    "page": "star_feast",
+    "viewport": "mobile",
+    "width": 390,
+    "height": 844,
+    "overflow": false,
+    "errors": [],
+    "console_errors": [],
+    "failed_requests": [],
+    "font": "\"Iosevka YFWU\", ui-monospace, Menlo, Consolas, \"Noto Sans TC\", monospace",
+    "screenshots": [
+      "star_feast-mobile-ready.png",
+      "star_feast-mobile.png"
+    ]
+  }
+]

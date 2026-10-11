@@ -1,0 +1,768 @@
+{
+  "homepage": [
+    {
+      "viewport": [
+        1366,
+        1000
+      ],
+      "cards": 13,
+      "uniform_square_icons": true,
+      "overflow": false,
+      "console_errors": []
+    },
+    {
+      "viewport": [
+        390,
+        844
+      ],
+      "cards": 13,
+      "uniform_square_icons": true,
+      "overflow": false,
+      "console_errors": []
+    },
+    {
+      "viewport": [
+        320,
+        740
+      ],
+      "cards": 13,
+      "uniform_square_icons": true,
+      "overflow": false,
+      "console_errors": []
+    },
+    {
+      "viewport": [
+        844,
+        390
+      ],
+      "cards": 13,
+      "uniform_square_icons": true,
+      "overflow": false,
+      "console_errors": []
+    }
+  ],
+  "icons": [
+    {
+      "id": "card_hex",
+      "geometry_bbox": {
+        "x": 9.277567863464355,
+        "y": 7,
+        "width": 29.444862365722656,
+        "height": 34
+      },
+      "painted_bbox_at_96px": [
+        17,
+        12,
+        80,
+        83
+      ],
+      "ink_centroid_in_48px": [
+        24.497607056962536,
+        23.999800924356634
+      ]
+    },
+    {
+      "id": "gravity_brawl",
+      "geometry_bbox": {
+        "x": 9,
+        "y": 8,
+        "width": 30,
+        "height": 30.880516052246094
+      },
+      "painted_bbox_at_96px": [
+        16,
+        14,
+        79,
+        79
+      ],
+      "ink_centroid_in_48px": [
+        23.826019823643083,
+        22.153678457293314
+      ]
+    },
+    {
+      "id": "flip_five",
+      "geometry_bbox": {
+        "x": 7,
+        "y": 7,
+        "width": 34,
+        "height": 34
+      },
+      "painted_bbox_at_96px": [
+        12,
+        12,
+        83,
+        83
+      ],
+      "ink_centroid_in_48px": [
+        23.99629062704786,
+        23.99859889868057
+      ]
+    },
+    {
+      "id": "effect_snake",
+      "geometry_bbox": {
+        "x": 9,
+        "y": 7,
+        "width": 31,
+        "height": 31
+      },
+      "painted_bbox_at_96px": [
+        16,
+        12,
+        82,
+        77
+      ],
+      "ink_centroid_in_48px": [
+        25.032187879951366,
+        23.899089280208496
+      ]
+    },
+    {
+      "id": "duplicate_bridge",
+      "geometry_bbox": {
+        "x": 7,
+        "y": 7,
+        "width": 34,
+        "height": 34
+      },
+      "painted_bbox_at_96px": [
+        12,
+        12,
+        83,
+        83
+      ],
+      "ink_centroid_in_48px": [
+        23.997275452821945,
+        23.998679311077357
+      ]
+    },
+    {
+      "id": "blackjack",
+      "geometry_bbox": {
+        "x": 7.983333587646484,
+        "y": 8,
+        "width": 32.016666412353516,
+        "height": 32
+      },
+      "painted_bbox_at_96px": [
+        14,
+        14,
+        81,
+        81
+      ],
+      "ink_centroid_in_48px": [
+        24.962748168313148,
+        24.324820021480452
+      ]
+    },
+    {
+      "id": "tank_arena",
+      "geometry_bbox": {
+        "x": 8,
+        "y": 7,
+        "width": 32,
+        "height": 31
+      },
+      "painted_bbox_at_96px": [
+        15,
+        12,
+        82,
+        77
+      ],
+      "ink_centroid_in_48px": [
+        24.497419270987482,
+        25.13413935807985
+      ]
+    },
+    {
+      "id": "pulse_arena",
+      "geometry_bbox": {
+        "x": 7,
+        "y": 7,
+        "width": 34,
+        "height": 34
+      },
+      "painted_bbox_at_96px": [
+        12,
+        12,
+        83,
+        83
+      ],
+      "ink_centroid_in_48px": [
+        23.978635110884095,
+        23.99117256619039
+      ]
+    },
+    {
+      "id": "star_feast",
+      "geometry_bbox": {
+        "x": 8,
+        "y": 8,
+        "width": 32,
+        "height": 32
+      },
+      "painted_bbox_at_96px": [
+        14,
+        14,
+        81,
+        81
+      ],
+      "ink_centroid_in_48px": [
+        24.728734633932795,
+        24.343808030954552
+      ]
+    },
+    {
+      "id": "territory_loop",
+      "geometry_bbox": {
+        "x": 8,
+        "y": 8,
+        "width": 32,
+        "height": 32
+      },
+      "painted_bbox_at_96px": [
+        15,
+        14,
+        82,
+        81
+      ],
+      "ink_centroid_in_48px": [
+        22.201163302035066,
+        26.223087697582187
+      ]
+    },
+    {
+      "id": "cyclic_tictactoe",
+      "geometry_bbox": {
+        "x": 8,
+        "y": 8,
+        "width": 32,
+        "height": 32
+      },
+      "painted_bbox_at_96px": [
+        14,
+        14,
+        81,
+        81
+      ],
+      "ink_centroid_in_48px": [
+        23.995493590590723,
+        24.001579225584777
+      ]
+    },
+    {
+      "id": "cyclic_connect4_torus",
+      "geometry_bbox": {
+        "x": 7,
+        "y": 8.25,
+        "width": 34,
+        "height": 31.5
+      },
+      "painted_bbox_at_96px": [
+        12,
+        14,
+        83,
+        81
+      ],
+      "ink_centroid_in_48px": [
+        23.988644970213535,
+        23.97516899720787
+      ]
+    },
+    {
+      "id": "trackgame",
+      "geometry_bbox": {
+        "x": 7,
+        "y": 10,
+        "width": 34,
+        "height": 28
+      },
+      "painted_bbox_at_96px": [
+        13,
+        18,
+        84,
+        77
+      ],
+      "ink_centroid_in_48px": [
+        24.49704419202388,
+        23.994472542354146
+      ]
+    },
+    {
+      "id": "arrow-up",
+      "geometry_bbox": {
+        "x": 12,
+        "y": 9,
+        "width": 24,
+        "height": 30
+      },
+      "painted_bbox_at_96px": [
+        21,
+        16,
+        73,
+        79
+      ],
+      "ink_centroid_in_48px": [
+        24.040343209596248,
+        19.77120558519696
+      ]
+    },
+    {
+      "id": "arrow-down",
+      "geometry_bbox": {
+        "x": 12,
+        "y": 9,
+        "width": 24,
+        "height": 30
+      },
+      "painted_bbox_at_96px": [
+        21,
+        16,
+        73,
+        79
+      ],
+      "ink_centroid_in_48px": [
+        23.996501520748165,
+        28.234792518374128
+      ]
+    },
+    {
+      "id": "arrow-left",
+      "geometry_bbox": {
+        "x": 9,
+        "y": 12,
+        "width": 30,
+        "height": 24
+      },
+      "painted_bbox_at_96px": [
+        16,
+        22,
+        80,
+        73
+      ],
+      "ink_centroid_in_48px": [
+        20.24157053121131,
+        23.97876211759732
+      ]
+    },
+    {
+      "id": "arrow-right",
+      "geometry_bbox": {
+        "x": 9,
+        "y": 12,
+        "width": 30,
+        "height": 24
+      },
+      "painted_bbox_at_96px": [
+        16,
+        22,
+        79,
+        73
+      ],
+      "ink_centroid_in_48px": [
+        28.242335088849316,
+        23.99991096123972
+      ]
+    },
+    {
+      "id": "launch",
+      "geometry_bbox": {
+        "x": 9,
+        "y": 9,
+        "width": 30,
+        "height": 30
+      },
+      "painted_bbox_at_96px": [
+        16,
+        16,
+        79,
+        79
+      ],
+      "ink_centroid_in_48px": [
+        24.663880636028612,
+        23.634126160155805
+      ]
+    },
+    {
+      "id": "play",
+      "geometry_bbox": {
+        "x": 16,
+        "y": 10,
+        "width": 24,
+        "height": 28
+      },
+      "painted_bbox_at_96px": [
+        31,
+        18,
+        82,
+        77
+      ],
+      "ink_centroid_in_48px": [
+        24.497094638529294,
+        24.002929006325
+      ]
+    },
+    {
+      "id": "pause",
+      "geometry_bbox": {
+        "x": 14,
+        "y": 10,
+        "width": 20,
+        "height": 28
+      },
+      "painted_bbox_at_96px": [
+        26,
+        18,
+        69,
+        77
+      ],
+      "ink_centroid_in_48px": [
+        23.99622470581504,
+        23.997853451070892
+      ]
+    },
+    {
+      "id": "restart",
+      "geometry_bbox": {
+        "x": 10,
+        "y": 8.858865737915039,
+        "width": 29.52249526977539,
+        "height": 30.504140853881836
+      },
+      "painted_bbox_at_96px": [
+        18,
+        15,
+        81,
+        80
+      ],
+      "ink_centroid_in_48px": [
+        24.24764520810808,
+        22.954540584241645
+      ]
+    },
+    {
+      "id": "rotate",
+      "geometry_bbox": {
+        "x": 10,
+        "y": 8,
+        "width": 28,
+        "height": 32
+      },
+      "painted_bbox_at_96px": [
+        19,
+        14,
+        78,
+        81
+      ],
+      "ink_centroid_in_48px": [
+        24.531451875853357,
+        23.964770434676286
+      ]
+    },
+    {
+      "id": "undo",
+      "geometry_bbox": {
+        "x": 9,
+        "y": 11,
+        "width": 29.75,
+        "height": 26
+      },
+      "painted_bbox_at_96px": [
+        15,
+        20,
+        79,
+        75
+      ],
+      "ink_centroid_in_48px": [
+        23.699590664711632,
+        24.25028409090909
+      ]
+    },
+    {
+      "id": "hint",
+      "geometry_bbox": {
+        "x": 12,
+        "y": 8,
+        "width": 24,
+        "height": 32
+      },
+      "painted_bbox_at_96px": [
+        22,
+        14,
+        73,
+        81
+      ],
+      "ink_centroid_in_48px": [
+        23.999413487545016,
+        23.783183405308748
+      ]
+    },
+    {
+      "id": "shield",
+      "geometry_bbox": {
+        "x": 10,
+        "y": 8,
+        "width": 28,
+        "height": 33
+      },
+      "painted_bbox_at_96px": [
+        19,
+        14,
+        78,
+        83
+      ],
+      "ink_centroid_in_48px": [
+        24.49779808951577,
+        23.052371996301208
+      ]
+    },
+    {
+      "id": "turret",
+      "geometry_bbox": {
+        "x": 10,
+        "y": 9,
+        "width": 30,
+        "height": 27
+      },
+      "painted_bbox_at_96px": [
+        18,
+        16,
+        81,
+        73
+      ],
+      "ink_centroid_in_48px": [
+        26.104527031251724,
+        25.50303892397265
+      ]
+    },
+    {
+      "id": "trap",
+      "geometry_bbox": {
+        "x": 8,
+        "y": 11,
+        "width": 32,
+        "height": 27
+      },
+      "painted_bbox_at_96px": [
+        14,
+        20,
+        81,
+        77
+      ],
+      "ink_centroid_in_48px": [
+        23.999659821360915,
+        23.048190875634646
+      ]
+    },
+    {
+      "id": "double",
+      "geometry_bbox": {
+        "x": 7.205770969390869,
+        "y": 8,
+        "width": 33.58845520019531,
+        "height": 28
+      },
+      "painted_bbox_at_96px": [
+        13,
+        14,
+        84,
+        73
+      ],
+      "ink_centroid_in_48px": [
+        24.49917216532405,
+        25.28126340930251
+      ]
+    },
+    {
+      "id": "remove",
+      "geometry_bbox": {
+        "x": 9.277567863464355,
+        "y": 7,
+        "width": 29.444862365722656,
+        "height": 34
+      },
+      "painted_bbox_at_96px": [
+        16,
+        12,
+        79,
+        83
+      ],
+      "ink_centroid_in_48px": [
+        23.970891148300357,
+        24.001198802660568
+      ]
+    },
+    {
+      "id": "bridge",
+      "geometry_bbox": {
+        "x": 7,
+        "y": 11.75,
+        "width": 34,
+        "height": 26.25
+      },
+      "painted_bbox_at_96px": [
+        12,
+        21,
+        83,
+        77
+      ],
+      "ink_centroid_in_48px": [
+        23.996886219317684,
+        25.009970071863368
+      ]
+    },
+    {
+      "id": "suit-club",
+      "geometry_bbox": {
+        "x": 8.407706260681152,
+        "y": 7,
+        "width": 31.184585571289062,
+        "height": 33
+      },
+      "painted_bbox_at_96px": [
+        15,
+        12,
+        82,
+        81
+      ],
+      "ink_centroid_in_48px": [
+        24.495872108176066,
+        24.255540092850563
+      ]
+    },
+    {
+      "id": "suit-diamond",
+      "geometry_bbox": {
+        "x": 10,
+        "y": 7,
+        "width": 28,
+        "height": 34
+      },
+      "painted_bbox_at_96px": [
+        18,
+        12,
+        77,
+        83
+      ],
+      "ink_centroid_in_48px": [
+        23.992423901880716,
+        24.00418051238075
+      ]
+    },
+    {
+      "id": "suit-heart",
+      "geometry_bbox": {
+        "x": 8,
+        "y": 9.359999656677246,
+        "width": 32,
+        "height": 30.639999389648438
+      },
+      "painted_bbox_at_96px": [
+        14,
+        16,
+        81,
+        81
+      ],
+      "ink_centroid_in_48px": [
+        23.995678141447748,
+        21.911718895502357
+      ]
+    },
+    {
+      "id": "suit-spade",
+      "geometry_bbox": {
+        "x": 8,
+        "y": 7,
+        "width": 32,
+        "height": 33
+      },
+      "painted_bbox_at_96px": [
+        15,
+        12,
+        82,
+        81
+      ],
+      "ink_centroid_in_48px": [
+        24.495675236354927,
+        25.23276553429804
+      ]
+    },
+    {
+      "id": "fruit",
+      "geometry_bbox": {
+        "x": 8.915055274963379,
+        "y": 7.477457523345947,
+        "width": 30.169891357421875,
+        "height": 31.775468826293945
+      },
+      "painted_bbox_at_96px": [
+        15,
+        13,
+        80,
+        80
+      ],
+      "ink_centroid_in_48px": [
+        25.05554526215239,
+        22.7192041964146
+      ]
+    },
+    {
+      "id": "star",
+      "geometry_bbox": {
+        "x": 7,
+        "y": 7,
+        "width": 34,
+        "height": 33
+      },
+      "painted_bbox_at_96px": [
+        12,
+        12,
+        83,
+        81
+      ],
+      "ink_centroid_in_48px": [
+        24.00030357230764,
+        25.430617318389917
+      ]
+    },
+    {
+      "id": "poison",
+      "geometry_bbox": {
+        "x": 12,
+        "y": 8,
+        "width": 24,
+        "height": 32
+      },
+      "painted_bbox_at_96px": [
+        23,
+        14,
+        74,
+        81
+      ],
+      "ink_centroid_in_48px": [
+        24.49639678944502,
+        25.884510062379324
+      ]
+    },
+    {
+      "id": "slow",
+      "geometry_bbox": {
+        "x": 12,
+        "y": 8,
+        "width": 24,
+        "height": 32
+      },
+      "painted_bbox_at_96px": [
+        22,
+        14,
+        73,
+        81
+      ],
+      "ink_centroid_in_48px": [
+        24.00425546920874,
+        25.456585029014935
+      ]
+    }
+  ]
+}
