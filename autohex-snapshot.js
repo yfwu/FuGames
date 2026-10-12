@@ -186,22 +186,35 @@
     for (let i = 0; i < geo.points.length; i++) {
       const p = P(i), t = view.terrain[i], river = t === 'river' || t === 1, hill = t === 'hill' || t === 2, owner = view.board[i];
       hex(p); ctx.fillStyle = river ? '#ebf3f7' : hill ? '#f6f2e8' : '#fbfcfd'; ctx.fill();
-      if (owner) { ctx.save(); ctx.globalAlpha = gained.has(i) ? .35 + .4 * fade(gained.get(i).ply) : .22; ctx.fillStyle = geo.tints[owner] || '#eef1f4'; ctx.fill(); ctx.restore(); }
+      if (owner) { ctx.save(); ctx.globalAlpha = gained.has(i) ? .35 + .4 * fade(gained.get(i).ply) : .3; ctx.fillStyle = geo.tints[owner] || '#eef1f4'; ctx.fill(); ctx.restore(); }
       ctx.strokeStyle = '#e6ecef'; ctx.lineWidth = .6; ctx.stroke();
     }
-    ctx.save(); ctx.globalAlpha = .22; ctx.lineWidth = 1;
+    // Three kinds of route, drawn three ways:
+    //   surviving (current supply) - solid, full faction colour;
+    //   destroyed (stones lost in the window) - dashed, fading with age;
+    //   planned (AI public corridors) - very faint dotted, drawn further below.
+    const ghostAt = new Map(s.ghosts.map(g => [g.cell, g])), neighbours = adjacency(geo);
+    ctx.save(); ctx.lineCap = 'round';
+    for (const g of s.ghosts) for (const j of neighbours[g.cell] || []) {
+      const other = ghostAt.get(j), alive = view.board[j] === g.owner;
+      if (!(other && other.owner === g.owner && j > g.cell) && !alive) continue;
+      const a = P(g.cell), b = P(j); ctx.globalAlpha = fade(Math.max(g.ply, other ? other.ply : g.ply)) * .6;
+      ctx.strokeStyle = color(g.owner); ctx.lineWidth = 2; ctx.setLineDash([5, 4]); ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+    }
+    ctx.restore();
+    ctx.save(); ctx.globalAlpha = .9; ctx.lineWidth = 2.2; ctx.lineCap = 'round';
     for (const link of data.supply || []) { const a = P(link.a), b = P(link.b); ctx.strokeStyle = color(link.owner); ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke(); }
     ctx.restore();
-    for (const b of view.bridges || []) { const a = P(b.a), z = P(b.b); ctx.save(); ctx.strokeStyle = color(b.owner); ctx.globalAlpha = .5; ctx.lineWidth = 2.4; ctx.setLineDash([5, 3]); ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(z.x, z.y); ctx.stroke(); ctx.restore(); }
-    // Lost ground: a hollow dashed ghost of the stone that used to stand there.
-    for (const g of s.ghosts) { const p = P(g.cell); ctx.save(); ctx.globalAlpha = fade(g.ply) * .75; ownerShape(ctx, g.owner, p.x, p.y, M.unit * .34); ctx.strokeStyle = color(g.owner); ctx.lineWidth = 1.2; ctx.setLineDash([2.5, 2]); ctx.stroke(); ctx.restore(); }
-    // Stones: old holdings muted, stones placed inside the window drawn by age with a faction rim.
+    for (const b of view.bridges || []) { const a = P(b.a), z = P(b.b); ctx.save(); ctx.strokeStyle = color(b.owner); ctx.lineWidth = 3; ctx.setLineDash([6, 3]); ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(z.x, z.y); ctx.stroke(); ctx.restore(); }
+    // Lost stones: a hollow dashed ghost where the stone used to stand.
+    for (const g of s.ghosts) { const p = P(g.cell); ctx.save(); ctx.globalAlpha = fade(g.ply) * .8; ctx.fillStyle = '#fff'; ownerShape(ctx, g.owner, p.x, p.y, M.unit * .34); ctx.fill(); ctx.strokeStyle = color(g.owner); ctx.lineWidth = 1.3; ctx.setLineDash([2.5, 2]); ctx.stroke(); ctx.restore(); }
+    // Surviving stones keep their full colour; stones placed in the window get a rim that fades with age.
     for (let i = 0; i < geo.points.length; i++) {
       const owner = view.board[i]; if (!owner || view.anchors[i]) continue;
       const p = P(i), g = gained.get(i), broken = view.supplied && !view.supplied[i];
-      ctx.save(); ctx.globalAlpha = g ? fade(g.ply) : .38; ownerShape(ctx, owner, p.x, p.y, M.unit * (g ? .38 : .3));
-      if (broken) { ctx.strokeStyle = color(owner); ctx.lineWidth = 1.3; ctx.stroke(); } else { ctx.fillStyle = color(owner); ctx.fill(); }
-      if (g) { hex(p, hexR * .9); ctx.globalAlpha = fade(g.ply) * .55; ctx.strokeStyle = color(owner); ctx.lineWidth = 1.2; ctx.stroke(); }
+      ctx.save(); ownerShape(ctx, owner, p.x, p.y, M.unit * .36);
+      if (broken) { ctx.fillStyle = '#fff'; ctx.fill(); ctx.strokeStyle = color(owner); ctx.lineWidth = 1.5; ctx.stroke(); } else { ctx.fillStyle = color(owner); ctx.fill(); }
+      if (g) { hex(p, hexR * .9); ctx.globalAlpha = fade(g.ply) * .7; ctx.strokeStyle = color(owner); ctx.lineWidth = 1.4; ctx.stroke(); }
       ctx.restore();
     }
     for (const a of view.airports || []) { const p = P(a.cell), r = M.unit * .62, c = a.owner ? color(a.owner) : '#8394a3'; ctx.save(); ctx.globalAlpha = .8; ctx.strokeStyle = c; ctx.lineWidth = 1.3; ctx.fillStyle = '#fff'; ctx.fillRect(p.x - r, p.y - r, r * 2, r * 2); ctx.strokeRect(p.x - r, p.y - r, r * 2, r * 2); plane(ctx, p.x, p.y, r * 1.6, c); ctx.restore(); }
@@ -209,10 +222,10 @@
     for (const t of view.turrets || []) { const p = P(t.cell); ctx.save(); ctx.globalAlpha = .85; turretGlyph(ctx, p.x, p.y, M.unit * 1.05, color(t.owner)); ctx.restore(); }
     for (let pl = 1; pl < view.players.length; pl++) { const h = view.players[pl]?.home; if (cellOk(h)) { const p = P(h); house(ctx, p.x, p.y, M.unit * 1.6, color(pl)); } }
 
-    // Strategy: very, very faint thin dashes and small hollow target diamonds.
+    // Planned routes: very faint dotted corridors and small hollow target diamonds.
     for (const plan of s.plans) {
-      const pts = plan.path.map(P); ctx.save(); ctx.globalAlpha = .08 + .12 * fade(plan.ply); ctx.strokeStyle = color(plan.player);
-      ctx.lineWidth = 1.3; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.setLineDash([3, 6]);
+      const pts = plan.path.map(P); ctx.save(); ctx.globalAlpha = .12 + .16 * fade(plan.ply); ctx.strokeStyle = color(plan.player);
+      ctx.lineWidth = 1.2; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.setLineDash([.5, 5]);
       if (pts.length > 1) { ctx.beginPath(); pts.forEach((p, k) => k ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y)); ctx.stroke(); }
       ctx.setLineDash([]); if (plan.target !== null) { const t = P(plan.target); diamond(ctx, t.x, t.y, M.unit * .62, color(plan.player)); }
       ctx.restore();
@@ -236,6 +249,14 @@
       const p = P(h); ctx.save(); ctx.globalAlpha = fade(m.ply); milestoneIcon(ctx, m, p.x + M.unit * (1.5 + n * 1.1), p.y - M.unit * 1.1, M.unit * 1.1, color(m.player)); ctx.restore();
     }
     return { width: canvas.width, height: canvas.height, layout: L };
+  }
+  function adjacency(geo) {
+    if (geo.adjacency) return geo.adjacency;
+    // Hex centres are sqrt(3) apart; bucket by row so this stays near-linear.
+    const rows = new Map(), out = geo.points.map(() => []);
+    geo.points.forEach((p, i) => { const key = Math.round(p.y / 1.5); if (!rows.has(key)) rows.set(key, []); rows.get(key).push(i); });
+    geo.points.forEach((p, i) => { const key = Math.round(p.y / 1.5); for (const k of [key - 1, key, key + 1]) for (const j of rows.get(k) || []) if (j !== i && Math.hypot(geo.points[j].x - p.x, geo.points[j].y - p.y) < 1.8) out[i].push(j); });
+    return (geo.adjacency = out);
   }
   function arc(ctx, a, b, bend, color, width, dash) {
     // Bow every trajectory upward like an artillery arc, so shots never sit on the hex row.
