@@ -31,9 +31,9 @@
     neutralPeriod: 12, neutralWarningRounds: 2, neutralTargets: 2, bridgeMin: 2, bridgeMax: 3, maxTunnels: 2, tunnelMaxSteps: 3, hillTurns: 3, cardExpiryTurns: 3 });
   const MAX_STONES = RULES.maxStones;
   const PLANNER_LIMITS = Object.freeze({ nodes: 20, depth: 3, beam: 2, actionsPerPlan: 2, plans: 6, privatePath: 64, publicPath: 16, waypoints: 4 });
-  const INTENT_TYPES = ['direct', 'flank', 'airport', 'interdict', 'defend', 'recover'];
+  const INTENT_TYPES = ['direct', 'flank', 'airport', 'interdict', 'defend', 'recover', 'fortify', 'expand'];
   const INTENT_STAGES = ['approach', 'build', 'hold', 'project', 'advance', 'repair'];
-  const INTENT_REASONS = ['short_route', 'less_contested', 'airport_projection', 'cut_supply', 'protect_connection', 'restore_supply', 'continue_plan', 'route_blocked', 'stalled', 'opportunity_changed', 'goal_reached', 'urgent_threat'];
+  const INTENT_REASONS = ['short_route', 'less_contested', 'airport_projection', 'cut_supply', 'protect_connection', 'restore_supply', 'continue_plan', 'route_blocked', 'stalled', 'opportunity_changed', 'goal_reached', 'urgent_threat', 'open_lane', 'raid_supply', 'thin_supply', 'claim_depot'];
   const CARD_META = Object.freeze({
     turret: Object.freeze({ label: 'Turret', cost: 4, slots: 1,
       description: 'Fortify an own stone. Fires at one nonallied enemy within 3 every 3 owner turns; lasts 30 turns. Maximum 3 turrets.' }),
@@ -1006,7 +1006,8 @@
       memory.campaign = { path: path(c.path, PLANNER_LIMITS.privatePath), side: c.side === -1 ? -1 : c.side === 1 ? 1 : 0,
         remaining: bounded(c.remaining, 10000), bestRemaining: bounded(c.bestRemaining, 10000), initialRemaining: bounded(c.initialRemaining, 10000),
         gap: bounded(c.gap, 36), bestGap: bounded(c.bestGap, 36), stalled: Math.floor(bounded(c.stalled, 1000)), age: Math.floor(bounded(c.age, 10000)),
-        committedAtPly: Math.floor(bounded(c.committedAtPly, ply, ply)), lastProgressPly: Math.floor(bounded(c.lastProgressPly, ply, ply)) };
+        committedAtPly: Math.floor(bounded(c.committedAtPly, ply, ply)), lastProgressPly: Math.floor(bounded(c.lastProgressPly, ply, ply)),
+        lane: c.lane === -1 ? -1 : c.lane === 1 ? 1 : 0, laneSince: Math.floor(bounded(c.laneSince, ply, ply)) };
     }
     const publicIntent = { player, type: memory.strategy, stage: memory.stage, target: memory.target,
       path: path(value.publicIntent && value.publicIntent.path, PLANNER_LIMITS.publicPath).filter(i => memory.path.includes(i)), reasonCode: memory.reasonCode,

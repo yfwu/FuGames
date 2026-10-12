@@ -7,12 +7,27 @@
 })(typeof window !== 'undefined' ? window : globalThis, function () {
   'use strict';
   const VERSION = 1, MAX_BYTES = 32768, MAX_PROFILES = 12;
+  // Style is the doctrine layer: which lane of the opposite edge a faction
+  // aims for, how strongly it avoids the crowded centre, and how much it
+  // values severing enemy supply, keeping its own supply redundant, and
+  // claiming depots/territory. Older files without it get mission defaults.
+  const STYLE_LANES = ['center', 'left', 'right', 'flank', 'adaptive'];
+  const STYLE_WEIGHTS = ['centerAversion', 'raid', 'robustness', 'expansion'];
+  const MISSION_STYLE = {
+    connect: { lane: 'center', centerAversion: 0, raid: 0, robustness: 0, expansion: 0 },
+    airhead: { lane: 'adaptive', centerAversion: 4, raid: 2, robustness: 3, expansion: 3 },
+    flank: { lane: 'flank', centerAversion: 8, raid: 1, robustness: 2, expansion: 1 },
+    interdict: { lane: 'adaptive', centerAversion: 3, raid: 9, robustness: 1, expansion: 0 },
+    recover: { lane: 'adaptive', centerAversion: 3, raid: 1, robustness: 8, expansion: 2 },
+    diplomat: { lane: 'adaptive', centerAversion: 5, raid: 1, robustness: 2, expansion: 7 }
+  };
   const make = (id, name, mission, airportMode, transport, projection, diplomacy) => ({
     id, name, mission,
     route: { side: 0, transport, maxDetour: mission === 'flank' ? 12 : 8 },
     airport: { mode: airportMode, maxOwnActions: 18, maxSetupCost: 28, projection },
     commitment: { reviewOwnTurns: 6, stalledOwnTurns: 3, maxOwnTurns: 24 },
-    diplomacy
+    diplomacy,
+    style: { ...MISSION_STYLE[mission] }
   });
   function freeze(value) { if (value && typeof value === 'object') { Object.values(value).forEach(freeze); Object.freeze(value); } return value; }
   const DEFAULT_CONFIG = freeze({ version: VERSION, profiles: [
@@ -49,7 +64,8 @@
     const ids = new Set();
     const profiles = input.profiles.map((profile, i) => {
       const p = '$.profiles[' + i + ']';
-      object(profile, p, ['id', 'name', 'mission', 'route', 'airport', 'commitment', 'diplomacy']);
+      const hasStyle = !!profile && typeof profile === 'object' && Object.hasOwn(profile, 'style');
+      object(profile, p, ['id', 'name', 'mission', 'route', 'airport', 'commitment', 'diplomacy', ...(hasStyle ? ['style'] : [])]);
       const id = text(profile.id, p + '.id', 32);
       if (!/^[a-z][a-z0-9_-]*$/.test(id) || ['constructor', 'prototype', '__proto__'].includes(id)) fail(p + '.id', '使用小寫字母開頭的英數、底線或連字號');
       if (ids.has(id)) fail(p + '.id', '策略 ID 不可重複'); ids.add(id);
@@ -77,6 +93,11 @@
         },
         diplomacy: option(profile.diplomacy, p + '.diplomacy', ['avoid', 'opportunity'])
       };
+      if (hasStyle) {
+        object(profile.style, p + '.style', ['lane', ...STYLE_WEIGHTS]);
+        result.style = { lane: option(profile.style.lane, p + '.style.lane', STYLE_LANES) };
+        for (const key of STYLE_WEIGHTS) result.style[key] = integer(profile.style[key], p + '.style.' + key, 0, 10);
+      } else result.style = { ...MISSION_STYLE[result.mission] };
       if (result.commitment.reviewOwnTurns > result.commitment.maxOwnTurns) fail(p + '.commitment', '檢討間隔不能超過任務上限');
       return result;
     });
@@ -92,5 +113,5 @@
     if (!profile) fail('strategyIds', '找不到策略 ' + String(profileId));
     return profile;
   }
-  return Object.freeze({ VERSION, MAX_BYTES, MAX_PROFILES, DEFAULT_CONFIG, normalize, id, resolve });
+  return Object.freeze({ VERSION, MAX_BYTES, MAX_PROFILES, DEFAULT_CONFIG, STYLE_LANES, MISSION_STYLE, normalize, id, resolve });
 });

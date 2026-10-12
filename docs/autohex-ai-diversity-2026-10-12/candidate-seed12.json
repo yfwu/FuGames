@@ -1,0 +1,388 @@
+{
+ "summary": {
+  "ref": "working-tree",
+  "seeds": [
+   "12"
+  ],
+  "actions": 1500,
+  "meanCenterShare": 0.096,
+  "meanCenterCombatShare": 0.026,
+  "goalArrivals": 10,
+  "holdingRounds": 65,
+  "enemySupplyCut": 4513,
+  "supplyRetreats": 291,
+  "lateralSpread": 2.162,
+  "aiMsMean": 67.6,
+  "byStrategy": {
+   "vanguard": {
+    "n": 1,
+    "centerShare": 0.314,
+    "meanLateral": 0.68,
+    "centerTargetShare": 0.19,
+    "enemySupplyCut": 484,
+    "combat": 86,
+    "goals": 1,
+    "score": 108,
+    "intents": {
+     "flank": 39,
+     "direct": 172,
+     "recover": 3,
+     "airport": 25,
+     "defend": 11
+    }
+   },
+   "airhead": {
+    "n": 1,
+    "centerShare": 0.106,
+    "meanLateral": 3.99,
+    "centerTargetShare": 0.08,
+    "enemySupplyCut": 312,
+    "combat": 79,
+    "goals": 2,
+    "score": 115,
+    "intents": {
+     "airport": 68,
+     "direct": 157,
+     "expand": 5,
+     "defend": 14,
+     "fortify": 6
+    }
+   },
+   "flanker": {
+    "n": 1,
+    "centerShare": 0.052,
+    "meanLateral": 4.09,
+    "centerTargetShare": 0.118,
+    "enemySupplyCut": 642,
+    "combat": 97,
+    "goals": 0,
+    "score": 108,
+    "intents": {
+     "flank": 157,
+     "interdict": 1,
+     "direct": 66,
+     "defend": 25,
+     "recover": 1
+    }
+   },
+   "interdict": {
+    "n": 1,
+    "centerShare": 0.073,
+    "meanLateral": -0.39,
+    "centerTargetShare": 0.142,
+    "enemySupplyCut": 848,
+    "combat": 106,
+    "goals": 0,
+    "score": 116,
+    "intents": {
+     "flank": 38,
+     "interdict": 85,
+     "direct": 126,
+     "airport": 1
+    }
+   },
+   "recover": {
+    "n": 1,
+    "centerShare": 0.018,
+    "meanLateral": 5.6,
+    "centerTargetShare": 0.045,
+    "enemySupplyCut": 981,
+    "combat": 60,
+    "goals": 4,
+    "score": 201,
+    "intents": {
+     "direct": 110,
+     "flank": 31,
+     "fortify": 81,
+     "airport": 10,
+     "defend": 17,
+     "interdict": 1
+    }
+   },
+   "envoy": {
+    "n": 1,
+    "centerShare": 0.014,
+    "meanLateral": 4.51,
+    "centerTargetShare": 0.005,
+    "enemySupplyCut": 1246,
+    "combat": 66,
+    "goals": 3,
+    "score": 120,
+    "intents": {
+     "direct": 119,
+     "expand": 49,
+     "flank": 56,
+     "defend": 14,
+     "interdict": 2,
+     "airport": 10
+    }
+   }
+  }
+ },
+ "games": [
+  {
+   "seed": "12",
+   "actions": 1500,
+   "aiMsMean": 67.6,
+   "goalArrivals": 10,
+   "holdingRounds": 65,
+   "captures": 487,
+   "destroyed": 79,
+   "supplyRetreats": 291,
+   "bombardments": 1,
+   "airdrops": 2,
+   "alliances": 11,
+   "centerCombatShare": 0.026,
+   "players": [
+    {
+     "seat": 1,
+     "strategy": "vanguard",
+     "samples": 50,
+     "stoneSamples": 1730,
+     "intents": {
+      "flank": 39,
+      "direct": 172,
+      "recover": 3,
+      "airport": 25,
+      "defend": 11
+     },
+     "actionTypes": {
+      "deploy": 215,
+      "engineer": 15,
+      "tunnel": 16,
+      "bridge": 1,
+      "rest": 1,
+      "exchange": 1,
+      "turret": 1
+     },
+     "combat": 86,
+     "centerCombat": 2,
+     "enemySupplyCut": 484,
+     "goals": 1,
+     "score": 108,
+     "targetCenter": 47,
+     "targets": 248,
+     "laneHist": {
+      "0": 523,
+      "1": 813,
+      "2": 13,
+      "-1": 320,
+      "-2": 61
+     },
+     "centerShare": 0.314,
+     "meanLateral": 0.68,
+     "meanAbsLateral": 3.08,
+     "centerTargetShare": 0.19
+    },
+    {
+     "seat": 2,
+     "strategy": "airhead",
+     "samples": 50,
+     "stoneSamples": 2179,
+     "intents": {
+      "airport": 68,
+      "direct": 157,
+      "expand": 5,
+      "defend": 14,
+      "fortify": 6
+     },
+     "actionTypes": {
+      "deploy": 192,
+      "engineer": 19,
+      "offer": 21,
+      "accept": 3,
+      "tunnel": 6,
+      "turret": 1,
+      "airdrop": 2,
+      "exchange": 3,
+      "destroy": 1,
+      "rest": 1,
+      "bridge": 1
+     },
+     "combat": 79,
+     "centerCombat": 2,
+     "enemySupplyCut": 312,
+     "goals": 2,
+     "score": 115,
+     "targetCenter": 18,
+     "targets": 224,
+     "laneHist": {
+      "0": 281,
+      "1": 1119,
+      "2": 578,
+      "3": 37,
+      "-1": 164
+     },
+     "centerShare": 0.106,
+     "meanLateral": 3.99,
+     "meanAbsLateral": 4.51,
+     "centerTargetShare": 0.08
+    },
+    {
+     "seat": 3,
+     "strategy": "flanker",
+     "samples": 50,
+     "stoneSamples": 1529,
+     "intents": {
+      "flank": 157,
+      "interdict": 1,
+      "direct": 66,
+      "defend": 25,
+      "recover": 1
+     },
+     "actionTypes": {
+      "deploy": 210,
+      "tunnel": 7,
+      "engineer": 23,
+      "bridge": 2,
+      "rest": 2,
+      "destroy": 2,
+      "turret": 2,
+      "exchange": 2
+     },
+     "combat": 97,
+     "centerCombat": 2,
+     "enemySupplyCut": 642,
+     "goals": 0,
+     "score": 108,
+     "targetCenter": 29,
+     "targets": 246,
+     "laneHist": {
+      "0": 251,
+      "1": 905,
+      "2": 372,
+      "-1": 1
+     },
+     "centerShare": 0.052,
+     "meanLateral": 4.09,
+     "meanAbsLateral": 4.14,
+     "centerTargetShare": 0.118
+    },
+    {
+     "seat": 4,
+     "strategy": "interdict",
+     "samples": 50,
+     "stoneSamples": 1737,
+     "intents": {
+      "flank": 38,
+      "interdict": 85,
+      "direct": 126,
+      "airport": 1
+     },
+     "actionTypes": {
+      "deploy": 219,
+      "exchange": 5,
+      "bridge": 4,
+      "engineer": 18,
+      "turret": 2,
+      "shield": 2
+     },
+     "combat": 106,
+     "centerCombat": 7,
+     "enemySupplyCut": 848,
+     "goals": 0,
+     "score": 116,
+     "targetCenter": 35,
+     "targets": 246,
+     "laneHist": {
+      "0": 687,
+      "1": 460,
+      "2": 72,
+      "-1": 353,
+      "-2": 165
+     },
+     "centerShare": 0.073,
+     "meanLateral": -0.39,
+     "meanAbsLateral": 3.1,
+     "centerTargetShare": 0.142
+    },
+    {
+     "seat": 5,
+     "strategy": "recover",
+     "samples": 50,
+     "stoneSamples": 2396,
+     "intents": {
+      "direct": 110,
+      "flank": 31,
+      "fortify": 81,
+      "airport": 10,
+      "defend": 17,
+      "interdict": 1
+     },
+     "actionTypes": {
+      "deploy": 170,
+      "engineer": 17,
+      "bridge": 3,
+      "offer": 22,
+      "tunnel": 25,
+      "shield": 3,
+      "turret": 3,
+      "destroy": 3,
+      "bombard": 1,
+      "exchange": 3
+     },
+     "combat": 60,
+     "centerCombat": 0,
+     "enemySupplyCut": 981,
+     "goals": 4,
+     "score": 201,
+     "targetCenter": 10,
+     "targets": 222,
+     "laneHist": {
+      "0": 220,
+      "1": 977,
+      "2": 1116,
+      "3": 83
+     },
+     "centerShare": 0.018,
+     "meanLateral": 5.6,
+     "meanAbsLateral": 5.63,
+     "centerTargetShare": 0.045
+    },
+    {
+     "seat": 6,
+     "strategy": "envoy",
+     "samples": 50,
+     "stoneSamples": 2127,
+     "intents": {
+      "direct": 119,
+      "expand": 49,
+      "flank": 56,
+      "defend": 14,
+      "interdict": 2,
+      "airport": 10
+     },
+     "actionTypes": {
+      "deploy": 186,
+      "tunnel": 7,
+      "offer": 17,
+      "accept": 8,
+      "turret": 2,
+      "engineer": 23,
+      "bridge": 2,
+      "betray": 3,
+      "exchange": 1,
+      "shield": 1
+     },
+     "combat": 66,
+     "centerCombat": 0,
+     "enemySupplyCut": 1246,
+     "goals": 3,
+     "score": 120,
+     "targetCenter": 1,
+     "targets": 219,
+     "laneHist": {
+      "0": 479,
+      "1": 738,
+      "2": 893,
+      "-1": 17
+     },
+     "centerShare": 0.014,
+     "meanLateral": 4.51,
+     "meanAbsLateral": 4.68,
+     "centerTargetShare": 0.005
+    }
+   ]
+  }
+ ]
+}

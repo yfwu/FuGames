@@ -19,9 +19,9 @@
   const TINTS = ['', '#e2f1ef', '#f4e5df', '#eee5f1', '#e3ebf4', '#eaf0df', '#f7edda'];
   const NAMES = ['', '青綠', '珊瑚', '紫藤', '藍灰', '草綠', '琥珀'];
   const LETTER = p => String.fromCharCode(64 + p);
-  const PLAN_TYPES = { direct: '接通對岸', flank: '側翼繞行', airport: '建立航空支點', interdict: '切斷敵方補給', defend: '處理連線威脅', recover: '修復家園補給' };
+  const PLAN_TYPES = { direct: '接通對岸', flank: '側翼繞行', airport: '建立航空支點', interdict: '切斷敵方補給', defend: '處理連線威脅', recover: '修復家園補給', fortify: '加固補給線', expand: '搶占物資站' };
   const PLAN_STAGES = { approach: '接近目標', build: '建立支點', hold: '持續維持', project: '延伸前線', advance: '向前推進', repair: '修補斷線' };
-  const PLAN_REASONS = { short_route: '沿較短路線接通對岸。', less_contested: '先從側翼繞行，再轉向對岸。', airport_projection: '取得能支援前線的機場，再延伸連線。', cut_supply: '爭取敵方補給要點，打斷它的連線。', protect_connection: '保護已接通的路線，繼續取得守線分數。', restore_supply: '補回家園連線，保住失去補給的棋子。', continue_plan: '沿已選定的路線繼續推進。', route_blocked: '原路線受阻，正在調整推進方向。', stalled: '先前進展停滯，重新選擇突破方向。', opportunity_changed: '公開戰況改變，調整下一段目標。', goal_reached: '已完成這段目標，準備下一段推進。', urgent_threat: '優先打斷敵方即將完成或持續得分的連線。' };
+  const PLAN_REASONS = { short_route: '沿較短路線接通對岸。', less_contested: '先從側翼繞行，再轉向對岸。', airport_projection: '取得能支援前線的機場，再延伸連線。', cut_supply: '爭取敵方補給要點，打斷它的連線。', protect_connection: '保護已接通的路線，繼續取得守線分數。', restore_supply: '補回家園連線，保住失去補給的棋子。', continue_plan: '沿已選定的路線繼續推進。', route_blocked: '原路線受阻，正在調整推進方向。', stalled: '先前進展停滯，重新選擇突破方向。', opportunity_changed: '公開戰況改變，調整下一段目標。', goal_reached: '已完成這段目標，準備下一段推進。', urgent_threat: '優先打斷敵方即將完成或持續得分的連線。', open_lane: '避開擁擠的中央，改走較空的航道接通對岸。', raid_supply: '深入襲擊敵方細長的補給線，讓後方棋子斷補撤退。', thin_supply: '補給線只靠單格相連，先加寬或架設保護。', claim_depot: '搶占物資站，累積空中行動所需物資。' };
   const LABELS = { deploy: '鋪子 / 攻占', engineer: '工程', tunnel: '地道', withdraw: '撤回', rest: '休整', turret: '炮台', destroy: '拆除', bridge: '橋梁', reroute: '改接', shield: '護盾', exchange: '換位', discard: '棄牌', offer: '提議停戰', accept: '接受停戰', reject: '拒絕停戰', betray: '背盟', ready: '戰場就緒' };
   Object.assign(LABELS, { 'game-end': '本局結算', 'hill-retreat': '山丘撤退', 'card-expired': '手牌到期', 'tunnel-collapse': '地道崩塌', airdrop: '空投炮台', bombard: '航空轟炸', 'airport-unlocked': '機場啟用', 'airport-lost': '機場停用', 'depot-control': '物資站易主', fortified: '老兵工事完成' });
   const MARKS = { turret: '✣', destroy: '×', bridge: '⌁', reroute: '↗', shield: '◎', exchange: '⇄' };
