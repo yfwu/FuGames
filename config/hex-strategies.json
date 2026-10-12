@@ -21,7 +21,14 @@
         "stalledOwnTurns": 3,
         "maxOwnTurns": 24
       },
-      "diplomacy": "avoid"
+      "diplomacy": "avoid",
+      "style": {
+        "lane": "center",
+        "centerAversion": 0,
+        "raid": 0,
+        "robustness": 0,
+        "expansion": 0
+      }
     },
     {
       "id": "airhead",
@@ -43,7 +50,14 @@
         "stalledOwnTurns": 3,
         "maxOwnTurns": 24
       },
-      "diplomacy": "opportunity"
+      "diplomacy": "opportunity",
+      "style": {
+        "lane": "adaptive",
+        "centerAversion": 4,
+        "raid": 2,
+        "robustness": 3,
+        "expansion": 3
+      }
     },
     {
       "id": "flanker",
@@ -65,7 +79,14 @@
         "stalledOwnTurns": 3,
         "maxOwnTurns": 24
       },
-      "diplomacy": "avoid"
+      "diplomacy": "avoid",
+      "style": {
+        "lane": "flank",
+        "centerAversion": 8,
+        "raid": 1,
+        "robustness": 2,
+        "expansion": 1
+      }
     },
     {
       "id": "interdict",
@@ -87,7 +108,14 @@
         "stalledOwnTurns": 3,
         "maxOwnTurns": 24
       },
-      "diplomacy": "avoid"
+      "diplomacy": "avoid",
+      "style": {
+        "lane": "adaptive",
+        "centerAversion": 3,
+        "raid": 9,
+        "robustness": 1,
+        "expansion": 0
+      }
     },
     {
       "id": "recover",
@@ -109,7 +137,14 @@
         "stalledOwnTurns": 3,
         "maxOwnTurns": 24
       },
-      "diplomacy": "opportunity"
+      "diplomacy": "opportunity",
+      "style": {
+        "lane": "adaptive",
+        "centerAversion": 3,
+        "raid": 1,
+        "robustness": 8,
+        "expansion": 2
+      }
     },
     {
       "id": "envoy",
@@ -131,7 +166,14 @@
         "stalledOwnTurns": 3,
         "maxOwnTurns": 24
       },
-      "diplomacy": "opportunity"
+      "diplomacy": "opportunity",
+      "style": {
+        "lane": "adaptive",
+        "centerAversion": 5,
+        "raid": 1,
+        "robustness": 2,
+        "expansion": 7
+      }
     }
   ]
 }

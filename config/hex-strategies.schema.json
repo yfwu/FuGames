@@ -159,6 +159,49 @@
               "avoid",
               "opportunity"
             ]
+          },
+          "style": {
+            "description": "Optional doctrine. Omitted styles default from the mission.",
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "lane",
+              "centerAversion",
+              "raid",
+              "robustness",
+              "expansion"
+            ],
+            "properties": {
+              "lane": {
+                "enum": [
+                  "center",
+                  "left",
+                  "right",
+                  "flank",
+                  "adaptive"
+                ]
+              },
+              "centerAversion": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 10
+              },
+              "raid": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 10
+              },
+              "robustness": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 10
+              },
+              "expansion": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 10
+              }
+            }
           }
         }
       }

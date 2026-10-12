@@ -13,8 +13,32 @@
     const near3 = near.map((list,i)=>list.filter(j=>distance(i,j)<=3));
     const cloneAction = a => ({ type: a.type, cells: (a.cells || []).slice(), ...(a.cardIndex === undefined ? {} : { cardIndex: a.cardIndex }), ...(a.target === undefined ? {} : { target: a.target }) });
     const handOf = (s, p) => s._simulation ? s.hands[p] : s.hand || [];
-    const fallbackPolicy = { id:'legacy', mission:'connect', route:{side:0,transport:'both',maxDetour:18}, airport:{mode:'opportunity',maxOwnActions:18,maxSetupCost:36,projection:'either'}, commitment:{reviewOwnTurns:6,stalledOwnTurns:3,maxOwnTurns:24}, diplomacy:'opportunity' };
+    const neutralStyle = { lane:'center', centerAversion:0, raid:0, robustness:0, expansion:0 };
+    const fallbackPolicy = { id:'legacy', mission:'connect', route:{side:0,transport:'both',maxDetour:18}, airport:{mode:'opportunity',maxOwnActions:18,maxSetupCost:36,projection:'either'}, commitment:{reviewOwnTurns:6,stalledOwnTurns:3,maxOwnTurns:24}, diplomacy:'opportunity', style:neutralStyle };
     const policyOf = (s,p) => s.players[p].strategy || fallbackPolicy;
+    const styleOf = (s,p) => policyOf(s,p).style || neutralStyle;
+    // Doctrine geometry. Every monotone route from a home to the opposite edge
+    // has the same length, so a lane through a neighbour's front yard costs no
+    // extra cells; only habit sent all six factions through the centre.
+    const ring = i => Math.max(Math.abs(CELLS[i].q), Math.abs(CELLS[i].r), Math.abs(CELLS[i].s));
+    const CENTER_RING = Math.round(RADIUS * 7 / 18), LANE_OFFSET = Math.round(RADIUS * 7 / 18), LANE_RAMP = Math.round(RADIUS * 14 / 18);
+    const OTHER_AXES = { q:['r','s'], r:['s','q'], s:['q','r'] };
+    const lateral = (s,p,i) => { const pl=s.players[p],[a,b]=OTHER_AXES[pl.axis]; return (CELLS[i][a]-CELLS[i][b])/2*pl.sign; };
+    const laneTarget = (s,p,i,lane) => lane*LANE_OFFSET*clamp((2*RADIUS-remaining(s,p,i))/LANE_RAMP,0,1);
+    const laneCache = new Map();
+    // Static per-faction surcharge for leaving the chosen lane or entering the
+    // centre. Own stones never pay it; it only shapes where new stones go.
+    function lanePenalty(s,p,lane) {
+      const st=styleOf(s,p),key=p+':'+s.players[p].axis+':'+s.players[p].sign+':'+lane+':'+st.centerAversion;
+      if(laneCache.has(key))return laneCache.get(key);
+      const cost=new Float32Array(COUNT),weight=lane?.13:0;
+      for(let i=0;i<COUNT;i++){
+        const r=ring(i),left=remaining(s,p,i);
+        if(st.centerAversion&&r<=CENTER_RING)cost[i]+=st.centerAversion*.08*(CENTER_RING+1-r)/(CENTER_RING+1);
+        cost[i]+=weight*Math.max(0,Math.abs(lateral(s,p,i)-laneTarget(s,p,i,lane))-2)*Math.min(1,left/4);
+      }
+      laneCache.set(key,cost);return cost;
+    }
     const allows = (policy,type) => type==='bridge'||type==='reroute' ? ['bridge','both'].includes(policy.route.transport) : type==='tunnel' ? ['tunnel','both'].includes(policy.route.transport) : true;
     // Enumerate a tiny bounded set of explicit two/three-edge routes. This is
     // geometry-only; the common engine checks ownership, blockers and costs.
@@ -30,7 +54,30 @@
       walk([a]);return result;
     }
     const remaining = (s, p, i) => RADIUS + CELLS[i][s.players[p].axis] * s.players[p].sign;
-    function analyze(s, p) {
+    // Own supply cut vertices (Tarjan, iterative) under enemy pressure. Each
+    // entry reports how many supplied stones that single cell carries.
+    function articulation(s,p,supplied,danger) {
+      const links=new Map();
+      for(const b of [...s.bridges,...(s.tunnels||[])])if(b.owner===p&&s.board[b.a]===p&&s.board[b.b]===p){if(!links.has(b.a))links.set(b.a,[]);if(!links.has(b.b))links.set(b.b,[]);links.get(b.a).push(b.b);links.get(b.b).push(b.a);}
+      const home=s.players[p].home;if(s.board[home]!==p)return {points:[],fragility:0};
+      const disc=new Map(),low=new Map(),size=new Map(),carried=new Map();let time=0;
+      const neighbours=i=>{const out=[];for(const j of ADJ[i])if(s.board[j]===p&&supplied[j])out.push(j);for(const j of links.get(i)||[])if(supplied[j])out.push(j);return out;};
+      const stack=[[home,-1,neighbours(home),0]];disc.set(home,time);low.set(home,time++);size.set(home,1);
+      while(stack.length){
+        const top=stack[stack.length-1],[u,parent,list]=top;
+        if(top[3]<list.length){const v=list[top[3]++];if(v===parent)continue;
+          if(disc.has(v)){low.set(u,Math.min(low.get(u),disc.get(v)));continue;}
+          disc.set(v,time);low.set(v,time++);size.set(v,1);stack.push([v,u,neighbours(v),0]);continue;}
+        stack.pop();if(parent<0)continue;
+        size.set(parent,size.get(parent)+size.get(u));low.set(parent,Math.min(low.get(parent),low.get(u)));
+        if(low.get(u)>=disc.get(parent)&&parent!==home)carried.set(parent,(carried.get(parent)||0)+size.get(u));
+      }
+      const points=[];let fragility=0;
+      for(const [i,lost] of carried)if(!s.anchors[i]){points.push({cell:i,lost,danger:danger[i]});if(danger[i])fragility+=Math.min(30,lost)*Math.min(3,danger[i]);}
+      return {points,fragility:Math.min(240,fragility)};
+    }
+    const quiet = new Uint8Array(COUNT);
+    function analyze(s, p, lanes = null) {
       const own = [], supplied = computeSupply(s, p), ownAdj = new Uint8Array(COUNT), enemyAdj = new Uint8Array(COUNT), danger = new Uint8Array(COUNT), range = new Uint8Array(COUNT);
       let gap = RADIUS * 2, connected = 0, holds = false, unsupplied = 0;
       for (let i = 0; i < COUNT; i++) {
@@ -45,18 +92,21 @@
       }
       const enemy = Array(7).fill(null);
       for (const other of PLAYERS) if (other !== p) {
-        const supply = computeSupply(s, other); let d = RADIUS * 2, goal = false;
-        for (const i of s._simulationCells[other]) if (supply[i]) { d = Math.min(d, remaining(s, other, i)); if (goalCell(s, other, i)) goal = true; }
-        enemy[other] = { supply, gap: d, holds: goal };
+        const supply = computeSupply(s, other); let d = RADIUS * 2, goal = false, stranded = 0;
+        for (const i of s._simulationCells[other]) if (supply[i]) { d = Math.min(d, remaining(s, other, i)); if (goalCell(s, other, i)) goal = true; } else if (!s.anchors[i]) stranded++;
+        enemy[other] = { supply, gap: d, holds: goal, stranded };
       }
-      return { own, supplied, ownAdj, enemyAdj, danger, range, gap, connected, holds, unsupplied, enemy };
+      const st=styleOf(s,p),fragile=st.robustness?articulation(s,p,supplied,danger):{points:[],fragility:0};
+      const depots=(s.depots||[]).filter(d=>s.board[d.cell]===p&&supplied[d.cell]).length;
+      return { own, supplied, ownAdj, enemyAdj, danger, range, gap, connected, holds, unsupplied, enemy, lanePenalty: lanes, fragile, depots };
     }
     function weight(s, p, i, context) {
       const owner = s.board[i];
       if (s.anchors[i] && owner !== p) return 10000;
       if (owner === p) return .06;
-      if (owner) return allied(s, p, owner) ? 8 : 3 + H.combatStrength(s, p, i).defense * 1.1 + context.enemyAdj[i] * .3;
-      return 1 + (s.terrain[i] ? 1.1 : 0) + context.enemyAdj[i] * .32;
+      const lane = context.lanePenalty ? context.lanePenalty[i] : 0;
+      if (owner) return lane + (allied(s, p, owner) ? 8 : 3 + H.combatStrength(s, p, i).defense * 1.1 + context.enemyAdj[i] * .3);
+      return lane + 1 + (s.terrain[i] ? 1.1 : 0) + context.enemyAdj[i] * .32;
     }
     function field(s, p, context, target = null) {
       const costs = new Float64Array(COUNT).fill(Infinity), next = new Int32Array(COUNT).fill(-1), heap = [];
@@ -140,8 +190,44 @@
         Math.max(0,4-s.players[p].supplies)*1.5+Math.max(0,7-s.players[p].energy)/3+(s.players[p].airCooldown||0);
     }
     const projectKey = (airport,type,target) => airport+':'+type+':'+target;
+    // Supplied own stones that would lose supply if cell i were taken.
+    function ownCut(s,p,i) {
+      if(s.board[i]!==p||s.anchors[i])return 0;const before=computeSupply(s,p);if(!before[i])return 0;
+      const board=s.board.slice();board[i]=0;const after=computeSupply({...s,board},p);let lost=0;
+      for(let j=0;j<COUNT;j++)if(j!==i&&before[j]&&!after[j])lost++;return lost;
+    }
+    // Plain hex distance from the supplied network, ignoring obstacles; used
+    // only to bound which far targets a doctrine bothers to consider.
+    function reachFrom(s,context,limit) {
+      const dist=new Uint8Array(COUNT).fill(255),queue=[];
+      for(const i of context.own)if(context.supplied[i]){dist[i]=0;queue.push(i);}
+      for(let k=0;k<queue.length;k++){const i=queue[k];if(dist[i]>=limit)continue;for(const j of ADJ[i])if(dist[j]===255){dist[j]=dist[i]+1;queue.push(j);}}
+      return dist;
+    }
+    function nearestSupplied(context,f,fallback) { let best=fallback; for(const i of context.own)if(context.supplied[i]&&f.costs[i]<f.costs[best])best=i; return best; }
+    // Adaptive doctrines pick the least contested lane ahead of their front,
+    // with a seeded preference so equal openings differ between campaigns,
+    // and stick to it until the campaign stalls or a long review comes due.
+    function chooseLane(s,p,base,memory) {
+      const st=styleOf(s,p),options=({center:[0],left:[-1],right:[1],flank:[-1,1]})[st.lane]||[-1,0,1];
+      const prev=memory?.campaign?.lane,since=memory?.campaign?.laneSince??s.ply;
+      if(options.length===1)return {lane:options[0],since:prev===options[0]?since:s.ply};
+      if(prev!==undefined&&options.includes(prev)&&(memory.campaign.stalled||0)<4&&s.ply-since<PLAYERS.length*16)return {lane:prev,since};
+      let best=null;
+      for(const lane of options){
+        let contest=hash(s.seed+':lane:'+p+':'+lane)%1000/1000*3+(lane===0?st.centerAversion*1.5:0)-(lane===prev?4:0);
+        for(let i=0;i<COUNT;i++){
+          if(remaining(s,p,i)>=base.gap||Math.abs(lateral(s,p,i)-laneTarget(s,p,i,lane))>2.5)continue;
+          const owner=s.board[i];if(owner&&owner!==p&&!allied(s,p,owner))contest+=s.anchors[i]?3:1.2;contest+=base.danger[i]*.15;
+        }
+        if(!best||contest<best.contest)best={lane,contest};
+      }
+      return {lane:best.lane,since:best.lane===prev?since:s.ply};
+    }
     function planMetric(s,p,plan) {
       if(plan.type==='airport') {if(s._planningProjects?.includes(projectKey(plan.target,plan.followType,plan.followTarget))||plan.followType==='bombard'&&(!s.board[plan.followTarget]||s.board[plan.followTarget]===p)||plan.followType==='airdrop'&&s.board[plan.followTarget]===p&&s.turrets.some(t=>t.owner===p&&t.cell===plan.followTarget)&&computeSupply(s,p)[plan.followTarget])return 0;const a=s.airports.find(a=>a.cell===plan.target);return a?airportCost(s,p,a,plan.path):1000;}
+      if(plan.type==='fortify')return ownCut(s,p,plan.target);
+      if(plan.type==='expand'&&s.board[plan.target]===p&&computeSupply(s,p)[plan.target])return 0;
       return deficit(s,p,plan.path);
     }
     function actualComplete(s,p,plan,context) {
@@ -149,6 +235,8 @@
       if(plan.type==='interdict'||plan.type==='defend'&&plan.stage!=='hold')return s.board[plan.target]===0||s.board[plan.target]===p;
       if(plan.type==='defend')return false;
       if(plan.type==='recover')return !!context.supplied[plan.target];
+      if(plan.type==='fortify')return ownCut(s,p,plan.target)===0;
+      if(plan.type==='expand')return s.board[plan.target]===p&&!!context.supplied[plan.target];
       return context.holds;
     }
     function makePlans(s,p,context,memory,greedy) {
@@ -170,7 +258,7 @@
         else if(s.ply>=memory.reviewAtPly)previousOutcome='review';
         else {reuse=old;previousOutcome='continued';}
       }
-      add({type:context.holds?'defend':'direct',stage:context.holds?'hold':'advance',target:directPath.at(-1),path:directPath,waypoints:[],side:0,prior:0,ownGoal:true,reason:'short_route'});
+      add({type:context.holds?'defend':'direct',stage:context.holds?'hold':'advance',target:directPath.at(-1),path:directPath,waypoints:[],side:0,prior:0,ownGoal:true,reason:!context.holds&&context.laneChoice?.lane?'open_lane':'short_route'});
       // Two genuinely different corridors, with a mid-board waypoint on either
       // side of the home/goal axis. Extra length is charged, not erased.
       if(!context.holds)for(const side of [-1,1]) {
@@ -198,7 +286,8 @@
       const campaign={path:campaignPlan.path.slice(0,LIMIT.privatePath),side:campaignPlan.side||0,remaining:campaignCost,
         bestRemaining:previousCampaign?Math.min(previousCampaign.bestRemaining,campaignCost):campaignCost,initialRemaining:previousCampaign?.initialRemaining??campaignCost,
         gap:context.gap,bestGap:previousCampaign?Math.min(previousCampaign.bestGap,context.gap):context.gap,stalled:globalStalled,age:(previousCampaign?.age||0)+1,
-        committedAtPly:previousCampaign?.committedAtPly??s.ply,lastProgressPly:improved||context.holds?s.ply:previousCampaign?.lastProgressPly??s.ply};
+        committedAtPly:previousCampaign?.committedAtPly??s.ply,lastProgressPly:improved||context.holds?s.ply:previousCampaign?.lastProgressPly??s.ply,
+        lane:context.laneChoice?.lane??0,laneSince:context.laneChoice?.since??s.ply};
       const goalPaths=[];for(const plan of [campaignPlan,...goalPlans])if(!goalPaths.some(path=>path.join(',')===plan.path.join(','))&&goalPaths.length<4)goalPaths.push(plan.path);
       context.campaignPath=campaignPlan.path;context.goalPaths=goalPaths;context.goalCells=new Set(goalPaths.flat());context.goalPotential=goalPotential(s,p,context,goalPaths);
       const airports=s.airports.slice().sort((a,b)=>distance(s.players[p].home,a.cell)-distance(s.players[p].home,b.cell));
@@ -221,6 +310,37 @@
         if((greedy.type==='airdrop'||greedy.type==='bombard')&&policy.airport.mode!=='avoid'&&program.airportCooldownUntilPly<=s.ply){
           const a=s.airports.find(a=>a.cell===greedy.cells[0]),opportunity=airportOpportunity(s,p,a,context,goalField,cache);
           if(opportunity)add({type:'airport',stage:'project',target:a.cell,path:pathFrom(s,p,field(s,p,context,a.cell)),waypoints:[a.cell],side:0,followType:greedy.type,followTarget:target,opportunity:opportunity.value,prior:opportunity.value*.55,forced:cloneAction(greedy),reason:'airport_projection'});
+        }
+      }
+      const st=styleOf(s,p);let reach=null;
+      // Raiders hunt thin, deep enemy supply lines up to nine cells away:
+      // a cell carrying many stones beyond it starves them in six turns.
+      if(st.raid>=5&&!context.holds) {
+        reach=reachFrom(s,context,12);const thin=[];
+        for(const other of PLAYERS)if(other!==p&&!allied(s,p,other))for(const x of articulation(s,other,context.enemy[other].supply,quiet).points)
+          if(x.lost>=3&&reach[x.cell]<=9)thin.push({i:x.cell,score:Math.min(16,x.lost)-reach[x.cell]*2-(H.combatStrength(s,p,x.cell).defense-1)*4});
+        thin.sort((a,b)=>b.score-a.score||a.i-b.i);const raids=[];
+        for(const {i} of thin.slice(0,8)){
+          if(plans.some(x=>x.target===i))continue;if(!cache.has(i))cache.set(i,cut(s,p,i,context));const effect=cache.get(i);if(effect.lost<3)continue;
+          const f=field(s,p,context,i),path=pathFrom(s,p,f,nearestSupplied(context,f,s.players[p].home));
+          raids.push({type:'interdict',stage:'approach',target:i,path,waypoints:[i],side:0,prior:effect.value*.32+st.raid*1.2-deficit(s,p,path)*1.5,reason:'raid_supply'});
+        }
+        raids.sort((a,b)=>b.prior-a.prior||a.target-b.target).slice(0,2).forEach(add);
+      }
+      // Consolidators widen single-cell supply necks that enemies can reach.
+      if(st.robustness>=3) {
+        const exposure=x=>Math.min(30,x.lost)*Math.min(3,x.danger)*(1+context.enemyAdj[x.cell]);
+        const points=context.fragile.points.filter(x=>(x.danger>=2||context.enemyAdj[x.cell])&&x.lost>=(st.robustness>=6?5:8)).sort((a,b)=>exposure(b)-exposure(a)||a.cell-b.cell);
+        for(const x of points.slice(0,2))add({type:'fortify',stage:'hold',target:x.cell,path:[x.cell],waypoints:[x.cell],side:0,prior:Math.min(30,x.lost)*Math.min(3,x.danger)*.12*st.robustness/5,reason:'thin_supply'});
+      }
+      // Expansionists claim depots: more supplies, more air power later.
+      // A depot or two is plenty; past that the route matters more.
+      if(st.expansion>=3&&!context.holds&&context.depots<1+Math.floor(st.expansion/4)) {
+        reach=reach||reachFrom(s,context,12);
+        for(const d of s.depots||[]){const owner=s.board[d.cell];
+          if(owner===p&&context.supplied[d.cell]||owner&&owner!==p&&allied(s,p,owner)||reach[d.cell]>12)continue;
+          const f=field(s,p,context,d.cell),path=pathFrom(s,p,f,nearestSupplied(context,f,s.players[p].home));
+          add({type:'expand',stage:'approach',target:d.cell,path,waypoints:[d.cell],side:0,prior:st.expansion*1.6-deficit(s,p,path)*.6,reason:'claim_depot'});
         }
       }
       const stranded=context.own.filter(i=>!context.supplied[i]);
@@ -267,6 +387,21 @@
           if(airport.active&&plan.followTarget!==null)add({type:plan.followType,cells:[airport.cell,plan.followTarget]},105);
         }
       }
+      if(plan.type==='fortify'&&s.board[plan.target]===p) {
+        // Bypass cells and bridges that touch both the stones a neck carries
+        // and the home side of it; the rollout scores the real redundancy.
+        const u=plan.target,board=s.board.slice();board[u]=0;const after=computeSupply({...s,board},p);
+        const beyond=i=>s.board[i]===p&&context.supplied[i]&&!after[i]&&i!==u,homeSide=i=>s.board[i]===p&&after[i];
+        for(const j of near3[u])if(!s.board[j]&&s.terrain[j]!==1){
+          const toBeyond=ADJ[j].some(beyond),toHome=ADJ[j].some(homeSide);
+          // One-step bypass, or the first stone of a two-step one.
+          const rank=toBeyond&&toHome?90:toHome&&near[j].some(k=>beyond(k)&&distance(j,k)===2)||toBeyond&&near[j].some(k=>homeSide(k)&&distance(j,k)===2)?84:0;
+          if(rank)add({type:s.terrain[j]?'engineer':'deploy',cells:[j]},rank+context.ownAdj[j]*.3);
+        }
+        if(cards.bridge!==undefined)for(const a of near3[u])if(beyond(a))for(const b of near3[a])if(homeSide(b))card('bridge',[a,b],88);
+        card('shield',[u],80+context.danger[u]*2);card('turret',[u],78+Math.min(5,context.danger[u]));
+      }
+      if(plan.type==='expand'&&!s.board[plan.target]&&ADJ[plan.target].some(j=>context.supplied[j]))add({type:'deploy',cells:[plan.target]},96);
       if(plan.type==='defend'||plan.type==='interdict') {
         add({type:'deploy',cells:[plan.target]},96);card('destroy',[plan.target],93);
         for(const a of s.airports)if(a.owner===p&&a.active)add({type:'bombard',cells:[a.cell,plan.target]},97);
@@ -372,6 +507,7 @@
       // potential. Local harassment completion is not interchangeable with a
       // move closer to the opposite edge and carries no intrinsic plan reward.
       const remainingGoal=goalPotential(s,p,context,base.goalPaths);
+      const style=styleOf(root,p);
       let value=(base.goalPotential-remainingGoal)*9+(base.gap-context.gap)*2+
         (context.connected-base.connected)*.15-(context.unsupplied-base.unsupplied)*.5+
         (context.holds?180:0)-(base.holds&&!context.holds?200:0)+
@@ -383,12 +519,21 @@
         const a=base.enemy[other],b=context.enemy[other];
         if(a.holds&&!b.holds)value+=85;if(!a.holds&&b.holds)value-=80;
         if(a.gap<=2)value+=Math.min(6,b.gap-a.gap)*7;
+        // Starved enemy stones retreat after six turns: the raid payoff.
+        if(!allied(s,p,other))value+=Math.min(12,Math.max(0,b.stranded-a.stranded))*style.raid*.35;
       }
+      value-=(context.fragile.fragility-base.fragile.fragility)*style.robustness*.06;
+      value+=(context.depots-base.depots)*style.expansion*1.5+(context.connected-base.connected)*style.expansion*.05;
       for(const i of root.neutralWarning?.cells||[])if(s.board[i]===p&&!s.shields[i]&&s.age[i]<RULES.fortifyAge)value-=root.airports.some(a=>a.cell===i&&a.owner===p&&a.active)?28:base.holds?30:4;
       value+=s.players[p].energy*.2+s.players[p].supplies*.3;
       // Batteries are useful only through public threats near a held route;
       // the exact first shots still execute in the three-turn simulation.
       if(base.holds)for(const t of s.turrets)if(t.owner===p&&context.supplied[t.cell])value+=Math.min(12,context.danger[t.cell]*2);
+      // Doctrine missions are credited for real approach progress, as airport
+      // investment is: the payoff (starved stones, a widened neck, a depot)
+      // usually lands just beyond the three-action horizon.
+      const credit=plan.type==='interdict'&&plan.reason==='raid_supply'?style.raid*.6:plan.type==='fortify'?style.robustness*.15:plan.type==='expand'?style.expansion*.6:0;
+      if(credit)value+=(baseMetric-planMetric(s,p,plan))*credit;
       if(plan.type==='airport') {
         const owner=root.board[plan.followTarget],threat=owner&&owner!==p?base.enemy[owner]:null;
         const urgent=plan.followType==='bombard'&&threat&&threat.gap<=2;
@@ -404,17 +549,22 @@
       return plan.path.slice(start,start+LIMIT.publicPath);
     }
     function choose(view) {
-      const p=view.turn,root=H.createPublicSimulation(view,p),base=analyze(root,p),memory=view.plannerMemory;
+      const p=view.turn,root=H.createPublicSimulation(view,p),memory=view.plannerMemory,base=analyze(root,p);
+      base.laneChoice=chooseLane(root,p,base,memory);base.lanePenalty=lanePenalty(root,p,base.laneChoice.lane);
       const greedy=H.greedyAction(view),generated=makePlans(root,p,base,memory,greedy),nodes=[];let count=0,replyActions=0,simulations=0;
       const transitions=new WeakMap(),analyses=new WeakMap();
       const step=(state,action)=>{let cache=transitions.get(state);if(!cache){cache=new Map();transitions.set(state,cache);}const key=JSON.stringify(action);if(cache.has(key))return cache.get(key);const next=advance(state,p,action);simulations++;replyActions+=Math.min(PLAYERS.length-1,Math.max(0,(next?.ply||state.ply)-state.ply-1));cache.set(key,next);return next;};
-      const inspect=state=>{if(!analyses.has(state))analyses.set(state,analyze(state,p));return analyses.get(state);};
+      const inspect=state=>{if(!analyses.has(state))analyses.set(state,analyze(state,p,base.lanePenalty));return analyses.get(state);};
       for(const plan of generated.plans)for(const action of candidateActions(root,p,plan,base,greedy)) {
         if(count>=LIMIT.nodes)break;const s=step(root,action);count++;if(!s)continue;
         const context=inspect(s),metric=planMetric(root,p,plan);
         nodes.push({s,context,plan,first:action,depth:1,baseMetric:metric,value:utility(s,p,plan,context,base,metric,root)});
       }
-      function beam(list){const sorted=list.sort((a,b)=>b.value-a.value),out=[],route=sorted.find(n=>n.plan.ownGoal);if(route)out.push(route);for(const n of sorted)if(n!==route&&!out.some(o=>o.plan.type===n.plan.type&&o.plan.target===n.plan.target)){out.push(n);if(out.length===LIMIT.beam)break;}return out;}
+      // A strong doctrine keeps its best line alive through the beam: a raid
+      // or a neck repair pays off on the second or third own action, never
+      // on the first, and would otherwise always lose to one more route step.
+      const doctrineStyle=styleOf(root,p),doctrine=doctrineStyle.raid>=6?'interdict':doctrineStyle.robustness>=6?'fortify':doctrineStyle.expansion>=6?'expand':null;
+      function beam(list){const sorted=list.sort((a,b)=>b.value-a.value),out=[],route=sorted.find(n=>n.plan.ownGoal),kept=doctrine&&sorted.find(n=>n.plan.type===doctrine);if(route)out.push(route);if(kept&&out.length<LIMIT.beam)out.push(kept);for(const n of sorted){if(out.length>=LIMIT.beam)break;if(n!==route&&!out.some(o=>o.plan.type===n.plan.type&&o.plan.target===n.plan.target))out.push(n);}return out;}
       let frontier=beam(nodes),depth=1;const routeBeamDepths=frontier.some(n=>n.plan.ownGoal)?[1]:[];
       for(;depth<LIMIT.depth&&frontier.length&&count<LIMIT.nodes;depth++) {
         const expanded=[];
@@ -431,8 +581,8 @@
       // This selects a real staged action sequence; it never modifies scores.
       const urgent=PLAYERS.some(other=>other!==p&&!allied(root,p,other)&&(base.enemy[other].holds||base.enemy[other].gap<=2));
       if(best&&!urgent&&!base.holds&&best.value<9000){
-        const wanted={flank:'flank',airhead:'airport',interdict:'interdict',recover:'recover'}[policy.mission];
-        const preferred=ordered.find(n=>n.plan.type===wanted&&n.value>=best.value-(wanted==='airport'?16:10)&&planMetric(n.s,p,n.plan)<n.baseMetric-.05);
+        const wanted=doctrine||{flank:'flank',airhead:'airport',interdict:'interdict',recover:'recover'}[policy.mission];
+        const preferred=ordered.find(n=>n.plan.type===wanted&&n.value>=best.value-(wanted==='airport'?16:doctrine&&n.plan.reused?14:10)&&planMetric(n.s,p,n.plan)<n.baseMetric-.05);
         if(preferred)best=preferred;
       }
       if(!best)return greedy;
