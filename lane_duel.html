@@ -1,0 +1,620 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="蓋塔守住自己的路線，派兵攻進對手的路線。FuGames 單人對 AI 塔防對戰。">
+  <title>雙線塔防 - FuGames</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="fulab-theme.css">
+  <style>
+    .site-nav > a:last-child { display:inline-flex; align-items:center; gap:5px; }
+    .site-nav > a:last-child .ui-icon { width:16px; height:16px; }
+    .lane-stage canvas { cursor: crosshair; }
+    .lane-tools { display:grid; gap:10px; margin-top:12px; }
+    .lane-row { display:flex; flex-wrap:wrap; align-items:center; gap:8px; }
+    .lane-row .row-label { min-width:44px; color:var(--fulab-muted); font-size:11px; }
+    .lane-row .btn { gap:6px; padding-inline:12px; }
+    .lane-row .btn small { color:var(--fulab-muted); font-size:11px; }
+    .lane-row .btn[aria-pressed="true"] { border-color:var(--fulab-teal); color:var(--fulab-ink-teal); background:var(--fulab-tint-teal); }
+    .lane-row .send-btn:not(:disabled) { border-color:#d9a796; }
+    .lane-row .tower-note { color:var(--fulab-muted); font-size:11px; margin:0; flex:1 1 160px; }
+    .lane-lives { display:inline-flex; gap:4px; }
+    .lane-lives .ai { color:#99553f; }
+    .lane-settings { display:grid; gap:8px; margin:0 0 12px; text-align:left; font-size:12px; }
+    .lane-settings select { width:100%; }
+    .lane-settings label.check { display:flex; gap:8px; align-items:center; }
+    @media(max-width:600px) { .lane-row .row-label { min-width:100%; } .lane-row .btn { flex:1 1 30%; padding-inline:8px; } }
+    @media(max-height:600px) and (min-width:600px) {
+      .io-page .play-panel { grid-template-columns:minmax(0,1fr) 260px; }
+      .io-page .play-panel > .io-stage { grid-column:1; grid-row:2; }
+      .lane-support { grid-column:2; grid-row:2; display:flex; flex-direction:column; gap:10px; max-height:calc(100svh - 106px); overflow:auto; }
+      .lane-support .lane-tools { margin:0; }
+      .lane-row .row-label { min-width:100%; }
+    }
+  </style>
+</head>
+<body>
+  <main class="game-page io-page">
+    <nav class="site-nav" aria-label="遊戲導覽"><a class="site-brand" href="index.html"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>FuGames</a><a href="index.html" aria-label="所有遊戲 ↗"><span>所有遊戲</span><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#launch"></use></svg></a></nav>
+    <header class="page-header"><p class="eyebrow">塔防 / 單人 × AI</p><h1><svg class="page-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#lane_duel"></use></svg>雙線塔防</h1><p class="lead">在自己的路線蓋塔防守，把士兵送進對手的路線。誰先撐不住，誰就輸。</p></header>
+    <section class="card play-panel" aria-label="雙線塔防戰場">
+      <div class="game-toolbar"><p class="game-status" id="phase-label">準備開戰</p><div class="game-metrics"><span>金幣 <strong id="gold">120</strong></span><span>收入 <strong id="income">8</strong></span><span class="lane-lives">生命 <strong id="lives">20</strong> : <strong class="ai" id="ai-lives">20</strong></span><span>波次 <strong id="wave">0</strong></span><span>剩餘 <strong id="clock">8:00</strong></span></div></div>
+      <div class="io-stage lane-stage"><canvas id="board" width="720" height="720" tabindex="0" aria-label="雙線塔防。上半是 AI 的路線，下半是你的路線。點空地蓋塔，點自己的塔可升級或出售；方向鍵移動游標，Enter 蓋塔。" aria-describedby="status">需要支援 Canvas 的瀏覽器。</canvas>
+        <div class="board-overlay" id="overlay"><div class="game-dialog" role="dialog" aria-labelledby="dialog-title" aria-describedby="dialog-copy">
+          <svg class="dialog-art" id="dialog-art" viewBox="0 0 96 72" aria-hidden="true"><path d="M6 20H70Q78 20 78 28Q78 36 70 36H26Q18 36 18 44Q18 52 26 52H90" fill="none" stroke="#d8dee9" stroke-width="9" stroke-linecap="round"/><path d="M6 20H70Q78 20 78 28Q78 36 70 36H26Q18 36 18 44Q18 52 26 52H90" fill="none" stroke="#c4cad6" stroke-width="1.5" stroke-dasharray="3 5"/><rect x="40" y="6" width="12" height="10" rx="2" fill="#cbeaea" stroke="#267477" stroke-width="2"/><path d="M46 6V2" stroke="#267477" stroke-width="2" stroke-linecap="round"/><circle cx="30" cy="20" r="4" fill="#efdad1" stroke="#99553f" stroke-width="2"/><circle cx="62" cy="36" r="4" fill="#efdad1" stroke="#99553f" stroke-width="2"/><rect x="48" y="42" width="12" height="10" rx="2" fill="#cbeaea" stroke="#267477" stroke-width="2"/></svg>
+          <p class="eyebrow" id="dialog-kicker">你守下半，AI 守上半</p><h2 id="dialog-title">守住路線，反攻對手</h2><p id="dialog-copy">蓋塔擋下敵兵；派兵會進入對手的路線，同時提高你的收入。生命先歸零的一方落敗。</p>
+          <div class="lane-settings" id="settings"><label for="difficulty">AI 難度</label><select id="difficulty"><option value="easy">簡單</option><option value="normal" selected>普通</option><option value="hard">困難</option></select><label class="check"><input type="checkbox" id="spectate">觀戰：讓 AI 代你防守</label></div>
+          <button class="btn primary" id="play" aria-label="開始對戰 →"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#play"></use></svg><span>開始對戰</span></button><button class="btn" id="dialog-secondary" hidden>保留本局，繼續</button>
+        </div></div>
+      </div>
+      <div class="lane-support">
+        <p class="game-status io-status" id="status" role="status" aria-live="polite">選一種塔，點下半部的空地建造。</p>
+        <div class="lane-tools">
+          <div class="lane-row" role="group" aria-label="建造塔"><span class="row-label">建造</span>
+            <button class="btn tower-btn" data-tower="arrow" aria-pressed="true" aria-label="箭塔，30 金幣（按 1）"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#arrow-up"></use></svg><span>箭塔</span><small>30</small></button>
+            <button class="btn tower-btn" data-tower="cannon" aria-pressed="false" aria-label="砲塔，50 金幣（按 2）"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#turret"></use></svg><span>砲塔</span><small>50</small></button>
+            <button class="btn tower-btn" data-tower="frost" aria-pressed="false" aria-label="冰塔，45 金幣（按 3）"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#slow"></use></svg><span>冰塔</span><small>45</small></button>
+          </div>
+          <div class="lane-row" role="group" aria-label="選取的塔"><span class="row-label">選取</span>
+            <button class="btn" id="upgrade" disabled aria-label="升級（按 U）"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#double"></use></svg><span>升級</span><small id="upgrade-cost">—</small></button>
+            <button class="btn" id="sell" disabled aria-label="出售（按 X）"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#remove"></use></svg><span>出售</span><small id="sell-value">—</small></button>
+            <p class="tower-note" id="tower-note">點自己的塔來選取。</p>
+          </div>
+          <div class="lane-row" role="group" aria-label="派兵到對手路線"><span class="row-label">派兵</span>
+            <button class="btn send-btn" data-send="runner" disabled aria-label="快兵，20 金幣，收入 +1（按 Q）"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#arrow-right"></use></svg><span>快兵</span><small>20</small></button>
+            <button class="btn send-btn" data-send="brute" disabled aria-label="盾兵，60 金幣，收入 +2（按 W）"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#shield"></use></svg><span>盾兵</span><small>60</small></button>
+            <button class="btn send-btn" data-send="swarm" disabled aria-label="群兵，40 金幣，收入 +2（按 E）"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#star"></use></svg><span>群兵</span><small>40</small></button>
+          </div>
+          <div class="game-actions"><p class="action-note">1 / 2 / 3 選塔 · Q / W / E 派兵 · P / Esc 暫停</p><div class="btnRow"><button class="btn" id="pause" disabled aria-label="暫停"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#pause"></use></svg><span>暫停</span></button><button class="btn primary" id="restart" aria-label="重新開始"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#restart"></use></svg><span>重新開始</span></button></div></div>
+        </div>
+      </div>
+    </section>
+    <details class="card rules"><summary>玩法與操作</summary><div class="rules-body"><ul class="list">
+      <li>畫面下半是你的路線，上半是 AI 的路線。敵兵沿灰色道路前進，走到終點會扣生命：一般兵 1 點，盾兵 2 點，每第 5 波的頭目 3 點。</li>
+      <li>雙方每 15 秒同時迎來一波中立敵兵，第一波在 8 秒時出現，之後越來越強。擊倒敵兵可得賞金。</li>
+      <li>點道路以外的空格蓋塔。箭塔射速快；砲塔造成範圍傷害，但盾兵與頭目只受一半；冰塔讓敵兵減速 45%。點自己的塔可升級（最多 3 級）或以投入金額的 70% 出售。</li>
+      <li>派兵會從對手路線入口出發，並永久提高你的收入。快兵便宜又快，盾兵血厚，群兵一次五隻。派出的兵會隨波次變強。</li>
+      <li>每 5 秒依收入發放金幣。任一方生命歸零即落敗，同時歸零為平手；8 分鐘後生命較多者勝。</li>
+      <li>滑鼠或觸控點格子；鍵盤用方向鍵移動游標、Enter 或空白鍵蓋塔／選取。1／2／3 選塔，Q／W／E 派兵，U 升級，X 出售，P 或 Esc 暫停；切換視窗會自動暫停。</li>
+      <li>AI 與你使用完全相同的規則、金幣與收入，只讀取雙方都看得見的戰場資訊。</li>
+    </ul></div></details>
+    <footer class="site-footer">FuGames · 隨時來一局</footer>
+    <noscript><p class="notice">請開啟 JavaScript，才能開始遊戲。</p></noscript>
+  </main>
+
+  <script id="lane-engine">
+  'use strict';
+  const LaneDuel = (() => {
+    const COLS = 16, ROWS = 8, TPS = 20, DT = 1 / TPS;
+    const TIME_LIMIT = 8 * 60 * TPS, PAY_TICKS = 5 * TPS, FIRST_WAVE = 8 * TPS, WAVE_TICKS = 15 * TPS;
+    const START_GOLD = 120, START_LIVES = 20, START_INCOME = 8, MAX_QUEUE = 60, MAX_UNITS = 160, MAX_TOWERS = 16, SELL_RATE = .7, MAX_LEVEL = 3;
+    // The road snakes through each 16×8 field; coordinates are in cells.
+    const WAYPOINTS = [[0, 1.5], [13.5, 1.5], [13.5, 4.5], [2.5, 4.5], [2.5, 6.5], [16, 6.5]];
+    const SEGMENTS = [];
+    let PATH_LENGTH = 0;
+    for (let i = 1; i < WAYPOINTS.length; i++) {
+      const [ax, ay] = WAYPOINTS[i - 1], [bx, by] = WAYPOINTS[i], length = Math.hypot(bx - ax, by - ay);
+      SEGMENTS.push({ ax, ay, bx, by, start: PATH_LENGTH, length }); PATH_LENGTH += length;
+    }
+    function pointAt(distance) {
+      const d = Math.max(0, Math.min(PATH_LENGTH, distance));
+      const s = SEGMENTS.find(seg => d <= seg.start + seg.length) || SEGMENTS[SEGMENTS.length - 1], t = (d - s.start) / s.length;
+      return { x: s.ax + (s.bx - s.ax) * t, y: s.ay + (s.by - s.ay) * t };
+    }
+    const PATH_SAMPLES = [];
+    for (let d = 0; d <= PATH_LENGTH + 1e-9; d += .1) PATH_SAMPLES.push(pointAt(d));
+    const ROAD = new Set();
+    for (const p of PATH_SAMPLES) { const c = Math.min(COLS - 1, Math.floor(p.x)), r = Math.floor(p.y); ROAD.add(r * COLS + c); }
+    const isRoad = (col, row) => ROAD.has(row * COLS + col);
+    const inField = (col, row) => Number.isInteger(col) && Number.isInteger(row) && col >= 0 && col < COLS && row >= 0 && row < ROWS;
+
+    const TOWERS = {
+      arrow: { name: '箭塔', cost: 30, range: 2.6, damage: 10, cooldown: 10, splash: 0, slow: 0 },
+      cannon: { name: '砲塔', cost: 50, range: 2.3, damage: 30, cooldown: 30, splash: 1, slow: 0 },
+      frost: { name: '冰塔', cost: 45, range: 2.3, damage: 4, cooldown: 16, splash: 0, slow: .45, slowTicks: 30 },
+    };
+    const LEVEL_DAMAGE = [0, 1, 1.8, 3], LEVEL_RANGE = [0, 0, .3, .6], UPGRADE_RATE = [0, .9, 1.5];
+    const towerRange = t => TOWERS[t.type].range + LEVEL_RANGE[t.level];
+    const towerDamage = t => TOWERS[t.type].damage * LEVEL_DAMAGE[t.level];
+    const upgradeCost = t => t.level >= MAX_LEVEL ? null : Math.round(TOWERS[t.type].cost * UPGRADE_RATE[t.level]);
+    const sellValue = t => Math.floor(t.invested * SELL_RATE + 1e-9);
+
+    const UNITS = {
+      runner: { name: '快兵', cost: 20, hp: 60, speed: 2.4, lives: 1, income: 1, count: 1, bounty: 4, gap: 6, armor: 0 },
+      brute: { name: '盾兵', cost: 60, hp: 200, speed: 1.1, lives: 2, income: 2, count: 1, bounty: 10, gap: 14, armor: .5 },
+      swarm: { name: '群兵', cost: 40, hp: 30, speed: 1.8, lives: 1, income: 2, count: 5, bounty: 2, gap: 4, armor: 0 },
+    };
+    const sendScale = wave => 1 + .12 * wave;
+    function waveSpec(n) {
+      const hp = Math.round(24 * Math.pow(1.18, n - 1)), bounty = 2 + Math.floor(n / 4), list = [];
+      for (let i = 0, count = 6 + Math.floor(n / 3); i < count; i++) list.push({ kind: 'creep', hp, speed: 1.6, lives: 1, bounty, gap: 12, armor: 0 });
+      if (n % 5 === 0) list.push({ kind: 'boss', hp: hp * 8, speed: 1.2, lives: 3, bounty: bounty * 6, gap: 12, armor: .5 });
+      return list;
+    }
+
+    // Path length within range of each cell centre, used by AI placement scoring.
+    function coverage(col, row, range) {
+      let n = 0; const x = col + .5, y = row + .5;
+      for (const p of PATH_SAMPLES) if (Math.hypot(p.x - x, p.y - y) <= range) n++;
+      return n * .1;
+    }
+    const COVER_CACHE = new Map();
+    function cachedCoverage(col, row, range) {
+      const key = col + ',' + row + ',' + range.toFixed(2);
+      if (!COVER_CACHE.has(key)) COVER_CACHE.set(key, coverage(col, row, range));
+      return COVER_CACHE.get(key);
+    }
+
+    function seededRandom(seed) {
+      let h = 2166136261;
+      for (const ch of String(seed)) h = Math.imul(h ^ ch.charCodeAt(0), 16777619);
+      let a = h >>> 0;
+      return () => { a = (a + 0x6D2B79F5) >>> 0; let t = a; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+    }
+
+    const PROFILES = {
+      easy: { interval: 30, safety: .55, reserve: 80, sendShare: .35, noise: .6, foresight: 0 },
+      normal: { interval: 16, safety: .65, reserve: 45, sendShare: .6, noise: .35, foresight: 1 },
+      hard: { interval: 6, safety: .8, reserve: 45, sendShare: .6, noise: .35, foresight: 3 },
+    };
+
+    class Game {
+      constructor(options = {}) {
+        this.options = { seed: 'lane', ai: [false, true], difficulty: ['normal', 'normal'], ...options };
+        this.reset();
+      }
+      reset() {
+        const o = this.options;
+        this.random = seededRandom(o.seed);
+        this.phase = 'ready'; this.tick = 0; this.wave = 0; this.result = null; this.events = []; this.serial = 0;
+        this.ai = o.ai.slice(); this.difficulty = o.difficulty.slice();
+        this.sides = [0, 1].map(() => ({ gold: START_GOLD, lives: START_LIVES, income: START_INCOME, towers: [], sent: { runner: 0, brute: 0, swarm: 0 }, kills: 0, leaks: 0, spent: 0 }));
+        // fields[s] is the lane that side s defends.
+        this.fields = [0, 1].map(() => ({ units: [], queue: [], delay: 0 }));
+        // Personality varies by seed only, so a game is reproducible from its options.
+        this.personality = [0, 1].map(() => ({ aggression: .85 + this.random() * .3, frostBias: this.random() }));
+      }
+      start() { if (this.phase === 'ready' || this.phase === 'paused') this.phase = 'running'; }
+      pause() { if (this.phase === 'running') this.phase = 'paused'; }
+      towerAt(side, col, row) { return this.sides[side].towers.find(t => t.col === col && t.row === row) || null; }
+      tower(side, id) { return this.sides[side].towers.find(t => t.id === id) || null; }
+      canBuild(side, col, row, type) {
+        return this.phase === 'running' && !!TOWERS[type] && this.sides[side].towers.length < MAX_TOWERS && inField(col, row) && !isRoad(col, row) && !this.towerAt(side, col, row) && this.sides[side].gold >= TOWERS[type].cost;
+      }
+      build(side, col, row, type) {
+        if (!this.canBuild(side, col, row, type)) return null;
+        const s = this.sides[side], cost = TOWERS[type].cost;
+        const t = { id: ++this.serial, type, col, row, level: 1, cooldown: 0, invested: cost, shots: 0 };
+        s.gold -= cost; s.spent += cost; s.towers.push(t); this.events.push({ type: 'build', side, tower: t.id });
+        return t;
+      }
+      upgrade(side, id) {
+        const t = this.tower(side, id), s = this.sides[side];
+        if (this.phase !== 'running' || !t) return false;
+        const cost = upgradeCost(t);
+        if (cost === null || s.gold < cost) return false;
+        s.gold -= cost; s.spent += cost; t.invested += cost; t.level++; this.events.push({ type: 'upgrade', side, tower: id });
+        return true;
+      }
+      sell(side, id) {
+        const t = this.tower(side, id), s = this.sides[side];
+        if (this.phase !== 'running' || !t) return false;
+        s.gold += sellValue(t); s.towers = s.towers.filter(x => x !== t); this.events.push({ type: 'sell', side, tower: id });
+        return true;
+      }
+      canSend(side, kind) {
+        const spec = UNITS[kind];
+        return this.phase === 'running' && !!spec && this.sides[side].gold >= spec.cost && this.fields[1 - side].queue.length + spec.count <= MAX_QUEUE;
+      }
+      send(side, kind) {
+        if (!this.canSend(side, kind)) return false;
+        const spec = UNITS[kind], s = this.sides[side], hp = Math.round(spec.hp * sendScale(this.wave));
+        s.gold -= spec.cost; s.spent += spec.cost; s.income += spec.income; s.sent[kind]++;
+        for (let i = 0; i < spec.count; i++) this.fields[1 - side].queue.push({ kind, hp, speed: spec.speed, lives: spec.lives, bounty: spec.bounty, gap: spec.gap, armor: spec.armor, sender: side });
+        this.events.push({ type: 'send', side, kind });
+        return true;
+      }
+      spawnWave() {
+        this.wave++;
+        for (const field of this.fields) for (const u of waveSpec(this.wave)) field.queue.push({ ...u, sender: -1 });
+        this.events.push({ type: 'wave', wave: this.wave });
+      }
+      unitPosition(u) { return pointAt(u.dist); }
+      fireTowers(side) {
+        const field = this.fields[side];
+        for (const t of this.sides[side].towers) {
+          if (t.cooldown > 0) { t.cooldown--; continue; }
+          const spec = TOWERS[t.type], range = towerRange(t), cx = t.col + .5, cy = t.row + .5;
+          let target = null;
+          for (const u of field.units) {
+            if (u.hp <= 0) continue;
+            const p = pointAt(u.dist);
+            if (Math.hypot(p.x - cx, p.y - cy) <= range && (!target || u.dist > target.dist)) target = u;
+          }
+          if (!target) continue;
+          const damage = towerDamage(t), at = pointAt(target.dist);
+          const hits = spec.splash ? field.units.filter(u => u.hp > 0 && Math.hypot(pointAt(u.dist).x - at.x, pointAt(u.dist).y - at.y) <= spec.splash) : [target];
+          for (const u of hits) {
+            // Armour only blunts splash: shields shrug off cannon blasts, not arrows.
+            u.hp -= spec.splash ? damage * (1 - u.armor) : damage;
+            if (spec.slow) { u.slow = Math.max(u.slow, spec.slow); u.slowTicks = spec.slowTicks; }
+          }
+          t.cooldown = spec.cooldown; t.shots++;
+          this.events.push({ type: 'shot', side, tower: t.id, kind: t.type, x: at.x, y: at.y });
+        }
+      }
+      step() {
+        if (this.phase !== 'running') return;
+        this.tick++; this.events = [];
+        for (const side of [0, 1]) if (this.ai[side]) {
+          const profile = PROFILES[this.difficulty[side]] || PROFILES.normal;
+          if ((this.tick + side * 5) % profile.interval === 0) planAI(this, side);
+        }
+        if (this.tick % PAY_TICKS === 0) for (const s of this.sides) s.gold += s.income;
+        if (this.tick >= FIRST_WAVE && (this.tick - FIRST_WAVE) % WAVE_TICKS === 0) this.spawnWave();
+        this.fields.forEach((field, side) => {
+          if (field.delay > 0) field.delay--;
+          if (field.delay === 0 && field.queue.length && field.units.length < MAX_UNITS) {
+            const u = field.queue.shift();
+            field.units.push({ id: ++this.serial, kind: u.kind, hp: u.hp, maxHp: u.hp, speed: u.speed, lives: u.lives, bounty: u.bounty, armor: u.armor, sender: u.sender, dist: 0, slow: 0, slowTicks: 0 });
+            field.delay = u.gap;
+          }
+          for (const u of field.units) {
+            u.dist += u.speed * (u.slowTicks > 0 ? 1 - u.slow : 1) * DT;
+            if (u.slowTicks > 0 && --u.slowTicks === 0) u.slow = 0;
+          }
+          const leaked = field.units.filter(u => u.dist >= PATH_LENGTH);
+          for (const u of leaked) {
+            this.sides[side].lives = Math.max(0, this.sides[side].lives - u.lives); this.sides[side].leaks += u.lives;
+            this.events.push({ type: 'leak', side, kind: u.kind, lives: u.lives, sender: u.sender });
+          }
+          if (leaked.length) field.units = field.units.filter(u => u.dist < PATH_LENGTH);
+        });
+        this.fireTowers(0); this.fireTowers(1);
+        this.fields.forEach((field, side) => {
+          const dead = field.units.filter(u => u.hp <= 0);
+          if (!dead.length) return;
+          for (const u of dead) { this.sides[side].gold += u.bounty; this.sides[side].kills++; this.events.push({ type: 'kill', side, kind: u.kind, sender: u.sender }); }
+          field.units = field.units.filter(u => u.hp > 0);
+        });
+        this.checkResult();
+      }
+      checkResult() {
+        const [a, b] = this.sides;
+        if (a.lives <= 0 || b.lives <= 0) {
+          if (a.lives <= 0 && b.lives <= 0) this.finish(null, '雙方同時失守，平手。');
+          else this.finish(a.lives <= 0 ? 1 : 0, a.lives <= 0 ? '你的路線失守了。' : 'AI 的路線失守了！');
+        } else if (this.tick >= TIME_LIMIT) {
+          if (a.lives === b.lives) this.finish(null, '時間到，雙方生命相同，平手。');
+          else this.finish(a.lives > b.lives ? 0 : 1, '時間到，以剩餘生命決定勝負。');
+        }
+      }
+      finish(winner, reason) {
+        if (this.phase === 'over') return;
+        this.phase = 'over';
+        this.result = { winner, reason, tick: this.tick, wave: this.wave, lives: this.sides.map(s => s.lives), kills: this.sides.map(s => s.kills), sent: this.sides.map(s => ({ ...s.sent })) };
+      }
+    }
+
+    // Estimated total damage a side's towers deal to one enemy walking the whole road.
+    function towerValue(type, level, col, row, field) {
+      const spec = TOWERS[type], range = spec.range + LEVEL_RANGE[level];
+      const dps = spec.damage * LEVEL_DAMAGE[level] / (spec.cooldown * DT);
+      const crowd = spec.splash ? field.crowd : 1;
+      return dps * crowd * cachedCoverage(col, row, range) / 1.6;
+    }
+    function defense(game, side) {
+      const field = { crowd: crowdFactor(game, side) };
+      let damage = 0, frost = 0;
+      for (const t of game.sides[side].towers) {
+        if (t.type === 'frost') frost += t.level;
+        damage += towerValue(t.type, t.level, t.col, t.row, field);
+      }
+      return { damage: damage * (1 + Math.min(.35, frost * .12)), frost, field };
+    }
+    function crowdFactor(game, side) {
+      // Splash multiplier against what is coming: bunched light units favour cannons, armour does not.
+      const pending = game.fields[side].queue.concat(game.fields[side].units, waveSpec(game.wave + 1));
+      let hp = 0, value = 0;
+      for (const u of pending) { const w = Math.max(1, u.hp); hp += w; value += w * (u.armor ? .5 * 1.6 : u.kind === 'swarm' ? 2.6 : 2); }
+      return value / hp;
+    }
+    function threat(game, side, foresight) {
+      const field = game.fields[side], next = waveSpec(game.wave + 1);
+      const pending = field.queue.concat(field.units);
+      const biggest = Math.max(next.reduce((m, u) => Math.max(m, u.hp), 0), pending.reduce((m, u) => Math.max(m, u.hp), 0));
+      // Gold the opponent is holding can become soldiers at any moment.
+      const total = pending.reduce((n, u) => n + Math.max(0, u.hp), 0) + next.reduce((n, u) => n + u.hp, 0) * .6 + game.sides[1 - side].gold * foresight * sendScale(game.wave);
+      return { biggest, total };
+    }
+    function planAI(game, side) {
+      const profile = PROFILES[game.difficulty[side]] || PROFILES.normal, me = game.sides[side], persona = game.personality[side], rand = game.random;
+      const def = defense(game, side), danger = threat(game, side, profile.foresight);
+      // Need enough damage per pass to kill the biggest enemy, plus throughput for the crowd.
+      const need = Math.max(danger.biggest * 1.4, danger.total / 2.5) * profile.safety;
+      const defending = def.damage < need || me.towers.length < 3;
+      if (defending) {
+        const options = [];
+        for (const t of me.towers) {
+          const cost = upgradeCost(t);
+          if (cost === null) continue;
+          const gain = towerValue(t.type, t.level + 1, t.col, t.row, def.field) - towerValue(t.type, t.level, t.col, t.row, def.field);
+          options.push({ score: gain / cost * 1.15, cost, act: () => game.upgrade(side, t.id) });
+        }
+        const cells = [];
+        for (let row = 0; row < ROWS; row++) for (let col = 0; col < COLS; col++) if (!isRoad(col, row) && !game.towerAt(side, col, row)) cells.push([col, row]);
+        if (me.towers.length < MAX_TOWERS) for (const type of Object.keys(TOWERS)) {
+          let best = null;
+          for (const [col, row] of cells) {
+            const v = towerValue(type, 1, col, row, def.field) * (1 + rand() * profile.noise);
+            if (!best || v > best.v) best = { v, col, row };
+          }
+          if (!best) continue;
+          let v = best.v;
+          if (type === 'frost') v = def.frost >= 2 ? 0 : def.damage * (.18 + persona.frostBias * .1) + v;
+          options.push({ score: v / TOWERS[type].cost * (1 + rand() * profile.noise), cost: TOWERS[type].cost, act: () => game.build(side, best.col, best.row, type) });
+        }
+        options.sort((a, b) => b.score - a.score);
+        const choice = options[0];
+        if (choice && me.gold >= choice.cost) { choice.act(); return; }
+        // Keep saving for the best defence unless gold is piling up uselessly.
+        if (!choice || me.gold < choice.cost) return;
+      }
+      if (me.gold < profile.reserve + 20) return;
+      if (!defending || rand() < .15) {
+        const foe = defense(game, 1 - side), splash = game.sides[1 - side].towers.filter(t => t.type === 'cannon').length / Math.max(1, game.sides[1 - side].towers.length);
+        const scores = Object.entries(UNITS).map(([kind, u]) => {
+          // Faster units spend less time inside tower range.
+          let score = u.hp * u.count * u.lives * u.speed / 1.6 / u.cost + u.income / u.cost * 20;
+          if (kind === 'swarm') score *= 1.1 - .7 * splash;
+          if (kind === 'brute') score *= .9 + .5 * splash;
+          if (kind === 'runner') score *= 1 - Math.min(.4, foe.frost * .12);
+          return { kind, score: score * (1 + rand() * profile.noise) };
+        }).sort((a, b) => b.score - a.score);
+        const surplus = me.gold - profile.reserve;
+        if (surplus * profile.sendShare * persona.aggression >= UNITS[scores[0].kind].cost) game.send(side, scores[0].kind);
+      }
+    }
+
+    return { Game, COLS, ROWS, TPS, DT, TIME_LIMIT, PAY_TICKS, FIRST_WAVE, WAVE_TICKS, START_GOLD, START_LIVES, START_INCOME, MAX_QUEUE, MAX_UNITS, MAX_TOWERS, MAX_LEVEL, SELL_RATE,
+      WAYPOINTS, PATH_LENGTH, TOWERS, UNITS, PROFILES, pointAt, isRoad, inField, towerRange, towerDamage, upgradeCost, sellValue, waveSpec, sendScale, coverage, planAI, defense, threat, seededRandom };
+  })();
+  </script>
+  <script id="lane-ui">
+  'use strict';
+  // SVG controls share the same native geometry as the catalogue icons.
+  function setButton(button, label, icon) {
+    const signature = icon + '|' + label; if (button.dataset.visualLabel === signature) return;
+    button.dataset.visualLabel = signature; button.setAttribute('aria-label', label);
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg'); svg.setAttribute('class', 'ui-icon'); svg.setAttribute('viewBox', '0 0 48 48'); svg.setAttribute('aria-hidden', 'true');
+    const use = document.createElementNS(svg.namespaceURI, 'use'); use.setAttribute('href', 'icons.svg#' + icon); svg.append(use);
+    const text = document.createElement('span'); text.textContent = label.replace(/\s*[→↗]\s*$/, ''); button.replaceChildren(svg, text);
+  }
+  const $ = id => document.getElementById(id), canvas = $('board'), ctx = canvas.getContext('2d');
+  const L = LaneDuel, CELL = 45, FIELD_H = L.ROWS * CELL;
+  const laneGame = new L.Game({ seed: 'lane-' + Date.now() });
+  const sideColor = ['#267477', '#99553f'], sideTint = ['#cbeaea', '#efdad1'], sideStroke = ['#5ebcbf', '#d08770'];
+  let selectedType = 'arrow', selectedTower = null, cursor = { col: 5, row: 2 }, hover = null, showCursor = false;
+  let restartPrompt = false, frameId = 0, lastTime = null, accumulator = 0, flashes = [], messageTick = 0;
+  const fieldTop = side => side === 0 ? FIELD_H : 0;
+  function announce(text) { if ($('status').textContent !== text) $('status').textContent = text; }
+  function cellFromEvent(event) {
+    const rect = canvas.getBoundingClientRect(), x = (event.clientX - rect.left) * 720 / rect.width, y = (event.clientY - rect.top) * 720 / rect.height;
+    if (y < FIELD_H) return null;
+    return { col: Math.floor(x / CELL), row: Math.floor((y - FIELD_H) / CELL) };
+  }
+  function drawField(side) {
+    const top = fieldTop(side);
+    ctx.fillStyle = side === 0 ? '#f4f8f7' : '#faf5f2'; ctx.fillRect(0, top, 720, FIELD_H);
+    ctx.strokeStyle = '#e5e9f0'; ctx.lineWidth = 1;
+    for (let c = 1; c < L.COLS; c++) { ctx.beginPath(); ctx.moveTo(c * CELL + .5, top); ctx.lineTo(c * CELL + .5, top + FIELD_H); ctx.stroke(); }
+    for (let r = 1; r < L.ROWS; r++) { ctx.beginPath(); ctx.moveTo(0, top + r * CELL + .5); ctx.lineTo(720, top + r * CELL + .5); ctx.stroke(); }
+    ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+    ctx.beginPath(); L.WAYPOINTS.forEach(([x, y], i) => i ? ctx.lineTo(x * CELL, top + y * CELL) : ctx.moveTo(x * CELL, top + y * CELL));
+    ctx.strokeStyle = '#d8dee9'; ctx.lineWidth = CELL * .82; ctx.stroke();
+    ctx.setLineDash([4, 8]); ctx.strokeStyle = '#aab3c2'; ctx.lineWidth = 1.5; ctx.stroke(); ctx.setLineDash([]);
+    const end = L.WAYPOINTS[L.WAYPOINTS.length - 1];
+    ctx.fillStyle = sideTint[side]; ctx.strokeStyle = sideColor[side]; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.roundRect(720 - CELL * .9, top + end[1] * CELL - 18, CELL * .8, 36, 6); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = sideColor[side]; ctx.font = 'bold 15px monospace'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText(String(laneGame.sides[side].lives), 720 - CELL * .5, top + end[1] * CELL + 1);
+    ctx.font = 'bold 13px system-ui, sans-serif'; ctx.textAlign = 'left';
+    ctx.fillStyle = sideColor[side]; ctx.fillText(side === 0 ? '你的路線' : 'AI 的路線', 10, top + 14);
+  }
+  function drawTower(side, t) {
+    const top = fieldTop(side), x = (t.col + .5) * CELL, y = top + (t.row + .5) * CELL, ink = sideColor[side];
+    ctx.fillStyle = '#ffffff'; ctx.strokeStyle = ink; ctx.lineWidth = 2.5;
+    ctx.beginPath(); ctx.roundRect(x - 17, y - 17, 34, 34, 7); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = sideTint[side]; ctx.beginPath();
+    if (t.type === 'arrow') { ctx.moveTo(x, y - 11); ctx.lineTo(x + 10, y + 8); ctx.lineTo(x - 10, y + 8); ctx.closePath(); }
+    else if (t.type === 'cannon') { ctx.arc(x, y + 1, 9, 0, Math.PI * 2); }
+    else { for (let i = 0; i < 6; i++) { const a = Math.PI / 6 + i * Math.PI / 3; i ? ctx.lineTo(x + Math.cos(a) * 10, y + Math.sin(a) * 10) : ctx.moveTo(x + Math.cos(a) * 10, y + Math.sin(a) * 10); } ctx.closePath(); }
+    ctx.fill(); ctx.lineWidth = 2; ctx.stroke();
+    if (t.type === 'cannon') { ctx.beginPath(); ctx.moveTo(x, y + 1); ctx.lineTo(x + 9, y - 9); ctx.stroke(); }
+    if (t.type === 'frost') { ctx.beginPath(); ctx.moveTo(x - 5, y); ctx.lineTo(x + 5, y); ctx.moveTo(x, y - 5); ctx.lineTo(x, y + 5); ctx.stroke(); }
+    ctx.fillStyle = ink;
+    for (let i = 0; i < t.level; i++) { ctx.beginPath(); ctx.arc(x - 8 + i * 8, y + 21, 2.4, 0, Math.PI * 2); ctx.fill(); }
+  }
+  function drawUnit(side, u) {
+    const top = fieldTop(side), p = L.pointAt(u.dist), x = p.x * CELL, y = top + p.y * CELL;
+    const ink = u.sender === -1 ? '#4c566a' : sideColor[u.sender], tint = u.sender === -1 ? '#e5e9f0' : sideTint[u.sender];
+    const size = u.kind === 'boss' ? 14 : u.kind === 'brute' ? 12 : u.kind === 'swarm' ? 6 : 8;
+    ctx.fillStyle = tint; ctx.strokeStyle = ink; ctx.lineWidth = 2; ctx.beginPath();
+    if (u.kind === 'brute' || u.kind === 'boss') ctx.roundRect(x - size, y - size, size * 2, size * 2, 4);
+    else if (u.kind === 'runner') { ctx.moveTo(x + size + 2, y); ctx.lineTo(x - size, y - size); ctx.lineTo(x - size, y + size); ctx.closePath(); }
+    else ctx.arc(x, y, size, 0, Math.PI * 2);
+    ctx.fill(); ctx.stroke();
+    if (u.slowTicks > 0) { ctx.beginPath(); ctx.arc(x, y, size + 4, 0, Math.PI * 2); ctx.strokeStyle = '#81a1c1'; ctx.setLineDash([3, 3]); ctx.stroke(); ctx.setLineDash([]); }
+    if (u.hp < u.maxHp) { const w = size * 2 + 6; ctx.fillStyle = '#2e344033'; ctx.fillRect(x - w / 2, y - size - 8, w, 3); ctx.fillStyle = ink; ctx.fillRect(x - w / 2, y - size - 8, w * Math.max(0, u.hp) / u.maxHp, 3); }
+  }
+  function drawRange(side, col, row, range, ink) {
+    const top = fieldTop(side); ctx.beginPath(); ctx.arc((col + .5) * CELL, top + (row + .5) * CELL, range * CELL, 0, Math.PI * 2);
+    ctx.fillStyle = ink + '18'; ctx.fill(); ctx.strokeStyle = ink + 'aa'; ctx.lineWidth = 1.5; ctx.setLineDash([5, 5]); ctx.stroke(); ctx.setLineDash([]);
+  }
+  function draw() {
+    const ratio = Math.min(devicePixelRatio || 1, 2);
+    if (canvas.width !== 720 * ratio) canvas.width = canvas.height = 720 * ratio;
+    ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+    drawField(1); drawField(0);
+    ctx.fillStyle = '#4c566a'; ctx.fillRect(0, FIELD_H - 1.5, 720, 3);
+    const mine = laneGame.sides[0], focus = hover || (showCursor ? cursor : null);
+    if (focus && laneGame.phase !== 'over') {
+      const own = laneGame.towerAt(0, focus.col, focus.row);
+      const ok = own || (!L.isRoad(focus.col, focus.row) && mine.gold >= L.TOWERS[selectedType].cost);
+      if (!own && !L.isRoad(focus.col, focus.row)) drawRange(0, focus.col, focus.row, L.TOWERS[selectedType].range, ok ? '#267477' : '#99553f');
+      ctx.strokeStyle = ok ? '#267477' : '#99553f'; ctx.lineWidth = 2; ctx.setLineDash(ok ? [] : [4, 4]);
+      ctx.strokeRect(focus.col * CELL + 2, FIELD_H + focus.row * CELL + 2, CELL - 4, CELL - 4); ctx.setLineDash([]);
+    }
+    const chosen = selectedTower && laneGame.tower(0, selectedTower);
+    if (chosen) drawRange(0, chosen.col, chosen.row, L.towerRange(chosen), '#267477');
+    for (const side of [0, 1]) for (const t of laneGame.sides[side].towers) drawTower(side, t);
+    for (const side of [0, 1]) for (const u of laneGame.fields[side].units) drawUnit(side, u);
+    const now = laneGame.tick;
+    flashes = flashes.filter(f => now - f.tick < 4);
+    for (const f of flashes) {
+      const top = fieldTop(f.side), t = laneGame.tower(f.side, f.tower); if (!t) continue;
+      ctx.strokeStyle = f.kind === 'frost' ? '#81a1c1' : f.kind === 'cannon' ? '#b48935' : sideStroke[f.side]; ctx.lineWidth = f.kind === 'cannon' ? 3 : 1.5;
+      ctx.beginPath(); ctx.moveTo((t.col + .5) * CELL, top + (t.row + .5) * CELL); ctx.lineTo(f.x * CELL, top + f.y * CELL); ctx.stroke();
+      if (f.kind === 'cannon') { ctx.beginPath(); ctx.arc(f.x * CELL, top + f.y * CELL, L.TOWERS.cannon.splash * CELL, 0, Math.PI * 2); ctx.strokeStyle = '#b4893566'; ctx.stroke(); }
+    }
+  }
+  function updateHUD() {
+    const g = laneGame, me = g.sides[0], running = g.phase === 'running';
+    $('gold').textContent = me.gold; $('income').textContent = me.income; $('lives').textContent = me.lives; $('ai-lives').textContent = g.sides[1].lives; $('wave').textContent = g.wave;
+    const seconds = Math.max(0, Math.ceil((L.TIME_LIMIT - g.tick) / L.TPS));
+    $('clock').textContent = `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`;
+    $('phase-label').textContent = { ready: '準備開戰', running: g.ai[0] ? 'AI 對戰觀戰中' : '對戰中', paused: '已暫停', over: '本局結束' }[g.phase];
+    $('pause').disabled = g.phase === 'ready' || g.phase === 'over' || restartPrompt;
+    setButton($('pause'), g.phase === 'paused' ? '繼續' : '暫停', g.phase === 'paused' ? 'play' : 'pause');
+    const human = running && !g.ai[0];
+    for (const b of document.querySelectorAll('.tower-btn')) { b.setAttribute('aria-pressed', String(b.dataset.tower === selectedType)); b.disabled = g.ai[0]; }
+    for (const b of document.querySelectorAll('.send-btn')) b.disabled = !human || !g.canSend(0, b.dataset.send);
+    const t = selectedTower && g.tower(0, selectedTower);
+    if (selectedTower && !t) selectedTower = null;
+    const cost = t ? L.upgradeCost(t) : null;
+    $('upgrade').disabled = !human || !t || cost === null || me.gold < cost; $('upgrade-cost').textContent = t ? (cost === null ? '滿級' : cost) : '—';
+    $('sell').disabled = !human || !t; $('sell-value').textContent = t ? '+' + L.sellValue(t) : '—';
+    $('tower-note').textContent = t ? `${L.TOWERS[t.type].name} ${t.level} 級 · 射程 ${L.towerRange(t).toFixed(1)} · 傷害 ${Math.round(L.towerDamage(t))}` : '點自己的塔來選取。';
+  }
+  function act(col, row) {
+    const g = laneGame;
+    if (g.phase !== 'running' || g.ai[0] || !L.inField(col, row)) return;
+    const own = g.towerAt(0, col, row);
+    if (own) { selectedTower = selectedTower === own.id ? null : own.id; updateHUD(); return; }
+    if (L.isRoad(col, row)) { selectedTower = null; announce('道路上不能蓋塔，請選旁邊的空地。'); updateHUD(); return; }
+    const spec = L.TOWERS[selectedType], built = g.build(0, col, row, selectedType);
+    if (built) { selectedTower = null; announce(`${spec.name}完成！`); messageTick = g.tick + 60; }
+    else { selectedTower = null; announce(`金幣不足，${spec.name}需要 ${spec.cost}。`); messageTick = g.tick + 40; }
+    updateHUD(); draw();
+  }
+  function sendUnit(kind) {
+    const g = laneGame;
+    if (g.phase !== 'running' || g.ai[0]) return;
+    const spec = L.UNITS[kind];
+    if (g.send(0, kind)) announce(`派出${spec.name}！收入 +${spec.income}。`);
+    else announce(g.sides[0].gold < spec.cost ? `金幣不足，${spec.name}需要 ${spec.cost}。` : '對手路線入口太擁擠，稍等再派。');
+    messageTick = g.tick + 50; updateHUD();
+  }
+  function upgradeSelected() {
+    const g = laneGame, t = selectedTower && g.tower(0, selectedTower);
+    if (!t || g.ai[0]) return;
+    if (g.upgrade(0, t.id)) announce(`${L.TOWERS[t.type].name}升到 ${t.level} 級。`);
+    else announce(L.upgradeCost(t) === null ? '這座塔已是最高等級。' : '金幣不足，無法升級。');
+    messageTick = g.tick + 50; updateHUD(); draw();
+  }
+  function sellSelected() {
+    const g = laneGame, t = selectedTower && g.tower(0, selectedTower);
+    if (!t || g.ai[0]) return;
+    const value = L.sellValue(t);
+    if (g.sell(0, t.id)) { selectedTower = null; announce(`已出售，取回 ${value} 金幣。`); messageTick = g.tick + 50; }
+    updateHUD(); draw();
+  }
+  function showDialog(kicker, title, copy, action, secondary = false) {
+    $('dialog-kicker').textContent = kicker; $('dialog-title').textContent = title; $('dialog-copy').textContent = copy;
+    setButton($('play'), action, laneGame.phase === 'over' || restartPrompt ? 'restart' : 'play');
+    $('dialog-secondary').hidden = !secondary; $('dialog-art').hidden = laneGame.phase !== 'ready';
+    $('settings').hidden = !(laneGame.phase === 'ready' || laneGame.phase === 'over' || restartPrompt);
+    $('overlay').hidden = false; $('play').focus({ preventScroll: true });
+  }
+  function stopFrames() { cancelAnimationFrame(frameId); frameId = 0; lastTime = null; accumulator = 0; }
+  function applySettings() {
+    const spectate = $('spectate').checked, level = $('difficulty').value;
+    laneGame.options = { ...laneGame.options, seed: 'lane-' + Date.now(), ai: [spectate, true], difficulty: ['normal', level] };
+  }
+  function resume() {
+    if (laneGame.phase === 'ready') { applySettings(); laneGame.reset(); }
+    restartPrompt = false; laneGame.start(); $('overlay').hidden = true; updateHUD(); canvas.focus({ preventScroll: true });
+    stopFrames(); frameId = requestAnimationFrame(frame);
+    announce(laneGame.ai[0] ? '觀戰中：下方由 AI 代你防守。' : '選一種塔，點下半部的空地建造；有餘錢就派兵進攻。');
+  }
+  function pause() {
+    if (laneGame.phase !== 'running') return;
+    laneGame.pause(); stopFrames(); hover = null; updateHUD(); draw(); announce('已暫停，敵兵與 AI 都停下了。');
+    showDialog('休息一下', '戰場暫停中', '敵兵、收入與 AI 都已停下。準備好再繼續。', '繼續對戰 →');
+  }
+  function newRound() { stopFrames(); applySettings(); laneGame.reset(); selectedTower = null; flashes = []; messageTick = 0; resume(); draw(); }
+  function endRound() {
+    stopFrames(); updateHUD(); draw();
+    const r = laneGame.result, spectating = laneGame.ai[0];
+    const title = r.winner === null ? '勢均力敵，平手！' : spectating ? (r.winner === 0 ? '下方 AI 守住了' : '上方 AI 守住了') : r.winner === 0 ? '防線屹立，你贏了！' : '防線失守，再來一局';
+    announce(r.reason);
+    showDialog('本局結束', title, `${r.reason} 撐到第 ${r.wave} 波，生命 ${r.lives[0]} : ${r.lives[1]}，擊倒 ${r.kills[0]} 名敵兵。`, '再玩一局 →');
+  }
+  function frame(time) {
+    if (laneGame.phase !== 'running') return;
+    if (lastTime === null) lastTime = time;
+    accumulator += Math.min(time - lastTime, 250); lastTime = time;
+    const ms = 1000 / L.TPS;
+    while (accumulator >= ms && laneGame.phase === 'running') {
+      accumulator -= ms; laneGame.step();
+      for (const e of laneGame.events) {
+        if (e.type === 'shot') flashes.push({ ...e, tick: laneGame.tick });
+        else if (e.type === 'leak' && e.side === 0 && laneGame.tick > messageTick - 20) { announce(`敵兵突破防線，生命 -${e.lives}！`); messageTick = laneGame.tick + 40; }
+        else if (e.type === 'wave' && laneGame.tick > messageTick) { announce(`第 ${e.wave} 波來襲${e.wave % 5 === 0 ? '，還有頭目！' : '。'}`); messageTick = laneGame.tick + 40; }
+        else if (e.type === 'send' && e.side === 1 && laneGame.tick > messageTick) { announce(`AI 派出${L.UNITS[e.kind].name}攻向你的路線。`); messageTick = laneGame.tick + 30; }
+      }
+      if (laneGame.tick % 4 === 0) updateHUD();
+    }
+    if (laneGame.phase === 'over') { endRound(); return; }
+    draw(); frameId = requestAnimationFrame(frame);
+  }
+  $('play').addEventListener('click', () => { if (restartPrompt || laneGame.phase === 'over') newRound(); else resume(); });
+  $('dialog-secondary').addEventListener('click', resume);
+  $('pause').addEventListener('click', () => laneGame.phase === 'running' ? pause() : resume());
+  $('restart').addEventListener('click', () => {
+    if (laneGame.phase === 'ready' || laneGame.phase === 'over') { newRound(); return; }
+    pause(); restartPrompt = true; updateHUD(); showDialog('重新開戰', '重新開始這一局？', '塔、金幣、生命與波次都會重置。', '確定重開', true);
+  });
+  for (const b of document.querySelectorAll('.tower-btn')) b.addEventListener('click', () => { selectedType = b.dataset.tower; selectedTower = null; updateHUD(); draw(); });
+  for (const b of document.querySelectorAll('.send-btn')) b.addEventListener('click', () => sendUnit(b.dataset.send));
+  $('upgrade').addEventListener('click', upgradeSelected);
+  $('sell').addEventListener('click', sellSelected);
+  const towerKeys = { '1': 'arrow', '2': 'cannon', '3': 'frost' }, sendKeys = { q: 'runner', w: 'brute', e: 'swarm' };
+  const moves = { ArrowUp: [0, -1], ArrowDown: [0, 1], ArrowLeft: [-1, 0], ArrowRight: [1, 0] };
+  document.addEventListener('keydown', event => {
+    if (event.altKey || event.ctrlKey || event.metaKey || /^(INPUT|TEXTAREA|SELECT)$/.test(event.target.tagName)) return;
+    const key = event.key.length === 1 ? event.key.toLowerCase() : event.key, running = laneGame.phase === 'running';
+    if ((key === 'p' || key === 'Escape') && !event.repeat && !restartPrompt) {
+      if (running) { event.preventDefault(); pause(); } else if (laneGame.phase === 'paused') { event.preventDefault(); resume(); }
+      return;
+    }
+    if (!running || laneGame.ai[0]) return;
+    if (towerKeys[key]) { selectedType = towerKeys[key]; selectedTower = null; updateHUD(); draw(); }
+    else if (sendKeys[key] && !event.repeat) sendUnit(sendKeys[key]);
+    else if (key === 'u') upgradeSelected();
+    else if (key === 'x') sellSelected();
+    else if (moves[key] && event.target === canvas) {
+      event.preventDefault(); showCursor = true; hover = null;
+      cursor = { col: Math.max(0, Math.min(L.COLS - 1, cursor.col + moves[key][0])), row: Math.max(0, Math.min(L.ROWS - 1, cursor.row + moves[key][1])) }; draw();
+    } else if ((key === 'Enter' || key === ' ') && event.target === canvas) { event.preventDefault(); showCursor = true; act(cursor.col, cursor.row); }
+  });
+  canvas.addEventListener('pointerdown', event => { const cell = cellFromEvent(event); if (!cell) return; showCursor = false; cursor = cell; act(cell.col, cell.row); });
+  canvas.addEventListener('pointermove', event => { if (event.pointerType !== 'mouse') return; hover = cellFromEvent(event); if (hover) showCursor = false; if (laneGame.phase !== 'running') draw(); });
+  canvas.addEventListener('pointerleave', () => { hover = null; });
+  window.addEventListener('blur', pause);
+  document.addEventListener('visibilitychange', () => { if (document.hidden) pause(); });
+  window.addEventListener('resize', () => { if (laneGame.phase !== 'running') draw(); });
+  updateHUD(); draw();
+  </script>
+</body>
+</html>
