@@ -5,6 +5,7 @@
   let E = normal ? window.CardHex : window.AutoHex;
   const S = window.HexStrategies;
   const V = window.AutoHexVisuals;
+  const Snap = window.AutoHexSnapshot;
   const $ = id => document.getElementById(id);
   if (!E || !V || !S || !window.HexCore) { $('status').textContent = '戰場載入失敗，請重新整理此頁。'; return; }
   const canvas = $('board'), mainContext = canvas.getContext('2d');
@@ -44,6 +45,8 @@
   let hovered = -1, focused = -1, message = '', error = false, generation = 0;
   let aiTimer = null, frame = null, timing = false, lastStamp = 0, lastClockPaint = 0;
   let wasStarted = false, rangeValid = new Set(), lastViewTurn = null;
+  const chronicle = Snap ? new Snap.Chronicle() : null;
+  let snapshotUrl = null;
   const effects = new V.Effects(), reducedQuery = matchMedia('(prefers-reduced-motion: reduce)');
   let supplyLinks = [], inspectedCell = -1, inspectedRange = null, inspectMode = false, airRangeCells = [];
   let lastEffectPaint = 0, effectsDirty = false;
@@ -222,7 +225,7 @@
     game = new E.Game(recipe); window.autoHexGame = window.hexGame = game;
     $('supply-mode').replaceChildren(...['all', 'off', ...P].map(value => { const o = node('option', '', value === 'all' ? '全部陣營' : value === 'off' ? '關閉' : localName(value)); o.value = value; return o; }));
     $('cell-count').textContent = `${E.COUNT.toLocaleString()} 格`;
-    effects.clear(); effectsDirty = false; inspectedCell = -1; inspectedRange = null; inspectMode = false;
+    chronicle?.clear(); effects.clear(); effectsDirty = false; inspectedCell = -1; inspectedRange = null; inspectMode = false;
     planningTiming.count = 0; planningTiming.lastMs = 0; planningTiming.lastLatencyMs = 0; planningTiming.lastMode = null; planningTiming.maxMs = 0; planningTiming.totalMs = 0; planningTiming.workerCount = 0; planningTiming.synchronousCount = 0; planningTiming.recentMs.length = 0;
     selection = { type: 'deploy', cells: [] }; hovered = -1; focused = -1;
     lastViewTurn = null; message = ''; error = false; wasStarted = start;
@@ -243,7 +246,7 @@
   function render() {
     renderHandoff();
     view = game.observation(observer());
-    effects.ingest(view.events, game.activeMs);
+    effects.ingest(view.events, game.activeMs); chronicle?.record(view);
     supplyLinks = V.supplyForest(view, E.ADJ);
     inspectedRange = V.inspectTurret(view, inspectedCell, E.CELLS, E.distance);
     if (!inspectedRange && !(view.airports || []).some(a => a.cell === inspectedCell) && !(view.depots || []).some(d => d.cell === inspectedCell)) inspectedCell = -1;
@@ -255,6 +258,7 @@
     $('phase-label').textContent = ready ? '準備出發' : paused ? '戰役已暫停' : game.phase === 'over' ? '戰役已結算' : game.sandbox ? '自由對戰' : mode === 'human' ? (normal ? '本機 Hex 對戰' : '你的六方戰役') : `${P.length} 方 AI 觀戰`;
     $('play').hidden = !ready;
     $('pause').disabled = ready || game.phase === 'over'; $('pause').textContent = paused ? '繼續' : '暫停';
+    if ($('snapshot')) $('snapshot').disabled = ready || !chronicle;
     $('step').disabled = mode !== 'spectator' || running || game.phase === 'over';
     for (const el of $('setup').querySelectorAll('input,select,textarea,button')) el.disabled = !ready && game.phase !== 'over';
     for (const p of P) { $(`seat-control-${p}`).disabled ||= !normal; $(`seat-profile-${p}`).disabled ||= seats[p - 1].control !== 'ai'; }
@@ -513,6 +517,32 @@
       : airport ? `✈ 機場 · ${airport.owner ? localName(airport.owner) : '中立'} · ${airport.supplied ? '家園補給連通' : '尚未連回家園'} · 4 格內連片 ${airport.cluster}/12 子 · 維持 ${airport.progress}/3 次己方行動 · ${airport.active ? '已啟用：空投 10 格 / 轟炸 12 格' : '未啟用：持續占領並擴大連片'}`
       : depot ? `◇ 物資站 · ${depot.owner ? localName(depot.owner) : '中立'} · ${depot.supplied ? '連回家園，每 3 次己方行動提供物資加成' : '占領並連回家園後提供物資加成'}`
       : inspectMode ? '查看模式：點按炮台、機場或物資站。點格只查看，不會花費能量或出牌。' : '選「查看設施」後點按炮台顯示射程，或查看機場與物資站。';
+  }
+  function clockText() {
+    if (normal) return `${Math.max(...P.map(p => game.players[p].completedActions || 0))} / 100 次行動`;
+    if (game.sandbox) return '自由對戰';
+    const seconds = Math.ceil(Math.max(0, game.durationMs - game.activeMs) / 1000);
+    return `剩餘 ${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`;
+  }
+  function takeSnapshot() {
+    if (!chronicle || game.phase === 'ready') return;
+    // Freeze first: the image describes exactly the paused board.
+    flushClock(); if (game.phase === 'running') game.pause();
+    message = ''; error = false; render(); schedule();
+    const summary = Snap.summarize(chronicle, view), image = document.createElement('canvas');
+    Snap.draw(image, { view, summary, seed: game.seed, clock: clockText(), supply: supplyLinks }, { points, colors: COLORS, tints: TINTS, names: NAMES.map((n, p) => p ? `${LETTER(p)} ${n}` : '') });
+    const dialog = $('snapshot-dialog'), name = `autohex-${String(game.seed).replace(/[^\w-]+/g, '_').slice(0, 40)}-T${summary.toPly}.png`;
+    image.toBlob(blob => {
+      if (!blob) { message = '截圖產生失敗，請再試一次。'; error = true; render(); return; }
+      if (snapshotUrl) URL.revokeObjectURL(snapshotUrl);
+      snapshotUrl = URL.createObjectURL(blob);
+      $('snapshot-image').src = snapshotUrl; $('snapshot-download').href = snapshotUrl; $('snapshot-download').download = name;
+      $('snapshot-title').textContent = `最近 ${Snap.TURNS} 個回合（第 ${summary.fromPly + 1}–${summary.toPly} 次行動）`;
+      $('snapshot-note').textContent = '越新的變化越深，舊的較淡。只含公開資訊；手機可長按圖片儲存。';
+      $('snapshot-resume').hidden = game.phase !== 'paused';
+      if (!dialog.open) dialog.showModal?.(); if (!dialog.open) dialog.setAttribute('open', '');
+      window.autoHexSnapshotDebug = { name, width: image.width, height: image.height, bytes: blob.size, summary };
+    }, 'image/png');
   }
   function resize() {
     const rect = canvas.getBoundingClientRect(), dpr = Math.min(devicePixelRatio || 1, 2.5), ratio = camera.scale / camera.fit;
@@ -804,6 +834,12 @@
   $('play').addEventListener('click', () => { if (game.phase !== 'ready') return; try { const next = S.normalize($('strategy-json').value); if (S.id(next) !== S.id(strategyConfig)) applyStrategy(next); } catch (error) { $('strategy-status').textContent = error.message; $('strategy-status').classList.add('error'); $('strategy-json').closest('details').open = true; $('strategy-json').focus(); return; } reset({ start: true }); });
   $('pause').addEventListener('click', () => { flushClock(); if (game.phase === 'running') game.pause(); else if (game.phase === 'paused') game.start(); message = ''; error = false; render(); schedule(); });
   $('restart').addEventListener('click', () => reset({ fresh: true }));
+  if ($('snapshot')) {
+    const closeSnapshot = () => { const d = $('snapshot-dialog'); if (d.open) d.close ? d.close() : d.removeAttribute('open'); };
+    $('snapshot').addEventListener('click', takeSnapshot);
+    $('snapshot-close').addEventListener('click', closeSnapshot);
+    $('snapshot-resume').addEventListener('click', () => { closeSnapshot(); flushClock(); if (game.phase === 'paused') game.start(); message = ''; error = false; render(); schedule(); });
+  }
   $('replay').addEventListener('click', () => { if (recipe) { const saved = recipe; $('seed').value = saved.seed; $('starter').value = saved.first; $('rotation').value = saved.rotation; $('neutral-events').value = saved.neutralEvents ? 'on' : 'off'; $('terrain-mode').value = saved.terrain === 'classic' ? 'plain' : 'mixed'; $('timed-cards').value = saved.timedCards ? 'timed' : 'keep'; $('seat-count').value = saved.playerCount; strategyConfig = S.normalize(saved.strategyConfig); seatControls(); saved.uiSeats.forEach((seat, i) => { $(`seat-control-${i + 1}`).value = seat.control; $(`seat-profile-${i + 1}`).value = seat.strategy; }); } reset({ start: wasStarted }); });
   $('match-mode').addEventListener('change', () => { seatControls($('match-mode').value); reset(); });
   $('seat-count').addEventListener('change', () => { seatControls($('match-mode').value === 'local' ? undefined : $('match-mode').value); reset(); });
