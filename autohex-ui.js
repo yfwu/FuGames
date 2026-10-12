@@ -531,17 +531,17 @@
     message = ''; error = false; render(); schedule();
     const summary = Snap.summarize(chronicle, view), image = document.createElement('canvas');
     Snap.draw(image, { view, summary, seed: game.seed, clock: clockText(), supply: supplyLinks }, { points, colors: COLORS, tints: TINTS, names: NAMES.map((n, p) => p ? `${LETTER(p)} ${n}` : '') });
-    const dialog = $('snapshot-dialog'), name = `autohex-${String(game.seed).replace(/[^\w-]+/g, '_').slice(0, 40)}-R${summary.toRound}.png`;
+    const dialog = $('snapshot-dialog'), name = `autohex-${String(game.seed).replace(/[^\w-]+/g, '_').slice(0, 40)}-T${summary.toPly}.png`;
     image.toBlob(blob => {
       if (!blob) { message = '截圖產生失敗，請再試一次。'; error = true; render(); return; }
       if (snapshotUrl) URL.revokeObjectURL(snapshotUrl);
       snapshotUrl = URL.createObjectURL(blob);
       $('snapshot-image').src = snapshotUrl; $('snapshot-download').href = snapshotUrl; $('snapshot-download').download = name;
-      $('snapshot-title').textContent = `第 ${summary.fromRound}–${summary.toRound} 輪戰況`;
-      $('snapshot-note').textContent = `${summary.shots.length} 次砲擊 · ${summary.kills.length} 枚棋子消滅 · ${summary.captures.length} 次攻占 · ${summary.plans.length} 條策略路線。只含公開資訊；手機可長按圖片儲存。`;
+      $('snapshot-title').textContent = `最近 ${Snap.TURNS} 個回合（第 ${summary.fromPly + 1}–${summary.toPly} 次行動）`;
+      $('snapshot-note').textContent = '越新的變化越深，舊的較淡。只含公開資訊；手機可長按圖片儲存。';
       $('snapshot-resume').hidden = game.phase !== 'paused';
       if (!dialog.open) dialog.showModal?.(); if (!dialog.open) dialog.setAttribute('open', '');
-      window.autoHexSnapshotDebug = { name, width: image.width, height: image.height, bytes: blob.size, summary: { ...summary, stats: summary.stats.map(s => ({ ...s })) } };
+      window.autoHexSnapshotDebug = { name, width: image.width, height: image.height, bytes: blob.size, summary };
     }, 'image/png');
   }
   function resize() {

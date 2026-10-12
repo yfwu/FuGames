@@ -142,4 +142,4 @@ python tests/lane_duel_browser.py
 
 翻轉五子棋保留原規則，改用有固定工作上限、完整即勝／即敗掃描與後續攻守搜尋的 AI，透過可取消的 Worker 執行。獨立搜尋證明 `E5 → E4 → E3` 後先手可在第 11 手前強制獲勝；這不等於整個遊戲先手必勝。新 AI 避開該相鄰敗著，16 場保留開局對舊 AI 為 10 勝 6 負；完整證明、全部結果與限制見 [Flip Five 研究](docs/flipfive-2026-10-11/README.md) 與 [AI 對照](docs/flipfive-2026-10-11/ai-study/README.md)。
 
-AutoHex 新增「截圖」：按下即暫停，把最近 18 輪的砲擊、消滅、攻占、撤退與極淡虛線的 AI 策略路線匯出成 PNG；棋盤上只用圖示、不放文字。見 [截圖說明與驗證](docs/autohex-snapshot-2026-10-12/validation.md)。
+AutoHex 新增「截圖」：按下即暫停，把最近 18 個回合的擴張、失地、砲擊、消滅、攻占與極淡虛線的 AI 策略全部壓在一張地圖上，匯出成 PNG；只用圖示與深淺、不放文字。見 [截圖說明與驗證](docs/autohex-snapshot-2026-10-12/validation.md)。

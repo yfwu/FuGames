@@ -20,13 +20,24 @@ function battle() {
   return { g, chronicle };
 }
 
-test('chronicle keeps events beyond the core event cap and only the last 18 rounds are summarised', () => {
+test('the window is the last 18 turns (actions), not 18 rounds', () => {
   const { g, chronicle } = battle(), view = g.observation(0);
-  assert.equal(view.events.length, 96);
-  assert.ok(chronicle.events.length > 96, 'chronicle accumulates past the 96-event core limit');
   const s = S.summarize(chronicle, view);
-  assert.equal(s.toRound, view.round); assert.equal(s.toRound - s.fromRound + 1, 18);
-  assert.ok(chronicle.events.every(e => e.round >= view.round - 19));
+  assert.equal(S.TURNS, 18); assert.equal(s.toPly, view.ply); assert.equal(s.toPly - s.fromPly, 18);
+  assert.ok(chronicle.events.every(e => e.ply >= view.ply - 24), 'older events are pruned');
+});
+
+test('territory changes inside the window become gains and ghosts of lost stones', () => {
+  const g = new E.Game({ seed: 'snapshot-territory', neutralEvents: false }); g.start();
+  const chronicle = new S.Chronicle(); chronicle.record(g.observation(0));
+  const old = at(3, 0), fresh = at(3, 1); g.board[old] = 2;
+  for (let n = 0; n < 30; n++) g.act({ type: 'rest', cells: [] });
+  chronicle.record(g.observation(0));
+  g.board[old] = 0; g.board[fresh] = 2; g.act({ type: 'rest', cells: [] }); chronicle.record(g.observation(0));
+  const s = S.summarize(chronicle, g.observation(0));
+  assert.ok(s.gains.some(x => x.cell === fresh && x.player === 2));
+  assert.ok(s.ghosts.some(x => x.cell === old && x.owner === 2));
+  assert.ok(!s.gains.some(x => x.cell === old));
 });
 
 test('turret fire becomes shot arcs, shield blocks and kills with the right colours', () => {
@@ -35,11 +46,10 @@ test('turret fire becomes shot arcs, shield blocks and kills with the right colo
   g.board[at(4, 0)] = 1; g.board[at(5, 0)] = 2; g.shields[at(5, 0)] = 5;
   g.turrets = [{ owner: 1, cell: at(4, 0), life: 30, countdown: 1 }];
   for (let n = 0; n < 30; n++) { g.act({ type: 'rest', cells: [] }); chronicle.record(g.observation(0)); }
-  const s = S.summarize(chronicle, g.observation(0));
+  const s = S.summarize(chronicle, g.observation(0), 60);
   assert.ok(s.shots.some(x => x.blocked && x.from === at(4, 0) && x.to === at(5, 0) && x.player === 1));
   assert.ok(s.shots.some(x => !x.blocked && x.victim === 2));
   assert.ok(s.kills.some(k => k.cell === at(5, 0) && k.victim === 2 && k.player === 1));
-  assert.ok(s.stats[1].shots >= 2 && s.stats[1].kills >= 1 && s.stats[2].losses >= 1);
 });
 
 test('strategy commitments are deduplicated and follow their latest public corridor', () => {
@@ -50,14 +60,12 @@ test('strategy commitments are deduplicated and follow their latest public corri
   assert.equal(chronicle.plans.length, 1); assert.deepEqual(chronicle.plans[0].path, [2, 3, 4]);
 });
 
-test('the image puts no words on the board: every text call lands outside the map panel', () => {
+test('the image is the map alone, with no words drawn anywhere', () => {
   const { g, chronicle } = battle(), view = g.observation(0), { calls, canvas } = recordingCanvas();
   const points = E.CELLS.map(c => ({ x: Math.sqrt(3) * (c.q + c.r / 2), y: 1.5 * c.r }));
   const geo = { points, colors: ['', '#267477', '#a65e46', '#84618c', '#4d739e', '#668047', '#ad7b23'], tints: Array(7).fill('#eee'), names: ['', 'A', 'B', 'C', 'D', 'E', 'F'] };
   const result = S.draw(canvas, { view, summary: S.summarize(chronicle, view), seed: g.seed, clock: '9:00', supply: V.supplyForest(view, E.ADJ) }, geo, { pixelRatio: 1 });
-  const M = result.layout.map, texts = calls.filter(c => c[0] === 'fillText');
-  assert.ok(texts.length > 20);
-  for (const [, text, x, y] of texts) assert.ok(!(x > M.x && x < M.x + M.w && y > M.y && y < M.y + M.h), `text "${text}" drawn on map at ${x},${y}`);
-  assert.ok(calls.some(c => c[0] === 'setLineDash' && c[1].length === 2 && c[1][0] === 3 && c[1][1] === 6), 'faint dashed strategy lines');
+  assert.deepEqual(calls.filter(c => c[0] === 'fillText' || c[0] === 'strokeText'), []);
+  assert.ok(result.layout.map.w / result.layout.W > .95, 'the board fills the image');
   assert.equal(canvas.width, result.layout.W);
 });
