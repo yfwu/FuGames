@@ -30,6 +30,7 @@ python -m http.server 8000 --bind 0.0.0.0
 - 環面直落四子：`cyclic_connect4_torus.html`
 - 軌道棋：`trackgame.html`
 - 圈地漫遊 Territory Loop：`territory_loop.html`
+- 雙線塔防：`lane_duel.html`（你守下半、AI 守上半；蓋塔防守，派兵進攻對手路線）
 - 星點吞噬 Star Feast：`star_feast.html`
 
 八款擴充的逐款規則與 AI 說明見 [開發文件](docs/expansion-games.md)，分工見 [實作計畫](docs/expansion-plan.md)，測試證據與限制見 [驗證紀錄](docs/expansion-validation.md)。
@@ -54,6 +55,8 @@ AutoHex 接續新增外圈機場／補給站、物資空中行動、持有超過
 AutoHex AI 戰略多樣化：六個預設策略各有戰術教條，不再全部擠向中央。側翼派改走鄰國前方的航道，截斷派奪取敵方補給網的斷點使後方斷補，穩固派加寬受威脅的單格補給線，擴張派搶占物資站；只有直進先鋒維持原本中央直線。舊策略 JSON 仍相容。見 [對照實測與限制](docs/autohex-ai-diversity-2026-10-12/validation.md)。
 
 獨立新增 Tux 2D：原創雪港賽道，預設你與四位 AI 跑三圈，也可觀看五 AI 競速。每圈依序通過十二個檢查點；甩尾蓄力後放開加速，雪球、香蕉皮、護盾與加速道具使用共同規則。預設自動油門，方向鍵／WASD 轉向，Shift／Z 甩尾，Space 使用道具，P／Esc 暫停；手機有可同時按住的觸控按鈕。賽道、美術與程式為原創，僅以 [SuperTuxKart](https://supertuxkart.net/Main_Page) 為玩法靈感。見 [規則、完整賽事與手機驗證](docs/tux2d-2026-10-11/validation.md)。
+
+新增雙線塔防：你和 AI 各守一條蛇形路線，每 15 秒迎來相同的中立敵兵。箭塔、砲塔、冰塔可升級到 3 級；派出的快兵、盾兵、群兵會進入對手路線，並永久提高自己的收入。生命先歸零者落敗，8 分鐘後比剩餘生命。AI 有簡單／普通／困難三段，也能觀戰 AI 對 AI。見 [規則、AI 研究與瀏覽器驗證](docs/lane-duel-2026-10-12/validation.md)。
 
 ### 共用介面
 
@@ -122,6 +125,7 @@ FUGAMES_BASE_URL=http://127.0.0.1:8000 python tests/tux2d_browser.py
 FUGAMES_BASE_URL=http://127.0.0.1:8000 python tests/tux2d_visual_browser.py
 FUGAMES_BASE_URL=http://127.0.0.1:8000 python tests/tux2d_ui_browser.py
 FUGAMES_BASE_URL=http://127.0.0.1:8000 python tests/tux2d_performance_browser.py
+python tests/lane_duel_browser.py
 ```
 
 若環境尚未有測試工具，可安裝 Python 的 `playwright` 並提供 Chromium 執行檔。環境變數：
