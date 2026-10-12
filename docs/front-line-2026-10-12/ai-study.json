@@ -1,0 +1,94 @@
+{
+  "seeds": 20,
+  "pairs": [
+    {
+      "a": "normal",
+      "b": "normal",
+      "games": 20,
+      "wins": {
+        "seat0": 7,
+        "seat1": 12,
+        "draw": 1
+      },
+      "timeouts": 1,
+      "totals": {
+        "built": 37.5,
+        "launched": 263.1,
+        "cards": 21.4,
+        "bombs": 7.3,
+        "destroyed": 19.9,
+        "engineers": 8.9
+      },
+      "medianMinutes": 3.6
+    },
+    {
+      "a": "hard",
+      "b": "normal",
+      "games": 40,
+      "wins": {
+        "hard@0": 16,
+        "hard@1": 14,
+        "normal@0": 3,
+        "normal@1": 1,
+        "draw": 6
+      },
+      "timeouts": 7,
+      "totals": {
+        "built": 40.6,
+        "launched": 380.9,
+        "cards": 23.6,
+        "bombs": 7.5,
+        "destroyed": 20,
+        "engineers": 11.1
+      },
+      "medianMinutes": 2.96,
+      "strongerWinRate": 0.75
+    },
+    {
+      "a": "normal",
+      "b": "easy",
+      "games": 40,
+      "wins": {
+        "normal@0": 18,
+        "normal@1": 19,
+        "easy@0": 1,
+        "easy@1": 2,
+        "draw": 0
+      },
+      "timeouts": 1,
+      "totals": {
+        "built": 37,
+        "launched": 265.4,
+        "cards": 20.7,
+        "bombs": 6.2,
+        "destroyed": 20.7,
+        "engineers": 3.3
+      },
+      "medianMinutes": 3.81,
+      "strongerWinRate": 0.925
+    },
+    {
+      "a": "hard",
+      "b": "easy",
+      "games": 40,
+      "wins": {
+        "hard@0": 20,
+        "hard@1": 19,
+        "easy@0": 1,
+        "easy@1": 0,
+        "draw": 0
+      },
+      "timeouts": 0,
+      "totals": {
+        "built": 28.9,
+        "launched": 151.4,
+        "cards": 11.3,
+        "bombs": 3.4,
+        "destroyed": 13.2,
+        "engineers": 1.4
+      },
+      "medianMinutes": 2.3,
+      "strongerWinRate": 0.975
+    }
+  ]
+}

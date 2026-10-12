@@ -1,0 +1,148 @@
+TAP version 13
+# Subtest: three lanes with six mirrored slots per side
+ok 1 - three lanes with six mirrored slots per side
+  ---
+  duration_ms: 2.504552
+  type: 'test'
+  ...
+# Subtest: building checks phase, slot, occupancy and supply
+ok 2 - building checks phase, slot, occupancy and supply
+  ---
+  duration_ms: 0.535076
+  type: 'test'
+  ...
+# Subtest: selling refunds half of the cost
+ok 3 - selling refunds half of the cost
+  ---
+  duration_ms: 0.418452
+  type: 'test'
+  ...
+# Subtest: supply arrives once per second, depots add to it and AI difficulty scales it
+ok 4 - supply arrives once per second, depots add to it and AI difficulty scales it
+  ---
+  duration_ms: 1.448161
+  type: 'test'
+  ...
+# Subtest: cards are drawn at 10 s and every 20 s after, up to three in hand
+ok 5 - cards are drawn at 10 s and every 20 s after, up to three in hand
+  ---
+  duration_ms: 9.028147
+  type: 'test'
+  ...
+# Subtest: card draws follow the card weights
+ok 6 - card draws follow the card weights
+  ---
+  duration_ms: 18.938968
+  type: 'test'
+  ...
+# Subtest: recon reveals the whole enemy half for a while
+ok 7 - recon reveals the whole enemy half for a while
+  ---
+  duration_ms: 1.319226
+  type: 'test'
+  ...
+# Subtest: a strike lands after its delay and hits anything inside the radius
+ok 8 - a strike lands after its delay and hits anything inside the radius
+  ---
+  duration_ms: 1.644154
+  type: 'test'
+  ...
+# Subtest: jamming downs enemy drones in a lane and stalls factories there
+ok 9 - jamming downs enemy drones in a lane and stalls factories there
+  ---
+  duration_ms: 3.557716
+  type: 'test'
+  ...
+# Subtest: airdrop adds supply
+ok 10 - airdrop adds supply
+  ---
+  duration_ms: 0.731179
+  type: 'test'
+  ...
+# Subtest: factories launch bursts of drones that each cost supply
+ok 11 - factories launch bursts of drones that each cost supply
+  ---
+  duration_ms: 3.231176
+  type: 'test'
+  ...
+# Subtest: drones advance, dogfight head-on, attack buildings and hit the HQ
+ok 12 - drones advance, dogfight head-on, attack buildings and hit the HQ
+  ---
+  duration_ms: 0.536556
+  type: 'test'
+  ...
+# Subtest: turrets shoot the closest threat and spend supply on every shell
+ok 13 - turrets shoot the closest threat and spend supply on every shell
+  ---
+  duration_ms: 0.345447
+  type: 'test'
+  ...
+# Subtest: engineers walk to their lane, repair the most damaged building and expire
+ok 14 - engineers walk to their lane, repair the most damaged building and expire
+  ---
+  duration_ms: 4.451028
+  type: 'test'
+  ...
+# Subtest: radars and drones lift fog only where they are
+ok 15 - radars and drones lift fog only where they are
+  ---
+  duration_ms: 0.289285
+  type: 'test'
+  ...
+# Subtest: intel keeps ghosts of seen buildings until the spot is seen empty
+ok 16 - intel keeps ghosts of seen buildings until the spot is seen empty
+  ---
+  duration_ms: 3.106681
+  type: 'test'
+  ...
+# Subtest: the AI only reads what its side can see
+ok 17 - the AI only reads what its side can see
+  ---
+  duration_ms: 2.043283
+  type: 'test'
+  ...
+# Subtest: the strike AI aims at fresh intel clusters and only guesses with a full hand
+ok 18 - the strike AI aims at fresh intel clusters and only guesses with a full hand
+  ---
+  duration_ms: 1.005825
+  type: 'test'
+  ...
+# Subtest: the round ends on a destroyed HQ, a double KO or the time limit
+ok 19 - the round ends on a destroyed HQ, a double KO or the time limit
+  ---
+  duration_ms: 0.644698
+  type: 'test'
+  ...
+# Subtest: pausing freezes the simulation
+ok 20 - pausing freezes the simulation
+  ---
+  duration_ms: 0.532204
+  type: 'test'
+  ...
+# Subtest: matches are deterministic for a seed
+ok 21 - matches are deterministic for a seed
+  ---
+  duration_ms: 1018.229162
+  type: 'test'
+  ...
+# Subtest: AI mirror matches use every system and finish within the time limit
+ok 22 - AI mirror matches use every system and finish within the time limit
+  ---
+  duration_ms: 1715.181665
+  type: 'test'
+  ...
+# Subtest: harder AI beats easier AI across swapped seats
+ok 23 - harder AI beats easier AI across swapped seats
+  ---
+  duration_ms: 3693.53893
+  type: 'test'
+  ...
+1..23
+# tests 23
+# suites 0
+# pass 23
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 6582.119353

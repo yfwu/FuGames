@@ -37,8 +37,8 @@
   <symbol id="territory_loop" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
     <rect x="8" y="25" width="15" height="15" rx="3"/><path d="M15 25V8H40V33H23" stroke-dasharray="3 4"/><circle cx="15.5" cy="32.5" r="2" fill="currentColor"/>
   </symbol>
-  <symbol id="lane_duel" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M8 12H38M34 8 38 12 34 16M40 36H10M14 32 10 36 14 40M19 19V16H22V19M26 19V16H29V19"/><rect x="19" y="19" width="10" height="10" rx="2"/>
+  <symbol id="front_line" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M10 9V39M38 9V39M24 9V15M24 33V39M15 24H18M30 24H33"/><circle cx="24" cy="24" r="6"/><circle cx="24" cy="24" r="1" fill="currentColor"/>
   </symbol>
   <symbol id="cyclic_tictactoe" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
     <circle cx="13" cy="35" r="4"/><circle cx="24" cy="24" r="4"/><circle cx="35" cy="13" r="4"/><path d="M17 31 20 28M28 20 31 17M8 22V12Q8 8 12 8H22M18 8H22V12M40 26V36Q40 40 36 40H26M30 40H26V36"/>

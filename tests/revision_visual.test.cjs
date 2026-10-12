@@ -8,7 +8,7 @@ const path = require('node:path');
 const ROOT = path.join(__dirname, '..');
 const GAMES = ['tux2d','autohex','cyclic_tictactoe','cyclic_connect4_torus','trackgame','card_hex',
   'gravity_brawl','flip_five','effect_snake','duplicate_bridge','blackjack',
-  'tank_arena','pulse_arena','territory_loop','star_feast','lane_duel'];
+  'tank_arena','pulse_arena','territory_loop','star_feast','front_line'];
 const CONTROLS = ['arrow-up','arrow-down','arrow-left','arrow-right','launch','play',
   'pause','restart','rotate','undo','hint','shield','turret','trap','double','remove',
   'bridge','suit-club','suit-diamond','suit-heart','suit-spade','fruit','star','poison','slow'];
