@@ -16,8 +16,11 @@ function fixture(options = {}) {
   g.sides[0].supply = g.sides[1].supply = 1000;
   return g;
 }
-function addDrone(g, side, lane, y, props = {}) {
-  const d = { id: ++g.serial, side, lane, x: F.laneX(lane), y, hp: F.DRONE.hp, attacking: null, ...props };
+const L = lane => F.laneLength(lane);
+// Drones are placed by lane position: the distance from base 0 along that lane.
+function addDrone(g, side, lane, pos, props = {}) {
+  const p = F.lanePoint(lane, pos);
+  const d = { id: ++g.serial, side, lane, pos, x: p.x, y: p.y, hp: F.DRONE.hp, attacking: null, ...props };
   g.drones.push(d); return d;
 }
 function run(g, ticks) { for (let i = 0; i < ticks && g.phase === 'running'; i++) g.step(); }
@@ -38,15 +41,27 @@ function play(options) {
   return { g, peak };
 }
 
-test('three lanes with six mirrored slots per side', () => {
+test('three lanes join two corner bases, with six mirrored slots per side', () => {
   assert.equal(F.LANES, 3);
-  assert.deepEqual(plain(F.slotPos(0, 1, 4)), { x: 305, y: 480 });
-  assert.deepEqual(plain(F.slotPos(1, 1, 4)), { x: 305, y: 240 });
-  assert.deepEqual(plain(F.slotPos(1, 2, 1)), { x: 655, y: 110 });
-  for (let lane = 0; lane < 3; lane++) for (let slot = 0; slot < 6; slot++) {
-    assert.ok(F.slotPos(0, lane, slot).y > F.MID && F.slotPos(1, lane, slot).y < F.MID, 'each side builds only on its own half');
-    assert.equal(F.slotPos(0, lane, slot).y + F.slotPos(1, lane, slot).y, F.SIZE);
+  for (let lane = 0; lane < 3; lane++) {
+    const start = F.lanePoint(lane, 0);
+    assert.deepEqual([start.x, start.y], [F.BASE[0].x, F.BASE[0].y], 'every lane starts at base 0');
+    const end = F.lanePoint(lane, L(lane));
+    assert.ok(Math.hypot(end.x - F.BASE[1].x, end.y - F.BASE[1].y) < 1e-9, 'and ends at base 1');
   }
+  assert.equal(L(0), 1080); assert.equal(L(2), 1080);
+  assert.ok(L(1) < L(0), 'mid is the short lane');
+  assert.deepEqual(plain(F.lanePoint(0, 540)), { x: 90, y: 90, dx: 0, dy: -1 }, 'top lane turns at the top-left corner');
+  assert.deepEqual(plain(F.slotPos(0, 0, 0)), { x: 48, y: 460, pos: 170 });
+  const key = p => `${Math.round(p.x)},${Math.round(p.y)}`, own = [], foe = [];
+  for (let lane = 0; lane < 3; lane++) for (let slot = 0; slot < 6; slot++) {
+    const a = F.slotPos(0, lane, slot), b = F.slotPos(1, lane, slot);
+    assert.ok(F.ownHalf(0, a.x, a.y) && F.ownHalf(1, b.x, b.y), 'each side builds only on its own half');
+    own.push(key({ x: F.SIZE - a.x, y: F.SIZE - a.y })); foe.push(key(b));
+  }
+  assert.deepEqual(own.sort(), foe.sort(), 'the two sides are point-symmetric');
+  const all = [0, 1].flatMap(side => [0, 1, 2].flatMap(lane => [0, 1, 2, 3, 4, 5].map(slot => F.slotPos(side, lane, slot))));
+  for (const a of all) for (const b of all) if (a !== b) assert.ok(Math.hypot(a.x - b.x, a.y - b.y) >= 50, 'slots never overlap');
 });
 
 test('building checks phase, slot, occupancy and supply', () => {
@@ -112,9 +127,9 @@ test('card draws follow the card weights', () => {
 
 test('recon reveals the whole enemy half for a while', () => {
   const g = fixture();
-  const x = F.laneX(2), y = F.slotPos(1, 2, 0).y;
+  const { x, y } = F.slotPos(1, 2, 0), home = F.lanePoint(2, 100);
   assert.equal(g.sees(0, x, y, 2), false, 'enemy back rows start hidden');
-  assert.equal(g.sees(0, x, 600, 2), true, 'own half is always visible');
+  assert.equal(g.sees(0, home.x, home.y, 2), true, 'own half is always visible');
   g.sides[0].hand = ['recon'];
   assert.ok(g.useCard(0, 0));
   assert.equal(g.sides[0].hand.length, 0);
@@ -126,14 +141,14 @@ test('recon reveals the whole enemy half for a while', () => {
 test('a strike lands after its delay and hits anything inside the radius', () => {
   const g = fixture();
   const factory = g.build(1, 1, 2, 'factory'), turret = g.build(1, 1, 3, 'turret'), far = g.build(1, 0, 2, 'factory');
-  g.sendEngineer(1, 1); g.engineers[0].y = factory.y; g.engineers[0].target = factory.y;
+  g.sendEngineer(1, 1); Object.assign(g.engineers[0], { pos: factory.pos, target: factory.pos, x: (factory.x + turret.x) / 2, y: (factory.y + turret.y) / 2 });
   const own = g.build(0, 1, 4, 'radar');
   g.sides[0].hand = ['strike'];
   assert.equal(g.useCard(0, 0, {}), false, 'needs a target point');
-  assert.ok(g.useCard(0, 0, { x: (factory.x + turret.x) / 2, y: factory.y }));
+  assert.ok(g.useCard(0, 0, { x: (factory.x + turret.x) / 2, y: (factory.y + turret.y) / 2 }));
   run(g, F.CARDS.strike.delay - 1);
   assert.ok(g.structure(1, factory.id), 'nothing happens before the delay');
-  const drone = addDrone(g, 1, 1, factory.y - 20, { hp: 999 });
+  const drone = addDrone(g, 1, 1, factory.pos + 5, { hp: 999 });
   run(g, 1);
   assert.equal(g.structure(1, factory.id), null, 'factory destroyed');
   assert.equal(g.structure(1, turret.id).hp, F.STRUCTS.turret.hp - F.CARDS.strike.damage, 'turret survives damaged');
@@ -147,7 +162,7 @@ test('a strike lands after its delay and hits anything inside the radius', () =>
 test('jamming downs enemy drones in a lane and stalls factories there', () => {
   const g = fixture();
   const f = g.build(1, 0, 2, 'factory');
-  addDrone(g, 1, 0, 300); addDrone(g, 1, 0, 400); const other = addDrone(g, 1, 1, 300);
+  addDrone(g, 1, 0, 700); addDrone(g, 1, 0, 600); const other = addDrone(g, 1, 1, 500);
   g.sides[0].hand = ['jam'];
   assert.equal(g.useCard(0, 0, { lane: 5 }), false);
   assert.ok(g.useCard(0, 0, { lane: 0 }));
@@ -183,22 +198,23 @@ test('factories launch bursts of drones that each cost supply', () => {
   assert.equal(starved.sides[0].launched, 0, 'no supply, no drones');
 });
 
-test('drones advance, dogfight head-on, attack buildings and hit the HQ', () => {
+test('drones follow their lane, dogfight head-on, attack buildings and hit the base', () => {
   const g = fixture();
-  const d = addDrone(g, 0, 1, 500);
+  const d = addDrone(g, 0, 0, 200);
   g.step();
-  assert.equal(d.y, 500 - F.DRONE.speed * F.DT);
-  const a = addDrone(g, 0, 2, 360), b = addDrone(g, 1, 2, 350);
+  assert.equal(d.pos, 200 + F.DRONE.speed * F.DT);
+  assert.deepEqual([d.x, d.y], [90, 630 - d.pos], 'drones follow the lane path');
+  const a = addDrone(g, 0, 2, 400), b = addDrone(g, 1, 2, 410);
   g.step();
-  assert.equal(a.y, 360, 'engaged drones stop');
+  assert.equal(a.pos, 400, 'engaged drones stop');
   assert.ok(Math.abs(a.hp - (F.DRONE.hp - F.DRONE.dogfight * F.DT)) < 1e-9 && a.hp === b.hp, 'damage is simultaneous');
   const s = g.build(1, 0, 4, 'factory');
-  const hit = addDrone(g, 0, 0, s.y + 5);
+  const hit = addDrone(g, 0, 0, s.pos - 5);
   g.step();
   assert.equal(hit.attacking, s.id);
   assert.equal(s.hp, F.STRUCTS.factory.hp - F.DRONE.damage * F.DT);
   const hq = g.sides[1].hq;
-  const raid = addDrone(g, 0, 1, F.HQ_Y[1] + 1);
+  const raid = addDrone(g, 0, 1, L(1) - F.BASE_REACH - 1);
   g.step();
   assert.equal(g.sides[1].hq, hq - F.DRONE.hqDamage);
   assert.ok(!g.drones.includes(raid), 'drone is spent on impact');
@@ -207,8 +223,8 @@ test('drones advance, dogfight head-on, attack buildings and hit the HQ', () => 
 test('turrets shoot the closest threat and spend supply on every shell', () => {
   const g = fixture();
   const t = g.build(0, 1, 4, 'turret');
-  const near = addDrone(g, 1, 1, t.y - 30, { hp: 999 }), far = addDrone(g, 1, 1, t.y - 100, { hp: 999 });
-  addDrone(g, 0, 1, t.y + 60, { hp: 999 });
+  const near = addDrone(g, 1, 1, t.pos + 30, { hp: 999 }), far = addDrone(g, 1, 1, t.pos + 100, { hp: 999 });
+  addDrone(g, 0, 1, t.pos - 60, { hp: 999 });
   g.sides[0].supply = 10;
   g.step();
   assert.equal(near.hp < 999, true);
@@ -227,7 +243,7 @@ test('engineers walk to their lane, repair the most damaged building and expire'
   assert.ok(g.sendEngineer(0, 2));
   assert.equal(g.sendEngineer(0, 2), false, 'one engineer per lane');
   assert.ok(g.sendEngineer(0, 1), 'another lane is fine');
-  run(g, 40);
+  run(g, 60);
   assert.ok(b.hp > 20 && a.hp === 100, 'worst building first');
   run(g, F.ENGINEER.duration);
   assert.equal(g.engineers.length, 0);
@@ -242,11 +258,13 @@ test('radars and drones lift fog only where they are', () => {
   assert.equal(g.sees(0, enemy.x, enemy.y, 0), false);
   const radar = g.build(0, 0, 0, 'radar');
   assert.equal(g.sees(0, enemy.x, enemy.y, 0), true);
-  assert.equal(g.sees(0, F.laneX(1), enemy.y, 1), false);
+  const mid = F.lanePoint(1, L(1) - 170);
+  assert.equal(g.sees(0, mid.x, mid.y, 1), false, 'a radar only covers its own lane');
   g.sell(0, radar.id);
-  addDrone(g, 0, 1, 150);
-  assert.equal(g.sees(0, F.laneX(1), 120, 1), true);
-  assert.equal(g.sees(0, F.laneX(1), 40, 1), false);
+  addDrone(g, 0, 1, L(1) / 2 + 50);
+  const close = F.lanePoint(1, L(1) / 2 + 100), deep = F.lanePoint(1, L(1) - 100);
+  assert.equal(g.sees(0, close.x, close.y, 1), true);
+  assert.equal(g.sees(0, deep.x, deep.y, 1), false);
 });
 
 test('intel keeps ghosts of seen buildings until the spot is seen empty', () => {
@@ -292,7 +310,8 @@ test('the strike AI aims at fresh intel clusters and only guesses with a full ha
   obs.enemyKnown[0].age = 30 * F.TPS;
   assert.equal(F.strikeTarget(obs, F.PROFILES.hard, () => .5), null, 'old intel is ignored');
   obs.hand = ['strike', 'jam', 'airdrop'];
-  assert.equal(F.strikeTarget(obs, F.PROFILES.hard, () => .5).x, F.laneX(1), 'blind guess with a full hand');
+  const guess = F.lanePoint(1, L(1) - (F.ROWS[1] + F.ROWS[2]) / 2);
+  assert.deepEqual(plain(F.strikeTarget(obs, F.PROFILES.hard, () => .5)), { x: guess.x, y: guess.y }, 'blind guess with a full hand');
   assert.equal(F.strikeTarget(obs, F.PROFILES.easy, () => .5), null, 'easy never guesses');
 });
 

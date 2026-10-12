@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="三條戰線、迷霧與物資補給。蓋無人機工廠、防空砲塔與偵查站，找出敵方工廠並轟炸它。FuGames 單人對 AI 前線塔防。">
+  <meta name="description" content="雙方大本營對角而立，上中下三路、迷霧與物資補給。蓋無人機工廠、防空砲塔與偵查站，找出敵方工廠並轟炸它。FuGames 單人對 AI 前線塔防。">
   <title>三路前線 - FuGames</title>
   <link rel="icon" href="favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="fulab-theme.css">
   <style>
@@ -37,19 +37,19 @@
 <body>
   <main class="game-page io-page">
     <nav class="site-nav" aria-label="遊戲導覽"><a class="site-brand" href="index.html"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>FuGames</a><a href="index.html" aria-label="所有遊戲 ↗"><span>所有遊戲</span><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#launch"></use></svg></a></nav>
-    <header class="page-header"><p class="eyebrow">前線塔防 / 單人 × AI</p><h1><svg class="page-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#front_line"></use></svg>三路前線</h1><p class="lead">三條戰線隔著無人區對峙。看不見的敵人最危險：先偵查，再轟炸。</p></header>
+    <header class="page-header"><p class="eyebrow">前線塔防 / 單人 × AI</p><h1><svg class="page-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#front_line"></use></svg>三路前線</h1><p class="lead">兩座大本營對角而立，上、中、下三路連接雙方。看不見的敵人最危險：先偵查，再轟炸。</p></header>
     <section class="card play-panel" aria-label="三路前線戰場">
-      <div class="game-toolbar"><p class="game-status" id="phase-label">準備開戰</p><div class="game-metrics"><span>物資 <strong id="supply">150</strong></span><span>每秒 <strong id="income">+4</strong></span><span class="front-hq">總部 <strong id="hq">200</strong> : <strong class="ai" id="ai-hq">200</strong></span><span>剩餘 <strong id="clock">10:00</strong></span></div></div>
-      <div class="io-stage front-stage"><canvas id="board" width="720" height="720" tabindex="0" aria-label="三路前線。下半是你的陣地，上半是 AI 陣地，被迷霧遮住的地方看不到。點自己的空位建造，點自己的建築可出售。" aria-describedby="status">需要支援 Canvas 的瀏覽器。</canvas>
+      <div class="game-toolbar"><p class="game-status" id="phase-label">準備開戰</p><div class="game-metrics"><span>物資 <strong id="supply">150</strong></span><span>每秒 <strong id="income">+4</strong></span><span class="front-hq">大本營 <strong id="hq">200</strong> : <strong class="ai" id="ai-hq">200</strong></span><span>剩餘 <strong id="clock">10:00</strong></span></div></div>
+      <div class="io-stage front-stage"><canvas id="board" width="720" height="720" tabindex="0" aria-label="三路前線。左下角是你的大本營，右上角是 AI 大本營，對角線以上是敵方陣地，被迷霧遮住的地方看不到。點自己的空位建造，點自己的建築可出售。" aria-describedby="status">需要支援 Canvas 的瀏覽器。</canvas>
         <div class="board-overlay" id="overlay"><div class="game-dialog" role="dialog" aria-labelledby="dialog-title" aria-describedby="dialog-copy">
-          <svg class="dialog-art" id="dialog-art" viewBox="0 0 96 72" aria-hidden="true"><rect x="2" y="2" width="92" height="30" rx="4" fill="#e5e9f0"/><path d="M18 2V70M48 2V70M78 2V70" stroke="#c4cad6" stroke-width="10" stroke-linecap="round"/><path d="M6 10L90 26M6 26L90 10" stroke="#d8dee9" stroke-width="1"/><circle cx="48" cy="17" r="8" fill="none" stroke="#99553f" stroke-width="2"/><path d="M48 6V11M48 23V28M37 17H42M54 17H59" stroke="#99553f" stroke-width="2" stroke-linecap="round"/><rect x="10" y="52" width="16" height="12" rx="2" fill="#cbeaea" stroke="#267477" stroke-width="2"/><path d="M48 46L52 40L56 46Z" fill="#5ebcbf" stroke="#267477" stroke-width="1.5"/><circle cx="78" cy="58" r="6" fill="#cbeaea" stroke="#267477" stroke-width="2"/></svg>
-          <p class="eyebrow" id="dialog-kicker">你守下半，AI 守上半</p><h2 id="dialog-title">三條戰線，一場迷霧</h2><p id="dialog-copy">蓋無人機工廠沿戰線進攻，用防空砲擋下來襲無人機。敵方陣地被迷霧遮住，偵查之後再轟炸。先打爆對方總部的一方獲勝。</p>
+          <svg class="dialog-art" id="dialog-art" viewBox="0 0 96 72" aria-hidden="true"><path d="M18 6H78V66Z" fill="#faf5f2"/><path d="M18 6V66H78Z" fill="#f4f8f7"/><path d="M24 60V12H72M24 60L72 12M24 60H72V12" fill="none" stroke="#c4cad6" stroke-width="5" stroke-linejoin="round"/><path d="M18 6L78 66" stroke="#aab3c2" stroke-width="1" stroke-dasharray="3 3"/><rect x="16" y="52" width="16" height="16" rx="3" fill="#cbeaea" stroke="#267477" stroke-width="2"/><rect x="64" y="4" width="16" height="16" rx="3" fill="#efdad1" stroke="#99553f" stroke-width="2"/><path d="M45 35L50 29L52 37Z" fill="#5ebcbf" stroke="#267477" stroke-width="1.5"/><circle cx="72" cy="40" r="7" fill="none" stroke="#99553f" stroke-width="2" stroke-dasharray="3 2"/></svg>
+          <p class="eyebrow" id="dialog-kicker">你在左下角，AI 在右上角</p><h2 id="dialog-title">三條路，一場迷霧</h2><p id="dialog-copy">在上、中、下三路蓋無人機工廠進攻，用防空砲擋下來襲無人機。敵方陣地被迷霧遮住，偵查之後再轟炸。先打爆對方大本營的一方獲勝。</p>
           <div class="front-settings" id="settings"><label for="difficulty">AI 難度</label><select id="difficulty"><option value="easy">簡單</option><option value="normal" selected>普通</option><option value="hard">困難</option></select><label class="check"><input type="checkbox" id="spectate">觀戰：讓 AI 代你指揮，並顯示全圖</label></div>
           <button class="btn primary" id="play" aria-label="開始對戰 →"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#play"></use></svg><span>開始對戰</span></button><button class="btn" id="dialog-secondary" hidden>保留本局，繼續</button>
         </div></div>
       </div>
       <div class="front-support">
-        <p class="game-status io-status" id="status" role="status" aria-live="polite">選一種建築，點下半部的空位建造。</p>
+        <p class="game-status io-status" id="status" role="status" aria-live="polite">選一種建築，點自己三路上的空位建造。</p>
         <div class="front-tools">
           <div class="front-row" role="group" aria-label="建造"><span class="row-label">建造</span>
             <button class="btn build-btn" data-build="factory" aria-pressed="true" aria-label="無人機工廠，60 物資（按 1）"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#arrow-up"></use></svg><span>工廠</span><small>60</small></button>
@@ -58,7 +58,7 @@
             <button class="btn build-btn" data-build="depot" aria-pressed="false" aria-label="補給站，50 物資（按 4）"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#double"></use></svg><span>補給</span><small>50</small></button>
           </div>
           <div class="front-row" role="group" aria-label="行動"><span class="row-label">行動</span>
-            <button class="btn" id="engineer" aria-pressed="false" aria-label="派工程師維修，25 物資（按 E，再點一條戰線）"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#shield"></use></svg><span>工程師</span><small>25</small></button>
+            <button class="btn" id="engineer" aria-pressed="false" aria-label="派工程師維修，25 物資（按 E，再點一路）"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#shield"></use></svg><span>工程師</span><small>25</small></button>
             <button class="btn" id="sell" disabled aria-label="出售選取的建築（按 Delete）"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#remove"></use></svg><span>出售</span><small id="sell-value">—</small></button>
           </div>
           <div class="front-row" role="group" aria-label="手牌" id="cards"><span class="row-label">手牌</span><p class="empty-note" id="cards-empty">每 20 秒抽一張，最多 3 張。</p></div>
@@ -67,13 +67,13 @@
       </div>
     </section>
     <details class="card rules"><summary>玩法與操作</summary><div class="rules-body"><ul class="list">
-      <li>畫面下半是你的陣地，上半是 AI 陣地，中間是無人區。每條戰線兩邊各有 6 個建築空位。總部 200 點，被打到 0 就輸；10 分鐘到時總部剩較多者勝。</li>
-      <li><strong>無人機工廠</strong>每 8 秒連續放出 3 架無人機（每架 3 物資），沿戰線飛向敵方。兩邊無人機在同一條戰線迎面相遇會停下纏鬥；碰到敵方建築就停下攻擊，飛到底就撞擊總部扣 4 點。</li>
-      <li><strong>防空砲塔</strong>只打同一條戰線上的無人機，每發砲彈消耗 0.5 物資。<strong>補給站</strong>每秒多 2 物資，<strong>偵查站</strong>讓你看清同一條戰線的敵方陣地。</li>
+      <li>你的大本營在左下角，AI 的在右上角，對角虛線是前線。上路沿左邊與上緣、中路走對角線、下路沿下緣與右邊，三路都連接雙方大本營。每一路靠近自己大本營的地方有 6 個建築空位。大本營 200 點，被打到 0 就輸；10 分鐘到時大本營剩較多者勝。</li>
+      <li><strong>無人機工廠</strong>每 8 秒連續放出 3 架無人機（每架 3 物資），沿著所在的路飛向敵方大本營。兩邊無人機在同一路迎面相遇會停下纏鬥；碰到敵方建築就停下攻擊，飛到底就撞擊大本營扣 4 點。中路最短，上下路較長。</li>
+      <li><strong>防空砲塔</strong>打射程內的敵方無人機（靠近大本營時三路很近，可以互相支援），每發砲彈消耗 0.5 物資。<strong>補給站</strong>每秒多 2 物資，<strong>偵查站</strong>讓你看清同一路的整段敵方陣地。</li>
       <li><strong>迷霧</strong>：敵方陣地預設看不到。偵查站、自己的無人機附近、全圖偵察卡可以照亮；看過的建築會留下虛線「最後目擊」標記，但可能已經不在了。AI 也只知道它看得到的東西。</li>
       <li><strong>物資</strong>：每秒基本 +4。工廠出機、砲塔開火都要物資，存量見底時工廠停工、砲塔啞火。出售建築取回一半。</li>
-      <li><strong>工程師</strong>（25）走到指定戰線，15 秒內持續修理那條線受損最重的建築；每條線同時只能有一隊。</li>
-      <li><strong>手牌</strong>每 20 秒抽一張：全圖偵察（8 秒看見全部）、轟炸（點任意位置，1.5 秒後落下，摧毀範圍內敵方無人機並重創建築）、電子干擾（點一條戰線，擊落那裡的敵方無人機並讓敵方工廠停工 8 秒）、物資空投（+100）。</li>
+      <li><strong>工程師</strong>（25）從大本營走到指定的一路，15 秒內持續修理那一路受損最重的建築；每一路同時只能有一隊。</li>
+      <li><strong>手牌</strong>每 20 秒抽一張：全圖偵察（8 秒看見全部）、轟炸（點任意位置，1.5 秒後落下，摧毀範圍內敵方無人機並重創建築）、電子干擾（點一路，擊落那一路的敵方無人機並讓敵方在那一路的工廠停工 8 秒）、物資空投（+100）。</li>
       <li>滑鼠或觸控：先選建築再點空位，點自己的建築可選取後出售。鍵盤：1–4 選建築、E 工程師、Z／X／C 使用第 1–3 張牌、Delete 出售選取的建築、Esc 取消瞄準、P 暫停。</li>
       <li>AI 用相同規則，也只看得到它偵查到的東西。難度只改變 AI 的物資收入：簡單 ×0.7、普通 ×1、困難 ×1.3；簡單 AI 另外反應較慢、不派工程師。</li>
     </ul></div></details>
@@ -84,14 +84,34 @@
   <script id="front-engine">
   'use strict';
   const FrontLine = (() => {
-    const SIZE = 720, LANES = 3, TPS = 20, DT = 1 / TPS, MID = 360;
+    const SIZE = 720, LANES = 3, TPS = 20, DT = 1 / TPS;
     const TIME_LIMIT = 10 * 60 * TPS, PAY_TICKS = TPS, CARD_TICKS = 20 * TPS, FIRST_CARD = 10 * TPS, HAND = 3;
     const START_SUPPLY = 150, BASE_INCOME = 4, HQ_HP = 200;
-    const HQ_Y = [680, 40], DIR = [-1, 1];
-    const ROW_Y = [[610, 545, 480], [110, 175, 240]], COL_DX = [-55, 55];
-    const laneX = lane => 120 + 240 * lane;
-    // Each side owns 6 slots per lane: index = row * 2 + col; row 0 is closest to its HQ.
-    function slotPos(side, lane, slot) { return { x: laneX(lane) + COL_DX[slot % 2], y: ROW_Y[side][Math.floor(slot / 2)] }; }
+    // Bases sit in opposite corners; the three lanes run from base 0 (bottom left) to base 1 (top right).
+    const BASE = [{ x: 90, y: 630 }, { x: 630, y: 90 }], BASE_REACH = 40, DIR = [1, -1];
+    const PATHS = [[[90, 630], [90, 90], [630, 90]], [[90, 630], [630, 90]], [[90, 630], [630, 630], [630, 90]]];
+    const LANE_NAMES = ['上路', '中路', '下路'];
+    const ROWS = [170, 235, 300], SLOT_OFFSET = 42;
+    const SEGMENTS = PATHS.map(points => points.slice(1).map((p, i) => {
+      const a = points[i], len = Math.hypot(p[0] - a[0], p[1] - a[1]);
+      return { x: a[0], y: a[1], dx: (p[0] - a[0]) / len, dy: (p[1] - a[1]) / len, len };
+    }));
+    const laneLength = lane => SEGMENTS[lane].reduce((n, seg) => n + seg.len, 0);
+    // A lane position is the distance travelled from base 0 along that lane.
+    function lanePoint(lane, pos) {
+      const segs = SEGMENTS[lane];
+      let rest = Math.max(0, Math.min(laneLength(lane), pos));
+      for (const seg of segs) {
+        if (rest <= seg.len || seg === segs[segs.length - 1]) return { x: seg.x + seg.dx * rest, y: seg.y + seg.dy * rest, dx: seg.dx, dy: seg.dy };
+        rest -= seg.len;
+      }
+    }
+    // Each side owns 6 slots per lane: index = row * 2 + col; row 0 is closest to its base.
+    function slotPos(side, lane, slot) {
+      const along = ROWS[Math.floor(slot / 2)], pos = side ? laneLength(lane) - along : along;
+      const p = lanePoint(lane, pos), sign = slot % 2 ? 1 : -1;
+      return { x: p.x - p.dy * SLOT_OFFSET * sign, y: p.y + p.dx * SLOT_OFFSET * sign, pos };
+    }
     const STRUCTS = {
       factory: { name: '無人機工廠', cost: 60, hp: 120, period: 8 * TPS, wave: 3, gap: 8, droneCost: 3 },
       turret: { name: '防空砲塔', cost: 40, hp: 160, range: 140, damage: 9, cooldown: 16, ammo: .5 },
@@ -116,7 +136,8 @@
       let a = h >>> 0;
       return () => { a = (a + 0x6D2B79F5) >>> 0; let t = a; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
     }
-    const ownHalf = (side, y) => side === 0 ? y >= MID : y < MID;
+    // The diagonal from the top-left corner to the bottom-right corner splits the map.
+    const ownHalf = (side, x, y) => side === 0 ? x < y : x >= y;
 
     class Game {
       constructor(options = {}) {
@@ -148,7 +169,7 @@
       build(side, lane, slot, type) {
         if (!this.canBuild(side, lane, slot, type)) return null;
         const spec = STRUCTS[type], p = slotPos(side, lane, slot);
-        const s = { id: ++this.serial, side, type, lane, slot, x: p.x, y: p.y, hp: spec.hp, maxHp: spec.hp, invested: spec.cost, timer: type === 'factory' ? 3 * TPS : 0, cooldown: 0 };
+        const s = { id: ++this.serial, side, type, lane, slot, x: p.x, y: p.y, pos: p.pos, hp: spec.hp, maxHp: spec.hp, invested: spec.cost, timer: type === 'factory' ? 3 * TPS : 0, cooldown: 0 };
         this.sides[side].supply -= spec.cost; this.sides[side].structures.push(s); this.sides[side].built++;
         this.events.push({ type: 'build', side, id: s.id, kind: type, lane });
         return s;
@@ -169,7 +190,8 @@
       sendEngineer(side, lane) {
         if (!this.canSendEngineer(side, lane)) return false;
         this.sides[side].supply -= ENGINEER.cost;
-        this.engineers.push({ id: ++this.serial, side, lane, x: laneX(lane), y: HQ_Y[side], target: ROW_Y[side][1], ticks: ENGINEER.duration, repaired: 0 });
+        const start = side ? laneLength(lane) : 0, target = side ? laneLength(lane) - ROWS[1] : ROWS[1], p = lanePoint(lane, start);
+        this.engineers.push({ id: ++this.serial, side, lane, pos: start, x: p.x, y: p.y, target, ticks: ENGINEER.duration, repaired: 0 });
         this.events.push({ type: 'engineer', side, lane });
         return true;
       }
@@ -208,7 +230,7 @@
       }
       // What `side` can see of the enemy half at a point in a lane.
       sees(side, x, y, lane) {
-        if (ownHalf(side, y)) return true;
+        if (ownHalf(side, x, y)) return true;
         const me = this.sides[side];
         if (me.revealUntil > this.tick) return true;
         if (me.structures.some(s => s.type === 'radar' && s.lane === lane)) return true;
@@ -250,7 +272,8 @@
           s.timer = s.burst < STRUCTS.factory.wave ? STRUCTS.factory.gap : STRUCTS.factory.period;
           if (s.burst >= STRUCTS.factory.wave) s.burst = 0;
           this.sides[side].supply -= STRUCTS.factory.droneCost; this.sides[side].launched++;
-          this.drones.push({ id: ++this.serial, side, lane: s.lane, x: laneX(s.lane), y: s.y, hp: DRONE.hp, attacking: null });
+          const p = lanePoint(s.lane, s.pos);
+          this.drones.push({ id: ++this.serial, side, lane: s.lane, pos: s.pos, x: p.x, y: p.y, hp: DRONE.hp, attacking: null });
         }
         this.moveDrones();
         this.fireTurrets();
@@ -273,7 +296,7 @@
           let foe = null, best = Infinity;
           for (const o of this.drones) {
             if (o.side === d.side || o.lane !== d.lane) continue;
-            const gap = Math.abs(o.y - d.y);
+            const gap = Math.abs(o.pos - d.pos);
             if (gap <= DRONE.contact && gap < best) { best = gap; foe = o; }
           }
           if (foe) { engaged.add(d); hits.set(foe, (hits.get(foe) || 0) + DRONE.dogfight * DT); }
@@ -285,15 +308,16 @@
           if (engaged.has(d)) { d.attacking = null; survivors.push(d); continue; }
           const foe = this.sides[1 - d.side];
           // Attack the weakest enemy structure on the row the drone has reached.
-          const row = foe.structures.filter(s => s.lane === d.lane && Math.abs(s.y - d.y) <= DRONE.engage);
+          const row = foe.structures.filter(s => s.lane === d.lane && Math.abs(s.pos - d.pos) <= DRONE.engage);
           if (row.length) {
             const target = row.reduce((a, b) => b.hp < a.hp ? b : a);
             d.attacking = target.id; target.hp -= DRONE.damage * DT;
             if (target.hp <= 0) this.removeStructure(target, true);
             survivors.push(d); continue;
           }
-          d.attacking = null; d.y += DIR[d.side] * DRONE.speed * DT;
-          if ((d.side === 0 && d.y <= HQ_Y[1]) || (d.side === 1 && d.y >= HQ_Y[0])) {
+          d.attacking = null; d.pos += DIR[d.side] * DRONE.speed * DT;
+          const p = lanePoint(d.lane, d.pos); d.x = p.x; d.y = p.y;
+          if ((d.side === 0 && d.pos >= laneLength(d.lane) - BASE_REACH) || (d.side === 1 && d.pos <= BASE_REACH)) {
             foe.hq = Math.max(0, foe.hq - DRONE.hqDamage);
             this.events.push({ type: 'hq', side: 1 - d.side, lane: d.lane });
             continue;
@@ -314,7 +338,7 @@
             const r = Math.hypot(d.x - t.x, d.y - t.y);
             if (r > STRUCTS.turret.range) continue;
             // Prefer the drone closest to our HQ.
-            const danger = Math.abs(d.y - HQ_Y[side]);
+            const danger = Math.hypot(d.x - BASE[side].x, d.y - BASE[side].y);
             if (danger < best) { best = danger; target = d; }
           }
           if (!target) continue;
@@ -326,7 +350,10 @@
       }
       moveEngineers() {
         for (const e of this.engineers) {
-          if (Math.abs(e.y - e.target) > 1) { e.y += Math.sign(e.target - e.y) * Math.min(Math.abs(e.target - e.y), ENGINEER.speed * DT); continue; }
+          if (Math.abs(e.pos - e.target) > 1) {
+            e.pos += Math.sign(e.target - e.pos) * Math.min(Math.abs(e.target - e.pos), ENGINEER.speed * DT);
+            const p = lanePoint(e.lane, e.pos); e.x = p.x; e.y = p.y; continue;
+          }
           e.ticks--;
           const hurt = this.sides[e.side].structures.filter(s => s.lane === e.lane && s.hp < s.maxHp);
           if (hurt.length) {
@@ -353,11 +380,11 @@
       checkResult() {
         const [a, b] = this.sides;
         if (a.hq <= 0 || b.hq <= 0) {
-          if (a.hq <= 0 && b.hq <= 0) this.finish(null, '雙方總部同時失守，平手。');
-          else this.finish(a.hq <= 0 ? 1 : 0, a.hq <= 0 ? '你的總部被摧毀了。' : 'AI 的總部被摧毀了！');
+          if (a.hq <= 0 && b.hq <= 0) this.finish(null, '雙方大本營同時失守，平手。');
+          else this.finish(a.hq <= 0 ? 1 : 0, a.hq <= 0 ? '你的大本營被摧毀了。' : 'AI 的大本營被摧毀了！');
         } else if (this.tick >= TIME_LIMIT) {
-          if (a.hq === b.hq) this.finish(null, '時間到，雙方總部耐久相同，平手。');
-          else this.finish(a.hq > b.hq ? 0 : 1, '時間到，以總部剩餘耐久決定勝負。');
+          if (a.hq === b.hq) this.finish(null, '時間到，雙方大本營耐久相同，平手。');
+          else this.finish(a.hq > b.hq ? 0 : 1, '時間到，以大本營剩餘耐久決定勝負。');
         }
       }
       finish(winner, reason) {
@@ -448,14 +475,15 @@
       if (best && best.value >= 2) return { x: best.x, y: best.y };
       if (profile.guess && obs.hand.length >= HAND && !obs.hand.includes('recon')) {
         // Blind guess: the front rows of a random lane are the likeliest spot for enemy factories.
-        const lane = Math.floor(rand() * LANES), foe = 1 - obs.side;
-        return { x: laneX(lane), y: (ROW_Y[foe][1] + ROW_Y[foe][2]) / 2 };
+        const lane = Math.floor(rand() * LANES), along = (ROWS[1] + ROWS[2]) / 2;
+        const p = lanePoint(lane, obs.side === 0 ? laneLength(lane) - along : along);
+        return { x: p.x, y: p.y };
       }
       return null;
     }
 
-    return { Game, SIZE, LANES, TPS, DT, MID, TIME_LIMIT, PAY_TICKS, CARD_TICKS, FIRST_CARD, HAND, START_SUPPLY, BASE_INCOME, HQ_HP, HQ_Y, ROW_Y, SELL_RATE, MAX_DRONES,
-      STRUCTS, DRONE, ENGINEER, CARDS, PROFILES, laneX, slotPos, planAI, strikeTarget, seededRandom };
+    return { Game, SIZE, LANES, TPS, DT, TIME_LIMIT, PAY_TICKS, CARD_TICKS, FIRST_CARD, HAND, START_SUPPLY, BASE_INCOME, HQ_HP, BASE, BASE_REACH, PATHS, LANE_NAMES, ROWS, SELL_RATE, MAX_DRONES,
+      STRUCTS, DRONE, ENGINEER, CARDS, PROFILES, laneLength, lanePoint, slotPos, ownHalf, planAI, strikeTarget, seededRandom };
   })();
   </script>
   <script id="front-ui">
@@ -489,7 +517,25 @@
     }
     return best;
   }
-  const laneAt = p => Math.max(0, Math.min(2, Math.floor(p.x / 240)));
+  // The lane whose path passes closest to a board point.
+  function laneAt(p) {
+    let best = 0, bestDist = Infinity;
+    F.PATHS.forEach((points, lane) => points.slice(1).forEach((b, i) => {
+      const a = points[i], vx = b[0] - a[0], vy = b[1] - a[1];
+      const t = Math.max(0, Math.min(1, ((p.x - a[0]) * vx + (p.y - a[1]) * vy) / (vx * vx + vy * vy)));
+      const d = Math.hypot(p.x - a[0] - vx * t, p.y - a[1] - vy * t);
+      if (d < bestDist) { bestDist = d; best = lane; }
+    }));
+    return best;
+  }
+  function lanePath(c, lane, from = 0, to = F.laneLength(lane)) {
+    const steps = Math.max(2, Math.ceil(Math.abs(to - from) / 20));
+    c.beginPath();
+    for (let i = 0; i <= steps; i++) { const q = F.lanePoint(lane, from + (to - from) * i / steps); i ? c.lineTo(q.x, q.y) : c.moveTo(q.x, q.y); }
+  }
+  // The half of a lane that lies in the enemy's territory, as seen by side 0.
+  const enemyHalf = lane => [F.laneLength(lane) / 2, F.laneLength(lane)];
+  const fog = document.createElement('canvas'), fogCtx = fog.getContext('2d');
   function drawShape(type, x, y, side, alpha = 1) {
     ctx.globalAlpha = alpha; ctx.lineWidth = 2.5; ctx.strokeStyle = ink[side]; ctx.fillStyle = '#ffffff';
     ctx.beginPath(); ctx.roundRect(x - 19, y - 17, 38, 34, 7); ctx.fill(); ctx.stroke();
@@ -513,25 +559,30 @@
     const g = frontGame, ratio = Math.min(devicePixelRatio || 1, 2), all = spectating();
     if (canvas.width !== 720 * ratio) canvas.width = canvas.height = 720 * ratio;
     ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
-    ctx.fillStyle = '#faf5f2'; ctx.fillRect(0, 0, 720, 360); ctx.fillStyle = '#f4f8f7'; ctx.fillRect(0, 360, 720, 360);
-    // No-man's land.
-    ctx.fillStyle = '#eceff4'; ctx.fillRect(0, 285, 720, 150);
-    ctx.strokeStyle = '#d8dee9'; ctx.lineWidth = 1;
-    for (let x = -150; x < 720; x += 22) { ctx.beginPath(); ctx.moveTo(x, 435); ctx.lineTo(x + 150, 285); ctx.stroke(); }
+    // Territory: the diagonal from the top-left corner to the bottom-right corner is the front.
+    ctx.fillStyle = '#f4f8f7'; ctx.fillRect(0, 0, 720, 720);
+    ctx.fillStyle = '#faf5f2'; ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(720, 0); ctx.lineTo(720, 720); ctx.closePath(); ctx.fill();
+    ctx.strokeStyle = '#c4cad6'; ctx.lineWidth = 1; ctx.setLineDash([6, 6]); ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(720, 720); ctx.stroke(); ctx.setLineDash([]);
+    ctx.lineJoin = 'round'; ctx.lineCap = 'round';
     for (let lane = 0; lane < F.LANES; lane++) {
-      const x = F.laneX(lane);
-      ctx.strokeStyle = '#d8dee9'; ctx.lineWidth = 34; ctx.lineCap = 'butt'; ctx.beginPath(); ctx.moveTo(x, 40); ctx.lineTo(x, 680); ctx.stroke();
-      ctx.strokeStyle = '#aab3c2'; ctx.lineWidth = 1.5; ctx.setLineDash([4, 8]); ctx.beginPath(); ctx.moveTo(x, 40); ctx.lineTo(x, 680); ctx.stroke(); ctx.setLineDash([]);
-      if (lane) { ctx.strokeStyle = '#c4cad6'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(lane * 240, 0); ctx.lineTo(lane * 240, 720); ctx.stroke(); }
-      if (g.sides[0].jammed[lane] > g.tick) { ctx.fillStyle = '#5ebcbf22'; ctx.fillRect(lane * 240, 360, 240, 360); }
-      if (g.sides[1].jammed[lane] > g.tick) { ctx.fillStyle = '#d0877022'; ctx.fillRect(lane * 240, 0, 240, 360); }
+      for (const side of [0, 1]) if (g.sides[side].jammed[lane] > g.tick) {
+        const half = side ? enemyHalf(lane) : [0, F.laneLength(lane) / 2];
+        ctx.strokeStyle = stroke[side] + '33'; ctx.lineWidth = 120; lanePath(ctx, lane, half[0], half[1]); ctx.stroke();
+      }
+      ctx.strokeStyle = '#d8dee9'; ctx.lineWidth = 30; lanePath(ctx, lane); ctx.stroke();
+      ctx.strokeStyle = '#aab3c2'; ctx.lineWidth = 1.5; ctx.setLineDash([4, 8]); lanePath(ctx, lane); ctx.stroke(); ctx.setLineDash([]);
     }
-    // HQ bars.
+    ctx.lineCap = 'butt';
+    ctx.font = 'bold 12px system-ui, sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillStyle = '#7b8494';
+    ctx.fillText(F.LANE_NAMES[0], 120, 250); ctx.fillText(F.LANE_NAMES[1], 330, 330); ctx.fillText(F.LANE_NAMES[2], 470, 600);
+    // Bases.
     for (const side of [0, 1]) {
-      const y = side ? 0 : 690, hp = g.sides[side].hq / F.HQ_HP;
-      ctx.fillStyle = tint[side]; ctx.fillRect(0, y, 720, 30); ctx.fillStyle = stroke[side] + '88'; ctx.fillRect(0, y, 720 * hp, 30);
-      ctx.fillStyle = ink[side]; ctx.font = 'bold 13px system-ui, sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-      ctx.fillText((side ? 'AI 總部 ' : '你的總部 ') + g.sides[side].hq, 360, y + 15);
+      const b = F.BASE[side], hp = g.sides[side].hq / F.HQ_HP;
+      ctx.fillStyle = tint[side]; ctx.strokeStyle = ink[side]; ctx.lineWidth = 3;
+      ctx.beginPath(); ctx.roundRect(b.x - 34, b.y - 34, 68, 68, 12); ctx.fill(); ctx.stroke();
+      ctx.strokeStyle = stroke[side]; ctx.lineWidth = 6; ctx.beginPath(); ctx.arc(b.x, b.y, 24, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * hp); ctx.stroke();
+      ctx.fillStyle = ink[side]; ctx.font = 'bold 15px system-ui, sans-serif'; ctx.fillText(g.sides[side].hq, b.x, b.y);
+      ctx.font = 'bold 12px system-ui, sans-serif'; ctx.fillText(side ? 'AI 大本營' : '你的大本營', b.x + (side ? -12 : 12), b.y + (side ? 50 : -50));
     }
     // Empty own slots.
     for (let lane = 0; lane < F.LANES; lane++) for (let slot = 0; slot < 6; slot++) {
@@ -543,15 +594,24 @@
     if (all) for (const s of g.sides[1].structures) { drawShape(s.type, s.x, s.y, 1); drawHp(s); }
     else {
       for (const s of g.sides[1].structures) if (g.sees(0, s.x, s.y, s.lane)) { drawShape(s.type, s.x, s.y, 1); drawHp(s); }
-      // Fog over unseen enemy lanes; last sightings stay as dashed ghosts.
-      for (let lane = 0; lane < F.LANES; lane++) {
-        const lit = g.sides[0].revealUntil > g.tick || g.sides[0].structures.some(s => s.type === 'radar' && s.lane === lane);
-        if (lit) continue;
-        ctx.fillStyle = '#d8dee9cc'; ctx.fillRect(lane * 240, 30, 240, 255);
-        ctx.strokeStyle = '#c4cad6'; ctx.lineWidth = 1;
-        for (let k = -255; k < 240; k += 16) { ctx.beginPath(); ctx.moveTo(lane * 240 + k, 285); ctx.lineTo(lane * 240 + k + 255, 30); ctx.stroke(); }
+      // Fog over the enemy half, with holes where radar, drones or recon give vision.
+      if (g.sides[0].revealUntil <= g.tick) {
+        if (fog.width !== canvas.width) fog.width = fog.height = canvas.width;
+        fogCtx.setTransform(ratio, 0, 0, ratio, 0, 0); fogCtx.clearRect(0, 0, 720, 720);
+        fogCtx.save(); fogCtx.beginPath(); fogCtx.moveTo(0, 0); fogCtx.lineTo(720, 0); fogCtx.lineTo(720, 720); fogCtx.closePath(); fogCtx.clip();
+        fogCtx.fillStyle = '#d8dee9dd'; fogCtx.fillRect(0, 0, 720, 720);
+        fogCtx.strokeStyle = '#c4cad6'; fogCtx.lineWidth = 1;
+        for (let k = -720; k < 720; k += 16) { fogCtx.beginPath(); fogCtx.moveTo(k, 720); fogCtx.lineTo(k + 720, 0); fogCtx.stroke(); }
+        fogCtx.restore();
+        fogCtx.globalCompositeOperation = 'destination-out'; fogCtx.lineCap = 'round'; fogCtx.lineJoin = 'round';
+        for (let lane = 0; lane < F.LANES; lane++) if (g.sides[0].structures.some(s => s.type === 'radar' && s.lane === lane)) {
+          const half = enemyHalf(lane); fogCtx.lineWidth = 140; lanePath(fogCtx, lane, half[0], half[1]); fogCtx.stroke();
+        }
+        for (const d of g.drones) if (d.side === 0) { fogCtx.beginPath(); fogCtx.arc(d.x, d.y, F.DRONE.sight, 0, Math.PI * 2); fogCtx.fill(); }
+        fogCtx.globalCompositeOperation = 'source-over';
+        ctx.drawImage(fog, 0, 0, 720, 720);
+        for (const s of g.sides[1].structures) if (g.sees(0, s.x, s.y, s.lane)) { drawShape(s.type, s.x, s.y, 1); drawHp(s); }
       }
-      for (const d of g.drones) if (d.side === 0) { ctx.beginPath(); ctx.arc(d.x, d.y, F.DRONE.sight, 0, Math.PI * 2); ctx.fillStyle = '#ffffff55'; ctx.fill(); }
       for (const k of g.intel[0].values()) {
         if (g.sees(0, k.x, k.y, k.lane)) continue;
         ctx.setLineDash([4, 4]); drawShape(k.type, k.x, k.y, 1, .45); ctx.setLineDash([]);
@@ -568,9 +628,10 @@
     // Drones.
     for (const d of g.drones) {
       if (d.side === 1 && !all && !g.sees(0, d.x, d.y, d.lane)) continue;
-      const dir = d.side ? 1 : -1;
+      const q = F.lanePoint(d.lane, d.pos), dir = d.side ? -1 : 1, fx = q.dx * dir, fy = q.dy * dir;
+      const at = (f, s) => [d.x + fx * f - fy * s, d.y + fy * f + fx * s];
       ctx.fillStyle = tint[d.side]; ctx.strokeStyle = ink[d.side]; ctx.lineWidth = 2;
-      ctx.beginPath(); ctx.moveTo(d.x, d.y + dir * 9); ctx.lineTo(d.x + 8, d.y - dir * 6); ctx.lineTo(d.x, d.y - dir * 2); ctx.lineTo(d.x - 8, d.y - dir * 6); ctx.closePath(); ctx.fill(); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(...at(9, 0)); ctx.lineTo(...at(-6, 8)); ctx.lineTo(...at(-2, 0)); ctx.lineTo(...at(-6, -8)); ctx.closePath(); ctx.fill(); ctx.stroke();
     }
     // Shots, pending strikes and blasts.
     flashes = flashes.filter(f => g.tick - f.tick < 3);
@@ -586,7 +647,10 @@
     if (sel) { ctx.strokeStyle = '#267477'; ctx.lineWidth = 2; ctx.strokeRect(sel.x - 23, sel.y - 21, 46, 42); if (sel.type === 'turret') { ctx.setLineDash([5, 5]); ctx.beginPath(); ctx.arc(sel.x, sel.y, F.STRUCTS.turret.range, 0, Math.PI * 2); ctx.stroke(); ctx.setLineDash([]); } }
     if (hover && g.phase !== 'over' && !all) {
       if (mode.kind === 'card' && g.sides[0].hand[mode.index] === 'strike') { ctx.strokeStyle = '#99553f'; ctx.lineWidth = 2; ctx.setLineDash([6, 5]); ctx.beginPath(); ctx.arc(hover.x, hover.y, F.CARDS.strike.radius, 0, Math.PI * 2); ctx.stroke(); ctx.setLineDash([]); }
-      else if (mode.kind === 'engineer' || (mode.kind === 'card' && g.sides[0].hand[mode.index] === 'jam')) { const lane = laneAt(hover); ctx.fillStyle = '#ebcb8b33'; ctx.fillRect(lane * 240, mode.kind === 'engineer' ? 360 : 30, 240, mode.kind === 'engineer' ? 330 : 330); }
+      else if (mode.kind === 'engineer' || (mode.kind === 'card' && g.sides[0].hand[mode.index] === 'jam')) {
+        const lane = laneAt(hover), half = mode.kind === 'engineer' ? [0, F.laneLength(lane) / 2] : enemyHalf(lane);
+        ctx.strokeStyle = '#ebcb8b66'; ctx.lineWidth = 90; ctx.lineCap = 'round'; lanePath(ctx, lane, half[0], half[1]); ctx.stroke(); ctx.lineCap = 'butt';
+      }
       else if (mode.kind === 'build') { const slot = ownSlotAt(hover); if (slot && !g.structureAt(0, slot.lane, slot.slot)) { const p = F.slotPos(0, slot.lane, slot.slot); drawShape(mode.type, p.x, p.y, 0, .4); if (mode.type === 'turret') { ctx.strokeStyle = '#26747788'; ctx.setLineDash([5, 5]); ctx.beginPath(); ctx.arc(p.x, p.y, F.STRUCTS.turret.range, 0, Math.PI * 2); ctx.stroke(); ctx.setLineDash([]); } } }
     }
   }
@@ -621,7 +685,7 @@
     const g = frontGame, card = g.sides[0].hand[index];
     if (!card || g.phase !== 'running' || spectating()) return;
     if (card === 'strike') { setMode({ kind: 'card', index }); announce('點選轟炸位置，可以打在迷霧裡。', 200); }
-    else if (card === 'jam') { setMode({ kind: 'card', index }); announce('點一條戰線，干擾那裡的敵方無人機與工廠。', 200); }
+    else if (card === 'jam') { setMode({ kind: 'card', index }); announce('點一路，干擾那一路的敵方無人機與工廠。', 200); }
     else { g.useCard(0, index); announce(card === 'recon' ? '全圖偵察！8 秒內看得見整個敵方陣地。' : '物資空投 +100。'); setMode({ kind: 'build', type: 'factory' }); }
   }
   function onBoard(p) {
@@ -630,12 +694,12 @@
     if (mode.kind === 'card') {
       const card = g.sides[0].hand[mode.index];
       if (card === 'strike' && g.useCard(0, mode.index, p)) announce('轟炸座標已送出，1.5 秒後落下。');
-      else if (card === 'jam' && g.useCard(0, mode.index, { lane: laneAt(p) })) announce(`干擾第 ${laneAt(p) + 1} 條戰線！`);
+      else if (card === 'jam' && g.useCard(0, mode.index, { lane: laneAt(p) })) announce(`干擾${F.LANE_NAMES[laneAt(p)]}！`);
       setMode({ kind: 'build', type: 'factory' }); return;
     }
     if (mode.kind === 'engineer') {
       const lane = laneAt(p);
-      announce(g.sendEngineer(0, lane) ? `工程師前往第 ${lane + 1} 條戰線維修。` : '這條戰線已有工程師，或物資不足。');
+      announce(g.sendEngineer(0, lane) ? `工程師前往${F.LANE_NAMES[lane]}維修。` : '這一路已有工程師，或物資不足。');
       setMode({ kind: 'build', type: 'factory' }); return;
     }
     const slot = ownSlotAt(p);
@@ -679,9 +743,9 @@
   function endRound() {
     stopFrames(); updateHUD(); draw();
     const r = frontGame.result;
-    const title = r.winner === null ? '僵持不下，平手' : spectating() ? (r.winner === 0 ? '下方 AI 獲勝' : '上方 AI 獲勝') : r.winner === 0 ? '前線突破，你贏了！' : '總部失守，再來一局';
+    const title = r.winner === null ? '僵持不下，平手' : spectating() ? (r.winner === 0 ? '左下 AI 獲勝' : '右上 AI 獲勝') : r.winner === 0 ? '前線突破，你贏了！' : '大本營失守，再來一局';
     announce(r.reason, 1e9);
-    showDialog('本局結束', title, `${r.reason} 總部 ${r.hq[0]} : ${r.hq[1]}，摧毀敵方建築 ${r.destroyed[0]} 座，擊落 ${r.kills[0]} 架無人機。`, '再玩一局 →');
+    showDialog('本局結束', title, `${r.reason} 大本營 ${r.hq[0]} : ${r.hq[1]}，摧毀敵方建築 ${r.destroyed[0]} 座，擊落 ${r.kills[0]} 架無人機。`, '再玩一局 →');
   }
   function frame(time) {
     const g = frontGame;
@@ -694,11 +758,11 @@
         if (e.type === 'shot') flashes.push({ ...e, tick: g.tick });
         else if (e.type === 'strike') { if (e.side === 0 || spectating()) blasts.push({ ...e, tick: g.tick }); else if (e.hits || e.downed) blasts.push({ ...e, tick: g.tick }); if (e.side === 0) announce(e.hits ? `轟炸命中 ${e.hits} 座建築！` : e.downed ? `轟炸擊落 ${e.downed} 架無人機。` : '轟炸沒有命中任何目標。'); else if (e.hits) announce(`敵方轟炸命中你 ${e.hits} 座建築！`); }
         else if (g.tick > messageTick) {
-          if (e.type === 'hq' && e.side === 0) announce(`無人機撞進第 ${e.lane + 1} 條戰線的總部！`, 40);
+          if (e.type === 'hq' && e.side === 0) announce(`敵方無人機從${F.LANE_NAMES[e.lane]}撞進大本營！`, 40);
           else if (e.type === 'destroyed' && e.side === 0) announce(`你的${F.STRUCTS[e.kind].name}被摧毀了。`, 40);
           else if (e.type === 'destroyed' && e.side === 1) announce(`摧毀敵方${F.STRUCTS[e.kind].name}！`, 40);
           else if (e.type === 'card' && e.side === 0) announce(`抽到「${F.CARDS[e.card].name}」。`, 40);
-          else if (e.type === 'jam' && e.side === 1) announce(`第 ${e.lane + 1} 條戰線遭電子干擾！`, 40);
+          else if (e.type === 'jam' && e.side === 1) announce(`${F.LANE_NAMES[e.lane]}遭電子干擾！`, 40);
         }
       }
       if (g.tick % 4 === 0) updateHUD();
@@ -711,10 +775,10 @@
   $('pause').addEventListener('click', () => frontGame.phase === 'running' ? pause() : resume());
   $('restart').addEventListener('click', () => {
     if (frontGame.phase === 'ready' || frontGame.phase === 'over') { newRound(); return; }
-    pause(); restartPrompt = true; updateHUD(); showDialog('重新部署', '重新開始這一局？', '建築、物資、手牌與總部都會重置。', '確定重開', true);
+    pause(); restartPrompt = true; updateHUD(); showDialog('重新部署', '重新開始這一局？', '建築、物資、手牌與大本營都會重置。', '確定重開', true);
   });
   for (const b of document.querySelectorAll('.build-btn')) b.addEventListener('click', () => setMode({ kind: 'build', type: b.dataset.build }));
-  $('engineer').addEventListener('click', () => { if (mode.kind === 'engineer') setMode({ kind: 'build', type: 'factory' }); else { setMode({ kind: 'engineer' }); announce('點一條戰線派工程師過去。', 200); } });
+  $('engineer').addEventListener('click', () => { if (mode.kind === 'engineer') setMode({ kind: 'build', type: 'factory' }); else { setMode({ kind: 'engineer' }); announce('點一路派工程師過去。', 200); } });
   $('sell').addEventListener('click', sellSelected);
   const buildKeys = { '1': 'factory', '2': 'turret', '3': 'radar', '4': 'depot' };
   document.addEventListener('keydown', event => {

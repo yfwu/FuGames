@@ -26,6 +26,11 @@ def point(page, x, y):
     return box['x'] + x / 720 * box['width'], box['y'] + y / 720 * box['height']
 
 
+def lane_point(page, lane, pos):
+    p = page.evaluate(f'FrontLine.lanePoint({lane}, {pos})')
+    return point(page, p['x'], p['y'])
+
+
 def slot_point(page, lane, slot):
     p = page.evaluate(f'FrontLine.slotPos(0, {lane}, {slot})')
     return point(page, p['x'], p['y'])
@@ -64,7 +69,7 @@ with sync_playwright() as pw:
     page.mouse.click(*slot_point(page, 0, 0))
     check('radar built', ['radar', 0, 0] in mine(page))
     check('own radar lifts the fog on that lane only',
-          page.evaluate('frontGame.sees(0, FrontLine.laneX(0), 150, 0) && !frontGame.sees(0, FrontLine.laneX(2), 150, 2)'))
+          page.evaluate('(() => { const a = FrontLine.slotPos(1, 0, 2), b = FrontLine.slotPos(1, 2, 2); return frontGame.sees(0, a.x, a.y, 0) && !frontGame.sees(0, b.x, b.y, 2); })()'))
 
     page.mouse.click(*slot_point(page, 0, 0))
     check('clicking own building selects it', not page.locator('#sell').is_disabled())
@@ -74,7 +79,7 @@ with sync_playwright() as pw:
 
     page.evaluate('frontGame.sides[0].structures.find(s => s.type === "turret").hp = 40')
     page.keyboard.press('e')
-    page.mouse.click(*point(page, 360, 560))
+    page.mouse.click(*lane_point(page, 1, 200))
     check('engineer goes to the clicked lane', page.evaluate('frontGame.engineers.some(e => e.side === 0 && e.lane === 1)'))
 
     # Cards: give a known hand so each card path is exercised through the UI.
@@ -92,7 +97,7 @@ with sync_playwright() as pw:
     check('strike damaged the enemy building', page.evaluate('frontGame.sides[1].destroyed + frontGame.sides[0].destroyed') >= 1
           or page.evaluate('frontGame.sides[1].structures.some(s => s.hp < s.maxHp)'))
     page.keyboard.press('z')
-    page.mouse.click(*point(page, 600, 150))
+    page.mouse.click(*lane_point(page, 2, 900))
     check('jam targets the clicked lane', page.evaluate('frontGame.sides[1].jammed[2] > frontGame.tick'))
 
     page.wait_for_function('frontGame.drones.some(d => d.side === 0)', timeout=15000)
@@ -119,7 +124,7 @@ with sync_playwright() as pw:
     page.click('#play')
     check('confirm restarts cleanly', page.evaluate('frontGame.tick') < 10 and mine(page) == [])
 
-    page.evaluate('frontGame.sides[1].hq = 4; frontGame.drones.push({id: 9999, side: 0, lane: 1, x: FrontLine.laneX(1), y: 41, hp: 99, attacking: null})')
+    page.evaluate('frontGame.sides[1].hq = 4; frontGame.drones.push({id: 9999, side: 0, lane: 1, pos: FrontLine.laneLength(1) - 41, x: 600, y: 120, hp: 99, attacking: null})')
     page.wait_for_function('frontGame.phase === "over"', timeout=5000)
     check('result dialog announces the win', '你贏了' in page.inner_text('#dialog-title'))
 
