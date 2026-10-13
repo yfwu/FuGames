@@ -124,4 +124,7 @@
   <symbol id="slow" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
     <path d="M12 8H36M12 40H36M15 8V15C15 19 20 21 24 24C28 27 33 29 33 33V40M33 8V15C33 19 28 21 24 24C20 27 15 29 15 33V40M19 35 24 30 29 35Z"/>
   </symbol>
+  <symbol id="rummikub" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="7" y="12" width="10" height="24" rx="2"/><rect x="19" y="12" width="10" height="24" rx="2"/><rect x="31" y="12" width="10" height="24" rx="2"/><circle cx="12" cy="24" r="1" fill="currentColor" stroke="none"/><circle cx="24" cy="21" r="1" fill="currentColor" stroke="none"/><circle cx="24" cy="27" r="1" fill="currentColor" stroke="none"/><circle cx="36" cy="18" r="1" fill="currentColor" stroke="none"/><circle cx="36" cy="24" r="1" fill="currentColor" stroke="none"/><circle cx="36" cy="30" r="1" fill="currentColor" stroke="none"/>
+  </symbol>
 </svg>
