@@ -31,7 +31,7 @@
     <p class="ah-meta" id="seat-note">每位 AI 可使用不同策略；所有運算都在本機。</p>
     <details class="ah-config"><summary>自訂 AI 策略 JSON <span id="strategy-id"></span></summary><p class="ah-meta">匯入資料格式的策略，或直接編輯。驗證成功後套用到新局；無效內容不會改變目前設定。</p><label class="ah-config-file">讀取 JSON 檔案<input id="strategy-file" type="file" accept="application/json,.json"></label><label for="strategy-json">策略內容</label><textarea id="strategy-json" rows="9" spellcheck="false" aria-describedby="strategy-status"></textarea><div class="ah-controls"><button class="btn" id="strategy-apply" type="button">驗證並套用</button><button class="btn" id="strategy-default" type="button">還原預設策略</button><a href="config/hex-strategies.json" download>下載預設 JSON</a></div><p id="strategy-status" class="ah-meta" role="status"></p></details>
     </div>
-    <div class="ah-controls"><button class="btn primary" id="play">開始戰役</button><button class="btn" id="pause" disabled>暫停</button><button class="btn" id="restart">新戰場</button><button class="btn" id="replay">重播此局</button><label class="ah-speed">AI 每步 <input id="step-seconds" type="number" min="0.05" max="10" step="0.05" value="0.30" inputmode="decimal"> 秒</label><button class="btn" id="step" disabled>單步</button></div>
+    <div class="ah-controls"><button class="btn primary" id="play">開始戰役</button><button class="btn" id="pause" disabled>暫停</button><button class="btn" id="snapshot" disabled title="暫停並把最近 18 個回合的變化匯出成一張地圖">截圖</button><button class="btn" id="restart">新戰場</button><button class="btn" id="replay">重播此局</button><label class="ah-speed">AI 每步 <input id="step-seconds" type="number" min="0.05" max="10" step="0.05" value="0.30" inputmode="decimal"> 秒</label><button class="btn" id="step" disabled>單步</button></div>
     <p class="ah-meta" id="campaign-note">接通對岸並守住來累積分數；機場與物資站支援你的連線。六方獨立計分，AI 速度不改變十分鐘時限。</p>
   </section>
 
@@ -91,11 +91,13 @@
   <footer class="ah-footer">抽牌 Hex · 本機輪流對戰 · 所有 AI 都在此裝置運算</footer>
 </main>
 <div class="ah-handoff" id="handoff" hidden role="dialog" aria-modal="true" aria-labelledby="handoff-title" aria-describedby="handoff-description"><div class="card"><p class="eyebrow">本機輪流遊玩</p><h2 id="handoff-title">請交接裝置</h2><p id="handoff-description">手牌已隱藏。交給下一位玩家後，再顯示他的手牌。</p><button class="btn primary" id="reveal-hand">顯示我的手牌</button></div></div>
+<dialog class="ah-snapshot" id="snapshot-dialog" aria-labelledby="snapshot-title"><div class="ah-snapshot-head"><div><p class="eyebrow">戰局快照 · 已暫停</p><h2 id="snapshot-title">最近 18 個回合</h2></div><button class="btn" id="snapshot-close" type="button" aria-label="關閉截圖">關閉</button></div><div class="ah-snapshot-frame"><img id="snapshot-image" alt="最近 18 個回合的戰場地圖：擴張、失地、砲擊、消滅、攻占與 AI 策略路線"></div><p class="ah-meta" id="snapshot-note">圖片只含公開資訊。手機可長按圖片儲存。</p><div class="ah-controls"><a class="btn primary" id="snapshot-download" download="autohex.png" href="#">下載 PNG</a><button class="btn" id="snapshot-resume" type="button">關閉並繼續戰役</button></div></dialog>
 <script src="hex-strategies.js"></script>
 <script src="autohex-planner.js"></script>
 <script src="hex-core.js"></script>
 <script src="cardhex-engine.js"></script>
 <script src="autohex-visuals.js"></script>
+<script src="autohex-snapshot.js"></script>
 <script src="autohex-ui.js"></script>
 </body>
 </html>
