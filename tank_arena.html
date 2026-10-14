@@ -1,206 +1,23 @@
-<!doctype html>
-<html lang="zh-Hant">
-<head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="擊破能量靶、自由升級，與三位不同策略的本機 AI 競爭。FuGames 原創裝甲競技場。">
-<title>鋼芯競技場 - FuGames</title><link rel="icon" href="favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="fulab-theme.css">
-<style>
-    .io-key { display:inline-flex; align-items:center; gap:6px; }
-    .io-key .ui-icon { width:20px; height:20px; }
-    .io-hint-row { display:flex; flex-wrap:wrap; gap:8px 14px; align-items:center; }
-    .ring-key { display:inline-block; width:16px; height:16px; flex:none; border:2px solid currentColor; border-radius:50%; }
-    .ring-key.dashed { border-style:dashed; }
-    .game-dialog .dialog-art { flex:none; }
-    @media(max-width:600px) { .io-hint-row { gap:8px 12px; } }
-
-.arena-roster{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin-top:12px}.arena-seat{padding:8px;border:1px solid var(--fulab-silver);border-top:3px solid var(--seat);border-radius:9px;font-size:10px;min-width:0}.arena-seat strong{display:block;font-size:12px}.arena-seat span{display:block;color:var(--fulab-muted)}.upgrade-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}.upgrade-row .btn{flex:1;min-width:80px;font-size:11px}.arena-hint{color:var(--fulab-muted);font-size:11px;margin:10px 0 0}.io-stage{width:min(100%,560px)}@media(max-width:440px){.arena-roster{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-height:600px) and (min-width:600px){.arena-roster,.upgrade-row,.arena-hint{grid-column:2}.arena-roster{grid-template-columns:repeat(2,minmax(0,1fr));margin:0}.arena-seat{padding:4px}.upgrade-row{margin:0}.upgrade-row .btn{min-width:0;font-size:10px;padding:4px}.io-page .io-stage{grid-row:2 / span 6}}
-
-    .site-nav > a:last-child { display:inline-flex;align-items:center;gap:5px; }
-    .site-nav > a:last-child .ui-icon { width:16px;height:16px; }
-    .io-support { display:contents; }
-    @media(max-height:600px) and (min-width:600px) {
-      .io-page .play-panel { grid-template-columns:minmax(0,1fr) 220px; }
-      .io-page .play-panel > .io-stage { grid-column:1;grid-row:2; }
-      .io-support { display:flex;flex-direction:column;grid-column:2;grid-row:2;gap:10px;max-height:calc(100svh - 106px);overflow:auto;scrollbar-width:thin;padding:2px; }
-      .io-support .io-controls,.io-support .growth-controls,.io-support .upgrade-row { order:0; }
-      .io-support .game-actions { order:1; }
-      .io-support .io-status { order:2; }
-      .io-support .snake-effects,.io-support .charge-track { order:3; }
-      .io-support .snake-roster,.io-support .arena-roster,.io-support .pulse-roster { order:4; }
-      .io-support .food-legend,.io-support .arena-hint,.io-support .pulse-hint { order:5; }
-      .io-support > * { flex-shrink:0; }
-      .io-support .btnRow { flex-wrap:nowrap; }
-      .io-support .game-actions { justify-content:center; }
-      .io-support .upgrade-row .btn { flex-direction:column;gap:2px; }
-    }
-</style></head>
-<body><main class="game-page io-page">
-<nav class="site-nav" aria-label="遊戲導覽"><a class="site-brand" href="index.html"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>FuGames</a><a href="index.html" aria-label="所有遊戲 ↗"><span>所有遊戲</span><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#launch"></use></svg></a></nav>
-<header class="page-header"><p class="eyebrow">IO / 單人 × 3 AI</p><h1><svg class="page-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#tank_arena"></use></svg>鋼芯競技場</h1><p class="lead">瞄準下一個機會。擊破能量靶，升級你的裝甲。</p></header>
-<section class="card play-panel" aria-label="鋼芯競技場競技場">
-<div class="game-toolbar"><p class="game-status" id="phase-label">準備出擊</p><div class="game-metrics"><span>裝甲 <strong id="health">5 / 5</strong></span><span>分數 <strong id="score">0</strong> / 30</span><span>剩餘 <strong id="clock">90</strong> 秒</span></div></div>
-<div class="io-stage"><canvas id="board" width="720" height="720" tabindex="0" aria-label="鋼芯競技場，方向鍵或 WASD 移動，滑鼠瞄準，手機拖曳移動並自動瞄準。" aria-describedby="status">需要支援 Canvas 的瀏覽器。</canvas>
-<div class="board-overlay" id="overlay"><div class="game-dialog" role="dialog" aria-labelledby="dialog-title" aria-describedby="dialog-copy"><svg class="dialog-art" viewBox="0 0 96 72" aria-hidden="true"><rect x="17" y="18" width="38" height="8" rx="4" fill="#267477"/><rect x="17" y="48" width="38" height="8" rx="4" fill="#267477"/><rect x="18" y="24" width="36" height="26" rx="8" fill="#cbeaea" stroke="#267477" stroke-width="2"/><path d="M36 36l24-13" stroke="#267477" stroke-width="7" stroke-linecap="round"/><circle cx="35" cy="37" r="6" fill="#267477"/><path d="M76 37l10 10-10 10-10-10z" fill="#f6edda" stroke="#85662a" stroke-width="2"/><path d="M74 44h4m-4 6h4" stroke="#85662a" stroke-width="2" stroke-linecap="round"/></svg><p class="eyebrow">你是青綠色裝甲 · 對手皆為本機 AI</p><h2 id="dialog-title">走位，也是火力</h2><p id="dialog-copy">自動開火：靶標 +1 分、擊毀對手 +5 分。每 3 經驗可升級一次，先達 30 分或 90 秒最高分獲勝。</p><button class="btn primary" id="play" aria-label="開始出擊 →"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#play"></use></svg><span>開始出擊</span></button></div></div></div>
-<div class="io-support">
-<p class="game-status io-status" id="status" role="status" aria-live="polite">方向鍵／WASD 移動；手機拖曳。自動瞄準，滑鼠指向可手動瞄準。</p>
-<div class="arena-roster" id="roster" aria-label="玩家與 AI 分數"></div>
-<div class="upgrade-row" aria-label="裝甲升級"><button class="btn" id="upgrade-fire" aria-label="連發 0/2"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#turret"></use></svg><span>連發 0/2</span></button><button class="btn" id="upgrade-speed" aria-label="機動 0/2"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#arrow-right"></use></svg><span>機動 0/2</span></button><button class="btn" id="upgrade-armor" aria-label="裝甲 0/2"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#shield"></use></svg><span>裝甲 0/2</span></button></div>
-<div class="game-actions"><p class="action-note" id="upgrade-note">每 3 經驗獲得 1 升級點</p><div class="btnRow"><button class="btn" id="pause" disabled aria-label="暫停"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#pause"></use></svg><span>暫停</span></button><button class="btn primary" id="restart" aria-label="重新開始"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#restart"></use></svg><span>重新開始</span></button></div></div>
-<p class="arena-hint io-hint-row"><span class="io-key"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#suit-diamond"></use></svg>靶標可穿越</span><span class="io-key"><i class="ring-key dashed" aria-hidden="true"></i>重生護盾</span><span>P / Esc 暫停 · 切頁自動暫停</span></p>
-</div>
-</section>
-<details class="card rules"><summary>玩法與操作</summary><div class="rules-body"><ul class="list">
-<li>一位玩家加三位本機 AI。你是青綠色裝甲。所有人自動連續射擊；方向鍵／WASD 移動，滑鼠在場內指向瞄準，移出即自動瞄準最近靶標或對手。手機按住場內拖曳移動、自動瞄準，放開停止。</li>
-<li>菱形能量靶有 2 裝甲，可穿越；擊破得 1 分和 1 經驗。對手初始 5 裝甲，擊毀得 5 分和 3 經驗，皆由最後一擊取得。自己的子彈不傷自己；所有裝甲碰撞只推開、不扣血。</li>
-<li>每 3 經驗獲得 1 升級點：連發縮短射擊間隔、機動提升速度、裝甲增加 2 最大生命並回復 2。每項上限 2 級，最多 6 點。玩家按下方按鈕選擇；AI 有不同升級偏好。</li>
-<li>被擊毀後 2 秒重生，保留分數與升級，重生護盾 1.2 秒。護盾期間不能射擊；被命中的子彈會消失但不扣血。靶標持續補入。</li>
-<li>獵手 AI 追擊低血量對手、偏好連發；採集 AI 優先打靶並避戰、偏好機動；游擊 AI 保持射程並預判走位、偏好裝甲。三者都會閃避來襲子彈。</li>
-<li>先達 30 分獲勝；90 秒到時最高分獲勝，最高分並列為平手。P／Esc 或按鈕暫停，切換視窗後須手動繼續；重新開始立即開新局。</li>
-</ul></div></details><footer class="site-footer">FuGames · 隨時來一局</footer><noscript><p class="notice">請開啟 JavaScript，才能開始遊戲。</p></noscript></main>
-<script id="tank-engine">
+<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>鋼芯競技場 · 蟲隊炮擊 - FuGames</title><link rel="icon" href="favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="fulab-theme.css"><style>
+.artillery-page{max-width:1100px}.battle-layout{display:grid;grid-template-columns:minmax(0,1fr) 250px;gap:18px}.field{position:relative;align-self:start;border:1px solid #ccd9dd;border-radius:14px;overflow:hidden;background:#eef4f5}.field canvas{display:block;width:100%;aspect-ratio:800/460;touch-action:manipulation}.battle-controls{display:flex;flex-direction:column;gap:12px;min-width:0}.battle-controls label{display:block;font-weight:650;font-size:13px}.battle-controls input{width:100%;min-height:40px;accent-color:#267477}.battle-controls .btn{min-height:44px}.move-row,.action-row{display:flex;gap:8px;flex-wrap:wrap}.move-row>*{flex:1}.hand{display:grid;gap:7px}.hand .btn{display:flex;flex-direction:column;align-items:flex-start;white-space:normal;text-align:left;font-size:13px}.hand small{font-weight:400;color:#64717a}.hand [aria-pressed=true]{background:#dfefeb;border:2px solid #267477}.battle-hud{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}.battle-hud span{padding:6px 10px;background:#f2f5f7;border-radius:8px;font-size:12px}.battle-status{min-height:44px;font-size:13px;margin:10px 0}.turn-badge{font-weight:750;color:#267477}.field .board-overlay{position:absolute;inset:0}.battle-controls h2{font-size:15px;margin:0}.battle-notes{font-size:12px;color:#64717a}.hp-roster{display:flex;flex-wrap:wrap;gap:8px;font-size:12px;margin-top:8px}.hp-roster span{border-left:3px solid var(--team);padding:4px 8px}.battle-controls button:disabled{opacity:.5}
+@media(max-width:700px){.battle-layout{grid-template-columns:1fr}.battle-controls{display:grid;grid-template-columns:1fr 1fr;gap:8px 14px}.hand,.battle-controls h2,.battle-notes,.action-row{grid-column:1/-1}.hand{grid-template-columns:repeat(3,minmax(0,1fr))}.hand .btn{padding:9px;font-size:12px}.hand small{font-size:10px}.battle-controls .action-row .btn{flex:1}.move-row{grid-column:1/-1}.battle-hud{gap:4px}.battle-hud span{font-size:11px;padding:5px}.play-panel{padding:12px!important}.game-dialog{padding:14px!important}.game-dialog p{font-size:12px}.field:has(.board-overlay:not([hidden])){min-height:285px}}
+@media(max-height:500px) and (min-width:701px){.battle-layout{grid-template-columns:minmax(0,1fr) 280px}.battle-controls{max-height:300px;overflow:auto;padding:2px}.page-header{display:none}.artillery-page{padding:10px}.hand{grid-template-columns:1fr}.field{max-height:300px}.field canvas{max-height:300px;object-fit:contain}}
+</style></head><body><main class="game-page artillery-page"><nav class="site-nav" aria-label="遊戲導覽"><a class="site-brand" href="index.html">FuGames</a><a href="index.html">所有遊戲 <svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#launch"></use></svg></a></nav><header class="page-header"><p class="eyebrow">TURN BASED / 原創蟲隊 × AI</p><h1><svg class="page-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#tank_arena"></use></svg>鋼芯競技場</h1><p class="lead">慢慢瞄，穩穩打。兩隻鋼芯蟲、三張戰術牌，一砲改變地形。</p></header>
+<section class="card play-panel" aria-label="蟲隊炮擊戰場"><div class="battle-hud"><span id="turn" class="turn-badge">準備登場</span><span id="wind">風向 0</span><span id="move">可移動 60</span><span>最多 40 回合</span></div><div class="battle-layout"><div><div class="field"><canvas id="board" width="800" height="460" aria-label="炮擊場地。選建築牌後點選空地放置；瞄準請用角度及力度滑桿。" tabindex="0"></canvas><div class="board-overlay" id="overlay"><div class="game-dialog" role="dialog" aria-labelledby="dialog-title"><p class="eyebrow">青綠蟲隊是你 · 橘色蟲隊是 AI</p><h2 id="dialog-title">每回合只需一砲</h2><p id="dialog-copy">先用左右鈕移動，再調角度與力度，虛線就是預測路徑。可先用一張牌：建築選牌後點空地。按「開砲」就換對手，無倒數壓力。</p><button class="btn primary" id="play">開始對戰</button></div></div></div><div class="hp-roster" id="roster"></div><p class="battle-status" id="status" role="status" aria-live="polite">擊敗對方兩隻蟲即勝；40 回合後比總生命。</p></div><div class="battle-controls"><label>角度 <output id="angleValue">45° 向右</output><input type="range" id="angle" min="10" max="170" step="1" value="45" aria-label="瞄準角度"></label><label>力度 <output id="powerValue">65%</output><input type="range" id="powerInput" min="25" max="100" step="1" value="65" aria-label="發射力度"></label><div class="move-row"><button class="btn" id="moveLeft">← 左移 15</button><button class="btn" id="moveRight">右移 15 →</button></div><h2>戰術手牌 · 每回合最多 1 張</h2><div class="hand" id="hand"></div><p class="battle-notes" id="cardHint">建築可放在當前蟲左右 100 格內；掩體保護附近友軍，牆可被轟碎。</p><div class="action-row"><button class="btn primary" id="fire">開砲</button><button class="btn" id="pass">結束回合</button></div><div class="action-row"><button class="btn" id="pause">暫停</button><button class="btn" id="restart">重新開始</button></div></div></div></section>
+<details class="card rules"><summary>玩法、建築與公平 AI</summary><div class="rules-body"><ol><li>雙方各兩隻蟲，每隻 70 HP；你先手，雙方交替行動，同隊存活蟲輪流上場。每回合可移動 60 格、用一張牌，再開一砲；也可結束回合。沒有瞄準倒數。</li><li>角度 10° 朝右、90° 垂直、170° 朝左；力度 25–100。虛線顯示包含風力與障礙的完整彈道，雙方用同一物理公式。高角度可越牆，爆炸會傷到友軍。</li><li>普通彈爆傷最高 42，距離越遠越輕，爆炸範圍 62。地面可炸出坑洞，大落差會造成額外摔傷。砲彈命中牆會提早爆炸。</li><li>每回合抽一張牌（手牌上限 3）；每方起手各有牆與急救包。擋彈牆 36 HP；掩體 40 HP，85 格內友軍爆傷減半；急救包恢復當前蟲 20 HP（不超過 70）；鑽地彈把爆傷改為 28、範圍 86，挖出更大的坑。每回合最多用一張。</li><li>建築須放在當前蟲 100 格內的空地，不能壓人或重疊，場上最多八座。點同張牌取消選擇；放置不合法不扣牌。建築阻擋移動，可用高拋繞過或先轟碎，掩體仍會被破壞。</li><li>AI 只讀公開地形、角色、建築、風向和自己的手牌；不讀你的手牌、未抽牌或隨機狀態。它用有限的 165 組角度／力度選擇攻擊，會急救、建掩體、架牆及用鑽地彈；沒有命中加成。</li><li>一隊全倒就結束；最多 40 回合，依剩餘總 HP 判勝，同 HP 平手。暫停會凍結飛行與 AI；切到背景自動暫停，回來手動繼續。角色、地形、美術與程式皆為 FuGames 原創。</li></ol></div></details><footer class="site-footer">FuGames · 隨時來一局</footer></main>
+<script src="tank-arena-engine.js"></script><script>
 'use strict';
-const TankArena = (() => {
-  const SIZE = 720, DT = .02, ROUND_TICKS = 4500, TARGET_SCORE = 30, R = 17;
-  const clamp = (n, lo, hi) => Math.max(lo, Math.min(hi, n));
-  const distance = (a,b) => Math.hypot(a.x-b.x,a.y-b.y);
-  function vector(x,y) { const d=Math.hypot(x,y); return d ? {x:x/d,y:y/d} : {x:0,y:0}; }
-  function segmentHit(x,y,nx,ny,c,r) {
-    const dx=nx-x,dy=ny-y,fx=x-c.x,fy=y-c.y,A=dx*dx+dy*dy;
-    if(fx*fx+fy*fy<=r*r) return 0;
-    if(!A) return null;
-    const B=2*(fx*dx+fy*dy),C=fx*fx+fy*fy-r*r,D=B*B-4*A*C;
-    if(D<0) return null; const t=(-B-Math.sqrt(D))/(2*A); return t>=0&&t<=1?t:null;
-  }
-  class Game {
-    constructor(random=Math.random) { this.random=random; this.reset(); }
-    reset() {
-      this.phase='ready';this.tick=0;this.result=null;this.bullets=[];this.targets=[];this.effects=[];this.events=[];this.serial=0;
-      this.actors=[[130,130],[590,130],[590,590],[130,590]].map(([x,y],id)=>({id,x,y,vx:0,vy:0,angle:0,hp:5,score:0,xp:0,spent:0,upgrades:{fire:0,speed:0,armor:0},alive:true,respawn:0,shield:1.2,cooldown:0,mode:'準備',steering:{x:0,y:0}}));
-      for(let k=0;k<14;k++) this.addTarget();
-    }
-    maxHP(a) { return 5+a.upgrades.armor*2; }
-    points(a) { return Math.max(0,Math.min(6,Math.floor(a.xp/3))-a.spent); }
-    upgrade(id,type) { const a=this.actors[id]; if(this.phase!=='running'||!a||!Object.hasOwn(a.upgrades,type)||a.upgrades[type]>=2||this.points(a)<1)return false; a.upgrades[type]++;a.spent++;if(type==='armor')a.hp=Math.min(this.maxHP(a),a.hp+2);return true; }
-    start() { if(this.phase==='ready'||this.phase==='paused') this.phase='running'; }
-    pause() { if(this.phase==='running')this.phase='paused'; }
-    addTarget() {
-      for(let k=0;k<50;k++) {
-        const t={id:this.serial++,x:45+this.random()*630,y:45+this.random()*630,hp:2};
-        if(this.targets.every(b=>distance(t,b)>50)&&this.actors.every(a=>!a.alive||distance(t,a)>65)){this.targets.push(t);return true;}
-      } return false;
-    }
-    aim(a) {
-      const candidates=[...this.targets,...this.actors.filter(b=>b!==a&&b.alive&&b.shield<=0)];
-      return candidates.reduce((best,b)=>!best||distance(a,b)<distance(a,best)?b:best,null);
-    }
-    aiInput(a) {
-      const others=this.actors.filter(b=>b!==a&&b.alive&&b.shield<=0).sort((b,c)=>distance(a,b)-distance(a,c));
-      const target=this.targets.reduce((best,b)=>!best||distance(a,b)<distance(a,best)?b:best,null);
-      let foe=others[0],goal=target||foe||{x:360,y:360},desired=60,strafe=0;
-      if(a.id===1||a.id===0) { foe=others.reduce((best,b)=>!best||distance(a,b)+b.hp*28<distance(a,best)+best.hp*28?b:best,null);if(foe&&distance(a,foe)<360){goal=foe;desired=145;strafe=.42;a.mode='追擊弱點';}else a.mode='補充經驗'; }
-      if(a.id===2) {a.mode='收集靶標';if(foe&&distance(a,foe)<170){goal=foe;desired=280;strafe=.3;a.mode='避戰撤離';}}
-      if(a.id===3) {if(foe&&distance(a,foe)<430){goal=foe;desired=255;strafe=.65;a.mode='側移預判';}else a.mode='遠程採集';}
-      const d=vector(goal.x-a.x,goal.y-a.y),gap=distance(a,goal),travel=gap>desired+20?1:gap<desired-25?-1:0;
-      let x=d.x*travel-d.y*strafe,y=d.y*travel+d.x*strafe;
-      for(const b of this.bullets) if(b.owner!==a.id) {
-        const rx=a.x-b.x,ry=a.y-b.y,t=clamp((rx*b.vx+ry*b.vy)/(b.vx*b.vx+b.vy*b.vy),0,.35),dx=rx-b.vx*t,dy=ry-b.vy*t;
-        if(Math.hypot(dx,dy)<42&&Math.hypot(rx,ry)<160){const side=vector(dx||-b.vy,dy||b.vx);x+=side.x*2;y+=side.y*2;a.mode='閃避彈道';}
-      }
-      x+=(a.x<50?.9:0)-(a.x>670?.9:0);y+=(a.y<50?.9:0)-(a.y>670?.9:0);
-      const aim=goal.id!==undefined&&Object.hasOwn(goal,'vx')?{x:goal.x+goal.vx*gap/370,y:goal.y+goal.vy*gap/370}:goal;
-      return {...vector(x,y),aim};
-    }
-    fire(a,aim) {
-      if(!a.alive||a.shield>0||a.cooldown>0||!aim||this.bullets.length>=128)return false;
-      const d=vector(aim.x-a.x,aim.y-a.y);if(!d.x&&!d.y)return false;
-      a.angle=Math.atan2(d.y,d.x);this.bullets.push({owner:a.id,x:a.x+d.x*23,y:a.y+d.y*23,vx:d.x*370,vy:d.y*370,life:1.9});a.cooldown=.42/(1+a.upgrades.fire*.3);return true;
-    }
-    damage(a,owner) {
-      if(!a.alive||a.shield>0)return false;a.hp--;this.effects.push({x:a.x,y:a.y,life:.18,kind:'hit'});
-      if(a.hp<=0){a.hp=0;a.alive=false;a.respawn=2;a.vx=a.vy=0;this.actors[owner].score+=5;this.actors[owner].xp+=3;this.events.push({type:'kill',owner,victim:a.id});}return true;
-    }
-    respawn(a) {
-      const spots=[{x:80,y:80},{x:640,y:80},{x:640,y:640},{x:80,y:640},{x:360,y:80},{x:360,y:640},{x:80,y:360},{x:640,y:360}];
-      spots.sort((b,c)=>Math.min(...this.actors.filter(v=>v.alive).map(v=>distance(c,v)),1000)-Math.min(...this.actors.filter(v=>v.alive).map(v=>distance(b,v)),1000));
-      a.x=spots[0].x;a.y=spots[0].y;a.hp=this.maxHP(a);a.alive=true;a.shield=1.2;a.cooldown=0;a.vx=a.vy=0;
-    }
-    finish() {
-      if(this.phase!=='running')return;const top=Math.max(...this.actors.map(a=>a.score));if(top<TARGET_SCORE&&this.tick<ROUND_TICKS)return;
-      const leaders=this.actors.filter(a=>a.score===top).map(a=>a.id);this.phase='over';this.result={outcome:leaders.includes(0)?leaders.length>1?'draw':'win':'loss',leaders,score:this.actors[0].score,reason:top>=TARGET_SCORE?'有人率先達到 30 分。':'90 秒到，以最高分決勝。'};
-    }
-    step(input={}) {
-      if(this.phase!=='running')return;this.tick++;this.events=[];
-      this.effects=this.effects.filter(e=>(e.life-=DT)>0).slice(-64);
-      for(const a of this.actors) {
-        if(!a.alive){a.respawn=Math.max(0,a.respawn-DT);if(a.respawn===0)this.respawn(a);continue;}
-        a.shield=Math.max(0,a.shield-DT);a.cooldown=Math.max(0,a.cooldown-DT);
-        const i=a.id?this.aiInput(a):input,dx=Number.isFinite(i.x)?i.x:0,dy=Number.isFinite(i.y)?i.y:0,d=vector(dx,dy),mag=Math.min(1,Math.hypot(dx,dy)),speed=(130+18*a.upgrades.speed)*mag;
-        a.vx=d.x*speed;a.vy=d.y*speed;a.x=clamp(a.x+a.vx*DT,R,SIZE-R);a.y=clamp(a.y+a.vy*DT,R,SIZE-R);
-        const aim=i.aim&&Number.isFinite(i.aim.x)&&Number.isFinite(i.aim.y)?i.aim:this.aim(a);if(aim)a.angle=Math.atan2(aim.y-a.y,aim.x-a.x);this.fire(a,aim);
-        if(a.id&&this.points(a)){const order=a.id===1?['fire','speed','armor']:a.id===2?['speed','armor','fire']:['armor','fire','speed'];for(const kind of order)if(this.upgrade(a.id,kind))break;}
-      }
-      for(let i=0;i<4;i++)for(let j=i+1;j<4;j++){const a=this.actors[i],b=this.actors[j];if(!a.alive||!b.alive)continue;const gap=distance(a,b);if(gap<R*2){const d=gap?vector(b.x-a.x,b.y-a.y):{x:1,y:0},push=(R*2-gap)/2;a.x=clamp(a.x-d.x*push,R,SIZE-R);a.y=clamp(a.y-d.y*push,R,SIZE-R);b.x=clamp(b.x+d.x*push,R,SIZE-R);b.y=clamp(b.y+d.y*push,R,SIZE-R);}}
-      const remaining=[];
-      for(const b of this.bullets){
-        const nx=b.x+b.vx*DT,ny=b.y+b.vy*DT;let hit=null,tMin=2,kind='';
-        for(const a of this.actors)if(a.id!==b.owner&&a.alive){const t=segmentHit(b.x,b.y,nx,ny,a,R+3);if(t!==null&&t<tMin){hit=a;tMin=t;kind='actor';}}
-        for(const target of this.targets){const t=segmentHit(b.x,b.y,nx,ny,target,16);if(t!==null&&t<tMin){hit=target;tMin=t;kind='target';}}
-        if(hit){if(kind==='actor')this.damage(hit,b.owner);else if(--hit.hp<=0){this.targets=this.targets.filter(t=>t!==hit);this.actors[b.owner].score++;this.actors[b.owner].xp++;this.effects.push({x:hit.x,y:hit.y,life:.3,kind:'target'});}continue;}
-        b.x=nx;b.y=ny;b.life-=DT;if(b.life>0&&nx>=0&&ny>=0&&nx<=SIZE&&ny<=SIZE)remaining.push(b);
-      }
-      this.bullets=remaining;if(this.tick%40===0&&this.targets.length<14)this.addTarget();this.finish();
-    }
-  }
-  return {Game,SIZE,DT,ROUND_TICKS,TARGET_SCORE,R,clamp,distance,vector,segmentHit};
-})();
-</script>
-<script id="tank-ui">
-'use strict';
-  // SVG controls share the same native geometry as the catalogue icons.
-  function setButton(button,label,icon) {
-    const signature=icon+'|'+label;if(button.dataset.visualLabel===signature)return;
-    button.dataset.visualLabel=signature;button.setAttribute('aria-label',label);
-    const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');svg.setAttribute('class','ui-icon');svg.setAttribute('viewBox','0 0 48 48');svg.setAttribute('aria-hidden','true');
-    const use=document.createElementNS(svg.namespaceURI,'use');use.setAttribute('href','icons.svg#'+icon);svg.append(use);
-    const text=document.createElement('span');text.textContent=label.replace(/\s*[→↗]\s*$/,'').replace(/\s*→\s*/g,' / ');button.replaceChildren(svg,text);
-  }
-
-'use strict';
-const $=id=>document.getElementById(id),canvas=$('board'),ctx=canvas.getContext('2d'),game=new TankArena.Game();
-const colors=['#267477','#99553f','#617d4a','#846480'],tints=['#cbeaea','#efdad1','#e1e9d9','#e8dce5'],names=['你','獵手 AI','採集 AI','游擊 AI'];
-const keys=new Set();let pointerAim=null,touch=null,lastTime=null,accumulator=0,lastPhase='';
-$('roster').innerHTML=names.map((n,i)=>`<div class="arena-seat" style="--seat:${colors[i]}"><strong>${n} · <b id="s${i}">0</b></strong><span id="m${i}">準備</span></div>`).join('');
-function clearInput(){keys.clear();pointerAim=null;touch=null;}
-function moveInput(){let x=Number(keys.has('right'))-Number(keys.has('left')),y=Number(keys.has('down'))-Number(keys.has('up'));if(!x&&!y&&touch){x=(touch.x-touch.ox)/40;y=(touch.y-touch.oy)/40;}return {x,y,aim:pointerAim};}
-function draw(){
- const ratio=Math.min(devicePixelRatio||1,2);if(canvas.width!==720*ratio)canvas.width=canvas.height=720*ratio;ctx.setTransform(ratio,0,0,ratio,0,0);ctx.fillStyle='#f8f9fb';ctx.fillRect(0,0,720,720);
- ctx.strokeStyle='#e6ebf0';ctx.lineWidth=1;for(let p=30;p<720;p+=45){ctx.beginPath();ctx.moveTo(p,0);ctx.lineTo(p,720);ctx.moveTo(0,p);ctx.lineTo(720,p);ctx.stroke();}
- for(const t of game.targets){ctx.save();ctx.translate(t.x,t.y);ctx.rotate(Math.PI/4);ctx.fillStyle=t.hp===2?'#f3e5c4':'#faf3e4';ctx.strokeStyle='#b9984d';ctx.lineWidth=2;ctx.fillRect(-10,-10,20,20);ctx.strokeRect(-10,-10,20,20);ctx.restore();ctx.strokeStyle='#85662a';ctx.fillStyle='#85662a';ctx.lineWidth=2;if(t.hp===2){for(const dx of [-4,4]){ctx.beginPath();ctx.arc(t.x+dx,t.y,1.7,0,Math.PI*2);ctx.fill();}}else{ctx.beginPath();ctx.moveTo(t.x+2,t.y-8);ctx.lineTo(t.x-2,t.y-1);ctx.lineTo(t.x+3,t.y+2);ctx.lineTo(t.x-2,t.y+8);ctx.stroke();}}
- for(const b of game.bullets){ctx.strokeStyle=colors[b.owner];ctx.lineWidth=4;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(b.x-b.vx*.016,b.y-b.vy*.016);ctx.lineTo(b.x,b.y);ctx.stroke();}
- for(const e of game.effects){ctx.strokeStyle=e.kind==='target'?'#d4ad60':'#d08770';ctx.globalAlpha=e.life/.3;ctx.lineWidth=3;ctx.beginPath();ctx.arc(e.x,e.y,(.35-e.life)*70,0,Math.PI*2);ctx.stroke();ctx.globalAlpha=1;}
- for(const a of game.actors){if(!a.alive)continue;ctx.save();ctx.translate(a.x,a.y);if(a.shield>0){ctx.strokeStyle=colors[a.id];ctx.setLineDash([5,5]);ctx.lineWidth=2;ctx.beginPath();ctx.arc(0,0,26,0,Math.PI*2);ctx.stroke();ctx.setLineDash([]);}ctx.rotate(a.angle);ctx.fillStyle=colors[a.id];ctx.fillRect(-15,-20,30,7);ctx.fillRect(-15,13,30,7);ctx.fillStyle=tints[a.id];ctx.strokeStyle=colors[a.id];ctx.lineWidth=2;ctx.beginPath();ctx.roundRect(-17,-15,34,30,8);ctx.fill();ctx.stroke();ctx.fillStyle=colors[a.id];ctx.fillRect(0,-5,28,10);ctx.beginPath();ctx.arc(0,0,8,0,Math.PI*2);ctx.fill();ctx.restore();ctx.fillStyle=colors[a.id];ctx.textAlign='center';const font=Math.min(22,Math.max(14,Math.round(10*720/Math.max(canvas.clientWidth,1))));ctx.font='bold '+font+'px monospace';const label=a.id?names[a.id]:'YOU',width=ctx.measureText(label).width+8,lx=Math.max(width/2+3,Math.min(717-width/2,a.x)),ly=Math.max(font+2,a.y-34);ctx.fillStyle='#fffffff0';ctx.fillRect(lx-width/2,ly-font,width,font+5);ctx.fillStyle=colors[a.id];ctx.fillText(label,lx,ly);
-   const hp=game.maxHP(a),segment=48/hp;for(let i=0;i<hp;i++){ctx.fillStyle=i<a.hp?colors[a.id]:'#d8dee9';ctx.fillRect(a.x-24+i*segment,a.y+28,segment-1.5,5);}if(!a.id){ctx.strokeStyle=colors[0];ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(a.x-5,a.y+41);ctx.lineTo(a.x,a.y+36);ctx.lineTo(a.x+5,a.y+41);ctx.stroke();}}
- if(pointerAim&&game.phase==='running'){ctx.strokeStyle='#267477';ctx.lineWidth=1;ctx.beginPath();ctx.arc(pointerAim.x,pointerAim.y,9,0,Math.PI*2);ctx.moveTo(pointerAim.x-14,pointerAim.y);ctx.lineTo(pointerAim.x+14,pointerAim.y);ctx.moveTo(pointerAim.x,pointerAim.y-14);ctx.lineTo(pointerAim.x,pointerAim.y+14);ctx.stroke();}
- if(touch){const r=canvas.getBoundingClientRect(),s=720/r.width,x=(touch.ox-r.left)*s,y=(touch.oy-r.top)*s,d=TankArena.vector(touch.x-touch.ox,touch.y-touch.oy),len=Math.min(40,Math.hypot(touch.x-touch.ox,touch.y-touch.oy));ctx.strokeStyle='#26747766';ctx.fillStyle='#ffffff99';ctx.beginPath();ctx.arc(x,y,40*s,0,Math.PI*2);ctx.fill();ctx.stroke();ctx.fillStyle='#26747788';ctx.beginPath();ctx.arc(x+d.x*len*s,y+d.y*len*s,12*s,0,Math.PI*2);ctx.fill();}
-}
-function hud(){
- const a=game.actors[0];$('health').textContent=a.alive?`${a.hp} / ${game.maxHP(a)}`:`重生 ${a.respawn.toFixed(1)}`;$('score').textContent=a.score;$('clock').textContent=Math.max(0,Math.ceil((TankArena.ROUND_TICKS-game.tick)*TankArena.DT));$('phase-label').textContent={ready:'準備出擊',running:'自動開火 · 奪取 30 分',paused:'已暫停',over:'本局結束'}[game.phase];
- for(const b of game.actors){$('s'+b.id).textContent=b.score;$('m'+b.id).textContent=b.alive?(b.id?b.mode:`經驗 ${b.xp} · ${pointerAim?'手動':'自動'}瞄準`):`重生 ${b.respawn.toFixed(1)} 秒`;}
- const points=game.points(a);$('upgrade-note').textContent=points?`可用 ${points} 升級點 · 請選擇`:`經驗 ${a.xp} · ${a.spent===6?'已全部升級':'每 3 經驗 +1 升級點'}`;
- for(const [kind,label]of [['fire','連發'],['speed','機動'],['armor','裝甲']]){const b=$('upgrade-'+kind);b.disabled=game.phase!=='running'||!points||a.upgrades[kind]>=2;setButton(b,`${label} ${a.upgrades[kind]}/2`,{fire:'turret',speed:'arrow-right',armor:'shield'}[kind]);}
- $('pause').disabled=game.phase!=='running'&&game.phase!=='paused';setButton($('pause'),game.phase==='paused'?'繼續':'暫停',game.phase==='paused'?'play':'pause');
- if(lastPhase===game.phase)return;lastPhase=game.phase;$('overlay').hidden=game.phase==='running';
- if(game.phase==='paused'){$('dialog-title').textContent='暫停，喘口氣';$('dialog-copy').textContent='時間與所有裝甲都已停止。準備好再繼續。';setButton($('play'),'繼續本局 →',game.phase==='over'?'restart':'play');}
- if(game.phase==='over'){$('dialog-title').textContent={win:'你的裝甲，脫穎而出',loss:'下回再搶先一步',draw:'這次不分高下'}[game.result.outcome];$('dialog-copy').textContent=`${game.result.reason} 你得到 ${a.score} 分；最高 ${Math.max(...game.actors.map(b=>b.score))} 分。`;setButton($('play'),'再戰一局 →',game.phase==='over'?'restart':'play');$('status').textContent=$('dialog-copy').textContent;}
- if(game.phase!=='running')$('play').focus({preventScroll:true});
-}
-function pause(){if(game.phase==='running'){game.pause();clearInput();accumulator=0;hud();}}
-function start(fresh=false){if(fresh||game.phase==='over')game.reset();clearInput();accumulator=0;lastTime=null;game.start();$('status').textContent='擊破靶標累積經驗，隨時用下方按鈕升級。';hud();canvas.focus({preventScroll:true});}
-$('play').onclick=()=>start();$('restart').onclick=()=>start(true);$('pause').onclick=()=>game.phase==='paused'?start():pause();for(const kind of ['fire','speed','armor'])$('upgrade-'+kind).onclick=()=>{if(game.upgrade(0,kind))$('status').textContent='升級完成，能力已即時生效。';hud();};
-const map={ArrowUp:'up',w:'up',ArrowDown:'down',s:'down',ArrowLeft:'left',a:'left',ArrowRight:'right',d:'right'};
-document.addEventListener('keydown',e=>{const k=e.key.length===1?e.key.toLowerCase():e.key;if(map[k]&&game.phase==='running'){e.preventDefault();keys.add(map[k]);}if((k==='p'||k==='Escape')&&!e.repeat){e.preventDefault();if(game.phase==='paused')start();else pause();}});document.addEventListener('keyup',e=>{const k=e.key.length===1?e.key.toLowerCase():e.key;if(map[k])keys.delete(map[k]);});
-function aim(e){const r=canvas.getBoundingClientRect();pointerAim={x:(e.clientX-r.left)*720/r.width,y:(e.clientY-r.top)*720/r.height};}
-canvas.addEventListener('pointerdown',e=>{if(game.phase!=='running')return;if(e.pointerType==='mouse'){aim(e);return;}if(touch)return;pointerAim=null;touch={id:e.pointerId,ox:e.clientX,oy:e.clientY,x:e.clientX,y:e.clientY};canvas.setPointerCapture(e.pointerId);});canvas.addEventListener('pointermove',e=>{if(game.phase!=='running')return;if(touch&&touch.id===e.pointerId){touch.x=e.clientX;touch.y=e.clientY;}else if(e.pointerType==='mouse')aim(e);});canvas.addEventListener('pointerleave',e=>{if(e.pointerType==='mouse')pointerAim=null;});for(const name of ['pointerup','pointercancel','lostpointercapture'])canvas.addEventListener(name,e=>{if(touch&&touch.id===e.pointerId)touch=null;});
-window.addEventListener('blur',pause);document.addEventListener('visibilitychange',()=>{if(document.hidden)pause();});window.addEventListener('resize',()=>{touch=null;pointerAim=null;});
-function frame(time){if(lastTime!==null&&game.phase==='running'){accumulator+=Math.min(.08,(time-lastTime)/1000);while(accumulator>=TankArena.DT){game.step(moveInput());accumulator-=TankArena.DT;}}lastTime=time;hud();draw();requestAnimationFrame(frame);}hud();draw();requestAnimationFrame(frame);
+const $=id=>document.getElementById(id),canvas=$('board'),ctx=canvas.getContext('2d'),game=new TankArena.Game();let selected=null,last=null,acc=0,signature='',dialogPhase='';const colors=['#267477','#a85e43'];
+function draw(){ctx.clearRect(0,0,800,460);const sky=ctx.createLinearGradient(0,0,0,460);sky.addColorStop(0,'#edf5f6');sky.addColorStop(1,'#faf3e5');ctx.fillStyle=sky;ctx.fillRect(0,0,800,460);ctx.fillStyle='#dbe7e5';ctx.beginPath();ctx.moveTo(0,300);for(let x=0;x<=800;x+=20)ctx.lineTo(x,250+35*Math.sin(x/85));ctx.lineTo(800,460);ctx.lineTo(0,460);ctx.fill();ctx.fillStyle='#d2bb94';ctx.strokeStyle='#71856b';ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(0,460);for(let x=0;x<=800;x+=2)ctx.lineTo(x,game.terrain[x]);ctx.lineTo(800,460);ctx.closePath();ctx.fill();ctx.stroke();
+for(const b of game.buildings){const y=TankArena.ground(game,b.x);ctx.fillStyle=b.team?'#e4b7a4':'#aacdcc';ctx.strokeStyle=colors[b.team];ctx.lineWidth=3;ctx.fillRect(b.x-b.w/2,y-b.h,b.w,b.h);ctx.strokeRect(b.x-b.w/2,y-b.h,b.w,b.h);if(b.type==='bunker'){ctx.beginPath();ctx.arc(b.x,y-b.h,11,Math.PI,0);ctx.stroke();}ctx.fillStyle=colors[b.team];ctx.font='bold 12px sans-serif';ctx.textAlign='center';ctx.fillText(String(b.hp),b.x,y-b.h-9);}
+for(const a of game.actors){const p=TankArena.body(game,a);if(a.hp<=0){ctx.strokeStyle='#929ca1';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(p.x-6,p.y-5);ctx.lineTo(p.x+6,p.y+5);ctx.moveTo(p.x+6,p.y-5);ctx.lineTo(p.x-6,p.y+5);ctx.stroke();continue;}ctx.fillStyle=a.team?'#f4c4ac':'#b9dfd5';ctx.strokeStyle=colors[a.team];ctx.lineWidth=3;ctx.beginPath();ctx.roundRect(p.x-13,p.y-15,26,27,12);ctx.fill();ctx.stroke();ctx.fillStyle=colors[a.team];ctx.beginPath();ctx.roundRect(p.x-14,p.y-18,28,8,4);ctx.fill();ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(p.x-5,p.y-5,4,0,Math.PI*2);ctx.arc(p.x+5,p.y-5,4,0,Math.PI*2);ctx.fill();ctx.fillStyle='#243b45';ctx.fillRect(p.x-5,p.y-5,2,3);ctx.fillRect(p.x+5,p.y-5,2,3);ctx.font='bold '+Math.min(26,Math.max(14,11*800/Math.max(1,canvas.clientWidth)))+'px sans-serif';ctx.textAlign='center';ctx.fillStyle=colors[a.team];ctx.fillText((a.team?'AI':'你')+(a.id%2+1)+' · '+a.hp,p.x,p.y-33);if(a.id===game.active&&game.phase!=='over'){ctx.strokeStyle='#d49a42';ctx.lineWidth=3;ctx.beginPath();ctx.ellipse(p.x,p.y+14,20,5,0,0,Math.PI*2);ctx.stroke();}}
+if(game.phase==='aim'){const a=game.actors[game.active],trace=TankArena.trajectory(game,a,game.angle,game.power);ctx.strokeStyle='#26747788';ctx.lineWidth=2;ctx.setLineDash([4,7]);ctx.beginPath();trace.points.forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y));ctx.stroke();ctx.setLineDash([]);if(!trace.hit.miss){ctx.strokeStyle='#a85e43';ctx.beginPath();ctx.arc(trace.hit.x,trace.hit.y,8,0,Math.PI*2);ctx.stroke();}if(selected!==null){ctx.fillStyle='#26747712';ctx.fillRect(Math.max(0,a.x-100),0,200,460);}}
+if(game.projectile){ctx.fillStyle='#334e59';ctx.beginPath();ctx.arc(game.projectile.x,game.projectile.y,5,0,Math.PI*2);ctx.fill();}if(game.effect){ctx.strokeStyle='#e7ad49';ctx.lineWidth=4;ctx.globalAlpha=game.effect.left/20;ctx.beginPath();ctx.arc(game.effect.x,game.effect.y,game.effect.radius*(1-game.effect.left/30),0,Math.PI*2);ctx.stroke();ctx.globalAlpha=1;}}
+function hud(){const human=game.phase==='aim';$('turn').textContent=game.phase==='ready'?'準備登場':game.phase==='paused'?'已暫停':game.phase==='over'?'對戰結束':`${game.team?'AI':'你'} · 蟲 ${game.active%2+1} · 回合 ${game.turn+1}`;$('wind').textContent='風 '+(game.wind<0?'←':'→')+' '+Math.abs(game.wind);$('move').textContent='可移動 '+game.moveLeft;$('status').textContent=game.log;$('angleValue').textContent=game.angle+'° '+(game.angle<90?'向右':game.angle>90?'向左':'垂直');$('powerValue').textContent=game.power+'%';for(const id of ['angle','powerInput','moveLeft','moveRight','fire','pass'])$(id).disabled=!human;$('pause').disabled=['ready','over'].includes(game.phase);$('pause').textContent=game.phase==='paused'?'繼續':'暫停';$('angle').value=game.angle;$('powerInput').value=game.power;$('roster').innerHTML=game.actors.map(a=>`<span style="--team:${colors[a.team]}">${a.team?'AI':'你'} ${a.id%2+1}：${a.hp} / 70</span>`).join('');
+const sig=JSON.stringify([game.hands[0],game.phase,game.cardUsed,selected]);if(sig!==signature){signature=sig;$('hand').replaceChildren(...game.hands[0].map((type,index)=>{const b=document.createElement('button');b.className='btn';b.setAttribute('aria-pressed',String(index===selected));b.disabled=!human||game.cardUsed;b.textContent=TankArena.CARDS[type].name;const small=document.createElement('small');small.textContent=TankArena.CARDS[type].text;b.append(small);b.onclick=()=>{if(type==='wall'||type==='bunker'){selected=selected===index?null:index;$('cardHint').textContent=selected===null?'已取消放置。':'點選場地空地放置 '+TankArena.CARDS[type].name+'；同張再按可取消。';}else{game.playCard(index);selected=null;}hud();draw();};return b;}));}
+const overlay=['ready','paused','over'].includes(game.phase);$('overlay').hidden=!overlay;if(dialogPhase!==game.phase){dialogPhase=game.phase;if(game.phase==='paused'){$('dialog-title').textContent='戰場已暫停';$('dialog-copy').textContent='彈道與 AI 都已凍結；按繼續返回。';$('play').textContent='繼續';}if(game.phase==='over'){$('dialog-title').textContent=game.result.winner===null?'雙方平手':game.result.winner===0?'你的蟲隊獲勝！':'AI 蟲隊獲勝';$('dialog-copy').textContent=game.result.reason+'。你 '+game.result.hp[0]+' HP ／ AI '+game.result.hp[1]+' HP。';$('play').textContent='再戰一局';}}}
+function start(fresh=false){if(fresh||game.phase==='over')game.reset();game.start();selected=null;acc=0;last=null;hud();draw();}function pause(){game.pause();acc=0;hud();}
+$('play').onclick=()=>start();$('restart').onclick=()=>start(true);$('pause').onclick=()=>game.phase==='paused'?start():pause();$('moveLeft').onclick=()=>{game.move(-15);hud();draw();};$('moveRight').onclick=()=>{game.move(15);hud();draw();};for(const id of ['angle','powerInput'])$(id).oninput=()=>{game.aim(Number($('angle').value),Number($('powerInput').value));hud();draw();};$('fire').onclick=()=>{if(game.team===0){game.fire();selected=null;hud();}};$('pass').onclick=()=>{if(game.team===0){game.endTurn();selected=null;hud();}};
+canvas.addEventListener('click',e=>{if(game.phase!=='aim'||selected===null)return;const box=canvas.getBoundingClientRect(),x=(e.clientX-box.left)*800/box.width;if(game.playCard(selected,x)){selected=null;$('cardHint').textContent='建築已放置；還能移動或開砲。';}hud();draw();});document.addEventListener('keydown',e=>{if((e.key==='Escape'||e.key.toLowerCase()==='p')&&!e.repeat){if(game.phase==='paused')start();else pause();}});window.addEventListener('blur',pause);document.addEventListener('visibilitychange',()=>{if(document.hidden)pause();});
+function frame(t){if(last!==null){acc+=Math.min(.1,(t-last)/1000);while(acc>=TankArena.DT){game.step();acc-=TankArena.DT;}}last=t;hud();draw();requestAnimationFrame(frame);}hud();draw();requestAnimationFrame(frame);
 </script></body></html>

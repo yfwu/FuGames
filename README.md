@@ -14,19 +14,21 @@ python -m http.server 8000 --bind 0.0.0.0
 
 本次雲端 Chromium 的管理政策禁止 `file://`（`ERR_BLOCKED_BY_ADMINISTRATOR`），因此驗證與預覽使用本機 HTTP。遊戲不會向伺服器傳送遊戲狀態；頁面載入後已驗證可在離線模式繼續遊玩。
 
+2026-10-14：首頁 15 款；[封存遊戲](archive.html)保留 2 款及舊網址。[分批驗證](docs/refresh-2026-10-14/verification.md)與[三子立體提案](docs/refresh-2026-10-14/cyclic-3d-proposal.md)。三子原遊戲未更動。
+
 ## 遊戲
 
-- Tux 2D：`tux2d.html`（原創追尾像素山路快遞；三站配送、岔路補給、道具與四位 AI）
+- 已封存 Tux 2D：`tux2d.html`（原創追尾像素山路快遞；三站配送、岔路補給、道具與四位 AI）
 - AutoHex：`autohex.html`（共用 Hex 核心的大型六方戰役；六 AI 觀戰或人類下場）
 - 抽牌 Hex：`card_hex.html`（271 格、2–6 席本機玩家／AI，無聯盟）
 - 重力大亂鬥：`gravity_brawl.html`
-- 翻轉五子棋：`flip_five.html`
-- 效果貪食蛇：`effect_snake.html`
+- 已封存 翻轉五子棋：`flip_five.html`
+- 效果貪食蛇：`effect_snake.html`（90 秒質量競賽；花質量加速、同格爭食、蛇身反制）
 - 四人拉密：`rummikub.html`（原始 FuLab 四人拉密；拖放、30 點起手、Joker、三位本機 AI）
 - 複式橋牌：`duplicate_bridge.html`
 - 經典 21 點：`blackjack.html`
-- 鋼芯競技場：`tank_arena.html`
-- 脈衝擂台：`pulse_arena.html`
+- 鋼芯競技場：`tank_arena.html`（雙蟲回合炮擊、可破壞地形、建築與四種戰術牌）
+- 脈衝擂台：`pulse_arena.html`（原有蓄力慣性，另有定錨／強脈衝／救命盾／黑洞）
 - 三子循環棋：`cyclic_tictactoe.html`
 - 環面直落四子：`cyclic_connect4_torus.html`
 - 軌道棋：`trackgame.html`
