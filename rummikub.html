@@ -22,6 +22,14 @@ body{background:var(--fulab-bg-secondary)}
 .game-menu .quiet,.rack-heading .quiet,.close-dialog{min-height:44px}
 .game-shell>.site-footer{padding:0}
 @media(max-width:700px){.game-shell{min-height:820px}.game-shell>.page-header h1{font-size:20px}.action-bar{flex-wrap:wrap}.turn-actions{margin-left:auto}}
+/* Keep every tile reachable: tile dragging disables native touch scrolling.
+   Expand into the page instead of trapping extra rows in nested scroll areas. */
+.game-shell{height:auto;min-height:100svh}
+#rack{max-height:none;overflow:visible}
+.table-panel{flex:none}
+.board{flex:none;min-height:clamp(220px,40svh,480px);overflow:visible}
+.meld{flex-wrap:wrap;overflow:visible}
+@media(max-width:700px){.board{min-height:220px}}
 </style></head>
 <body>
 <main class="game-shell">

@@ -1,0 +1,13 @@
+{
+  "checks": [],
+  "errors": [],
+  "baseline": {
+    "rackCount": 15,
+    "rackHeight": 155,
+    "rackScrollHeight": 209,
+    "rackClipped": 1,
+    "boardCount": 0,
+    "boardClipped": 0,
+    "overflow": false
+  }
+}
