@@ -19,7 +19,7 @@ test('all pages parse and share the shell; no missing catalogue links or remote 
     const source = fs.readFileSync(path.join(root, name), 'utf8');
     assert.match(source, /href="fulab-theme.css"/);
     assert.match(source, /class="[^"]*\bsite-nav\b[^"]*"/); assert.match(source, /class="[^"]*\bpage-header\b[^"]*"/);
-    if (name !== 'index.html') { assert.match(source, /class="card play-panel(?: [^"]*)?"/); assert.match(source, /<details class="card rules(?: [^"]*)?">/); }
+    if (!['index.html','archive.html'].includes(name)) { assert.match(source, /class="card play-panel(?: [^"]*)?"/); assert.match(source, /<details class="card rules(?: [^"]*)?">/); }
     for (const [, script] of source.matchAll(/<script[^>]*>([\s\S]*?)<\/script>/g)) assert.doesNotThrow(() => new vm.Script(script), name);
     for (const [, tag, href] of source.matchAll(/<([a-z]+)\b[^>]*\bhref="([^"]+)"/g)) {
       // A credit is an optional navigation link, not a fetched game asset.
