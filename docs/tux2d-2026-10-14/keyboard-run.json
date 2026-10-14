@@ -1,0 +1,43 @@
+{
+  "time": 75.98333333333031,
+  "player": {
+    "name": "Tux",
+    "color": "#35b9ad",
+    "id": 0,
+    "z": 7200,
+    "x": -0.5983643927393812,
+    "speed": 0,
+    "energy": 63,
+    "cargo": 100,
+    "parcels": 3,
+    "score": 1398,
+    "boost": 0,
+    "shield": 0,
+    "invulnerable": 0,
+    "cooldown": 0,
+    "finished": true,
+    "finishTime": 75.98333333333031,
+    "route": "supply",
+    "routeStage": 2,
+    "supplied": 2,
+    "lastAction": null,
+    "hit": 0
+  },
+  "telemetry": {
+    "hits": 6,
+    "blocks": 14,
+    "pickups": 38,
+    "boost": 10,
+    "shield": 32,
+    "snowball": 5,
+    "supply": 9,
+    "express": 6,
+    "deliveries": 12
+  },
+  "method": "Unmodified human game; native keyboard events from a bounded observation-based driver; accelerated browser clock, no direct engine steps or state writes.",
+  "routes": [
+    "express",
+    "supply"
+  ],
+  "errors": []
+}

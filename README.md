@@ -16,7 +16,7 @@ python -m http.server 8000 --bind 0.0.0.0
 
 ## 遊戲
 
-- Tux 2D：`tux2d.html`（原創雪港企鵝卡丁車；三圈、漂移加速、道具與四位 AI）
+- Tux 2D：`tux2d.html`（原創追尾像素山路快遞；三站配送、岔路補給、道具與四位 AI）
 - AutoHex：`autohex.html`（共用 Hex 核心的大型六方戰役；六 AI 觀戰或人類下場）
 - 抽牌 Hex：`card_hex.html`（271 格、2–6 席本機玩家／AI，無聯盟）
 - 重力大亂鬥：`gravity_brawl.html`
@@ -55,7 +55,7 @@ AutoHex 接續新增外圈機場／補給站、物資空中行動、持有超過
 
 AutoHex AI 戰略多樣化：六個預設策略各有戰術教條，不再全部擠向中央。側翼派改走鄰國前方的航道，截斷派奪取敵方補給網的斷點使後方斷補，穩固派加寬受威脅的單格補給線，擴張派搶占物資站；只有直進先鋒維持原本中央直線。舊策略 JSON 仍相容。見 [對照實測與限制](docs/autohex-ai-diversity-2026-10-12/validation.md)。
 
-獨立新增 Tux 2D：原創雪港賽道，預設你與四位 AI 跑三圈，也可觀看五 AI 競速。每圈依序通過十二個檢查點；甩尾蓄力後放開加速，雪球、香蕉皮、護盾與加速道具使用共同規則。預設自動油門，方向鍵／WASD 轉向，Shift／Z 甩尾，Space 使用道具，P／Esc 暫停；手機有可同時按住的觸控按鈕。賽道、美術與程式為原創，僅以 [SuperTuxKart](https://supertuxkart.net/Main_Page) 為玩法靈感。見 [規則、完整賽事與手機驗證](docs/tux2d-2026-10-11/validation.md)。
+Tux 2D 改為原創追尾偽 3D「山路快遞」：110 秒內完成三站配送，以貨物完整度、電池及完程剩餘時間計分。每站選左側慢速修復補給線或右側冰面快線；衝刺、護盾與雪球共用能量。四位 AI 使用相同道路與資源規則，支援五 AI 觀戰、鍵盤及手機同時觸控。所有美術以程式原創繪製。見 [新版玩法與驗證](docs/tux2d-2026-10-14/validation.md)。
 
 新增雙線塔防：你和 AI 各守一條蛇形路線，每 15 秒迎來相同的中立敵兵。箭塔、砲塔、冰塔可升級到 3 級；派出的快兵、盾兵、群兵會進入對手路線，並永久提高自己的收入。生命先歸零者落敗，8 分鐘後比剩餘生命。AI 有簡單／普通／困難三段，也能觀戰 AI 對 AI。見 [規則、AI 研究與瀏覽器驗證](docs/lane-duel-2026-10-12/validation.md)。
 
@@ -129,9 +129,7 @@ python tests/hex_seeded_browser.py
 python tests/hex_icons_revision_browser.py
 node tests/hex-seeded-balance.cjs
 FUGAMES_BASE_URL=http://127.0.0.1:8000 python tests/tux2d_browser.py
-FUGAMES_BASE_URL=http://127.0.0.1:8000 python tests/tux2d_visual_browser.py
-FUGAMES_BASE_URL=http://127.0.0.1:8000 python tests/tux2d_ui_browser.py
-FUGAMES_BASE_URL=http://127.0.0.1:8000 python tests/tux2d_performance_browser.py
+FUGAMES_BASE_URL=http://127.0.0.1:8000 python tests/tux2d_keyboard_browser.py
 python tests/lane_duel_browser.py
 ```
 
