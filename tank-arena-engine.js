@@ -20,7 +20,7 @@ const TankArena=(()=>{
  function trajectory(g,a,angle,power){const p=projectile(g,a,angle,power),points=[{x:p.x,y:p.y}];let hit=null;for(let i=0;i<281;i++){hit=advance(g,p);if(i%3===0)points.push({x:p.x,y:p.y});if(hit)break;}return{points,hit:hit||{x:p.x,y:p.y,miss:true}};}
  function observation(g,team){return{terrain:g.terrain.slice(),actors:g.actors.map(a=>({...a})),buildings:g.buildings.map(b=>({...b})),wind:g.wind,active:g.active,team,hand:g.hands[team].slice(),drill:g.drill,moveLeft:g.moveLeft,cardUsed:g.cardUsed};}
  function chooseShot(view){const actor=view.actors[view.active];let best={angle:actor.team?135:45,power:65,score:-Infinity};
-  // 15 angles × 11 powers; only current public geometry, no other hand/deck/RNG.
+  // 16 angles × 11 powers; only current public geometry, no other hand/deck/RNG.
   for(let angle=15;angle<=165;angle+=10)for(let power=25;power<=100;power+=7.5){const {hit}=trajectory(view,actor,angle,power);if(hit.miss)continue;let score=0;for(const b of view.actors)if(b.hp>0){const p=body(view,b),d=Math.hypot(p.x-hit.x,p.y-hit.y);const damage=Math.max(0,1-d/(view.drill?86:62))*(view.drill?28:42);score+=damage*(b.team===actor.team?-1.5:1);if(b.team!==actor.team)score-=d*.004;}if(hit.building!==undefined){const b=view.buildings.find(b=>b.id===hit.building);score+=b.team===actor.team?-12:9;}if(score>best.score)best={angle,power,score};}return best;
  }
  class Game{
