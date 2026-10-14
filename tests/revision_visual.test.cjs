@@ -37,8 +37,8 @@ test('sprite is entirely local vector geometry with no font, raster or executabl
   for(const m of source.matchAll(/\b(?:href|xlink:href)\s*=\s*["']([^"']+)["']/g))assert.match(m[1],/^#[a-z][a-z0-9_-]*$/,`external sprite dependency ${m[1]}`);
 });
 
-test('homepage has exactly seventeen valid game links and uses each matching shared icon',()=>{
-  const source=read('index.html');
+test('active and archive catalogues together have seventeen valid game links and uses each matching shared icon',()=>{
+  const source=read('index.html')+read('archive.html');
   const articles=[...source.matchAll(/<article\b[^>]*class=["'][^"']*\bgame-card\b[^"']*["'][^>]*>([\s\S]*?)<\/article>/g)];
   assert.equal(articles.length,GAMES.length);
   const linked=[];

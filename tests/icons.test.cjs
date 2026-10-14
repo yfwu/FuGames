@@ -85,11 +85,11 @@ test('mirror-symmetric tokens and gameplay shapes preserve their declared center
  for(const id of ['pulse_arena','trackgame','arrow-left','arrow-right','pause','remove','suit-diamond'])equivalentCloud(id,([x,y])=>[x,48-y]);
 });
 
-test('three-way Hex, four-seat bridge and cyclic game icons preserve rotational geometry',()=>{
+test('three-way Hex and cyclic game icons preserve rotational geometry',()=>{
  const rotate=angle=>([x,y])=>{x-=24;y-=24;return[24+x*Math.cos(angle)-y*Math.sin(angle),24+x*Math.sin(angle)+y*Math.cos(angle)];};
  equivalentCloud('card_hex',rotate(Math.PI*2/3));
  equivalentCloud('autohex',rotate(Math.PI/3));
- equivalentCloud('duplicate_bridge',rotate(Math.PI/2));
+ // Bridge now uses a recognizable overlapping hand and spade.
  for(const id of ['cyclic_tictactoe','cyclic_connect4_torus','flip_five','rotate'])equivalentCloud(id,rotate(Math.PI));
  equivalentCloud('arrow-up',rotate(Math.PI/2),'arrow-right');
  equivalentCloud('arrow-up',rotate(Math.PI),'arrow-down');
@@ -103,7 +103,7 @@ test('filled suit silhouettes remain distinct and use a consistent visible area 
 });
 
 test('homepage maps every game to its own shared icon and keeps each accessible entry link',()=>{
- const cards=[...home.matchAll(/<article class="game-card">([\s\S]*?)<\/article>/g)];assert.equal(cards.length,17);
+ const cards=[...(home+fs.readFileSync(path.join(root,'archive.html'),'utf8')).matchAll(/<article class="game-card">([\s\S]*?)<\/article>/g)];assert.equal(cards.length,17);
  const found=[];
  for(const [,card]of cards){
   const stem=card.match(/<a\b[^>]*href="([^"#]+)\.html"/)[1];found.push(stem);
