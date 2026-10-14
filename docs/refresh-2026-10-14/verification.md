@@ -19,3 +19,11 @@ Batch 1 publication: 55716e2 pushed normally; Pages succeeded and public Chromiu
 - Only competing for the same empty cell grants a mass advantage: >=1.5× every opponent and none has a shield. All body collisions remain dangerous. Winner gets +30 score / +2 growth; shield is a counter.
 - 18 rule checks pass, including mass cost, shield counter, timeout and eight bounded deterministic matches (reduced from the old 30 long runs).
 - Eight Chromium/WebKit viewport checks pass: actual steering and held boost in a controlled open-board fixture, freeze/resume and three repeated restarts; no JS errors or horizontal overflow. Portrait and landscape screenshots reviewed. No physical iPhone test.
+
+## Batch 3: pulse arena
+
+- Existing motion, inertia, charge/release and shrink timings retained.
+- Public pickups start at 3s, then every 8s, capacity 3 on the field / 1 held; all four types cycle. E or the item button uses one item, with held-input edge gating.
+- Anchor resists impulses/attraction for 5s (shrinking ring still eliminates). Super pulse warns for .6s then blasts once at range 200. Shield lasts 12s and saves exactly one boundary crossing. Black hole warns .7s then attracts opponents for 5s within 145 units.
+- Visible item inventory, timer rings and warning areas; AI collects items, uses them when publicly threatened and avoids warned supers/holes. No hidden hands exist.
+- 17 Node tests pass including original physics plus one-use, warning, freeze and counter behavior; eight Chromium/WebKit viewport/control checks pass. Portrait and landscape screenshots reviewed. No physical iPhone test.
