@@ -14,18 +14,21 @@ python -m http.server 8000 --bind 0.0.0.0
 
 本次雲端 Chromium 的管理政策禁止 `file://`（`ERR_BLOCKED_BY_ADMINISTRATOR`），因此驗證與預覽使用本機 HTTP。遊戲不會向伺服器傳送遊戲狀態；頁面載入後已驗證可在離線模式繼續遊玩。
 
+2026-10-14：首頁 15 款；[封存遊戲](archive.html)保留 2 款及舊網址。[分批驗證](docs/refresh-2026-10-14/verification.md)與[三子立體提案](docs/refresh-2026-10-14/cyclic-3d-proposal.md)。三子原遊戲未更動。
+
 ## 遊戲
 
-- Tux 2D：`tux2d.html`（原創雪港企鵝卡丁車；三圈、漂移加速、道具與四位 AI）
+- 已封存 Tux 2D：`tux2d.html`（原創追尾像素山路快遞；三站配送、岔路補給、道具與四位 AI）
 - AutoHex：`autohex.html`（共用 Hex 核心的大型六方戰役；六 AI 觀戰或人類下場）
 - 抽牌 Hex：`card_hex.html`（271 格、2–6 席本機玩家／AI，無聯盟）
 - 重力大亂鬥：`gravity_brawl.html`
-- 翻轉五子棋：`flip_five.html`
-- 效果貪食蛇：`effect_snake.html`
+- 已封存 翻轉五子棋：`flip_five.html`
+- 效果貪食蛇：`effect_snake.html`（90 秒質量競賽；花質量加速、同格爭食、蛇身反制）
+- 四人拉密：`rummikub.html`（原始 FuLab 四人拉密；拖放、30 點起手、Joker、三位本機 AI）
 - 複式橋牌：`duplicate_bridge.html`
 - 經典 21 點：`blackjack.html`
-- 鋼芯競技場：`tank_arena.html`
-- 脈衝擂台：`pulse_arena.html`
+- 鋼芯競技場：`tank_arena.html`（雙蟲回合炮擊、可破壞地形、建築與四種戰術牌）
+- 脈衝擂台：`pulse_arena.html`（原有蓄力慣性，另有定錨／強脈衝／救命盾／黑洞）
 - 三子循環棋：`cyclic_tictactoe.html`
 - 環面直落四子：`cyclic_connect4_torus.html`
 - 軌道棋：`trackgame.html`
@@ -54,7 +57,7 @@ AutoHex 接續新增外圈機場／補給站、物資空中行動、持有超過
 
 AutoHex AI 戰略多樣化：六個預設策略各有戰術教條，不再全部擠向中央。側翼派改走鄰國前方的航道，截斷派奪取敵方補給網的斷點使後方斷補，穩固派加寬受威脅的單格補給線，擴張派搶占物資站；只有直進先鋒維持原本中央直線。舊策略 JSON 仍相容。見 [對照實測與限制](docs/autohex-ai-diversity-2026-10-12/validation.md)。
 
-獨立新增 Tux 2D：原創雪港賽道，預設你與四位 AI 跑三圈，也可觀看五 AI 競速。每圈依序通過十二個檢查點；甩尾蓄力後放開加速，雪球、香蕉皮、護盾與加速道具使用共同規則。預設自動油門，方向鍵／WASD 轉向，Shift／Z 甩尾，Space 使用道具，P／Esc 暫停；手機有可同時按住的觸控按鈕。賽道、美術與程式為原創，僅以 [SuperTuxKart](https://supertuxkart.net/Main_Page) 為玩法靈感。見 [規則、完整賽事與手機驗證](docs/tux2d-2026-10-11/validation.md)。
+Tux 2D 改為原創追尾偽 3D「山路快遞」：110 秒內完成三站配送，以貨物完整度、電池及完程剩餘時間計分。每站選左側慢速修復補給線或右側冰面快線；衝刺、護盾與雪球共用能量。四位 AI 使用相同道路與資源規則，支援五 AI 觀戰、鍵盤及手機同時觸控。所有美術以程式原創繪製。見 [新版玩法與驗證](docs/tux2d-2026-10-14/validation.md)。
 
 新增三路前線：你和 AI 的大本營各據地圖一角，上、中、下三路連接雙方。在自己這一側的三路蓋無人機工廠、防空砲塔、偵查站與補給站；工廠持續產出無人機沿路攻擊，工程師可上前維修。敵方陣地被迷霧遮住，要靠偵查站、無人機接觸或抽到的全圖偵察才看得到；轟炸卡可以打任何位置，配合情報拔掉對方工廠，也能盲猜。AI 只讀自己看得到的情報。見 [規則、AI 研究與瀏覽器驗證](docs/front-line-2026-10-12/validation.md)。
 
@@ -95,6 +98,12 @@ AI 會在可達的領地邊緣選擇圈地路線，評估面積、接近前線�
 
 同一個 HTML 內的 `game-engine` 是固定 150ms 步長的純 JavaScript 模擬，棋盤存陣營 ID、路徑存角色 ID；`game-ui` 處理 Canvas 與輸入。AI 每四步移動三步，玩家每步移動。遊戲與所有 AI 都在本機運算，不做真實多人連線。
 
+### 四人拉密
+
+整合使用者提供的 `FuLab-Rummikub.html`，保留四人規則、搜尋型 AI、拖放、提示、撤回與瀏覽器存檔；首頁與遊戲頁使用 FuGames 導覽、圖示及共用樣式。高手／大師／極限搜尋預算為 0.7／2.5／8 秒；Worker 無法使用時自動改為最多 2.5 秒的頁面內搜尋。起手需要至少 30 點，之後可合法重排公共牌桌；四人在空牌池連續跳過後結算。非官方個人遊戲。
+
+網站存檔與原本本機 HTML 的存檔分開。載入後可離線繼續本局；沒有新增離線安裝或離線重新載入保證。原始檔來源與整合驗證見 `docs/rummikub-2026-10-14/README.md`。
+
 ## 驗證
 
 Repository 不需要建置指令或 package manifest。`Game rules` GitHub Actions workflow 在 push／pull request 執行全部 Node 規則與固定種子模擬；既有 GitHub Pages 部署仍由儲存庫設定管理，沒有新增部署服務。瀏覽器驗證在本機 Chromium 執行；測試工具不是遊戲執行依賴。
@@ -122,9 +131,7 @@ python tests/hex_seeded_browser.py
 python tests/hex_icons_revision_browser.py
 node tests/hex-seeded-balance.cjs
 FUGAMES_BASE_URL=http://127.0.0.1:8000 python tests/tux2d_browser.py
-FUGAMES_BASE_URL=http://127.0.0.1:8000 python tests/tux2d_visual_browser.py
-FUGAMES_BASE_URL=http://127.0.0.1:8000 python tests/tux2d_ui_browser.py
-FUGAMES_BASE_URL=http://127.0.0.1:8000 python tests/tux2d_performance_browser.py
+FUGAMES_BASE_URL=http://127.0.0.1:8000 python tests/tux2d_keyboard_browser.py
 python tests/front_line_browser.py
 node tests/front-line-study.cjs 20
 ```
@@ -142,3 +149,5 @@ node tests/front-line-study.cjs 20
 觸控驗證使用 Chromium 裝置模擬，不能代替實體 iOS Safari、Android 裝置及不同瀏覽器引擎的驗證。
 
 翻轉五子棋保留原規則，改用有固定工作上限、完整即勝／即敗掃描與後續攻守搜尋的 AI，透過可取消的 Worker 執行。獨立搜尋證明 `E5 → E4 → E3` 後先手可在第 11 手前強制獲勝；這不等於整個遊戲先手必勝。新 AI 避開該相鄰敗著，16 場保留開局對舊 AI 為 10 勝 6 負；完整證明、全部結果與限制見 [Flip Five 研究](docs/flipfive-2026-10-11/README.md) 與 [AI 對照](docs/flipfive-2026-10-11/ai-study/README.md)。
+
+AutoHex 新增「截圖」：按下即暫停，把最近 18 個回合的擴張、失地、砲擊、消滅、攻占與極淡虛線的 AI 策略全部壓在一張地圖上，匯出成 PNG；只用圖示與深淺、不放文字。見 [截圖說明與驗證](docs/autohex-snapshot-2026-10-12/validation.md)。

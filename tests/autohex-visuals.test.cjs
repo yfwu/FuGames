@@ -8,6 +8,59 @@ function publicView() {
 }
 function freeze(value) { if (value && typeof value === 'object') { Object.values(value).forEach(freeze); Object.freeze(value); } return value; }
 
+for (const engine of [H, require('../cardhex-engine.js')]) {
+  const at = engine.index, r = engine.RADIUS;
+  function cutFixture() {
+    const v = new engine.Game({ seed: 'cut-preview', terrain: 'classic' }).observation(1);
+    v.board.fill(0); v.anchors.fill(0); v.bridges = []; v.tunnels = [];
+    v.players[2].home = at(-r, 0); v.players[2].axis = 'q'; v.players[2].sign = -1;
+    for (let q = -r; q <= r; q++) v.board[at(q, 0)] = 2;
+    v.anchors[at(-r, 0)] = 2;
+    return v;
+  }
+  test(`supply preview uses public topology without mutations, secrets or RNG (${r})`, () => {
+    const v = cutFixture(), target = at(0, 0), before = JSON.stringify(v);
+    for (const key of ['hand', 'hands', 'traps', '_random']) Object.defineProperty(v, key, { get() { throw Error('private read ' + key); }, configurable: true });
+    // Freeze only public topology: throwing secret getters must never be read.
+    for (const key of ['board', 'players', 'bridges', 'tunnels', 'anchors', 'unsupplied']) freeze(v[key]);
+    const a = V.supplyCutPreview(v, target, engine, 1);
+    assert.deepEqual(a, V.supplyCutPreview(v, target, engine, 1));
+    assert.equal(a.affected.length, r); assert.equal(a.losesGoal, true);
+    assert.ok(!a.affected.includes(target)); assert.ok(a.retreats.every(x => x.ownActions === engine.RULES.unsuppliedTurns));
+    const original = JSON.parse(before);
+    for (const key of ['board', 'players', 'bridges', 'tunnels', 'anchors', 'unsupplied']) assert.deepEqual(v[key], original[key]);
+  });
+  test(`supply preview respects alternate bridges/tunnels and endpoint loss (${r})`, () => {
+    for (const kind of ['bridges', 'tunnels']) {
+      const v = cutFixture(), target = at(0, 0);
+      v[kind] = [{ owner: 2, a: at(-1, 0), b: at(1, 0), path: [at(-1, 0), at(0, -1), at(1, -1), at(1, 0)] }];
+      assert.equal(V.supplyCutPreview(v, target, engine).affected.length, 0);
+      assert.equal(V.supplyCutPreview(v, target, engine).losesGoal, false);
+      assert.equal(V.supplyCutPreview(v, at(-1, 0), engine).losesGoal, true);
+      v[kind][0].owner = 1;
+      assert.equal(V.supplyCutPreview(v, target, engine).losesGoal, true);
+    }
+  });
+  test(`supply preview excludes already stranded pieces and preserves a second goal (${r})`, () => {
+    const v = cutFixture(); v.board[at(0, 3)] = 2;
+    v.unsupplied[at(1, 0)] = 2;
+    let p = V.supplyCutPreview(v, at(0, 0), engine);
+    assert.ok(!p.affected.includes(at(0, 3)));
+    assert.equal(p.retreats.find(x => x.cell === at(1, 0)).ownActions, engine.RULES.unsuppliedTurns - 2);
+    // A second public route reaches another cell of the same goal edge.
+    for (let q = -r + 1; q <= r; q++) v.board[at(q, -1)] = 2;
+    p = V.supplyCutPreview(v, at(r, 0), engine);
+    assert.equal(p.losesGoal, false);
+    assert.equal(V.supplyCutPreview(v, -1, engine), null);
+    assert.equal(V.supplyCutPreview(v, at(-r, 0), engine), null);
+    assert.equal(V.supplyCutPreview(v, at(0, 0), engine, 2), null);
+    assert.equal(V.supplyCutPreview(v, at(0, 3), engine).affected.length, 0);
+    assert.equal(V.supplyCutPreview(v, at(0, 4), engine), null);
+    v.alliances = [{ a: 1, b: 2, expiresRound: v.round + 3 }];
+    if (engine.allied(v, 1, 2)) assert.equal(V.supplyCutPreview(v, at(0, 0), engine, 1), null);
+  });
+}
+
 test('AutoHex visual supply forest starts at homes, follows own supplied neighbors/bridges, and contains no cycles', () => {
   const view = publicView(), neighbor = at(1, 0), triangle = at(1, -1), far = at(5, 0), child = at(5, 1), remote = at(10, 0), unsupplied = at(6, 0);
   const home2 = at(8, 0), child2 = at(8, -1), blocker = at(2, 0);

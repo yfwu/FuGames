@@ -1,0 +1,42 @@
+{
+  "checks": [
+    "homepage opens Rummikub",
+    "initial four-seat fixture",
+    "desktop pointer drag creates draft",
+    "new tile glows",
+    "undo returns physical tile",
+    "30-point opening assembled",
+    "opening commits and three AIs return to player",
+    "Blob Worker executes AI",
+    "completed turn survives reload",
+    "rules dialog opens",
+    "cancel new game preserves round",
+    "return navigation works",
+    "mobile native emulated touch drag",
+    "mobile undo",
+    "mobile multi-select button alternative",
+    "no horizontal overflow 390x844",
+    "no horizontal overflow 320x568",
+    "no horizontal overflow 844x390",
+    "offline hint works without Worker",
+    "hint remains reversible",
+    "no JavaScript errors",
+    "no external network dependencies"
+  ],
+  "errors": [],
+  "externalRequests": [],
+  "viewports": [
+    {
+      "width": 390,
+      "height": 844
+    },
+    {
+      "width": 320,
+      "height": 568
+    },
+    {
+      "width": 844,
+      "height": 390
+    }
+  ]
+}

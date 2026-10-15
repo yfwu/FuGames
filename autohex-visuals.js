@@ -5,6 +5,27 @@
   if (root) root.AutoHexVisuals = api;
 })(typeof window !== 'undefined' ? window : globalThis, function () {
   'use strict';
+  // A successful loss of this stone, not a combat prediction. Only public
+  // topology enters the authoritative supply calculation; no game/simulation
+  // object, cache, RNG, hands or future actions are read or changed.
+  function supplyCutPreview(view, cell, engine, observer = 0) {
+    const owner = view.board[cell];
+    if (!Number.isInteger(cell) || !owner || view.anchors[cell] ||
+        observer && engine.allied(view, observer, owner)) return null;
+    const state = { board: view.board.slice(), players: view.players,
+      bridges: view.bridges || [], tunnels: view.tunnels || [] };
+    const before = engine.computeSupply(state, owner);
+    state.board[cell] = 0; // Equivalent to another owner for this faction's supply.
+    const after = engine.computeSupply(state, owner), affected = [];
+    let hadGoal = false, hasGoal = false;
+    for (let i = 0; i < state.board.length; i++) {
+      if (before[i] && engine.goalCell(state, owner, i)) hadGoal = true;
+      if (after[i] && engine.goalCell(state, owner, i)) hasGoal = true;
+      if (i !== cell && before[i] && !after[i] && !view.anchors[i]) affected.push(i);
+    }
+    return { cell, owner, affected, losesGoal: hadGoal && !hasGoal,
+      retreats: affected.map(i => ({ cell: i, ownActions: Math.max(1, engine.RULES.unsuppliedTurns - (view.unsupplied?.[i] || 0)) })) };
+  }
   function supplyForest(view, adjacency) {
     const result = [];
     for (let owner = 1; owner < view.players.length; owner++) {
@@ -67,5 +88,5 @@
     }
     snapshot() { return { effects: this.effects.map(e => ({ ...e, cells: e.cells.slice() })), seenCount: this.seen.size, limit: 64 }; }
   }
-  return { supplyForest, inspectTurret, Effects };
+  return { supplyForest, supplyCutPreview, inspectTurret, Effects };
 });

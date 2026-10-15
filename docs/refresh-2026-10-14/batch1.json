@@ -1,0 +1,106 @@
+[
+  {
+    "engine": "chromium",
+    "width": 1440,
+    "height": 1000,
+    "checks": [
+      "15 active / 2 archived",
+      "archive navigation",
+      "legacy URLs and return links",
+      "bridge icon render",
+      "no horizontal overflow"
+    ],
+    "errors": []
+  },
+  {
+    "engine": "chromium",
+    "width": 390,
+    "height": 844,
+    "checks": [
+      "15 active / 2 archived",
+      "archive navigation",
+      "legacy URLs and return links",
+      "bridge icon render",
+      "no horizontal overflow"
+    ],
+    "errors": []
+  },
+  {
+    "engine": "chromium",
+    "width": 844,
+    "height": 390,
+    "checks": [
+      "15 active / 2 archived",
+      "archive navigation",
+      "legacy URLs and return links",
+      "bridge icon render",
+      "no horizontal overflow"
+    ],
+    "errors": []
+  },
+  {
+    "engine": "chromium",
+    "width": 320,
+    "height": 568,
+    "checks": [
+      "15 active / 2 archived",
+      "archive navigation",
+      "legacy URLs and return links",
+      "bridge icon render",
+      "no horizontal overflow"
+    ],
+    "errors": []
+  },
+  {
+    "engine": "webkit",
+    "width": 1440,
+    "height": 1000,
+    "checks": [
+      "15 active / 2 archived",
+      "archive navigation",
+      "legacy URLs and return links",
+      "bridge icon render",
+      "no horizontal overflow"
+    ],
+    "errors": []
+  },
+  {
+    "engine": "webkit",
+    "width": 390,
+    "height": 844,
+    "checks": [
+      "15 active / 2 archived",
+      "archive navigation",
+      "legacy URLs and return links",
+      "bridge icon render",
+      "no horizontal overflow"
+    ],
+    "errors": []
+  },
+  {
+    "engine": "webkit",
+    "width": 844,
+    "height": 390,
+    "checks": [
+      "15 active / 2 archived",
+      "archive navigation",
+      "legacy URLs and return links",
+      "bridge icon render",
+      "no horizontal overflow"
+    ],
+    "errors": []
+  },
+  {
+    "engine": "webkit",
+    "width": 320,
+    "height": 568,
+    "checks": [
+      "15 active / 2 archived",
+      "archive navigation",
+      "legacy URLs and return links",
+      "bridge icon render",
+      "no horizontal overflow"
+    ],
+    "errors": []
+  }
+]

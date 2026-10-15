@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>封存遊戲 - FuGames</title><link rel="icon" href="favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="fulab-theme.css"><style>
+.game-list { display: grid; gap: 12px; }
+.game-card { display: flex; align-items: center; gap: 20px; padding: 22px; background: white; border: 1px solid var(--fulab-silver); border-radius: var(--fulab-radius); }
+.game-icon { width: 64px; height: 64px; flex-shrink: 0; padding: 8px; border-radius: 14px; fill: none; color: var(--fulab-ink-teal); background: var(--fulab-tint-teal); }
+.game-icon-action { color: #456586; background: var(--fulab-tint-indigo); }
+.game-icon-cards { color: #77566f; background: var(--fulab-tint-plum); }
+.game-card .btn { gap: 8px; white-space: nowrap; }
+.game-copy { flex: 1; min-width: 0; }
+.game-copy h2 { font-size: 21px; margin-bottom: 6px; }
+.game-copy .text-small { margin: 0; }
+@media(max-width:600px) { .game-card { padding: 16px; gap: 12px; flex-wrap: wrap; } .game-icon { width: 56px; height: 56px; } .game-copy { flex-basis: calc(100% - 68px); } .game-copy h2 { font-size: 20px; } .game-card .btn { width: 100%; } }
+</style></head><body><main>
+<nav class="site-nav" aria-label="遊戲導覽"><a class="site-brand" href="index.html"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>FuGames</a><span class="nav-label">你的口袋遊戲室</span></nav>
+<header class="page-header"><p class="eyebrow">FUGAMES / ARCHIVE</p><h1>封存遊戲</h1><p class="lead">暫時退居幕後的遊戲。保留原版與舊網址，仍可隨時遊玩。</p><a class="btn" href="index.html">回首頁 · 所有現役遊戲</a></header><div class="game-list"><article class="game-card"><svg class="game-icon game-icon-action" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#tux2d"></use></svg><div class="game-copy"><p class="eyebrow">街機配送 / 單人 × 4 AI</p><h2>Tux 2D</h2><p class="text-small">像素山路快遞：岔路補給、冰面快線與雪球攻防，三站拚配送積分。</p></div><a class="btn primary" href="tux2d.html" aria-label="開始遊玩 Tux 2D">開始遊玩 <svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#launch"></use></svg></a></article>
+<article class="game-card"><svg class="game-icon game-icon-board" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#flip_five"></use></svg><div class="game-copy"><p class="eyebrow">棋盤 / 單人 × AI</p><h2>翻轉五子棋</h2><p class="text-small">落一子、夾翻一線；連成五子前，先看清局勢。</p></div><a class="btn primary" href="flip_five.html" aria-label="開始遊玩翻轉五子棋">開始遊玩 <svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#launch"></use></svg></a></article></div><footer class="site-footer"><a href="index.html">回首頁</a> · FuGames</footer></main></body></html>

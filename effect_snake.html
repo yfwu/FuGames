@@ -50,32 +50,32 @@
 <body>
   <main class="game-page io-page">
     <nav class="site-nav" aria-label="遊戲導覽"><a class="site-brand" href="index.html"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>FuGames</a><a href="index.html" aria-label="所有遊戲 ↗"><span>所有遊戲</span><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#launch"></use></svg></a></nav>
-    <header class="page-header"><p class="eyebrow">IO / 單人 3 AI</p><h1><svg class="page-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#effect_snake"></use></svg>效果貪食蛇</h1><p class="lead">有些果實讓你長大，有些最好繞道。看準下一步，留一條退路。</p></header>
+    <header class="page-header"><p class="eyebrow">IO / 單人 3 AI</p><h1><svg class="page-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#effect_snake"></use></svg>效果貪食蛇</h1><p class="lead">吃果長大，花質量加速。小蛇截路、大蛇搶食，90 秒爭高分。</p></header>
     <section class="card play-panel" aria-label="效果貪食蛇競技場">
-      <div class="game-toolbar"><p class="game-status" id="phase-label">準備出發</p><div class="game-metrics"><span>得分 <strong id="score">0</strong></span><span>長度 <strong id="length">4</strong></span><span>存活 <strong id="clock">0:00</strong></span></div></div>
+      <div class="game-toolbar"><p class="game-status" id="phase-label">準備出發</p><div class="game-metrics"><span>得分 <strong id="score">0</strong></span><span>長度 <strong id="length">4</strong></span><span>剩餘 <strong id="clock">1:30</strong></span></div></div>
       <div class="io-stage"><canvas id="board" width="672" height="672" tabindex="0" aria-label="效果貪食蛇。你是青綠色蛇，方向鍵、WASD 或滑動轉向。" aria-describedby="status">需要支援 Canvas 的瀏覽器。</canvas>
         <div class="board-overlay" id="overlay"><div class="game-dialog" role="dialog" aria-labelledby="dialog-title" aria-describedby="dialog-copy">
           <svg class="dialog-art" viewBox="0 0 96 72" aria-hidden="true"><path d="M19 53h25V24h17" fill="none" stroke="#5ebcbf" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/><circle cx="62" cy="22" r="2" fill="#267477"/><path d="M74 40l2.4 5 5.6.8-4 3.9 1 5.4-5-2.6-5 2.6 1-5.4-4-3.9 5.6-.8z" fill="#ebcb8b" stroke="#85662a" stroke-width="1.5"/></svg>
-          <p class="eyebrow" id="dialog-kicker">青綠是你 · 其餘皆為本機 AI</p><h2 id="dialog-title">吃之前，先看一眼</h2><p id="dialog-copy">方向鍵／WASD，手機滑動或按方向鈕。搶好果、避毒菇；撞牆或蛇身即結束，拚本局最高分。</p><button class="btn primary" id="play" aria-label="開始蛇行 →"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#play"></use></svg><span>開始蛇行</span></button>
+          <p class="eyebrow" id="dialog-kicker">青綠是你 · 其餘皆為本機 AI</p><h2 id="dialog-title">吃之前，先看一眼</h2><p id="dialog-copy">方向鍵／WASD 或手機方向鈕轉彎。吃果增質量，質量 6 起可按住空白鍵／加速鈕兩倍速，每 0.32 秒掉 1 質量。大蛇也怕撞蛇身！90 秒比較食物分＋存活質量×10。</p><button class="btn primary" id="play" aria-label="開始蛇行 →"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#play"></use></svg><span>開始蛇行</span></button>
         </div></div>
       </div>
       <div class="io-support">
-<p class="game-status io-status" id="status" role="status" aria-live="polite">持續前進，不能直接回頭。AI 淘汰後會從預告區重新加入。</p>
-      <p class="snake-effects" id="effects">目前無效果 · 每格 0.16 秒</p>
+<p class="game-status io-status" id="status" role="status" aria-live="polite">90 秒質量競賽：吃果長大，按住空白鍵／加速鈕換速度；截路能反制大蛇。</p>
+      <p class="snake-effects" id="effects">目前無效果 · 常速每格 0.16 秒 · 空白鍵加速</p>
       <div class="snake-roster" id="roster" aria-label="本局各蛇分數"></div>
       <div class="food-legend" aria-label="吃下前可查看的食物效果">
         <span><b style="background:#e1e9d9;color:#4a6540"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#fruit"></use></svg></b>果實 +10／長 1 格</span><span><b style="background:#f6edda;color:#856522"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#star"></use></svg></b>星果 +25／長 2 格</span><span><b style="background:#dce5ef;color:#486580"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#shield"></use></svg></b>護盾 +5／抵撞 1 次・6 秒</span><span><b style="background:#efdad1;color:#99553f"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#poison"></use></svg></b>毒菇 −15／短 3 格</span><span><b style="background:#e8dce5;color:#775771"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#slow"></use></svg></b>泥團 半速 4 秒</span>
       </div>
-      <div class="game-actions"><p class="action-note">存活越久，累積越多 · P / Esc 暫停</p><div class="btnRow"><button class="btn" id="pause" disabled aria-label="暫停"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#pause"></use></svg><span>暫停</span></button><button class="btn primary" id="restart" aria-label="重新開始"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#restart"></use></svg><span>重新開始</span></button></div></div>
-      <div class="io-controls touch-controls"><p class="action-note">滑一下即可轉向<br>放手後仍會前進</p><div class="dpad" aria-label="觸控方向鍵"><button class="btn" data-direction="up" aria-label="向上"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#arrow-up"></use></svg></button><button class="btn" data-direction="left" aria-label="向左"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#arrow-left"></use></svg></button><button class="btn" data-direction="down" aria-label="向下"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#arrow-down"></use></svg></button><button class="btn" data-direction="right" aria-label="向右"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#arrow-right"></use></svg></button></div></div>
+      <div class="game-actions"><p class="action-note">90 秒比：食物分＋存活質量×10 · P / Esc 暫停</p><div class="btnRow"><button class="btn" id="pause" disabled aria-label="暫停"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#pause"></use></svg><span>暫停</span></button><button class="btn primary" id="restart" aria-label="重新開始"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#restart"></use></svg><span>重新開始</span></button></div></div>
+      <button class="btn primary" id="boost" disabled style="touch-action:none;min-height:48px">按住加速 · 需質量 6</button><div class="io-controls touch-controls"><p class="action-note">滑一下即可轉向<br>放手後仍會前進</p><div class="dpad" aria-label="觸控方向鍵"><button class="btn" data-direction="up" aria-label="向上"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#arrow-up"></use></svg></button><button class="btn" data-direction="left" aria-label="向左"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#arrow-left"></use></svg></button><button class="btn" data-direction="down" aria-label="向下"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#arrow-down"></use></svg></button><button class="btn" data-direction="right" aria-label="向右"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#arrow-right"></use></svg></button></div></div>
     </div>
 </section>
     <details class="card rules"><summary>玩法、食物與 AI</summary><div class="rules-body"><ul class="list">
-      <li>你與三位明確標示的本機 AI 在同一個 28 28 場地前進。沒有網路玩家，也沒有時限；吃果實累積本局得分，撞牆、石塊或任何蛇身就結束，可立刻重開。</li>
-      <li>方向鍵／WASD、棋盤滑動或方向鈕轉向，不能直接 180 度回頭。同一步只接收一個最終合法方向；每 0.16 秒前進一格。</li>
+      <li>你與三位明確標示的本機 AI 在同一個 28 28 場地前進。沒有網路玩家；90 秒內競逐食物分＋存活質量×10，最高者獲勝（同分並列）；吃果實累積本局得分，撞牆、石塊或任何蛇身就結束，可立刻重開。</li>
+      <li>質量就是目標身長，上限 30。質量至少 6 時，按住空白鍵或加速鈕可每步多走一格（兩倍速）；每 0.32 秒掉 1 質量，在尾端留下對手可吃的果實。低於 6、吃泥團或放手便停止；AI 使用相同條件與代價。</li><li>方向鍵／WASD、棋盤滑動或方向鈕轉向，不能直接 180 度回頭。同一步只接收一個最終合法方向；每 0.16 秒前進一格。</li>
       <li>果實加 10 分、長 1 格；星果加 25 分、分兩步長 2 格。長度最多 30 格，額外果實仍得分。毒菇扣 15 分、短 3 格並取消待成長格數；最低 0 分、3 格。食物約 30 秒沒人吃就淡出換新，避免毒物塞滿場地。</li>
       <li>護盾加 5 分，接下來約 6 秒可抵擋一次碰撞：停在原位、護盾消失，下步請轉向。泥團讓接下來 4 秒只在隔一步移動；重複同種效果刷新時間、不疊加。暫停時效果也停止。</li>
-      <li>所有蛇同時移動。撞同一空格時都受撞；交換頭部或進入任何本步開始時的蛇身（含即將移開的尾巴）也受撞。護盾只保護持有者，沒有長蛇優先權；死亡蛇身在該步結束才消失。</li>
+      <li>所有蛇同時移動。同體型搶同一空格時都受撞；交換頭部或進入任何本步開始時的蛇身（含即將移開的尾巴）也受撞。只有同時搶進同一空格，質量至少是所有對手 1.5 倍且對手無盾時，大蛇獨存並加 30 分、長 2 格；否則雙方受撞。長蛇撞任何蛇身仍受撞，小蛇可用截路或盾反制；死亡蛇身在該步結束才消失。</li>
       <li>果果 AI 搜尋最近的高價值食物；守守 AI 優先保留寬闊逃生空間；切切 AI 會預測對手去向並搶佔前路。三者都查看可見場地、避開毒物並評估可能的迎頭相撞。</li>
       <li>AI 出局後約 4 秒尋找安全空地。虛線區預告約 1.3 秒再加入；若有人接近，重生延後，絕不直接生成在你身上。重新加入的 AI 分數歸零。食物慢慢補至 14 顆。</li>
       <li>P／Esc 或暫停鈕可暫停。切換分頁、視窗失焦或手機切到背景會自動暫停，返回後由你手動繼續。</li>
@@ -221,24 +221,45 @@
         if(food.type==='slow') {a.slow=SLOW_TICKS;a.slowSkip=true;}
         this.events.push({type:'food',actor:a.id,food:food.type});
       }
-      step() {
+      step(input={}) {
         if(this.phase!=='running')return;
         this.tick++; this.events=[];
+        const boosts=new Set(this.actors.filter(a=>a.alive&&a.targetLength>=6&&!a.slow&&(a.id?this.aiBoost(a):input.boost)).map(a=>a.id));
+        this.moveRound();
+        if(this.phase==='running'&&boosts.size){
+          for(const a of this.actors)if(a.alive&&boosts.has(a.id)){a.boosting=true;if(this.tick%2===0){a.targetLength--;const tail=a.body.length>a.targetLength?a.body.pop():null;if(tail&&!this.occupied().has(key(tail))){if(this.food.length>=FOOD_LIMIT)this.food.shift();this.food.push({...tail,type:'fruit',expires:this.tick+60});}this.events.push({type:'boost',actor:a.id});}}
+          this.moveRound(boosts);
+        }
+        if(this.phase!=='running')return;
+        this.replenishAI();
+        this.food=this.food.filter(f=>f.expires===undefined||f.expires>this.tick);
+        if(this.tick%6===0)this.addFood();
+        if(this.tick>=563){const ranks=this.actors.map(a=>({id:a.id,total:a.score+(a.alive?a.targetLength*10:0)})).sort((a,b)=>b.total-a.total);this.phase='over';this.result={score:this.actors[0].score,ticks:this.tick,respawns:this.respawns,outcome:ranks[0].total===ranks.find(a=>a.id===0).total?'win':'loss',ranks};}
+      }
+      aiBoost(a){
+        const head=a.body[0],next=advance(head,a.dir),ahead=advance(next,a.dir),blocked=this.occupied();
+        if(!inside(ahead)||blocked.has(key(next))||blocked.has(key(ahead)))return false;
+        const danger=this.actors.some(b=>b!==a&&b.alive&&distance(head,b.body[0])<5&&b.targetLength>=a.targetLength);
+        return danger||this.food.some(f=>FOODS[f.type].value>0&&distance(head,f)<=4&&distance(ahead,f)<distance(head,f));
+      }
+      moveRound(only=null){
         const blocked=this.occupied(), plans=[];
         for(const a of this.actors)if(a.alive) {
           // Decisions use the same unmodified public board for every snake.
           const dir=a.id?this.aiDirection(a):a.nextDir;
-          const moving=!(a.slow>0&&a.slowSkip);
+          const moving=(!only||only.has(a.id))&&!(a.slow>0&&a.slowSkip);
+          if(!only)a.boosting=false;
           plans.push({a,dir,moving,next:moving?advance(a.body[0],dir):a.body[0],hit:false});
         }
         for(const p of plans)if(p.moving) {
           p.hit=!inside(p.next)||blocked.has(key(p.next));
-          if(plans.some(q=>q!==p&&q.moving&&key(q.next)===key(p.next)))p.hit=true;
+          const rivals=plans.filter(q=>q!==p&&q.moving&&key(q.next)===key(p.next));
+          if(rivals.length){const dominates=rivals.every(q=>p.a.targetLength>=q.a.targetLength*1.5&&!q.a.shield);p.hit=p.hit||!dominates;if(dominates&&!p.hit){p.a.score+=30;p.a.targetLength=Math.min(MAX_LENGTH,p.a.targetLength+2);this.events.push({type:'capture',actor:p.a.id});}}
         }
         for(const p of plans) {
           const a=p.a; a.dir=p.dir; a.nextDir=p.dir;
           const hadShield=a.shield>0;
-          if(a.shield>0)a.shield--; if(a.slow>0) {a.slow--;a.slowSkip=!a.slowSkip;}
+          if(!only&&a.shield>0)a.shield--; if(!only&&a.slow>0) {a.slow--;a.slowSkip=!a.slowSkip;}
           if(p.hit) {
             if(hadShield) {a.shield=0;this.events.push({type:'shield',actor:a.id});}
             else {a.alive=false;a.deaths++;a.respawn=RESPAWN_TICKS;this.events.push({type:'death',actor:a.id});}
@@ -253,9 +274,6 @@
         if(!this.actors[0].alive) {
           this.phase='over'; this.result={score:this.actors[0].score,ticks:this.tick,respawns:this.respawns}; return;
         }
-        this.replenishAI();
-        this.food=this.food.filter(f=>f.expires===undefined||f.expires>this.tick);
-        if(this.tick%6===0)this.addFood();
       }
     }
     return {Game,SIZE,DT,MAX_LENGTH,FOOD_LIMIT,SHIELD_TICKS,SLOW_TICKS,RESPAWN_TICKS,WARNING_TICKS,DIRS,FOODS,PROFILES,key,inside,distance,advance};
@@ -275,6 +293,7 @@
   'use strict';
   const $=id=>document.getElementById(id), canvas=$('board'), ctx=canvas.getContext('2d'), game=new EffectSnake.Game();
   const colors=['#267477','#b46d55','#647eac','#916b88'], tints=['#5ebcbf','#dca28d','#a3b9d9','#c5a7bf'];
+  let boostHeld=false;
   let frameID=0, previous=null, elapsed=0, swipe=null, lastNotice=0;
   const seconds=ticks=>{const n=Math.floor(ticks*EffectSnake.DT);return `${Math.floor(n/60)}:${String(n%60).padStart(2,'0')}`;};
   function announce(text) { if($('status').textContent!==text)$('status').textContent=text; }
@@ -301,37 +320,43 @@
       for(let i=a.body.length-1;i>=0;i--)square(a.body[i],i===0?colors[a.id]:tints[a.id],i===0?1.5:3);
       const h=a.body[0],d=EffectSnake.DIRS[a.dir],cx=(h.x+.5)*cell,cy=(h.y+.5)*cell;
       ctx.fillStyle='#fff';for(const side of [-1,1]){ctx.beginPath();ctx.arc(cx+d.x*5+d.y*side*4,cy+d.y*5+d.x*side*4,2,0,Math.PI*2);ctx.fill();}
+      if(a.boosting){ctx.strokeStyle='#d08770';ctx.lineWidth=4;ctx.strokeRect(h.x*cell-4,h.y*cell-4,cell+8,cell+8);}
       if(a.shield>0){ctx.strokeStyle='#81a1c1';ctx.lineWidth=3;ctx.strokeRect(h.x*cell-2,h.y*cell-2,cell+4,cell+4);}
       if(a.slow>0)drawFoodIcon('slow',cx-d.x*5,cy-d.y*5,14,'#fff');
       const font=Math.min(22,Math.max(14,Math.round(10*672/Math.max(canvas.clientWidth,1))));ctx.font='bold '+font+'px monospace';ctx.textAlign='center';ctx.textBaseline='alphabetic';
-      const label=a.id?'AI '+a.id:'YOU',width=ctx.measureText(label).width+6,lx=Math.max(width/2+2,Math.min(670-width/2,cx)),ly=h.y>0?Math.max(font+1,h.y*cell-6):(h.y+1)*cell+font;
+      const label=(a.id?'AI '+a.id:'YOU')+' · '+a.targetLength,width=ctx.measureText(label).width+6,lx=Math.max(width/2+2,Math.min(670-width/2,cx)),ly=h.y>0?Math.max(font+1,h.y*cell-6):(h.y+1)*cell+font;
       ctx.fillStyle='#ffffffeb';ctx.fillRect(lx-width/2,ly-font,width,font+3);ctx.fillStyle=colors[a.id];ctx.fillText(label,lx,ly);
     }
   }
   function hud() {
-    const a=game.actors[0];$('score').textContent=a.score;$('length').textContent=a.alive?a.body.length:'—';$('clock').textContent=seconds(game.tick);
-    $('phase-label').textContent={ready:'準備出發',running:'持續競逐',paused:'已暫停',over:'本局結束'}[game.phase];
+    const a=game.actors[0];$('score').textContent=a.score;$('length').textContent=a.alive?a.body.length:'—';$('clock').textContent=seconds(Math.max(0,563-game.tick));
+    $('phase-label').textContent={ready:'準備出發',running:'90 秒質量競賽',paused:'已暫停',over:'本局結束'}[game.phase];
     $('pause').disabled=game.phase==='ready'||game.phase==='over';setButton($('pause'),game.phase==='paused'?'繼續':'暫停',game.phase==='paused'?'play':'pause');
+    $('boost').disabled=game.phase!=='running'||a.targetLength<6||a.slow>0;$('boost').textContent=a.boosting?'加速中 · 消耗質量':a.targetLength<6?'需質量 6 才能加速':'按住加速 · 每 0.32 秒 −1 質量';
     const effects=[];if(a.shield)effects.push(['shield',`護盾 ${Math.ceil(a.shield*EffectSnake.DT)} 秒`]);if(a.slow)effects.push(['slow',`緩速 ${Math.ceil(a.slow*EffectSnake.DT)} 秒`]);
-    if(effects.length)$('effects').innerHTML=effects.map(([icon,label])=>`<span class="io-key"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#${icon}"></use></svg>${label}</span>`).join(' · ');else $('effects').textContent='目前無效果 · 每格 0.16 秒';
-    $('roster').replaceChildren(...game.actors.map(actor=>{const item=document.createElement('div');item.className='snake-player';item.style.setProperty('--snake-color',colors[actor.id]);const name=document.createElement('strong');name.textContent=EffectSnake.PROFILES[actor.id].name+' · '+actor.score;item.append(name);const detail=document.createElement('span');detail.textContent=actor.alive?EffectSnake.PROFILES[actor.id].role:actor.id?(actor.warning?'預告入場':'等待重生'):'本局結束';item.append(detail);item.title=actor.reason;return item;}));
+    if(effects.length)$('effects').innerHTML=effects.map(([icon,label])=>`<span class="io-key"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#${icon}"></use></svg>${label}</span>`).join(' · ');else $('effects').textContent='目前無效果 · 常速每格 0.16 秒 · 空白鍵加速';
+    $('roster').replaceChildren(...game.actors.map(actor=>{const item=document.createElement('div');item.className='snake-player';item.style.setProperty('--snake-color',colors[actor.id]);const name=document.createElement('strong');name.textContent=EffectSnake.PROFILES[actor.id].name+' · '+actor.score;item.append(name);const detail=document.createElement('span');detail.textContent=actor.alive?'質量 '+actor.targetLength+' · '+(actor.boosting?'加速':EffectSnake.PROFILES[actor.id].role):actor.id?(actor.warning?'預告入場':'等待重生'):'本局結束';item.append(detail);item.title=actor.reason;return item;}));
   }
   function dialog(title,copy,button,kicker) {$('dialog-title').textContent=title;$('dialog-copy').textContent=copy;setButton($('play'),button,game.phase==='over'?'restart':'play');$('dialog-kicker').textContent=kicker;$('overlay').hidden=false;$('play').focus({preventScroll:true});}
-  function stop() {cancelAnimationFrame(frameID);frameID=0;previous=null;elapsed=0;swipe=null;}
+  function stop() {boostHeld=false;cancelAnimationFrame(frameID);frameID=0;previous=null;elapsed=0;swipe=null;}
   function resume() {stop();game.start();$('overlay').hidden=true;announce('持續前進，吃好果、避毒菇；留意下一個轉彎。');hud();canvas.focus({preventScroll:true});frameID=requestAnimationFrame(frame);}
   function pause() {if(game.phase!=='running')return;game.pause();stop();hud();draw();announce('已暫停，蛇、食物與效果計時全部停止。');dialog('歇一口氣','場地與計時都停下了，準備好再繼續。','繼續蛇行 →','手動繼續');}
   function restart() {stop();game.reset();lastNotice=0;announce('你是青綠色蛇。吃好果、避毒菇，先看下一步。');resume();draw();}
-  function finish() {stop();hud();draw();announce(`本局 ${game.result.score} 分，存活 ${seconds(game.result.ticks)}。`);dialog('再留一條退路',`本局 ${game.result.score} 分，存活 ${seconds(game.result.ticks)}。撞牆或蛇身會結束；下一局試試先保留轉彎空間。`,'再玩一局 →','本局結束');}
+  function finish() {stop();hud();draw();announce(`本局 ${game.result.score} 分，存活 ${seconds(game.result.ticks)}。`);dialog(game.result.ranks?(game.result.outcome==='win'?'質量競賽領先！':'競賽結束'):'再留一條退路',`${game.result.ranks?'90 秒到；總分＝食物分＋存活質量×10。 ':''}本局 ${game.result.score} 分，存活 ${seconds(game.result.ticks)}。撞牆或蛇身會結束；下一局試試先保留轉彎空間。`,'再玩一局 →','本局結束');}
   function frame(now) {
     if(game.phase!=='running')return;
     if(previous===null)previous=now;elapsed+=Math.min((now-previous)/1000,.32);previous=now;
     while(elapsed>=EffectSnake.DT&&game.phase==='running') {
-      game.step();elapsed-=EffectSnake.DT;
-      for(const event of game.events)if(event.actor===0){if(event.type==='shield'){announce('護盾擋下一次碰撞！現在停在原位，快轉向。');lastNotice=game.tick;}if(event.type==='food'){const f=EffectSnake.FOODS[event.food];announce(`${f.name}：${{fruit:'加 10 分、長 1 格',star:'加 25 分、長 2 格',shield:'加 5 分、護盾保護 6 秒',poison:'扣 15 分、短 3 格',slow:'接下來 4 秒半速'}[event.food]}。`);lastNotice=game.tick;}}
-      if(game.tick-lastNotice>32){const waiting=game.actors.find(a=>a.warning);announce(waiting?`${EffectSnake.PROFILES[waiting.id].name} 即將由虛線區入場；靠近時會延後。`:'三位對手皆是本機 AI。留意前路與蛇身，不能直接回頭。');lastNotice=game.tick;}
+      game.step({boost:boostHeld});elapsed-=EffectSnake.DT;
+      for(const event of game.events)if(event.actor===0){if(event.type==='capture'){announce('質量至少 1.5 倍，迎頭搶勝！+30 分、成長 2 格。');lastNotice=game.tick;}if(event.type==='boost'){announce('加速掉落 1 質量成為果實，對手也能撿；放手即可節省。');lastNotice=game.tick;}if(event.type==='shield'){announce('護盾擋下一次碰撞！現在停在原位，快轉向。');lastNotice=game.tick;}if(event.type==='food'){const f=EffectSnake.FOODS[event.food];announce(`${f.name}：${{fruit:'加 10 分、長 1 格',star:'加 25 分、長 2 格',shield:'加 5 分、護盾保護 6 秒',poison:'扣 15 分、短 3 格',slow:'接下來 4 秒半速'}[event.food]}。`);lastNotice=game.tick;}}
+      if(game.tick-lastNotice>32){const waiting=game.actors.find(a=>a.warning);announce(waiting?`${EffectSnake.PROFILES[waiting.id].name} 即將由虛線區入場；靠近時會延後。`:'同格搶食需 1.5 倍質量才壓勝；撞蛇身仍出局。加速會掉質量。');lastNotice=game.tick;}
     }
     hud();draw();if(game.phase==='over'){finish();return;}frameID=requestAnimationFrame(frame);
   }
+  $('boost').addEventListener('pointerdown',e=>{e.preventDefault();boostHeld=true;$('boost').setPointerCapture(e.pointerId);});
+  for(const type of ['pointerup','pointercancel','lostpointercapture','blur'])$('boost').addEventListener(type,()=>boostHeld=false);
+  document.addEventListener('keydown',e=>{if(e.key===' '&&game.phase==='running'&&!e.target.closest('a,summary')){e.preventDefault();boostHeld=true;}});
+  document.addEventListener('keyup',e=>{if(e.key===' ')boostHeld=false;});
   $('play').addEventListener('click',()=>game.phase==='over'?restart():resume());$('restart').addEventListener('click',restart);$('pause').addEventListener('click',()=>game.phase==='paused'?resume():pause());
   const directions={ArrowUp:0,w:0,W:0,ArrowRight:1,d:1,D:1,ArrowDown:2,s:2,S:2,ArrowLeft:3,a:3,A:3};
   document.addEventListener('keydown',event=>{if(event.altKey||event.ctrlKey||event.metaKey)return;if(Object.hasOwn(directions,event.key)){event.preventDefault();game.setDirection(directions[event.key]);}else if(['p','P','Escape'].includes(event.key)){event.preventDefault();if(game.phase==='paused')resume();else pause();}});

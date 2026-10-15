@@ -1,131 +1,97 @@
-"""Complete human-mode race using real keyboard controls, never engine mutation.
-
-The route controller reads public observations and emits Playwright key presses.
-No virtual clock, raw lap edits, coordinate writes, or direct Game.step calls.
+"""Bounded courier browser checks. Real UI inputs plus explicitly labelled fixtures.
+Requires Python Playwright and its Chromium install. No direct engine steps.
 """
 from pathlib import Path
-import hashlib, json, math, os, time
+import json, os, hashlib
 from playwright.sync_api import sync_playwright
-
-ROOT = Path(__file__).resolve().parents[1]
-OUT = ROOT / 'docs/tux2d-2026-10-11'
-BASE = os.environ.get('FUGAMES_BASE_URL', 'http://127.0.0.1:8011')
-OUT.mkdir(parents=True, exist_ok=True)
-(OUT / 'screenshots').mkdir(exist_ok=True)
-report = {'mode': 'real wall-clock human-mode race; public-observation controller emits keyboard input',
-          'virtualClock': False, 'engineMutation': False, 'errors': [], 'checkpoints': [], 'laps': [],
-          'sourceSha256': {name: hashlib.sha256((ROOT / name).read_bytes()).hexdigest()
-                          for name in ['tux2d-engine.js', 'tux2d-ui.js']}}
-
+ROOT=Path(__file__).resolve().parents[1]
+OUT=ROOT/'docs/tux2d-2026-10-14'; OUT.mkdir(exist_ok=True)
+BASE=os.environ.get('FUGAMES_BASE_URL','http://127.0.0.1:8018')
+report={'errors':[],'checks':{},'controlledFixtures':['position before supply / express fork','aligned snowball target','collision object ahead','position before final station','timeout clock'], 'fullAIRun':'unmodified seeded game, browser clock accelerated with requestAnimationFrame', 'sourceSha256':{n:hashlib.sha256((ROOT/n).read_bytes()).hexdigest() for n in ['tux2d-engine.js','tux2d-ui.js','tux2d.css','tux2d.html']}}
+def check(name,ok):
+ assert ok,name
+ report['checks'][name]=True
 with sync_playwright() as pw:
-    browser = pw.chromium.launch(executable_path=os.environ.get('CHROMIUM_PATH', '/usr/bin/chromium'),
-                                args=['--no-sandbox'])
-    ctx = browser.new_context(viewport={'width': 1440, 'height': 1000})
-    p = ctx.new_page()
-    p.on('pageerror', lambda e: report['errors'].append(str(e)))
-    p.goto(BASE + '/tux2d.html?seed=keyboard-human')
-    p.locator('#tux-seed').fill('keyboard-human')
-    p.locator('#auto-throttle').uncheck()
-    p.locator('#tux-play').click()
-    p.wait_for_timeout(450)
-    p.keyboard.press('KeyP')
-    assert p.evaluate('tux2dGame.phase') == 'paused'
-    before = p.evaluate('JSON.stringify(tux2dGame.observation(0))')
-    p.wait_for_timeout(650)
-    assert p.evaluate('JSON.stringify(tux2dGame.observation(0))') == before
-    report['countdownPauseFrozen'] = True
-    p.keyboard.press('KeyP')
-    p.wait_for_function('tux2dGame.phase === "racing"', timeout=10000)
-    p.locator('#tux-board').screenshot(path=str(OUT / 'screenshots/human-start.png'))
-    held = set()
-    accumulator = {'throttle': 0., 'brake': 0., 'steer': 0.}
-    last_gate, last_lap = 0, 0
-    samples, key_changes, max_jump = 0, 0, 0.
-    last_pos = None
-    wall_start = time.monotonic()
-    paused_racing = False
-    while time.monotonic() - wall_start < 180:
-        state = p.evaluate('''() => {
-          const view = tux2dGame.observation(0);
-          return {view, input:Tux2D.chooseAI(view,0)};
-        }''')
-        view, desired = state['view'], state['input']
-        kart = view['racers'][0]
-        assert all(math.isfinite(kart[k]) for k in ['x', 'y', 'angle', 'speed', 'progress'])
-        if last_pos:
-            max_jump = max(max_jump, math.hypot(kart['x'] - last_pos[0], kart['y'] - last_pos[1]))
-        last_pos = (kart['x'], kart['y'])
-        if kart['checkpoint'] != last_gate:
-            assert kart['checkpoint'] == (last_gate + 1) % 12, (last_gate, kart)
-            report['checkpoints'].append({'elapsed': view['elapsed'], 'gatePassed': last_gate,
-                                          'nextGate': kart['checkpoint'], 'lap': kart['lap']})
-            last_gate = kart['checkpoint']
-        if kart['lap'] != last_lap:
-            assert kart['lap'] == last_lap + 1
-            report['laps'].append({'lap': kart['lap'], 'elapsed': view['elapsed']})
-            p.locator('#tux-board').screenshot(path=str(OUT / f'screenshots/human-lap-{kart["lap"]}.png'))
-            last_lap = kart['lap']
-        if view['phase'] == 'over':
-            break
-        if view['elapsed'] > 5 and not paused_racing:
-            for key in held:
-                p.keyboard.up(key)
-            held.clear()
-            p.locator('#tux-pause').click()
-            frozen = p.evaluate('JSON.stringify(tux2dGame.observation(0))')
-            p.wait_for_timeout(650)
-            assert p.evaluate('JSON.stringify(tux2dGame.observation(0))') == frozen
-            p.keyboard.press('Escape')
-            report['racingPauseFrozen'] = True
-            paused_racing = True
-        keys = set()
-        if not kart['finished']:
-            values = {}
-            for axis in accumulator:
-                accumulator[axis] += abs(desired[axis])
-                values[axis] = 0
-                if accumulator[axis] >= .5:
-                    accumulator[axis] -= 1
-                    values[axis] = 1 if desired[axis] >= 0 else -1
-            if values['throttle']:
-                keys.add('ArrowUp')
-            if values['brake']:
-                keys.add('ArrowDown')
-            if values['steer']:
-                keys.add('ArrowRight' if values['steer'] > 0 else 'ArrowLeft')
-            if desired['useItem']:
-                keys.add('Space')
-        for key in held - keys:
-            p.keyboard.up(key); key_changes += 1
-        for key in keys - held:
-            p.keyboard.down(key); key_changes += 1
-        held = keys
-        samples += 1
-        p.wait_for_timeout(30)
-    for key in held:
-        p.keyboard.up(key)
-    final = p.evaluate('tux2dGame.observation(0)')
-    assert final['phase'] == 'over', final
-    assert final['racers'][0]['finished'] and final['racers'][0]['lap'] == 3
-    assert len(report['checkpoints']) == 37, report['checkpoints']
-    assert len(report['laps']) == 3
-    assert all(r['finished'] and r['lap'] == 3 for r in final['racers'])
-    assert final['telemetry']['checkpoints'] == 185
-    assert p.locator('#tux-result').is_visible()
-    assert p.evaluate('document.documentElement.scrollWidth <= innerWidth')
-    p.screenshot(path=str(OUT / 'screenshots/human-result-desktop.png'), full_page=True)
-    report.update({'complete': True, 'wallSeconds': time.monotonic() - wall_start,
-                   'samples': samples, 'keyTransitions': key_changes, 'largestObservedMove': max_jump,
-                   'humanFinishSeconds': final['racers'][0]['finishTime'], 'result': final['result'],
-                   'telemetry': final['telemetry'], 'humanFinal': final['racers'][0], 'overflow': False})
-    p.locator('#tux-restart').click()
-    reset = p.evaluate('tux2dGame.observation(0)')
-    assert reset['elapsed'] == 0 and all(r['lap'] == 0 and r['item'] is None for r in reset['racers'])
-    assert not reset['projectiles'] and not reset['hazards'] and reset['result'] is None
-    report['restartClean'] = True
-    ctx.close()
-    browser.close()
-
-assert not report['errors'], report['errors']
-(OUT / 'human-browser.json').write_text(json.dumps(report, ensure_ascii=False, indent=2) + '\n')
-print(json.dumps({k: v for k, v in report.items() if k not in ['checkpoints', 'humanFinal']}, ensure_ascii=False, indent=2))
+ browser=pw.chromium.launch()
+ page=browser.new_page(viewport={'width':1280,'height':1000})
+ page.on('pageerror',lambda e:report['errors'].append(str(e)))
+ page.goto(BASE+'/tux2d.html?seed=browser-courier')
+ check('initialReady',page.evaluate("tux2dGame.phase==='ready'"))
+ page.locator('#tux-play').focus();page.keyboard.press('Space')
+ check('nativeStartFocus',page.evaluate("document.activeElement.id==='tux-board'"))
+ page.wait_for_function("tux2dGame.phase==='racing'")
+ x=page.evaluate('tux2dGame.racers[0].x')
+ page.keyboard.down('ArrowRight');page.wait_for_timeout(450);page.keyboard.up('ArrowRight')
+ check('keyboardSteering',page.evaluate('tux2dGame.racers[0].x')>x+.15)
+ page.wait_for_timeout(1200)
+ page.keyboard.press('Shift');page.wait_for_timeout(150)
+ check('keyboardBoost',page.evaluate('tux2dGame.racers[0].boost>0'))
+ page.keyboard.press('KeyP');page.wait_for_timeout(150)
+ before=page.evaluate('JSON.stringify(tux2dGame.observation())');page.wait_for_timeout(180)
+ check('pauseFreezesEverything',before==page.evaluate('JSON.stringify(tux2dGame.observation())'))
+ page.keyboard.press('KeyP');page.wait_for_timeout(150)
+ check('resume',page.evaluate("tux2dGame.phase==='racing'"))
+ page.evaluate("Object.assign(tux2dGame.racers[0],{z:855,x:-.58,speed:100,energy:10,cargo:60});tux2dGame.objects=tux2dGame.objects.filter(o=>o.type!=='traffic');")
+ page.wait_for_timeout(1300)
+ check('supplyForkCommitted',page.evaluate("tux2dGame.racers[0].route==='supply'"))
+ page.screenshot(path=str(OUT/'desktop-supply.png'))
+ page.wait_for_function('tux2dGame.racers[0].supplied===0',timeout=8000)
+ check('supplyActuallyRepairs',page.evaluate('tux2dGame.racers[0].cargo>=85&&tux2dGame.racers[0].energy>=55'))
+ page.evaluate("Object.assign(tux2dGame.racers[0],{z:3300,x:.58,speed:100,energy:100,routeStage:0});")
+ page.wait_for_timeout(300)
+ check('expressForkCommitted',page.evaluate("tux2dGame.racers[0].route==='express'"))
+ page.keyboard.press('Space');page.wait_for_timeout(150)
+ check('keyboardShield',page.evaluate('tux2dGame.racers[0].shield>0'))
+ page.evaluate("const r=tux2dGame.racers[0];r.invulnerable=0;tux2dGame.objects.push({id:999,type:'rock',z:r.z+14,x:r.x,taken:[]});")
+ page.wait_for_timeout(450)
+ check('shieldBlocksRoadCollision',page.evaluate('tux2dGame.telemetry.blocks>0&&tux2dGame.racers[0].shield===0'))
+ page.evaluate("const r=tux2dGame.racers[0];r.cooldown=0;r.energy=100;Object.assign(tux2dGame.racers[1],{z:r.z+70,x:r.x,shield:0,invulnerable:0});")
+ page.keyboard.press('KeyF');page.wait_for_timeout(600)
+ check('snowballFired',page.evaluate("tux2dGame.events.some(e=>e.racer===0&&e.type==='snowball')"))
+ page.evaluate("Object.assign(tux2dGame.racers[0],{z:7197,parcels:2,speed:100});")
+ page.wait_for_function("tux2dGame.phase==='over'")
+ page.wait_for_timeout(200)
+ check('finishAndResult',page.locator('#tux-result').is_visible() and '3 / 3' in page.locator('#tux-result-title').inner_text())
+ page.locator('#tux-result').screenshot(path=str(OUT/'result.png'))
+ page.locator('#tux-race-again').click();page.wait_for_timeout(150)
+ check('restartClearsRun',page.evaluate("tux2dGame.phase==='countdown'&&tux2dGame.racers[0].parcels===0&&tux2dGame.racers[0].energy===65"))
+ page.wait_for_function("tux2dGame.phase==='racing'")
+ page.evaluate('tux2dGame.elapsed=109.98')
+ page.wait_for_function("tux2dGame.phase==='over'")
+ check('timeoutResult',page.evaluate('tux2dGame.result.timeout'))
+ page.locator('#tux-mode').select_option('spectator')
+ page.clock.install()
+ page.locator('#tux-play').click()
+ for i in range(23):
+  page.clock.run_for(5000)
+  if page.evaluate("tux2dGame.phase==='over'"):break
+ check('fullAIExpedition',page.evaluate("tux2dGame.phase==='over'&&tux2dGame.racers.every(r=>r.finished)"))
+ report['AI']=page.evaluate('({time:tux2dGame.elapsed,telemetry:tux2dGame.telemetry,standings:tux2dGame.standings()})')
+ page.close()
+ for label,width,height in [('portrait',390,844),('landscape',844,390)]:
+  context=browser.new_context(viewport={'width':width,'height':height},is_mobile=True,has_touch=True,device_scale_factor=1)
+  p=context.new_page();p.on('pageerror',lambda e:report['errors'].append(str(e)))
+  p.goto(BASE+'/tux2d.html');p.locator('#tux-play').tap();p.wait_for_function("tux2dGame.phase==='racing'")
+  check(label+'NoHorizontalOverflow',p.evaluate('document.documentElement.scrollWidth<=innerWidth'))
+  p.wait_for_timeout(1700)
+  check(label+'ControlsFit',p.locator('#touch-left').is_in_viewport() if hasattr(p.locator('#touch-left'),'is_in_viewport') else p.locator('#touch-left').bounding_box()['y']+p.locator('#touch-left').bounding_box()['height']<=height)
+  session=context.new_cdp_session(p)
+  box=p.locator('#touch-right').bounding_box();x=box['x']+box['width']/2;y=box['y']+box['height']/2
+  prior=p.evaluate('tux2dGame.racers[0].x')
+  session.send('Input.dispatchTouchEvent',{'type':'touchStart','touchPoints':[{'x':x,'y':y,'id':1}]})
+  p.wait_for_timeout(350)
+  action=p.locator('#action-shield').bounding_box();ax=action['x']+action['width']/2;ay=action['y']+action['height']/2
+  session.send('Input.dispatchTouchEvent',{'type':'touchStart','touchPoints':[{'x':x,'y':y,'id':1},{'x':ax,'y':ay,'id':2}]})
+  p.wait_for_timeout(120)
+  session.send('Input.dispatchTouchEvent',{'type':'touchEnd','touchPoints':[{'x':x,'y':y,'id':1}]})
+  p.wait_for_timeout(150)
+  session.send('Input.dispatchTouchEvent',{'type':'touchEnd','touchPoints':[]})
+  check(label+'SimultaneousSteerShield',p.evaluate("tux2dGame.events.some(e=>e.racer===0&&e.type==='shield')") and p.evaluate('tux2dGame.racers[0].x')>prior+.15)
+  p.screenshot(path=str(OUT/(label+'.png')))
+  p.locator('#tux-pause').tap();p.wait_for_timeout(150)
+  check(label+'Pause',p.evaluate("tux2dGame.phase==='paused'"))
+  context.close()
+ browser.close()
+check('noBrowserErrors',not report['errors'])
+(OUT/'browser.json').write_text(json.dumps(report,ensure_ascii=False,indent=2))
+print(json.dumps(report,ensure_ascii=False,indent=2))

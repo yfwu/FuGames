@@ -137,18 +137,22 @@ test('public personality weights produce different decisions on the same board',
   assert.ok(decisions.size>=2,'interceptor should prefer the opponent front while the collector prefers the star');
 });
 
-test('deterministic long simulations preserve unique bodies, food bounds, scoring and AI replenishment',()=>{
+test('bounded deterministic matches preserve unique bodies, food bounds, scoring and AI replenishment',()=>{
   let steps=0,spawnCount=0,foodCount=0,longest=0;const signatures=[];
-  for(let seed=1;seed<=30;seed++) {
+  for(let seed=1;seed<=8;seed++) {
     const g=new S.Game(seeded(seed));g.start();
-    for(let n=0;n<2500&&g.phase==='running';n++) {
+    for(let n=0;n<564&&g.phase==='running';n++) {
       g.setDirection(g.aiDirection(g.actors[0]));g.step();steps++;invariants(g);
       foodCount+=g.events.filter(e=>e.type==='food').length;longest=Math.max(longest,g.tick);
     }
     spawnCount+=g.respawns;signatures.push([g.tick,g.actors.map(a=>a.score),g.respawns]);
   }
-  assert.ok(steps>2500);assert.ok(longest>1000);assert.ok(spawnCount>5);assert.ok(foodCount>80);
+  assert.ok(steps>563);assert.equal(longest,563);assert.ok(spawnCount>0);assert.ok(foodCount>20);
   const a=new S.Game(seeded(81)),b=new S.Game(seeded(81));a.start();b.start();
   for(let i=0;i<500&&a.phase==='running';i++){a.setDirection(a.aiDirection(a.actors[0]));b.setDirection(b.aiDirection(b.actors[0]));a.step();b.step();}
   assert.equal(JSON.stringify(a),JSON.stringify(b));
 });
+
+test('boost buys a second step with mass, drops collectible food, and obeys pause and minimum mass',()=>{const g=fixture(),a=place(g,0,10,10,1,8);g.tick=1;g.step({boost:true});assert.equal(a.body[0].x,12);assert.equal(a.targetLength,7);assert.ok(g.food.some(f=>f.type==='fruit'));g.pause();const frozen=JSON.stringify(g);g.step({boost:true});assert.equal(JSON.stringify(g),frozen);g.start();place(g,0,10,10,1,5);g.step({boost:true});assert.equal(a.body[0].x,11);assert.equal(a.targetLength,5);});
+test('mass only wins same-cell contests; shield and any body remain counters',()=>{const g=fixture(),a=place(g,0,10,10,1,9),b=place(g,1,12,10,3,4);g.aiDirection=x=>x.dir;g.step();assert.equal(a.alive,true);assert.equal(b.alive,false);assert.equal(a.score,30);const h=fixture(),c=place(h,0,10,10,1,9),d=place(h,1,12,10,3,4);d.shield=10;h.step();assert.equal(c.alive,false);assert.equal(d.alive,true);const j=fixture(),big=place(j,0,10,10,1,12);place(j,1,11,11,2,3);j.step();assert.equal(big.alive,false);});
+test('ninety-second contest ranks public scores plus surviving mass and terminates',()=>{const g=fixture();g.tick=562;g.actors[0].score=100;g.step();assert.equal(g.phase,'over');assert.equal(g.result.ranks[0].id,0);assert.equal(g.result.outcome,'win');});

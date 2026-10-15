@@ -170,7 +170,7 @@ with sync_playwright() as pw:
     ctx = browser.new_context(viewport={'width': 390, 'height': 844})
     page = ctx.new_page()
     page.goto(BASE + '/index.html')
-    check('homepage lists sixteen games', page.locator('.game-card').count() == 16)
+    check('homepage lists fifteen games', page.locator('.game-card').count() == 15)
     card = page.locator('.game-card', has_text='三路前線')
     card.scroll_into_view_if_needed()
     card.screenshot(path=str(SHOTS / 'catalog-card.png'))

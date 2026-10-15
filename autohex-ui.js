@@ -5,6 +5,7 @@
   let E = normal ? window.CardHex : window.AutoHex;
   const S = window.HexStrategies;
   const V = window.AutoHexVisuals;
+  const Snap = window.AutoHexSnapshot;
   const $ = id => document.getElementById(id);
   if (!E || !V || !S || !window.HexCore) { $('status').textContent = '戰場載入失敗，請重新整理此頁。'; return; }
   const canvas = $('board'), mainContext = canvas.getContext('2d');
@@ -44,8 +45,11 @@
   let hovered = -1, focused = -1, message = '', error = false, generation = 0;
   let aiTimer = null, frame = null, timing = false, lastStamp = 0, lastClockPaint = 0;
   let wasStarted = false, rangeValid = new Set(), lastViewTurn = null;
+  const chronicle = Snap ? new Snap.Chronicle() : null;
+  let snapshotUrl = null;
   const effects = new V.Effects(), reducedQuery = matchMedia('(prefers-reduced-motion: reduce)');
   let supplyLinks = [], inspectedCell = -1, inspectedRange = null, inspectMode = false, airRangeCells = [];
+  let cutEnabled = false, cutPreview = null;
   let lastEffectPaint = 0, effectsDirty = false;
   let plannerChoice = '2', displayedPlan = null;
   const planningTiming = { count: 0, lastMs: 0, lastLatencyMs: 0, lastMode: null, maxMs: 0, totalMs: 0, workerCount: 0, synchronousCount: 0, recentMs: [] };
@@ -61,6 +65,11 @@
   const isHumanTurn = () => game.phase === 'running' && !isAiTurn() && observer() === game.turn;
   const terrainIs = (v, type) => v === type || v === ({ river: 1, hill: 2, plain: 0 })[type];
   const node = (tag, className, text) => { const el = document.createElement(tag); if (className) el.className = className; if (text !== undefined) el.textContent = text; return el; };
+  const cutButton = node('button', 'btn', '斷補預覽');
+  cutButton.id = 'supply-cut'; cutButton.type = 'button'; cutButton.setAttribute('aria-pressed', 'false');
+  $('clear-inspection').after(cutButton);
+  const cutInfo = node('p', 'ah-turret-info'); cutInfo.id = 'supply-cut-info'; cutInfo.hidden = true;
+  cutInfo.setAttribute('role', 'status'); $('cell-info').before(cutInfo);
   const can = action => E.legalAction(view, { cells: [], ...action });
   const actionFor = cells => ({ type: selection.type, cells, ...(selection.cardIndex !== undefined ? { cardIndex: selection.cardIndex } : {}) });
   const isAirAction = () => selection.type === 'airdrop' || selection.type === 'bombard';
@@ -222,7 +231,7 @@
     game = new E.Game(recipe); window.autoHexGame = window.hexGame = game;
     $('supply-mode').replaceChildren(...['all', 'off', ...P].map(value => { const o = node('option', '', value === 'all' ? '全部陣營' : value === 'off' ? '關閉' : localName(value)); o.value = value; return o; }));
     $('cell-count').textContent = `${E.COUNT.toLocaleString()} 格`;
-    effects.clear(); effectsDirty = false; inspectedCell = -1; inspectedRange = null; inspectMode = false;
+    chronicle?.clear(); effects.clear(); effectsDirty = false; inspectedCell = -1; inspectedRange = null; inspectMode = false; cutEnabled = false; cutPreview = null;
     planningTiming.count = 0; planningTiming.lastMs = 0; planningTiming.lastLatencyMs = 0; planningTiming.lastMode = null; planningTiming.maxMs = 0; planningTiming.totalMs = 0; planningTiming.workerCount = 0; planningTiming.synchronousCount = 0; planningTiming.recentMs.length = 0;
     selection = { type: 'deploy', cells: [] }; hovered = -1; focused = -1;
     lastViewTurn = null; message = ''; error = false; wasStarted = start;
@@ -243,10 +252,10 @@
   function render() {
     renderHandoff();
     view = game.observation(observer());
-    effects.ingest(view.events, game.activeMs);
+    effects.ingest(view.events, game.activeMs); chronicle?.record(view);
     supplyLinks = V.supplyForest(view, E.ADJ);
     inspectedRange = V.inspectTurret(view, inspectedCell, E.CELLS, E.distance);
-    if (!inspectedRange && !(view.airports || []).some(a => a.cell === inspectedCell) && !(view.depots || []).some(d => d.cell === inspectedCell)) inspectedCell = -1;
+    if (!cutEnabled && !inspectedRange && !(view.airports || []).some(a => a.cell === inspectedCell) && !(view.depots || []).some(d => d.cell === inspectedCell)) inspectedCell = -1;
     paintInspection();
     if (lastViewTurn !== game.turn || !isHumanTurn()) { selection.cells = []; if (!isHumanTurn()) selection = { type: 'deploy', cells: [] }; }
     lastViewTurn = game.turn;
@@ -255,6 +264,7 @@
     $('phase-label').textContent = ready ? '準備出發' : paused ? '戰役已暫停' : game.phase === 'over' ? '戰役已結算' : game.sandbox ? '自由對戰' : mode === 'human' ? (normal ? '本機 Hex 對戰' : '你的六方戰役') : `${P.length} 方 AI 觀戰`;
     $('play').hidden = !ready;
     $('pause').disabled = ready || game.phase === 'over'; $('pause').textContent = paused ? '繼續' : '暫停';
+    if ($('snapshot')) $('snapshot').disabled = ready || !chronicle;
     $('step').disabled = mode !== 'spectator' || running || game.phase === 'over';
     for (const el of $('setup').querySelectorAll('input,select,textarea,button')) el.disabled = !ready && game.phase !== 'over';
     for (const p of P) { $(`seat-control-${p}`).disabled ||= !normal; $(`seat-profile-${p}`).disabled ||= seats[p - 1].control !== 'ai'; }
@@ -414,7 +424,7 @@
       (warning.cells || []).forEach((cell, i) => { const button = node('button', 'btn ah-warning-target', `查看 ${i + 1}`); button.addEventListener('click', () => focusCell(cell)); status.append(button); });
     }
   }
-  function inspectFacility(cell) { inspectedCell = cell; inspectedRange = V.inspectTurret(view, cell, E.CELLS, E.distance); inspectMode = true; focusCell(cell); paintInspection(); }
+  function inspectFacility(cell) { inspectedCell = cell; inspectedRange = V.inspectTurret(view, cell, E.CELLS, E.distance); inspectMode = true; focusCell(cell); paintInspection(); draw(); }
   function renderDiplomacy() {
     $('diplomacy-panel').hidden = normal; if (normal) return;
     const alliances = view.alliances || [], offers = view.offers || [], publicNames = pair => `${localName(pair[0])} ↔ ${localName(pair[1])}`;
@@ -467,7 +477,7 @@
   }
   function selectAction(type, cardIndex) {
     if (!isHumanTurn()) return;
-    inspectMode = false;
+    inspectMode = false; cutEnabled = false;
     selection = { type, cells: [], ...(cardIndex !== undefined ? { cardIndex } : {}) }; message = ''; error = false;
     render();
   }
@@ -504,6 +514,16 @@
     $('cell-info').textContent = `格 (${c.q}, ${c.r}) · ${anchor ? localName(anchor) + ' 永久家園' : owner ? localName(owner) + ' 棋子' : '空格'} · ${terrain}${owner && terrainIs(view.terrain[i], 'hill') ? ` · 山丘撤退倒數 ${3 - (view.hillAge?.[i] || 0)} 次己方行動` : ''}${(view.tunnels || []).some(t => t.path.includes(i)) ? ' · 公開地道路徑' : ''}${owner ? view.supplied?.[i] ? ' · 補給連通' : ` · 斷補 ${view.unsupplied?.[i] || 0}/6 回合` : ''}${owner && !anchor ? ` · 持守 ${view.age?.[i] || 0} 次己方行動${view.fortified?.[i] ? '，工事已成（防中立事件）' : '/31 成工事'}` : ''}${view.shields?.[i] ? ` · 護盾 ${view.shields[i]} 回合` : ''}${turret ? ` · 炮擊倒數 ${turret.countdown} / 壽命 ${turret.life}` : ''}${mode === 'human' && view.range?.[i] ? ' · 你的 5 格範圍內' : ''}`;
   }
   function paintInspection() {
+    cutPreview = cutEnabled ? V.supplyCutPreview(view, inspectedCell, E, observer()) : null;
+    cutButton.setAttribute('aria-pressed', String(cutEnabled));
+    cutInfo.hidden = !cutEnabled;
+    if (cutEnabled) {
+      const p = cutPreview, turns = p?.retreats.map(r => r.ownActions) || [];
+      const delay = turns.length ? `${Math.min(...turns)}${Math.min(...turns) === Math.max(...turns) ? '' : '–' + Math.max(...turns)}` : '';
+      cutInfo.textContent = p
+        ? `假設成功奪取 ${localName(p.owner)} 此格：另有 ${p.affected.length} 枚棋子立即斷補（橙色虛線圈）${p.losesGoal ? normal ? '；會切斷對岸連線' : '；會切斷守線得分連線，不扣已得分數' : '；不會切斷既有對岸連線'}。${turns.length ? `斷補不等於立即消滅；若未接回，於該陣營再完成 ${delay} 次己方行動後撤退，期間仍可能被攻擊或因山丘撤離。` : ''}僅預覽補給；不代表能合法攻占或必定成功。`
+        : '斷補預覽 · 點選非家園的敵方棋子（觀戰可查看各方）。只查看、不出手；不預測攻占能否成功。';
+    }
     $('inspect-mode').setAttribute('aria-pressed', String(inspectMode));
     $('inspect-mode').textContent = inspectMode ? '查看中 · 不出手' : '查看設施';
     $('clear-inspection').disabled = inspectedCell < 0;
@@ -513,6 +533,32 @@
       : airport ? `✈ 機場 · ${airport.owner ? localName(airport.owner) : '中立'} · ${airport.supplied ? '家園補給連通' : '尚未連回家園'} · 4 格內連片 ${airport.cluster}/12 子 · 維持 ${airport.progress}/3 次己方行動 · ${airport.active ? '已啟用：空投 10 格 / 轟炸 12 格' : '未啟用：持續占領並擴大連片'}`
       : depot ? `◇ 物資站 · ${depot.owner ? localName(depot.owner) : '中立'} · ${depot.supplied ? '連回家園，每 3 次己方行動提供物資加成' : '占領並連回家園後提供物資加成'}`
       : inspectMode ? '查看模式：點按炮台、機場或物資站。點格只查看，不會花費能量或出牌。' : '選「查看設施」後點按炮台顯示射程，或查看機場與物資站。';
+  }
+  function clockText() {
+    if (normal) return `${Math.max(...P.map(p => game.players[p].completedActions || 0))} / 100 次行動`;
+    if (game.sandbox) return '自由對戰';
+    const seconds = Math.ceil(Math.max(0, game.durationMs - game.activeMs) / 1000);
+    return `剩餘 ${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`;
+  }
+  function takeSnapshot() {
+    if (!chronicle || game.phase === 'ready') return;
+    // Freeze first: the image describes exactly the paused board.
+    flushClock(); if (game.phase === 'running') game.pause();
+    message = ''; error = false; render(); schedule();
+    const summary = Snap.summarize(chronicle, view), image = document.createElement('canvas');
+    Snap.draw(image, { view, summary, seed: game.seed, clock: clockText(), supply: supplyLinks }, { points, colors: COLORS, tints: TINTS, names: NAMES.map((n, p) => p ? `${LETTER(p)} ${n}` : '') });
+    const dialog = $('snapshot-dialog'), name = `${normal ? 'card-hex' : 'autohex'}-${String(game.seed).replace(/[^\w-]+/g, '_').slice(0, 40)}-T${summary.toPly}.png`;
+    image.toBlob(blob => {
+      if (!blob) { message = '截圖產生失敗，請再試一次。'; error = true; render(); return; }
+      if (snapshotUrl) URL.revokeObjectURL(snapshotUrl);
+      snapshotUrl = URL.createObjectURL(blob);
+      $('snapshot-image').src = snapshotUrl; $('snapshot-download').href = snapshotUrl; $('snapshot-download').download = name;
+      $('snapshot-title').textContent = summary.toPly ? `最近 ${summary.toPly - summary.fromPly} 次行動（第 ${summary.fromPly + 1}–${summary.toPly} 次）` : '開局快照 · 尚未行動';
+      $('snapshot-note').textContent = '越新的變化越深，舊的較淡。只含公開資訊；手機可長按圖片儲存。';
+      $('snapshot-resume').hidden = game.phase !== 'paused';
+      if (!dialog.open) dialog.showModal?.(); if (!dialog.open) dialog.setAttribute('open', '');
+      window.autoHexSnapshotDebug = { name, width: image.width, height: image.height, bytes: blob.size, summary };
+    }, 'image/png');
   }
   function resize() {
     const rect = canvas.getBoundingClientRect(), dpr = Math.min(devicePixelRatio || 1, 2.5), ratio = camera.scale / camera.fit;
@@ -720,6 +766,11 @@
     drawFacilities(scale, visible); drawTurrets(scale, visible); drawStrategicOverlays(scale); drawPlan(ctx, scale);
     ctx = frontContext; clearLayer(ctx);
     drawGoals(ctx, scale);
+    if (cutPreview) {
+      ctx.save(); ctx.strokeStyle = '#9a5b12'; ctx.lineWidth = Math.max(.12, 1.5 / scale); ctx.setLineDash([3 / scale, 2 / scale]);
+      for (const i of cutPreview.affected) { const p = points[i]; hexPath(ctx, p.x, p.y, .88); ctx.stroke(); }
+      ctx.setLineDash([]); const p = points[cutPreview.cell]; hexPath(ctx, p.x, p.y, 1.04); ctx.stroke(); ctx.restore();
+    }
     for (const [n, i] of selection.cells.entries()) {
       const p = points[i]; hexPath(ctx, p.x, p.y, 1.02); ctx.strokeStyle = '#2e3440'; ctx.lineWidth = .18; ctx.stroke(); ctx.fillStyle = '#2e3440'; ctx.beginPath(); ctx.arc(p.x + .65, p.y - .65, .4, 0, Math.PI * 2); ctx.fill(); ctx.fillStyle = '#fff'; ctx.font = 'bold .55px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(n + 1, p.x + .65, p.y - .63);
     }
@@ -804,6 +855,12 @@
   $('play').addEventListener('click', () => { if (game.phase !== 'ready') return; try { const next = S.normalize($('strategy-json').value); if (S.id(next) !== S.id(strategyConfig)) applyStrategy(next); } catch (error) { $('strategy-status').textContent = error.message; $('strategy-status').classList.add('error'); $('strategy-json').closest('details').open = true; $('strategy-json').focus(); return; } reset({ start: true }); });
   $('pause').addEventListener('click', () => { flushClock(); if (game.phase === 'running') game.pause(); else if (game.phase === 'paused') game.start(); message = ''; error = false; render(); schedule(); });
   $('restart').addEventListener('click', () => reset({ fresh: true }));
+  if ($('snapshot')) {
+    const closeSnapshot = () => { const d = $('snapshot-dialog'); if (d.open) d.close ? d.close() : d.removeAttribute('open'); };
+    $('snapshot').addEventListener('click', takeSnapshot);
+    $('snapshot-close').addEventListener('click', closeSnapshot);
+    $('snapshot-resume').addEventListener('click', () => { closeSnapshot(); flushClock(); if (game.phase === 'paused') game.start(); message = ''; error = false; render(); schedule(); });
+  }
   $('replay').addEventListener('click', () => { if (recipe) { const saved = recipe; $('seed').value = saved.seed; $('starter').value = saved.first; $('rotation').value = saved.rotation; $('neutral-events').value = saved.neutralEvents ? 'on' : 'off'; $('terrain-mode').value = saved.terrain === 'classic' ? 'plain' : 'mixed'; $('timed-cards').value = saved.timedCards ? 'timed' : 'keep'; $('seat-count').value = saved.playerCount; strategyConfig = S.normalize(saved.strategyConfig); seatControls(); saved.uiSeats.forEach((seat, i) => { $(`seat-control-${i + 1}`).value = seat.control; $(`seat-profile-${i + 1}`).value = seat.strategy; }); } reset({ start: wasStarted }); });
   $('match-mode').addEventListener('change', () => { seatControls($('match-mode').value); reset(); });
   $('seat-count').addEventListener('change', () => { seatControls($('match-mode').value === 'local' ? undefined : $('match-mode').value); reset(); });
@@ -830,7 +887,8 @@
   $('plan-faction').addEventListener('change', () => { plannerChoice = $('plan-faction').value; renderPlanner(); draw(); });
   $('plan-focus').addEventListener('click', () => { if (displayedPlan?.target !== null && displayedPlan) { focusCell(displayedPlan.target); canvas.scrollIntoView({ block: 'nearest' }); } });
   $('supply-mode').addEventListener('change', draw);
-  $('inspect-mode').addEventListener('click', () => { inspectMode = !inspectMode; selection.cells = []; paintInspection(); draw(); });
+  $('inspect-mode').addEventListener('click', () => { inspectMode = !inspectMode; if (!inspectMode) cutEnabled = false; selection.cells = []; paintInspection(); draw(); });
+  cutButton.addEventListener('click', () => { cutEnabled = !cutEnabled; if (cutEnabled) inspectMode = true; selection.cells = []; paintInspection(); draw(); });
   $('clear-inspection').addEventListener('click', () => { inspectedCell = -1; inspectedRange = null; paintInspection(); draw(); });
   reducedQuery.addEventListener('change', draw);
   document.addEventListener('visibilitychange', () => { if (document.hidden && game.phase === 'running') { if (humanSeats().length > 1) revealedHuman = 0; flushClock(); game.pause(); message = '頁面移到背景，戰役已自動暫停。回來後按「繼續」。'; } render(); schedule(); });

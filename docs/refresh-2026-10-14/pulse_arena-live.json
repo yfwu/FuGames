@@ -1,0 +1,122 @@
+[
+  {
+    "engine": "chromium",
+    "width": 1440,
+    "height": 1000,
+    "game": "pulse_arena",
+    "checks": [
+      "start",
+      "real controls",
+      "pause freezes",
+      "repeated restart",
+      "no page errors",
+      "no horizontal overflow"
+    ],
+    "errors": []
+  },
+  {
+    "engine": "chromium",
+    "width": 390,
+    "height": 844,
+    "game": "pulse_arena",
+    "checks": [
+      "start",
+      "real controls",
+      "pause freezes",
+      "repeated restart",
+      "no page errors",
+      "no horizontal overflow"
+    ],
+    "errors": []
+  },
+  {
+    "engine": "chromium",
+    "width": 844,
+    "height": 390,
+    "game": "pulse_arena",
+    "checks": [
+      "start",
+      "real controls",
+      "pause freezes",
+      "repeated restart",
+      "no page errors",
+      "no horizontal overflow"
+    ],
+    "errors": []
+  },
+  {
+    "engine": "chromium",
+    "width": 320,
+    "height": 568,
+    "game": "pulse_arena",
+    "checks": [
+      "start",
+      "real controls",
+      "pause freezes",
+      "repeated restart",
+      "no page errors",
+      "no horizontal overflow"
+    ],
+    "errors": []
+  },
+  {
+    "engine": "webkit",
+    "width": 1440,
+    "height": 1000,
+    "game": "pulse_arena",
+    "checks": [
+      "start",
+      "real controls",
+      "pause freezes",
+      "repeated restart",
+      "no page errors",
+      "no horizontal overflow"
+    ],
+    "errors": []
+  },
+  {
+    "engine": "webkit",
+    "width": 390,
+    "height": 844,
+    "game": "pulse_arena",
+    "checks": [
+      "start",
+      "real controls",
+      "pause freezes",
+      "repeated restart",
+      "no page errors",
+      "no horizontal overflow"
+    ],
+    "errors": []
+  },
+  {
+    "engine": "webkit",
+    "width": 844,
+    "height": 390,
+    "game": "pulse_arena",
+    "checks": [
+      "start",
+      "real controls",
+      "pause freezes",
+      "repeated restart",
+      "no page errors",
+      "no horizontal overflow"
+    ],
+    "errors": []
+  },
+  {
+    "engine": "webkit",
+    "width": 320,
+    "height": 568,
+    "game": "pulse_arena",
+    "checks": [
+      "start",
+      "real controls",
+      "pause freezes",
+      "repeated restart",
+      "no page errors",
+      "no horizontal overflow"
+    ],
+    "errors": []
+  }
+]

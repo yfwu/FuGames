@@ -20,13 +20,13 @@
     <path d="M11 38H31Q40 38 40 29V26Q40 17 31 17H21Q18 17 18 14V10H10V15Q10 25 20 25H30Q32 25 32 28V29Q32 30 30 30H11Q7 34 11 38Z"/><circle cx="14" cy="14" r="1" fill="currentColor" stroke="none"/><circle cx="35" cy="10" r="3"/><path d="M35 7H38"/>
   </symbol>
   <symbol id="duplicate_bridge" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-    <rect x="20" y="8" width="8" height="10" rx="1.5"/><rect x="30" y="20" width="10" height="8" rx="1.5"/><rect x="20" y="30" width="8" height="10" rx="1.5"/><rect x="8" y="20" width="10" height="8" rx="1.5"/>
+    <path d="M16 37H10Q8 37 8 35V13Q8 11 10 11H15M18 37H16V9Q16 7 18 7H30Q32 7 32 9V11"/><rect x="23" y="13" width="17" height="28" rx="2"/><path d="M31.5 20C29 23 26 25 27 28Q28 31 31.5 29Q35 31 36 28C37 25 34 23 31.5 20ZM31.5 29V34M29 34H34" fill="currentColor"/><path d="M11 17H13M19 12H21"/>
   </symbol>
   <symbol id="blackjack" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
     <path d="M18 38 13 39Q11 39 10.7 37L8 15Q7.8 13 10 12.7L17 11.5"/><rect x="18" y="8" width="22" height="32" rx="3"/><path d="M29 17 35 25 29 33 23 25Z"/><circle cx="23" cy="13" r="1" fill="currentColor" stroke="none"/>
   </symbol>
   <symbol id="tank_arena" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M18 16H15Q12 16 12 19V35Q12 38 15 38H33Q36 38 36 35V19Q36 16 33 16H30"/><rect x="8" y="20" width="4" height="16" rx="1"/><rect x="36" y="20" width="4" height="16" rx="1"/><circle cx="24" cy="25" r="7"/><path d="M21 18V7H27V18"/>
+    <path d="M12 18V29C12 37 17 41 24 41C31 41 36 37 36 29V18M10 18V15C10 10 16 7 24 7C32 7 38 10 38 15V18ZM18 29Q24 34 30 29"/><circle cx="19" cy="24" r="2" fill="currentColor"/><circle cx="29" cy="24" r="2" fill="currentColor"/><path d="M24 8V17"/>
   </symbol>
   <symbol id="pulse_arena" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
     <circle cx="24" cy="24" r="17"/><circle cx="24" cy="24" r="5"/><path d="M16 16C10 20 10 28 16 32M32 16C38 20 38 28 32 32"/>
@@ -123,5 +123,8 @@
   </symbol>
   <symbol id="slow" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
     <path d="M12 8H36M12 40H36M15 8V15C15 19 20 21 24 24C28 27 33 29 33 33V40M33 8V15C33 19 28 21 24 24C20 27 15 29 15 33V40M19 35 24 30 29 35Z"/>
+  </symbol>
+  <symbol id="rummikub" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="7" y="12" width="10" height="24" rx="2"/><rect x="19" y="12" width="10" height="24" rx="2"/><rect x="31" y="12" width="10" height="24" rx="2"/><circle cx="12" cy="24" r="1" fill="currentColor" stroke="none"/><circle cx="24" cy="21" r="1" fill="currentColor" stroke="none"/><circle cx="24" cy="27" r="1" fill="currentColor" stroke="none"/><circle cx="36" cy="18" r="1" fill="currentColor" stroke="none"/><circle cx="36" cy="24" r="1" fill="currentColor" stroke="none"/><circle cx="36" cy="30" r="1" fill="currentColor" stroke="none"/>
   </symbol>
 </svg>

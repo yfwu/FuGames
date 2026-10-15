@@ -1,0 +1,115 @@
+{
+  "errors": [],
+  "checks": {
+    "initialReady": true,
+    "nativeStartFocus": true,
+    "keyboardSteering": true,
+    "keyboardBoost": true,
+    "pauseFreezesEverything": true,
+    "resume": true,
+    "supplyForkCommitted": true,
+    "supplyActuallyRepairs": true,
+    "expressForkCommitted": true,
+    "keyboardShield": true,
+    "shieldBlocksRoadCollision": true,
+    "snowballFired": true,
+    "finishAndResult": true,
+    "restartClearsRun": true,
+    "timeoutResult": true,
+    "fullAIExpedition": true,
+    "portraitNoHorizontalOverflow": true,
+    "portraitControlsFit": true,
+    "portraitSimultaneousSteerShield": true,
+    "portraitPause": true,
+    "landscapeNoHorizontalOverflow": true,
+    "landscapeControlsFit": true,
+    "landscapeSimultaneousSteerShield": true,
+    "landscapePause": true,
+    "noBrowserErrors": true
+  },
+  "controlledFixtures": [
+    "position before supply / express fork",
+    "aligned snowball target",
+    "collision object ahead",
+    "position before final station",
+    "timeout clock"
+  ],
+  "fullAIRun": "unmodified seeded game, browser clock accelerated with requestAnimationFrame",
+  "sourceSha256": {
+    "tux2d-engine.js": "09a8403f79cfac2b0b34aa9db6584acbb31e8408136d70cf979a691f3981cb96",
+    "tux2d-ui.js": "1161b3316ceb7a8f04bb98c6c2b30448f4d6a62e7fac7f227c370617aa221792",
+    "tux2d.css": "851bdc40942efa0ffd6753ea0afd381e66444bd1ff63252dab5c6ad29b498316",
+    "tux2d.html": "b40359241c62afda063ee27510449d1d374a0649c4c481cdd6234a8b8a7ecb0c"
+  },
+  "AI": {
+    "time": 90.31666666666283,
+    "telemetry": {
+      "hits": 11,
+      "blocks": 18,
+      "pickups": 37,
+      "boost": 9,
+      "shield": 36,
+      "snowball": 9,
+      "supply": 11,
+      "express": 4,
+      "deliveries": 15
+    },
+    "standings": [
+      {
+        "id": 3,
+        "name": "Mochi",
+        "rank": 1,
+        "score": 1317,
+        "parcels": 3,
+        "cargo": 100,
+        "finished": true,
+        "time": 90.31666666666283,
+        "z": 7200
+      },
+      {
+        "id": 2,
+        "name": "Nova",
+        "rank": 2,
+        "score": 1243,
+        "parcels": 3,
+        "cargo": 100,
+        "finished": true,
+        "time": 89.68333333332953,
+        "z": 7200
+      },
+      {
+        "id": 0,
+        "name": "Tux",
+        "rank": 3,
+        "score": 1238,
+        "parcels": 3,
+        "cargo": 58,
+        "finished": true,
+        "time": 72.96666666666381,
+        "z": 7200
+      },
+      {
+        "id": 4,
+        "name": "Sunny",
+        "rank": 4,
+        "score": 1079,
+        "parcels": 3,
+        "cargo": 86,
+        "finished": true,
+        "time": 88.59999999999626,
+        "z": 7200
+      },
+      {
+        "id": 1,
+        "name": "Pip",
+        "rank": 5,
+        "score": 1035,
+        "parcels": 3,
+        "cargo": 83,
+        "finished": true,
+        "time": 88.9666666666629,
+        "z": 7200
+      }
+    ]
+  }
+}

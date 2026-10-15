@@ -1,0 +1,20 @@
+✔ the shared collection has the exact 17 game and 25 action IDs with a uniform native SVG contract (0.815375ms)
+✔ all painted geometry including stroke stays at least 6 px inside the 48 px square (20.0105ms)
+✔ mirror-symmetric tokens and gameplay shapes preserve their declared centerline (43.029959ms)
+✔ three-way Hex, four-seat bridge and cyclic game icons preserve rotational geometry (16.22425ms)
+✔ filled suit silhouettes remain distinct and use a consistent visible area instead of font glyphs (0.551125ms)
+✔ homepage maps every game to its own shared icon and keeps each accessible entry link (0.705ms)
+✔ four seats start with 14 tiles each and conserve 106 distinct physical tiles (0.622208ms)
+✔ runs, groups and jokers validate without wrapping or repeated colours (0.302417ms)
+✔ opening needs 30 own points and cannot modify existing public melds (0.497625ms)
+✔ rearrangement cannot lose, duplicate or take public tiles back (0.078417ms)
+✔ draw advances all four seats, and four empty-pool passes settle with zero-sum scores (0.356291ms)
+✔ small bounded AI search returns a legal 30-point opening and public extension (0.78975ms)
+ℹ tests 12
+ℹ suites 0
+ℹ pass 12
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 184.310542

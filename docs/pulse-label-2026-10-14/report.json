@@ -1,0 +1,761 @@
+{
+  "rulesUnchanged": true,
+  "cases": [
+    {
+      "browser": "chromium",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "dpr": 1,
+      "glyphs": [
+        {
+          "type": "anchor",
+          "dx": 0,
+          "dy": 0.5,
+          "painted": true
+        },
+        {
+          "type": "super",
+          "dx": -0.5,
+          "dy": -0.5,
+          "painted": true
+        },
+        {
+          "type": "shield",
+          "dx": 0,
+          "dy": -0.5,
+          "painted": true
+        },
+        {
+          "type": "hole",
+          "dx": 0,
+          "dy": -0.5,
+          "painted": true
+        }
+      ],
+      "beforeGlyphs": [
+        {
+          "type": "anchor",
+          "dx": 0,
+          "dy": 4.5,
+          "painted": true
+        },
+        {
+          "type": "super",
+          "dx": -0.5,
+          "dy": 4.5,
+          "painted": true
+        },
+        {
+          "type": "shield",
+          "dx": 0,
+          "dy": 4.5,
+          "painted": true
+        },
+        {
+          "type": "hole",
+          "dx": 0,
+          "dy": 4.5,
+          "painted": true
+        }
+      ],
+      "stateRestored": true,
+      "playerPixelsUnchanged": true,
+      "errors": []
+    },
+    {
+      "browser": "chromium",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "dpr": 2,
+      "glyphs": [
+        {
+          "type": "anchor",
+          "dx": 0.25,
+          "dy": -0.25,
+          "painted": true
+        },
+        {
+          "type": "super",
+          "dx": 0,
+          "dy": 0.25,
+          "painted": true
+        },
+        {
+          "type": "shield",
+          "dx": 0.25,
+          "dy": 0,
+          "painted": true
+        },
+        {
+          "type": "hole",
+          "dx": 0,
+          "dy": 0.25,
+          "painted": true
+        }
+      ],
+      "beforeGlyphs": [
+        {
+          "type": "anchor",
+          "dx": -0.25,
+          "dy": 4.75,
+          "painted": true
+        },
+        {
+          "type": "super",
+          "dx": 0,
+          "dy": 5,
+          "painted": true
+        },
+        {
+          "type": "shield",
+          "dx": 0,
+          "dy": 4.75,
+          "painted": true
+        },
+        {
+          "type": "hole",
+          "dx": -0.5,
+          "dy": 5,
+          "painted": true
+        }
+      ],
+      "stateRestored": true,
+      "playerPixelsUnchanged": true,
+      "errors": []
+    },
+    {
+      "browser": "chromium",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "dpr": 1,
+      "glyphs": [
+        {
+          "type": "anchor",
+          "dx": 0,
+          "dy": 0.5,
+          "painted": true
+        },
+        {
+          "type": "super",
+          "dx": -0.5,
+          "dy": -0.5,
+          "painted": true
+        },
+        {
+          "type": "shield",
+          "dx": 0,
+          "dy": -0.5,
+          "painted": true
+        },
+        {
+          "type": "hole",
+          "dx": 0,
+          "dy": -0.5,
+          "painted": true
+        }
+      ],
+      "beforeGlyphs": [
+        {
+          "type": "anchor",
+          "dx": 0,
+          "dy": 4.5,
+          "painted": true
+        },
+        {
+          "type": "super",
+          "dx": -0.5,
+          "dy": 4.5,
+          "painted": true
+        },
+        {
+          "type": "shield",
+          "dx": 0,
+          "dy": 4.5,
+          "painted": true
+        },
+        {
+          "type": "hole",
+          "dx": 0,
+          "dy": 4.5,
+          "painted": true
+        }
+      ],
+      "stateRestored": true,
+      "playerPixelsUnchanged": true,
+      "errors": []
+    },
+    {
+      "browser": "chromium",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "dpr": 2,
+      "glyphs": [
+        {
+          "type": "anchor",
+          "dx": 0.25,
+          "dy": -0.25,
+          "painted": true
+        },
+        {
+          "type": "super",
+          "dx": 0,
+          "dy": 0.25,
+          "painted": true
+        },
+        {
+          "type": "shield",
+          "dx": 0.25,
+          "dy": 0,
+          "painted": true
+        },
+        {
+          "type": "hole",
+          "dx": 0,
+          "dy": 0.25,
+          "painted": true
+        }
+      ],
+      "beforeGlyphs": [
+        {
+          "type": "anchor",
+          "dx": -0.25,
+          "dy": 4.75,
+          "painted": true
+        },
+        {
+          "type": "super",
+          "dx": 0,
+          "dy": 5,
+          "painted": true
+        },
+        {
+          "type": "shield",
+          "dx": 0,
+          "dy": 4.75,
+          "painted": true
+        },
+        {
+          "type": "hole",
+          "dx": -0.5,
+          "dy": 5,
+          "painted": true
+        }
+      ],
+      "stateRestored": true,
+      "playerPixelsUnchanged": true,
+      "errors": []
+    },
+    {
+      "browser": "chromium",
+      "viewport": {
+        "width": 844,
+        "height": 390
+      },
+      "dpr": 1,
+      "glyphs": [
+        {
+          "type": "anchor",
+          "dx": 0,
+          "dy": 0.5,
+          "painted": true
+        },
+        {
+          "type": "super",
+          "dx": -0.5,
+          "dy": -0.5,
+          "painted": true
+        },
+        {
+          "type": "shield",
+          "dx": 0,
+          "dy": -0.5,
+          "painted": true
+        },
+        {
+          "type": "hole",
+          "dx": 0,
+          "dy": -0.5,
+          "painted": true
+        }
+      ],
+      "beforeGlyphs": [
+        {
+          "type": "anchor",
+          "dx": 0,
+          "dy": 4.5,
+          "painted": true
+        },
+        {
+          "type": "super",
+          "dx": -0.5,
+          "dy": 4.5,
+          "painted": true
+        },
+        {
+          "type": "shield",
+          "dx": 0,
+          "dy": 4.5,
+          "painted": true
+        },
+        {
+          "type": "hole",
+          "dx": 0,
+          "dy": 4.5,
+          "painted": true
+        }
+      ],
+      "stateRestored": true,
+      "playerPixelsUnchanged": true,
+      "errors": []
+    },
+    {
+      "browser": "chromium",
+      "viewport": {
+        "width": 844,
+        "height": 390
+      },
+      "dpr": 2,
+      "glyphs": [
+        {
+          "type": "anchor",
+          "dx": 0.25,
+          "dy": -0.25,
+          "painted": true
+        },
+        {
+          "type": "super",
+          "dx": 0,
+          "dy": 0.25,
+          "painted": true
+        },
+        {
+          "type": "shield",
+          "dx": 0.25,
+          "dy": 0,
+          "painted": true
+        },
+        {
+          "type": "hole",
+          "dx": 0,
+          "dy": 0.25,
+          "painted": true
+        }
+      ],
+      "beforeGlyphs": [
+        {
+          "type": "anchor",
+          "dx": -0.25,
+          "dy": 4.75,
+          "painted": true
+        },
+        {
+          "type": "super",
+          "dx": 0,
+          "dy": 5,
+          "painted": true
+        },
+        {
+          "type": "shield",
+          "dx": 0,
+          "dy": 4.75,
+          "painted": true
+        },
+        {
+          "type": "hole",
+          "dx": -0.5,
+          "dy": 5,
+          "painted": true
+        }
+      ],
+      "stateRestored": true,
+      "playerPixelsUnchanged": true,
+      "errors": []
+    },
+    {
+      "browser": "webkit",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "dpr": 1,
+      "glyphs": [
+        {
+          "type": "anchor",
+          "dx": -0.5,
+          "dy": 0.5,
+          "painted": true
+        },
+        {
+          "type": "super",
+          "dx": -0.5,
+          "dy": 0.5,
+          "painted": true
+        },
+        {
+          "type": "shield",
+          "dx": -0.5,
+          "dy": 0.5,
+          "painted": true
+        },
+        {
+          "type": "hole",
+          "dx": -1,
+          "dy": 1,
+          "painted": true
+        }
+      ],
+      "beforeGlyphs": [
+        {
+          "type": "anchor",
+          "dx": -0.5,
+          "dy": 4,
+          "painted": true
+        },
+        {
+          "type": "super",
+          "dx": -0.5,
+          "dy": 4,
+          "painted": true
+        },
+        {
+          "type": "shield",
+          "dx": -0.5,
+          "dy": 4,
+          "painted": true
+        },
+        {
+          "type": "hole",
+          "dx": -1,
+          "dy": 4.5,
+          "painted": true
+        }
+      ],
+      "stateRestored": true,
+      "playerPixelsUnchanged": true,
+      "errors": []
+    },
+    {
+      "browser": "webkit",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "dpr": 2,
+      "glyphs": [
+        {
+          "type": "anchor",
+          "dx": -0.75,
+          "dy": 0.25,
+          "painted": true
+        },
+        {
+          "type": "super",
+          "dx": -0.5,
+          "dy": 0.25,
+          "painted": true
+        },
+        {
+          "type": "shield",
+          "dx": -0.5,
+          "dy": 0,
+          "painted": true
+        },
+        {
+          "type": "hole",
+          "dx": -0.5,
+          "dy": 0.25,
+          "painted": true
+        }
+      ],
+      "beforeGlyphs": [
+        {
+          "type": "anchor",
+          "dx": -0.75,
+          "dy": 4,
+          "painted": true
+        },
+        {
+          "type": "super",
+          "dx": -0.5,
+          "dy": 4.25,
+          "painted": true
+        },
+        {
+          "type": "shield",
+          "dx": -0.5,
+          "dy": 4,
+          "painted": true
+        },
+        {
+          "type": "hole",
+          "dx": -0.5,
+          "dy": 4.25,
+          "painted": true
+        }
+      ],
+      "stateRestored": true,
+      "playerPixelsUnchanged": true,
+      "errors": []
+    },
+    {
+      "browser": "webkit",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "dpr": 1,
+      "glyphs": [
+        {
+          "type": "anchor",
+          "dx": -0.5,
+          "dy": 0.5,
+          "painted": true
+        },
+        {
+          "type": "super",
+          "dx": -0.5,
+          "dy": 0.5,
+          "painted": true
+        },
+        {
+          "type": "shield",
+          "dx": -0.5,
+          "dy": 0.5,
+          "painted": true
+        },
+        {
+          "type": "hole",
+          "dx": -1,
+          "dy": 1,
+          "painted": true
+        }
+      ],
+      "beforeGlyphs": [
+        {
+          "type": "anchor",
+          "dx": -0.5,
+          "dy": 4,
+          "painted": true
+        },
+        {
+          "type": "super",
+          "dx": -0.5,
+          "dy": 4,
+          "painted": true
+        },
+        {
+          "type": "shield",
+          "dx": -0.5,
+          "dy": 4,
+          "painted": true
+        },
+        {
+          "type": "hole",
+          "dx": -1,
+          "dy": 4.5,
+          "painted": true
+        }
+      ],
+      "stateRestored": true,
+      "playerPixelsUnchanged": true,
+      "errors": []
+    },
+    {
+      "browser": "webkit",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "dpr": 2,
+      "glyphs": [
+        {
+          "type": "anchor",
+          "dx": -0.75,
+          "dy": 0.25,
+          "painted": true
+        },
+        {
+          "type": "super",
+          "dx": -0.5,
+          "dy": 0.25,
+          "painted": true
+        },
+        {
+          "type": "shield",
+          "dx": -0.5,
+          "dy": 0,
+          "painted": true
+        },
+        {
+          "type": "hole",
+          "dx": -0.5,
+          "dy": 0.25,
+          "painted": true
+        }
+      ],
+      "beforeGlyphs": [
+        {
+          "type": "anchor",
+          "dx": -0.75,
+          "dy": 4,
+          "painted": true
+        },
+        {
+          "type": "super",
+          "dx": -0.5,
+          "dy": 4.25,
+          "painted": true
+        },
+        {
+          "type": "shield",
+          "dx": -0.5,
+          "dy": 4,
+          "painted": true
+        },
+        {
+          "type": "hole",
+          "dx": -0.5,
+          "dy": 4.25,
+          "painted": true
+        }
+      ],
+      "stateRestored": true,
+      "playerPixelsUnchanged": true,
+      "errors": []
+    },
+    {
+      "browser": "webkit",
+      "viewport": {
+        "width": 844,
+        "height": 390
+      },
+      "dpr": 1,
+      "glyphs": [
+        {
+          "type": "anchor",
+          "dx": -0.5,
+          "dy": 0.5,
+          "painted": true
+        },
+        {
+          "type": "super",
+          "dx": -0.5,
+          "dy": 0.5,
+          "painted": true
+        },
+        {
+          "type": "shield",
+          "dx": -0.5,
+          "dy": 0.5,
+          "painted": true
+        },
+        {
+          "type": "hole",
+          "dx": -1,
+          "dy": 1,
+          "painted": true
+        }
+      ],
+      "beforeGlyphs": [
+        {
+          "type": "anchor",
+          "dx": -0.5,
+          "dy": 4,
+          "painted": true
+        },
+        {
+          "type": "super",
+          "dx": -0.5,
+          "dy": 4,
+          "painted": true
+        },
+        {
+          "type": "shield",
+          "dx": -0.5,
+          "dy": 4,
+          "painted": true
+        },
+        {
+          "type": "hole",
+          "dx": -1,
+          "dy": 4.5,
+          "painted": true
+        }
+      ],
+      "stateRestored": true,
+      "playerPixelsUnchanged": true,
+      "errors": []
+    },
+    {
+      "browser": "webkit",
+      "viewport": {
+        "width": 844,
+        "height": 390
+      },
+      "dpr": 2,
+      "glyphs": [
+        {
+          "type": "anchor",
+          "dx": -0.75,
+          "dy": 0.25,
+          "painted": true
+        },
+        {
+          "type": "super",
+          "dx": -0.5,
+          "dy": 0.25,
+          "painted": true
+        },
+        {
+          "type": "shield",
+          "dx": -0.5,
+          "dy": 0,
+          "painted": true
+        },
+        {
+          "type": "hole",
+          "dx": -0.5,
+          "dy": 0.25,
+          "painted": true
+        }
+      ],
+      "beforeGlyphs": [
+        {
+          "type": "anchor",
+          "dx": -0.75,
+          "dy": 4,
+          "painted": true
+        },
+        {
+          "type": "super",
+          "dx": -0.5,
+          "dy": 4.25,
+          "painted": true
+        },
+        {
+          "type": "shield",
+          "dx": -0.5,
+          "dy": 4,
+          "painted": true
+        },
+        {
+          "type": "hole",
+          "dx": -0.5,
+          "dy": 4.25,
+          "painted": true
+        }
+      ],
+      "stateRestored": true,
+      "playerPixelsUnchanged": true,
+      "errors": []
+    }
+  ]
+}
