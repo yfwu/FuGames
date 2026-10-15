@@ -82,6 +82,19 @@ with sync_playwright() as pw:
     page.mouse.click(*lane_point(page, 1, 200))
     check('engineer goes to the clicked lane', page.evaluate('frontGame.engineers.some(e => e.side === 0 && e.lane === 1)'))
 
+    # Heavy equipment: key 5 picks the tank, a lane click sends it; key 8 drops artillery where you can see.
+    page.evaluate('frontGame.sides[0].supply = 600; for (const k in frontGame.sides[0].heroReady) frontGame.sides[0].heroReady[k] = 0')
+    page.wait_for_function('!document.querySelector(\'[data-hero="tank"]\').disabled')
+    page.keyboard.press('5')
+    check('key 5 selects the tank', page.get_attribute('[data-hero="tank"]', 'aria-pressed') == 'true')
+    page.mouse.click(*lane_point(page, 2, 120))
+    check('tank deployed to the clicked lane', page.evaluate('frontGame.heroes.some(h => h.side === 0 && h.type === "tank" && h.lane === 2)'))
+    page.wait_for_function('document.querySelector(\'[data-hero="tank"] small\').textContent.endsWith("s")')
+    check('tank button shows its recharge', True)
+    page.click('[data-hero="artillery"]')
+    page.mouse.click(*lane_point(page, 1, 100))
+    check('artillery pod dropped where you can see', page.evaluate('frontGame.heroes.some(h => h.side === 0 && h.type === "artillery")'))
+
     # Cards: give a known hand so each card path is exercised through the UI.
     page.evaluate('frontGame.sides[0].hand = ["recon", "strike", "jam"]; frontGame.sides[1].structures.length || frontGame.build(1, 2, 4, "factory")')
     page.wait_for_function('document.querySelectorAll(".card-btn").length === 3')

@@ -24,11 +24,12 @@ function addDrone(g, side, lane, pos, props = {}) {
   g.drones.push(d); return d;
 }
 function run(g, ticks) { for (let i = 0; i < ticks && g.phase === 'running'; i++) g.step(); }
-function play(options) {
+function play({ onEvent, ...options }) {
   const g = new F.Game({ ai: [true, true], ...options }); g.start();
   let peak = 0;
   while (g.phase === 'running') {
     g.step();
+    if (onEvent) for (const e of g.events) onEvent(e);
     peak = Math.max(peak, g.drones.length);
     for (const s of g.sides) {
       assert.ok(Number.isFinite(s.supply) && s.supply >= 0, 'supply never negative');
@@ -331,6 +332,116 @@ test('the strike AI aims at fresh intel clusters and only guesses with a full ha
   assert.equal(F.strikeTarget(obs, F.PROFILES.easy, () => .5), null, 'easy never guesses');
 });
 
+function readyHeroes(g, side = 0) { for (const k of Object.keys(F.HEROES)) g.sides[side].heroReady[k] = 0; }
+
+test('heavy equipment costs supply, has its own recharge and starts locked', () => {
+  const g = fixture();
+  assert.equal(g.deploy(0, 'tank', { lane: 1 }), null, 'locked for the opening seconds');
+  g.tick = F.FIRST_HERO;
+  const before = g.sides[0].supply, tank = g.deploy(0, 'tank', { lane: 1 });
+  assert.ok(tank);
+  assert.equal(g.sides[0].supply, before - F.HEROES.tank.cost);
+  assert.equal(g.deploy(0, 'tank', { lane: 2 }), null, 'recharging');
+  assert.ok(g.deploy(0, 'sniper', { lane: 2 }), 'other types have their own timers');
+  assert.equal(g.deploy(0, 'heavy', { lane: 3 }), null, 'needs a real lane');
+  g.sides[0].supply = 10;
+  assert.equal(g.deploy(0, 'heavy', { lane: 0 }), null, 'needs supply');
+  assert.equal(g.sides[0].heroReady.tank, F.FIRST_HERO + F.HEROES.tank.recharge);
+  assert.deepEqual([tank.x, tank.y], [plain(F.lanePoint(1, 50)).x, plain(F.lanePoint(1, 50)).y], 'it rolls out of the base');
+});
+
+test('a tank drives down its lane and stops to shell what it meets', () => {
+  const g = fixture(); readyHeroes(g);
+  const tank = g.deploy(0, 'tank', { lane: 0 });
+  g.step();
+  assert.ok(Math.abs(tank.pos - (50 + F.HEROES.tank.speed * F.DT)) < 1e-9);
+  const target = g.build(1, 0, 4, 'factory');
+  tank.pos = target.pos - 40; Object.assign(tank, plain(F.lanePoint(0, tank.pos)));
+  const pos = tank.pos;
+  g.step();
+  assert.equal(tank.pos, pos, 'stops while a target is in range');
+  assert.equal(target.hp, F.STRUCTS.factory.hp - F.HEROES.tank.damage);
+  const drone = addDrone(g, 1, 0, pos + 10, { hp: 999 });
+  run(g, F.HEROES.tank.reload);
+  assert.ok(drone.hp < 999, 'it shoots drones before buildings');
+  assert.ok(tank.hp < F.HEROES.tank.hp, 'drones swarm a tank blocking their lane');
+});
+
+test('heavy drones fly over the swarm, bomb buildings and are grounded by jamming', () => {
+  const g = fixture(); readyHeroes(g);
+  const heavy = g.deploy(0, 'heavy', { lane: 2 });
+  addDrone(g, 1, 2, heavy.pos + 5, { hp: 999 });
+  const pos = heavy.pos;
+  g.step();
+  assert.ok(heavy.pos > pos, 'enemy drones neither stop nor hurt it');
+  assert.equal(heavy.hp, F.HEROES.heavy.hp);
+  const target = g.build(1, 2, 2, 'radar');
+  heavy.pos = target.pos - 10; Object.assign(heavy, plain(F.lanePoint(2, heavy.pos)));
+  g.step();
+  assert.equal(target.hp, F.STRUCTS.radar.hp - F.HEROES.heavy.damage);
+  g.sides[1].hand = ['jam']; g.useCard(1, 0, { lane: 2 });
+  const reload = heavy.reload;
+  g.step();
+  assert.equal(heavy.reload, reload, 'a jammed lane freezes it');
+});
+
+test('snipers outrange everything and hunt heavy equipment first', () => {
+  const g = fixture(); readyHeroes(g); readyHeroes(g, 1);
+  const sniper = g.deploy(0, 'sniper', { lane: 1 }), tank = g.deploy(1, 'tank', { lane: 1 });
+  tank.pos = sniper.pos + 180; Object.assign(tank, plain(F.lanePoint(1, tank.pos)));
+  addDrone(g, 1, 1, sniper.pos + 60, { hp: 999 });
+  g.step();
+  assert.equal(tank.hp, F.HEROES.tank.hp - F.HEROES.sniper.damage, 'shot the tank, not the closer drone');
+  assert.ok(F.HEROES.sniper.range > F.HEROES.tank.range && F.HEROES.sniper.range > F.STRUCTS.turret.range);
+});
+
+test('artillery pods land only where you can see, fire on their own and expire', () => {
+  const g = fixture(); readyHeroes(g);
+  const blind = F.slotPos(1, 1, 0);
+  assert.equal(g.deploy(0, 'artillery', blind), null, 'not into the fog');
+  g.build(0, 1, 0, 'radar');
+  const spot = F.lanePoint(1, 240), pod = g.deploy(0, 'artillery', { x: spot.x, y: spot.y });
+  assert.ok(pod);
+  const drone = addDrone(g, 1, 1, 330, { hp: 999 });
+  run(g, F.HEROES.artillery.drop);
+  assert.equal(drone.hp, 999, 'still falling');
+  run(g, 2);
+  assert.ok(drone.hp < 999, 'it opens fire once it lands');
+  run(g, F.HEROES.artillery.life);
+  assert.ok(!g.heroes.includes(pod), 'and expires');
+});
+
+test('turrets, base guns and strikes hit heavy equipment; heavy equipment gives sight', () => {
+  const g = fixture(); readyHeroes(g, 1);
+  const t = g.build(0, 1, 4, 'turret');
+  const tank = g.deploy(1, 'tank', { lane: 1 });
+  tank.pos = t.pos + 60; Object.assign(tank, plain(F.lanePoint(1, tank.pos)));
+  g.step();
+  assert.ok(tank.hp <= F.HEROES.tank.hp - F.STRUCTS.turret.damage);
+  const g2 = fixture(); readyHeroes(g2, 1);
+  const raider = g2.deploy(1, 'sniper', { lane: 2 });
+  raider.pos = 60; Object.assign(raider, plain(F.lanePoint(2, 60)));
+  g2.step();
+  assert.ok(raider.hp < F.HEROES.sniper.hp, 'the base defends itself');
+  const g3 = fixture(); readyHeroes(g3);
+  const tank3 = g3.deploy(0, 'tank', { lane: 1 });
+  tank3.pos = 500; Object.assign(tank3, plain(F.lanePoint(1, 500)));
+  const ahead = F.lanePoint(1, 580);
+  assert.equal(g3.sees(0, ahead.x, ahead.y, 1), true, 'it lights the fog around it');
+  g3.sides[1].hand = ['strike']; g3.useCard(1, 0, { x: tank3.x, y: tank3.y });
+  run(g3, F.CARDS.strike.delay);
+  assert.ok(tank3.hp <= F.HEROES.tank.hp - F.CARDS.strike.damage);
+});
+
+test('heavy equipment that reaches the enemy base besieges it', () => {
+  const g = fixture(); readyHeroes(g);
+  const tank = g.deploy(0, 'tank', { lane: 1 });
+  tank.pos = L(1) - F.BASE_REACH - 10; Object.assign(tank, plain(F.lanePoint(1, tank.pos)));
+  tank.hp = 1e6;
+  run(g, F.HEROES.tank.reload + 1);
+  assert.ok(g.sides[1].hq <= F.HQ_HP - F.HEROES.tank.hq);
+});
+
 test('the round ends on a destroyed HQ, a double KO or the time limit', () => {
   const g = fixture();
   g.sides[1].hq = 0; g.step();
@@ -362,16 +473,17 @@ test('matches are deterministic for a seed', () => {
 });
 
 test('AI mirror matches use every system and finish within the time limit', () => {
-  const wins = [0, 0], used = { types: new Set(), engineers: 0, bombs: 0, cards: 0, destroyed: 0 };
+  const wins = [0, 0], used = { types: new Set(), heroes: new Set(), engineers: 0, bombs: 0, cards: 0, destroyed: 0 };
   for (let i = 0; i < 8; i++) {
-    const { g } = play({ seed: 'mirror' + i, difficulty: ['normal', 'normal'] });
+    const { g } = play({ seed: 'mirror' + i, difficulty: ['normal', 'normal'], onEvent: e => { if (e.type === 'deploy') used.heroes.add(e.kind); } });
     assert.ok(g.result.tick <= F.TIME_LIMIT);
     if (g.result.winner !== null) wins[g.result.winner]++;
     for (const s of g.sides) { used.bombs += s.bombs; used.cards += s.cardsUsed; used.destroyed += s.destroyed; }
     for (const s of g.sides) for (const x of s.structures) used.types.add(x.type);
   }
   assert.deepEqual([...used.types].sort(), ['depot', 'factory', 'radar', 'turret']);
-  assert.ok(used.bombs > 8 && used.cards > 30 && used.destroyed > 30, JSON.stringify({ ...used, types: undefined }));
+  assert.deepEqual([...used.heroes].sort(), ['artillery', 'heavy', 'sniper', 'tank'], 'the AI fields every kind of heavy equipment');
+  assert.ok(used.bombs > 8 && used.cards > 30 && used.destroyed > 30, JSON.stringify({ ...used, types: undefined, heroes: undefined }));
   assert.ok(Math.min(...wins) >= 2, `both seats win sometimes: ${wins}`);
 });
 
