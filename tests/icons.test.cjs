@@ -6,7 +6,7 @@ const path = require('node:path');
 const root = path.join(__dirname, '..');
 const svg = fs.readFileSync(path.join(root, 'icons.svg'), 'utf8');
 const home = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
-const games = ['tux2d','autohex','card_hex','gravity_brawl','flip_five','effect_snake','duplicate_bridge','rummikub','blackjack','tank_arena','pulse_arena','star_feast','territory_loop','lane_duel','cyclic_tictactoe','cyclic_connect4_torus','trackgame'];
+const games = ['tux2d','autohex','card_hex','gravity_brawl','flip_five','effect_snake','duplicate_bridge','rummikub','blackjack','tank_arena','pulse_arena','star_feast','territory_loop','front_line','cyclic_tictactoe','cyclic_connect4_torus','trackgame'];
 const actions = ['arrow-up','arrow-down','arrow-left','arrow-right','launch','play','pause','restart','rotate','undo','hint','shield','turret','trap','double','remove','bridge','suit-club','suit-diamond','suit-heart','suit-spade','fruit','star','poison','slow'];
 const attrs = s => Object.fromEntries([...s.matchAll(/([\w:-]+)="([^"]*)"/g)].map(m => [m[1],m[2]]));
 const icons = new Map([...svg.matchAll(/<symbol\s+([^>]+)>([\s\S]*?)<\/symbol>/g)].map(m=>{const a=attrs(m[1]);return[a.id,{attrs:a,body:m[2]}];}));

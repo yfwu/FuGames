@@ -33,7 +33,7 @@ python -m http.server 8000 --bind 0.0.0.0
 - 環面直落四子：`cyclic_connect4_torus.html`
 - 軌道棋：`trackgame.html`
 - 圈地漫遊 Territory Loop：`territory_loop.html`
-- 雙線塔防：`lane_duel.html`（你守下半、AI 守上半；蓋塔防守，派兵進攻對手路線）
+- 三路前線：`front_line.html`（對角大本營、上中下三路、迷霧、物資；無人機工廠、防空砲、偵查站、工程師與轟炸卡）
 - 星點吞噬 Star Feast：`star_feast.html`
 
 八款擴充的逐款規則與 AI 說明見 [開發文件](docs/expansion-games.md)，分工見 [實作計畫](docs/expansion-plan.md)，測試證據與限制見 [驗證紀錄](docs/expansion-validation.md)。
@@ -59,7 +59,7 @@ AutoHex AI 戰略多樣化：六個預設策略各有戰術教條，不再全部
 
 Tux 2D 改為原創追尾偽 3D「山路快遞」：110 秒內完成三站配送，以貨物完整度、電池及完程剩餘時間計分。每站選左側慢速修復補給線或右側冰面快線；衝刺、護盾與雪球共用能量。四位 AI 使用相同道路與資源規則，支援五 AI 觀戰、鍵盤及手機同時觸控。所有美術以程式原創繪製。見 [新版玩法與驗證](docs/tux2d-2026-10-14/validation.md)。
 
-新增雙線塔防：你和 AI 各守一條蛇形路線，每 15 秒迎來相同的中立敵兵。箭塔、砲塔、冰塔可升級到 3 級；派出的快兵、盾兵、群兵會進入對手路線，並永久提高自己的收入。生命先歸零者落敗，8 分鐘後比剩餘生命。AI 有簡單／普通／困難三段，也能觀戰 AI 對 AI。見 [規則、AI 研究與瀏覽器驗證](docs/lane-duel-2026-10-12/validation.md)。
+新增三路前線：你和 AI 的大本營各據地圖一角，上、中、下三路連接雙方。在自己這一側的三路蓋無人機工廠、防空砲塔、偵查站與補給站；工廠持續產出無人機沿路攻擊，工程師可上前維修。敵方陣地被迷霧遮住，要靠偵查站、無人機接觸或抽到的全圖偵察才看得到；轟炸卡可以打任何位置，配合情報拔掉對方工廠，也能盲猜。AI 只讀自己看得到的情報。見 [規則、AI 研究與瀏覽器驗證](docs/front-line-2026-10-12/validation.md)。
 
 ### 共用介面
 
@@ -132,7 +132,8 @@ python tests/hex_icons_revision_browser.py
 node tests/hex-seeded-balance.cjs
 FUGAMES_BASE_URL=http://127.0.0.1:8000 python tests/tux2d_browser.py
 FUGAMES_BASE_URL=http://127.0.0.1:8000 python tests/tux2d_keyboard_browser.py
-python tests/lane_duel_browser.py
+python tests/front_line_browser.py
+node tests/front-line-study.cjs 20
 ```
 
 若環境尚未有測試工具，可安裝 Python 的 `playwright` 並提供 Chromium 執行檔。環境變數：

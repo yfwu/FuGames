@@ -1,0 +1,922 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="雙方大本營對角而立，上中下三路、迷霧與物資補給。蓋無人機工廠、防空砲塔與偵查站，找出敵方工廠並轟炸它。FuGames 單人對 AI 前線塔防。">
+  <title>三路前線 - FuGames</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="fulab-theme.css">
+  <style>
+    .site-nav > a:last-child { display:inline-flex; align-items:center; gap:5px; }
+    .site-nav > a:last-child .ui-icon { width:16px; height:16px; }
+    .front-stage canvas { cursor: crosshair; }
+    .front-tools { display:grid; gap:10px; margin-top:12px; }
+    .front-row { display:flex; flex-wrap:wrap; align-items:center; gap:8px; }
+    .front-row .row-label { min-width:44px; color:var(--fulab-muted); font-size:11px; }
+    .front-row .btn { gap:6px; padding-inline:12px; }
+    .front-row .btn small { color:var(--fulab-muted); font-size:11px; }
+    .front-row .btn[aria-pressed="true"] { border-color:var(--fulab-teal); color:var(--fulab-ink-teal); background:var(--fulab-tint-teal); }
+    .front-row .card-btn { border-color:#d9c08a; background:var(--fulab-tint-amber); }
+    .front-row .card-btn[aria-pressed="true"] { border-color:#b48935; color:#6b5221; background:#f6e7c4; }
+    .front-row .empty-note { color:var(--fulab-muted); font-size:11px; margin:0; }
+    .front-hq { display:inline-flex; gap:4px; }
+    .front-hq .ai { color:#99553f; }
+    .front-settings { display:grid; gap:8px; margin:0 0 12px; text-align:left; font-size:12px; }
+    .front-settings select { width:100%; }
+    .front-settings label.check { display:flex; gap:8px; align-items:center; }
+    @media(max-width:600px) { .front-row .row-label { min-width:100%; } .front-row .btn { flex:1 1 30%; padding-inline:8px; } }
+    @media(max-height:600px) and (min-width:600px) {
+      .io-page .play-panel { grid-template-columns:minmax(0,1fr) 270px; }
+      .io-page .play-panel > .io-stage { grid-column:1; grid-row:2; }
+      .front-support { grid-column:2; grid-row:2; display:flex; flex-direction:column; gap:10px; max-height:calc(100svh - 106px); overflow:auto; }
+      .front-support .front-tools { margin:0; }
+      .front-row .row-label { min-width:100%; }
+    }
+  </style>
+</head>
+<body>
+  <main class="game-page io-page">
+    <nav class="site-nav" aria-label="遊戲導覽"><a class="site-brand" href="index.html"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>FuGames</a><a href="index.html" aria-label="所有遊戲 ↗"><span>所有遊戲</span><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#launch"></use></svg></a></nav>
+    <header class="page-header"><p class="eyebrow">前線塔防 / 單人 × AI</p><h1><svg class="page-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#front_line"></use></svg>三路前線</h1><p class="lead">兩座大本營對角而立，上、中、下三路連接雙方。看不見的敵人最危險：先偵查，再轟炸。</p></header>
+    <section class="card play-panel" aria-label="三路前線戰場">
+      <div class="game-toolbar"><p class="game-status" id="phase-label">準備開戰</p><div class="game-metrics"><span>物資 <strong id="supply">150</strong></span><span>每秒 <strong id="income">+4</strong></span><span class="front-hq">大本營 <strong id="hq">200</strong> : <strong class="ai" id="ai-hq">200</strong></span><span>剩餘 <strong id="clock">10:00</strong></span></div></div>
+      <div class="io-stage front-stage"><canvas id="board" width="720" height="720" tabindex="0" aria-label="三路前線。左下角是你的大本營，右上角是 AI 大本營，對角線以上是敵方陣地，被迷霧遮住的地方看不到。點自己的空位建造，點自己的建築可出售。" aria-describedby="status">需要支援 Canvas 的瀏覽器。</canvas>
+        <div class="board-overlay" id="overlay"><div class="game-dialog" role="dialog" aria-labelledby="dialog-title" aria-describedby="dialog-copy">
+          <svg class="dialog-art" id="dialog-art" viewBox="0 0 96 72" aria-hidden="true"><path d="M18 6H78V66Z" fill="#faf5f2"/><path d="M18 6V66H78Z" fill="#f4f8f7"/><path d="M24 60V12H72M24 60L72 12M24 60H72V12" fill="none" stroke="#c4cad6" stroke-width="5" stroke-linejoin="round"/><path d="M18 6L78 66" stroke="#aab3c2" stroke-width="1" stroke-dasharray="3 3"/><rect x="16" y="52" width="16" height="16" rx="3" fill="#cbeaea" stroke="#267477" stroke-width="2"/><rect x="64" y="4" width="16" height="16" rx="3" fill="#efdad1" stroke="#99553f" stroke-width="2"/><path d="M45 35L50 29L52 37Z" fill="#5ebcbf" stroke="#267477" stroke-width="1.5"/><circle cx="72" cy="40" r="7" fill="none" stroke="#99553f" stroke-width="2" stroke-dasharray="3 2"/></svg>
+          <p class="eyebrow" id="dialog-kicker">你在左下角，AI 在右上角</p><h2 id="dialog-title">三條路，一場迷霧</h2><p id="dialog-copy">在上、中、下三路蓋無人機工廠進攻，用防空砲擋下來襲無人機。敵方陣地被迷霧遮住，偵查之後再轟炸。先打爆對方大本營的一方獲勝。</p>
+          <div class="front-settings" id="settings"><label for="difficulty">AI 難度</label><select id="difficulty"><option value="easy">簡單</option><option value="normal" selected>普通</option><option value="hard">困難</option></select><label class="check"><input type="checkbox" id="spectate">觀戰：讓 AI 代你指揮，並顯示全圖</label></div>
+          <button class="btn primary" id="play" aria-label="開始對戰 →"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#play"></use></svg><span>開始對戰</span></button><button class="btn" id="dialog-secondary" hidden>保留本局，繼續</button>
+        </div></div>
+      </div>
+      <div class="front-support">
+        <p class="game-status io-status" id="status" role="status" aria-live="polite">選一種建築，點自己三路上的空位建造。</p>
+        <div class="front-tools">
+          <div class="front-row" role="group" aria-label="建造"><span class="row-label">建造</span>
+            <button class="btn build-btn" data-build="factory" aria-pressed="true" aria-label="無人機工廠，60 物資（按 1）"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#arrow-up"></use></svg><span>工廠</span><small>60</small></button>
+            <button class="btn build-btn" data-build="turret" aria-pressed="false" aria-label="防空砲塔，40 物資（按 2）"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#turret"></use></svg><span>砲塔</span><small>40</small></button>
+            <button class="btn build-btn" data-build="radar" aria-pressed="false" aria-label="偵查站，35 物資（按 3）"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#hint"></use></svg><span>偵查</span><small>35</small></button>
+            <button class="btn build-btn" data-build="depot" aria-pressed="false" aria-label="補給站，50 物資（按 4）"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#double"></use></svg><span>補給</span><small>50</small></button>
+          </div>
+          <div class="front-row" role="group" aria-label="行動"><span class="row-label">行動</span>
+            <button class="btn" id="engineer" aria-pressed="false" aria-label="派工程師維修，25 物資（按 E，再點一路）"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#shield"></use></svg><span>工程師</span><small>25</small></button>
+            <button class="btn" id="sell" disabled aria-label="出售選取的建築（按 Delete）"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#remove"></use></svg><span>出售</span><small id="sell-value">—</small></button>
+          </div>
+          <div class="front-row" role="group" aria-label="手牌" id="cards"><span class="row-label">手牌</span><p class="empty-note" id="cards-empty">每 20 秒抽一張，最多 3 張。</p></div>
+          <div class="game-actions"><p class="action-note">1–4 建造 · E 工程師 · Z / X / C 出牌 · Delete 出售 · P / Esc 暫停</p><div class="btnRow"><button class="btn" id="pause" disabled aria-label="暫停"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#pause"></use></svg><span>暫停</span></button><button class="btn primary" id="restart" aria-label="重新開始"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#restart"></use></svg><span>重新開始</span></button></div></div>
+        </div>
+      </div>
+    </section>
+    <details class="card rules"><summary>玩法與操作</summary><div class="rules-body"><ul class="list">
+      <li>你的大本營在左下角，AI 的在右上角，對角虛線是前線。上路沿左邊與上緣、中路走對角線、下路沿下緣與右邊，三路都連接雙方大本營。每一路靠近自己大本營的地方有 6 個建築空位。大本營 200 點，被打到 0 就輸；10 分鐘到時大本營剩較多者勝。</li>
+      <li><strong>無人機工廠</strong>每 8 秒連續放出 3 架無人機（每架 3 物資），沿著所在的路飛向敵方大本營。兩邊無人機在同一路迎面相遇會停下纏鬥；碰到敵方建築就停下攻擊，飛到底就撞擊大本營扣 4 點。中路最短，上下路較長。</li>
+      <li><strong>防空砲塔</strong>打射程內的敵方無人機（靠近大本營時三路很近，可以互相支援），每發砲彈消耗 0.5 物資。<strong>補給站</strong>每秒多 2 物資，<strong>偵查站</strong>視野最大，還能看清它所在那一路從頭到尾的動靜。</li>
+      <li><strong>迷霧</strong>：只看得到自己單位視野內的地方。大本營、每座建築、無人機與工程師各有一圈視野（偵查站最大），沒有視野的地方就算在自己陣地也會蒙上淡霧，敵方陣地則是濃霧。全圖偵察卡可以暫時照亮全部；看過的敵方建築會留下「最後目擊」殘影，但可能已經不在了。AI 也只知道它看得到的東西。</li>
+      <li><strong>物資</strong>：每秒基本 +4。工廠出機、砲塔開火都要物資，存量見底時工廠停工、砲塔啞火。出售建築取回一半。</li>
+      <li><strong>工程師</strong>（25）從大本營走到指定的一路，15 秒內持續修理那一路受損最重的建築；每一路同時只能有一隊。</li>
+      <li><strong>手牌</strong>每 20 秒抽一張：全圖偵察（8 秒看見全部）、轟炸（點任意位置，1.5 秒後落下，摧毀範圍內敵方無人機並重創建築）、電子干擾（點一路，擊落那一路的敵方無人機並讓敵方在那一路的工廠停工 8 秒）、物資空投（+100）。</li>
+      <li>滑鼠或觸控：先選建築再點空位，點自己的建築可選取後出售。鍵盤：1–4 選建築、E 工程師、Z／X／C 使用第 1–3 張牌、Delete 出售選取的建築、Esc 取消瞄準、P 暫停。</li>
+      <li>AI 用相同規則，也只看得到它偵查到的東西。難度只改變 AI 的物資收入：簡單 ×0.7、普通 ×1、困難 ×1.3；簡單 AI 另外反應較慢、不派工程師。</li>
+    </ul></div></details>
+    <footer class="site-footer">FuGames · 隨時來一局</footer>
+    <noscript><p class="notice">請開啟 JavaScript，才能開始遊戲。</p></noscript>
+  </main>
+
+  <script id="front-engine">
+  'use strict';
+  const FrontLine = (() => {
+    const SIZE = 720, LANES = 3, TPS = 20, DT = 1 / TPS;
+    const TIME_LIMIT = 10 * 60 * TPS, PAY_TICKS = TPS, CARD_TICKS = 20 * TPS, FIRST_CARD = 10 * TPS, HAND = 3;
+    const START_SUPPLY = 150, BASE_INCOME = 4, HQ_HP = 200;
+    // Bases sit in opposite corners; the three lanes run from base 0 (bottom left) to base 1 (top right).
+    const BASE = [{ x: 90, y: 630 }, { x: 630, y: 90 }], BASE_REACH = 40, DIR = [1, -1];
+    const PATHS = [[[90, 630], [90, 90], [630, 90]], [[90, 630], [630, 90]], [[90, 630], [630, 630], [630, 90]]];
+    const LANE_NAMES = ['上路', '中路', '下路'];
+    const ROWS = [170, 235, 300], SLOT_OFFSET = 42;
+    const SEGMENTS = PATHS.map(points => points.slice(1).map((p, i) => {
+      const a = points[i], len = Math.hypot(p[0] - a[0], p[1] - a[1]);
+      return { x: a[0], y: a[1], dx: (p[0] - a[0]) / len, dy: (p[1] - a[1]) / len, len };
+    }));
+    const laneLength = lane => SEGMENTS[lane].reduce((n, seg) => n + seg.len, 0);
+    // A lane position is the distance travelled from base 0 along that lane.
+    function lanePoint(lane, pos) {
+      const segs = SEGMENTS[lane];
+      let rest = Math.max(0, Math.min(laneLength(lane), pos));
+      for (const seg of segs) {
+        if (rest <= seg.len || seg === segs[segs.length - 1]) return { x: seg.x + seg.dx * rest, y: seg.y + seg.dy * rest, dx: seg.dx, dy: seg.dy };
+        rest -= seg.len;
+      }
+    }
+    // Each side owns 6 slots per lane: index = row * 2 + col; row 0 is closest to its base.
+    function slotPos(side, lane, slot) {
+      const along = ROWS[Math.floor(slot / 2)], pos = side ? laneLength(lane) - along : along;
+      const p = lanePoint(lane, pos), sign = slot % 2 ? 1 : -1;
+      return { x: p.x - p.dy * SLOT_OFFSET * sign, y: p.y + p.dx * SLOT_OFFSET * sign, pos };
+    }
+    const STRUCTS = {
+      factory: { name: '無人機工廠', cost: 60, hp: 120, period: 8 * TPS, wave: 3, gap: 8, droneCost: 3 },
+      turret: { name: '防空砲塔', cost: 40, hp: 160, range: 140, damage: 9, cooldown: 16, ammo: .5 },
+      radar: { name: '偵查站', cost: 35, hp: 80 },
+      depot: { name: '補給站', cost: 50, hp: 100, income: 2 },
+    };
+    const DRONE = { hp: 36, speed: 55, damage: 10, hqDamage: 4, engage: 22, sight: 70, dogfight: 9, contact: 16 };
+    const ENGINEER = { cost: 25, speed: 90, repair: 12, duration: 15 * TPS };
+    // Sight radius of everything a side owns; outside it the map is fogged, on either half.
+    const VISION = { base: 190, factory: 90, turret: 110, radar: 170, depot: 90, drone: DRONE.sight, engineer: 60 };
+    const CARDS = {
+      recon: { name: '全圖偵察', weight: 3, ticks: 8 * TPS },
+      strike: { name: '轟炸', weight: 3, delay: 1.5 * TPS, radius: 75, damage: 140 },
+      jam: { name: '電子干擾', weight: 2, ticks: 8 * TPS },
+      airdrop: { name: '物資空投', weight: 2, supply: 100 },
+    };
+    const SELL_RATE = .5, MAX_DRONES = 120;
+
+    function seededRandom(seed) {
+      let h = 2166136261;
+      for (const ch of String(seed)) h = Math.imul(h ^ ch.charCodeAt(0), 16777619);
+      // Finalise the string hash so neighbouring seeds ("…:0", "…:1") start far apart.
+      h ^= h >>> 16; h = Math.imul(h, 0x85ebca6b); h ^= h >>> 13; h = Math.imul(h, 0xc2b2ae35); h ^= h >>> 16;
+      let a = h >>> 0;
+      return () => { a = (a + 0x6D2B79F5) >>> 0; let t = a; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+    }
+    // The diagonal from the top-left corner to the bottom-right corner splits the map.
+    const ownHalf = (side, x, y) => side === 0 ? x < y : x >= y;
+
+    class Game {
+      constructor(options = {}) {
+        this.options = { seed: 'front', ai: [false, true], difficulty: ['normal', 'normal'], ...options };
+        this.reset();
+      }
+      reset() {
+        const o = this.options;
+        // Separate streams keep one side's card luck independent of the other side's AI choices.
+        this.rng = [seededRandom(o.seed + ':0'), seededRandom(o.seed + ':1')];
+        this.aiRandom = [seededRandom(o.seed + ':ai0'), seededRandom(o.seed + ':ai1')];
+        this.phase = 'ready'; this.tick = 0; this.serial = 0; this.result = null; this.events = [];
+        this.ai = o.ai.slice(); this.difficulty = o.difficulty.slice();
+        this.sides = [0, 1].map(() => ({ supply: START_SUPPLY, hq: HQ_HP, structures: [], hand: [], revealUntil: 0, jammed: [0, 0, 0], built: 0, launched: 0, kills: 0, destroyed: 0, bombs: 0, cardsUsed: 0 }));
+        this.drones = []; this.engineers = []; this.strikes = [];
+        this.intel = [new Map(), new Map()];
+      }
+      start() { if (this.phase === 'ready' || this.phase === 'paused') this.phase = 'running'; }
+      pause() { if (this.phase === 'running') this.phase = 'paused'; }
+      // AI difficulty scales only the AI's supply income; a human seat always earns the listed rate.
+      incomeRate(side) { return this.ai[side] ? (PROFILES[this.difficulty[side]] || PROFILES.normal).income : 1; }
+      income(side) { return (BASE_INCOME + this.sides[side].structures.filter(s => s.type === 'depot').length * STRUCTS.depot.income) * this.incomeRate(side); }
+      structureAt(side, lane, slot) { return this.sides[side].structures.find(s => s.lane === lane && s.slot === slot) || null; }
+      structure(side, id) { return this.sides[side].structures.find(s => s.id === id) || null; }
+      canBuild(side, lane, slot, type) {
+        return this.phase === 'running' && !!STRUCTS[type] && Number.isInteger(lane) && lane >= 0 && lane < LANES && Number.isInteger(slot) && slot >= 0 && slot < 6
+          && !this.structureAt(side, lane, slot) && this.sides[side].supply >= STRUCTS[type].cost;
+      }
+      build(side, lane, slot, type) {
+        if (!this.canBuild(side, lane, slot, type)) return null;
+        const spec = STRUCTS[type], p = slotPos(side, lane, slot);
+        const s = { id: ++this.serial, side, type, lane, slot, x: p.x, y: p.y, pos: p.pos, hp: spec.hp, maxHp: spec.hp, invested: spec.cost, timer: type === 'factory' ? 3 * TPS : 0, cooldown: 0 };
+        this.sides[side].supply -= spec.cost; this.sides[side].structures.push(s); this.sides[side].built++;
+        this.events.push({ type: 'build', side, id: s.id, kind: type, lane });
+        return s;
+      }
+      sell(side, id) {
+        const s = this.structure(side, id);
+        if (this.phase !== 'running' || !s) return false;
+        this.sides[side].supply += Math.floor(s.invested * SELL_RATE); this.removeStructure(s, false);
+        return true;
+      }
+      removeStructure(s, destroyed) {
+        const owner = this.sides[s.side]; owner.structures = owner.structures.filter(x => x !== s);
+        if (destroyed) { this.sides[1 - s.side].destroyed++; this.events.push({ type: 'destroyed', side: s.side, kind: s.type, lane: s.lane, x: s.x, y: s.y }); }
+      }
+      canSendEngineer(side, lane) {
+        return this.phase === 'running' && Number.isInteger(lane) && lane >= 0 && lane < LANES && this.sides[side].supply >= ENGINEER.cost && !this.engineers.some(e => e.side === side && e.lane === lane);
+      }
+      sendEngineer(side, lane) {
+        if (!this.canSendEngineer(side, lane)) return false;
+        this.sides[side].supply -= ENGINEER.cost;
+        const start = side ? laneLength(lane) : 0, target = side ? laneLength(lane) - ROWS[1] : ROWS[1], p = lanePoint(lane, start);
+        this.engineers.push({ id: ++this.serial, side, lane, pos: start, x: p.x, y: p.y, target, ticks: ENGINEER.duration, repaired: 0 });
+        this.events.push({ type: 'engineer', side, lane });
+        return true;
+      }
+      useCard(side, index, target = {}) {
+        const hand = this.sides[side].hand, card = hand[index];
+        if (this.phase !== 'running' || !card) return false;
+        if (card === 'strike') {
+          if (!Number.isFinite(target.x) || !Number.isFinite(target.y)) return false;
+          this.strikes.push({ id: ++this.serial, side, x: Math.max(0, Math.min(SIZE, target.x)), y: Math.max(0, Math.min(SIZE, target.y)), timer: CARDS.strike.delay });
+          this.sides[side].bombs++;
+        } else if (card === 'jam') {
+          const lane = target.lane;
+          if (!Number.isInteger(lane) || lane < 0 || lane >= LANES) return false;
+          const foe = 1 - side;
+          const downed = this.drones.filter(d => d.side === foe && d.lane === lane);
+          this.drones = this.drones.filter(d => !downed.includes(d)); this.sides[side].kills += downed.length;
+          this.sides[foe].jammed[lane] = this.tick + CARDS.jam.ticks;
+          this.events.push({ type: 'jam', side, lane, downed: downed.length });
+        } else if (card === 'recon') {
+          this.sides[side].revealUntil = this.tick + CARDS.recon.ticks;
+          this.events.push({ type: 'recon', side });
+        } else if (card === 'airdrop') {
+          this.sides[side].supply += CARDS.airdrop.supply;
+          this.events.push({ type: 'airdrop', side });
+        }
+        hand.splice(index, 1); this.sides[side].cardsUsed++;
+        return true;
+      }
+      drawCard(side) {
+        const hand = this.sides[side].hand;
+        if (hand.length >= HAND) return;
+        const entries = Object.entries(CARDS), total = entries.reduce((n, [, c]) => n + c.weight, 0);
+        let roll = this.rng[side]() * total, pick = entries[0][0];
+        for (const [name, c] of entries) { roll -= c.weight; if (roll < 0) { pick = name; break; } }
+        hand.push(pick); this.events.push({ type: 'card', side, card: pick });
+      }
+      // What `side` can see of the enemy half at a point in a lane.
+      sees(side, x, y, lane) {
+        const me = this.sides[side], near = (o, r) => Math.hypot(o.x - x, o.y - y) <= r;
+        if (me.revealUntil > this.tick) return true;
+        if (near(BASE[side], VISION.base)) return true;
+        // A radar watches its whole lane, all the way to the enemy base.
+        if (me.structures.some(s => (s.type === 'radar' && s.lane === lane) || near(s, VISION[s.type]))) return true;
+        return this.drones.some(d => d.side === side && near(d, VISION.drone)) || this.engineers.some(e => e.side === side && near(e, VISION.engineer));
+      }
+      updateIntel(side) {
+        const intel = this.intel[side], foe = this.sides[1 - side];
+        for (const s of foe.structures) if (this.sees(side, s.x, s.y, s.lane)) intel.set(s.id, { id: s.id, type: s.type, lane: s.lane, slot: s.slot, x: s.x, y: s.y, hp: s.hp, maxHp: s.maxHp, seen: this.tick });
+        for (const [id, known] of intel) if (known.seen !== this.tick && this.sees(side, known.x, known.y, known.lane) && !foe.structures.some(s => s.id === id)) intel.delete(id);
+      }
+      observation(side) {
+        const me = this.sides[side], foe = this.sides[1 - side];
+        const copy = s => ({ ...s });
+        return {
+          side, tick: this.tick, supply: me.supply, income: this.income(side), hq: me.hq, enemyHq: foe.hq, hand: me.hand.slice(),
+          revealUntil: me.revealUntil, jammed: me.jammed.slice(), structures: me.structures.map(copy),
+          engineers: this.engineers.filter(e => e.side === side).map(copy), strikes: this.strikes.filter(s => s.side === side).map(copy),
+          drones: this.drones.filter(d => d.side === side).map(copy),
+          enemyDrones: this.drones.filter(d => d.side !== side && this.sees(side, d.x, d.y, d.lane)).map(copy),
+          enemyKnown: [...this.intel[side].values()].map(k => ({ ...k, age: this.tick - k.seen })),
+        };
+      }
+      step() {
+        if (this.phase !== 'running') return;
+        this.tick++; this.events = [];
+        for (const side of [0, 1]) if (this.ai[side]) {
+          const profile = PROFILES[this.difficulty[side]] || PROFILES.normal;
+          if ((this.tick + side * 7) % profile.interval === 0) for (const a of planAI(this.observation(side), profile, this.aiRandom[side])) this.apply(side, a);
+        }
+        if (this.tick % PAY_TICKS === 0) for (const side of [0, 1]) this.sides[side].supply += this.income(side);
+        if (this.tick >= FIRST_CARD && (this.tick - FIRST_CARD) % CARD_TICKS === 0) { this.drawCard(0); this.drawCard(1); }
+        // Factories launch drones when supplied and not jammed.
+        for (const side of [0, 1]) for (const s of this.sides[side].structures) {
+          if (s.type !== 'factory' || this.sides[side].jammed[s.lane] > this.tick) continue;
+          if (s.timer > 0) { s.timer--; continue; }
+          if (this.sides[side].supply < STRUCTS.factory.droneCost || this.drones.length >= MAX_DRONES) continue;
+          // Each cycle launches a short burst of drones, then the factory reloads.
+          s.burst = (s.burst || 0) + 1;
+          s.timer = s.burst < STRUCTS.factory.wave ? STRUCTS.factory.gap : STRUCTS.factory.period;
+          if (s.burst >= STRUCTS.factory.wave) s.burst = 0;
+          this.sides[side].supply -= STRUCTS.factory.droneCost; this.sides[side].launched++;
+          this.events.push({ type: 'launch', side, id: s.id, x: s.x, y: s.y });
+          const p = lanePoint(s.lane, s.pos);
+          this.drones.push({ id: ++this.serial, side, lane: s.lane, pos: s.pos, x: p.x, y: p.y, hp: DRONE.hp, attacking: null });
+        }
+        this.moveDrones();
+        this.fireTurrets();
+        this.moveEngineers();
+        this.resolveStrikes();
+        this.updateIntel(0); this.updateIntel(1);
+        this.checkResult();
+      }
+      apply(side, a) {
+        if (a.type === 'build') return this.build(side, a.lane, a.slot, a.kind);
+        if (a.type === 'sell') return this.sell(side, a.id);
+        if (a.type === 'engineer') return this.sendEngineer(side, a.lane);
+        if (a.type === 'card') return this.useCard(side, a.index, a.target);
+        return false;
+      }
+      moveDrones() {
+        // Drones that meet head-on in a lane stop and fight; damage lands simultaneously.
+        const hits = new Map(), engaged = new Set();
+        for (const d of this.drones) {
+          let foe = null, best = Infinity;
+          for (const o of this.drones) {
+            if (o.side === d.side || o.lane !== d.lane) continue;
+            const gap = Math.abs(o.pos - d.pos);
+            if (gap <= DRONE.contact && gap < best) { best = gap; foe = o; }
+          }
+          if (foe) { engaged.add(d); hits.set(foe, (hits.get(foe) || 0) + DRONE.dogfight * DT); }
+        }
+        for (const [o, damage] of hits) { o.hp -= damage; if (o.hp <= 0) this.sides[1 - o.side].kills++; }
+        this.drones = this.drones.filter(d => d.hp > 0);
+        const survivors = [];
+        for (const d of this.drones) {
+          if (engaged.has(d)) { d.attacking = null; survivors.push(d); continue; }
+          const foe = this.sides[1 - d.side];
+          // Attack the weakest enemy structure on the row the drone has reached.
+          const row = foe.structures.filter(s => s.lane === d.lane && Math.abs(s.pos - d.pos) <= DRONE.engage);
+          if (row.length) {
+            const target = row.reduce((a, b) => b.hp < a.hp ? b : a);
+            d.attacking = target.id; target.hp -= DRONE.damage * DT;
+            if (target.hp <= 0) this.removeStructure(target, true);
+            survivors.push(d); continue;
+          }
+          d.attacking = null; d.pos += DIR[d.side] * DRONE.speed * DT;
+          const p = lanePoint(d.lane, d.pos); d.x = p.x; d.y = p.y;
+          if ((d.side === 0 && d.pos >= laneLength(d.lane) - BASE_REACH) || (d.side === 1 && d.pos <= BASE_REACH)) {
+            foe.hq = Math.max(0, foe.hq - DRONE.hqDamage);
+            this.events.push({ type: 'hq', side: 1 - d.side, lane: d.lane });
+            continue;
+          }
+          survivors.push(d);
+        }
+        this.drones = survivors;
+      }
+      fireTurrets() {
+        for (const side of [0, 1]) for (const t of this.sides[side].structures) {
+          if (t.type !== 'turret') continue;
+          if (t.cooldown > 0) { t.cooldown--; continue; }
+          // Every shell comes out of the supply stockpile.
+          if (this.sides[side].supply < STRUCTS.turret.ammo) continue;
+          let target = null, best = Infinity;
+          for (const d of this.drones) {
+            if (d.side === side || d.hp <= 0) continue;
+            const r = Math.hypot(d.x - t.x, d.y - t.y);
+            if (r > STRUCTS.turret.range) continue;
+            // Prefer the drone closest to our HQ.
+            const danger = Math.hypot(d.x - BASE[side].x, d.y - BASE[side].y);
+            if (danger < best) { best = danger; target = d; }
+          }
+          if (!target) continue;
+          target.hp -= STRUCTS.turret.damage; t.cooldown = STRUCTS.turret.cooldown; this.sides[side].supply -= STRUCTS.turret.ammo;
+          this.events.push({ type: 'shot', side, id: t.id, x: target.x, y: target.y });
+          if (target.hp <= 0) this.sides[side].kills++;
+        }
+        this.drones = this.drones.filter(d => d.hp > 0);
+      }
+      moveEngineers() {
+        for (const e of this.engineers) {
+          if (Math.abs(e.pos - e.target) > 1) {
+            e.pos += Math.sign(e.target - e.pos) * Math.min(Math.abs(e.target - e.pos), ENGINEER.speed * DT);
+            const p = lanePoint(e.lane, e.pos); e.x = p.x; e.y = p.y; continue;
+          }
+          e.ticks--;
+          const hurt = this.sides[e.side].structures.filter(s => s.lane === e.lane && s.hp < s.maxHp);
+          if (hurt.length) {
+            const s = hurt.reduce((a, b) => b.hp / b.maxHp < a.hp / a.maxHp ? b : a), amount = Math.min(s.maxHp - s.hp, ENGINEER.repair * DT);
+            s.hp += amount; e.repaired += amount;
+          }
+        }
+        this.engineers = this.engineers.filter(e => e.ticks > 0);
+      }
+      resolveStrikes() {
+        const spec = CARDS.strike;
+        for (const b of this.strikes) {
+          if (--b.timer > 0) continue;
+          const foe = 1 - b.side, inside = o => Math.hypot(o.x - b.x, o.y - b.y) <= spec.radius;
+          const downed = this.drones.filter(d => d.side === foe && inside(d));
+          this.drones = this.drones.filter(d => !downed.includes(d)); this.sides[b.side].kills += downed.length;
+          this.engineers = this.engineers.filter(e => !(e.side === foe && inside(e)));
+          const hits = this.sides[foe].structures.filter(inside);
+          for (const s of hits) { s.hp -= spec.damage; if (s.hp <= 0) this.removeStructure(s, true); }
+          this.events.push({ type: 'strike', side: b.side, x: b.x, y: b.y, hits: hits.length, downed: downed.length });
+        }
+        this.strikes = this.strikes.filter(b => b.timer > 0);
+      }
+      checkResult() {
+        const [a, b] = this.sides;
+        if (a.hq <= 0 || b.hq <= 0) {
+          if (a.hq <= 0 && b.hq <= 0) this.finish(null, '雙方大本營同時失守，平手。');
+          else this.finish(a.hq <= 0 ? 1 : 0, a.hq <= 0 ? '你的大本營被摧毀了。' : 'AI 的大本營被摧毀了！');
+        } else if (this.tick >= TIME_LIMIT) {
+          if (a.hq === b.hq) this.finish(null, '時間到，雙方大本營耐久相同，平手。');
+          else this.finish(a.hq > b.hq ? 0 : 1, '時間到，以大本營剩餘耐久決定勝負。');
+        }
+      }
+      finish(winner, reason) {
+        if (this.phase === 'over') return;
+        this.phase = 'over';
+        this.result = { winner, reason, tick: this.tick, hq: this.sides.map(s => s.hq), destroyed: this.sides.map(s => s.destroyed), kills: this.sides.map(s => s.kills), launched: this.sides.map(s => s.launched), bombs: this.sides.map(s => s.bombs) };
+      }
+    }
+
+    const PROFILES = {
+      easy: { interval: 60, factories: .6, turretPerThreat: .22, useCards: .3, guess: false, radarAt: 120 * TPS, noise: 1.2, engineers: false, reserve: 0, income: .7 },
+      normal: { interval: 20, factories: 1, turretPerThreat: .34, useCards: .8, guess: true, radarAt: 40 * TPS, noise: .4, engineers: true, reserve: 1, income: 1 },
+      hard: { interval: 8, factories: 1.15, turretPerThreat: .42, useCards: 1, guess: true, radarAt: 20 * TPS, noise: .15, engineers: true, reserve: 1, income: 1.3 },
+    };
+
+    // Decisions read only the observation: own state plus enemy intel the side has actually seen.
+    function planAI(obs, profile, rand) {
+      const actions = [], side = obs.side, mine = obs.structures;
+      let supply = obs.supply;
+      const count = (type, lane) => mine.filter(s => s.type === type && (lane === undefined || s.lane === lane)).length;
+      const fresh = obs.enemyKnown.filter(k => k.age < 25 * TPS);
+      const freeSlot = (lane, front) => {
+        const order = front ? [4, 5, 2, 3, 0, 1] : [0, 1, 2, 3, 4, 5];
+        return order.find(slot => !mine.some(s => s.lane === lane && s.slot === slot));
+      };
+      // Keep shells in stock: turrets cannot fire and factories cannot launch without supply.
+      const reserve = profile.reserve * (6 + 4 * count('turret') + 3 * count('factory'));
+      const build = (kind, lane, front, urgent) => {
+        const slot = freeSlot(lane, front);
+        if (slot === undefined || supply - STRUCTS[kind].cost < (urgent ? 0 : reserve)) return false;
+        actions.push({ type: 'build', kind, lane, slot }); supply -= STRUCTS[kind].cost;
+        mine.push({ type: kind, lane, slot, hp: STRUCTS[kind].hp, maxHp: STRUCTS[kind].hp });
+        return true;
+      };
+      // Cards.
+      obs.hand.forEach((card, index) => {
+        if (rand() > profile.useCards) return;
+        const target = card === 'strike' ? strikeTarget(obs, profile, rand) : null;
+        if (card === 'airdrop') actions.push({ type: 'card', index, target: {} });
+        else if (card === 'jam') {
+          const lanes = [0, 1, 2].map(lane => obs.enemyDrones.filter(d => d.lane === lane).length);
+          const lane = lanes.indexOf(Math.max(...lanes));
+          const factories = [0, 1, 2].map(l => fresh.filter(k => k.lane === l && k.type === 'factory').length);
+          if (lanes[lane] >= 3) actions.push({ type: 'card', index, target: { lane } });
+          else if (obs.hand.length >= HAND && Math.max(...factories) > 0) actions.push({ type: 'card', index, target: { lane: factories.indexOf(Math.max(...factories)) } });
+        } else if (card === 'recon') {
+          if (obs.revealUntil <= obs.tick && (obs.hand.includes('strike') && !strikeTarget(obs, { ...profile, guess: false }, rand) || obs.hand.length >= HAND || fresh.length < 2)) actions.push({ type: 'card', index, target: {} });
+        } else if (card === 'strike' && target) actions.push({ type: 'card', index, target });
+      });
+      // Only the first card action is applied this round so hand indices stay valid.
+      const cardAction = actions.find(a => a.type === 'card');
+      actions.length = 0; if (cardAction) actions.push(cardAction);
+      // Engineers for damaged lanes.
+      for (let lane = 0; lane < LANES; lane++) {
+        const hurt = mine.some(s => s.lane === lane && s.hp < s.maxHp * .6);
+        if (hurt && profile.engineers && supply >= ENGINEER.cost + 20 && !obs.engineers.some(e => e.lane === lane)) { actions.push({ type: 'engineer', lane }); supply -= ENGINEER.cost; }
+      }
+      // Threat per lane: visible incoming drones plus remembered enemy factories.
+      const threat = [0, 1, 2].map(lane => obs.enemyDrones.filter(d => d.lane === lane).length + fresh.filter(k => k.lane === lane && k.type === 'factory').length * 2.5 + .6);
+      const enemyAA = [0, 1, 2].map(lane => {
+        const known = obs.enemyKnown.filter(k => k.lane === lane && k.type === 'turret').length;
+        return known + (obs.enemyKnown.some(k => k.lane === lane) ? 0 : 1) + rand() * profile.noise;
+      });
+      const plans = [];
+      if (count('depot') < 2 && obs.tick > 15 * TPS && count('factory') >= 1) plans.push(['depot', [0, 1, 2].sort((a, b) => threat[a] - threat[b])[0], false, 3]);
+      if (count('radar') < 1 && obs.tick > profile.radarAt) plans.push(['radar', [0, 1, 2].sort((a, b) => threat[a] - threat[b])[0], false, 4]);
+      if (count('radar') < 2 && obs.tick > profile.radarAt * 3) plans.push(['radar', [0, 1, 2].find(l => !count('radar', l)), false, 1]);
+      for (let lane = 0; lane < LANES; lane++) {
+        const want = Math.min(4, Math.ceil(threat[lane] * profile.turretPerThreat));
+        if (count('turret', lane) < want) plans.push(['turret', lane, true, 5 + (want - count('turret', lane)) * 2, !count('turret', lane) && obs.enemyDrones.some(d => d.lane === lane)]);
+      }
+      const factoryGoal = Math.round((1 + obs.income / 4) * profile.factories + Math.max(0, supply - 120) / 80);
+      if (count('factory') < factoryGoal) {
+        const lane = [0, 1, 2].sort((a, b) => enemyAA[a] + count('factory', a) * .7 - enemyAA[b] - count('factory', b) * .7)[0];
+        plans.push(['factory', lane, false, 4.5]);
+      }
+      plans.sort((a, b) => b[3] - a[3] + (rand() - .5) * profile.noise);
+      for (const [kind, lane, front, , urgent] of plans) if (lane !== undefined) build(kind, lane, front, urgent);
+      return actions;
+    }
+    function strikeTarget(obs, profile, rand) {
+      const fresh = obs.enemyKnown.filter(k => k.age < 20 * TPS);
+      let best = null;
+      for (const k of fresh) {
+        const value = fresh.filter(o => Math.hypot(o.x - k.x, o.y - k.y) <= CARDS.strike.radius * .9).reduce((n, o) => n + ({ factory: 3, depot: 2, radar: 1.5, turret: 1 })[o.type] * (o.hp <= CARDS.strike.damage ? 1.5 : 1), 0);
+        if (!best || value > best.value) best = { value, x: k.x, y: k.y };
+      }
+      if (best && best.value >= 2) return { x: best.x, y: best.y };
+      if (profile.guess && obs.hand.length >= HAND && !obs.hand.includes('recon')) {
+        // Blind guess: the front rows of a random lane are the likeliest spot for enemy factories.
+        const lane = Math.floor(rand() * LANES), along = (ROWS[1] + ROWS[2]) / 2;
+        const p = lanePoint(lane, obs.side === 0 ? laneLength(lane) - along : along);
+        return { x: p.x, y: p.y };
+      }
+      return null;
+    }
+
+    return { Game, SIZE, LANES, TPS, DT, TIME_LIMIT, PAY_TICKS, CARD_TICKS, FIRST_CARD, HAND, START_SUPPLY, BASE_INCOME, HQ_HP, BASE, BASE_REACH, VISION, PATHS, LANE_NAMES, ROWS, SELL_RATE, MAX_DRONES,
+      STRUCTS, DRONE, ENGINEER, CARDS, PROFILES, laneLength, lanePoint, slotPos, ownHalf, planAI, strikeTarget, seededRandom };
+  })();
+  </script>
+  <script id="front-ui">
+  'use strict';
+  // SVG controls share the same native geometry as the catalogue icons.
+  function setButton(button, label, icon) {
+    const signature = icon + '|' + label; if (button.dataset.visualLabel === signature) return;
+    button.dataset.visualLabel = signature; button.setAttribute('aria-label', label);
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg'); svg.setAttribute('class', 'ui-icon'); svg.setAttribute('viewBox', '0 0 48 48'); svg.setAttribute('aria-hidden', 'true');
+    const use = document.createElementNS(svg.namespaceURI, 'use'); use.setAttribute('href', 'icons.svg#' + icon); svg.append(use);
+    const text = document.createElement('span'); text.textContent = label.replace(/\s*[→↗]\s*$/, ''); button.replaceChildren(svg, text);
+  }
+  const $ = id => document.getElementById(id), canvas = $('board'), ctx = canvas.getContext('2d');
+  const F = FrontLine;
+  const frontGame = new F.Game({ seed: 'front-' + Date.now() });
+  const ink = ['#267477', '#99553f'], tint = ['#cbeaea', '#efdad1'], stroke = ['#5ebcbf', '#d08770'];
+  const cardIcon = { recon: 'hint', strike: 'turret', jam: 'remove', airdrop: 'double' };
+  let mode = { kind: 'build', type: 'factory' }, selected = null, hover = null;
+  let restartPrompt = false, frameId = 0, lastTime = null, accumulator = 0, messageTick = 0, handSignature = '';
+  const spectating = () => frontGame.ai[0];
+  function announce(text, hold = 50) { if ($('status').textContent !== text) $('status').textContent = text; messageTick = frontGame.tick + hold; }
+  function boardPoint(event) {
+    const rect = canvas.getBoundingClientRect();
+    return { x: (event.clientX - rect.left) * 720 / rect.width, y: (event.clientY - rect.top) * 720 / rect.height };
+  }
+  function ownSlotAt(p) {
+    let best = null;
+    for (let lane = 0; lane < F.LANES; lane++) for (let slot = 0; slot < 6; slot++) {
+      const q = F.slotPos(0, lane, slot), d = Math.hypot(q.x - p.x, q.y - p.y);
+      if (d < 34 && (!best || d < best.d)) best = { lane, slot, d };
+    }
+    return best;
+  }
+  // Distance from a board point to a lane, optionally limited to the stretch [from, to] of lane positions.
+  function laneDistance(x, y, lane, from = 0, to = Infinity) {
+    let best = Infinity, start = 0;
+    const points = F.PATHS[lane];
+    for (let i = 1; i < points.length; i++) {
+      const a = points[i - 1], b = points[i], vx = b[0] - a[0], vy = b[1] - a[1], len = Math.hypot(vx, vy);
+      const lo = Math.max(0, from - start) / len, hi = Math.min(len, to - start) / len;
+      start += len;
+      if (lo > hi) continue;
+      const t = Math.max(lo, Math.min(hi, ((x - a[0]) * vx + (y - a[1]) * vy) / (len * len)));
+      best = Math.min(best, Math.hypot(x - a[0] - vx * t, y - a[1] - vy * t));
+    }
+    return best;
+  }
+  function laneAt(p) {
+    let best = 0;
+    for (let lane = 1; lane < F.LANES; lane++) if (laneDistance(p.x, p.y, lane) < laneDistance(p.x, p.y, best)) best = lane;
+    return best;
+  }
+
+  // Pixel renderer: everything is drawn on a 240 × 240 buffer (one pixel = 3 board units) and scaled up without smoothing.
+  const PX = 3, BW = 720 / PX, CELL = 4, CELLS = BW / CELL;
+  const buffer = document.createElement('canvas'); buffer.width = buffer.height = BW;
+  const b = buffer.getContext('2d');
+  const team = [{ d: '#14514b', m: '#2a9d8f', l: '#c9f2ea', h: '#7fd8c9' }, { d: '#6e2614', m: '#d1603d', l: '#fde0d0', h: '#f29e78' }];
+  const hash = (x, y) => { let h = Math.imul(x * 374761393 + y * 668265263, 1274126177); h ^= h >>> 13; return ((Math.imul(h, 1103515245) >>> 0) % 1000) / 1000; };
+  const bp = v => Math.round(v / PX);
+  function dot(x, y, color) { b.fillStyle = color; b.fillRect(x, y, 1, 1); }
+  function box(x, y, w, h, color) { b.fillStyle = color; b.fillRect(x, y, w, h); }
+  // Sprite rows use: '.' empty, 'd' dark, 'm' mid, 'l' light, 'h' highlight, 'w' white, 'k' shadow.
+  function sprite(rows, cx, cy, pal, alpha = 1) {
+    const ox = Math.round(cx - rows[0].length / 2), oy = Math.round(cy - rows.length / 2);
+    b.globalAlpha = alpha;
+    rows.forEach((row, y) => { for (let x = 0; x < row.length; x++) { const c = row[x]; if (c !== '.') dot(ox + x, oy + y, c === 'w' ? '#ffffff' : c === 'k' ? 'rgba(20,24,32,.35)' : pal[c]); } });
+    b.globalAlpha = 1;
+  }
+  const GLYPH = {
+    factory: ['.....d.', '.....d.', 'd.d.ddd', 'ddddddd', 'dmdmdmd', 'ddddddd', '.......'],
+    turret: ['......d', '.....d.', '..ddd..', '.dmmmd.', 'ddddddd', 'd.....d', 'ddddddd'],
+    radar: ['d.....d', '.d...d.', '..ddd..', '...d...', '...d...', '..ddd..', '.ddddd.'],
+    depot: ['ddddddd', 'dmdmdmd', 'ddmdmdd', 'dmdmdmd', 'ddmdmdd', 'dmdmdmd', 'ddddddd'],
+  };
+  const BUILDINGS = Object.fromEntries(Object.entries(GLYPH).map(([type, glyph]) => [type, [
+    '.ddddddddd..', 'dllllllllld.', ...glyph.map(r => 'dl' + r.replace(/\./g, 'l') + 'ldk'), 'dllllllllldk', '.dddddddddkk', '..kkkkkkkkk.',
+  ]]));
+  // Static terrain: grass on your side, scorched earth on the AI side, sandy roads, trees and rocks off the lanes.
+  const terrain = document.createElement('canvas'); terrain.width = terrain.height = BW;
+  (() => {
+    const t = terrain.getContext('2d'), img = t.createImageData(BW, BW);
+    const own = [[124, 178, 110], [116, 170, 103], [132, 186, 116]], foe = [[154, 134, 112], [146, 126, 105], [161, 141, 118]];
+    for (let y = 0; y < BW; y++) for (let x = 0; x < BW; x++) {
+      const lx = x * PX + 1.5, ly = y * PX + 1.5, n = hash(x, y), mine = lx < ly;
+      let c = (mine ? own : foe)[n < .7 ? 0 : n < .85 ? 1 : 2];
+      const road = Math.min(...[0, 1, 2].map(lane => laneDistance(lx, ly, lane)));
+      if (road < 14) c = n < .08 ? [214, 196, 146] : [233, 216, 166];
+      else if (road < 17) c = [196, 176, 120];
+      if (Math.abs(lx - ly) < 2.5 && x % 3 === 0 && road >= 17) c = [245, 240, 225];
+      const i = (y * BW + x) * 4; img.data[i] = c[0]; img.data[i + 1] = c[1]; img.data[i + 2] = c[2]; img.data[i + 3] = 255;
+    }
+    t.putImageData(img, 0, 0);
+    const near = (x, y) => Math.min(...[0, 1, 2].map(lane => laneDistance(x, y, lane))) < 60 || F.BASE.some(q => Math.hypot(q.x - x, q.y - y) < 90);
+    for (let gy = 4; gy < BW - 6; gy += 9) for (let gx = 4; gx < BW - 6; gx += 9) {
+      const jx = gx + Math.floor(hash(gx, gy) * 5), jy = gy + Math.floor(hash(gy, gx) * 5), lx = jx * PX, ly = jy * PX;
+      if (hash(jx * 3, jy * 7) > .55 || near(lx, ly)) continue;
+      if (lx < ly) { // pine tree
+        t.fillStyle = 'rgba(20,40,20,.3)'; t.fillRect(jx - 1, jy + 3, 5, 2);
+        t.fillStyle = '#2f6b3a'; t.fillRect(jx, jy - 2, 3, 1); t.fillRect(jx - 1, jy - 1, 5, 2); t.fillRect(jx - 2, jy + 1, 7, 2);
+        t.fillStyle = '#4c8c4f'; t.fillRect(jx, jy - 1, 1, 1); t.fillRect(jx - 1, jy + 1, 2, 1);
+        t.fillStyle = '#6b4a2b'; t.fillRect(jx + 1, jy + 3, 1, 2);
+      } else { // rocks and craters
+        t.fillStyle = 'rgba(30,20,10,.3)'; t.fillRect(jx - 1, jy + 2, 5, 1);
+        t.fillStyle = '#7d7468'; t.fillRect(jx - 1, jy, 4, 2); t.fillRect(jx, jy - 1, 2, 1);
+        t.fillStyle = '#a49b8d'; t.fillRect(jx, jy - 1, 1, 1); t.fillRect(jx - 1, jy, 1, 1);
+      }
+    }
+  })();
+  // Each fog cell remembers which lanes a radar would light it through, and which half of the map it is on.
+  const fogLanes = new Uint8Array(CELLS * CELLS), enemyCell = new Uint8Array(CELLS * CELLS);
+  for (let cy = 0; cy < CELLS; cy++) for (let cx = 0; cx < CELLS; cx++) {
+    const x = (cx + .5) * CELL * PX, y = (cy + .5) * CELL * PX, i = cy * CELLS + cx;
+    enemyCell[i] = F.ownHalf(1, x, y) ? 1 : 0;
+    for (let lane = 0; lane < F.LANES; lane++) if (laneDistance(x, y, lane) <= 40) fogLanes[i] |= 1 << lane;
+  }
+  let prevPos = new Map(), fx = [], hqFlash = [0, 0];
+  const lerpPos = (o, t) => { const p = prevPos.get(o.id); return p ? { x: p.x + (o.x - p.x) * t, y: p.y + (o.y - p.y) * t } : { x: o.x, y: o.y }; };
+  function drawBuilding(s, side, alpha = 1) {
+    const x = bp(s.x), y = bp(s.y);
+    sprite(BUILDINGS[s.type], x + .5, y + .5, team[side], alpha);
+    if (alpha === 1 && s.hp < s.maxHp) {
+      box(x - 5, y + 7, 11, 2, '#1d222b');
+      box(x - 5, y + 7, Math.max(1, Math.round(11 * s.hp / s.maxHp)), 2, s.hp / s.maxHp < .35 ? '#ff5d5d' : team[side].h);
+    }
+  }
+  function drawBase(side, tick) {
+    const q = F.BASE[side], x = bp(q.x), y = bp(q.y), pal = team[side], flash = hqFlash[side] > tick;
+    box(x - 10, y - 9, 23, 22, 'rgba(20,24,32,.3)');
+    box(x - 11, y - 11, 22, 22, flash ? '#ffffff' : pal.d);
+    box(x - 9, y - 9, 18, 18, pal.m);
+    for (let i = 0; i < 22; i += 4) { box(x - 11 + i, y - 13, 2, 2, pal.d); box(x - 11 + i, y + 11, 2, 2, pal.d); box(x - 13, y - 11 + i, 2, 2, pal.d); box(x + 11, y - 11 + i, 2, 2, pal.d); }
+    box(x - 5, y - 5, 10, 10, pal.l); box(x - 3, y - 3, 6, 6, pal.d); box(x - 1, y - 1, 2, 2, pal.h);
+    box(x, y - 18, 1, 8, '#3b3b3b');
+    const wave = Math.floor(tick / 6) % 2;
+    box(x + 1, y - 18, 5, 3, pal.m); box(x + 6, y - 18 + wave, 1, 2, pal.m);
+    const hp = frontGame.sides[side].hq / F.HQ_HP;
+    box(x - 11, y + 15, 22, 3, '#1d222b'); box(x - 11, y + 15, Math.max(0, Math.round(22 * hp)), 3, hp < .35 ? '#ff5d5d' : pal.h);
+  }
+  function drawDrone(d, t, tick) {
+    const p = lerpPos(d, t), x = bp(p.x), y = bp(p.y), pal = team[d.side];
+    const q = F.lanePoint(d.lane, d.pos), dir = d.side ? -1 : 1, fx2 = q.dx * dir, fy2 = q.dy * dir;
+    // Exhaust trail behind the drone.
+    for (let k = 1; k <= 4; k++) { b.globalAlpha = .7 - k * .15; dot(Math.round(x - fx2 * (k * 2 + 3)), Math.round(y - fy2 * (k * 2 + 3)), pal.h); }
+    b.globalAlpha = 1;
+    box(x - 2, y + 5, 5, 2, 'rgba(20,24,32,.28)');
+    const spin = (tick + d.id) % 4 < 2;
+    const r = spin ? ['ll.....ll', 'll.....ll'] : ['.l.....l.', 'l.l...l.l'];
+    sprite([r[0], r[1], '..dd.dd..', '...mmm...', '..dmhmd..', '...mmm...', '..dd.dd..', r[1], r[0]], x + .5, y + .5, { d: pal.d, m: pal.m, h: '#ffffff', l: spin ? pal.l : pal.h });
+    box(Math.round(x + fx2 * 4), Math.round(y + fy2 * 4), 1, 1, '#ffffff');
+  }
+  function drawEngineer(e, t, tick) {
+    const p = lerpPos(e, t), x = bp(p.x), y = bp(p.y), pal = team[e.side], walking = Math.abs(e.pos - e.target) > 1, step = Math.floor(tick / 4) % 2;
+    sprite(['.yyy.', 'yyyyy', '..s..', '.mmm.', 'm.m.m', walking && step ? '.d..d' : 'd...d'], x + .5, y + .5, { y: '#f2c14e', s: '#f1c8a0', m: pal.m, d: pal.d });
+    if (!walking && tick % 10 < 5) { dot(x + 3, y - 5, '#fff3a0'); dot(x + 4, y - 4, '#fff3a0'); }
+  }
+  function ring(cx, cy, r, color, dashed = 0) {
+    const steps = Math.ceil(r * 7);
+    for (let i = 0; i < steps; i++) { if (dashed && Math.floor(i / dashed) % 2) continue; const a = i / steps * Math.PI * 2; dot(Math.round(cx + Math.cos(a) * r), Math.round(cy + Math.sin(a) * r), color); }
+  }
+  function line(x0, y0, x1, y1, color, every = 1) {
+    const n = Math.max(Math.abs(x1 - x0), Math.abs(y1 - y0)) || 1;
+    for (let i = 0; i <= n; i += every) dot(Math.round(x0 + (x1 - x0) * i / n), Math.round(y0 + (y1 - y0) * i / n), color);
+  }
+  function pixelText(text, x, y, color, size = 13) {
+    ctx.font = `bold ${size}px ui-monospace, "Courier New", monospace`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.lineWidth = 3; ctx.strokeStyle = '#1d222bcc'; ctx.strokeText(text, x, y); ctx.fillStyle = color; ctx.fillText(text, x, y);
+  }
+  function draw(t = 0) {
+    const g = frontGame, ratio = Math.min(devicePixelRatio || 1, 2), all = spectating(), tick = g.tick;
+    if (canvas.width !== 720 * ratio) canvas.width = canvas.height = 720 * ratio;
+    b.drawImage(terrain, 0, 0);
+    // Jammed lane stretches crackle with static.
+    for (let lane = 0; lane < F.LANES; lane++) for (const side of [0, 1]) if (g.sides[side].jammed[lane] > tick) {
+      const half = side ? [F.laneLength(lane) / 2, F.laneLength(lane)] : [0, F.laneLength(lane) / 2];
+      for (let pos = half[0]; pos < half[1]; pos += 9) {
+        const q = F.lanePoint(lane, pos), n = hash(Math.floor(pos), tick);
+        if (n < .5) dot(bp(q.x) + Math.round((n - .25) * 40), bp(q.y) + Math.round((hash(tick, Math.floor(pos)) - .5) * 20), n < .25 ? '#ffffff' : team[side].h);
+      }
+    }
+    // Fog: everything outside your sight is covered by dithered cells; ground you hold is only lightly shrouded.
+    if (!all && g.sides[0].revealUntil <= tick) {
+      let lit = 0;
+      const eyes = [{ x: F.BASE[0].x, y: F.BASE[0].y, r: F.VISION.base }];
+      for (const s of g.sides[0].structures) { eyes.push({ x: s.x, y: s.y, r: F.VISION[s.type] }); if (s.type === 'radar') lit |= 1 << s.lane; }
+      for (const d of g.drones) if (d.side === 0) eyes.push({ x: d.x, y: d.y, r: F.VISION.drone });
+      for (const e of g.engineers) if (e.side === 0) eyes.push({ x: e.x, y: e.y, r: F.VISION.engineer });
+      const seen = new Uint8Array(CELLS * CELLS);
+      for (let i = 0; i < seen.length; i++) {
+        if (fogLanes[i] & lit) { seen[i] = 1; continue; }
+        const x = (i % CELLS + .5) * CELL * PX, y = (Math.floor(i / CELLS) + .5) * CELL * PX;
+        seen[i] = eyes.some(o => Math.hypot(o.x - x, o.y - y) <= o.r) ? 1 : 0;
+      }
+      const drift = Math.floor(tick / 10);
+      for (let cy = 0; cy < CELLS; cy++) for (let cx = 0; cx < CELLS; cx++) {
+        const i = cy * CELLS + cx;
+        if (seen[i]) continue;
+        const edge = (cx > 0 && seen[i - 1]) || (cx < CELLS - 1 && seen[i + 1]) || (cy > 0 && seen[i - CELLS]) || (cy < CELLS - 1 && seen[i + CELLS]);
+        const deep = enemyCell[i], x0 = cx * CELL, y0 = cy * CELL;
+        for (let y = 0; y < CELL; y++) for (let x = 0; x < CELL; x++) {
+          const px = x0 + x, py = y0 + y;
+          if ((edge || !deep) && (px + py) % 2) continue;
+          const n = hash(px + drift, py);
+          dot(px, py, deep ? (n < .12 ? '#4a5266' : n < .5 ? '#2c3242' : '#323a4c') : (n < .5 ? '#2c3242cc' : '#323a4ccc'));
+        }
+      }
+    }
+    // Empty own slots.
+    for (let lane = 0; lane < F.LANES; lane++) for (let slot = 0; slot < 6; slot++) {
+      if (g.structureAt(0, lane, slot)) continue;
+      const p = F.slotPos(0, lane, slot), x = bp(p.x) - 5, y = bp(p.y) - 5;
+      for (let i = 0; i < 11; i += 2) { dot(x + i, y, '#ffffff99'); dot(x + i, y + 10, '#ffffff99'); dot(x, y + i, '#ffffff99'); dot(x + 10, y + i, '#ffffff99'); }
+    }
+    drawBase(0, tick); drawBase(1, tick);
+    for (const s of g.sides[0].structures) drawBuilding(s, 0);
+    for (const s of g.sides[1].structures) if (all || g.sees(0, s.x, s.y, s.lane)) drawBuilding(s, 1);
+    for (const e of g.engineers) if (e.side === 0 || all || g.sees(0, e.x, e.y, e.lane)) drawEngineer(e, t, tick);
+    for (const d of g.drones) if (d.side === 0 || all || g.sees(0, d.x, d.y, d.lane)) drawDrone(d, t, tick);
+    // Last sightings of enemy buildings.
+    const ghosts = [];
+    if (!all) for (const k of g.intel[0].values()) if (!g.sees(0, k.x, k.y, k.lane)) { drawBuilding(k, 1, tick % 30 < 20 ? .55 : .35); ghosts.push(k); }
+    // Turret tracers, factory launches, strikes and explosions.
+    for (const f of fx) {
+      const age = tick - f.tick;
+      if (f.type === 'shot') { if (age < 3) { line(bp(f.fromX), bp(f.fromY), bp(f.x), bp(f.y), '#fff3a0', 2); box(bp(f.fromX) - 1, bp(f.fromY) - 1, 2, 2, '#ffffff'); dot(bp(f.x), bp(f.y), '#ffffff'); } }
+      else if (f.type === 'puff') { const r = 1 + age / 3; b.globalAlpha = Math.max(0, 1 - age / 12); box(Math.round(bp(f.x) + 3 - r / 2), Math.round(bp(f.y) - 7 - age / 2), Math.round(r), Math.round(r), '#e5e9f0'); b.globalAlpha = 1; }
+      else if (f.type === 'pop') {
+        const x = bp(f.x), y = bp(f.y), k = f.big ? 2 : 1;
+        if (age < 2) { box(x - k, y - 3 * k, 2 * k + 1, 6 * k + 1, '#ffffff'); box(x - 3 * k, y - k, 6 * k + 1, 2 * k + 1, '#ffffff'); }
+        else if (age < 5 + k * 2) { ring(x, y, age * k * .8, '#ffb347'); ring(x, y, Math.max(1, age * k * .5), '#ff6b3d'); }
+        else { b.globalAlpha = Math.max(0, 1 - (age - 5 - k * 2) / 6); for (let j = -k; j <= k; j++) { dot(x + j * 2, y - age + 4 + Math.abs(j), '#9aa1ad'); dot(x + j * 2 + 1, y - age + 2, '#c0c5ce'); } b.globalAlpha = 1; }
+      } else if (f.type === 'blast') {
+        const x = bp(f.x), y = bp(f.y), r = F.CARDS.strike.radius / PX;
+        if (age < 4) { b.globalAlpha = .55; for (let k = 0; k < 40; k++) { const a = hash(k, f.tick) * Math.PI * 2, d = hash(f.tick, k) * r; box(Math.round(x + Math.cos(a) * d), Math.round(y + Math.sin(a) * d), 2, 2, k % 3 ? '#ff9f43' : '#ffd166'); } b.globalAlpha = 1; }
+        ring(x, y, r * Math.min(1, .4 + age / 10), age < 6 ? '#ffd166' : '#ff6b3d');
+        if (age > 3) { b.globalAlpha = Math.max(0, 1 - age / 18); for (let k = 0; k < 12; k++) { const a = k / 12 * Math.PI * 2; box(Math.round(x + Math.cos(a) * r * .5), Math.round(y + Math.sin(a) * r * .5 - age / 3), 2, 2, '#6b6f78'); } b.globalAlpha = 1; }
+      }
+    }
+    for (const s of g.strikes) if (s.side === 0 || all) {
+      const x = bp(s.x), y = bp(s.y), on = tick % 6 < 3, col = on ? '#ff5d5d' : '#ffffff';
+      ring(x, y, F.CARDS.strike.radius / PX, col, 3); line(x - 4, y, x + 4, y, col); line(x, y - 4, x, y + 4, col);
+    }
+    // Selection, hover and targeting previews.
+    const sel = selected && g.structure(0, selected);
+    if (sel) {
+      const x = bp(sel.x), y = bp(sel.y), c = tick % 10 < 6 ? '#ffffff' : '#fff3a0';
+      for (const [sx, sy] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) { box(x + sx * 8 - (sx > 0 ? 2 : 0), y + sy * 8 - (sy > 0 ? 0 : 0), 3, 1, c); box(x + sx * 8 - (sx > 0 ? 0 : 0), y + sy * 8 - (sy > 0 ? 2 : 0), 1, 3, c); }
+      if (sel.type === 'turret') ring(x, y, F.STRUCTS.turret.range / PX, '#ffffffaa', 2);
+    }
+    if (hover && g.phase !== 'over' && !all) {
+      if (mode.kind === 'card' && g.sides[0].hand[mode.index] === 'strike') { ring(bp(hover.x), bp(hover.y), F.CARDS.strike.radius / PX, '#ff5d5d', 3); }
+      else if (mode.kind === 'engineer' || (mode.kind === 'card' && g.sides[0].hand[mode.index] === 'jam')) {
+        const lane = laneAt(hover), half = mode.kind === 'engineer' ? [0, F.laneLength(lane) / 2] : [F.laneLength(lane) / 2, F.laneLength(lane)];
+        for (let pos = half[0]; pos < half[1]; pos += 6) { const q = F.lanePoint(lane, pos); box(bp(q.x) - 1, bp(q.y) - 1, 3, 3, (pos / 6 + tick) % 4 < 2 ? '#f2c14e' : '#fff3a0'); }
+      } else if (mode.kind === 'build') {
+        const slot = ownSlotAt(hover);
+        if (slot && !g.structureAt(0, slot.lane, slot.slot)) { const p = F.slotPos(0, slot.lane, slot.slot); drawBuilding({ type: mode.type, x: p.x, y: p.y }, 0, .55); if (mode.type === 'turret') ring(bp(p.x), bp(p.y), F.STRUCTS.turret.range / PX, '#ffffffaa', 2); }
+      }
+    }
+    ctx.setTransform(ratio, 0, 0, ratio, 0, 0); ctx.imageSmoothingEnabled = false;
+    ctx.drawImage(buffer, 0, 0, 720, 720);
+    // Crisp labels on top of the pixel layer.
+    pixelText(F.LANE_NAMES[0], 120, 250, '#f5f0e1'); pixelText(F.LANE_NAMES[1], 330, 330, '#f5f0e1'); pixelText(F.LANE_NAMES[2], 470, 604, '#f5f0e1');
+    pixelText('你 ' + g.sides[0].hq, F.BASE[0].x, F.BASE[0].y - 62, team[0].l, 14);
+    pixelText('AI ' + g.sides[1].hq, F.BASE[1].x - 10, F.BASE[1].y + 70, team[1].l, 14);
+    for (const k of ghosts) pixelText(Math.floor((tick - k.seen) / F.TPS) + 's', k.x, k.y - 24, '#fde0d0', 11);
+    if (!all && g.sides[0].revealUntil > tick) pixelText('全圖偵察 ' + Math.ceil((g.sides[0].revealUntil - tick) / F.TPS) + 's', 540, 300, '#fff3a0', 14);
+  }
+  function renderHand() {
+    const g = frontGame, hand = g.sides[0].hand, sig = hand.join(',') + '|' + (mode.kind === 'card' ? mode.index : '') + '|' + g.phase + spectating();
+    if (sig === handSignature) return; handSignature = sig;
+    for (const b of document.querySelectorAll('.card-btn')) b.remove();
+    $('cards-empty').hidden = hand.length > 0;
+    hand.forEach((card, index) => {
+      const b = document.createElement('button'); b.className = 'btn card-btn'; b.dataset.index = index;
+      setButton(b, `${F.CARDS[card].name}（按 ${'ZXC'[index]}）`, cardIcon[card]);
+      b.setAttribute('aria-pressed', String(mode.kind === 'card' && mode.index === index)); b.disabled = g.phase !== 'running' || spectating();
+      b.addEventListener('click', () => playCard(index)); $('cards').append(b);
+    });
+  }
+  function updateHUD() {
+    const g = frontGame, me = g.sides[0], running = g.phase === 'running', human = running && !spectating();
+    $('supply').textContent = Math.floor(me.supply); $('income').textContent = '+' + Number(g.income(0).toFixed(1)); $('hq').textContent = me.hq; $('ai-hq').textContent = g.sides[1].hq;
+    const seconds = Math.max(0, Math.ceil((F.TIME_LIMIT - g.tick) / F.TPS));
+    $('clock').textContent = `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`;
+    $('phase-label').textContent = { ready: '準備開戰', running: spectating() ? 'AI 對戰觀戰中' : '交戰中', paused: '已暫停', over: '本局結束' }[g.phase];
+    $('pause').disabled = g.phase === 'ready' || g.phase === 'over' || restartPrompt;
+    setButton($('pause'), g.phase === 'paused' ? '繼續' : '暫停', g.phase === 'paused' ? 'play' : 'pause');
+    for (const b of document.querySelectorAll('.build-btn')) { b.setAttribute('aria-pressed', String(mode.kind === 'build' && mode.type === b.dataset.build)); b.disabled = spectating(); }
+    $('engineer').setAttribute('aria-pressed', String(mode.kind === 'engineer')); $('engineer').disabled = !human || me.supply < F.ENGINEER.cost;
+    const s = selected && g.structure(0, selected); if (selected && !s) selected = null;
+    $('sell').disabled = !human || !s; $('sell-value').textContent = s ? '+' + Math.floor(s.invested * F.SELL_RATE) : '—';
+    renderHand();
+  }
+  function setMode(next) { mode = next; selected = null; updateHUD(); draw(); }
+  function playCard(index) {
+    const g = frontGame, card = g.sides[0].hand[index];
+    if (!card || g.phase !== 'running' || spectating()) return;
+    if (card === 'strike') { setMode({ kind: 'card', index }); announce('點選轟炸位置，可以打在迷霧裡。', 200); }
+    else if (card === 'jam') { setMode({ kind: 'card', index }); announce('點一路，干擾那一路的敵方無人機與工廠。', 200); }
+    else { g.useCard(0, index); announce(card === 'recon' ? '全圖偵察！8 秒內看得見整個敵方陣地。' : '物資空投 +100。'); setMode({ kind: 'build', type: 'factory' }); }
+  }
+  function onBoard(p) {
+    const g = frontGame;
+    if (g.phase !== 'running' || spectating()) return;
+    if (mode.kind === 'card') {
+      const card = g.sides[0].hand[mode.index];
+      if (card === 'strike' && g.useCard(0, mode.index, p)) announce('轟炸座標已送出，1.5 秒後落下。');
+      else if (card === 'jam' && g.useCard(0, mode.index, { lane: laneAt(p) })) announce(`干擾${F.LANE_NAMES[laneAt(p)]}！`);
+      setMode({ kind: 'build', type: 'factory' }); return;
+    }
+    if (mode.kind === 'engineer') {
+      const lane = laneAt(p);
+      announce(g.sendEngineer(0, lane) ? `工程師前往${F.LANE_NAMES[lane]}維修。` : '這一路已有工程師，或物資不足。');
+      setMode({ kind: 'build', type: 'factory' }); return;
+    }
+    const slot = ownSlotAt(p);
+    if (!slot) { selected = null; updateHUD(); draw(); return; }
+    const own = g.structureAt(0, slot.lane, slot.slot);
+    if (own) { selected = selected === own.id ? null : own.id; updateHUD(); draw(); return; }
+    const spec = F.STRUCTS[mode.type];
+    announce(g.build(0, slot.lane, slot.slot, mode.type) ? `${spec.name}完成。` : `物資不足，${spec.name}需要 ${spec.cost}。`);
+    selected = null; updateHUD(); draw();
+  }
+  function sellSelected() {
+    const g = frontGame, s = selected && g.structure(0, selected);
+    if (!s || spectating()) return;
+    const value = Math.floor(s.invested * F.SELL_RATE);
+    if (g.sell(0, s.id)) { selected = null; announce(`已出售，取回 ${value} 物資。`); }
+    updateHUD(); draw();
+  }
+  function showDialog(kicker, title, copy, action, secondary = false) {
+    $('dialog-kicker').textContent = kicker; $('dialog-title').textContent = title; $('dialog-copy').textContent = copy;
+    setButton($('play'), action, frontGame.phase === 'over' || restartPrompt ? 'restart' : 'play');
+    $('dialog-secondary').hidden = !secondary; $('dialog-art').hidden = frontGame.phase !== 'ready';
+    $('settings').hidden = !(frontGame.phase === 'ready' || frontGame.phase === 'over' || restartPrompt);
+    $('overlay').hidden = false; $('play').focus({ preventScroll: true });
+  }
+  function stopFrames() { cancelAnimationFrame(frameId); frameId = 0; lastTime = null; accumulator = 0; }
+  function applySettings() {
+    frontGame.options = { ...frontGame.options, seed: 'front-' + Date.now(), ai: [$('spectate').checked, true], difficulty: ['hard', $('difficulty').value] };
+  }
+  function resume() {
+    if (frontGame.phase === 'ready') { applySettings(); frontGame.reset(); }
+    restartPrompt = false; frontGame.start(); $('overlay').hidden = true; updateHUD(); canvas.focus({ preventScroll: true });
+    stopFrames(); frameId = requestAnimationFrame(frame);
+    announce(spectating() ? '觀戰中：顯示全圖，雙方都由 AI 指揮。' : '先蓋工廠與砲塔，再用偵查找出敵方工廠。', 120);
+  }
+  function pause() {
+    if (frontGame.phase !== 'running') return;
+    frontGame.pause(); stopFrames(); hover = null; updateHUD(); draw(); announce('已暫停，前線靜止。');
+    showDialog('休息一下', '前線暫停中', '無人機、物資與 AI 都已停下。準備好再繼續。', '繼續作戰 →');
+  }
+  function newRound() { stopFrames(); applySettings(); frontGame.reset(); selected = null; fx = []; prevPos = new Map(); handSignature = ''; mode = { kind: 'build', type: 'factory' }; resume(); draw(); }
+  function endRound() {
+    stopFrames(); updateHUD(); draw();
+    const r = frontGame.result;
+    const title = r.winner === null ? '僵持不下，平手' : spectating() ? (r.winner === 0 ? '左下 AI 獲勝' : '右上 AI 獲勝') : r.winner === 0 ? '前線突破，你贏了！' : '大本營失守，再來一局';
+    announce(r.reason, 1e9);
+    showDialog('本局結束', title, `${r.reason} 大本營 ${r.hq[0]} : ${r.hq[1]}，摧毀敵方建築 ${r.destroyed[0]} 座，擊落 ${r.kills[0]} 架無人機。`, '再玩一局 →');
+  }
+  function frame(time) {
+    const g = frontGame;
+    if (g.phase !== 'running') return;
+    if (lastTime === null) lastTime = time;
+    accumulator += Math.min(time - lastTime, 250); lastTime = time;
+    while (accumulator >= 50 && g.phase === 'running') {
+      accumulator -= 50;
+      // Remember where everything was so frames can glide between simulation steps.
+      prevPos = new Map([...g.drones, ...g.engineers].map(o => [o.id, { x: o.x, y: o.y }]));
+      const before = g.drones.map(d => ({ id: d.id, side: d.side, lane: d.lane, x: d.x, y: d.y, pos: d.pos }));
+      g.step();
+      const alive = new Set(g.drones.map(d => d.id)), visible = (side, x, y, lane) => side === 0 || spectating() || g.sees(0, x, y, lane);
+      for (const d of before) {
+        const spent = d.side === 0 ? d.pos >= F.laneLength(d.lane) - F.BASE_REACH - 4 : d.pos <= F.BASE_REACH + 4;
+        if (!alive.has(d.id) && !spent && visible(d.side, d.x, d.y, d.lane)) fx.push({ type: 'pop', x: d.x, y: d.y, tick: g.tick });
+      }
+      for (const e of g.events) {
+        if (e.type === 'shot') { const t = g.structure(e.side, e.id); if (t && visible(e.side, t.x, t.y, t.lane)) fx.push({ type: 'shot', fromX: t.x, fromY: t.y, x: e.x, y: e.y, tick: g.tick }); }
+        else if (e.type === 'launch') { if (visible(e.side, e.x, e.y, -1)) fx.push({ type: 'puff', x: e.x, y: e.y, tick: g.tick }); }
+        else if (e.type === 'destroyed') { if (visible(e.side, e.x, e.y, e.lane)) fx.push({ type: 'pop', x: e.x, y: e.y, tick: g.tick, big: true }); }
+        else if (e.type === 'hq') hqFlash[e.side] = g.tick + 4;
+        if (e.type === 'strike') { if (e.side === 0 || spectating() || e.hits || e.downed) fx.push({ type: 'blast', x: e.x, y: e.y, tick: g.tick }); if (e.side === 0) announce(e.hits ? `轟炸命中 ${e.hits} 座建築！` : e.downed ? `轟炸擊落 ${e.downed} 架無人機。` : '轟炸沒有命中任何目標。'); else if (e.hits) announce(`敵方轟炸命中你 ${e.hits} 座建築！`); }
+        else if (g.tick > messageTick) {
+          if (e.type === 'hq' && e.side === 0) announce(`敵方無人機從${F.LANE_NAMES[e.lane]}撞進大本營！`, 40);
+          else if (e.type === 'destroyed' && e.side === 0) announce(`你的${F.STRUCTS[e.kind].name}被摧毀了。`, 40);
+          else if (e.type === 'destroyed' && e.side === 1) announce(`摧毀敵方${F.STRUCTS[e.kind].name}！`, 40);
+          else if (e.type === 'card' && e.side === 0) announce(`抽到「${F.CARDS[e.card].name}」。`, 40);
+          else if (e.type === 'jam' && e.side === 1) announce(`${F.LANE_NAMES[e.lane]}遭電子干擾！`, 40);
+        }
+      }
+      if (g.tick % 4 === 0) updateHUD();
+      fx = fx.filter(f => g.tick - f.tick < 20);
+    }
+    if (g.phase === 'over') { endRound(); return; }
+    draw(accumulator / 50); frameId = requestAnimationFrame(frame);
+  }
+  $('play').addEventListener('click', () => { if (restartPrompt || frontGame.phase === 'over') newRound(); else resume(); });
+  $('dialog-secondary').addEventListener('click', resume);
+  $('pause').addEventListener('click', () => frontGame.phase === 'running' ? pause() : resume());
+  $('restart').addEventListener('click', () => {
+    if (frontGame.phase === 'ready' || frontGame.phase === 'over') { newRound(); return; }
+    pause(); restartPrompt = true; updateHUD(); showDialog('重新部署', '重新開始這一局？', '建築、物資、手牌與大本營都會重置。', '確定重開', true);
+  });
+  for (const b of document.querySelectorAll('.build-btn')) b.addEventListener('click', () => setMode({ kind: 'build', type: b.dataset.build }));
+  $('engineer').addEventListener('click', () => { if (mode.kind === 'engineer') setMode({ kind: 'build', type: 'factory' }); else { setMode({ kind: 'engineer' }); announce('點一路派工程師過去。', 200); } });
+  $('sell').addEventListener('click', sellSelected);
+  const buildKeys = { '1': 'factory', '2': 'turret', '3': 'radar', '4': 'depot' };
+  document.addEventListener('keydown', event => {
+    if (event.altKey || event.ctrlKey || event.metaKey || /^(INPUT|TEXTAREA|SELECT)$/.test(event.target.tagName)) return;
+    const key = event.key.length === 1 ? event.key.toLowerCase() : event.key, g = frontGame;
+    if ((key === 'p' || key === 'Escape') && !event.repeat && !restartPrompt) {
+      if (key === 'Escape' && mode.kind !== 'build' && g.phase === 'running') { setMode({ kind: 'build', type: 'factory' }); announce('已取消。'); return; }
+      if (g.phase === 'running') { event.preventDefault(); pause(); } else if (g.phase === 'paused') { event.preventDefault(); resume(); }
+      return;
+    }
+    if (g.phase !== 'running' || spectating() || event.repeat) return;
+    if (buildKeys[key]) setMode({ kind: 'build', type: buildKeys[key] });
+    else if (key === 'e') $('engineer').click();
+    else if ((key === 'Delete' || key === 'Backspace') && selected) { event.preventDefault(); sellSelected(); }
+    else if ('zxc'.includes(key) && key.length === 1) playCard('zxc'.indexOf(key));
+  });
+  canvas.addEventListener('pointerdown', event => onBoard(boardPoint(event)));
+  canvas.addEventListener('pointermove', event => { if (event.pointerType !== 'mouse') return; hover = boardPoint(event); if (frontGame.phase !== 'running') draw(); });
+  canvas.addEventListener('pointerleave', () => { hover = null; });
+  window.addEventListener('blur', pause);
+  document.addEventListener('visibilitychange', () => { if (document.hidden) pause(); });
+  window.addEventListener('resize', () => { if (frontGame.phase !== 'running') draw(); });
+  updateHUD(); draw();
+  </script>
+</body>
+</html>
