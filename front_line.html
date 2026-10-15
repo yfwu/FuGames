@@ -272,6 +272,7 @@
           s.timer = s.burst < STRUCTS.factory.wave ? STRUCTS.factory.gap : STRUCTS.factory.period;
           if (s.burst >= STRUCTS.factory.wave) s.burst = 0;
           this.sides[side].supply -= STRUCTS.factory.droneCost; this.sides[side].launched++;
+          this.events.push({ type: 'launch', side, id: s.id, x: s.x, y: s.y });
           const p = lanePoint(s.lane, s.pos);
           this.drones.push({ id: ++this.serial, side, lane: s.lane, pos: s.pos, x: p.x, y: p.y, hp: DRONE.hp, attacking: null });
         }
@@ -502,7 +503,7 @@
   const ink = ['#267477', '#99553f'], tint = ['#cbeaea', '#efdad1'], stroke = ['#5ebcbf', '#d08770'];
   const cardIcon = { recon: 'hint', strike: 'turret', jam: 'remove', airdrop: 'double' };
   let mode = { kind: 'build', type: 'factory' }, selected = null, hover = null;
-  let restartPrompt = false, frameId = 0, lastTime = null, accumulator = 0, flashes = [], blasts = [], messageTick = 0, handSignature = '';
+  let restartPrompt = false, frameId = 0, lastTime = null, accumulator = 0, messageTick = 0, handSignature = '';
   const spectating = () => frontGame.ai[0];
   function announce(text, hold = 50) { if ($('status').textContent !== text) $('status').textContent = text; messageTick = frontGame.tick + hold; }
   function boardPoint(event) {
@@ -517,142 +518,238 @@
     }
     return best;
   }
-  // The lane whose path passes closest to a board point.
-  function laneAt(p) {
-    let best = 0, bestDist = Infinity;
-    F.PATHS.forEach((points, lane) => points.slice(1).forEach((b, i) => {
-      const a = points[i], vx = b[0] - a[0], vy = b[1] - a[1];
-      const t = Math.max(0, Math.min(1, ((p.x - a[0]) * vx + (p.y - a[1]) * vy) / (vx * vx + vy * vy)));
-      const d = Math.hypot(p.x - a[0] - vx * t, p.y - a[1] - vy * t);
-      if (d < bestDist) { bestDist = d; best = lane; }
-    }));
+  // Distance from a board point to a lane, optionally limited to the stretch [from, to] of lane positions.
+  function laneDistance(x, y, lane, from = 0, to = Infinity) {
+    let best = Infinity, start = 0;
+    const points = F.PATHS[lane];
+    for (let i = 1; i < points.length; i++) {
+      const a = points[i - 1], b = points[i], vx = b[0] - a[0], vy = b[1] - a[1], len = Math.hypot(vx, vy);
+      const lo = Math.max(0, from - start) / len, hi = Math.min(len, to - start) / len;
+      start += len;
+      if (lo > hi) continue;
+      const t = Math.max(lo, Math.min(hi, ((x - a[0]) * vx + (y - a[1]) * vy) / (len * len)));
+      best = Math.min(best, Math.hypot(x - a[0] - vx * t, y - a[1] - vy * t));
+    }
     return best;
   }
-  function lanePath(c, lane, from = 0, to = F.laneLength(lane)) {
-    const steps = Math.max(2, Math.ceil(Math.abs(to - from) / 20));
-    c.beginPath();
-    for (let i = 0; i <= steps; i++) { const q = F.lanePoint(lane, from + (to - from) * i / steps); i ? c.lineTo(q.x, q.y) : c.moveTo(q.x, q.y); }
+  function laneAt(p) {
+    let best = 0;
+    for (let lane = 1; lane < F.LANES; lane++) if (laneDistance(p.x, p.y, lane) < laneDistance(p.x, p.y, best)) best = lane;
+    return best;
   }
-  // The half of a lane that lies in the enemy's territory, as seen by side 0.
-  const enemyHalf = lane => [F.laneLength(lane) / 2, F.laneLength(lane)];
-  const fog = document.createElement('canvas'), fogCtx = fog.getContext('2d');
-  function drawShape(type, x, y, side, alpha = 1) {
-    ctx.globalAlpha = alpha; ctx.lineWidth = 2.5; ctx.strokeStyle = ink[side]; ctx.fillStyle = '#ffffff';
-    ctx.beginPath(); ctx.roundRect(x - 19, y - 17, 38, 34, 7); ctx.fill(); ctx.stroke();
-    ctx.fillStyle = tint[side]; ctx.lineWidth = 2; ctx.beginPath();
-    if (type === 'factory') { ctx.moveTo(x - 11, y + 9); ctx.lineTo(x - 11, y - 3); ctx.lineTo(x - 4, y + 2); ctx.lineTo(x - 4, y - 3); ctx.lineTo(x + 3, y + 2); ctx.lineTo(x + 3, y - 9); ctx.lineTo(x + 11, y - 9); ctx.lineTo(x + 11, y + 9); ctx.closePath(); }
-    else if (type === 'turret') { ctx.arc(x, y + 3, 8, Math.PI, 0); ctx.lineTo(x + 8, y + 9); ctx.lineTo(x - 8, y + 9); ctx.closePath(); }
-    else if (type === 'radar') { ctx.arc(x, y + 6, 11, Math.PI * 1.15, Math.PI * 1.85); ctx.lineTo(x, y + 6); ctx.closePath(); }
-    else { ctx.rect(x - 10, y - 6, 20, 14); }
-    ctx.fill(); ctx.stroke();
-    if (type === 'turret') { ctx.beginPath(); ctx.moveTo(x, y + 2); ctx.lineTo(x + (side ? 6 : 6), y + (side ? 10 : -9)); ctx.stroke(); }
-    if (type === 'radar') { ctx.beginPath(); ctx.arc(x, y + 6, 2, 0, Math.PI * 2); ctx.fillStyle = ink[side]; ctx.fill(); }
-    if (type === 'depot') { ctx.beginPath(); ctx.moveTo(x - 10, y + 1); ctx.lineTo(x + 10, y + 1); ctx.moveTo(x, y - 6); ctx.lineTo(x, y + 8); ctx.stroke(); }
-    ctx.globalAlpha = 1;
+
+  // Pixel renderer: everything is drawn on a 240 × 240 buffer (one pixel = 3 board units) and scaled up without smoothing.
+  const PX = 3, BW = 720 / PX, CELL = 4, CELLS = BW / CELL;
+  const buffer = document.createElement('canvas'); buffer.width = buffer.height = BW;
+  const b = buffer.getContext('2d');
+  const team = [{ d: '#14514b', m: '#2a9d8f', l: '#c9f2ea', h: '#7fd8c9' }, { d: '#6e2614', m: '#d1603d', l: '#fde0d0', h: '#f29e78' }];
+  const hash = (x, y) => { let h = Math.imul(x * 374761393 + y * 668265263, 1274126177); h ^= h >>> 13; return ((Math.imul(h, 1103515245) >>> 0) % 1000) / 1000; };
+  const bp = v => Math.round(v / PX);
+  function dot(x, y, color) { b.fillStyle = color; b.fillRect(x, y, 1, 1); }
+  function box(x, y, w, h, color) { b.fillStyle = color; b.fillRect(x, y, w, h); }
+  // Sprite rows use: '.' empty, 'd' dark, 'm' mid, 'l' light, 'h' highlight, 'w' white, 'k' shadow.
+  function sprite(rows, cx, cy, pal, alpha = 1) {
+    const ox = Math.round(cx - rows[0].length / 2), oy = Math.round(cy - rows.length / 2);
+    b.globalAlpha = alpha;
+    rows.forEach((row, y) => { for (let x = 0; x < row.length; x++) { const c = row[x]; if (c !== '.') dot(ox + x, oy + y, c === 'w' ? '#ffffff' : c === 'k' ? 'rgba(20,24,32,.35)' : pal[c]); } });
+    b.globalAlpha = 1;
   }
-  function drawHp(s) {
-    if (s.hp >= s.maxHp) return;
-    ctx.fillStyle = '#2e344033'; ctx.fillRect(s.x - 18, s.y + 20, 36, 4);
-    ctx.fillStyle = s.hp / s.maxHp < .35 ? '#bf616a' : ink[s.side]; ctx.fillRect(s.x - 18, s.y + 20, 36 * Math.max(0, s.hp) / s.maxHp, 4);
-  }
-  function draw() {
-    const g = frontGame, ratio = Math.min(devicePixelRatio || 1, 2), all = spectating();
-    if (canvas.width !== 720 * ratio) canvas.width = canvas.height = 720 * ratio;
-    ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
-    // Territory: the diagonal from the top-left corner to the bottom-right corner is the front.
-    ctx.fillStyle = '#f4f8f7'; ctx.fillRect(0, 0, 720, 720);
-    ctx.fillStyle = '#faf5f2'; ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(720, 0); ctx.lineTo(720, 720); ctx.closePath(); ctx.fill();
-    ctx.strokeStyle = '#c4cad6'; ctx.lineWidth = 1; ctx.setLineDash([6, 6]); ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(720, 720); ctx.stroke(); ctx.setLineDash([]);
-    ctx.lineJoin = 'round'; ctx.lineCap = 'round';
-    for (let lane = 0; lane < F.LANES; lane++) {
-      for (const side of [0, 1]) if (g.sides[side].jammed[lane] > g.tick) {
-        const half = side ? enemyHalf(lane) : [0, F.laneLength(lane) / 2];
-        ctx.strokeStyle = stroke[side] + '33'; ctx.lineWidth = 120; lanePath(ctx, lane, half[0], half[1]); ctx.stroke();
-      }
-      ctx.strokeStyle = '#d8dee9'; ctx.lineWidth = 30; lanePath(ctx, lane); ctx.stroke();
-      ctx.strokeStyle = '#aab3c2'; ctx.lineWidth = 1.5; ctx.setLineDash([4, 8]); lanePath(ctx, lane); ctx.stroke(); ctx.setLineDash([]);
+  const GLYPH = {
+    factory: ['.....d.', '.....d.', 'd.d.ddd', 'ddddddd', 'dmdmdmd', 'ddddddd', '.......'],
+    turret: ['......d', '.....d.', '..ddd..', '.dmmmd.', 'ddddddd', 'd.....d', 'ddddddd'],
+    radar: ['d.....d', '.d...d.', '..ddd..', '...d...', '...d...', '..ddd..', '.ddddd.'],
+    depot: ['ddddddd', 'dmdmdmd', 'ddmdmdd', 'dmdmdmd', 'ddmdmdd', 'dmdmdmd', 'ddddddd'],
+  };
+  const BUILDINGS = Object.fromEntries(Object.entries(GLYPH).map(([type, glyph]) => [type, [
+    '.ddddddddd..', 'dllllllllld.', ...glyph.map(r => 'dl' + r.replace(/\./g, 'l') + 'ldk'), 'dllllllllldk', '.dddddddddkk', '..kkkkkkkkk.',
+  ]]));
+  // Static terrain: grass on your side, scorched earth on the AI side, sandy roads, trees and rocks off the lanes.
+  const terrain = document.createElement('canvas'); terrain.width = terrain.height = BW;
+  (() => {
+    const t = terrain.getContext('2d'), img = t.createImageData(BW, BW);
+    const own = [[124, 178, 110], [116, 170, 103], [132, 186, 116]], foe = [[154, 134, 112], [146, 126, 105], [161, 141, 118]];
+    for (let y = 0; y < BW; y++) for (let x = 0; x < BW; x++) {
+      const lx = x * PX + 1.5, ly = y * PX + 1.5, n = hash(x, y), mine = lx < ly;
+      let c = (mine ? own : foe)[n < .7 ? 0 : n < .85 ? 1 : 2];
+      const road = Math.min(...[0, 1, 2].map(lane => laneDistance(lx, ly, lane)));
+      if (road < 14) c = n < .08 ? [214, 196, 146] : [233, 216, 166];
+      else if (road < 17) c = [196, 176, 120];
+      if (Math.abs(lx - ly) < 2.5 && x % 3 === 0 && road >= 17) c = [245, 240, 225];
+      const i = (y * BW + x) * 4; img.data[i] = c[0]; img.data[i + 1] = c[1]; img.data[i + 2] = c[2]; img.data[i + 3] = 255;
     }
-    ctx.lineCap = 'butt';
-    ctx.font = 'bold 12px system-ui, sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillStyle = '#7b8494';
-    ctx.fillText(F.LANE_NAMES[0], 120, 250); ctx.fillText(F.LANE_NAMES[1], 330, 330); ctx.fillText(F.LANE_NAMES[2], 470, 600);
-    // Bases.
-    for (const side of [0, 1]) {
-      const b = F.BASE[side], hp = g.sides[side].hq / F.HQ_HP;
-      ctx.fillStyle = tint[side]; ctx.strokeStyle = ink[side]; ctx.lineWidth = 3;
-      ctx.beginPath(); ctx.roundRect(b.x - 34, b.y - 34, 68, 68, 12); ctx.fill(); ctx.stroke();
-      ctx.strokeStyle = stroke[side]; ctx.lineWidth = 6; ctx.beginPath(); ctx.arc(b.x, b.y, 24, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * hp); ctx.stroke();
-      ctx.fillStyle = ink[side]; ctx.font = 'bold 15px system-ui, sans-serif'; ctx.fillText(g.sides[side].hq, b.x, b.y);
-      ctx.font = 'bold 12px system-ui, sans-serif'; ctx.fillText(side ? 'AI 大本營' : '你的大本營', b.x + (side ? -12 : 12), b.y + (side ? 50 : -50));
+    t.putImageData(img, 0, 0);
+    const near = (x, y) => Math.min(...[0, 1, 2].map(lane => laneDistance(x, y, lane))) < 60 || F.BASE.some(q => Math.hypot(q.x - x, q.y - y) < 90);
+    for (let gy = 4; gy < BW - 6; gy += 9) for (let gx = 4; gx < BW - 6; gx += 9) {
+      const jx = gx + Math.floor(hash(gx, gy) * 5), jy = gy + Math.floor(hash(gy, gx) * 5), lx = jx * PX, ly = jy * PX;
+      if (hash(jx * 3, jy * 7) > .55 || near(lx, ly)) continue;
+      if (lx < ly) { // pine tree
+        t.fillStyle = 'rgba(20,40,20,.3)'; t.fillRect(jx - 1, jy + 3, 5, 2);
+        t.fillStyle = '#2f6b3a'; t.fillRect(jx, jy - 2, 3, 1); t.fillRect(jx - 1, jy - 1, 5, 2); t.fillRect(jx - 2, jy + 1, 7, 2);
+        t.fillStyle = '#4c8c4f'; t.fillRect(jx, jy - 1, 1, 1); t.fillRect(jx - 1, jy + 1, 2, 1);
+        t.fillStyle = '#6b4a2b'; t.fillRect(jx + 1, jy + 3, 1, 2);
+      } else { // rocks and craters
+        t.fillStyle = 'rgba(30,20,10,.3)'; t.fillRect(jx - 1, jy + 2, 5, 1);
+        t.fillStyle = '#7d7468'; t.fillRect(jx - 1, jy, 4, 2); t.fillRect(jx, jy - 1, 2, 1);
+        t.fillStyle = '#a49b8d'; t.fillRect(jx, jy - 1, 1, 1); t.fillRect(jx - 1, jy, 1, 1);
+      }
+    }
+  })();
+  // Each fog cell remembers which lanes' enemy stretch a radar there would light up.
+  const fogLanes = new Uint8Array(CELLS * CELLS), enemyCell = new Uint8Array(CELLS * CELLS);
+  for (let cy = 0; cy < CELLS; cy++) for (let cx = 0; cx < CELLS; cx++) {
+    const x = (cx + .5) * CELL * PX, y = (cy + .5) * CELL * PX, i = cy * CELLS + cx;
+    enemyCell[i] = F.ownHalf(1, x, y) ? 1 : 0;
+    for (let lane = 0; lane < F.LANES; lane++) if (laneDistance(x, y, lane, F.laneLength(lane) / 2) <= 70) fogLanes[i] |= 1 << lane;
+  }
+  let prevPos = new Map(), fx = [], hqFlash = [0, 0];
+  const lerpPos = (o, t) => { const p = prevPos.get(o.id); return p ? { x: p.x + (o.x - p.x) * t, y: p.y + (o.y - p.y) * t } : { x: o.x, y: o.y }; };
+  function drawBuilding(s, side, alpha = 1) {
+    const x = bp(s.x), y = bp(s.y);
+    sprite(BUILDINGS[s.type], x + .5, y + .5, team[side], alpha);
+    if (alpha === 1 && s.hp < s.maxHp) {
+      box(x - 5, y + 7, 11, 2, '#1d222b');
+      box(x - 5, y + 7, Math.max(1, Math.round(11 * s.hp / s.maxHp)), 2, s.hp / s.maxHp < .35 ? '#ff5d5d' : team[side].h);
+    }
+  }
+  function drawBase(side, tick) {
+    const q = F.BASE[side], x = bp(q.x), y = bp(q.y), pal = team[side], flash = hqFlash[side] > tick;
+    box(x - 10, y - 9, 23, 22, 'rgba(20,24,32,.3)');
+    box(x - 11, y - 11, 22, 22, flash ? '#ffffff' : pal.d);
+    box(x - 9, y - 9, 18, 18, pal.m);
+    for (let i = 0; i < 22; i += 4) { box(x - 11 + i, y - 13, 2, 2, pal.d); box(x - 11 + i, y + 11, 2, 2, pal.d); box(x - 13, y - 11 + i, 2, 2, pal.d); box(x + 11, y - 11 + i, 2, 2, pal.d); }
+    box(x - 5, y - 5, 10, 10, pal.l); box(x - 3, y - 3, 6, 6, pal.d); box(x - 1, y - 1, 2, 2, pal.h);
+    box(x, y - 18, 1, 8, '#3b3b3b');
+    const wave = Math.floor(tick / 6) % 2;
+    box(x + 1, y - 18, 5, 3, pal.m); box(x + 6, y - 18 + wave, 1, 2, pal.m);
+    const hp = frontGame.sides[side].hq / F.HQ_HP;
+    box(x - 11, y + 15, 22, 3, '#1d222b'); box(x - 11, y + 15, Math.max(0, Math.round(22 * hp)), 3, hp < .35 ? '#ff5d5d' : pal.h);
+  }
+  function drawDrone(d, t, tick) {
+    const p = lerpPos(d, t), x = bp(p.x), y = bp(p.y), pal = team[d.side];
+    const q = F.lanePoint(d.lane, d.pos), dir = d.side ? -1 : 1, fx2 = q.dx * dir, fy2 = q.dy * dir;
+    // Exhaust trail behind the drone.
+    for (let k = 1; k <= 4; k++) { b.globalAlpha = .7 - k * .15; dot(Math.round(x - fx2 * (k * 2 + 3)), Math.round(y - fy2 * (k * 2 + 3)), pal.h); }
+    b.globalAlpha = 1;
+    box(x - 2, y + 5, 5, 2, 'rgba(20,24,32,.28)');
+    const spin = (tick + d.id) % 4 < 2;
+    const r = spin ? ['ll.....ll', 'll.....ll'] : ['.l.....l.', 'l.l...l.l'];
+    sprite([r[0], r[1], '..dd.dd..', '...mmm...', '..dmhmd..', '...mmm...', '..dd.dd..', r[1], r[0]], x + .5, y + .5, { d: pal.d, m: pal.m, h: '#ffffff', l: spin ? pal.l : pal.h });
+    box(Math.round(x + fx2 * 4), Math.round(y + fy2 * 4), 1, 1, '#ffffff');
+  }
+  function drawEngineer(e, t, tick) {
+    const p = lerpPos(e, t), x = bp(p.x), y = bp(p.y), pal = team[e.side], walking = Math.abs(e.pos - e.target) > 1, step = Math.floor(tick / 4) % 2;
+    sprite(['.yyy.', 'yyyyy', '..s..', '.mmm.', 'm.m.m', walking && step ? '.d..d' : 'd...d'], x + .5, y + .5, { y: '#f2c14e', s: '#f1c8a0', m: pal.m, d: pal.d });
+    if (!walking && tick % 10 < 5) { dot(x + 3, y - 5, '#fff3a0'); dot(x + 4, y - 4, '#fff3a0'); }
+  }
+  function ring(cx, cy, r, color, dashed = 0) {
+    const steps = Math.ceil(r * 7);
+    for (let i = 0; i < steps; i++) { if (dashed && Math.floor(i / dashed) % 2) continue; const a = i / steps * Math.PI * 2; dot(Math.round(cx + Math.cos(a) * r), Math.round(cy + Math.sin(a) * r), color); }
+  }
+  function line(x0, y0, x1, y1, color, every = 1) {
+    const n = Math.max(Math.abs(x1 - x0), Math.abs(y1 - y0)) || 1;
+    for (let i = 0; i <= n; i += every) dot(Math.round(x0 + (x1 - x0) * i / n), Math.round(y0 + (y1 - y0) * i / n), color);
+  }
+  function pixelText(text, x, y, color, size = 13) {
+    ctx.font = `bold ${size}px ui-monospace, "Courier New", monospace`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.lineWidth = 3; ctx.strokeStyle = '#1d222bcc'; ctx.strokeText(text, x, y); ctx.fillStyle = color; ctx.fillText(text, x, y);
+  }
+  function draw(t = 0) {
+    const g = frontGame, ratio = Math.min(devicePixelRatio || 1, 2), all = spectating(), tick = g.tick;
+    if (canvas.width !== 720 * ratio) canvas.width = canvas.height = 720 * ratio;
+    b.drawImage(terrain, 0, 0);
+    // Jammed lane stretches crackle with static.
+    for (let lane = 0; lane < F.LANES; lane++) for (const side of [0, 1]) if (g.sides[side].jammed[lane] > tick) {
+      const half = side ? [F.laneLength(lane) / 2, F.laneLength(lane)] : [0, F.laneLength(lane) / 2];
+      for (let pos = half[0]; pos < half[1]; pos += 9) {
+        const q = F.lanePoint(lane, pos), n = hash(Math.floor(pos), tick);
+        if (n < .5) dot(bp(q.x) + Math.round((n - .25) * 40), bp(q.y) + Math.round((hash(tick, Math.floor(pos)) - .5) * 20), n < .25 ? '#ffffff' : team[side].h);
+      }
     }
     // Empty own slots.
     for (let lane = 0; lane < F.LANES; lane++) for (let slot = 0; slot < 6; slot++) {
       if (g.structureAt(0, lane, slot)) continue;
-      const p = F.slotPos(0, lane, slot);
-      ctx.strokeStyle = '#26747733'; ctx.lineWidth = 1.5; ctx.setLineDash([3, 4]); ctx.strokeRect(p.x - 18, p.y - 16, 36, 32); ctx.setLineDash([]);
+      const p = F.slotPos(0, lane, slot), x = bp(p.x) - 5, y = bp(p.y) - 5;
+      for (let i = 0; i < 11; i += 2) { dot(x + i, y, '#ffffff99'); dot(x + i, y + 10, '#ffffff99'); dot(x, y + i, '#ffffff99'); dot(x + 10, y + i, '#ffffff99'); }
     }
-    for (const s of g.sides[0].structures) { drawShape(s.type, s.x, s.y, 0); drawHp(s); }
-    if (all) for (const s of g.sides[1].structures) { drawShape(s.type, s.x, s.y, 1); drawHp(s); }
-    else {
-      for (const s of g.sides[1].structures) if (g.sees(0, s.x, s.y, s.lane)) { drawShape(s.type, s.x, s.y, 1); drawHp(s); }
-      // Fog over the enemy half, with holes where radar, drones or recon give vision.
-      if (g.sides[0].revealUntil <= g.tick) {
-        if (fog.width !== canvas.width) fog.width = fog.height = canvas.width;
-        fogCtx.setTransform(ratio, 0, 0, ratio, 0, 0); fogCtx.clearRect(0, 0, 720, 720);
-        fogCtx.save(); fogCtx.beginPath(); fogCtx.moveTo(0, 0); fogCtx.lineTo(720, 0); fogCtx.lineTo(720, 720); fogCtx.closePath(); fogCtx.clip();
-        fogCtx.fillStyle = '#d8dee9dd'; fogCtx.fillRect(0, 0, 720, 720);
-        fogCtx.strokeStyle = '#c4cad6'; fogCtx.lineWidth = 1;
-        for (let k = -720; k < 720; k += 16) { fogCtx.beginPath(); fogCtx.moveTo(k, 720); fogCtx.lineTo(k + 720, 0); fogCtx.stroke(); }
-        fogCtx.restore();
-        fogCtx.globalCompositeOperation = 'destination-out'; fogCtx.lineCap = 'round'; fogCtx.lineJoin = 'round';
-        for (let lane = 0; lane < F.LANES; lane++) if (g.sides[0].structures.some(s => s.type === 'radar' && s.lane === lane)) {
-          const half = enemyHalf(lane); fogCtx.lineWidth = 140; lanePath(fogCtx, lane, half[0], half[1]); fogCtx.stroke();
+    drawBase(0, tick); drawBase(1, tick);
+    for (const s of g.sides[0].structures) drawBuilding(s, 0);
+    for (const s of g.sides[1].structures) if (all || g.sees(0, s.x, s.y, s.lane)) drawBuilding(s, 1);
+    for (const e of g.engineers) if (e.side === 0 || all || g.sees(0, e.x, e.y, e.lane)) drawEngineer(e, t, tick);
+    for (const d of g.drones) if (d.side === 0 || all || g.sees(0, d.x, d.y, d.lane)) drawDrone(d, t, tick);
+    // Fog: dithered cells over the enemy half, with a softer checkerboard where it meets vision.
+    if (!all && g.sides[0].revealUntil <= tick) {
+      let lit = 0;
+      for (const s of g.sides[0].structures) if (s.type === 'radar') lit |= 1 << s.lane;
+      const own = g.drones.filter(d => d.side === 0 && F.ownHalf(1, d.x, d.y));
+      const seen = new Uint8Array(CELLS * CELLS);
+      for (let i = 0; i < seen.length; i++) {
+        if (!enemyCell[i] || fogLanes[i] & lit) { seen[i] = 1; continue; }
+        const x = (i % CELLS + .5) * CELL * PX, y = (Math.floor(i / CELLS) + .5) * CELL * PX;
+        seen[i] = own.some(d => Math.hypot(d.x - x, d.y - y) <= F.DRONE.sight) ? 1 : 0;
+      }
+      const drift = Math.floor(tick / 10);
+      for (let cy = 0; cy < CELLS; cy++) for (let cx = 0; cx < CELLS; cx++) {
+        const i = cy * CELLS + cx;
+        if (seen[i]) continue;
+        const edge = (cx > 0 && seen[i - 1]) || (cx < CELLS - 1 && seen[i + 1]) || (cy > 0 && seen[i - CELLS]) || (cy < CELLS - 1 && seen[i + CELLS]);
+        const x0 = cx * CELL, y0 = cy * CELL;
+        for (let y = 0; y < CELL; y++) for (let x = 0; x < CELL; x++) {
+          const px = x0 + x, py = y0 + y;
+          if (edge && (px + py) % 2) continue;
+          const n = hash(px + drift, py);
+          dot(px, py, n < .12 ? '#4a5266' : n < .5 ? '#2c3242' : '#323a4c');
         }
-        for (const d of g.drones) if (d.side === 0) { fogCtx.beginPath(); fogCtx.arc(d.x, d.y, F.DRONE.sight, 0, Math.PI * 2); fogCtx.fill(); }
-        fogCtx.globalCompositeOperation = 'source-over';
-        ctx.drawImage(fog, 0, 0, 720, 720);
-        for (const s of g.sides[1].structures) if (g.sees(0, s.x, s.y, s.lane)) { drawShape(s.type, s.x, s.y, 1); drawHp(s); }
-      }
-      for (const k of g.intel[0].values()) {
-        if (g.sees(0, k.x, k.y, k.lane)) continue;
-        ctx.setLineDash([4, 4]); drawShape(k.type, k.x, k.y, 1, .45); ctx.setLineDash([]);
-        ctx.fillStyle = '#99553f'; ctx.font = 'bold 11px monospace'; ctx.textAlign = 'center';
-        ctx.fillText(Math.floor((g.tick - k.seen) / F.TPS) + 's', k.x, k.y - 22);
       }
     }
-    // Engineers.
-    for (const e of g.engineers) if (e.side === 0 || all || g.sees(0, e.x, e.y, e.lane)) {
-      ctx.fillStyle = '#ebcb8b'; ctx.strokeStyle = ink[e.side]; ctx.lineWidth = 2;
-      ctx.beginPath(); ctx.arc(e.x, e.y, 8, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(e.x - 4, e.y); ctx.lineTo(e.x + 4, e.y); ctx.moveTo(e.x, e.y - 4); ctx.lineTo(e.x, e.y + 4); ctx.stroke();
+    // Last sightings of enemy buildings.
+    const ghosts = [];
+    if (!all) for (const k of g.intel[0].values()) if (!g.sees(0, k.x, k.y, k.lane)) { drawBuilding(k, 1, tick % 30 < 20 ? .55 : .35); ghosts.push(k); }
+    // Turret tracers, factory launches, strikes and explosions.
+    for (const f of fx) {
+      const age = tick - f.tick;
+      if (f.type === 'shot') { if (age < 3) { line(bp(f.fromX), bp(f.fromY), bp(f.x), bp(f.y), '#fff3a0', 2); box(bp(f.fromX) - 1, bp(f.fromY) - 1, 2, 2, '#ffffff'); dot(bp(f.x), bp(f.y), '#ffffff'); } }
+      else if (f.type === 'puff') { const r = 1 + age / 3; b.globalAlpha = Math.max(0, 1 - age / 12); box(Math.round(bp(f.x) + 3 - r / 2), Math.round(bp(f.y) - 7 - age / 2), Math.round(r), Math.round(r), '#e5e9f0'); b.globalAlpha = 1; }
+      else if (f.type === 'pop') {
+        const x = bp(f.x), y = bp(f.y), k = f.big ? 2 : 1;
+        if (age < 2) { box(x - k, y - 3 * k, 2 * k + 1, 6 * k + 1, '#ffffff'); box(x - 3 * k, y - k, 6 * k + 1, 2 * k + 1, '#ffffff'); }
+        else if (age < 5 + k * 2) { ring(x, y, age * k * .8, '#ffb347'); ring(x, y, Math.max(1, age * k * .5), '#ff6b3d'); }
+        else { b.globalAlpha = Math.max(0, 1 - (age - 5 - k * 2) / 6); for (let j = -k; j <= k; j++) { dot(x + j * 2, y - age + 4 + Math.abs(j), '#9aa1ad'); dot(x + j * 2 + 1, y - age + 2, '#c0c5ce'); } b.globalAlpha = 1; }
+      } else if (f.type === 'blast') {
+        const x = bp(f.x), y = bp(f.y), r = F.CARDS.strike.radius / PX;
+        if (age < 4) { b.globalAlpha = .55; for (let k = 0; k < 40; k++) { const a = hash(k, f.tick) * Math.PI * 2, d = hash(f.tick, k) * r; box(Math.round(x + Math.cos(a) * d), Math.round(y + Math.sin(a) * d), 2, 2, k % 3 ? '#ff9f43' : '#ffd166'); } b.globalAlpha = 1; }
+        ring(x, y, r * Math.min(1, .4 + age / 10), age < 6 ? '#ffd166' : '#ff6b3d');
+        if (age > 3) { b.globalAlpha = Math.max(0, 1 - age / 18); for (let k = 0; k < 12; k++) { const a = k / 12 * Math.PI * 2; box(Math.round(x + Math.cos(a) * r * .5), Math.round(y + Math.sin(a) * r * .5 - age / 3), 2, 2, '#6b6f78'); } b.globalAlpha = 1; }
+      }
     }
-    // Drones.
-    for (const d of g.drones) {
-      if (d.side === 1 && !all && !g.sees(0, d.x, d.y, d.lane)) continue;
-      const q = F.lanePoint(d.lane, d.pos), dir = d.side ? -1 : 1, fx = q.dx * dir, fy = q.dy * dir;
-      const at = (f, s) => [d.x + fx * f - fy * s, d.y + fy * f + fx * s];
-      ctx.fillStyle = tint[d.side]; ctx.strokeStyle = ink[d.side]; ctx.lineWidth = 2;
-      ctx.beginPath(); ctx.moveTo(...at(9, 0)); ctx.lineTo(...at(-6, 8)); ctx.lineTo(...at(-2, 0)); ctx.lineTo(...at(-6, -8)); ctx.closePath(); ctx.fill(); ctx.stroke();
+    for (const s of g.strikes) if (s.side === 0 || all) {
+      const x = bp(s.x), y = bp(s.y), on = tick % 6 < 3, col = on ? '#ff5d5d' : '#ffffff';
+      ring(x, y, F.CARDS.strike.radius / PX, col, 3); line(x - 4, y, x + 4, y, col); line(x, y - 4, x, y + 4, col);
     }
-    // Shots, pending strikes and blasts.
-    flashes = flashes.filter(f => g.tick - f.tick < 3);
-    for (const f of flashes) { const t = g.structure(f.side, f.id); if (!t || (f.side === 1 && !all && !g.sees(0, t.x, t.y, t.lane))) continue; ctx.strokeStyle = stroke[f.side]; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(t.x, t.y); ctx.lineTo(f.x, f.y); ctx.stroke(); }
-    for (const b of g.strikes) if (b.side === 0 || all) {
-      ctx.strokeStyle = ink[b.side]; ctx.lineWidth = 2; ctx.setLineDash([6, 5]); ctx.beginPath(); ctx.arc(b.x, b.y, F.CARDS.strike.radius, 0, Math.PI * 2); ctx.stroke(); ctx.setLineDash([]);
-      ctx.beginPath(); ctx.moveTo(b.x - 10, b.y); ctx.lineTo(b.x + 10, b.y); ctx.moveTo(b.x, b.y - 10); ctx.lineTo(b.x, b.y + 10); ctx.stroke();
-    }
-    blasts = blasts.filter(b => g.tick - b.tick < 12);
-    for (const b of blasts) { ctx.beginPath(); ctx.arc(b.x, b.y, F.CARDS.strike.radius * (.5 + (g.tick - b.tick) / 24), 0, Math.PI * 2); ctx.fillStyle = '#d0877044'; ctx.fill(); ctx.strokeStyle = '#99553f'; ctx.lineWidth = 2; ctx.stroke(); }
     // Selection, hover and targeting previews.
     const sel = selected && g.structure(0, selected);
-    if (sel) { ctx.strokeStyle = '#267477'; ctx.lineWidth = 2; ctx.strokeRect(sel.x - 23, sel.y - 21, 46, 42); if (sel.type === 'turret') { ctx.setLineDash([5, 5]); ctx.beginPath(); ctx.arc(sel.x, sel.y, F.STRUCTS.turret.range, 0, Math.PI * 2); ctx.stroke(); ctx.setLineDash([]); } }
-    if (hover && g.phase !== 'over' && !all) {
-      if (mode.kind === 'card' && g.sides[0].hand[mode.index] === 'strike') { ctx.strokeStyle = '#99553f'; ctx.lineWidth = 2; ctx.setLineDash([6, 5]); ctx.beginPath(); ctx.arc(hover.x, hover.y, F.CARDS.strike.radius, 0, Math.PI * 2); ctx.stroke(); ctx.setLineDash([]); }
-      else if (mode.kind === 'engineer' || (mode.kind === 'card' && g.sides[0].hand[mode.index] === 'jam')) {
-        const lane = laneAt(hover), half = mode.kind === 'engineer' ? [0, F.laneLength(lane) / 2] : enemyHalf(lane);
-        ctx.strokeStyle = '#ebcb8b66'; ctx.lineWidth = 90; ctx.lineCap = 'round'; lanePath(ctx, lane, half[0], half[1]); ctx.stroke(); ctx.lineCap = 'butt';
-      }
-      else if (mode.kind === 'build') { const slot = ownSlotAt(hover); if (slot && !g.structureAt(0, slot.lane, slot.slot)) { const p = F.slotPos(0, slot.lane, slot.slot); drawShape(mode.type, p.x, p.y, 0, .4); if (mode.type === 'turret') { ctx.strokeStyle = '#26747788'; ctx.setLineDash([5, 5]); ctx.beginPath(); ctx.arc(p.x, p.y, F.STRUCTS.turret.range, 0, Math.PI * 2); ctx.stroke(); ctx.setLineDash([]); } } }
+    if (sel) {
+      const x = bp(sel.x), y = bp(sel.y), c = tick % 10 < 6 ? '#ffffff' : '#fff3a0';
+      for (const [sx, sy] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) { box(x + sx * 8 - (sx > 0 ? 2 : 0), y + sy * 8 - (sy > 0 ? 0 : 0), 3, 1, c); box(x + sx * 8 - (sx > 0 ? 0 : 0), y + sy * 8 - (sy > 0 ? 2 : 0), 1, 3, c); }
+      if (sel.type === 'turret') ring(x, y, F.STRUCTS.turret.range / PX, '#ffffffaa', 2);
     }
+    if (hover && g.phase !== 'over' && !all) {
+      if (mode.kind === 'card' && g.sides[0].hand[mode.index] === 'strike') { ring(bp(hover.x), bp(hover.y), F.CARDS.strike.radius / PX, '#ff5d5d', 3); }
+      else if (mode.kind === 'engineer' || (mode.kind === 'card' && g.sides[0].hand[mode.index] === 'jam')) {
+        const lane = laneAt(hover), half = mode.kind === 'engineer' ? [0, F.laneLength(lane) / 2] : [F.laneLength(lane) / 2, F.laneLength(lane)];
+        for (let pos = half[0]; pos < half[1]; pos += 6) { const q = F.lanePoint(lane, pos); box(bp(q.x) - 1, bp(q.y) - 1, 3, 3, (pos / 6 + tick) % 4 < 2 ? '#f2c14e' : '#fff3a0'); }
+      } else if (mode.kind === 'build') {
+        const slot = ownSlotAt(hover);
+        if (slot && !g.structureAt(0, slot.lane, slot.slot)) { const p = F.slotPos(0, slot.lane, slot.slot); drawBuilding({ type: mode.type, x: p.x, y: p.y }, 0, .55); if (mode.type === 'turret') ring(bp(p.x), bp(p.y), F.STRUCTS.turret.range / PX, '#ffffffaa', 2); }
+      }
+    }
+    ctx.setTransform(ratio, 0, 0, ratio, 0, 0); ctx.imageSmoothingEnabled = false;
+    ctx.drawImage(buffer, 0, 0, 720, 720);
+    // Crisp labels on top of the pixel layer.
+    pixelText(F.LANE_NAMES[0], 120, 250, '#f5f0e1'); pixelText(F.LANE_NAMES[1], 330, 330, '#f5f0e1'); pixelText(F.LANE_NAMES[2], 470, 604, '#f5f0e1');
+    pixelText('你 ' + g.sides[0].hq, F.BASE[0].x, F.BASE[0].y - 62, team[0].l, 14);
+    pixelText('AI ' + g.sides[1].hq, F.BASE[1].x - 10, F.BASE[1].y + 70, team[1].l, 14);
+    for (const k of ghosts) pixelText(Math.floor((tick - k.seen) / F.TPS) + 's', k.x, k.y - 24, '#fde0d0', 11);
+    if (!all && g.sides[0].revealUntil > tick) pixelText('全圖偵察 ' + Math.ceil((g.sides[0].revealUntil - tick) / F.TPS) + 's', 540, 300, '#fff3a0', 14);
   }
   function renderHand() {
     const g = frontGame, hand = g.sides[0].hand, sig = hand.join(',') + '|' + (mode.kind === 'card' ? mode.index : '') + '|' + g.phase + spectating();
@@ -739,7 +836,7 @@
     frontGame.pause(); stopFrames(); hover = null; updateHUD(); draw(); announce('已暫停，前線靜止。');
     showDialog('休息一下', '前線暫停中', '無人機、物資與 AI 都已停下。準備好再繼續。', '繼續作戰 →');
   }
-  function newRound() { stopFrames(); applySettings(); frontGame.reset(); selected = null; flashes = []; blasts = []; handSignature = ''; mode = { kind: 'build', type: 'factory' }; resume(); draw(); }
+  function newRound() { stopFrames(); applySettings(); frontGame.reset(); selected = null; fx = []; prevPos = new Map(); handSignature = ''; mode = { kind: 'build', type: 'factory' }; resume(); draw(); }
   function endRound() {
     stopFrames(); updateHUD(); draw();
     const r = frontGame.result;
@@ -753,10 +850,22 @@
     if (lastTime === null) lastTime = time;
     accumulator += Math.min(time - lastTime, 250); lastTime = time;
     while (accumulator >= 50 && g.phase === 'running') {
-      accumulator -= 50; g.step();
+      accumulator -= 50;
+      // Remember where everything was so frames can glide between simulation steps.
+      prevPos = new Map([...g.drones, ...g.engineers].map(o => [o.id, { x: o.x, y: o.y }]));
+      const before = g.drones.map(d => ({ id: d.id, side: d.side, lane: d.lane, x: d.x, y: d.y, pos: d.pos }));
+      g.step();
+      const alive = new Set(g.drones.map(d => d.id)), visible = (side, x, y, lane) => side === 0 || spectating() || g.sees(0, x, y, lane);
+      for (const d of before) {
+        const spent = d.side === 0 ? d.pos >= F.laneLength(d.lane) - F.BASE_REACH - 4 : d.pos <= F.BASE_REACH + 4;
+        if (!alive.has(d.id) && !spent && visible(d.side, d.x, d.y, d.lane)) fx.push({ type: 'pop', x: d.x, y: d.y, tick: g.tick });
+      }
       for (const e of g.events) {
-        if (e.type === 'shot') flashes.push({ ...e, tick: g.tick });
-        else if (e.type === 'strike') { if (e.side === 0 || spectating()) blasts.push({ ...e, tick: g.tick }); else if (e.hits || e.downed) blasts.push({ ...e, tick: g.tick }); if (e.side === 0) announce(e.hits ? `轟炸命中 ${e.hits} 座建築！` : e.downed ? `轟炸擊落 ${e.downed} 架無人機。` : '轟炸沒有命中任何目標。'); else if (e.hits) announce(`敵方轟炸命中你 ${e.hits} 座建築！`); }
+        if (e.type === 'shot') { const t = g.structure(e.side, e.id); if (t && visible(e.side, t.x, t.y, t.lane)) fx.push({ type: 'shot', fromX: t.x, fromY: t.y, x: e.x, y: e.y, tick: g.tick }); }
+        else if (e.type === 'launch') { if (visible(e.side, e.x, e.y, -1)) fx.push({ type: 'puff', x: e.x, y: e.y, tick: g.tick }); }
+        else if (e.type === 'destroyed') { if (visible(e.side, e.x, e.y, e.lane)) fx.push({ type: 'pop', x: e.x, y: e.y, tick: g.tick, big: true }); }
+        else if (e.type === 'hq') hqFlash[e.side] = g.tick + 4;
+        if (e.type === 'strike') { if (e.side === 0 || spectating() || e.hits || e.downed) fx.push({ type: 'blast', x: e.x, y: e.y, tick: g.tick }); if (e.side === 0) announce(e.hits ? `轟炸命中 ${e.hits} 座建築！` : e.downed ? `轟炸擊落 ${e.downed} 架無人機。` : '轟炸沒有命中任何目標。'); else if (e.hits) announce(`敵方轟炸命中你 ${e.hits} 座建築！`); }
         else if (g.tick > messageTick) {
           if (e.type === 'hq' && e.side === 0) announce(`敵方無人機從${F.LANE_NAMES[e.lane]}撞進大本營！`, 40);
           else if (e.type === 'destroyed' && e.side === 0) announce(`你的${F.STRUCTS[e.kind].name}被摧毀了。`, 40);
@@ -766,9 +875,10 @@
         }
       }
       if (g.tick % 4 === 0) updateHUD();
+      fx = fx.filter(f => g.tick - f.tick < 20);
     }
     if (g.phase === 'over') { endRound(); return; }
-    draw(); frameId = requestAnimationFrame(frame);
+    draw(accumulator / 50); frameId = requestAnimationFrame(frame);
   }
   $('play').addEventListener('click', () => { if (restartPrompt || frontGame.phase === 'over') newRound(); else resume(); });
   $('dialog-secondary').addEventListener('click', resume);

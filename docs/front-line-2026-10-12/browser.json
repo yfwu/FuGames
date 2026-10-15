@@ -38,7 +38,7 @@
     "landscape: touch tap builds": true,
     "landscape: buttons at least 40px": true,
     "landscape: no horizontal overflow": true,
-    "homepage lists sixteen games": true,
+    "homepage lists fifteen games": true,
     "homepage link opens the game": true,
     "no page or console errors": true
   }
