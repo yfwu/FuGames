@@ -6,20 +6,20 @@
       "b": "normal",
       "games": 20,
       "wins": {
-        "seat0": 8,
-        "seat1": 10,
-        "draw": 2
+        "seat0": 7,
+        "seat1": 13,
+        "draw": 0
       },
-      "timeouts": 2,
+      "timeouts": 0,
       "totals": {
-        "built": 42.9,
-        "launched": 340.1,
-        "cards": 24.7,
-        "bombs": 7.7,
-        "destroyed": 22.9,
-        "engineers": 9.4
+        "built": 36.4,
+        "launched": 189.2,
+        "cards": 21.4,
+        "bombs": 7.2,
+        "destroyed": 22.4,
+        "engineers": 9.9
       },
-      "medianMinutes": 3.82
+      "medianMinutes": 3.97
     },
     {
       "a": "hard",
@@ -27,45 +27,45 @@
       "games": 40,
       "wins": {
         "hard@0": 14,
-        "hard@1": 14,
-        "normal@0": 4,
-        "normal@1": 3,
-        "draw": 5
+        "hard@1": 17,
+        "normal@0": 3,
+        "normal@1": 6,
+        "draw": 0
       },
-      "timeouts": 8,
+      "timeouts": 0,
       "totals": {
-        "built": 44.3,
-        "launched": 405.5,
-        "cards": 24.9,
-        "bombs": 7.9,
-        "destroyed": 22.6,
-        "engineers": 9.4
+        "built": 35.5,
+        "launched": 203.1,
+        "cards": 18.1,
+        "bombs": 5.4,
+        "destroyed": 19.8,
+        "engineers": 7.8
       },
-      "medianMinutes": 3.17,
-      "strongerWinRate": 0.7
+      "medianMinutes": 2.99,
+      "strongerWinRate": 0.775
     },
     {
       "a": "normal",
       "b": "easy",
       "games": 40,
       "wins": {
-        "normal@0": 20,
-        "normal@1": 18,
-        "easy@0": 2,
-        "easy@1": 0,
+        "normal@0": 17,
+        "normal@1": 19,
+        "easy@0": 1,
+        "easy@1": 3,
         "draw": 0
       },
-      "timeouts": 1,
+      "timeouts": 0,
       "totals": {
-        "built": 39,
-        "launched": 249.4,
-        "cards": 20,
-        "bombs": 6.2,
-        "destroyed": 21,
+        "built": 33.3,
+        "launched": 158.7,
+        "cards": 18.5,
+        "bombs": 6,
+        "destroyed": 20.5,
         "engineers": 2.7
       },
-      "medianMinutes": 3.62,
-      "strongerWinRate": 0.95
+      "medianMinutes": 3.44,
+      "strongerWinRate": 0.9
     },
     {
       "a": "hard",
@@ -80,14 +80,14 @@
       },
       "timeouts": 0,
       "totals": {
-        "built": 31.1,
-        "launched": 163.2,
-        "cards": 12.1,
-        "bombs": 3.6,
-        "destroyed": 14.9,
+        "built": 30,
+        "launched": 140.5,
+        "cards": 12.5,
+        "bombs": 3.8,
+        "destroyed": 15.8,
         "engineers": 1.1
       },
-      "medianMinutes": 2.52,
+      "medianMinutes": 2.47,
       "strongerWinRate": 1
     }
   ]
