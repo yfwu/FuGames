@@ -205,6 +205,71 @@
           }
         }
       }
+    },
+    "tactics": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Optional shared connection-first planner and one-use breakthrough tuning; omitted fields use the complete built-in defaults. Does not change scoring.",
+      "required": [
+        "routeProgressWeight",
+        "combatScoreWeight",
+        "interruptionWeight",
+        "contactBonus",
+        "flankCommitOwnTurns",
+        "breachMinOwnTurns",
+        "breachStalledOwnTurns",
+        "repeatAttackPenalty"
+      ],
+      "properties": {
+        "routeProgressWeight": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 24,
+          "default": 10
+        },
+        "combatScoreWeight": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 24,
+          "default": 0
+        },
+        "interruptionWeight": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 24,
+          "default": 24
+        },
+        "contactBonus": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 24,
+          "default": 2
+        },
+        "flankCommitOwnTurns": {
+          "type": "integer",
+          "minimum": 2,
+          "maximum": 24,
+          "default": 8
+        },
+        "breachMinOwnTurns": {
+          "type": "integer",
+          "minimum": 12,
+          "maximum": 60,
+          "default": 24
+        },
+        "breachStalledOwnTurns": {
+          "type": "integer",
+          "minimum": 2,
+          "maximum": 24,
+          "default": 6
+        },
+        "repeatAttackPenalty": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 24,
+          "default": 8
+        }
+      }
     }
   }
 }

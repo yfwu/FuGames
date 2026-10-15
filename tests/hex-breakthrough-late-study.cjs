@@ -1,0 +1,6 @@
+'use strict';
+// Controlled late-wall continuation: public reserve represents the earned
+// 24-action / six-stall state. Opponents rest so this isolates the paid window;
+// separate rule tests and planner replies exercise shields and supply cuts.
+const path=require('node:path'),Core=require(path.join(process.env.HEX_ENGINE_DIR||path.join(__dirname,'..'),'hex-core.js')),{fixture}=require('./helpers/hex-breakthrough-fixture.cjs');
+const runs=[];for(const mode of ['auto','normal']){const {H,g,target}=fixture(mode,Core),actions=[];let connected=false;for(let n=0;n<5&&!connected;n++){const a=H.chooseAction(g.observation());if(!H.legalAction(g,a))throw Error('illegal');actions.push({type:a.type,cells:a.cells,reason:a.planner?.memory.reasonCode});g.act(a);const supply=H.computeSupply(g,1);connected=H.CELLS.some(c=>supply[c.i]&&H.goalCell(g,1,c.i));while(g.phase==='running'&&g.turn!==1)g.act({type:'rest',cells:[]});}runs.push({mode,seed:g.seed,ownActions:actions.length,target,connected,actions,score:g.players[1].score});}console.log(JSON.stringify({fixture:'Shielded supplied entrance; defended opposite edge; one legal unshielded breach; five-own-action cap; resting opponents',runs},null,2));

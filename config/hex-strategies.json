@@ -175,5 +175,15 @@
         "expansion": 7
       }
     }
-  ]
+  ],
+  "tactics": {
+    "routeProgressWeight": 10,
+    "combatScoreWeight": 0,
+    "interruptionWeight": 24,
+    "contactBonus": 2,
+    "flankCommitOwnTurns": 8,
+    "breachMinOwnTurns": 24,
+    "breachStalledOwnTurns": 6,
+    "repeatAttackPenalty": 8
+  }
 }

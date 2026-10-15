@@ -22,11 +22,11 @@
   const LETTER = p => String.fromCharCode(64 + p);
   const PLAN_TYPES = { direct: '接通對岸', flank: '側翼繞行', airport: '建立航空支點', interdict: '切斷敵方補給', defend: '處理連線威脅', recover: '修復家園補給', fortify: '加固補給線', expand: '搶占物資站' };
   const PLAN_STAGES = { approach: '接近目標', build: '建立支點', hold: '持續維持', project: '延伸前線', advance: '向前推進', repair: '修補斷線' };
-  const PLAN_REASONS = { short_route: '沿較短路線接通對岸。', less_contested: '先從側翼繞行，再轉向對岸。', airport_projection: '取得能支援前線的機場，再延伸連線。', cut_supply: '爭取敵方補給要點，打斷它的連線。', protect_connection: '保護已接通的路線，繼續取得守線分數。', restore_supply: '補回家園連線，保住失去補給的棋子。', continue_plan: '沿已選定的路線繼續推進。', route_blocked: '原路線受阻，正在調整推進方向。', stalled: '先前進展停滯，重新選擇突破方向。', opportunity_changed: '公開戰況改變，調整下一段目標。', goal_reached: '已完成這段目標，準備下一段推進。', urgent_threat: '優先打斷敵方即將完成或持續得分的連線。', open_lane: '避開擁擠的中央，改走較空的航道接通對岸。', raid_supply: '深入襲擊敵方細長的補給線，讓後方棋子斷補撤退。', thin_supply: '補給線只靠單格相連，先加寬或架設保護。', claim_depot: '搶占物資站，累積空中行動所需物資。' };
-  const LABELS = { deploy: '鋪子 / 攻占', engineer: '工程', tunnel: '地道', withdraw: '撤回', rest: '休整', turret: '炮台', destroy: '拆除', bridge: '橋梁', reroute: '改接', shield: '護盾', exchange: '換位', discard: '棄牌', offer: '提議停戰', accept: '接受停戰', reject: '拒絕停戰', betray: '背盟', ready: '戰場就緒' };
+  const PLAN_REASONS = { breakthrough: '公開預告突破格，下一次己方行動攻占，將缺口接入家園連線。', short_route: '沿較短路線接通對岸。', less_contested: '先從側翼繞行，再轉向對岸。', airport_projection: '取得能支援前線的機場，再延伸連線。', cut_supply: '爭取敵方補給要點，打斷它的連線。', protect_connection: '保護已接通的路線，繼續取得守線分數。', restore_supply: '補回家園連線，保住失去補給的棋子。', continue_plan: '沿已選定的路線繼續推進。', route_blocked: '原路線受阻，正在調整推進方向。', stalled: '先前進展停滯，重新選擇突破方向。', opportunity_changed: '公開戰況改變，調整下一段目標。', goal_reached: '已完成這段目標，準備下一段推進。', urgent_threat: '優先打斷敵方即將完成或持續得分的連線。', open_lane: '避開擁擠的中央，改走較空的航道接通對岸。', raid_supply: '深入襲擊敵方細長的補給線，讓後方棋子斷補撤退。', thin_supply: '補給線只靠單格相連，先加寬或架設保護。', claim_depot: '搶占物資站，累積空中行動所需物資。' };
+  const LABELS = { breach: '破陣令', 'breach-ready': '破陣令就緒', deploy: '鋪子 / 攻占', engineer: '工程', tunnel: '地道', withdraw: '撤回', rest: '休整', turret: '炮台', destroy: '拆除', bridge: '橋梁', reroute: '改接', shield: '護盾', exchange: '換位', discard: '棄牌', offer: '提議停戰', accept: '接受停戰', reject: '拒絕停戰', betray: '背盟', ready: '戰場就緒' };
   Object.assign(LABELS, { 'game-end': '本局結算', 'hill-retreat': '山丘撤退', 'card-expired': '手牌到期', 'tunnel-collapse': '地道崩塌', airdrop: '空投炮台', bombard: '航空轟炸', 'airport-unlocked': '機場啟用', 'airport-lost': '機場停用', 'depot-control': '物資站易主', fortified: '老兵工事完成' });
   const MARKS = { turret: '✣', destroy: '×', bridge: '⌁', reroute: '↗', shield: '◎', exchange: '⇄' };
-  const HINTS = { deploy: '空格鋪子花 2 能量，攻占敵子花 4；攻占須有足夠相鄰支援。河流先工程整地。', engineer: '將河流或空／己方山丘變為白色平地；也可拆掉敵方可見地道的內部格。', tunnel: '從自己的棋子出發，逐格選 3–4 格相鄰路徑；可轉彎，最後回到另一枚自己的棋子，再按完成。', withdraw: '選自己的非家園棋子撤回，移除其設施並回復 1 能量。', turret: '選自己的非家園棋子架炮台。每 3 次自己回合射擊，射程 3 格。', destroy: '選敵方非家園棋子拆除；護盾可吸收一次拆除，山丘無法抵擋。', bridge: '依序選兩個自己的端點，相距 2–3 格直線；橋梁運送補給。', reroute: '依序選保留端點、舊端點、新端點；三格都是自己的棋子。', shield: '選自己的非家園棋子，加 2 防守並吸收一次拆除或炮擊。', exchange: '先選自己的普通棋子，再選相鄰的空格或敵方普通棋子。' };
+  const HINTS = { breach: '一次性儲備卡：花 6 能量預告一枚與補給線相鄰、向對岸前進的敵格。下一次己方行動用「鋪子 / 攻占」花 4 能量強攻，忽略鄰援強度；護盾或斷補可阻止加成。改做其他事即失效。', deploy: '空格鋪子花 2 能量，攻占敵子花 4；攻占須有足夠相鄰支援。河流先工程整地。', engineer: '將河流或空／己方山丘變為白色平地；也可拆掉敵方可見地道的內部格。', tunnel: '從自己的棋子出發，逐格選 3–4 格相鄰路徑；可轉彎，最後回到另一枚自己的棋子，再按完成。', withdraw: '選自己的非家園棋子撤回，移除其設施並回復 1 能量。', turret: '選自己的非家園棋子架炮台。每 3 次自己回合射擊，射程 3 格。', destroy: '選敵方非家園棋子拆除；護盾可吸收一次拆除，山丘無法抵擋。', bridge: '依序選兩個自己的端點，相距 2–3 格直線；橋梁運送補給。', reroute: '依序選保留端點、舊端點、新端點；三格都是自己的棋子。', shield: '選自己的非家園棋子，加 2 防守並吸收一次拆除或炮擊。', exchange: '先選自己的普通棋子，再選相鄰的空格或敵方普通棋子。' };
   Object.assign(HINTS, { airdrop: '先選已啟用的己方機場，再選機場 10 格內空的可通行格空投炮台。花 6 能量、3 物資。', bombard: '先選已啟用的己方機場，再選機場 12 格內敵方非家園棋子。花 7 能量、4 物資。' });
   const CARD_GUIDE = {
     turret: '在自己既有的非家園棋子架設炮台；每 3 次自己的回合，射擊 3 格內一個非盟友敵子，持續 30 回合。最多同時 3 座。護盾會吸收一次炮擊。',
@@ -70,6 +70,8 @@
   $('clear-inspection').after(cutButton);
   const cutInfo = node('p', 'ah-turret-info'); cutInfo.id = 'supply-cut-info'; cutInfo.hidden = true;
   cutInfo.setAttribute('role', 'status'); $('cell-info').before(cutInfo);
+  const breachButton=node('button','btn','破陣令');breachButton.id='breach';breachButton.type='button';breachButton.dataset.action='breach';$('base-actions').append(breachButton);
+  const breachNote=node('p','ah-meta');breachNote.id='breach-note';breachNote.setAttribute('role','status');$('supplies').after(breachNote);
   const can = action => E.legalAction(view, { cells: [], ...action });
   const actionFor = cells => ({ type: selection.type, cells, ...(selection.cardIndex !== undefined ? { cardIndex: selection.cardIndex } : {}) });
   const isAirAction = () => selection.type === 'airdrop' || selection.type === 'bombard';
@@ -304,6 +306,7 @@
       const count = view.board.reduce((n, owner) => n + (owner === p ? 1 : 0), 0);
       const goal = goalPoint(p), gi = points.reduce((best, c, i) => Math.hypot(c.x - goal.x, c.y - goal.y) < Math.hypot(points[best].x - goal.x, points[best].y - goal.y) ? i : best, 0);
       el.append(top, score, node('small', 'ah-direction', `⌂ ${directionAt(player.home)} → ${directionAt(gi)}`), node('small', '', `能量 ${player.energy}/8 · 棋子 ${count}/96`), node('small', '', `物資 ${player.supplies || 0}/6 · 手牌 ${view.handCounts?.[p] || 0}/5${player.goalActive ? ' · 已接通' : ''}`));
+      el.append(node('small','',player.breachTarget>=0?`⚑ 破陣預告 #${player.breachTarget} · 下次行動有效`:player.breachReady?'⚑ 破陣令可用':player.breachUsed?'破陣令已用':'破陣令待解鎖'));
       fragment.append(el);
     }
     $('players').replaceChildren(fragment);
@@ -366,6 +369,8 @@
     $('energy').textContent = human ? `能量 ${view.players[observer() || game.turn].energy} / 8` : `${P.length} 位本機 AI`;
     const resourcePlayer = human ? p : game.turn, resources = view.players[resourcePlayer];
     $('supplies').textContent = `${human ? '' : LETTER(resourcePlayer) + ' · '}物資 ${resources.supplies || 0} / 6 · 航空冷卻 ${resources.airCooldown || 0} 次己方行動`;
+    const tactics=view.strategyConfig.tactics;
+    breachNote.textContent=resources.breachTarget>=0?`⚑ 已公開標記 #${resources.breachTarget}：下一次己方行動用「鋪子 / 攻占」，否則失效。護盾或斷補可反制。`:resources.breachUsed?'本局唯一破陣令已使用。':resources.breachReady?'⚑ 破陣令已取得：6 能量預告一格；下一次己方行動 4 能量攻占。':`一次性破陣令：完成 ${tactics.breachMinOwnTurns} 次己方行動，且連續 ${tactics.breachStalledOwnTurns} 次未刷新最接近對岸的補給紀錄，首次連通前取得。現為 ${resources.completedActions}/${tactics.breachMinOwnTurns} 行動、停滯 ${resources.breachStalled}/${tactics.breachStalledOwnTurns}。`;
     $('air-actions').hidden = !human;
     const activeAirports = (view.airports || []).filter(a => a.owner === observer() && a.active);
     for (const type of ['airdrop', 'bombard']) {
@@ -376,9 +381,9 @@
     $('air-action-note').textContent = human ? activeAirports.length ? `已有 ${activeAirports.length} 座可用機場；先選機場再選目標，不需手牌。` : '可啟用有利於連線的機場，再空投或轟炸；主目標仍是接通對岸。' : '航空出手與物資都是公開的；查看支援據點可追蹤機場進度。';
     $('status').textContent = statusText(); $('status').classList.toggle('error', error);
     $('base-actions').hidden = !human; $('selection').hidden = !human; $('hand').previousElementSibling.hidden = !human; $('discard-card').parentElement.hidden = !human;
-    for (const type of ['deploy', 'engineer', 'withdraw', 'tunnel', 'rest']) {
+    for (const type of ['deploy', 'engineer', 'withdraw', 'tunnel', 'rest', 'breach']) {
       const button = $(type), m = meta(type);
-      button.disabled = !yourTurn || view.players[observer() || game.turn].energy < m.cost;
+      button.disabled = !yourTurn || view.players[observer() || game.turn].energy < m.cost || type === 'breach' && !resources.breachReady;
       button.setAttribute('aria-pressed', String(type === selection.type));
       button.replaceChildren(node('span', '', label(type)), node('small', '', type === 'deploy' ? '2 / 4 能量' : `${m.cost} 能量`));
     }
@@ -762,7 +767,17 @@
     for (const b of view.bridges || []) { const a = points[b.a], z = points[b.b]; ctx.strokeStyle = COLORS[b.owner]; ctx.lineWidth = .18; ctx.setLineDash([.28, .17]); ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(z.x, z.y); ctx.stroke(); ctx.setLineDash([]); }
     drawTunnels(scale);
     drawTurretRange(scale);
-    if (['destroy', 'bombard'].includes(selection.type) && isHumanTurn()) for (const i of rangeValid) crosshair(i, '#a65e46', scale);
+    const breachMarkers=new Map();
+    for(const p of P){const i=view.players[p].breachTarget;if(i>=0)breachMarkers.set(i,[...(breachMarkers.get(i)||[]),p]);}
+    for(const [i,owners] of breachMarkers){
+      const pt=points[i],color=COLORS[owners[0]],letters=owners.map(LETTER).join('/');crosshair(i,color,scale);
+      ctx.save();ctx.font=`bold ${11/scale}px sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle';
+      const text=scale>=14?`${letters} 破陣 · 下次行動`:`${letters} ⚑`,w=ctx.measureText(text).width+10/scale,h=18/scale,y=pt.y-2.15;
+      ctx.strokeStyle=color;ctx.lineWidth=1/scale;ctx.beginPath();ctx.moveTo(pt.x,pt.y-.8);ctx.lineTo(pt.x,y);ctx.stroke();
+      ctx.fillStyle='#fffdf6';ctx.fillRect(pt.x-w/2,y-h,w,h);ctx.strokeRect(pt.x-w/2,y-h,w,h);
+      ctx.fillStyle='#723807';ctx.fillText(text,pt.x,y-h/2);ctx.restore();
+    }
+    if (['destroy', 'bombard', 'breach'].includes(selection.type) && isHumanTurn()) for (const i of rangeValid) crosshair(i, '#a65e46', scale);
     drawFacilities(scale, visible); drawTurrets(scale, visible); drawStrategicOverlays(scale); drawPlan(ctx, scale);
     ctx = frontContext; clearLayer(ctx);
     drawGoals(ctx, scale);
@@ -874,7 +889,7 @@
   $('step-seconds').addEventListener('change', () => { $('step-seconds').value = Math.max(.05, Math.min(10, Number($('step-seconds').value) || .3)).toFixed(2); schedule(); });
   $('step').addEventListener('click', () => { if (mode !== 'spectator' || !['ready', 'paused'].includes(game.phase)) return; stopTimers(); effects.clearActive(); game.start(); const action = chooseAiAction(game.observation(game.turn)); if (!action || !game.act(action)) game.act({ type: 'rest', cells: [] }); game.pause(); wasStarted = true; message = ''; render(); });
   $('sandbox').addEventListener('click', () => { game.continueSandbox(); message = ''; render(); schedule(); });
-  for (const type of ['deploy', 'engineer', 'withdraw', 'tunnel', 'airdrop', 'bombard']) $(type).addEventListener('click', () => selectAction(type));
+  for (const type of ['deploy', 'engineer', 'withdraw', 'tunnel', 'airdrop', 'bombard', 'breach']) $(type).addEventListener('click', () => selectAction(type));
   $('rest').addEventListener('click', () => perform({ type: 'rest', cells: [] }));
   $('discard').addEventListener('click', () => perform({ type: 'discard', cells: [], cardIndex: Number($('discard-card').value) }));
   $('back-selection').addEventListener('click', () => { selection.cells.pop(); message = ''; error = false; render(); });

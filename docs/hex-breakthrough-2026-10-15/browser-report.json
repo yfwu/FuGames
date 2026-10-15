@@ -1,0 +1,233 @@
+{
+  "base": "http://127.0.0.1:61033",
+  "cases": [
+    {
+      "tag": "chromium-1440-autohex",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "warning": {
+        "target": 976,
+        "used": true,
+        "ply": 1,
+        "energy": 2
+      },
+      "pausedNoAdvance": true,
+      "captured": true,
+      "repeatedClickNoSpend": true,
+      "restartCleared": true,
+      "overflow": 0,
+      "errors": []
+    },
+    {
+      "tag": "chromium-1440-card_hex",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "warning": {
+        "target": 243,
+        "used": true,
+        "ply": 1,
+        "energy": 2
+      },
+      "pausedNoAdvance": true,
+      "captured": true,
+      "repeatedClickNoSpend": true,
+      "restartCleared": true,
+      "overflow": 0,
+      "errors": []
+    },
+    {
+      "tag": "chromium-390-autohex",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "warning": {
+        "target": 976,
+        "used": true,
+        "ply": 1,
+        "energy": 2
+      },
+      "pausedNoAdvance": true,
+      "captured": true,
+      "repeatedClickNoSpend": true,
+      "restartCleared": true,
+      "overflow": 0,
+      "errors": []
+    },
+    {
+      "tag": "chromium-390-card_hex",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "warning": {
+        "target": 243,
+        "used": true,
+        "ply": 1,
+        "energy": 2
+      },
+      "pausedNoAdvance": true,
+      "captured": true,
+      "repeatedClickNoSpend": true,
+      "restartCleared": true,
+      "overflow": 0,
+      "errors": []
+    },
+    {
+      "tag": "chromium-844-autohex",
+      "viewport": {
+        "width": 844,
+        "height": 390
+      },
+      "warning": {
+        "target": 976,
+        "used": true,
+        "ply": 1,
+        "energy": 2
+      },
+      "pausedNoAdvance": true,
+      "captured": true,
+      "repeatedClickNoSpend": true,
+      "restartCleared": true,
+      "overflow": 0,
+      "errors": []
+    },
+    {
+      "tag": "chromium-844-card_hex",
+      "viewport": {
+        "width": 844,
+        "height": 390
+      },
+      "warning": {
+        "target": 243,
+        "used": true,
+        "ply": 1,
+        "energy": 2
+      },
+      "pausedNoAdvance": true,
+      "captured": true,
+      "repeatedClickNoSpend": true,
+      "restartCleared": true,
+      "overflow": 0,
+      "errors": []
+    },
+    {
+      "tag": "webkit-1440-autohex",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "warning": {
+        "target": 976,
+        "used": true,
+        "ply": 1,
+        "energy": 2
+      },
+      "pausedNoAdvance": true,
+      "captured": true,
+      "repeatedClickNoSpend": true,
+      "restartCleared": true,
+      "overflow": 0,
+      "errors": []
+    },
+    {
+      "tag": "webkit-1440-card_hex",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "warning": {
+        "target": 243,
+        "used": true,
+        "ply": 1,
+        "energy": 2
+      },
+      "pausedNoAdvance": true,
+      "captured": true,
+      "repeatedClickNoSpend": true,
+      "restartCleared": true,
+      "overflow": 0,
+      "errors": []
+    },
+    {
+      "tag": "webkit-390-autohex",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "warning": {
+        "target": 976,
+        "used": true,
+        "ply": 1,
+        "energy": 2
+      },
+      "pausedNoAdvance": true,
+      "captured": true,
+      "repeatedClickNoSpend": true,
+      "restartCleared": true,
+      "overflow": 0,
+      "errors": []
+    },
+    {
+      "tag": "webkit-390-card_hex",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "warning": {
+        "target": 243,
+        "used": true,
+        "ply": 1,
+        "energy": 2
+      },
+      "pausedNoAdvance": true,
+      "captured": true,
+      "repeatedClickNoSpend": true,
+      "restartCleared": true,
+      "overflow": 0,
+      "errors": []
+    },
+    {
+      "tag": "webkit-844-autohex",
+      "viewport": {
+        "width": 844,
+        "height": 390
+      },
+      "warning": {
+        "target": 976,
+        "used": true,
+        "ply": 1,
+        "energy": 2
+      },
+      "pausedNoAdvance": true,
+      "captured": true,
+      "repeatedClickNoSpend": true,
+      "restartCleared": true,
+      "overflow": 0,
+      "errors": []
+    },
+    {
+      "tag": "webkit-844-card_hex",
+      "viewport": {
+        "width": 844,
+        "height": 390
+      },
+      "warning": {
+        "target": 243,
+        "used": true,
+        "ply": 1,
+        "energy": 2
+      },
+      "pausedNoAdvance": true,
+      "captured": true,
+      "repeatedClickNoSpend": true,
+      "restartCleared": true,
+      "overflow": 0,
+      "errors": []
+    }
+  ]
+}

@@ -1,0 +1,53 @@
+{
+  "fixture": "Shielded supplied entrance; defended opposite edge; one legal unshielded breach; five-own-action cap; resting opponents",
+  "runs": [
+    {
+      "mode": "auto",
+      "seed": "breach-wall",
+      "ownActions": 2,
+      "target": 11,
+      "connected": true,
+      "actions": [
+        {
+          "type": "breach",
+          "cells": [
+            11
+          ],
+          "reason": "breakthrough"
+        },
+        {
+          "type": "deploy",
+          "cells": [
+            11
+          ],
+          "reason": "continue_plan"
+        }
+      ],
+      "score": 13
+    },
+    {
+      "mode": "normal",
+      "seed": "breach-wall",
+      "ownActions": 2,
+      "target": 6,
+      "connected": true,
+      "actions": [
+        {
+          "type": "breach",
+          "cells": [
+            6
+          ],
+          "reason": "breakthrough"
+        },
+        {
+          "type": "deploy",
+          "cells": [
+            6
+          ],
+          "reason": "continue_plan"
+        }
+      ],
+      "score": 1
+    }
+  ]
+}

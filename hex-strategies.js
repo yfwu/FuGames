@@ -30,7 +30,8 @@
     style: { ...MISSION_STYLE[mission] }
   });
   function freeze(value) { if (value && typeof value === 'object') { Object.values(value).forEach(freeze); Object.freeze(value); } return value; }
-  const DEFAULT_CONFIG = freeze({ version: VERSION, profiles: [
+  const DEFAULT_TACTICS = {"routeProgressWeight": 10, "combatScoreWeight": 0, "interruptionWeight": 24, "contactBonus": 2, "flankCommitOwnTurns": 8, "breachMinOwnTurns": 24, "breachStalledOwnTurns": 6, "repeatAttackPenalty": 8};
+  const DEFAULT_CONFIG = freeze({ version: VERSION, tactics: DEFAULT_TACTICS, profiles: [
     make('vanguard', '直進先鋒', 'connect', 'opportunity', 'both', 'either', 'avoid'),
     make('airhead', '航空支點', 'airhead', 'invest', 'both', 'turret', 'opportunity'),
     make('flanker', '地道側翼', 'flank', 'avoid', 'both', 'either', 'avoid'),
@@ -55,7 +56,13 @@
       if (new TextEncoder().encode(input).length > MAX_BYTES) fail('$', '檔案不能超過 32 KiB');
       try { input = JSON.parse(input); } catch (error) { fail('$', '無法解析 JSON：' + error.message); }
     }
-    object(input, '$', ['version', 'profiles']);
+    const hasTactics = !!input && typeof input === 'object' && Object.hasOwn(input, 'tactics');
+    object(input, '$', ['version', 'profiles', ...(hasTactics ? ['tactics'] : [])]);
+    const tactics = { ...DEFAULT_TACTICS };
+    if (hasTactics) {
+      object(input.tactics, '$.tactics', Object.keys(DEFAULT_TACTICS));
+      for (const key of Object.keys(tactics)) tactics[key] = integer(input.tactics[key], '$.tactics.' + key, key === 'breachMinOwnTurns' ? 12 : key === 'breachStalledOwnTurns' || key === 'flankCommitOwnTurns' ? 2 : 0, key === 'breachMinOwnTurns' ? 60 : 24);
+    }
     if (input.version !== VERSION) fail('$.version', '只支援版本 1');
     if (!Array.isArray(input.profiles) || Object.getPrototypeOf(input.profiles) !== Array.prototype || input.profiles.length < 1 || input.profiles.length > MAX_PROFILES) fail('$.profiles', '必須有 1–12 個策略');
     const profileKeys = Reflect.ownKeys(input.profiles);
@@ -101,7 +108,7 @@
       if (result.commitment.reviewOwnTurns > result.commitment.maxOwnTurns) fail(p + '.commitment', '檢討間隔不能超過任務上限');
       return result;
     });
-    return { version: VERSION, profiles };
+    return { version: VERSION, tactics, profiles };
   }
   function id(config = DEFAULT_CONFIG) {
     let h = 2166136261;

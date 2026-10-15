@@ -1,0 +1,133 @@
+{
+  "limit": "4 fixed seeds; normal <=180 actions, auto <=240 actions; no ten-minute balance claim",
+  "runs": [
+    {
+      "mode": "normal",
+      "seed": "flank-contact-17",
+      "actions": 176,
+      "flankActions": 126,
+      "contactPairs": 14,
+      "opponentsPerFaction": [
+        5,
+        4,
+        5,
+        5,
+        4,
+        5
+      ],
+      "suppliedGaps": [
+        12,
+        0,
+        13,
+        7,
+        7,
+        14
+      ],
+      "recordAdvances": 74,
+      "longestStalledOwnTurns": 13,
+      "captures": 43,
+      "destroyed": 4,
+      "rests": 0,
+      "breaches": 0,
+      "result": "connection",
+      "illegal": 0,
+      "meanDecisionMs": 8.65
+    },
+    {
+      "mode": "normal",
+      "seed": "flank-contact-41",
+      "actions": 180,
+      "flankActions": 133,
+      "contactPairs": 14,
+      "opponentsPerFaction": [
+        5,
+        4,
+        5,
+        5,
+        4,
+        5
+      ],
+      "suppliedGaps": [
+        8,
+        3,
+        8,
+        5,
+        11,
+        8
+      ],
+      "recordAdvances": 67,
+      "longestStalledOwnTurns": 18,
+      "captures": 42,
+      "destroyed": 5,
+      "rests": 0,
+      "breaches": 0,
+      "result": "bounded observation, unfinished",
+      "illegal": 0,
+      "meanDecisionMs": 8.04
+    },
+    {
+      "mode": "auto",
+      "seed": "flank-contact-17",
+      "actions": 240,
+      "flankActions": 226,
+      "contactPairs": 7,
+      "opponentsPerFaction": [
+        3,
+        3,
+        2,
+        2,
+        2,
+        2
+      ],
+      "suppliedGaps": [
+        28,
+        31,
+        17,
+        12,
+        13,
+        17
+      ],
+      "recordAdvances": 126,
+      "longestStalledOwnTurns": 18,
+      "captures": 26,
+      "destroyed": 7,
+      "rests": 0,
+      "breaches": 0,
+      "result": "bounded observation, unfinished",
+      "illegal": 0,
+      "meanDecisionMs": 9.41
+    },
+    {
+      "mode": "auto",
+      "seed": "flank-contact-41",
+      "actions": 240,
+      "flankActions": 208,
+      "contactPairs": 12,
+      "opponentsPerFaction": [
+        5,
+        4,
+        4,
+        4,
+        5,
+        2
+      ],
+      "suppliedGaps": [
+        11,
+        25,
+        18,
+        8,
+        16,
+        14
+      ],
+      "recordAdvances": 130,
+      "longestStalledOwnTurns": 16,
+      "captures": 21,
+      "destroyed": 10,
+      "rests": 0,
+      "breaches": 0,
+      "result": "bounded observation, unfinished",
+      "illegal": 0,
+      "meanDecisionMs": 8.84
+    }
+  ]
+}

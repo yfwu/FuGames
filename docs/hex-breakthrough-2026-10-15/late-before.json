@@ -1,0 +1,95 @@
+{
+  "fixture": "Shielded supplied entrance; defended opposite edge; one legal unshielded breach; five-own-action cap; resting opponents",
+  "runs": [
+    {
+      "mode": "auto",
+      "seed": "breach-wall",
+      "ownActions": 5,
+      "target": 11,
+      "connected": false,
+      "actions": [
+        {
+          "type": "deploy",
+          "cells": [
+            32
+          ],
+          "reason": "short_route"
+        },
+        {
+          "type": "deploy",
+          "cells": [
+            50
+          ],
+          "reason": "continue_plan"
+        },
+        {
+          "type": "engineer",
+          "cells": [
+            31
+          ],
+          "reason": "continue_plan"
+        },
+        {
+          "type": "deploy",
+          "cells": [
+            73
+          ],
+          "reason": "stalled"
+        },
+        {
+          "type": "deploy",
+          "cells": [
+            74
+          ],
+          "reason": "continue_plan"
+        }
+      ],
+      "score": 0
+    },
+    {
+      "mode": "normal",
+      "seed": "breach-wall",
+      "ownActions": 5,
+      "target": 6,
+      "connected": false,
+      "actions": [
+        {
+          "type": "deploy",
+          "cells": [
+            18
+          ],
+          "reason": "short_route"
+        },
+        {
+          "type": "deploy",
+          "cells": [
+            27
+          ],
+          "reason": "continue_plan"
+        },
+        {
+          "type": "engineer",
+          "cells": [
+            17
+          ],
+          "reason": "continue_plan"
+        },
+        {
+          "type": "deploy",
+          "cells": [
+            41
+          ],
+          "reason": "stalled"
+        },
+        {
+          "type": "deploy",
+          "cells": [
+            42
+          ],
+          "reason": "continue_plan"
+        }
+      ],
+      "score": 0
+    }
+  ]
+}

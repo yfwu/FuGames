@@ -34,7 +34,7 @@ test('all mission programs enforce finite integer budgets, known enums, unique I
   for(const [field,bad] of [['id','__proto__'],['id','Bad ID'],['name','x'.repeat(33)],['name','bad\nname'],['mission','arbitrary'],['diplomacy','forced']])rejects(c=>{c.profiles[0][field]=bad;});
   rejects(c=>{c.profiles.push(copy(c.profiles[0]));},/不可重複/);
   rejects(c=>{c.profiles=Array.from({length:13},(_,i)=>({...copy(c.profiles[0]),id:'p'+i}));});
-  const c=sample();Object.assign(c.profiles[0].route,{side:-1,transport:'tunnel',maxDetour:18});Object.assign(c.profiles[0].airport,{maxOwnActions:6,maxSetupCost:36});Object.assign(c.profiles[0].commitment,{reviewOwnTurns:8,stalledOwnTurns:6,maxOwnTurns:36});assert.deepEqual(S.normalize(c),c);
+  const c=sample();Object.assign(c.profiles[0].route,{side:-1,transport:'tunnel',maxDetour:18});Object.assign(c.profiles[0].airport,{maxOwnActions:6,maxSetupCost:36});Object.assign(c.profiles[0].commitment,{reviewOwnTurns:8,stalledOwnTurns:6,maxOwnTurns:36});assert.deepEqual(S.normalize(c),{...c,tactics:structuredClone(S.DEFAULT_CONFIG.tactics)});
 });
 
 test('normalization never invokes accessors or custom array methods and rejects sparse profile lists',()=>{

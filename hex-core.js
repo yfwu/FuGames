@@ -33,7 +33,7 @@
   const PLANNER_LIMITS = Object.freeze({ nodes: 20, depth: 3, beam: 2, actionsPerPlan: 2, plans: 6, privatePath: 64, publicPath: 16, waypoints: 4 });
   const INTENT_TYPES = ['direct', 'flank', 'airport', 'interdict', 'defend', 'recover', 'fortify', 'expand'];
   const INTENT_STAGES = ['approach', 'build', 'hold', 'project', 'advance', 'repair'];
-  const INTENT_REASONS = ['short_route', 'less_contested', 'airport_projection', 'cut_supply', 'protect_connection', 'restore_supply', 'continue_plan', 'route_blocked', 'stalled', 'opportunity_changed', 'goal_reached', 'urgent_threat', 'open_lane', 'raid_supply', 'thin_supply', 'claim_depot'];
+  const INTENT_REASONS = ['short_route', 'less_contested', 'airport_projection', 'cut_supply', 'protect_connection', 'restore_supply', 'continue_plan', 'route_blocked', 'stalled', 'opportunity_changed', 'goal_reached', 'urgent_threat', 'open_lane', 'raid_supply', 'thin_supply', 'claim_depot', 'breakthrough'];
   const CARD_META = Object.freeze({
     turret: Object.freeze({ label: 'Turret', cost: 4, slots: 1,
       description: 'Fortify an own stone. Fires at one nonallied enemy within 3 every 3 owner turns; lasts 30 turns. Maximum 3 turrets.' }),
@@ -49,6 +49,7 @@
       description: 'Swap an own ordinary stone with an adjacent empty cell or nonallied ordinary enemy. Excludes anchors, turrets and bridge endpoints. Every target must already be within own range 5.' })
   });
   const ACTION_META = Object.freeze({
+    breach: Object.freeze({ label: 'Breakthrough order', slots: 1, cost: 6, description: 'One public reserve card after late stagnation. Mark an adjacent forward enemy; on your next action, Deploy may capture it regardless of support strength. A shield or severed supply stops the bonus. Expires after that action.' }),
     deploy: Object.freeze({ label: 'Deploy / capture', slots: 1, cost: 2,
       description: 'Place within 5 of an own stone for 2 energy (river must first be converted). Capture for 4 energy with sufficient adjacent support; hills add 1 defense but occupants retreat after three subsequent own actions.' }),
     engineer: Object.freeze({ label: 'Engineer', slots: 1, cost: 2,
@@ -276,6 +277,17 @@
     if (action.type === 'deploy') return state.board[(action.cells || [])[0]] ? 4 : 2;
     return CARD_META[action.type] ? CARD_META[action.type].cost : (ACTION_META[action.type] || {}).cost || 0;
   }
+  // The reserve is public, never drawn from a hidden hand. Every legal target
+  // extends a supplied adjacent stone toward the owner's opposite edge.
+  function breachTarget(state,p,i) {
+    if (!validCell(i) || !state.board[i] || state.board[i] === p || state.anchors[i] || allied(state,p,state.board[i]) || state.terrain[i] === 1) return false;
+    const supply=computeSupply(state,p),pl=state.players[p];
+    return ADJ[i].some(j=>supply[j] && CELLS[i][pl.axis]*pl.sign < CELLS[j][pl.axis]*pl.sign);
+  }
+  function breachBoost(state,p,i) {
+    const pl=state.players[p];
+    return pl.breachTarget === i && state.ply > pl.breachAtPly && !state.shields[i] && breachTarget(state,p,i);
+  }
   function legalAction(state, action) {
     if (!state || state.phase !== 'running' || !action || typeof action.type !== 'string') return false;
     const p = state.turn, player = state.players[p];
@@ -298,6 +310,7 @@
       let stones = 0; for (let i = 0; i < COUNT; i++) if (state.board[i] === p) stones++;
       return !state.board[b] && !state.anchors[b] && !(state.tunnels || []).some(t => t.path.slice(1,-1).includes(b)) && state.terrain[b] !== 1 && stones < MAX_STONES && state.turrets.filter(t => t.owner === p).length < RULES.maxTurrets;
     }
+    if (type === 'breach') return !!player.breachReady && !player.breachUsed && breachTarget(state,p,a);
     if (type === 'rest') return true;
     if (type === 'discard') return Number.isInteger(action.cardIndex) && action.cardIndex >= 0 && action.cardIndex < hand.length;
     if (type === 'deploy') {
@@ -307,7 +320,7 @@
       if (stones >= MAX_STONES) return false;
       if (!owner) return true;
       if (allied(state, p, owner)) return false;
-      const strength = combatStrength(state, p, a); return strength.attack > 0 && strength.attack >= strength.defense;
+      const strength = combatStrength(state, p, a); return breachBoost(state,p,a) || strength.attack > 0 && strength.attack >= strength.defense;
     }
     if (type === 'engineer') return !!sabotageTunnel(state, p, a) || !state.board[a] && state.terrain[a] === 1 || state.terrain[a] === 2 && (!state.board[a] || state.board[a] === p);
     if (type === 'tunnel') return tunnelLegal(state, p, cells);
@@ -422,6 +435,7 @@
           home, axis: AXES[seatSlot], sign: SIGNS[seatSlot], score: 0, energy: 5, profile: { ...profile },
           diplomacyUntil: 0, grudgeUntil: Array(playerCount + 1).fill(0), reputation: 0, goalActive: false, reached: false,
           lastGoalRound: -RULES.goalCooldown, goals: 0, ownerTurns: 0, stones: 3,
+          breachReady: false, breachUsed: false, breachTarget: -1, breachAtPly: -1, breachBestGap: RADIUS*2-1, breachStalled: 0,
           completedActions: 0, supplies: 0, airCooldown: 0, airportsActivated: 0, depotVisited: false };
         this.board[home] = p; this.anchors[home] = p;
         const inward = ADJ[home].filter(i => CELLS[i][AXES[seatSlot]] * SIGNS[seatSlot] === RADIUS - 1);
@@ -495,6 +509,17 @@
       }
       const from = this.board[i]; this._remove(i); this.players[p].score++; this.telemetry.destroyed++;
       this._event('destroy', p, this.players[p].name + ' destroyed a ' + this.players[from].name + ' stone.', { cells: [i], from, source, origin }); return true;
+    }
+    _updateBreach(p) {
+      const player=this.players[p],t=this.strategyConfig?.tactics || strategyProvider.DEFAULT_CONFIG.tactics;
+      const supply=computeSupply(this,p);let gap=RADIUS*2;
+      for(let i=0;i<COUNT;i++)if(supply[i])gap=Math.min(gap,RADIUS+CELLS[i][player.axis]*player.sign);
+      if(gap < player.breachBestGap) { player.breachBestGap=gap;player.breachStalled=0; }
+      else player.breachStalled=gap===0?0:(player.breachStalled||0)+1;
+      if(!player.breachUsed && !player.breachReady && !player.reached && gap>0 && player.completedActions>=t.breachMinOwnTurns && player.breachStalled>=t.breachStalledOwnTurns) {
+        player.breachReady=true;
+        this._event('breach-ready',p,player.name+' received its one-use breakthrough reserve.');
+      }
     }
     _beginTurn() {
       this._turnStarted = true;
@@ -680,7 +705,8 @@
         const [card] = this.hands[p].splice(cardIndex, 1); this.handAges[p].splice(cardIndex, 1); this.discardPile.push(card);
         if (CARD_META[type]) { this.telemetry.cardsUsed++; this.telemetry.perPlayer[p].cardsUsed++; }
       }
-      if (type === 'deploy') {
+      if (type === 'breach') { player.breachReady=false;player.breachUsed=true;player.breachTarget=a;player.breachAtPly=this.ply; }
+      else if (type === 'deploy') {
         if (this.board[a]) this._capture(p, a, 'deploy'); else { this.board[a] = p; this.unsupplied[a] = 0; }
       } else if (type === 'engineer') {
         const tunnel = sabotageTunnel(this,p,a);
@@ -734,10 +760,12 @@
         activeMs: this.activeMs, captures: this.telemetry.captures - before.captures, destroyed: this.telemetry.destroyed - before.destroyed, meaningful };
       this.lastAction = record; this.recentActions.push(record);
       if (this.recentActions.length > RULES.recentActionLimit) this.recentActions.shift();
-      const messages = { tunnel: 'constructed a public tunnel', deploy: 'deployed a stone', engineer: 'completed engineering', withdraw: 'withdrew a stone', turret: 'built a turret', shield: 'raised a shield', bridge: 'linked a bridge', reroute: 'rerouted a bridge', exchange: 'exchanged positions', offer: 'offered a pact', accept: 'accepted a pact', reject: 'rejected a pact', betray: 'broke a pact (−4 score)', discard: 'recycled a card', rest: 'rested', airdrop: 'airdropped a turret', bombard: 'launched an air bombardment' };
+      const messages = { breach: 'announced a breakthrough for its next action', tunnel: 'constructed a public tunnel', deploy: 'deployed a stone', engineer: 'completed engineering', withdraw: 'withdrew a stone', turret: 'built a turret', shield: 'raised a shield', bridge: 'linked a bridge', reroute: 'rerouted a bridge', exchange: 'exchanged positions', offer: 'offered a pact', accept: 'accepted a pact', reject: 'rejected a pact', betray: 'broke a pact (−4 score)', discard: 'recycled a card', rest: 'rested', airdrop: 'airdropped a turret', bombard: 'launched an air bombardment' };
       if (type !== 'destroy') this._event(type, p, player.name + ' ' + messages[type] + (action.target ? ' with ' + this.players[action.target].name : '') + '.', { cells: cells.slice(), target: action.target, ...(airAction ? { origin: a, source: type } : {}) });
       if (this._simulation) { this._supplyCache = null; this._simulationCells = Array.from({ length: playerCount + 1 }, () => []); for (let i = 0; i < COUNT; i++) if (this.board[i]) this._simulationCells[this.board[i]].push(i); }
-      this._settleSupply(p); this._completeOwnAction(p, beforeBoard, airAction, cells); this._draw(p); this.ply++;
+      this._settleSupply(p); this._completeOwnAction(p, beforeBoard, airAction, cells);
+      if(type!=='breach')player.breachTarget=-1;
+      this._updateBreach(p); this._draw(p); this.ply++;
       if (this.ply % playerCount === 0) this._roundEnd();
       if (!this._simulation) {
         const planned = sanitizePlanner(action.planner, p, this.ply - 1, player.strategyId);
@@ -1065,7 +1093,7 @@
     return strategicPlanner ? strategicPlanner.choose(view) : greedyAction(view);
   }
   const api = { Game, CORE_CONFIG, mode, playerCount, TURN_LIMIT, SEAT_SLOTS, RECIPE_SIZE, makeRecipe, legalSelection, tunnelLegal, transportLinks, RADIUS, COUNT, CELLS, ADJ, PLAYERS, CARD_META, ACTION_META, CARD_TYPES, DECK_SIZE, MAX_STONES,
-    RULES, PROFILES, PLANNER_LIMITS, index, distance, legalAction, chooseAction, inRange, computeSupply, goalCell, allied, alliesOf,
+    RULES, PROFILES, PLANNER_LIMITS, TACTICS: strategyProvider.DEFAULT_CONFIG.tactics, index, distance, breachTarget, breachBoost, legalAction, chooseAction, inRange, computeSupply, goalCell, allied, alliesOf,
     bridgeConflict, bridgesConflict, bridgeLegal, combatStrength, actionCost, AIRPORT_CELLS, DEPOT_CELLS, airportCells, airportStatus, activeAirport, sectorOf,
     createPublicSimulation, greedyAction };
   const provider = typeof module === 'object' && module.exports ? require('./autohex-planner.js') : globalThis.AutoHexPlanner;
