@@ -267,6 +267,22 @@ test('radars and drones lift fog only where they are', () => {
   assert.equal(g.sees(0, deep.x, deep.y, 1), false);
 });
 
+test('fog follows what each side owns, not a fixed half', () => {
+  const g = fixture();
+  const corner = { x: 40, y: 380 };
+  assert.ok(F.ownHalf(0, corner.x, corner.y));
+  assert.equal(g.sees(0, corner.x, corner.y, -1), false, 'own territory with nothing nearby is fogged');
+  const near = F.lanePoint(2, 60);
+  assert.equal(g.sees(0, near.x, near.y, 2), true, 'the base sees around itself');
+  const t = g.build(0, 0, 4, 'turret');
+  assert.equal(g.sees(0, corner.x, t.y - F.VISION.turret + 5, -1), true, 'a building sees around itself');
+  const raider = addDrone(g, 1, 0, 420);
+  g.sell(0, t.id);
+  assert.equal(g.observation(0).enemyDrones.some(d => d.id === raider.id), false, 'an enemy drone outside your sight stays hidden even on your half');
+  g.sendEngineer(0, 0); Object.assign(g.engineers[0], { x: raider.x, y: raider.y + 30 });
+  assert.equal(g.observation(0).enemyDrones.some(d => d.id === raider.id), true, 'engineers see too');
+});
+
 test('intel keeps ghosts of seen buildings until the spot is seen empty', () => {
   const g = fixture();
   const enemy = g.build(1, 0, 0, 'factory');

@@ -2,147 +2,153 @@ TAP version 13
 # Subtest: three lanes join two corner bases, with six mirrored slots per side
 ok 1 - three lanes join two corner bases, with six mirrored slots per side
   ---
-  duration_ms: 5.301523
+  duration_ms: 8.44923
   type: 'test'
   ...
 # Subtest: building checks phase, slot, occupancy and supply
 ok 2 - building checks phase, slot, occupancy and supply
   ---
-  duration_ms: 0.819465
+  duration_ms: 1.047881
   type: 'test'
   ...
 # Subtest: selling refunds half of the cost
 ok 3 - selling refunds half of the cost
   ---
-  duration_ms: 0.414629
+  duration_ms: 0.391871
   type: 'test'
   ...
 # Subtest: supply arrives once per second, depots add to it and AI difficulty scales it
 ok 4 - supply arrives once per second, depots add to it and AI difficulty scales it
   ---
-  duration_ms: 1.622787
+  duration_ms: 1.721303
   type: 'test'
   ...
 # Subtest: cards are drawn at 10 s and every 20 s after, up to three in hand
 ok 5 - cards are drawn at 10 s and every 20 s after, up to three in hand
   ---
-  duration_ms: 8.646334
+  duration_ms: 9.766356
   type: 'test'
   ...
 # Subtest: card draws follow the card weights
 ok 6 - card draws follow the card weights
   ---
-  duration_ms: 11.281055
+  duration_ms: 13.853129
   type: 'test'
   ...
 # Subtest: recon reveals the whole enemy half for a while
 ok 7 - recon reveals the whole enemy half for a while
   ---
-  duration_ms: 1.465158
+  duration_ms: 1.851743
   type: 'test'
   ...
 # Subtest: a strike lands after its delay and hits anything inside the radius
 ok 8 - a strike lands after its delay and hits anything inside the radius
   ---
-  duration_ms: 1.682431
+  duration_ms: 2.137669
   type: 'test'
   ...
 # Subtest: jamming downs enemy drones in a lane and stalls factories there
 ok 9 - jamming downs enemy drones in a lane and stalls factories there
   ---
-  duration_ms: 1.654297
+  duration_ms: 1.977139
   type: 'test'
   ...
 # Subtest: airdrop adds supply
 ok 10 - airdrop adds supply
   ---
-  duration_ms: 0.591091
+  duration_ms: 0.669699
   type: 'test'
   ...
 # Subtest: factories launch bursts of drones that each cost supply
 ok 11 - factories launch bursts of drones that each cost supply
   ---
-  duration_ms: 3.295934
+  duration_ms: 4.102861
   type: 'test'
   ...
 # Subtest: drones follow their lane, dogfight head-on, attack buildings and hit the base
 ok 12 - drones follow their lane, dogfight head-on, attack buildings and hit the base
   ---
-  duration_ms: 0.571214
+  duration_ms: 0.644143
   type: 'test'
   ...
 # Subtest: turrets shoot the closest threat and spend supply on every shell
 ok 13 - turrets shoot the closest threat and spend supply on every shell
   ---
-  duration_ms: 0.393485
+  duration_ms: 0.339083
   type: 'test'
   ...
 # Subtest: engineers walk to their lane, repair the most damaged building and expire
 ok 14 - engineers walk to their lane, repair the most damaged building and expire
   ---
-  duration_ms: 3.28701
+  duration_ms: 4.254148
   type: 'test'
   ...
 # Subtest: radars and drones lift fog only where they are
 ok 15 - radars and drones lift fog only where they are
   ---
-  duration_ms: 0.32834
+  duration_ms: 0.360179
+  type: 'test'
+  ...
+# Subtest: fog follows what each side owns, not a fixed half
+ok 16 - fog follows what each side owns, not a fixed half
+  ---
+  duration_ms: 0.728866
   type: 'test'
   ...
 # Subtest: intel keeps ghosts of seen buildings until the spot is seen empty
-ok 16 - intel keeps ghosts of seen buildings until the spot is seen empty
+ok 17 - intel keeps ghosts of seen buildings until the spot is seen empty
   ---
-  duration_ms: 5.619248
+  duration_ms: 2.121742
   type: 'test'
   ...
 # Subtest: the AI only reads what its side can see
-ok 17 - the AI only reads what its side can see
+ok 18 - the AI only reads what its side can see
   ---
-  duration_ms: 1.295814
+  duration_ms: 1.558644
   type: 'test'
   ...
 # Subtest: the strike AI aims at fresh intel clusters and only guesses with a full hand
-ok 18 - the strike AI aims at fresh intel clusters and only guesses with a full hand
+ok 19 - the strike AI aims at fresh intel clusters and only guesses with a full hand
   ---
-  duration_ms: 0.373791
+  duration_ms: 0.476282
   type: 'test'
   ...
 # Subtest: the round ends on a destroyed HQ, a double KO or the time limit
-ok 19 - the round ends on a destroyed HQ, a double KO or the time limit
+ok 20 - the round ends on a destroyed HQ, a double KO or the time limit
   ---
-  duration_ms: 0.535193
+  duration_ms: 0.376786
   type: 'test'
   ...
 # Subtest: pausing freezes the simulation
-ok 20 - pausing freezes the simulation
+ok 21 - pausing freezes the simulation
   ---
-  duration_ms: 0.749064
+  duration_ms: 0.430178
   type: 'test'
   ...
 # Subtest: matches are deterministic for a seed
-ok 21 - matches are deterministic for a seed
+ok 22 - matches are deterministic for a seed
   ---
-  duration_ms: 1425.230224
+  duration_ms: 3089.262143
   type: 'test'
   ...
 # Subtest: AI mirror matches use every system and finish within the time limit
-ok 22 - AI mirror matches use every system and finish within the time limit
+ok 23 - AI mirror matches use every system and finish within the time limit
   ---
-  duration_ms: 3080.120207
+  duration_ms: 8347.050696
   type: 'test'
   ...
 # Subtest: harder AI beats easier AI across swapped seats
-ok 23 - harder AI beats easier AI across swapped seats
+ok 24 - harder AI beats easier AI across swapped seats
   ---
-  duration_ms: 8928.733409
+  duration_ms: 21359.209594
   type: 'test'
   ...
-1..23
-# tests 23
+1..24
+# tests 24
 # suites 0
-# pass 23
+# pass 24
 # fail 0
 # cancelled 0
 # skipped 0
 # todo 0
-# duration_ms 13597.789888
+# duration_ms 33003.446954

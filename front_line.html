@@ -69,8 +69,8 @@
     <details class="card rules"><summary>玩法與操作</summary><div class="rules-body"><ul class="list">
       <li>你的大本營在左下角，AI 的在右上角，對角虛線是前線。上路沿左邊與上緣、中路走對角線、下路沿下緣與右邊，三路都連接雙方大本營。每一路靠近自己大本營的地方有 6 個建築空位。大本營 200 點，被打到 0 就輸；10 分鐘到時大本營剩較多者勝。</li>
       <li><strong>無人機工廠</strong>每 8 秒連續放出 3 架無人機（每架 3 物資），沿著所在的路飛向敵方大本營。兩邊無人機在同一路迎面相遇會停下纏鬥；碰到敵方建築就停下攻擊，飛到底就撞擊大本營扣 4 點。中路最短，上下路較長。</li>
-      <li><strong>防空砲塔</strong>打射程內的敵方無人機（靠近大本營時三路很近，可以互相支援），每發砲彈消耗 0.5 物資。<strong>補給站</strong>每秒多 2 物資，<strong>偵查站</strong>讓你看清同一路的整段敵方陣地。</li>
-      <li><strong>迷霧</strong>：敵方陣地預設看不到。偵查站、自己的無人機附近、全圖偵察卡可以照亮；看過的建築會留下虛線「最後目擊」標記，但可能已經不在了。AI 也只知道它看得到的東西。</li>
+      <li><strong>防空砲塔</strong>打射程內的敵方無人機（靠近大本營時三路很近，可以互相支援），每發砲彈消耗 0.5 物資。<strong>補給站</strong>每秒多 2 物資，<strong>偵查站</strong>視野最大，還能看清它所在那一路從頭到尾的動靜。</li>
+      <li><strong>迷霧</strong>：只看得到自己單位視野內的地方。大本營、每座建築、無人機與工程師各有一圈視野（偵查站最大），沒有視野的地方就算在自己陣地也會蒙上淡霧，敵方陣地則是濃霧。全圖偵察卡可以暫時照亮全部；看過的敵方建築會留下「最後目擊」殘影，但可能已經不在了。AI 也只知道它看得到的東西。</li>
       <li><strong>物資</strong>：每秒基本 +4。工廠出機、砲塔開火都要物資，存量見底時工廠停工、砲塔啞火。出售建築取回一半。</li>
       <li><strong>工程師</strong>（25）從大本營走到指定的一路，15 秒內持續修理那一路受損最重的建築；每一路同時只能有一隊。</li>
       <li><strong>手牌</strong>每 20 秒抽一張：全圖偵察（8 秒看見全部）、轟炸（點任意位置，1.5 秒後落下，摧毀範圍內敵方無人機並重創建築）、電子干擾（點一路，擊落那一路的敵方無人機並讓敵方在那一路的工廠停工 8 秒）、物資空投（+100）。</li>
@@ -120,6 +120,8 @@
     };
     const DRONE = { hp: 36, speed: 55, damage: 10, hqDamage: 4, engage: 22, sight: 70, dogfight: 9, contact: 16 };
     const ENGINEER = { cost: 25, speed: 90, repair: 12, duration: 15 * TPS };
+    // Sight radius of everything a side owns; outside it the map is fogged, on either half.
+    const VISION = { base: 190, factory: 90, turret: 110, radar: 170, depot: 90, drone: DRONE.sight, engineer: 60 };
     const CARDS = {
       recon: { name: '全圖偵察', weight: 3, ticks: 8 * TPS },
       strike: { name: '轟炸', weight: 3, delay: 1.5 * TPS, radius: 75, damage: 140 },
@@ -230,11 +232,12 @@
       }
       // What `side` can see of the enemy half at a point in a lane.
       sees(side, x, y, lane) {
-        if (ownHalf(side, x, y)) return true;
-        const me = this.sides[side];
+        const me = this.sides[side], near = (o, r) => Math.hypot(o.x - x, o.y - y) <= r;
         if (me.revealUntil > this.tick) return true;
-        if (me.structures.some(s => s.type === 'radar' && s.lane === lane)) return true;
-        return this.drones.some(d => d.side === side && Math.hypot(d.x - x, d.y - y) <= DRONE.sight);
+        if (near(BASE[side], VISION.base)) return true;
+        // A radar watches its whole lane, all the way to the enemy base.
+        if (me.structures.some(s => (s.type === 'radar' && s.lane === lane) || near(s, VISION[s.type]))) return true;
+        return this.drones.some(d => d.side === side && near(d, VISION.drone)) || this.engineers.some(e => e.side === side && near(e, VISION.engineer));
       }
       updateIntel(side) {
         const intel = this.intel[side], foe = this.sides[1 - side];
@@ -483,7 +486,7 @@
       return null;
     }
 
-    return { Game, SIZE, LANES, TPS, DT, TIME_LIMIT, PAY_TICKS, CARD_TICKS, FIRST_CARD, HAND, START_SUPPLY, BASE_INCOME, HQ_HP, BASE, BASE_REACH, PATHS, LANE_NAMES, ROWS, SELL_RATE, MAX_DRONES,
+    return { Game, SIZE, LANES, TPS, DT, TIME_LIMIT, PAY_TICKS, CARD_TICKS, FIRST_CARD, HAND, START_SUPPLY, BASE_INCOME, HQ_HP, BASE, BASE_REACH, VISION, PATHS, LANE_NAMES, ROWS, SELL_RATE, MAX_DRONES,
       STRUCTS, DRONE, ENGINEER, CARDS, PROFILES, laneLength, lanePoint, slotPos, ownHalf, planAI, strikeTarget, seededRandom };
   })();
   </script>
@@ -594,12 +597,12 @@
       }
     }
   })();
-  // Each fog cell remembers which lanes' enemy stretch a radar there would light up.
+  // Each fog cell remembers which lanes a radar would light it through, and which half of the map it is on.
   const fogLanes = new Uint8Array(CELLS * CELLS), enemyCell = new Uint8Array(CELLS * CELLS);
   for (let cy = 0; cy < CELLS; cy++) for (let cx = 0; cx < CELLS; cx++) {
     const x = (cx + .5) * CELL * PX, y = (cy + .5) * CELL * PX, i = cy * CELLS + cx;
     enemyCell[i] = F.ownHalf(1, x, y) ? 1 : 0;
-    for (let lane = 0; lane < F.LANES; lane++) if (laneDistance(x, y, lane, F.laneLength(lane) / 2) <= 70) fogLanes[i] |= 1 << lane;
+    for (let lane = 0; lane < F.LANES; lane++) if (laneDistance(x, y, lane) <= 40) fogLanes[i] |= 1 << lane;
   }
   let prevPos = new Map(), fx = [], hqFlash = [0, 0];
   const lerpPos = (o, t) => { const p = prevPos.get(o.id); return p ? { x: p.x + (o.x - p.x) * t, y: p.y + (o.y - p.y) * t } : { x: o.x, y: o.y }; };
@@ -665,6 +668,33 @@
         if (n < .5) dot(bp(q.x) + Math.round((n - .25) * 40), bp(q.y) + Math.round((hash(tick, Math.floor(pos)) - .5) * 20), n < .25 ? '#ffffff' : team[side].h);
       }
     }
+    // Fog: everything outside your sight is covered by dithered cells; ground you hold is only lightly shrouded.
+    if (!all && g.sides[0].revealUntil <= tick) {
+      let lit = 0;
+      const eyes = [{ x: F.BASE[0].x, y: F.BASE[0].y, r: F.VISION.base }];
+      for (const s of g.sides[0].structures) { eyes.push({ x: s.x, y: s.y, r: F.VISION[s.type] }); if (s.type === 'radar') lit |= 1 << s.lane; }
+      for (const d of g.drones) if (d.side === 0) eyes.push({ x: d.x, y: d.y, r: F.VISION.drone });
+      for (const e of g.engineers) if (e.side === 0) eyes.push({ x: e.x, y: e.y, r: F.VISION.engineer });
+      const seen = new Uint8Array(CELLS * CELLS);
+      for (let i = 0; i < seen.length; i++) {
+        if (fogLanes[i] & lit) { seen[i] = 1; continue; }
+        const x = (i % CELLS + .5) * CELL * PX, y = (Math.floor(i / CELLS) + .5) * CELL * PX;
+        seen[i] = eyes.some(o => Math.hypot(o.x - x, o.y - y) <= o.r) ? 1 : 0;
+      }
+      const drift = Math.floor(tick / 10);
+      for (let cy = 0; cy < CELLS; cy++) for (let cx = 0; cx < CELLS; cx++) {
+        const i = cy * CELLS + cx;
+        if (seen[i]) continue;
+        const edge = (cx > 0 && seen[i - 1]) || (cx < CELLS - 1 && seen[i + 1]) || (cy > 0 && seen[i - CELLS]) || (cy < CELLS - 1 && seen[i + CELLS]);
+        const deep = enemyCell[i], x0 = cx * CELL, y0 = cy * CELL;
+        for (let y = 0; y < CELL; y++) for (let x = 0; x < CELL; x++) {
+          const px = x0 + x, py = y0 + y;
+          if ((edge || !deep) && (px + py) % 2) continue;
+          const n = hash(px + drift, py);
+          dot(px, py, deep ? (n < .12 ? '#4a5266' : n < .5 ? '#2c3242' : '#323a4c') : (n < .5 ? '#2c3242cc' : '#323a4ccc'));
+        }
+      }
+    }
     // Empty own slots.
     for (let lane = 0; lane < F.LANES; lane++) for (let slot = 0; slot < 6; slot++) {
       if (g.structureAt(0, lane, slot)) continue;
@@ -676,31 +706,6 @@
     for (const s of g.sides[1].structures) if (all || g.sees(0, s.x, s.y, s.lane)) drawBuilding(s, 1);
     for (const e of g.engineers) if (e.side === 0 || all || g.sees(0, e.x, e.y, e.lane)) drawEngineer(e, t, tick);
     for (const d of g.drones) if (d.side === 0 || all || g.sees(0, d.x, d.y, d.lane)) drawDrone(d, t, tick);
-    // Fog: dithered cells over the enemy half, with a softer checkerboard where it meets vision.
-    if (!all && g.sides[0].revealUntil <= tick) {
-      let lit = 0;
-      for (const s of g.sides[0].structures) if (s.type === 'radar') lit |= 1 << s.lane;
-      const own = g.drones.filter(d => d.side === 0 && F.ownHalf(1, d.x, d.y));
-      const seen = new Uint8Array(CELLS * CELLS);
-      for (let i = 0; i < seen.length; i++) {
-        if (!enemyCell[i] || fogLanes[i] & lit) { seen[i] = 1; continue; }
-        const x = (i % CELLS + .5) * CELL * PX, y = (Math.floor(i / CELLS) + .5) * CELL * PX;
-        seen[i] = own.some(d => Math.hypot(d.x - x, d.y - y) <= F.DRONE.sight) ? 1 : 0;
-      }
-      const drift = Math.floor(tick / 10);
-      for (let cy = 0; cy < CELLS; cy++) for (let cx = 0; cx < CELLS; cx++) {
-        const i = cy * CELLS + cx;
-        if (seen[i]) continue;
-        const edge = (cx > 0 && seen[i - 1]) || (cx < CELLS - 1 && seen[i + 1]) || (cy > 0 && seen[i - CELLS]) || (cy < CELLS - 1 && seen[i + CELLS]);
-        const x0 = cx * CELL, y0 = cy * CELL;
-        for (let y = 0; y < CELL; y++) for (let x = 0; x < CELL; x++) {
-          const px = x0 + x, py = y0 + y;
-          if (edge && (px + py) % 2) continue;
-          const n = hash(px + drift, py);
-          dot(px, py, n < .12 ? '#4a5266' : n < .5 ? '#2c3242' : '#323a4c');
-        }
-      }
-    }
     // Last sightings of enemy buildings.
     const ghosts = [];
     if (!all) for (const k of g.intel[0].values()) if (!g.sees(0, k.x, k.y, k.lane)) { drawBuilding(k, 1, tick % 30 < 20 ? .55 : .35); ghosts.push(k); }
