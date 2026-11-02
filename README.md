@@ -14,28 +14,34 @@ python -m http.server 8000 --bind 0.0.0.0
 
 本次雲端 Chromium 的管理政策禁止 `file://`（`ERR_BLOCKED_BY_ADMINISTRATOR`），因此驗證與預覽使用本機 HTTP。遊戲不會向伺服器傳送遊戲狀態；頁面載入後已驗證可在離線模式繼續遊玩。
 
-2026-11-02：首頁 16 款（新增 AutoHex-3D）。2026-10-14：首頁 15 款；[封存遊戲](archive.html)保留 2 款及舊網址。[分批驗證](docs/refresh-2026-10-14/verification.md)與[三子立體提案](docs/refresh-2026-10-14/cyclic-3d-proposal.md)。三子原遊戲未更動。
+2026-11-02（二）：首頁精簡為 7 款，新增[立體三子循環棋](docs/cyclic-3d-2026-11-02/notes.md)；AutoHex、MiniHex、重力大亂鬥、四人拉密、鋼芯競技場、星點吞噬、環面直落四子、軌道棋、三路前線與平面版三子循環棋移入[封存遊戲](archive.html)（共 12 款，舊網址不變）。2026-11-02：首頁 16 款（新增 AutoHex-3D）。2026-10-14：首頁 15 款；[封存遊戲](archive.html)保留 2 款及舊網址。[分批驗證](docs/refresh-2026-10-14/verification.md)與[三子立體提案](docs/refresh-2026-10-14/cyclic-3d-proposal.md)。三子原遊戲未更動。
 
 ## 遊戲
 
-- 已封存 Tux 2D：`tux2d.html`（原創追尾像素山路快遞；三站配送、岔路補給、道具與四位 AI）
-- AutoHex：`autohex.html`（共用 Hex 核心的大型六方戰役；六 AI 觀戰或人類下場）
+首頁（7 款）：
+
 - AutoHex-3D：`autohex_3d.html`（與 AutoHex 同一規則核心與 AI 的 3D 即時指揮版；補給線／陣地圖層、指揮時限與指令佇列）
-- MiniHex（原抽牌 Hex）：`card_hex.html`（271 格、2–6 席本機玩家／AI，無聯盟）
-- 重力大亂鬥：`gravity_brawl.html`
-- 已封存 翻轉五子棋：`flip_five.html`
+- 立體三子循環棋：`cyclic_tictactoe_3d.html`（3×3×3、49 條連線、每人三顆 FIFO；交換規則、三次重複與 120 手和局；可旋轉立體圖加三層平面輸入；規則核心 `cyclic3d-engine.js`，AI 在 `cyclic3d-ai-worker.js` 執行）
 - 效果貪食蛇：`effect_snake.html`（90 秒質量競賽；花質量加速、同格爭食、蛇身反制）
-- 四人拉密：`rummikub.html`（原始 FuLab 四人拉密；拖放、30 點起手、Joker、三位本機 AI）
 - 複式橋牌：`duplicate_bridge.html`
 - 經典 21 點：`blackjack.html`
-- 鋼芯競技場：`tank_arena.html`（雙蟲回合炮擊、可破壞地形、建築與四種戰術牌）
 - 脈衝擂台：`pulse_arena.html`（原有蓄力慣性，另有定錨／強脈衝／救命盾／黑洞）
-- 三子循環棋：`cyclic_tictactoe.html`
+- 圈地漫遊 Territory Loop：`territory_loop.html`
+
+已封存（12 款，[archive.html](archive.html)；保留原版與舊網址）：
+
+- Tux 2D：`tux2d.html`（原創追尾像素山路快遞；三站配送、岔路補給、道具與四位 AI）
+- 翻轉五子棋：`flip_five.html`
+- AutoHex：`autohex.html`（共用 Hex 核心的大型六方戰役；六 AI 觀戰或人類下場）
+- MiniHex（原抽牌 Hex）：`card_hex.html`（271 格、2–6 席本機玩家／AI，無聯盟）
+- 重力大亂鬥：`gravity_brawl.html`
+- 四人拉密：`rummikub.html`（原始 FuLab 四人拉密；拖放、30 點起手、Joker、三位本機 AI）
+- 鋼芯競技場：`tank_arena.html`（雙蟲回合炮擊、可破壞地形、建築與四種戰術牌）
+- 星點吞噬 Star Feast：`star_feast.html`
 - 環面直落四子：`cyclic_connect4_torus.html`
 - 軌道棋：`trackgame.html`
-- 圈地漫遊 Territory Loop：`territory_loop.html`
+- 三子循環棋（平面版）：`cyclic_tictactoe.html`
 - 三路前線：`front_line.html`（對角大本營、上中下三路、迷霧、物資；無人機工廠、防空砲、偵查站、工程師與轟炸卡）
-- 星點吞噬 Star Feast：`star_feast.html`
 
 八款擴充的逐款規則與 AI 說明見 [開發文件](docs/expansion-games.md)，分工見 [實作計畫](docs/expansion-plan.md)，測試證據與限制見 [驗證紀錄](docs/expansion-validation.md)。
 
