@@ -24,7 +24,7 @@
       if (i !== cell && before[i] && !after[i] && !view.anchors[i]) affected.push(i);
     }
     return { cell, owner, affected, losesGoal: hadGoal && !hasGoal,
-      retreats: affected.map(i => ({ cell: i, ownActions: Math.max(1, engine.RULES.unsuppliedTurns - (view.unsupplied?.[i] || 0)) })) };
+      retreats: affected.map(i => ({ cell: i, ownActions: Math.max(1, view.reserve?.[i] ?? engine.RULES.unsuppliedTurns - (view.unsupplied?.[i] || 0)) })) };
   }
   function supplyForest(view, adjacency) {
     const result = [];

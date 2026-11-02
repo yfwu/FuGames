@@ -239,6 +239,7 @@ test('AutoHex automatic turrets honor an active pact and can target the former a
 test('AutoHex 96-stone cap permits voluntary withdrawal and rebuilding', () => {
   const g = fixture(), occupied = H.CELLS.slice().sort((a, b) => H.distance(a.i, center) - H.distance(b.i, center)).slice(0, 96);
   for (const c of occupied) g.board[c.i] = 1;
+  g.players[1].home = center; g.anchors[center] = 1; // Cap fixture remains supplied while rebuilding.
   const target = H.CELLS.find(c => !g.board[c.i] && H.ADJ[c.i].some(i => g.board[i] === 1)).i;
   sameInvalid(g, action('deploy', [target]));
   assert.ok(g.act(action('withdraw', [occupied.at(-1).i]))); assert.equal(g.board.filter(o => o === 1).length, 95);

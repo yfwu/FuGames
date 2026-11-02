@@ -27,7 +27,8 @@
   Object.assign(LABELS, { 'game-end': '本局結算', 'hill-retreat': '山丘撤退', 'card-expired': '手牌到期', 'tunnel-collapse': '地道崩塌', airdrop: '空投炮台', bombard: '航空轟炸', 'airport-unlocked': '機場啟用', 'airport-lost': '機場停用', 'depot-control': '物資站易主', fortified: '老兵工事完成' });
   const MARKS = { turret: '✣', destroy: '×', bridge: '⌁', reroute: '↗', shield: '◎', exchange: '⇄' };
   const HINTS = { breach: '一次性儲備卡：花 6 能量預告一枚與補給線相鄰、向對岸前進的敵格。下一次己方行動用「鋪子 / 攻占」花 4 能量強攻，忽略鄰援強度；護盾或斷補可阻止加成。改做其他事即失效。', deploy: '空格鋪子花 2 能量，攻占敵子花 4；攻占須有足夠相鄰支援。河流先工程整地。', engineer: '將河流或空／己方山丘變為白色平地；也可拆掉敵方可見地道的內部格。', tunnel: '從自己的棋子出發，逐格選 3–4 格相鄰路徑；可轉彎，最後回到另一枚自己的棋子，再按完成。', withdraw: '選自己的非家園棋子撤回，移除其設施並回復 1 能量。', turret: '選自己的非家園棋子架炮台。每 3 次自己回合射擊，射程 3 格。', destroy: '選敵方非家園棋子拆除；護盾可吸收一次拆除，山丘無法抵擋。', bridge: '依序選兩個自己的端點，相距 2–3 格直線；橋梁運送補給。', reroute: '依序選保留端點、舊端點、新端點；三格都是自己的棋子。', shield: '選自己的非家園棋子，加 2 防守並吸收一次拆除或炮擊。', exchange: '先選自己的普通棋子，再選相鄰的空格或敵方普通棋子。' };
-  Object.assign(HINTS, { airdrop: '先選已啟用的己方機場，再選機場 10 格內空的可通行格空投炮台。花 6 能量、3 物資。', bombard: '先選已啟用的己方機場，再選機場 12 格內敵方非家園棋子。花 7 能量、4 物資。' });
+  Object.assign(HINTS, { airdrop: '先選已啟用的己方機場，再選機場 10 格內空的可通行格空投炮台。花 6 能量、6 物資（含 3 存糧）。', bombard: '先選已啟用的己方機場，再選機場 12 格內敵方非家園棋子。花 7 能量、4 物資。' });
+  Object.assign(HINTS, { deploy: '鋪空格：2 能量，從 5 格內一枚己子移交 3 存糧，斷線來源另耗 1 行軍糧。攻占：4 能量，相鄰己子須有 4 存糧（3 移交、1 攻擊）；仍須足夠鄰援。', destroy: '拆除敵子：5 能量，5 格內己子另付 2 存糧。', shield: '架盾花 2 能量與當地 1 存糧；擋下一擊再耗 1，缺糧時無效。', turret: '建炮花 4 能量與當地 1 存糧；每次射擊再耗 2，缺糧停火。' });
   const CARD_GUIDE = {
     turret: '在自己既有的非家園棋子架設炮台；每 3 次自己的回合，射擊 3 格內一個非盟友敵子，持續 30 回合。最多同時 3 座。護盾會吸收一次炮擊。',
     destroy: '拆除自己 5 格範圍內的敵方棋子。不能拆家園或盟友；護盾會吸收一次拆除，山丘不抵擋拆除。',
@@ -36,6 +37,10 @@
     shield: '保護一個自己的非家園棋子，持續 8 次自己的回合。防守力 +2；吸收一次拆除或炮擊後消失。',
     exchange: '將一個自己的普通棋子，與相鄰空格或非盟友敵方普通棋子互換。雙方不能是家園、炮台或橋梁端點；河流須先工程轉為平地，兩格都須在行動前的自己 5 格範圍內。'
   };
+  CARD_GUIDE.turret += ' 建造付當地 1 存糧，每發付 2；不足則停火。';
+  CARD_GUIDE.destroy += ' 5 格內一枚己子須有 2 存糧並支付。';
+  CARD_GUIDE.shield += ' 架設付當地 1 存糧，吸收攻擊再付 1；缺糧時失效。';
+  CARD_GUIDE.exchange += ' 己子付 1 存糧，雙方剩餘存糧跟隨棋子移動。';
   const FALLBACK = { deploy: { cost: 2, slots: 1 }, engineer: { cost: 2, slots: 1 }, withdraw: { cost: 0, slots: 1 }, rest: { cost: 0, slots: 0 } };
   let points = E.CELLS.map(c => ({ x: Math.sqrt(3) * (c.q + c.r / 2), y: 1.5 * c.r }));
   let bounds = { minX: Math.min(...points.map(c => c.x)) - 2, maxX: Math.max(...points.map(c => c.x)) + 2, minY: Math.min(...points.map(c => c.y)) - 2, maxY: Math.max(...points.map(c => c.y)) + 2 };
@@ -305,7 +310,7 @@
       const score = node('div', 'ah-faction-score'); score.append(node('strong', '', player.score || 0), node('span', '', '分'));
       const count = view.board.reduce((n, owner) => n + (owner === p ? 1 : 0), 0);
       const goal = goalPoint(p), gi = points.reduce((best, c, i) => Math.hypot(c.x - goal.x, c.y - goal.y) < Math.hypot(points[best].x - goal.x, points[best].y - goal.y) ? i : best, 0);
-      el.append(top, score, node('small', 'ah-direction', `⌂ ${directionAt(player.home)} → ${directionAt(gi)}`), node('small', '', `能量 ${player.energy}/8 · 棋子 ${count}/96`), node('small', '', `物資 ${player.supplies || 0}/6 · 手牌 ${view.handCounts?.[p] || 0}/5${player.goalActive ? ' · 已接通' : ''}`));
+      el.append(top, score, node('small', 'ah-direction', `⌂ ${directionAt(player.home)} → ${directionAt(gi)}`), node('small', '', `能量 ${player.energy}/8 · 棋子 ${count}/96`), node('small', '', `物資庫 ${player.supplies || 0}/24 · 手牌 ${view.handCounts?.[p] || 0}/5${player.goalActive ? ' · 已接通' : ''}`));
       el.append(node('small','',player.breachTarget>=0?`⚑ 破陣預告 #${player.breachTarget} · 下次行動有效`:player.breachReady?'⚑ 破陣令可用':player.breachUsed?'破陣令已用':'破陣令待解鎖'));
       fragment.append(el);
     }
@@ -368,14 +373,14 @@
     $('action-heading').textContent = human ? '你的回合工具' : '觀戰資訊';
     $('energy').textContent = human ? `能量 ${view.players[observer() || game.turn].energy} / 8` : `${P.length} 位本機 AI`;
     const resourcePlayer = human ? p : game.turn, resources = view.players[resourcePlayer];
-    $('supplies').textContent = `${human ? '' : LETTER(resourcePlayer) + ' · '}物資 ${resources.supplies || 0} / 6 · 航空冷卻 ${resources.airCooldown || 0} 次己方行動`;
+    $('supplies').textContent = `${human ? '' : LETTER(resourcePlayer) + ' · '}物資庫 ${resources.supplies || 0} / 24 · 上次送達 ${resources.deliveredSupply || 0} · 運距 ${resources.haulUsed || 0}/96 · 航空冷卻 ${resources.airCooldown || 0} 次己方行動`;
     const tactics=view.strategyConfig.tactics;
     breachNote.textContent=resources.breachTarget>=0?`⚑ 已公開標記 #${resources.breachTarget}：下一次己方行動用「鋪子 / 攻占」，否則失效。護盾或斷補可反制。`:resources.breachUsed?'本局唯一破陣令已使用。':resources.breachReady?'⚑ 破陣令已取得：6 能量預告一格；下一次己方行動 4 能量攻占。':`一次性破陣令：完成 ${tactics.breachMinOwnTurns} 次己方行動，且連續 ${tactics.breachStalledOwnTurns} 次未刷新最接近對岸的補給紀錄，首次連通前取得。現為 ${resources.completedActions}/${tactics.breachMinOwnTurns} 行動、停滯 ${resources.breachStalled}/${tactics.breachStalledOwnTurns}。`;
     $('air-actions').hidden = !human;
     const activeAirports = (view.airports || []).filter(a => a.owner === observer() && a.active);
     for (const type of ['airdrop', 'bombard']) {
       const m = E.ACTION_META?.[type], button = $(type);
-      button.disabled = !yourTurn || !m || !activeAirports.length || resources.energy < m.cost || resources.supplies < m.supplyCost || resources.airCooldown > 0;
+      button.disabled = !yourTurn || !m || !activeAirports.length || resources.energy < m.cost || resources.supplies < m.supplyCost + (type === 'airdrop' ? E.RULES.deploymentSupply : 0) || resources.airCooldown > 0;
       button.setAttribute('aria-pressed', String(selection.type === type));
     }
     $('air-action-note').textContent = human ? activeAirports.length ? `已有 ${activeAirports.length} 座可用機場；先選機場再選目標，不需手牌。` : '可啟用有利於連線的機場，再空投或轟炸；主目標仍是接通對岸。' : '航空出手與物資都是公開的；查看支援據點可追蹤機場進度。';
@@ -516,7 +521,7 @@
     const c = E.CELLS[i], owner = view.board[i], anchor = view.anchors[i];
     const terrain = terrainIs(view.terrain[i], 'river') ? '河流' : terrainIs(view.terrain[i], 'hill') ? '山丘' : '平地';
     const turret = view.turrets.find(t => t.cell === i);
-    $('cell-info').textContent = `格 (${c.q}, ${c.r}) · ${anchor ? localName(anchor) + ' 永久家園' : owner ? localName(owner) + ' 棋子' : '空格'} · ${terrain}${owner && terrainIs(view.terrain[i], 'hill') ? ` · 山丘撤退倒數 ${3 - (view.hillAge?.[i] || 0)} 次己方行動` : ''}${(view.tunnels || []).some(t => t.path.includes(i)) ? ' · 公開地道路徑' : ''}${owner ? view.supplied?.[i] ? ' · 補給連通' : ` · 斷補 ${view.unsupplied?.[i] || 0}/6 回合` : ''}${owner && !anchor ? ` · 持守 ${view.age?.[i] || 0} 次己方行動${view.fortified?.[i] ? '，工事已成（防中立事件）' : '/31 成工事'}` : ''}${view.shields?.[i] ? ` · 護盾 ${view.shields[i]} 回合` : ''}${turret ? ` · 炮擊倒數 ${turret.countdown} / 壽命 ${turret.life}` : ''}${mode === 'human' && view.range?.[i] ? ' · 你的 5 格範圍內' : ''}`;
+    $('cell-info').textContent = `格 (${c.q}, ${c.r}) · ${anchor ? localName(anchor) + ' 永久家園' : owner ? localName(owner) + ' 棋子' : '空格'} · ${terrain}${owner && terrainIs(view.terrain[i], 'hill') ? ` · 山丘撤退倒數 ${3 - (view.hillAge?.[i] || 0)} 次己方行動` : ''}${(view.tunnels || []).some(t => t.path.includes(i)) ? ' · 公開地道路徑' : ''}${owner ? (view.supplied?.[i] ? ' · 路線連通' : ' · 路線切斷') + ` · 存糧 ${view.reserve?.[i] || 0}/6 · 上次送達 ${view.delivered?.[i] || 0} · 轉運 ${view.supplyLoad?.[i] || 0}/4` : ''}${owner && !anchor ? ` · 持守 ${view.age?.[i] || 0} 次己方行動${view.fortified?.[i] ? '，工事已成（防中立事件）' : '/31 成工事'}` : ''}${view.shields?.[i] ? ` · 護盾 ${view.shields[i]} 回合` : ''}${turret ? ` · 炮擊倒數 ${turret.countdown} / 壽命 ${turret.life}` : ''}${mode === 'human' && view.range?.[i] ? ' · 你的 5 格範圍內' : ''}`;
   }
   function paintInspection() {
     cutPreview = cutEnabled ? V.supplyCutPreview(view, inspectedCell, E, observer()) : null;
@@ -526,7 +531,7 @@
       const p = cutPreview, turns = p?.retreats.map(r => r.ownActions) || [];
       const delay = turns.length ? `${Math.min(...turns)}${Math.min(...turns) === Math.max(...turns) ? '' : '–' + Math.max(...turns)}` : '';
       cutInfo.textContent = p
-        ? `假設成功奪取 ${localName(p.owner)} 此格：另有 ${p.affected.length} 枚棋子立即斷補（橙色虛線圈）${p.losesGoal ? normal ? '；會切斷對岸連線' : '；會切斷守線得分連線，不扣已得分數' : '；不會切斷既有對岸連線'}。${turns.length ? `斷補不等於立即消滅；若未接回，於該陣營再完成 ${delay} 次己方行動後撤退，期間仍可能被攻擊或因山丘撤離。` : ''}僅預覽補給；不代表能合法攻占或必定成功。`
+        ? `假設成功奪取 ${localName(p.owner)} 此格：另有 ${p.affected.length} 枚棋子立即斷補（橙色虛線圈）${p.losesGoal ? normal ? '；會切斷對岸連線' : '；會切斷守線得分連線，不扣已得分數' : '；不會切斷既有對岸連線'}。${turns.length ? `斷補不等於立即消滅；若不作戰也未接回，現有存糧最多支撐 ${delay} 次己方行動；攻防支出或山丘會提早撤離。` : ''}僅預覽補給；不代表能合法攻占或必定成功。`
         : '斷補預覽 · 點選非家園的敵方棋子（觀戰可查看各方）。只查看、不出手；不預測攻占能否成功。';
     }
     $('inspect-mode').setAttribute('aria-pressed', String(inspectMode));
@@ -536,7 +541,7 @@
     $('turret-info').textContent = inspectedRange
       ? `${localName(inspectedRange.owner)} 炮台 · 射程 3 格 · 射擊倒數 ${inspectedRange.countdown} 次己方回合 · 壽命 ${inspectedRange.life} 回合。圈內標靶是目前可攻擊的 ${inspectedRange.targets.length} 枚敵子，並非預告下一個命中目標。`
       : airport ? `✈ 機場 · ${airport.owner ? localName(airport.owner) : '中立'} · ${airport.supplied ? '家園補給連通' : '尚未連回家園'} · 4 格內連片 ${airport.cluster}/12 子 · 維持 ${airport.progress}/3 次己方行動 · ${airport.active ? '已啟用：空投 10 格 / 轟炸 12 格' : '未啟用：持續占領並擴大連片'}`
-      : depot ? `◇ 物資站 · ${depot.owner ? localName(depot.owner) : '中立'} · ${depot.supplied ? '連回家園，每 3 次己方行動提供物資加成' : '占領並連回家園後提供物資加成'}`
+      : depot ? `◇ 物資站 · ${depot.owner ? localName(depot.owner) : '中立'} · ${depot.supplied ? '連回家園，每次己方行動產 2 物資' : '占領並連回家園後每次產 2 物資'}`
       : inspectMode ? '查看模式：點按炮台、機場或物資站。點格只查看，不會花費能量或出牌。' : '選「查看設施」後點按炮台顯示射程，或查看機場與物資站。';
   }
   function clockText() {
@@ -751,8 +756,13 @@
         const broken = view.supplied && !view.supplied[i], radius = Math.max(.48, (broken ? 3.5 : 2.3) / scale);
         ctx.fillStyle = broken ? '#fff' : COLORS[owner]; ctx.strokeStyle = COLORS[owner]; ctx.lineWidth = Math.max(.09, 1.1 / scale);
         ownerPath(owner, pt.x, pt.y, radius); ctx.fill(); if (broken) ctx.stroke();
-        if (broken) { ctx.strokeStyle = '#a87534'; ctx.lineWidth = Math.max(.1, 1.3 / scale); ctx.setLineDash([2.2 / scale, 1.5 / scale]); ctx.beginPath(); ctx.arc(pt.x, pt.y, radius + 1.9 / scale, 0, Math.PI * 2); ctx.stroke(); ctx.setLineDash([]); ctx.fillStyle = COLORS[owner]; ctx.font = `bold ${Math.max(.5, 7 / scale)}px sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(Math.max(0, 6 - (view.unsupplied?.[i] || 0)), pt.x, pt.y + .03); }
+        if (broken) { ctx.strokeStyle = '#a87534'; ctx.lineWidth = Math.max(.1, 1.3 / scale); ctx.setLineDash([2.2 / scale, 1.5 / scale]); ctx.beginPath(); ctx.arc(pt.x, pt.y, radius + 1.9 / scale, 0, Math.PI * 2); ctx.stroke(); ctx.setLineDash([]); ctx.fillStyle = COLORS[owner]; ctx.font = `bold ${Math.max(.5, 7 / scale)}px sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(view.reserve?.[i] || 0, pt.x, pt.y + .03); }
         else if (scale > 20 && !view.anchors[i]) { ctx.fillStyle = '#fff'; ctx.font = 'bold .51px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(LETTER(owner), pt.x, pt.y + .02); }
+      }
+      if(owner && !view.anchors[i]) {
+        const reserve=view.reserve?.[i]||0, w=Math.max(.8,8/scale), y=pt.y+.65;
+        if(reserve<3){ctx.fillStyle='#dfc9a8';ctx.fillRect(pt.x-w/2,y,w,Math.max(.09,2/scale));ctx.fillStyle=reserve?'#aa7430':'#b54949';ctx.fillRect(pt.x-w/2,y,w*Math.max(.08,reserve/6),Math.max(.09,2/scale));}
+        if(view.delivered?.[i]){ctx.fillStyle='#168b82';ctx.beginPath();ctx.arc(pt.x+.55,pt.y-.55,Math.max(.1,1.6/scale),0,Math.PI*2);ctx.fill();}
       }
       if (view.shields?.[i]) { ctx.strokeStyle = COLORS[owner] || '#708090'; ctx.lineWidth = .1; ctx.beginPath(); ctx.arc(pt.x, pt.y, .69, 0, Math.PI * 2); ctx.stroke(); }
       if (owner && view.fortified?.[i] && !view.anchors[i]) {

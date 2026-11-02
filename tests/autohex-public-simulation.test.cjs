@@ -15,7 +15,7 @@ function game(seed = 'public-forward-model') {
 }
 function publicConsequences(g) {
   const result = {};
-  for (const name of ['board', 'terrain', 'roads', 'anchors', 'shields', 'unsupplied', 'age', 'fortified', 'hillAge']) result[name] = Array.from(g[name]);
+  for (const name of ['board', 'terrain', 'roads', 'anchors', 'shields', 'unsupplied', 'age', 'fortified', 'hillAge', 'reserve', 'delivered', 'supplyLoad']) result[name] = Array.from(g[name]);
   for (const name of ['players', 'bridges', 'tunnels', 'turrets', 'airports', 'depots', 'offers', 'alliances', 'neutralWarning']) result[name] = JSON.parse(JSON.stringify(g[name]));
   for (const name of ['turn', 'ply', 'round']) result[name] = g[name];
   return result;

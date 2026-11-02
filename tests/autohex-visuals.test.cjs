@@ -43,7 +43,7 @@ for (const engine of [H, require('../cardhex-engine.js')]) {
   });
   test(`supply preview excludes already stranded pieces and preserves a second goal (${r})`, () => {
     const v = cutFixture(); v.board[at(0, 3)] = 2;
-    v.unsupplied[at(1, 0)] = 2;
+    v.unsupplied[at(1, 0)] = 2; v.reserve[at(1,0)] = 4;
     let p = V.supplyCutPreview(v, at(0, 0), engine);
     assert.ok(!p.affected.includes(at(0, 3)));
     assert.equal(p.retreats.find(x => x.cell === at(1, 0)).ownActions, engine.RULES.unsuppliedTurns - 2);

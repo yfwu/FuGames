@@ -26,7 +26,7 @@
     turretPeriod: 3, turretLife: 30, turretRange: 3, shieldTurns: 8,
     firstGoalScore: 12, repeatGoalScore: 6, holdingScore: 2, goalCooldown: 12,
     eventLimit: 96, recentActionLimit: 240, durationMs: 600000,
-    suppliesCap: 6, suppliesPeriod: 3, airportRadius: 4, airportStones: 12, airportHold: 3,
+    suppliesCap: 24, suppliesPeriod: 1, reserveCap: 6, deploymentSupply: 3, supplyProduction: 4, routeCapacity: 4, haulBudget: 96, deliveryCap: 2, airportRadius: 4, airportStones: 12, airportHold: 3,
     airCooldown: 6, airdropRange: 10, bombardRange: 12, fortifyAge: 31,
     neutralPeriod: 12, neutralWarningRounds: 2, neutralTargets: 2, bridgeMin: 2, bridgeMax: 3, maxTunnels: 2, tunnelMaxSteps: 3, hillTurns: 3, cardExpiryTurns: 3 });
   const MAX_STONES = RULES.maxStones;
@@ -36,22 +36,22 @@
   const INTENT_REASONS = ['short_route', 'less_contested', 'airport_projection', 'cut_supply', 'protect_connection', 'restore_supply', 'continue_plan', 'route_blocked', 'stalled', 'opportunity_changed', 'goal_reached', 'urgent_threat', 'open_lane', 'raid_supply', 'thin_supply', 'claim_depot', 'breakthrough'];
   const CARD_META = Object.freeze({
     turret: Object.freeze({ label: 'Turret', cost: 4, slots: 1,
-      description: 'Fortify an own stone. Fires at one nonallied enemy within 3 every 3 owner turns; lasts 30 turns. Maximum 3 turrets.' }),
+      description: 'Fortify an own stone. Fires at one nonallied enemy within 3 every 3 owner turns; lasts 30 turns. Costs 1 local reserve to build and 2 per shot; empty batteries cannot fire. Maximum 3 turrets.' }),
     destroy: Object.freeze({ label: 'Demolition', cost: 5, slots: 1,
-      description: 'Remove an enemy stone within 5. A shield absorbs one demolition. Permanent home anchors are immune.' }),
+      description: 'Remove an enemy stone within 5. Costs 2 reserves from an own stone within 5. A stocked shield absorbs one demolition. Permanent home anchors are immune.' }),
     bridge: Object.freeze({ label: 'Bridge', cost: 3, slots: 2,
       description: 'Join two existing own stones on one axial straight line 2–3 cells apart. Carries supply. No crossing, overlap, duplication or T junction; shared endpoints are legal.' }),
     reroute: Object.freeze({ label: 'Reroute', cost: 2, slots: 3,
       description: 'Select retained bridge endpoint, old other endpoint, then new own endpoint. Reattach the bridge, obeying the same distance and collision rules.' }),
     shield: Object.freeze({ label: 'Shield', cost: 2, slots: 1,
-      description: 'Protect an own non-anchor stone for 8 owner turns. Adds 2 defense and absorbs one demolition or turret shot.' }),
+      description: 'Protect an own non-anchor stone for 8 owner turns. Costs 1 local reserve to build. While stocked, adds 2 defense and spends 1 reserve to absorb a demolition or turret shot.' }),
     exchange: Object.freeze({ label: 'Exchange', cost: 3, slots: 2,
       description: 'Swap an own ordinary stone with an adjacent empty cell or nonallied ordinary enemy. Excludes anchors, turrets and bridge endpoints. Every target must already be within own range 5.' })
   });
   const ACTION_META = Object.freeze({
     breach: Object.freeze({ label: 'Breakthrough order', slots: 1, cost: 6, description: 'One public reserve card after late stagnation. Mark an adjacent forward enemy; on your next action, Deploy may capture it regardless of support strength. A shield or severed supply stops the bonus. Expires after that action.' }),
     deploy: Object.freeze({ label: 'Deploy / capture', slots: 1, cost: 2,
-      description: 'Place within 5 of an own stone for 2 energy (river must first be converted). Capture for 4 energy with sufficient adjacent support; hills add 1 defense but occupants retreat after three subsequent own actions.' }),
+      description: 'Place within 5 for 2 energy and transfer 3 reserves from one own stone (convert river first). Capture for 4 energy and 4 adjacent reserves with sufficient support; hills add 1 defense but occupants retreat after three subsequent own actions.' }),
     engineer: Object.freeze({ label: 'Engineer', slots: 1, cost: 2,
       description: 'Convert an empty river or empty/own hill to ordinary terrain, or sabotage a nonallied tunnel interior, within own range 5.' }),
     tunnel: Object.freeze({ label: 'Tunnel', slots: 3, maxSlots: 4, variableSlots: true, cost: 4, description: 'Join own endpoints with a public path of 2–3 adjacent steps. May bend and pass under ordinary terrain/stones; opponents can sabotage an interior with Engineer. Maximum 2.' }),
@@ -62,7 +62,7 @@
     discard: Object.freeze({ label: 'Discard', slots: 0, cost: 0,
       description: 'Recycle one card and draw a replacement. Ends the turn.' }),
     airdrop: Object.freeze({ label: 'Airdrop', slots: 2, cost: 6, supplyCost: 3, range: 10,
-      description: 'Select an active own airport, then an empty passable cell within 10. Deploy a stone and turret for 6 energy and 3 supplies; shared 6-action air cooldown. Unsupported drops still retreat.' }),
+      description: 'Select an active own airport, then an empty passable cell within 10. Deploy a stone and turret for 6 energy and 6 supplies (including 3 field reserves); shared 6-action air cooldown. Unsupported drops still retreat.' }),
     bombard: Object.freeze({ label: 'Bombard', slots: 2, cost: 7, supplyCost: 4, range: 12,
       description: 'Select an active own airport, then a nonallied non-anchor enemy within 12. Costs 7 energy and 4 supplies; shield absorbs, otherwise removes one stone. Shared 6-action air cooldown.' }),
     offer: Object.freeze({ label: 'Offer pact', slots: 0, cost: 0,
@@ -211,6 +211,67 @@
     }
     return supplied;
   }
+  // Supply is one resource: rear stock, transported reserves and air costs.
+  // Empty cells carry a default initial value only for scenario construction;
+  // every real deployment overwrites it with a paid three-unit field ration.
+  function reserveAt(state, i) { return state.reserve ? state.reserve[i] : RULES.reserveCap; }
+  function supplySource(state, p, target, amount = 1, range = RULES.range) {
+    return NEAR[target].filter(i => state.board[i] === p && distance(i, target) <= range && reserveAt(state, i) >= amount)
+      .sort((a,b) => distance(a,target)-distance(b,target) || reserveAt(state,b)-reserveAt(state,a) || a-b)[0];
+  }
+  function logisticsCost(state, action) {
+    if (action.type === 'airdrop') return RULES.deploymentSupply;
+    return 0;
+  }
+  function combatPayment(state, p, action) {
+    const [a] = action.cells || [];
+    if (action.type === 'deploy') {
+      if(state.board[a])return {cell:supplySource(state,p,a,4,1),amount:4};
+      const connected=computeSupply(state,p);
+      const candidates=NEAR[a].filter(i=>state.board[i]===p && reserveAt(state,i)>=RULES.deploymentSupply+(connected[i]?0:1));
+      candidates.sort((x,y)=>distance(x,a)-distance(y,a)||reserveAt(state,y)-reserveAt(state,x)||x-y);
+      const source=candidates[0];
+      // A disconnected transfer also pays travel upkeep; repeatedly placing a
+      // fresh stone cannot reset the same three rations into an immortal raid.
+      return {cell:source,amount:RULES.deploymentSupply+(connected[source]?0:1)};
+    }
+    if (action.type === 'destroy' || action.type === 'breach' || action.type === 'engineer' && sabotageTunnel(state,p,a)) return { cell: supplySource(state,p,a,2), amount: 2 };
+    if (action.type === 'shield' || action.type === 'turret' || action.type === 'exchange') return { cell: reserveAt(state,a) >= 1 ? a : undefined, amount: 1 };
+    return null;
+  }
+  // Deterministic, bounded flow allocation. Every delivered unit consumes one
+  // stock and one haul per hop. All routes share each cell's transit capacity;
+  // residual-path search automatically uses a second route when one fills up.
+  function supplyDelivery(state, p) {
+    const delivered = new Uint8Array(COUNT), load = new Uint8Array(COUNT), edges = new Map(), lengths = new Map();
+    const home = state.players[p].home, connected = computeSupply(state,p);
+    for (const link of transportLinks(state,p)) {
+      if (!edges.has(link.a)) edges.set(link.a,[]);
+      if (!edges.has(link.b)) edges.set(link.b,[]);
+      edges.get(link.a).push(link.b); edges.get(link.b).push(link.a);
+      const key=[link.a,link.b].sort((a,b)=>a-b).join(':'), span=link.path ? link.path.length-1 : distance(link.a,link.b);
+      lengths.set(key,Math.min(lengths.get(key)||Infinity,span));
+    }
+    let stock = state.players[p].supplies || 0, haul = RULES.haulBudget;
+    const targets = CELL_IDS.filter(i => state.board[i] === p && i !== home && connected[i] && reserveAt(state,i) < RULES.reserveCap);
+    targets.sort((a,b) => reserveAt(state,a)-reserveAt(state,b) || (a+state.players[p].completedActions)%COUNT-(b+state.players[p].completedActions)%COUNT);
+    for (let pass=0;pass<RULES.deliveryCap && stock && haul;pass++) for (const target of targets) {
+      if (!stock || !haul || reserveAt(state,target)+delivered[target] >= RULES.reserveCap) continue;
+      const prev = new Int32Array(COUNT).fill(-1), queue=[home]; prev[home]=home;
+      for (let k=0;k<queue.length && prev[target]<0;k++) for (const j of [...ADJ[queue[k]],...(edges.get(queue[k])||[])]) {
+        if (prev[j]>=0 || state.board[j]!==p || load[j]>=RULES.routeCapacity) continue;
+        prev[j]=queue[k];queue.push(j);
+      }
+      if (prev[target]<0) continue;
+      const path=[];for(let i=target;i!==home;i=prev[i])path.push(i);
+      // Bridges/tunnels save cells but still pay their physical span in haul.
+      let cost=0;for(const i of path){const span=distance(i,prev[i]);cost+=span===1?1:(lengths.get([i,prev[i]].sort((a,b)=>a-b).join(':'))||span);}
+      if(cost>haul)continue;
+      stock--;haul-=cost;delivered[target]++;
+      for(const i of path)load[i]++;
+    }
+    return { delivered, load, spent:(state.players[p].supplies||0)-stock, haul:RULES.haulBudget-haul };
+  }
   function airportStatus(state, i, supplied) {
     const owner = state.board[i] || 0;
     if (!owner || !(state.airports || []).some(a => a.cell === i)) return { owner, supplied: false, cluster: 0, qualified: false };
@@ -267,10 +328,11 @@
   }
   function adjacentCount(state, i, owner) { let n = 0; for (const j of ADJ[i]) if (state.board[j] === owner) n++; return n; }
   function combatStrength(state, player, i) {
-    let attack = adjacentCount(state, i, player);
-    if (attack) attack += (state.turrets || []).filter(t => t.owner === player && distance(t.cell, i) <= RULES.turretRange).length;
+    let attack = ADJ[i].filter(j => state.board[j] === player && reserveAt(state,j) > 0).length;
+    if (attack) attack += (state.turrets || []).filter(t => t.owner === player && reserveAt(state,t.cell) >= 2 && distance(t.cell, i) <= RULES.turretRange).length;
     const owner = state.board[i];
-    const defense = 1 + (state.terrain[i] === 2 ? 1 : 0) + (state.shields[i] ? 2 : 0) + Math.min(2, Math.floor(adjacentCount(state, i, owner) / 3));
+    const ready = reserveAt(state,i) > 0;
+    const defense = 1 + (state.terrain[i] === 2 ? 1 : 0) + (ready && state.shields[i] ? 2 : 0) + (ready ? Math.min(2, Math.floor(ADJ[i].filter(j => state.board[j] === owner && reserveAt(state,j)>0).length / 3)) : 0);
     return { attack, defense };
   }
   function actionCost(state, action) {
@@ -286,7 +348,7 @@
   }
   function breachBoost(state,p,i) {
     const pl=state.players[p];
-    return pl.breachTarget === i && state.ply > pl.breachAtPly && !state.shields[i] && breachTarget(state,p,i);
+    return pl.breachTarget === i && state.ply > pl.breachAtPly && !(state.shields[i] && reserveAt(state,i)>0) && breachTarget(state,p,i);
   }
   function legalAction(state, action) {
     if (!state || state.phase !== 'running' || !action || typeof action.type !== 'string') return false;
@@ -303,6 +365,9 @@
     const cardIndex = action.cardIndex === undefined ? hand.indexOf(type) : action.cardIndex;
     if (CARD_META[type] && (!Number.isInteger(cardIndex) || hand[cardIndex] !== type)) return false;
     if (player.energy < actionCost(state, action)) return false;
+    if ((player.supplies || 0) < logisticsCost(state,action) + (airAction ? meta.supplyCost : 0)) return false;
+    const payment = combatPayment(state,p,action);
+    if (payment && payment.cell === undefined) return false;
     const a = cells[0], b = cells[1], target = action.target;
     if (airAction) {
       if (!activeAirport(state, p, a) || (player.supplies || 0) < meta.supplyCost || (player.airCooldown || 0) > 0 || distance(a, b) > meta.range) return false;
@@ -398,6 +463,7 @@
       this._turnStarted = false; this._offerId = 0; this._eventId = 0; this.lastAction = null;
       this.board = new Uint8Array(COUNT); this.terrain = new Uint8Array(COUNT);
       this.roads = new Uint8Array(COUNT); this.anchors = new Uint8Array(COUNT);
+      this.reserve = new Uint8Array(COUNT).fill(RULES.reserveCap); this.delivered = new Uint8Array(COUNT); this.supplyLoad = new Uint8Array(COUNT);
       this.shields = new Uint8Array(COUNT); this.unsupplied = new Uint8Array(COUNT); this.hillAge = new Uint8Array(COUNT);
       this.age = new Uint16Array(COUNT); this.fortified = new Uint8Array(COUNT);
       this.airports = airportCells(seed).map((cell, id) => ({ id, cell, owner: 0, supplied: false, cluster: 0, progress: 0, active: false }));
@@ -436,7 +502,7 @@
           diplomacyUntil: 0, grudgeUntil: Array(playerCount + 1).fill(0), reputation: 0, goalActive: false, reached: false,
           lastGoalRound: -RULES.goalCooldown, goals: 0, ownerTurns: 0, stones: 3,
           breachReady: false, breachUsed: false, breachTarget: -1, breachAtPly: -1, breachBestGap: RADIUS*2-1, breachStalled: 0,
-          completedActions: 0, supplies: 0, airCooldown: 0, airportsActivated: 0, depotVisited: false };
+          completedActions: 0, supplies: 12, deliveredSupply: 0, haulUsed: 0, airCooldown: 0, airportsActivated: 0, depotVisited: false };
         this.board[home] = p; this.anchors[home] = p;
         const inward = ADJ[home].filter(i => CELLS[i][AXES[seatSlot]] * SIGNS[seatSlot] === RADIUS - 1);
         for (const i of inward) this.board[i] = p;
@@ -486,6 +552,7 @@
     _remove(i) {
       if (this.anchors[i]) return false;
       if (this._simulation) { this._supplyCache = null; const owner = this.board[i]; if (owner && this._simulationCells) this._simulationCells[owner] = this._simulationCells[owner].filter(j => j !== i); }
+      this.reserve[i] = 0; this.delivered[i] = 0; this.supplyLoad[i] = 0;
       this.board[i] = 0; this.shields[i] = 0; this.unsupplied[i] = 0; this.hillAge[i] = 0; this.age[i] = 0; this.fortified[i] = 0;
       this.bridges = this.bridges.filter(b => b.a !== i && b.b !== i);
       for (const tunnel of this.tunnels.filter(t => t.a === i || t.b === i)) this._collapseTunnel(tunnel, 0, 'endpoint-lost');
@@ -503,8 +570,8 @@
     }
     _damage(p, i, source, origin = null) {
       if (!this.board[i] || this.board[i] === p || this.anchors[i] || allied(this, p, this.board[i])) return false;
-      if (this.shields[i]) {
-        this.shields[i] = 0; this.telemetry.shieldBlocks++;
+      if (this.shields[i] && reserveAt(this,i) > 0) {
+        this.reserve[i]--; this.shields[i] = 0; this.telemetry.shieldBlocks++;
         this._event('shield-block', p, 'A shield absorbed ' + source + '.', { cells: [i], from: this.board[i], source, origin }); return true;
       }
       const from = this.board[i]; this._remove(i); this.players[p].score++; this.telemetry.destroyed++;
@@ -536,7 +603,7 @@
           const targets = NEAR[turret.cell].filter(i => distance(turret.cell, i) <= RULES.turretRange && this.board[i] && this.board[i] !== p && !this.anchors[i] && !allied(this, p, this.board[i]));
           targets.sort((a, b) => (this.turrets.some(t => t.cell === b) ? 3 : 0) + adjacentCount(this, b, this.board[b]) -
             ((this.turrets.some(t => t.cell === a) ? 3 : 0) + adjacentCount(this, a, this.board[a])) || distance(turret.cell, a) - distance(turret.cell, b) || a - b);
-          if (targets.length) { this.telemetry.turretShots++; this._damage(p, targets[0], 'turret', turret.cell); }
+          if (targets.length && this.reserve[turret.cell] >= 2) { this.reserve[turret.cell] -= 2; this.telemetry.turretShots++; this._damage(p, targets[0], 'turret', turret.cell); }
         }
       }
       this.turrets = this.turrets.filter(t => t.life > 0 && this.board[t.cell] === t.owner);
@@ -601,12 +668,8 @@
         }
       }
       this._refreshFacilities(p);
-      if (player.completedActions % RULES.suppliesPeriod === 0) {
-        const bonus = this.depots.some(d => d.owner === p && d.supplied) ? 1 : 0;
-        const gain = Math.min(RULES.suppliesCap - player.supplies, 1 + bonus);
-        player.supplies += gain; this.telemetry.suppliesEarned += gain;
-      }
     }
+
     _neutralRound() {
       if (!this.neutralEvents) return;
       if (this.neutralWarning && this.round >= this.neutralWarning.resolveRound) {
@@ -614,8 +677,8 @@
         for (const i of warning.cells) {
           const owner = this.board[i]; if (!owner || this.anchors[i]) continue;
           const protectedStone = this.fortified[i] || this.age[i] >= RULES.fortifyAge;
-          if (protectedStone || this.shields[i]) {
-            if (!protectedStone) this.shields[i] = 0;
+          if (protectedStone || this.shields[i] && this.reserve[i]>0) {
+            if (!protectedStone) { this.shields[i] = 0; this.reserve[i]--; }
             this.telemetry.neutralBlocks++;
             this._event('neutral-block', owner, (protectedStone ? 'A fortified stone resisted ' : 'A shield absorbed ') + warning.kind + '.',
               { cells: [i], from: owner, source: warning.kind, kind: warning.kind, sector: warning.sector, origin: null, protection: protectedStone ? 'fortification' : 'shield' });
@@ -636,16 +699,25 @@
         this._event('neutral-warning', 0, kind + ' warning: marked cells face danger in two rounds.', { ...this.neutralWarning, cells: cells.slice() });
       }
     }
-    _settleSupply(p) {
-      const supplied = computeSupply(this, p); let retreats = 0; const cells = [];
-      for (const i of this._simulationCells ? this._simulationCells[p].slice() : CELL_IDS) if (this.board[i] === p) {
-        if (supplied[i] || this.anchors[i]) this.unsupplied[i] = 0;
-        else if (++this.unsupplied[i] >= RULES.unsuppliedTurns) { this._remove(i); retreats++; cells.push(i); }
+    _settleSupply(p, beforeBoard = this.board) {
+      const supplied = computeSupply(this,p), player=this.players[p], cells=[];
+      const gain=Math.min(RULES.suppliesCap-player.supplies,RULES.supplyProduction+2*this.depots.filter(d=>this.board[d.cell]===p&&supplied[d.cell]).length);
+      player.supplies+=gain;this.telemetry.suppliesEarned+=gain;
+      for(const i of CELL_IDS) if(this.board[i]===p) {
+        this.delivered[i]=0;this.supplyLoad[i]=0;
+        if(this.anchors[i]) { this.unsupplied[i]=0; continue; }
+        if(supplied[i])this.unsupplied[i]=0;
+        else if(beforeBoard[i]===p) { this.unsupplied[i]++;this.reserve[i]=Math.max(0,this.reserve[i]-1);if(!this.reserve[i])cells.push(i); }
       }
-      if (retreats) {
-        this.telemetry.supplyRetreats += retreats;
-        this._event('supply-retreat', p, this.players[p].name + ' withdrew ' + retreats + ' unsupplied stone' + (retreats === 1 ? '' : 's') + '.', { count: retreats, cells });
-      }
+      // The permanent home also uses finite ammunition, replenished from stock.
+      const home=player.home, homeGain=this.board[home]===p ? Math.min(RULES.reserveCap-this.reserve[home],player.supplies,RULES.deliveryCap) : 0;
+      this.reserve[home]+=homeGain;player.supplies-=homeGain;this.delivered[home]=homeGain;
+      const flow=supplyDelivery(this,p);
+      player.supplies-=flow.spent;player.deliveredSupply=flow.spent+homeGain;player.haulUsed=flow.haul;
+      this.telemetry.suppliesSpent+=flow.spent+homeGain;
+      for(const i of CELL_IDS)if(this.board[i]===p){this.reserve[i]+=flow.delivered[i];this.delivered[i]+=flow.delivered[i];this.supplyLoad[i]=flow.load[i];}
+      for(const i of cells)this._remove(i);
+      if(cells.length){this.telemetry.supplyRetreats+=cells.length;this._event('supply-retreat',p,player.name+' exhausted field reserves.',{count:cells.length,cells});}
     }
     _countStones() {
       for (const p of PLAYERS) this.players[p].stones = 0;
@@ -699,6 +771,10 @@
       const before = { captures: this.telemetry.captures, destroyed: this.telemetry.destroyed };
       const beforeBoard = this.board.slice(), airAction = type === 'airdrop' || type === 'bombard';
       player.energy -= actionCost(this, action);
+      player.supplies -= logisticsCost(this,action); this.telemetry.suppliesSpent += logisticsCost(this,action);
+      const payment=combatPayment(this,p,action);
+      if(payment)this.reserve[payment.cell]-=payment.amount;
+      if(type==='deploy' && this.board[a] && this.reserve[a]>0)this.reserve[a]--;
       if (airAction) { player.supplies -= ACTION_META[type].supplyCost; this.telemetry.suppliesSpent += ACTION_META[type].supplyCost; }
       if (CARD_META[type] || type === 'discard') {
         const cardIndex = action.cardIndex === undefined ? this.hands[p].indexOf(type) : action.cardIndex;
@@ -708,6 +784,7 @@
       if (type === 'breach') { player.breachReady=false;player.breachUsed=true;player.breachTarget=a;player.breachAtPly=this.ply; }
       else if (type === 'deploy') {
         if (this.board[a]) this._capture(p, a, 'deploy'); else { this.board[a] = p; this.unsupplied[a] = 0; }
+        this.reserve[a] = RULES.deploymentSupply;
       } else if (type === 'engineer') {
         const tunnel = sabotageTunnel(this,p,a);
         if (tunnel) { this._collapseTunnel(tunnel,p,'engineer'); this.telemetry.tunnelSabotages++; }
@@ -719,14 +796,14 @@
       else if (type === 'turret') this.turrets.push({ owner: p, cell: a, countdown: RULES.turretPeriod, life: RULES.turretLife });
       else if (type === 'destroy') this._damage(p, a, 'demolition');
       else if (type === 'airdrop') {
-        this.board[b] = p; this.age[b] = 0; this.fortified[b] = 0; this.unsupplied[b] = 0; this.shields[b] = 0;
+        this.reserve[b] = RULES.deploymentSupply; this.board[b] = p; this.age[b] = 0; this.fortified[b] = 0; this.unsupplied[b] = 0; this.shields[b] = 0;
         this.turrets.push({ owner: p, cell: b, countdown: RULES.turretPeriod, life: RULES.turretLife }); this.telemetry.airdrops++;
       } else if (type === 'bombard') { this._damage(p, b, 'bombard', a); this.telemetry.bombardments++; }
       else if (type === 'shield') this.shields[a] = RULES.shieldTurns;
       else if (type === 'bridge') this.bridges.push({ owner: p, a, b });
       else if (type === 'reroute') this.bridges[bridgeIndex(this, p, a, b)] = { owner: p, a, b: cells[2] };
       else if (type === 'exchange') {
-        const owner = this.board[b]; this.board[a] = owner; this.board[b] = p;
+        const owner = this.board[b]; [this.reserve[a],this.reserve[b]]=[owner ? this.reserve[b] : 0,this.reserve[a]]; this.board[a] = owner; this.board[b] = p;
         this.shields[a] = 0; this.shields[b] = 0; this.unsupplied[a] = 0; this.unsupplied[b] = 0;
         if (owner) {
           player.score++; this.telemetry.captures++; this.telemetry.perPlayer[p].captures++;
@@ -763,7 +840,7 @@
       const messages = { breach: 'announced a breakthrough for its next action', tunnel: 'constructed a public tunnel', deploy: 'deployed a stone', engineer: 'completed engineering', withdraw: 'withdrew a stone', turret: 'built a turret', shield: 'raised a shield', bridge: 'linked a bridge', reroute: 'rerouted a bridge', exchange: 'exchanged positions', offer: 'offered a pact', accept: 'accepted a pact', reject: 'rejected a pact', betray: 'broke a pact (−4 score)', discard: 'recycled a card', rest: 'rested', airdrop: 'airdropped a turret', bombard: 'launched an air bombardment' };
       if (type !== 'destroy') this._event(type, p, player.name + ' ' + messages[type] + (action.target ? ' with ' + this.players[action.target].name : '') + '.', { cells: cells.slice(), target: action.target, ...(airAction ? { origin: a, source: type } : {}) });
       if (this._simulation) { this._supplyCache = null; this._simulationCells = Array.from({ length: playerCount + 1 }, () => []); for (let i = 0; i < COUNT; i++) if (this.board[i]) this._simulationCells[this.board[i]].push(i); }
-      this._settleSupply(p); this._completeOwnAction(p, beforeBoard, airAction, cells);
+      this._settleSupply(p, beforeBoard); this._completeOwnAction(p, beforeBoard, airAction, cells);
       if(type!=='breach')player.breachTarget=-1;
       this._updateBreach(p); this._draw(p); this.ply++;
       if (this.ply % playerCount === 0) this._roundEnd();
@@ -785,7 +862,7 @@
       return { coreConfig: { ...CORE_CONFIG, seatSlots: SEAT_SLOTS.slice() }, strategyConfig: this.strategyConfig && clone(this.strategyConfig), strategyConfigId: this.strategyConfigId, observer: player, seed: this.seed, first: this.first, rotation: this.rotation, phase: this.phase, turn: this.turn,
         ply: this.ply, round: this.round, activeMs: this.activeMs, durationMs: this.durationMs, sandbox: this.sandbox,
         turnLimit: TURN_LIMIT, terrainMode: this.terrainMode, timedCards: this.timedCards, deckRecipe: this.deckRecipe.slice(), result: this.result && clone(this.result), board: Array.from(this.board), terrain: Array.from(this.terrain), roads: Array.from(this.roads),
-        anchors: Array.from(this.anchors), shields: Array.from(this.shields), unsupplied: Array.from(this.unsupplied), supplied: Array.from(supplied), range: Array.from(range),
+        reserve: Array.from(this.reserve), delivered: Array.from(this.delivered), supplyLoad: Array.from(this.supplyLoad), anchors: Array.from(this.anchors), shields: Array.from(this.shields), unsupplied: Array.from(this.unsupplied), supplied: Array.from(supplied), range: Array.from(range),
         hillAge: Array.from(this.hillAge), age: Array.from(this.age), fortified: Array.from(this.fortified), airports: this.airports.map(a => ({ ...a })), depots: this.depots.map(d => ({ ...d })),
         neutralEvents: this.neutralEvents, neutralWarning: this.neutralWarning ? { ...this.neutralWarning, cells: this.neutralWarning.cells.slice() } : null,
         bridges: this.bridges.map(b => ({ ...b })), tunnels: this.tunnels.map(t => ({ ...t, path: t.path.slice() })), turrets: this.turrets.map(t => ({ ...t })), players: this.players.map(p => p && ({ ...p, profile: { ...p.profile }, strategy: p.strategy && clone(p.strategy), grudgeUntil: p.grudgeUntil.slice() })),
@@ -1051,7 +1128,7 @@
     const sim = Object.create(Game.prototype);
     for (const name of ['seed', 'first', 'rotation', 'turn', 'ply', 'round', 'activeMs', 'durationMs']) sim[name] = view[name];
     sim.phase = view.phase || 'running'; sim.sandbox = mode === 'auto'; sim.result = view.result ? JSON.parse(JSON.stringify(view.result)) : null; sim._turnStarted = sim.phase !== 'ready'; sim._simulation = true;
-    for (const name of ['board', 'terrain', 'roads', 'anchors', 'shields', 'unsupplied', 'fortified', 'hillAge']) sim[name] = Uint8Array.from(view[name] || Array(COUNT).fill(0));
+    for (const name of ['board', 'terrain', 'roads', 'anchors', 'shields', 'unsupplied', 'fortified', 'hillAge', 'reserve', 'delivered', 'supplyLoad']) sim[name] = Uint8Array.from(view[name] || Array(COUNT).fill(0));
     sim._simulationCells = Array.from({ length: playerCount + 1 }, () => []); for (let i = 0; i < COUNT; i++) if (sim.board[i]) sim._simulationCells[sim.board[i]].push(i);
     sim.coreConfig = CORE_CONFIG; sim.terrainMode = view.terrainMode; sim.timedCards = !!view.timedCards; sim.strategyConfig = view.strategyConfig || null; sim.strategyConfigId = view.strategyConfigId; sim.deckRecipe = (view.deckRecipe || []).slice();
     sim.age = Uint16Array.from(view.age || Array(COUNT).fill(0));
@@ -1080,7 +1157,7 @@
       if (!this.neutralEvents || !this.neutralWarning || this.round < this.neutralWarning.resolveRound) return;
       const warning = this.neutralWarning; this.neutralWarning = null;
       for (const i of warning.cells) if (this.board[i] && !this.anchors[i] && !this.fortified[i] && this.age[i] < RULES.fortifyAge) {
-        if (this.shields[i]) this.shields[i] = 0; else this._remove(i);
+        if (this.shields[i] && this.reserve[i]>0) { this.shields[i] = 0; this.reserve[i]--; } else this._remove(i);
       }
       this._refreshFacilities();
     };
@@ -1093,7 +1170,7 @@
     return strategicPlanner ? strategicPlanner.choose(view) : greedyAction(view);
   }
   const api = { Game, CORE_CONFIG, mode, playerCount, TURN_LIMIT, SEAT_SLOTS, RECIPE_SIZE, makeRecipe, legalSelection, tunnelLegal, transportLinks, RADIUS, COUNT, CELLS, ADJ, PLAYERS, CARD_META, ACTION_META, CARD_TYPES, DECK_SIZE, MAX_STONES,
-    RULES, PROFILES, PLANNER_LIMITS, TACTICS: strategyProvider.DEFAULT_CONFIG.tactics, index, distance, breachTarget, breachBoost, legalAction, chooseAction, inRange, computeSupply, goalCell, allied, alliesOf,
+    RULES, PROFILES, PLANNER_LIMITS, TACTICS: strategyProvider.DEFAULT_CONFIG.tactics, index, distance, breachTarget, breachBoost, legalAction, chooseAction, inRange, computeSupply, supplyDelivery, reserveAt, supplySource, logisticsCost, combatPayment, goalCell, allied, alliesOf,
     bridgeConflict, bridgesConflict, bridgeLegal, combatStrength, actionCost, AIRPORT_CELLS, DEPOT_CELLS, airportCells, airportStatus, activeAirport, sectorOf,
     createPublicSimulation, greedyAction };
   const provider = typeof module === 'object' && module.exports ? require('./autohex-planner.js') : globalThis.AutoHexPlanner;

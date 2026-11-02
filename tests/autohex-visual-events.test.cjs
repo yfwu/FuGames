@@ -51,8 +51,8 @@ test('AutoHex demolition metadata uses an explicit null origin and reports the p
 
 test('AutoHex supply-retreat metadata lists exactly the stones removed in that settlement', () => {
   const g = fixture(), removed = [at(-7, 0), at(7, 0)], waiting = at(0, 7), supplied = at(1, 0), enemy = at(0, -7);
-  for (const i of removed) { g.board[i] = 1; g.unsupplied[i] = 5; }
-  g.board[waiting] = g.board[supplied] = 1; g.unsupplied[waiting] = 4; g.unsupplied[supplied] = 5;
+  for (const i of removed) { g.board[i] = 1; g.unsupplied[i] = 5; g.reserve[i] = 1; }
+  g.board[waiting] = g.board[supplied] = 1; g.unsupplied[waiting] = 4; g.reserve[waiting] = 2; g.unsupplied[supplied] = 5;
   g.board[enemy] = 2; g.unsupplied[enemy] = 5;
   assert.ok(g.act(rest()));
   const retreat = g.events.find(e => e.type === 'supply-retreat');

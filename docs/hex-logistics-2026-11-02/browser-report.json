@@ -1,0 +1,77 @@
+{
+  "base": "http://127.0.0.1:35683",
+  "cases": [
+    {
+      "file": "autohex.html",
+      "width": 1440,
+      "humanDeploy": true,
+      "pause": true,
+      "cutReserve": 2,
+      "reconnected": true,
+      "restart": true,
+      "aiPly": 3,
+      "overflow": 0,
+      "errors": []
+    },
+    {
+      "file": "card_hex.html",
+      "width": 1440,
+      "humanDeploy": true,
+      "pause": true,
+      "cutReserve": 2,
+      "reconnected": true,
+      "restart": true,
+      "aiPly": 3,
+      "overflow": 0,
+      "errors": []
+    },
+    {
+      "file": "autohex.html",
+      "width": 390,
+      "humanDeploy": true,
+      "pause": true,
+      "cutReserve": 2,
+      "reconnected": true,
+      "restart": true,
+      "aiPly": 3,
+      "overflow": 0,
+      "errors": []
+    },
+    {
+      "file": "card_hex.html",
+      "width": 390,
+      "humanDeploy": true,
+      "pause": true,
+      "cutReserve": 2,
+      "reconnected": true,
+      "restart": true,
+      "aiPly": 3,
+      "overflow": 0,
+      "errors": []
+    },
+    {
+      "file": "autohex.html",
+      "width": 320,
+      "humanDeploy": true,
+      "pause": true,
+      "cutReserve": 2,
+      "reconnected": true,
+      "restart": true,
+      "aiPly": 3,
+      "overflow": 0,
+      "errors": []
+    },
+    {
+      "file": "card_hex.html",
+      "width": 320,
+      "humanDeploy": true,
+      "pause": true,
+      "cutReserve": 2,
+      "reconnected": true,
+      "restart": true,
+      "aiPly": 3,
+      "overflow": 0,
+      "errors": []
+    }
+  ]
+}

@@ -43,7 +43,7 @@ function airTarget(g, airport, distance, owner = 0) {
   assert.ok(c, `Need distance-${distance} target outside ordinary deployment range`); if (owner) g.board[c.i] = owner; return c.i;
 }
 
-test('AutoHex facilities use the seed-specific symmetric airport layout and start neutral with public zero stock', () => {
+test('AutoHex facilities use the seed-specific symmetric airport layout and start neutral with public initial stock', () => {
   const g = game(); assert.equal(g.airports.length, 6); assert.equal(g.depots.length, 6);
   const airports = g.airports.map(a => a.cell);
   assert.deepEqual(airports, H.airportCells(g.seed));
@@ -55,7 +55,7 @@ test('AutoHex facilities use the seed-specific symmetric airport layout and star
     const c = H.CELLS[i]; assert.ok(airports.includes(at(-c.r, -c.s)));
   }
   for (const i of H.DEPOT_CELLS) { assert.equal(H.distance(center, i), 10); assert.equal(g.board[i], 0); const c = H.CELLS[i]; assert.ok(H.DEPOT_CELLS.includes(at(-c.r, -c.s))); }
-  for (const p of H.PLAYERS) { assert.equal(g.players[p].supplies, 0); assert.equal(g.players[p].airCooldown, 0); }
+  for (const p of H.PLAYERS) { assert.equal(g.players[p].supplies, 12); assert.equal(g.players[p].airCooldown, 0); }
   assert.ok(g.observation(0).airports.every(a => !a.owner && !a.active && a.progress === 0));
 });
 
@@ -87,17 +87,15 @@ test('AutoHex airport clusters exclude allied stones and remote bridge islands, 
   assert.ok(f.act(action('destroy', [full.airport]))); assert.equal(site.active, false); assert.equal(site.owner, 0); assert.equal(site.progress, 0);
 });
 
-test('AutoHex stock regenerates equally every three owner actions, supplied depots add at most one, and cap is six', () => {
-  const base = clean(); for (let n = 0; n < 3; n++) for (const p of H.PLAYERS) ownAction(base, p);
-  for (const p of H.PLAYERS) assert.equal(base.players[p].supplies, 1);
-  const g = clean(); pathTo(g, H.DEPOT_CELLS[0]); pathTo(g, H.DEPOT_CELLS[1]); g._refreshFacilities();
-  assert.equal(g.depots.filter(d => d.owner === 1 && d.supplied).length, 2);
-  ownAction(g); ownAction(g); assert.equal(g.players[1].supplies, 0); ownAction(g); assert.equal(g.players[1].supplies, 2);
-  g.board[H.DEPOT_CELLS[0]] = g.board[H.DEPOT_CELLS[1]] = 0; g._refreshFacilities();
-  for (let n = 0; n < 3; n++) ownAction(g); assert.equal(g.players[1].supplies, 3, 'Losing supplied depots removes the next income bonus');
-  for (let n = 0; n < 9; n++) ownAction(g); assert.equal(g.players[1].supplies, 6);
-  const isolated = clean(); isolated.board[H.DEPOT_CELLS[0]] = 1; isolated._refreshFacilities(); assert.equal(isolated.depots[0].supplied, false);
-  for (let n = 0; n < 3; n++) ownAction(isolated); assert.equal(isolated.players[1].supplies, 1);
+test('AutoHex stock produces four each owner action, connected depots add two each, and caps at 24', () => {
+  const base=clean();for(const p of H.PLAYERS)base.players[p].supplies=0;
+  for(const p of H.PLAYERS)ownAction(base,p);
+  for(const p of H.PLAYERS)assert.equal(base.players[p].supplies,4);
+  const g=clean();pathTo(g,H.DEPOT_CELLS[0]);pathTo(g,H.DEPOT_CELLS[1]);g._refreshFacilities();g.players[1].supplies=0;
+  ownAction(g);assert.equal(g.players[1].supplies,8);
+  g.board[H.DEPOT_CELLS[0]]=g.board[H.DEPOT_CELLS[1]]=0;ownAction(g);assert.equal(g.players[1].supplies,12);
+  for(let n=0;n<5;n++)ownAction(g);assert.equal(g.players[1].supplies,24);
+  const isolated=clean();isolated.players[1].supplies=0;isolated.board[H.DEPOT_CELLS[0]]=1;ownAction(isolated);assert.equal(isolated.players[1].supplies,4);
 });
 
 test('AutoHex airdrop extends only from an active airport to distance 10, costs energy/stock, and uses no card', () => {
@@ -107,7 +105,7 @@ test('AutoHex airdrop extends only from an active airport to distance 10, costs 
   g.players[1].energy = 5; invalid(g, action('airdrop', [airport, near])); g.players[1].energy = 8;
   g.terrain[near] = 1; invalid(g, action('airdrop', [airport, near])); g.terrain[near] = 0; g.roads[near] = 0;
   assert.ok(g.act(action('airdrop', [airport, near]))); assert.equal(g.board[near], 1); assert.ok(g.turrets.some(t => t.owner === 1 && t.cell === near));
-  assert.equal(g.players[1].energy, 2); assert.equal(g.players[1].supplies, 3); assert.equal(g.players[1].airCooldown, 6); assert.equal(g.ply, 1); assert.equal(g.age[near], 0);
+  assert.equal(g.players[1].energy, 2); assert.equal(g.players[1].supplies, 4); assert.equal(g.reserve[near], 3); assert.equal(g.players[1].airCooldown, 6); assert.equal(g.ply, 1); assert.equal(g.age[near], 0);
   assert.deepEqual(g.hands[1], hand); assert.equal(g.telemetry.cardsUsed, 0);
   for (let n = 0; n < 5; n++) ownAction(g); assert.equal(g.board[near], 0); assert.ok(!g.turrets.some(t => t.cell === near));
 });
@@ -131,7 +129,7 @@ test('AutoHex bombard reaches distance 12, rejects 13/allies/anchors, and shield
   g.anchors[target] = 2; invalid(g, action('bombard', [airport, target])); g.anchors[target] = 0;
   g.players[1].supplies = 3; invalid(g, action('bombard', [airport, target])); g.players[1].supplies = 6;
   g.shields[target] = 7; assert.ok(g.act(action('bombard', [airport, target]))); assert.equal(g.board[target], 2); assert.equal(g.shields[target], 0);
-  assert.equal(g.players[1].energy, 1); assert.equal(g.players[1].supplies, 2); assert.equal(g.players[1].airCooldown, 6);
+  assert.equal(g.players[1].energy, 1); assert.equal(g.players[1].supplies, 6); assert.equal(g.reserve[target], 5); assert.equal(g.players[1].airCooldown, 6);
   const hit = g.events.find(e => e.type === 'shield-block' && e.source === 'bombard'); assert.ok(hit); assert.equal(hit.origin, airport); assert.equal(hit.from, 2);
 });
 
@@ -152,7 +150,7 @@ test('AutoHex new placement, capture and both exchanged cells reset fortificatio
   assert.ok(g.act(action('deploy', [target]))); assert.equal(g.age[target], 0); assert.equal(g.fortified[target], 0);
   toTurn(g, 1); const swapped = at(2, 0); g.board[swapped] = 2; g.age[target] = g.age[swapped] = 50; g.fortified[target] = g.fortified[swapped] = 1; g.hands[1] = ['exchange'];
   assert.ok(g.act(action('exchange', [target, swapped]))); for (const i of [target, swapped]) { assert.equal(g.age[i], 0); assert.equal(g.fortified[i], 0); }
-  toTurn(g, 1); const remote = at(8, 0); g.board[remote] = 1; g.age[remote] = 40; g.fortified[remote] = 1; g.unsupplied[remote] = 5;
+  toTurn(g, 1); const remote = at(8, 0); g.board[remote] = 1; g.age[remote] = 40; g.fortified[remote] = 1; g.unsupplied[remote] = 5; g.reserve[remote] = 1;
   assert.ok(g.act(action('rest'))); assert.equal(g.board[remote], 0);
 });
 
@@ -214,7 +212,7 @@ test('AutoHex AI uses a supplied defensive airdrop while retaining a real opposi
     H.distance(c.i, landing) <= 3 && H.distance(c.i, landing) >= 2 && H.ADJ[c.i].every(i => g.board[i] !== 1)).slice(0, 7).map(c => c.i);
   assert.equal(enemies.length, 7);
   for (const i of enemies) g.board[i] = 2;
-  g.players[1].supplies = 3; g.players[1].energy = 6; g.hands[1] = [];
+  g.players[1].supplies = 6; g.players[1].energy = 6; g.hands[1] = [];
   const supplied = H.computeSupply(g, 1), chosen = H.chooseAction(g.observation());
   assert.equal(chosen.type, 'airdrop'); assert.equal(chosen.cells[0], airport); assert.ok(H.ADJ[chosen.cells[1]].some(i => g.board[i] === 1 && supplied[i]));
   assert.ok(g.act(chosen)); assert.ok(g.turrets.some(t => t.owner === 1 && t.cell === chosen.cells[1])); assert.equal(H.computeSupply(g, 1)[goal], 1);

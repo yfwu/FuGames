@@ -80,10 +80,11 @@
     const quiet = new Uint8Array(COUNT);
     function analyze(s, p, lanes = null) {
       const own = [], supplied = computeSupply(s, p), ownAdj = new Uint8Array(COUNT), enemyAdj = new Uint8Array(COUNT), danger = new Uint8Array(COUNT), range = new Uint8Array(COUNT);
-      let gap = RADIUS * 2, connected = 0, holds = false, unsupplied = 0;
+      let gap = RADIUS * 2, connected = 0, holds = false, unsupplied = 0, reserveRisk = 0;
       for (let i = 0; i < COUNT; i++) {
         const owner = s.board[i];
         if (owner === p) {
+          reserveRisk += Math.max(0,3-H.reserveAt(s,i)) * (supplied[i] ? .3 : 2);
           own.push(i); for (const j of ADJ[i]) ownAdj[j]++; for (const j of near[i]) range[j] = 1;
           if (supplied[i]) { connected++; gap = Math.min(gap, remaining(s, p, i)); if (goalCell(s, p, i)) holds = true; } else unsupplied++;
         } else if (owner && !allied(s, p, owner)) {
@@ -97,10 +98,10 @@
         for (const i of s._simulationCells[other]) if (supply[i]) { d = Math.min(d, remaining(s, other, i)); if (goalCell(s, other, i)) goal = true; } else if (!s.anchors[i]) stranded++;
         enemy[other] = { supply, gap: d, holds: goal, stranded };
       }
-      const st=styleOf(s,p),fragile=st.robustness?articulation(s,p,supplied,danger):{points:[],fragility:0};
+      const st=styleOf(s,p),fragile=articulation(s,p,supplied,danger);
       const depots=(s.depots||[]).filter(d=>s.board[d.cell]===p&&supplied[d.cell]).length;
       const opponents=new Set();for(const i of own)if(supplied[i])for(const j of ADJ[i])if(s.board[j]&&s.board[j]!==p&&!allied(s,p,s.board[j]))opponents.add(s.board[j]);
-      return { opponents, own, supplied, ownAdj, enemyAdj, danger, range, gap, connected, holds, unsupplied, enemy, lanePenalty: lanes, fragile, depots };
+      return { reserveRisk, opponents, own, supplied, ownAdj, enemyAdj, danger, range, gap, connected, holds, unsupplied, enemy, lanePenalty: lanes, fragile, depots };
     }
     function weight(s, p, i, context) {
       const owner = s.board[i];
@@ -328,7 +329,7 @@
       }
       const st=styleOf(s,p);let reach=null;
       // Raiders hunt thin, deep enemy supply lines up to nine cells away:
-      // a cell carrying many stones beyond it starves them in six turns.
+      // a cell carrying many stones beyond it exposes their finite reserves.
       if(st.raid>=5&&!context.holds) {
         reach=reachFrom(s,context,12);const thin=[];
         for(const other of PLAYERS)if(other!==p&&!allied(s,p,other))for(const x of articulation(s,other,context.enemy[other].supply,quiet).points)
@@ -342,10 +343,10 @@
         raids.sort((a,b)=>b.prior-a.prior||a.target-b.target).slice(0,2).forEach(add);
       }
       // Consolidators widen single-cell supply necks that enemies can reach.
-      if(st.robustness>=3) {
+      if(context.fragile.points.length) {
         const exposure=x=>Math.min(30,x.lost)*Math.min(3,x.danger)*(1+context.enemyAdj[x.cell]);
-        const points=context.fragile.points.filter(x=>(x.danger>=2||context.enemyAdj[x.cell])&&x.lost>=(st.robustness>=6?5:8)).sort((a,b)=>exposure(b)-exposure(a)||a.cell-b.cell);
-        for(const x of points.slice(0,2))add({type:'fortify',stage:'hold',target:x.cell,path:[x.cell],waypoints:[x.cell],side:0,prior:Math.min(30,x.lost)*Math.min(3,x.danger)*.12*st.robustness/5,reason:'thin_supply'});
+        const points=context.fragile.points.filter(x=>(x.danger>=2||context.enemyAdj[x.cell])&&x.lost>=(st.robustness>=6?3:5)).sort((a,b)=>exposure(b)-exposure(a)||a.cell-b.cell);
+        for(const x of points.slice(0,2))add({type:'fortify',stage:'hold',target:x.cell,path:[x.cell],waypoints:[x.cell],side:0,prior:Math.min(30,x.lost)*Math.min(3,x.danger)*.12*Math.max(3,st.robustness)/5,reason:'thin_supply'});
       }
       // Expansionists claim depots: more supplies, more air power later.
       // A depot or two is plenty; past that the route matters more.
@@ -537,7 +538,7 @@
       let unclaimed=0;for(const i of bestPath)if(root.board[i]&&root.board[i]!==p&&!s.board[i])unclaimed+=Math.max(0,weight(root,p,i,base)-weight(s,p,i,context));
       const progress=base.goalPotential-remainingGoal-unclaimed;
       let value=progress*tactics.routeProgressWeight+(base.gap-context.gap)*2+
-        (context.connected-base.connected)*.15-(context.unsupplied-base.unsupplied)*.5+
+        (context.connected-base.connected)*.15-(context.unsupplied-base.unsupplied)*1.5-(context.reserveRisk-base.reserveRisk)*1.5+
         (context.holds?180:0)-(base.holds&&!context.holds?200:0)+
         (s.players[p].score-root.players[p].score)*tactics.combatScoreWeight+Math.min(1,s._planningInterruptions||0)*tactics.interruptionWeight;
       // Contacts have value only while the home-to-edge route improves.

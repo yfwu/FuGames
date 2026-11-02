@@ -1,0 +1,355 @@
+[
+  {
+    "seed": "logistics-a",
+    "mode": "normal",
+    "players": 2,
+    "rotation": 0,
+    "actions": 33,
+    "result": "connection",
+    "winners": [
+      1
+    ],
+    "maxIdle": 0,
+    "cuts": 0,
+    "connections": 33,
+    "lowReserveObservations": 6,
+    "captures": 0,
+    "destroyed": 0,
+    "retreats": 0,
+    "goals": 1,
+    "types": {
+      "deploy": 33
+    },
+    "ms": 1741
+  },
+  {
+    "seed": "logistics-a",
+    "mode": "normal",
+    "players": 3,
+    "rotation": 1,
+    "actions": 91,
+    "result": "connection",
+    "winners": [
+      1
+    ],
+    "maxIdle": 0,
+    "cuts": 55,
+    "connections": 106,
+    "lowReserveObservations": 86,
+    "captures": 18,
+    "destroyed": 7,
+    "retreats": 3,
+    "goals": 1,
+    "types": {
+      "deploy": 72,
+      "engineer": 6,
+      "turret": 2,
+      "destroy": 1,
+      "tunnel": 6,
+      "bridge": 1,
+      "shield": 2,
+      "breach": 1
+    },
+    "ms": 3163
+  },
+  {
+    "seed": "logistics-a",
+    "mode": "normal",
+    "players": 6,
+    "rotation": 2,
+    "actions": 600,
+    "result": "turn-limit",
+    "winners": [
+      2
+    ],
+    "maxIdle": 0,
+    "cuts": 697,
+    "connections": 904,
+    "lowReserveObservations": 1114,
+    "captures": 112,
+    "destroyed": 107,
+    "retreats": 79,
+    "goals": 0,
+    "types": {
+      "deploy": 405,
+      "destroy": 23,
+      "tunnel": 57,
+      "turret": 19,
+      "bridge": 20,
+      "engineer": 50,
+      "shield": 8,
+      "exchange": 5,
+      "bombard": 2,
+      "breach": 5,
+      "airdrop": 5,
+      "reroute": 1
+    },
+    "ms": 27786
+  },
+  {
+    "seed": "logistics-a",
+    "mode": "auto",
+    "players": 6,
+    "rotation": 3,
+    "actions": 600,
+    "result": "timeout",
+    "winners": [
+      1
+    ],
+    "maxIdle": 2,
+    "cuts": 869,
+    "connections": 1134,
+    "lowReserveObservations": 1739,
+    "captures": 44,
+    "destroyed": 84,
+    "retreats": 143,
+    "goals": 0,
+    "types": {
+      "deploy": 462,
+      "destroy": 15,
+      "tunnel": 33,
+      "engineer": 27,
+      "shield": 6,
+      "turret": 13,
+      "offer": 21,
+      "breach": 6,
+      "bridge": 10,
+      "accept": 4,
+      "betray": 2,
+      "exchange": 1
+    },
+    "ms": 30931
+  },
+  {
+    "seed": "logistics-b",
+    "mode": "normal",
+    "players": 2,
+    "rotation": 4,
+    "actions": 33,
+    "result": "connection",
+    "winners": [
+      1
+    ],
+    "maxIdle": 0,
+    "cuts": 0,
+    "connections": 33,
+    "lowReserveObservations": 0,
+    "captures": 0,
+    "destroyed": 0,
+    "retreats": 0,
+    "goals": 1,
+    "types": {
+      "deploy": 33
+    },
+    "ms": 521
+  },
+  {
+    "seed": "logistics-b",
+    "mode": "normal",
+    "players": 3,
+    "rotation": 5,
+    "actions": 77,
+    "result": "connection",
+    "winners": [
+      2
+    ],
+    "maxIdle": 0,
+    "cuts": 42,
+    "connections": 84,
+    "lowReserveObservations": 57,
+    "captures": 4,
+    "destroyed": 5,
+    "retreats": 10,
+    "goals": 1,
+    "types": {
+      "deploy": 57,
+      "tunnel": 7,
+      "destroy": 5,
+      "engineer": 6,
+      "turret": 1,
+      "bridge": 1
+    },
+    "ms": 1438
+  },
+  {
+    "seed": "logistics-b",
+    "mode": "normal",
+    "players": 6,
+    "rotation": 0,
+    "actions": 348,
+    "result": "connection",
+    "winners": [
+      6
+    ],
+    "maxIdle": 0,
+    "cuts": 313,
+    "connections": 434,
+    "lowReserveObservations": 534,
+    "captures": 43,
+    "destroyed": 39,
+    "retreats": 53,
+    "goals": 1,
+    "types": {
+      "deploy": 238,
+      "destroy": 11,
+      "tunnel": 42,
+      "turret": 6,
+      "shield": 5,
+      "engineer": 38,
+      "breach": 4,
+      "bridge": 3,
+      "airdrop": 1
+    },
+    "ms": 11272
+  },
+  {
+    "seed": "logistics-b",
+    "mode": "auto",
+    "players": 6,
+    "rotation": 1,
+    "actions": 600,
+    "result": "timeout",
+    "winners": [
+      4
+    ],
+    "maxIdle": 2,
+    "cuts": 1002,
+    "connections": 1290,
+    "lowReserveObservations": 1616,
+    "captures": 60,
+    "destroyed": 66,
+    "retreats": 105,
+    "goals": 2,
+    "types": {
+      "deploy": 457,
+      "destroy": 18,
+      "tunnel": 27,
+      "bridge": 11,
+      "engineer": 34,
+      "breach": 6,
+      "turret": 11,
+      "offer": 22,
+      "accept": 5,
+      "exchange": 3,
+      "betray": 1,
+      "shield": 4,
+      "bombard": 1
+    },
+    "ms": 24754
+  },
+  {
+    "seed": "logistics-c",
+    "mode": "normal",
+    "players": 2,
+    "rotation": 2,
+    "actions": 33,
+    "result": "connection",
+    "winners": [
+      1
+    ],
+    "maxIdle": 0,
+    "cuts": 0,
+    "connections": 33,
+    "lowReserveObservations": 0,
+    "captures": 0,
+    "destroyed": 0,
+    "retreats": 0,
+    "goals": 1,
+    "types": {
+      "deploy": 33
+    },
+    "ms": 153
+  },
+  {
+    "seed": "logistics-c",
+    "mode": "normal",
+    "players": 3,
+    "rotation": 3,
+    "actions": 58,
+    "result": "connection",
+    "winners": [
+      1
+    ],
+    "maxIdle": 0,
+    "cuts": 19,
+    "connections": 63,
+    "lowReserveObservations": 18,
+    "captures": 4,
+    "destroyed": 0,
+    "retreats": 0,
+    "goals": 1,
+    "types": {
+      "deploy": 48,
+      "bridge": 4,
+      "tunnel": 3,
+      "engineer": 3
+    },
+    "ms": 833
+  },
+  {
+    "seed": "logistics-c",
+    "mode": "normal",
+    "players": 6,
+    "rotation": 4,
+    "actions": 380,
+    "result": "connection",
+    "winners": [
+      2
+    ],
+    "maxIdle": 0,
+    "cuts": 466,
+    "connections": 582,
+    "lowReserveObservations": 679,
+    "captures": 47,
+    "destroyed": 41,
+    "retreats": 61,
+    "goals": 1,
+    "types": {
+      "deploy": 240,
+      "destroy": 9,
+      "bridge": 17,
+      "exchange": 1,
+      "tunnel": 55,
+      "turret": 7,
+      "engineer": 42,
+      "shield": 4,
+      "breach": 5
+    },
+    "ms": 9499
+  },
+  {
+    "seed": "logistics-c",
+    "mode": "auto",
+    "players": 6,
+    "rotation": 5,
+    "actions": 600,
+    "result": "timeout",
+    "winners": [
+      3
+    ],
+    "maxIdle": 2,
+    "cuts": 839,
+    "connections": 1125,
+    "lowReserveObservations": 1470,
+    "captures": 41,
+    "destroyed": 72,
+    "retreats": 107,
+    "goals": 1,
+    "types": {
+      "deploy": 445,
+      "engineer": 35,
+      "tunnel": 21,
+      "bridge": 23,
+      "destroy": 11,
+      "offer": 25,
+      "breach": 6,
+      "accept": 7,
+      "turret": 8,
+      "airdrop": 4,
+      "shield": 5,
+      "bombard": 8,
+      "exchange": 2
+    },
+    "ms": 31854
+  }
+]

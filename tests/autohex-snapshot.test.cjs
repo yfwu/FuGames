@@ -42,6 +42,7 @@ test('territory changes inside the window become gains and ghosts of lost stones
 
 test('turret fire becomes shot arcs, shield blocks and kills with the right colours', () => {
   const g = new E.Game({ seed: 'snapshot-shots', neutralEvents: false }); g.start();
+  g.players[1].home = at(4,0); // A supplied battery can afford the second shot.
   const chronicle = new S.Chronicle();
   g.board[at(4, 0)] = 1; g.board[at(5, 0)] = 2; g.shields[at(5, 0)] = 5;
   g.turrets = [{ owner: 1, cell: at(4, 0), life: 30, countdown: 1 }];
