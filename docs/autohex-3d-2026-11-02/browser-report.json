@@ -1,0 +1,115 @@
+{
+  "browser": "153.0.8010.12",
+  "cases": [
+    {
+      "name": "desktop-1440-human",
+      "humanTurns": 30,
+      "humanActions": {
+        "deploy": 23,
+        "destroy": 4,
+        "shield": 3
+      },
+      "queued": 2,
+      "queueRuns": 2,
+      "timeoutRests": 1,
+      "plies": 194,
+      "scores": [
+        5,
+        1,
+        1,
+        8,
+        4,
+        2
+      ],
+      "replayIdentical": true,
+      "overflow": 0,
+      "errors": []
+    },
+    {
+      "name": "desktop-1280-spectator",
+      "plies": 304,
+      "scores": [
+        7,
+        3,
+        3,
+        5,
+        8,
+        5
+      ],
+      "activeSeconds": 52,
+      "replayIdentical": true,
+      "errors": []
+    },
+    {
+      "name": "phone-390",
+      "touchCommands": 4,
+      "plies": 24,
+      "replayIdentical": true,
+      "overflow": 0,
+      "errors": []
+    },
+    {
+      "name": "phone-320",
+      "touchCommands": 4,
+      "plies": 24,
+      "replayIdentical": true,
+      "overflow": 0,
+      "errors": []
+    },
+    {
+      "name": "full-campaign-spectator",
+      "plies": 1856,
+      "standings": [
+        {
+          "player": 3,
+          "score": 98,
+          "name": "Violet",
+          "rank": 1
+        },
+        {
+          "player": 2,
+          "score": 86,
+          "name": "Ember",
+          "rank": 2
+        },
+        {
+          "player": 4,
+          "score": 80,
+          "name": "Gold",
+          "rank": 3
+        },
+        {
+          "player": 5,
+          "score": 76,
+          "name": "Jade",
+          "rank": 4
+        },
+        {
+          "player": 1,
+          "score": 70,
+          "name": "Azure",
+          "rank": 5
+        },
+        {
+          "player": 6,
+          "score": 38,
+          "name": "Rose",
+          "rank": 6
+        }
+      ],
+      "telemetry": {
+        "captures": 254,
+        "destroyed": 130,
+        "supplyRetreats": 552,
+        "goalArrivals": 6,
+        "cardsUsed": 81,
+        "turretShots": 115,
+        "airdrops": 6,
+        "bombardments": 5,
+        "reshuffles": 1
+      },
+      "replayIdentical": true,
+      "errors": []
+    }
+  ]
+}

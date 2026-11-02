@@ -46,4 +46,4 @@
 
 ## 驗證
 
-見 [validation.md](validation.md)。
+見 [validation.md](validation.md)：465 項規則測試通過；瀏覽器試玩（含完整十分鐘戰役）的行動紀錄在 Node 引擎重放結果完全一致。
