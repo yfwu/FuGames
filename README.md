@@ -14,12 +14,13 @@ python -m http.server 8000 --bind 0.0.0.0
 
 本次雲端 Chromium 的管理政策禁止 `file://`（`ERR_BLOCKED_BY_ADMINISTRATOR`），因此驗證與預覽使用本機 HTTP。遊戲不會向伺服器傳送遊戲狀態；頁面載入後已驗證可在離線模式繼續遊玩。
 
-2026-10-14：首頁 15 款；[封存遊戲](archive.html)保留 2 款及舊網址。[分批驗證](docs/refresh-2026-10-14/verification.md)與[三子立體提案](docs/refresh-2026-10-14/cyclic-3d-proposal.md)。三子原遊戲未更動。
+2026-11-02：首頁 16 款（新增 AutoHex-3D）。2026-10-14：首頁 15 款；[封存遊戲](archive.html)保留 2 款及舊網址。[分批驗證](docs/refresh-2026-10-14/verification.md)與[三子立體提案](docs/refresh-2026-10-14/cyclic-3d-proposal.md)。三子原遊戲未更動。
 
 ## 遊戲
 
 - 已封存 Tux 2D：`tux2d.html`（原創追尾像素山路快遞；三站配送、岔路補給、道具與四位 AI）
 - AutoHex：`autohex.html`（共用 Hex 核心的大型六方戰役；六 AI 觀戰或人類下場）
+- AutoHex-3D：`autohex_3d.html`（與 AutoHex 同一規則核心與 AI 的 3D 即時指揮版；補給線／陣地圖層、指揮時限與指令佇列）
 - 抽牌 Hex：`card_hex.html`（271 格、2–6 席本機玩家／AI，無聯盟）
 - 重力大亂鬥：`gravity_brawl.html`
 - 已封存 翻轉五子棋：`flip_five.html`
@@ -60,6 +61,8 @@ AutoHex AI 戰略多樣化：六個預設策略各有戰術教條，不再全部
 Tux 2D 改為原創追尾偽 3D「山路快遞」：110 秒內完成三站配送，以貨物完整度、電池及完程剩餘時間計分。每站選左側慢速修復補給線或右側冰面快線；衝刺、護盾與雪球共用能量。四位 AI 使用相同道路與資源規則，支援五 AI 觀戰、鍵盤及手機同時觸控。所有美術以程式原創繪製。見 [新版玩法與驗證](docs/tux2d-2026-10-14/validation.md)。
 
 新增三路前線：你和 AI 的大本營各據地圖一角，上、中、下三路連接雙方。在自己這一側的三路蓋無人機工廠、防空砲塔、偵查站與補給站；工廠持續產出無人機沿路攻擊，工程師可上前維修。敵方陣地被迷霧遮住，要靠偵查站、無人機接觸或抽到的全圖偵察才看得到；轟炸卡可以打任何位置，配合情報拔掉對方工廠，也能盲猜。AI 只讀自己看得到的情報。見 [規則、AI 研究與瀏覽器驗證](docs/front-line-2026-10-12/validation.md)。
+
+新增 AutoHex-3D：直接載入 AutoHex 的 `hex-core.js`、規劃器與 AI Worker，規則、合法性、花費、計分與 AI 決策完全相同；3D 頁只負責零依賴 WebGL2 畫面與下令方式。補給線以流動光點呈現，斷補棋子顯示剩餘存糧；「弱點」圖層標出失守即斷補的格子與敵方斷補目標（與斷補預覽同一計算）；「陣地」圖層顯示炮台射程、護盾與工事；共享牌池顯示公開配方。即時要素為介面層：可選指揮時限（逾時自動休整，「不限」即同 AutoHex）與 AI 行動時預約的指令佇列（執行前以核心重新檢查合法性）。瀏覽器試玩的完整行動序列在 Node 引擎重放後棋盤、存糧與分數一致。見 [設計與驗證](docs/autohex-3d-2026-11-02/README.md)。
 
 ### 共用介面
 
@@ -133,6 +136,7 @@ node tests/hex-seeded-balance.cjs
 FUGAMES_BASE_URL=http://127.0.0.1:8000 python tests/tux2d_browser.py
 FUGAMES_BASE_URL=http://127.0.0.1:8000 python tests/tux2d_keyboard_browser.py
 python tests/front_line_browser.py
+node tests/autohex-3d-browser.cjs
 node tests/front-line-study.cjs 20
 ```
 
