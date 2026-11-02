@@ -12,7 +12,7 @@
       "queued": 2,
       "queueRuns": 2,
       "timeoutRests": 1,
-      "plies": 194,
+      "plies": 195,
       "scores": [
         5,
         1,
@@ -27,7 +27,7 @@
     },
     {
       "name": "desktop-1280-spectator",
-      "plies": 304,
+      "plies": 303,
       "scores": [
         7,
         3,
@@ -36,7 +36,7 @@
         8,
         5
       ],
-      "activeSeconds": 52,
+      "activeSeconds": 56,
       "replayIdentical": true,
       "errors": []
     },
@@ -58,17 +58,17 @@
     },
     {
       "name": "full-campaign-spectator",
-      "plies": 1856,
+      "plies": 1823,
       "standings": [
         {
           "player": 3,
-          "score": 98,
+          "score": 96,
           "name": "Violet",
           "rank": 1
         },
         {
           "player": 2,
-          "score": 86,
+          "score": 85,
           "name": "Ember",
           "rank": 2
         },
@@ -80,7 +80,7 @@
         },
         {
           "player": 5,
-          "score": 76,
+          "score": 74,
           "name": "Jade",
           "rank": 4
         },
@@ -98,12 +98,12 @@
         }
       ],
       "telemetry": {
-        "captures": 254,
-        "destroyed": 130,
-        "supplyRetreats": 552,
+        "captures": 251,
+        "destroyed": 128,
+        "supplyRetreats": 544,
         "goalArrivals": 6,
-        "cardsUsed": 81,
-        "turretShots": 115,
+        "cardsUsed": 80,
+        "turretShots": 113,
         "airdrops": 6,
         "bombardments": 5,
         "reshuffles": 1
