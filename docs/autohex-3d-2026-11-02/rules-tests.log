@@ -1,0 +1,2803 @@
+TAP version 13
+# Subtest: 3D page loads exactly the AutoHex rules stack, in the same order, and the same AI worker
+ok 1 - 3D page loads exactly the AutoHex rules stack, in the same order, and the same AI worker
+  ---
+  duration_ms: 7.640672
+  type: 'test'
+  ...
+# Subtest: 3D presentation never writes game state: every change goes through game.act / start / pause / continueSandbox
+ok 2 - 3D presentation never writes game state: every change goes through game.act / start / pause / continueSandbox
+  ---
+  duration_ms: 1.936704
+  type: 'test'
+  ...
+# Subtest: supply chokepoints equal the shared supply-cut preview for every own supplied stone
+ok 3 - supply chokepoints equal the shared supply-cut preview for every own supplied stone
+  ---
+  duration_ms: 27735.189332
+  type: 'test'
+  ...
+# Subtest: supply report agrees with computeSupply and positions with public fields
+ok 4 - supply report agrees with computeSupply and positions with public fields
+  ---
+  duration_ms: 5776.232995
+  type: 'test'
+  ...
+# Subtest: queued orders resolve card indices at execution time and never yield an illegal action
+ok 5 - queued orders resolve card indices at execution time and never yield an illegal action
+  ---
+  duration_ms: 11596.542177
+  type: 'test'
+  ...
+# Subtest: planning-time plausibility rejects malformed and out-of-range orders
+ok 6 - planning-time plausibility rejects malformed and out-of-range orders
+  ---
+  duration_ms: 98.640629
+  type: 'test'
+  ...
+# Subtest: hex picking maps every cell centre (and nearby points) back to the same cell
+ok 7 - hex picking maps every cell centre (and nearby points) back to the same cell
+  ---
+  duration_ms: 3.765609
+  type: 'test'
+  ...
+# Subtest: engineered terrain is the difference from the opening map
+ok 8 - engineered terrain is the difference from the opening map
+  ---
+  duration_ms: 2.296553
+  type: 'test'
+  ...
+# Subtest: renderer and UI scripts parse; the page keeps the shared shell, rules and local assets
+ok 9 - renderer and UI scripts parse; the page keeps the shared shell, rules and local assets
+  ---
+  duration_ms: 3.222079
+  type: 'test'
+  ...
+# Subtest: style is optional, defaults from the mission and is validated like every other field
+ok 10 - style is optional, defaults from the mission and is validated like every other field
+  ---
+  duration_ms: 10.151367
+  type: 'test'
+  ...
+# Subtest: left and right lanes build on opposite sides of the home axis
+ok 11 - left and right lanes build on opposite sides of the home axis
+  ---
+  duration_ms: 1732.198565
+  type: 'test'
+  ...
+# Subtest: a high centre aversion keeps an adaptive faction out of the central rings on an open board
+ok 12 - a high centre aversion keeps an adaptive faction out of the central rings on an open board
+  ---
+  duration_ms: 2728.971025
+  type: 'test'
+  ...
+# Subtest: a raider spends its demolition on a deep enemy supply neck that a centre doctrine ignores
+ok 13 - a raider spends its demolition on a deep enemy supply neck that a centre doctrine ignores
+  ---
+  duration_ms: 293.545661
+  type: 'test'
+  ...
+# Subtest: a consolidating doctrine widens a threatened one-cell supply neck
+ok 14 - a consolidating doctrine widens a threatened one-cell supply neck
+  ---
+  duration_ms: 216.267671
+  type: 'test'
+  ...
+# Subtest: seeded campaigns spread the six factions over different lanes and intents
+ok 15 - seeded campaigns spread the six factions over different lanes and intents
+  ---
+  duration_ms: 15784.593376
+  type: 'test'
+  ...
+# Subtest: seeded airports vary across central/middle/outer orbits with exact six-seat access symmetry
+ok 16 - seeded airports vary across central/middle/outer orbits with exact six-seat access symmetry
+  ---
+  duration_ms: 342.173593
+  type: 'test'
+  ...
+# Subtest: airport placement is deterministic and independent of seat/profile rotation and private RNG consumption
+ok 17 - airport placement is deterministic and independent of seat/profile rotation and private RNG consumption
+  ---
+  duration_ms: 37.239448
+  type: 'test'
+  ...
+# Subtest: AI completes an opposite-edge route before unrelated facility development or combat
+ok 18 - AI completes an opposite-edge route before unrelated facility development or combat
+  ---
+  duration_ms: 139.731497
+  type: 'test'
+  ...
+# Subtest: AI repairs a severed supplied opposite-edge connection before collecting another facility
+ok 19 - AI repairs a severed supplied opposite-edge connection before collecting another facility
+  ---
+  duration_ms: 121.365419
+  type: 'test'
+  ...
+# Subtest: AI interrupts a public enemy goal connection when in range
+ok 20 - AI interrupts a public enemy goal connection when in range
+  ---
+  duration_ms: 309.258223
+  type: 'test'
+  ...
+# Subtest: AI shields a warned cut point on a held goal route
+ok 21 - AI shields a warned cut point on a held goal route
+  ---
+  duration_ms: 73.308723
+  type: 'test'
+  ...
+# Subtest: goal planning reads the public observation and ignores private hand/deck permutations
+ok 22 - goal planning reads the public observation and ignores private hand/deck permutations
+  ---
+  duration_ms: 239.281615
+  type: 'test'
+  ...
+# Subtest: completed local missions do not erase campaign stagnation on an unchanged public board
+ok 23 - completed local missions do not erase campaign stagnation on an unchanged public board
+  ---
+  duration_ms: 675.381296
+  type: 'test'
+  ...
+# Subtest: campaign memory is bounded, private, mutation isolated, and cleared by reset
+ok 24 - campaign memory is bounded, private, mutation isolated, and cleared by reset
+  ---
+  duration_ms: 381.333364
+  type: 'test'
+  ...
+# Subtest: own goal routes survive every searched beam depth during actual changing play
+ok 25 - own goal routes survive every searched beam depth during actual changing play
+  ---
+  duration_ms: 6320.975216
+  type: 'test'
+  ...
+# Subtest: late campaign planning executes a supplied flank around a defended wall
+ok 26 - late campaign planning executes a supplied flank around a defended wall
+  ---
+  duration_ms: 753.567929
+  type: 'test'
+  ...
+# Subtest: planner follows a supplied flank around a defended central barrier over several owner turns
+ok 27 - planner follows a supplied flank around a defended central barrier over several owner turns
+  ---
+  duration_ms: 1163.791113
+  type: 'test'
+  ...
+# Subtest: planner completes a nearby goal instead of collecting an unrelated nearly ready airport
+ok 28 - planner completes a nearby goal instead of collecting an unrelated nearly ready airport
+  ---
+  duration_ms: 467.254592
+  type: 'test'
+  ...
+# Subtest: planner develops a useful airport, holds it, and actually disrupts the remote scoring route
+ok 29 - planner develops a useful airport, holds it, and actually disrupts the remote scoring route
+  ---
+  duration_ms: 1305.63456
+  type: 'test'
+  ...
+# Subtest: planner repairs a severed goal route and retains real supply through following turns
+ok 30 - planner repairs a severed goal route and retains real supply through following turns
+  ---
+  duration_ms: 616.768975
+  type: 'test'
+  ...
+# Subtest: planner reassesses after an active opponent legally cuts the committed route, then reconnects and finishes
+ok 31 - planner reassesses after an active opponent legally cuts the committed route, then reconnects and finishes
+  ---
+  duration_ms: 626.296749
+  type: 'test'
+  ...
+# Subtest: planner stops an imminent enemy connection before the opponent attempts its finishing deployment
+ok 32 - planner stops an imminent enemy connection before the opponent attempts its finishing deployment
+  ---
+  duration_ms: 284.046037
+  type: 'test'
+  ...
+# Subtest: planner breaks an obstructing pact and then exploits the opening with legal paid actions
+ok 33 - planner breaks an obstructing pact and then exploits the opening with legal paid actions
+  ---
+  duration_ms: 566.354275
+  type: 'test'
+  ...
+# Subtest: planner accepts a useful public truce that prevents an immediate supply cut and then completes its route
+ok 34 - planner accepts a useful public truce that prevents an immediate supply cut and then completes its route
+  ---
+  duration_ms: 357.353656
+  type: 'test'
+  ...
+# Subtest: planner is deterministic and reads no opponent hand, deck order, or raw private fields
+ok 35 - planner is deterministic and reads no opponent hand, deck order, or raw private fields
+  ---
+  duration_ms: 180.428707
+  type: 'test'
+  ...
+# Subtest: only accepted actions commit private memory; observations isolate it and reset clears all plans
+ok 36 - only accepted actions commit private memory; observations isolate it and reset clears all plans
+  ---
+  duration_ms: 263.667809
+  type: 'test'
+  ...
+# Subtest: malformed planner metadata cannot inject unbounded paths, hidden fields, scores, or another player intent
+ok 37 - malformed planner metadata cannot inject unbounded paths, hidden fields, scores, or another player intent
+  ---
+  duration_ms: 17.818431
+  type: 'test'
+  ...
+# Subtest: seeded planner replay preserves actions, rules state, bounded memory, and finite search through changing positions
+ok 38 - seeded planner replay preserves actions, rules state, bounded memory, and finite search through changing positions
+  ---
+  duration_ms: 4748.519164
+  type: 'test'
+  ...
+# Subtest: an irrelevant distant public stone does not discard an ongoing useful commitment
+ok 39 - an irrelevant distant public stone does not discard an ongoing useful commitment
+  ---
+  duration_ms: 89.425398
+  type: 'test'
+  ...
+# Subtest: planner targets the shared core contract while explicitly retaining intentional migration differences
+ok 40 - planner targets the shared core contract while explicitly retaining intentional migration differences
+  ---
+  duration_ms: 45.493691
+  type: 'test'
+  ...
+# Subtest: public forward model preserves paid cards, automatic turret fire, shields and owner upkeep
+ok 41 - public forward model preserves paid cards, automatic turret fire, shields and owner upkeep
+  ---
+  duration_ms: 58.301659
+  type: 'test'
+  ...
+# Subtest: public forward model resolves already announced neutral protection and supply loss like real rules
+ok 42 - public forward model resolves already announced neutral protection and supply loss like real rules
+  ---
+  duration_ms: 74.056517
+  type: 'test'
+  ...
+# Subtest: public forward model uses only known actor cards, cannot read private getters, and owns independent copies
+ok 43 - public forward model uses only known actor cards, cannot read private getters, and owns independent copies
+  ---
+  duration_ms: 8.090286
+  type: 'test'
+  ...
+# Subtest: public forward model does not invent an unannounced future neutral target
+ok 44 - public forward model does not invent an unannounced future neutral target
+  ---
+  duration_ms: 3.657558
+  type: 'test'
+  ...
+# Subtest: public forward model invalidates supply caches after bridges, reroutes, exchange and engineering
+ok 45 - public forward model invalidates supply caches after bridges, reroutes, exchange and engineering
+  ---
+  duration_ms: 37.215568
+  type: 'test'
+  ...
+# Subtest: normal public simulation settles a winning move once and refuses all terminal or ready actions
+ok 46 - normal public simulation settles a winning move once and refuses all terminal or ready actions
+  ---
+  duration_ms: 27.802891
+  type: 'test'
+  ...
+# Subtest: public simulation preserves known card expiry, hill retreat and public tunnel sabotage
+ok 47 - public simulation preserves known card expiry, hill retreat and public tunnel sabotage
+  ---
+  duration_ms: 9.274648
+  type: 'test'
+  ...
+# Subtest: the window is the last 18 turns (actions), not 18 rounds
+ok 48 - the window is the last 18 turns (actions), not 18 rounds
+  ---
+  duration_ms: 188.530784
+  type: 'test'
+  ...
+# Subtest: territory changes inside the window become gains and ghosts of lost stones
+ok 49 - territory changes inside the window become gains and ghosts of lost stones
+  ---
+  duration_ms: 9.522315
+  type: 'test'
+  ...
+# Subtest: turret fire becomes shot arcs, shield blocks and kills with the right colours
+ok 50 - turret fire becomes shot arcs, shield blocks and kills with the right colours
+  ---
+  duration_ms: 63.973968
+  type: 'test'
+  ...
+# Subtest: strategy commitments are deduplicated and follow their latest public corridor
+ok 51 - strategy commitments are deduplicated and follow their latest public corridor
+  ---
+  duration_ms: 0.885771
+  type: 'test'
+  ...
+# Subtest: the image is the map alone, with no words drawn anywhere
+ok 52 - the image is the map alone, with no words drawn anywhere
+  ---
+  duration_ms: 217.471794
+  type: 'test'
+  ...
+# Subtest: AutoHex facilities use the seed-specific symmetric airport layout and start neutral with public initial stock
+ok 53 - AutoHex facilities use the seed-specific symmetric airport layout and start neutral with public initial stock
+  ---
+  duration_ms: 12.432529
+  type: 'test'
+  ...
+# Subtest: AutoHex airports require 12 locally connected own stones, home supply and three completed owner actions
+ok 54 - AutoHex airports require 12 locally connected own stones, home supply and three completed owner actions
+  ---
+  duration_ms: 13.990727
+  type: 'test'
+  ...
+# Subtest: AutoHex airport clusters exclude allied stones and remote bridge islands, and loss of center or supply disables flight immediately
+ok 55 - AutoHex airport clusters exclude allied stones and remote bridge islands, and loss of center or supply disables flight immediately
+  ---
+  duration_ms: 10.716026
+  type: 'test'
+  ...
+# Subtest: AutoHex stock produces four each owner action, connected depots add two each, and caps at 24
+ok 56 - AutoHex stock produces four each owner action, connected depots add two each, and caps at 24
+  ---
+  duration_ms: 15.190412
+  type: 'test'
+  ...
+# Subtest: AutoHex airdrop extends only from an active airport to distance 10, costs energy/stock, and uses no card
+ok 57 - AutoHex airdrop extends only from an active airport to distance 10, costs energy/stock, and uses no card
+  ---
+  duration_ms: 25.573181
+  type: 'test'
+  ...
+# Subtest: AutoHex air abilities share six subsequent owner-action cooldowns and still obey footprint/turret caps
+ok 58 - AutoHex air abilities share six subsequent owner-action cooldowns and still obey footprint/turret caps
+  ---
+  duration_ms: 46.386958
+  type: 'test'
+  ...
+# Subtest: AutoHex bombard reaches distance 12, rejects 13/allies/anchors, and shields absorb the paid strike
+ok 59 - AutoHex bombard reaches distance 12, rejects 13/allies/anchors, and shields absorb the paid strike
+  ---
+  duration_ms: 8.721394
+  type: 'test'
+  ...
+# Subtest: AutoHex fortification requires 31 unchanged completed owner actions; enemy turns and pauses do not age a stone
+ok 60 - AutoHex fortification requires 31 unchanged completed owner actions; enemy turns and pauses do not age a stone
+  ---
+  duration_ms: 34.015723
+  type: 'test'
+  ...
+# Subtest: AutoHex new placement, capture and both exchanged cells reset fortification age; fortified isolation still retreats
+ok 61 - AutoHex new placement, capture and both exchanged cells reset fortification age; fortified isolation still retreats
+  ---
+  duration_ms: 13.793074
+  type: 'test'
+  ...
+# Subtest: AutoHex neutral warnings are public, deterministic, two rounds ahead, bounded to two non-anchor cells, and optional
+ok 62 - AutoHex neutral warnings are public, deterministic, two rounds ahead, bounded to two non-anchor cells, and optional
+  ---
+  duration_ms: 16.265058
+  type: 'test'
+  ...
+# Subtest: AutoHex neutral events respect new fortification/shields, remove only warned unprotected stones, and award no combat score
+ok 63 - AutoHex neutral events respect new fortification/shields, remove only warned unprotected stones, and award no combat score
+  ---
+  duration_ms: 3.574464
+  type: 'test'
+  ...
+# Subtest: AutoHex AI uses a ready airport to break a remote supplied enemy goal and respects the shared cooldown
+ok 64 - AutoHex AI uses a ready airport to break a remote supplied enemy goal and respects the shared cooldown
+  ---
+  duration_ms: 187.593405
+  type: 'test'
+  ...
+# Subtest: AutoHex AI uses a supplied defensive airdrop while retaining a real opposite-edge route
+ok 65 - AutoHex AI uses a supplied defensive airdrop while retaining a real opposite-edge route
+  ---
+  duration_ms: 39.78264
+  type: 'test'
+  ...
+# Subtest: AutoHex AI protects a publicly warned vulnerable airport with an available shield
+ok 66 - AutoHex AI protects a publicly warned vulnerable airport with an available shield
+  ---
+  duration_ms: 35.358854
+  type: 'test'
+  ...
+# Subtest: AutoHex strategic observations expose public readiness but keep private hand/deck permutations out of AI choices
+ok 67 - AutoHex strategic observations expose public readiness but keep private hand/deck permutations out of AI choices
+  ---
+  duration_ms: 84.33471
+  type: 'test'
+  ...
+# Subtest: AutoHex final shared-top results do not break ties using airports, stock, fortifications or allies
+ok 68 - AutoHex final shared-top results do not break ties using airports, stock, fortifications or allies
+  ---
+  duration_ms: 3.221274
+  type: 'test'
+  ...
+# Subtest: AutoHex neutral randomness does not alter the shared deck or seeded reshuffles
+ok 69 - AutoHex neutral randomness does not alter the shared deck or seeded reshuffles
+  ---
+  duration_ms: 66.765642
+  type: 'test'
+  ...
+# Subtest: AutoHex visual events retain both exact turret origins when one simultaneous shot is shielded and another destroys
+ok 70 - AutoHex visual events retain both exact turret origins when one simultaneous shot is shielded and another destroys
+  ---
+  duration_ms: 12.428505
+  type: 'test'
+  ...
+# Subtest: AutoHex allied targets produce no turret damage animation event
+ok 71 - AutoHex allied targets produce no turret damage animation event
+  ---
+  duration_ms: 4.2967
+  type: 'test'
+  ...
+# Subtest: AutoHex demolition metadata uses an explicit null origin and reports the public target owner
+ok 72 - AutoHex demolition metadata uses an explicit null origin and reports the public target owner
+  ---
+  duration_ms: 10.152114
+  type: 'test'
+  ...
+# Subtest: AutoHex supply-retreat metadata lists exactly the stones removed in that settlement
+ok 73 - AutoHex supply-retreat metadata lists exactly the stones removed in that settlement
+  ---
+  duration_ms: 8.343858
+  type: 'test'
+  ...
+# Subtest: AutoHex public visual metadata is detached from engine storage and exposes no private hands or deck order
+ok 74 - AutoHex public visual metadata is detached from engine storage and exposes no private hands or deck order
+  ---
+  duration_ms: 13.537716
+  type: 'test'
+  ...
+# Subtest: AutoHex event IDs remain increasing across truncation and restart deterministically after reset
+ok 75 - AutoHex event IDs remain increasing across truncation and restart deterministically after reset
+  ---
+  duration_ms: 78.043131
+  type: 'test'
+  ...
+# Subtest: supply preview uses public topology without mutations, secrets or RNG (18)
+ok 76 - supply preview uses public topology without mutations, secrets or RNG (18)
+  ---
+  duration_ms: 12.035141
+  type: 'test'
+  ...
+# Subtest: supply preview respects alternate bridges/tunnels and endpoint loss (18)
+ok 77 - supply preview respects alternate bridges/tunnels and endpoint loss (18)
+  ---
+  duration_ms: 12.311519
+  type: 'test'
+  ...
+# Subtest: supply preview excludes already stranded pieces and preserves a second goal (18)
+ok 78 - supply preview excludes already stranded pieces and preserves a second goal (18)
+  ---
+  duration_ms: 4.727491
+  type: 'test'
+  ...
+# Subtest: supply preview uses public topology without mutations, secrets or RNG (9)
+ok 79 - supply preview uses public topology without mutations, secrets or RNG (9)
+  ---
+  duration_ms: 11.060911
+  type: 'test'
+  ...
+# Subtest: supply preview respects alternate bridges/tunnels and endpoint loss (9)
+ok 80 - supply preview respects alternate bridges/tunnels and endpoint loss (9)
+  ---
+  duration_ms: 5.587706
+  type: 'test'
+  ...
+# Subtest: supply preview excludes already stranded pieces and preserves a second goal (9)
+ok 81 - supply preview excludes already stranded pieces and preserves a second goal (9)
+  ---
+  duration_ms: 3.699471
+  type: 'test'
+  ...
+# Subtest: AutoHex visual supply forest starts at homes, follows own supplied neighbors/bridges, and contains no cycles
+ok 82 - AutoHex visual supply forest starts at homes, follows own supplied neighbors/bridges, and contains no cycles
+  ---
+  duration_ms: 2.078799
+  type: 'test'
+  ...
+# Subtest: AutoHex visual turret range is exactly three and excludes active allies, anchors, and own stones
+ok 83 - AutoHex visual turret range is exactly three and excludes active allies, anchors, and own stones
+  ---
+  duration_ms: 0.676896
+  type: 'test'
+  ...
+# Subtest: AutoHex effects retain distinct same-turn hit IDs and never restart an animation on repeated observations
+ok 84 - AutoHex effects retain distinct same-turn hit IDs and never restart an animation on repeated observations
+  ---
+  duration_ms: 1.104632
+  type: 'test'
+  ...
+# Subtest: AutoHex effect storage, seen IDs and cell lists remain bounded with detached snapshots
+ok 85 - AutoHex effect storage, seen IDs and cell lists remain bounded with detached snapshots
+  ---
+  duration_ms: 1.066737
+  type: 'test'
+  ...
+# Subtest: AutoHex effects expire by active age, reject stale observations, and clear correctly for manual steps and restart
+ok 86 - AutoHex effects expire by active age, reject stale observations, and clear correctly for manual steps and restart
+  ---
+  duration_ms: 0.273208
+  type: 'test'
+  ...
+# Subtest: AutoHex visual helpers use public observation fields and never copy private card data into effects
+ok 87 - AutoHex visual helpers use public observation fields and never copy private card data into effects
+  ---
+  duration_ms: 0.446364
+  type: 'test'
+  ...
+# Subtest: AutoHex air effects mark the landing cell and use one damage-resolution effect per bombardment
+ok 88 - AutoHex air effects mark the landing cell and use one damage-resolution effect per bombardment
+  ---
+  duration_ms: 4.638828
+  type: 'test'
+  ...
+# Subtest: AutoHex neutral warning is not rendered as a hit and strike/block resolutions remain distinct public effects
+ok 89 - AutoHex neutral warning is not rendered as a hit and strike/block resolutions remain distinct public effects
+  ---
+  duration_ms: 0.323408
+  type: 'test'
+  ...
+# Subtest: AutoHex geometry is radius 18 / 1,027 cells with reciprocal neighbors and six directed edge goals
+ok 90 - AutoHex geometry is radius 18 / 1,027 cells with reciprocal neighbors and six directed edge goals
+  ---
+  duration_ms: 11.944105
+  type: 'test'
+  ...
+# Subtest: AutoHex terrain is seeded, sixfold symmetric and each home has an occupiable foothold
+ok 91 - AutoHex terrain is seeded, sixfold symmetric and each home has an occupiable foothold
+  ---
+  duration_ms: 133.178444
+  type: 'test'
+  ...
+# Subtest: AutoHex range permits distance 5 and rejects distance 6 using only pre-action own stones
+ok 92 - AutoHex range permits distance 5 and rejects distance 6 using only pre-action own stones
+  ---
+  duration_ms: 10.621399
+  type: 'test'
+  ...
+# Subtest: AutoHex river occupation requires public engineering and engineering itself obeys range
+ok 93 - AutoHex river occupation requires public engineering and engineering itself obeys range
+  ---
+  duration_ms: 16.925948
+  type: 'test'
+  ...
+# Subtest: AutoHex hills add one defense while shields absorb one demolition without changing ownership
+ok 94 - AutoHex hills add one defense while shields absorb one demolition without changing ownership
+  ---
+  duration_ms: 14.831243
+  type: 'test'
+  ...
+# Subtest: AutoHex every spatial card applies the same public range; invalid pair/triple actions are atomic
+ok 95 - AutoHex every spatial card applies the same public range; invalid pair/triple actions are atomic
+  ---
+  duration_ms: 67.126686
+  type: 'test'
+  ...
+# Subtest: AutoHex all six spatial cards have legal positive fixtures, including remote own bridge/reroute endpoints
+ok 96 - AutoHex all six spatial cards have legal positive fixtures, including remote own bridge/reroute endpoints
+  ---
+  duration_ms: 7.205707
+  type: 'test'
+  ...
+# Subtest: AutoHex bridge geometry rejects duplicate/reverse/partial overlap/crossing/T but permits shared endpoints
+ok 97 - AutoHex bridge geometry rejects duplicate/reverse/partial overlap/crossing/T but permits shared endpoints
+  ---
+  duration_ms: 155.391442
+  type: 'test'
+  ...
+# Subtest: AutoHex finite shared deck conserves its recipe through draws, discards and repeated reshuffles
+ok 98 - AutoHex finite shared deck conserves its recipe through draws, discards and repeated reshuffles
+  ---
+  duration_ms: 87.276629
+  type: 'test'
+  ...
+# Subtest: AutoHex hand cap, equal replenishment and ordinary action/energy budgets apply to all six seats
+ok 99 - AutoHex hand cap, equal replenishment and ordinary action/energy budgets apply to all six seats
+  ---
+  duration_ms: 24.655722
+  type: 'test'
+  ...
+# Subtest: AutoHex private hands and draw order never reach observers or influence the current AI decision
+ok 100 - AutoHex private hands and draw order never reach observers or influence the current AI decision
+  ---
+  duration_ms: 104.020779
+  type: 'test'
+  ...
+# Subtest: AutoHex diplomacy needs consent, consumes turns, exposes pacts and supports rejection/expiry
+ok 101 - AutoHex diplomacy needs consent, consumes turns, exposes pacts and supports rejection/expiry
+  ---
+  duration_ms: 57.419899
+  type: 'test'
+  ...
+# Subtest: AutoHex pacts block ally attacks until an explicit costly betrayal and enforce limits/cooldowns
+ok 102 - AutoHex pacts block ally attacks until an explicit costly betrayal and enforce limits/cooldowns
+  ---
+  duration_ms: 23.212278
+  type: 'test'
+  ...
+# Subtest: AutoHex automatic turrets honor an active pact and can target the former ally after betrayal
+ok 103 - AutoHex automatic turrets honor an active pact and can target the former ally after betrayal
+  ---
+  duration_ms: 6.228276
+  type: 'test'
+  ...
+# Subtest: AutoHex 96-stone cap permits voluntary withdrawal and rebuilding
+ok 104 - AutoHex 96-stone cap permits voluntary withdrawal and rebuilding
+  ---
+  duration_ms: 7.722529
+  type: 'test'
+  ...
+# Subtest: AutoHex six profile rotations give each seat every profile with unchanged seed/deck/terrain rules
+ok 105 - AutoHex six profile rotations give each seat every profile with unchanged seed/deck/terrain rules
+  ---
+  duration_ms: 10.04897
+  type: 'test'
+  ...
+# Subtest: AutoHex supply follows home-connected own neighbors and own bridges, not enemy/allied stones
+ok 106 - AutoHex supply follows home-connected own neighbors and own bridges, not enemy/allied stones
+  ---
+  duration_ms: 1.260343
+  type: 'test'
+  ...
+# Subtest: AutoHex unsupplied fronts retreat after six owner turns and reconnection preserves recovered stones
+ok 107 - AutoHex unsupplied fronts retreat after six owner turns and reconnection preserves recovered stones
+  ---
+  duration_ms: 22.571197
+  type: 'test'
+  ...
+# Subtest: AutoHex permanent anchors survive hostile cards and allow rebuilding after every other stone is lost
+ok 108 - AutoHex permanent anchors survive hostile cards and allow rebuilding after every other stone is lost
+  ---
+  duration_ms: 65.837011
+  type: 'test'
+  ...
+# Subtest: AutoHex each directed opposite-edge arrival scores and keeps the campaign running, then holding scores
+ok 109 - AutoHex each directed opposite-edge arrival scores and keeps the campaign running, then holding scores
+  ---
+  duration_ms: 30.464829
+  type: 'test'
+  ...
+# Subtest: AutoHex antipodal factions can score distinct supplied routes together at a round boundary
+ok 110 - AutoHex antipodal factions can score distinct supplied routes together at a round boundary
+  ---
+  duration_ms: 4.243931
+  type: 'test'
+  ...
+# Subtest: AutoHex only running foreground clock reaches timeout, results are simultaneous and sandbox is explicit
+ok 111 - AutoHex only running foreground clock reaches timeout, results are simultaneous and sandbox is explicit
+  ---
+  duration_ms: 27.163046
+  type: 'test'
+  ...
+# Subtest: AutoHex invalid clock deltas and malformed actions do not corrupt or advance state
+ok 112 - AutoHex invalid clock deltas and malformed actions do not corrupt or advance state
+  ---
+  duration_ms: 14.85337
+  type: 'test'
+  ...
+# Subtest: AutoHex reset clears previous actions, score, elapsed time, diplomacy and hidden shuffle state
+ok 113 - AutoHex reset clears previous actions, score, elapsed time, diplomacy and hidden shuffle state
+  ---
+  duration_ms: 8.014041
+  type: 'test'
+  ...
+# Subtest: AutoHex deterministic seeded replay has legal bounded actions and no dependence on wall time
+ok 114 - AutoHex deterministic seeded replay has legal bounded actions and no dependence on wall time
+  ---
+  duration_ms: 30519.089058
+  type: 'test'
+  ...
+# Subtest: six-deck shoe has 312 unique physical cards and each rank occurs 24 times
+ok 115 - six-deck shoe has 312 unique physical cards and each rank occurs 24 times
+  ---
+  duration_ms: 2.465776
+  type: 'test'
+  ...
+# Subtest: aces downgrade independently and S17 applies to hard AND soft 17
+ok 116 - aces downgrade independently and S17 applies to hard AND soft 17
+  ---
+  duration_ms: 0.307731
+  type: 'test'
+  ...
+# Subtest: natural outranks three-card 21, dual naturals push, bust loses even against bust
+ok 117 - natural outranks three-card 21, dual naturals push, bust loses even against bust
+  ---
+  duration_ms: 0.212733
+  type: 'test'
+  ...
+# Subtest: 100 chips with wager 10 ends at 110 win, 115 natural, 100 push, 90 loss
+ok 118 - 100 chips with wager 10 ends at 110 win, 115 natural, 100 push, 90 loss
+  ---
+  duration_ms: 1.345106
+  type: 'test'
+  ...
+# Subtest: dealer blackjack is checked before any double or extra wager
+ok 119 - dealer blackjack is checked before any double or extra wager
+  ---
+  duration_ms: 0.286887
+  type: 'test'
+  ...
+# Subtest: double requires initial two cards and enough balance, draws exactly once and completes turn
+ok 120 - double requires initial two cards and enough balance, draws exactly once and completes turn
+  ---
+  duration_ms: 0.408921
+  type: 'test'
+  ...
+# Subtest: player bust settles as loss while S17 dealer stops without drawing an extra card
+ok 121 - player bust settles as loss while S17 dealer stops without drawing an extra card
+  ---
+  duration_ms: 0.194216
+  type: 'test'
+  ...
+# Subtest: initial natural skips the human turn; bust and 21 automatically finish a hand
+ok 122 - initial natural skips the human turn; bust and 21 automatically finish a hand
+  ---
+  duration_ms: 0.164768
+  type: 'test'
+  ...
+# Subtest: pause freezes actions, progression and extra rounds until explicit resume
+ok 123 - pause freezes actions, progression and extra rounds until explicit resume
+  ---
+  duration_ms: 0.747336
+  type: 'test'
+  ...
+# Subtest: settlement is idempotent and stale callbacks cannot act after reset or next round
+ok 124 - settlement is idempotent and stale callbacks cannot act after reset or next round
+  ---
+  duration_ms: 0.794829
+  type: 'test'
+  ...
+# Subtest: dealer cannot settle early and invalid seats cannot gain a legal double
+ok 125 - dealer cannot settle early and invalid seats cannot gain a legal double
+  ---
+  duration_ms: 0.300348
+  type: 'test'
+  ...
+# Subtest: wagers cannot overdraw or be zero/NaN; small balances support legal all-in
+ok 126 - wagers cannot overdraw or be zero/NaN; small balances support legal all-in
+  ---
+  duration_ms: 0.612603
+  type: 'test'
+  ...
+# Subtest: seated AI identities are distinct, randomized, persistent and have different strategies
+ok 127 - seated AI identities are distinct, randomized, persistent and have different strategies
+  ---
+  duration_ms: 0.711883
+  type: 'test'
+  ...
+# Subtest: AI basic strategy handles hard/soft thresholds and never doubles when illegal
+ok 128 - AI basic strategy handles hard/soft thresholds and never doubles when illegal
+  ---
+  duration_ms: 0.181565
+  type: 'test'
+  ...
+# Subtest: anti-peeking: replacing every hidden card and shoe preserves redacted AI view and fixed-seed choice
+ok 129 - anti-peeking: replacing every hidden card and shoe preserves redacted AI view and fixed-seed choice
+  ---
+  duration_ms: 1.466427
+  type: 'test'
+  ...
+# Subtest: 1,500 deterministic complete rounds keep legal turns, nonnegative funds, physical-card identities and one settlement
+ok 130 - 1,500 deterministic complete rounds keep legal turns, nonnegative funds, physical-card identities and one settlement
+  ---
+  duration_ms: 119.914802
+  type: 'test'
+  ...
+# Subtest: page declares free-only local AI, omissions, fixed dealer and automatic pause
+ok 131 - page declares free-only local AI, omissions, fixed dealer and automatic pause
+  ---
+  duration_ms: 1.800349
+  type: 'test'
+  ...
+# Subtest: [historical96c109a normal Hex] regular91-cell topology has six central neighbours, symmetric goal edges and shared corners
+ok 132 - [historical96c109a normal Hex] regular91-cell topology has six central neighbours, symmetric goal edges and shared corners
+  ---
+  duration_ms: 5.988864
+  type: 'test'
+  ...
+# Subtest: [historical96c109a normal Hex] 120degree rotation preserves topology, corner membership and every player connection cost
+ok 133 - [historical96c109a normal Hex] 120degree rotation preserves topology, corner membership and every player connection cost
+  ---
+  duration_ms: 4.050063
+  type: 'test'
+  ...
+# Subtest: [historical96c109a normal Hex] all three players get the same weighted13-card finite deck, exactly1shield, no guaranteed opening shield
+ok 134 - [historical96c109a normal Hex] all three players get the same weighted13-card finite deck, exactly1shield, no guaranteed opening shield
+  ---
+  duration_ms: 5.209971
+  type: 'test'
+  ...
+# Subtest: [historical96c109a normal Hex] ready, paused and terminal states freeze moves and clocks; reset clears every structure
+ok 135 - [historical96c109a normal Hex] ready, paused and terminal states freeze moves and clocks; reset clears every structure
+  ---
+  duration_ms: 2.806292
+  type: 'test'
+  ...
+# Subtest: [historical96c109a normal Hex] double placement is atomic, needs adjacent distinct empties, and can complete a connection
+ok 136 - [historical96c109a normal Hex] double placement is atomic, needs adjacent distinct empties, and can complete a connection
+  ---
+  duration_ms: 1.757088
+  type: 'test'
+  ...
+# Subtest: [historical96c109a normal Hex] removal gives the actual target owner one counter window, freezes turn, spends unique shield
+ok 137 - [historical96c109a normal Hex] removal gives the actual target owner one counter window, freezes turn, spends unique shield
+  ---
+  duration_ms: 2.958681
+  type: 'test'
+  ...
+# Subtest: [historical96c109a normal Hex] unshielded removal only clears the target and removes attached public structures
+ok 138 - [historical96c109a normal Hex] unshielded removal only clears the target and removes attached public structures
+  ---
+  duration_ms: 1.131595
+  type: 'test'
+  ...
+# Subtest: [historical96c109a normal Hex] connection wins before cap; multiple final connections draw; fullboard ends despite unused removal
+ok 139 - [historical96c109a normal Hex] connection wins before cap; multiple final connections draw; fullboard ends despite unused removal
+  ---
+  duration_ms: 8.590471
+  type: 'test'
+  ...
+# Subtest: [historical96c109a normal Hex] AI closes a route, blocks either rival immediate threat, and finds a double finish
+ok 140 - [historical96c109a normal Hex] AI closes a route, blocks either rival immediate threat, and finds a double finish
+  ---
+  duration_ms: 84.795982
+  type: 'test'
+  ...
+# Subtest: [historical96c109a normal Hex] AI shields important own bridges/routes; private hand/deck and trap permutation cannot change observations or choices
+ok 141 - [historical96c109a normal Hex] AI shields important own bridges/routes; private hand/deck and trap permutation cannot change observations or choices
+  ---
+  duration_ms: 74.594954
+  type: 'test'
+  ...
+# Subtest: [historical96c109a normal Hex] AI personality affects actual strategic actions on a searched public fixture
+ok 142 - [historical96c109a normal Hex] AI personality affects actual strategic actions on a searched public fixture
+  ---
+  duration_ms: 532.784957
+  type: 'test'
+  ...
+# Subtest: [historical96c109a normal Hex] turret is publicly warned for three subsequent actions, damages all owners, fires twice then becomes ordinary stone
+ok 143 - [historical96c109a normal Hex] turret is publicly warned for three subsequent actions, damages all owners, fires twice then becomes ordinary stone
+  ---
+  duration_ms: 1.378855
+  type: 'test'
+  ...
+# Subtest: [historical96c109a normal Hex] simultaneous turrets both shoot even when hit, and a destroyed gun cannot fire later
+ok 144 - [historical96c109a normal Hex] simultaneous turrets both shoot even when hit, and a destroyed gun cannot fire later
+  ---
+  duration_ms: 0.268531
+  type: 'test'
+  ...
+# Subtest: [historical96c109a normal Hex] due turret fire resolves before winning connection and shield never protects area damage
+ok 145 - [historical96c109a normal Hex] due turret fire resolves before winning connection and shield never protects area damage
+  ---
+  duration_ms: 0.264422
+  type: 'test'
+  ...
+# Subtest: [historical96c109a normal Hex] trap normal placement and secret center differ; only owner sees zone until enemy entry reveals it
+ok 146 - [historical96c109a normal Hex] trap normal placement and secret center differ; only owner sees zone until enemy entry reveals it
+  ---
+  duration_ms: 0.620722
+  type: 'test'
+  ...
+# Subtest: [historical96c109a normal Hex] trap cancels only new enemies in zone, can cancel both double stones, never harms owner or existing stones
+ok 147 - [historical96c109a normal Hex] trap cancels only new enemies in zone, can cancel both double stones, never harms owner or existing stones
+  ---
+  duration_ms: 0.352471
+  type: 'test'
+  ...
+# Subtest: [historical96c109a normal Hex] overlapping rival traps reveal independently; secret center deployment never triggers a trap
+ok 148 - [historical96c109a normal Hex] overlapping rival traps reveal independently; secret center deployment never triggers a trap
+  ---
+  duration_ms: 0.454924
+  type: 'test'
+  ...
+# Subtest: [historical96c109a normal Hex] bridge crosses one straight gap, gives virtual connectivity, rejects invalid endpoints and disappears with an endpoint
+ok 149 - [historical96c109a normal Hex] bridge crosses one straight gap, gives virtual connectivity, rejects invalid endpoints and disappears with an endpoint
+  ---
+  duration_ms: 1.236261
+  type: 'test'
+  ...
+# Subtest: [historical96c109a normal Hex] AI respects own trap centers, public immediate fire, and newly opened reply cells
+ok 150 - [historical96c109a normal Hex] AI respects own trap centers, public immediate fire, and newly opened reply cells
+  ---
+  duration_ms: 52.681098
+  type: 'test'
+  ...
+# Subtest: [historical96c109a normal Hex] six seeded full three-way AI games rotate first/axes/profiles and conserve finite cards without illegal actions
+ok 151 - [historical96c109a normal Hex] six seeded full three-way AI games rotate first/axes/profiles and conserve finite cards without illegal actions
+  ---
+  duration_ms: 8033.761426
+  type: 'test'
+  ...
+# Subtest: [historical96c109a normal Hex] cyclic player relabeling cannot change equal-valued tactical choice (floating-point regression)
+ok 152 - [historical96c109a normal Hex] cyclic player relabeling cannot change equal-valued tactical choice (floating-point regression)
+  ---
+  duration_ms: 81.043302
+  type: 'test'
+  ...
+# Bridge simulations: 491 played, 21 passed out, longest auction 13 calls.
+# Subtest: deterministic immutable deals contain exactly 52 unique cards and clone for play
+ok 153 - deterministic immutable deals contain exactly 52 unique cards and clone for play
+  ---
+  duration_ms: 2.171442
+  type: 'test'
+  ...
+# Subtest: dealer rotates and all sixteen board vulnerabilities match the standard cycle
+ok 154 - dealer rotates and all sixteen board vulnerabilities match the standard cycle
+  ---
+  duration_ms: 8.444602
+  type: 'test'
+  ...
+# Subtest: all 35 bids are available initially, in strict clubs to NT and level order
+ok 155 - all 35 bids are available initially, in strict clubs to NT and level order
+  ---
+  duration_ms: 1.533713
+  type: 'test'
+  ...
+# Subtest: three initial passes do not end the auction; four passes yield score zero
+ok 156 - three initial passes do not end the auction; four passes yield score zero
+  ---
+  duration_ms: 0.393264
+  type: 'test'
+  ...
+# Subtest: three passes following a bid finish, with declarer the first partnership bidder of strain
+ok 157 - three passes following a bid finish, with declarer the first partnership bidder of strain
+  ---
+  duration_ms: 0.735742
+  type: 'test'
+  ...
+# Subtest: double/redouble are partnership-specific and can follow intervening passes
+ok 158 - double/redouble are partnership-specific and can follow intervening passes
+  ---
+  duration_ms: 0.396087
+  type: 'test'
+  ...
+# Subtest: redouble after two passes stays legal; new bids clear all doubling and reset passes
+ok 159 - redouble after two passes stays legal; new bids clear all doubling and reset passes
+  ---
+  duration_ms: 0.276834
+  type: 'test'
+  ...
+# Subtest: invalid calls never mutate the auction or turn
+ok 160 - invalid calls never mutate the auction or turn
+  ---
+  duration_ms: 0.607461
+  type: 'test'
+  ...
+# Subtest: only opening lead reveals dummy, and no hidden hand appears in an auction or opening view
+ok 161 - only opening lead reveals dummy, and no hidden hand appears in an auction or opening view
+  ---
+  duration_ms: 1.445472
+  type: 'test'
+  ...
+# Subtest: follow suit is mandatory, illegal discard does not mutate state, void permits trump/discard
+ok 162 - follow suit is mandatory, illegal discard does not mutate state, void permits trump/discard
+  ---
+  duration_ms: 1.222185
+  type: 'test'
+  ...
+# Subtest: trick winner respects trump, led suit, ace high and unrelated discarded aces
+ok 163 - trick winner respects trump, led suit, ace high and unrelated discarded aces
+  ---
+  duration_ms: 0.363014
+  type: 'test'
+  ...
+# Subtest: winning seat leads next trick and exactly thirteen tricks score once
+ok 164 - winning seat leads next trick and exactly thirteen tricks score once
+  ---
+  duration_ms: 4.88692
+  type: 'test'
+  ...
+# Subtest: duplicate scoring matches contract, game, slam, overtrick and doubled game fixtures
+ok 165 - duplicate scoring matches contract, game, slam, overtrick and doubled game fixtures
+  ---
+  duration_ms: 0.290753
+  type: 'test'
+  ...
+# Subtest: doubled/redoubled undertrick penalties follow both vulnerability schedules
+ok 166 - doubled/redoubled undertrick penalties follow both vulnerability schedules
+  ---
+  duration_ms: 0.130165
+  type: 'test'
+  ...
+# Subtest: game threshold excludes overtricks and includes contract multiplier
+ok 167 - game threshold excludes overtricks and includes contract multiplier
+  ---
+  duration_ms: 0.055215
+  type: 'test'
+  ...
+# Subtest: score validation rejects impossible contract states
+ok 168 - score validation rejects impossible contract states
+  ---
+  duration_ms: 0.196233
+  type: 'test'
+  ...
+# Subtest: matchpoint fixture uses unified score direction with half credit for ties
+ok 169 - matchpoint fixture uses unified score direction with half credit for ties
+  ---
+  duration_ms: 0.088861
+  type: 'test'
+  ...
+# Subtest: AI forcing states are derived only from public natural auctions and stop after interference
+ok 170 - AI forcing states are derived only from public natural auctions and stop after interference
+  ---
+  duration_ms: 1.197674
+  type: 'test'
+  ...
+# Subtest: AI personalities make actual distinct observable choices on identical legal views
+ok 171 - AI personalities make actual distinct observable choices on identical legal views
+  ---
+  duration_ms: 402.243378
+  type: 'test'
+  ...
+# Subtest: public views have detached arrays, preventing an AI from changing game state
+ok 172 - public views have detached arrays, preventing an AI from changing game state
+  ---
+  duration_ms: 0.567047
+  type: 'test'
+  ...
+# Subtest: changing all unseen hands leaves auction and card AI decisions unchanged
+ok 173 - changing all unseen hands leaves auction and card AI decisions unchanged
+  ---
+  duration_ms: 771.709555
+  type: 'test'
+  ...
+# Subtest: same immutable deal is independently auctioned and replayed by the reference table
+ok 174 - same immutable deal is independently auctioned and replayed by the reference table
+  ---
+  duration_ms: 11.438107
+  type: 'test'
+  ...
+# Subtest: 512 complete AI boards conserve cards, obey turns, converge and score in NS direction
+ok 175 - 512 complete AI boards conserve cards, obey turns, converge and score in NS direction
+  ---
+  duration_ms: 1402.979447
+  type: 'test'
+  ...
+# Subtest: random legal auctions and play support contracts beyond AI bidding conventions
+ok 176 - random legal auctions and play support contracts beyond AI bidding conventions
+  ---
+  duration_ms: 26.145345
+  type: 'test'
+  ...
+# Subtest: all states freeze appropriately; reset clears timers, results and respawn resources
+ok 177 - all states freeze appropriately; reset clears timers, results and respawn resources
+  ---
+  duration_ms: 16.520078
+  type: 'test'
+  ...
+# Subtest: direction changes are constrained to actual heading; fast repeated presses cannot reverse
+ok 178 - direction changes are constrained to actual heading; fast repeated presses cannot reverse
+  ---
+  duration_ms: 1.263019
+  type: 'test'
+  ...
+# Subtest: fruit and star scoring, staged growth, poison floors and hard length limit
+ok 179 - fruit and star scoring, staged growth, poison floors and hard length limit
+  ---
+  duration_ms: 0.543378
+  type: 'test'
+  ...
+# Subtest: slow duration is exact, refreshes without stacking, and pauses freeze remaining effect
+ok 180 - slow duration is exact, refreshes without stacking, and pauses freeze remaining effect
+  ---
+  duration_ms: 0.541958
+  type: 'test'
+  ...
+# Subtest: poison cancels pending star growth and shrinks from the length before this movement
+ok 181 - poison cancels pending star growth and shrinks from the length before this movement
+  ---
+  duration_ms: 0.267671
+  type: 'test'
+  ...
+# Subtest: shield refreshes, protects on its final tick, consumes once and leaves the head in place
+ok 182 - shield refreshes, protects on its final tick, consumes once and leaves the head in place
+  ---
+  duration_ms: 0.480188
+  type: 'test'
+  ...
+# Subtest: head-on collision is simultaneous and food stays uneaten; shield does not grant the contested cell
+ok 183 - head-on collision is simultaneous and food stays uneaten; shield does not grant the contested cell
+  ---
+  duration_ms: 1.844139
+  type: 'test'
+  ...
+# Subtest: head swaps, walls, stones, own body and departing tails all collide
+ok 184 - head swaps, walls, stones, own body and departing tails all collide
+  ---
+  duration_ms: 1.507655
+  type: 'test'
+  ...
+# Subtest: a waiting slow snake remains an obstacle, including to a moving head
+ok 185 - a waiting slow snake remains an obstacle, including to a moving head
+  ---
+  duration_ms: 0.470614
+  type: 'test'
+  ...
+# Subtest: safe spawn requires empty body, forward corridor, distance and a full visible warning
+ok 186 - safe spawn requires empty body, forward corridor, distance and a full visible warning
+  ---
+  duration_ms: 0.745412
+  type: 'test'
+  ...
+# Subtest: no safe space postpones spawn; food spawning terminates and respects the capacity
+ok 187 - no safe space postpones spawn; food spawning terminates and respects the capacity
+  ---
+  duration_ms: 343.422008
+  type: 'test'
+  ...
+# Subtest: expired hazards leave the board and replacement food has a bounded lifetime
+ok 188 - expired hazards leave the board and replacement food has a bounded lifetime
+  ---
+  duration_ms: 0.312828
+  type: 'test'
+  ...
+# Subtest: AI avoids walls, bodies and negative food while pursuing accessible rewards
+ok 189 - AI avoids walls, bodies and negative food while pursuing accessible rewards
+  ---
+  duration_ms: 0.391498
+  type: 'test'
+  ...
+# Subtest: public personality weights produce different decisions on the same board
+ok 190 - public personality weights produce different decisions on the same board
+  ---
+  duration_ms: 0.657222
+  type: 'test'
+  ...
+# Subtest: bounded deterministic matches preserve unique bodies, food bounds, scoring and AI replenishment
+ok 191 - bounded deterministic matches preserve unique bodies, food bounds, scoring and AI replenishment
+  ---
+  duration_ms: 1770.478362
+  type: 'test'
+  ...
+# Subtest: boost buys a second step with mass, drops collectible food, and obeys pause and minimum mass
+ok 192 - boost buys a second step with mass, drops collectible food, and obeys pause and minimum mass
+  ---
+  duration_ms: 0.424838
+  type: 'test'
+  ...
+# Subtest: mass only wins same-cell contests; shield and any body remain counters
+ok 193 - mass only wins same-cell contests; shield and any body remain counters
+  ---
+  duration_ms: 0.369451
+  type: 'test'
+  ...
+# Subtest: ninety-second contest ranks public scores plus surviving mass and terminates
+ok 194 - ninety-second contest ranks public scores plus surviving mass and terminates
+  ---
+  duration_ms: 0.149924
+  type: 'test'
+  ...
+# Subtest: incremental search transition agrees with production rules on seeded reachable boards
+ok 195 - incremental search transition agrees with production rules on seeded reachable boards
+  ---
+  duration_ms: 63.502462
+  type: 'test'
+  ...
+# Subtest: hypothetical win probes match actual move outcomes and restore the board
+ok 196 - hypothetical win probes match actual move outcomes and restore the board
+  ---
+  duration_ms: 16.426186
+  type: 'test'
+  ...
+# Subtest: takes an immediate capture-five and rejects terminal or malformed observations
+ok 197 - takes an immediate capture-five and rejects terminal or malformed observations
+  ---
+  duration_ms: 2.238708
+  type: 'test'
+  ...
+# Subtest: complete root defense finds the unique diagonal rescue after E5 E4 E3 D5 E2
+ok 198 - complete root defense finds the unique diagonal rescue after E5 E4 E3 D5 E2
+  ---
+  duration_ms: 128.828324
+  type: 'test'
+  ...
+# Subtest: historical fourth move chooses a reply that refutes forced win by ply seven
+ok 199 - historical fourth move chooses a reply that refutes forced win by ply seven
+  ---
+  duration_ms: 169.525379
+  type: 'test'
+  ...
+# Subtest: search is deterministic, bounded and never mutates a caller observation
+ok 200 - search is deterministic, bounded and never mutates a caller observation
+  ---
+  duration_ms: 13.178589
+  type: 'test'
+  ...
+# Subtest: opening response avoids the certified adjacent blunder for both colors, profiles and deterministic seeds
+ok 201 - opening response avoids the certified adjacent blunder for both colors, profiles and deterministic seeds
+  ---
+  duration_ms: 288.777067
+  type: 'test'
+  ...
+# Subtest: all empty cells are legal even without a bracket; illegal actions are atomic
+ok 202 - all empty cells are legal even without a bracket; illegal actions are atomic
+  ---
+  duration_ms: 2.420248
+  type: 'test'
+  ...
+# Subtest: all eight sandwich rays flip simultaneously; edges never wrap and there is no cascade
+ok 203 - all eight sandwich rays flip simultaneously; edges never wrap and there is no cascade
+  ---
+  duration_ms: 0.31938
+  type: 'test'
+  ...
+# Subtest: open rays, friendly neighbours and interrupted chains do not flip
+ok 204 - open rays, friendly neighbours and interrupted chains do not flip
+  ---
+  duration_ms: 0.635487
+  type: 'test'
+  ...
+# Subtest: victory is evaluated after every flip and includes longer lines and both diagonals
+ok 205 - victory is evaluated after every flip and includes longer lines and both diagonals
+  ---
+  duration_ms: 0.346835
+  type: 'test'
+  ...
+# Subtest: simultaneous final lines draw; full board without five counts stones, with lines takes precedence
+ok 206 - simultaneous final lines draw; full board without five counts stones, with lines takes precedence
+  ---
+  duration_ms: 2.572213
+  type: 'test'
+  ...
+# Subtest: pause and terminal states freeze and restart restores an empty board with selected starter
+ok 207 - pause and terminal states freeze and restart restores an empty board with selected starter
+  ---
+  duration_ms: 0.34548
+  type: 'test'
+  ...
+# Subtest: AI recognizes a winning capture and always takes a direct immediate win
+ok 208 - AI recognizes a winning capture and always takes a direct immediate win
+  ---
+  duration_ms: 15.981048
+  type: 'test'
+  ...
+# Subtest: AI blocks a sole immediate threat and searches a defensive capture off the threat cell
+ok 209 - AI blocks a sole immediate threat and searches a defensive capture off the threat cell
+  ---
+  duration_ms: 28.551192
+  type: 'test'
+  ...
+# Subtest: public observations are copied and personality changes actual board preferences
+ok 210 - public observations are copied and personality changes actual board preferences
+  ---
+  duration_ms: 11.029967
+  type: 'test'
+  ...
+# Subtest: 12 AI matches with varied legal openings finish in at most 81 placements
+ok 211 - 12 AI matches with varied legal openings finish in at most 81 placements
+  ---
+  duration_ms: 246.325651
+  type: 'test'
+  ...
+# Subtest: certificate covers all 76 legal replies in the conditional E7 losing line
+ok 212 - certificate covers all 76 legal replies in the conditional E7 losing line
+  ---
+  duration_ms: 5.646598
+  type: 'test'
+  ...
+# Subtest: D5 survives the short horizon: all 77 fifth-move attempts have a reply denying ply7
+ok 213 - D5 survives the short horizon: all 77 fifth-move attempts have a reply denying ply7
+  ---
+  duration_ms: 14.994147
+  type: 'test'
+  ...
+# Subtest: F3 is the unique immediate defense; the plausible F5 allows winning recapture
+ok 214 - F3 is the unique immediate defense; the plausible F5 allows winning recapture
+  ---
+  duration_ms: 10.93339
+  type: 'test'
+  ...
+# Subtest: AI finds the unique capture defense under all board symmetries and either color
+ok 215 - AI finds the unique capture defense under all board symmetries and either color
+  ---
+  duration_ms: 459.703236
+  type: 'test'
+  ...
+# Subtest: AI prolongs the already-lost triple instead of allowing the earliest forced loss
+ok 216 - AI prolongs the already-lost triple instead of allowing the earliest forced loss
+  ---
+  duration_ms: 66.102059
+  type: 'test'
+  ...
+# Subtest: AI avoids the certified orthogonally adjacent reply to an opening E5
+ok 217 - AI avoids the certified orthogonally adjacent reply to an opening E5
+  ---
+  duration_ms: 270.552254
+  type: 'test'
+  ...
+# Subtest: three lanes join two corner bases, with six mirrored slots per side
+ok 218 - three lanes join two corner bases, with six mirrored slots per side
+  ---
+  duration_ms: 3.453012
+  type: 'test'
+  ...
+# Subtest: building checks phase, slot, occupancy and supply
+ok 219 - building checks phase, slot, occupancy and supply
+  ---
+  duration_ms: 0.511834
+  type: 'test'
+  ...
+# Subtest: selling refunds half of the cost
+ok 220 - selling refunds half of the cost
+  ---
+  duration_ms: 0.318812
+  type: 'test'
+  ...
+# Subtest: supply arrives once per second, depots add to it and AI difficulty scales it
+ok 221 - supply arrives once per second, depots add to it and AI difficulty scales it
+  ---
+  duration_ms: 1.160957
+  type: 'test'
+  ...
+# Subtest: cards are drawn at 10 s and every 20 s after, up to three in hand
+ok 222 - cards are drawn at 10 s and every 20 s after, up to three in hand
+  ---
+  duration_ms: 7.86531
+  type: 'test'
+  ...
+# Subtest: card draws follow the card weights
+ok 223 - card draws follow the card weights
+  ---
+  duration_ms: 10.213685
+  type: 'test'
+  ...
+# Subtest: recon reveals the whole enemy half for a while
+ok 224 - recon reveals the whole enemy half for a while
+  ---
+  duration_ms: 0.770576
+  type: 'test'
+  ...
+# Subtest: a strike lands after its delay and hits anything inside the radius
+ok 225 - a strike lands after its delay and hits anything inside the radius
+  ---
+  duration_ms: 1.12563
+  type: 'test'
+  ...
+# Subtest: jamming downs enemy drones in a lane and stalls factories there
+ok 226 - jamming downs enemy drones in a lane and stalls factories there
+  ---
+  duration_ms: 1.175701
+  type: 'test'
+  ...
+# Subtest: airdrop adds supply
+ok 227 - airdrop adds supply
+  ---
+  duration_ms: 0.500739
+  type: 'test'
+  ...
+# Subtest: factories launch bursts of drones that each cost supply
+ok 228 - factories launch bursts of drones that each cost supply
+  ---
+  duration_ms: 2.510166
+  type: 'test'
+  ...
+# Subtest: drones follow their lane, dogfight head-on, attack buildings and hit the base
+ok 229 - drones follow their lane, dogfight head-on, attack buildings and hit the base
+  ---
+  duration_ms: 0.391051
+  type: 'test'
+  ...
+# Subtest: turrets shoot the closest threat and spend supply on every shell
+ok 230 - turrets shoot the closest threat and spend supply on every shell
+  ---
+  duration_ms: 0.200078
+  type: 'test'
+  ...
+# Subtest: engineers walk to their lane, repair the most damaged building and expire
+ok 231 - engineers walk to their lane, repair the most damaged building and expire
+  ---
+  duration_ms: 2.470996
+  type: 'test'
+  ...
+# Subtest: radars and drones lift fog only where they are
+ok 232 - radars and drones lift fog only where they are
+  ---
+  duration_ms: 0.217081
+  type: 'test'
+  ...
+# Subtest: fog follows what each side owns, not a fixed half
+ok 233 - fog follows what each side owns, not a fixed half
+  ---
+  duration_ms: 0.286704
+  type: 'test'
+  ...
+# Subtest: intel keeps ghosts of seen buildings until the spot is seen empty
+ok 234 - intel keeps ghosts of seen buildings until the spot is seen empty
+  ---
+  duration_ms: 1.489958
+  type: 'test'
+  ...
+# Subtest: the AI only reads what its side can see
+ok 235 - the AI only reads what its side can see
+  ---
+  duration_ms: 7.357097
+  type: 'test'
+  ...
+# Subtest: the strike AI aims at fresh intel clusters and only guesses with a full hand
+ok 236 - the strike AI aims at fresh intel clusters and only guesses with a full hand
+  ---
+  duration_ms: 0.32683
+  type: 'test'
+  ...
+# Subtest: the round ends on a destroyed HQ, a double KO or the time limit
+ok 237 - the round ends on a destroyed HQ, a double KO or the time limit
+  ---
+  duration_ms: 0.297221
+  type: 'test'
+  ...
+# Subtest: pausing freezes the simulation
+ok 238 - pausing freezes the simulation
+  ---
+  duration_ms: 0.18824
+  type: 'test'
+  ...
+# Subtest: matches are deterministic for a seed
+ok 239 - matches are deterministic for a seed
+  ---
+  duration_ms: 2061.700141
+  type: 'test'
+  ...
+# Subtest: AI mirror matches use every system and finish within the time limit
+ok 240 - AI mirror matches use every system and finish within the time limit
+  ---
+  duration_ms: 5566.098697
+  type: 'test'
+  ...
+# Subtest: harder AI beats easier AI across swapped seats
+ok 241 - harder AI beats easier AI across swapped seats
+  ---
+  duration_ms: 14337.076005
+  type: 'test'
+  ...
+# Subtest: seven-bag sequence contains every shape once per bag and all seats share current/next pieces
+ok 242 - seven-bag sequence contains every shape once per bag and all seats share current/next pieces
+  ---
+  duration_ms: 1.553581
+  type: 'test'
+  ...
+# Subtest: legal landing stays in bounds, stops at obstacles, and cannot teleport through blocked entry
+ok 243 - legal landing stays in bounds, stops at obstacles, and cannot teleport through blocked entry
+  ---
+  duration_ms: 0.660093
+  type: 'test'
+  ...
+# Subtest: one and four completed lines clear simultaneously with exact conservation
+ok 244 - one and four completed lines clear simultaneously with exact conservation
+  ---
+  duration_ms: 0.290583
+  type: 'test'
+  ...
+# Subtest: gravity coordinates invert in all four directions; rotation preserves world positions before settling
+ok 245 - gravity coordinates invert in all four directions; rotation preserves world positions before settling
+  ---
+  duration_ms: 2.381302
+  type: 'test'
+  ...
+# Subtest: rotating settlement clears perpendicular full lines and keeps no floating cells
+ok 246 - rotating settlement clears perpendicular full lines and keeps no floating cells
+  ---
+  duration_ms: 5.706082
+  type: 'test'
+  ...
+# Subtest: garbage enters from gravity floor, has one gap, and only occupied outgoing edge overflows
+ok 247 - garbage enters from gravity floor, has one gap, and only occupied outgoing edge overflows
+  ---
+  duration_ms: 0.38392
+  type: 'test'
+  ...
+# Subtest: attacks cancel pending first, delivery waits a full beat, and routing skips eliminated actors
+ok 248 - attacks cancel pending first, delivery waits a full beat, and routing skips eliminated actors
+  ---
+  duration_ms: 25.341103
+  type: 'test'
+  ...
+# Subtest: rotation is forewarned for exactly four beats; cascade lines count but do not attack
+ok 249 - rotation is forewarned for exactly four beats; cascade lines count but do not attack
+  ---
+  duration_ms: 3.807299
+  type: 'test'
+  ...
+# Subtest: ready/pause/finished states freeze, resume preserves timer, timeout resolves once, reset clears resources
+ok 250 - ready/pause/finished states freeze, resume preserves timer, timeout resolves once, reset clears resources
+  ---
+  duration_ms: 3.240621
+  type: 'test'
+  ...
+# Subtest: no legal entry and garbage overflow eliminate; whole batch resolves before all-out draw
+ok 251 - no legal entry and garbage overflow eliminate; whole batch resolves before all-out draw
+  ---
+  duration_ms: 3.137733
+  type: 'test'
+  ...
+# Subtest: last survivor, timeout winner, shared lead and losing tie are distinguished
+ok 252 - last survivor, timeout winner, shared lead and losing tie are distinguished
+  ---
+  duration_ms: 0.60525
+  type: 'test'
+  ...
+# Subtest: AI evaluates every legal landing, takes a forced clear, never mutates a board, and profiles differ
+ok 253 - AI evaluates every legal landing, takes a forced clear, never mutates a board, and profiles differ
+  ---
+  duration_ms: 94.910868
+  type: 'test'
+  ...
+# Subtest: 60 complete seeded matches finish within 24 beats with legal AI, bounded values and deterministic outcomes
+ok 254 - 60 complete seeded matches finish within 24 beats with legal AI, bounded values and deterministic outcomes
+  ---
+  duration_ms: 2269.550003
+  type: 'test'
+  ...
+# Subtest: auto: public reserve telegraphs one target, then captures through defense with one point
+ok 255 - auto: public reserve telegraphs one target, then captures through defense with one point
+  ---
+  duration_ms: 55.741637
+  type: 'test'
+  ...
+# Subtest: auto: shield, loss of supplied adjacency, anchors and allies counter the bonus
+ok 256 - auto: shield, loss of supplied adjacency, anchors and allies counter the bonus
+  ---
+  duration_ms: 151.612463
+  type: 'test'
+  ...
+# Subtest: auto: reserve cannot repeat, expires on another action, invalid clicks spend nothing
+ok 257 - auto: reserve cannot repeat, expires on another action, invalid clicks spend nothing
+  ---
+  duration_ms: 30.789852
+  type: 'test'
+  ...
+# Subtest: auto: live and public simulation resolve the same warning and capture without hidden hands
+ok 258 - auto: live and public simulation resolve the same warning and capture without hidden hands
+  ---
+  duration_ms: 30.328457
+  type: 'test'
+  ...
+# Subtest: auto: AI primes and uses a route-relevant reserve within the fixed search budget
+ok 259 - auto: AI primes and uses a route-relevant reserve within the fixed search budget
+  ---
+  duration_ms: 171.24929
+  type: 'test'
+  ...
+# Subtest: auto: late stagnation unlocks once, progress resets the clock, reached factions receive no reserve
+ok 260 - auto: late stagnation unlocks once, progress resets the clock, reached factions receive no reserve
+  ---
+  duration_ms: 82.04603
+  type: 'test'
+  ...
+# Subtest: normal: public reserve telegraphs one target, then captures through defense with one point
+ok 261 - normal: public reserve telegraphs one target, then captures through defense with one point
+  ---
+  duration_ms: 9.51997
+  type: 'test'
+  ...
+# Subtest: normal: shield, loss of supplied adjacency, anchors and allies counter the bonus
+ok 262 - normal: shield, loss of supplied adjacency, anchors and allies counter the bonus
+  ---
+  duration_ms: 20.696634
+  type: 'test'
+  ...
+# Subtest: normal: reserve cannot repeat, expires on another action, invalid clicks spend nothing
+ok 263 - normal: reserve cannot repeat, expires on another action, invalid clicks spend nothing
+  ---
+  duration_ms: 8.386385
+  type: 'test'
+  ...
+# Subtest: normal: live and public simulation resolve the same warning and capture without hidden hands
+ok 264 - normal: live and public simulation resolve the same warning and capture without hidden hands
+  ---
+  duration_ms: 7.674339
+  type: 'test'
+  ...
+# Subtest: normal: AI primes and uses a route-relevant reserve within the fixed search budget
+ok 265 - normal: AI primes and uses a route-relevant reserve within the fixed search budget
+  ---
+  duration_ms: 46.951132
+  type: 'test'
+  ...
+# Subtest: normal: late stagnation unlocks once, progress resets the clock, reached factions receive no reserve
+ok 266 - normal: late stagnation unlocks once, progress resets the clock, reached factions receive no reserve
+  ---
+  duration_ms: 26.045251
+  type: 'test'
+  ...
+# Subtest: shared tactics are optional for old JSON, strictly bounded, and identity tracked
+ok 267 - shared tactics are optional for old JSON, strictly bounded, and identity tracked
+  ---
+  duration_ms: 1.143747
+  type: 'test'
+  ...
+# Subtest: a temporary repair does not reset campaign stall below its historical best route
+ok 268 - a temporary repair does not reset campaign stall below its historical best route
+  ---
+  duration_ms: 92.044755
+  type: 'test'
+  ...
+# Subtest: AI does not spend a breakthrough whose only supplied entrance can be captured in the warning round
+ok 269 - AI does not spend a breakthrough whose only supplied entrance can be captured in the warning round
+  ---
+  duration_ms: 53.358655
+  type: 'test'
+  ...
+# Subtest: normal: bounded transport conserves stock, shares bottleneck capacity and uses a second route
+ok 270 - normal: bounded transport conserves stock, shares bottleneck capacity and uses a second route
+  ---
+  duration_ms: 7.01002
+  type: 'test'
+  ...
+# Subtest: normal: long transport spends physical distance including bridges, with finite stock
+ok 271 - normal: long transport spends physical distance including bridges, with finite stock
+  ---
+  duration_ms: 1.805807
+  type: 'test'
+  ...
+# Subtest: normal: bent tunnel haul pays its full path, and fortification spends local reserves
+ok 272 - normal: bent tunnel haul pays its full path, and fortification spends local reserves
+  ---
+  duration_ms: 4.537858
+  type: 'test'
+  ...
+# Subtest: normal: cutoff consumes actual reserve, reconnect refills gradually, and empty reserves retreat
+ok 273 - normal: cutoff consumes actual reserve, reconnect refills gradually, and empty reserves retreat
+  ---
+  duration_ms: 1.806978
+  type: 'test'
+  ...
+# Subtest: normal: deployment transfers paid rations and unsupported raiders cannot multiply
+ok 274 - normal: deployment transfers paid rations and unsupported raiders cannot multiply
+  ---
+  duration_ms: 2.345523
+  type: 'test'
+  ...
+# Subtest: normal: shields and turrets share local reserves, depletion removes bonuses and prevents fire
+ok 275 - normal: shields and turrets share local reserves, depletion removes bonuses and prevents fire
+  ---
+  duration_ms: 1.76582
+  type: 'test'
+  ...
+# Subtest: normal: supply state survives public simulation, pause and reset without aliasing
+ok 276 - normal: supply state survives public simulation, pause and reset without aliasing
+  ---
+  duration_ms: 6.429553
+  type: 'test'
+  ...
+# Subtest: normal: AI never raids with empty reserves and chooses a legal recovery action
+ok 277 - normal: AI never raids with empty reserves and chooses a legal recovery action
+  ---
+  duration_ms: 22.986603
+  type: 'test'
+  ...
+# Subtest: auto: bounded transport conserves stock, shares bottleneck capacity and uses a second route
+ok 278 - auto: bounded transport conserves stock, shares bottleneck capacity and uses a second route
+  ---
+  duration_ms: 6.24945
+  type: 'test'
+  ...
+# Subtest: auto: long transport spends physical distance including bridges, with finite stock
+ok 279 - auto: long transport spends physical distance including bridges, with finite stock
+  ---
+  duration_ms: 4.05874
+  type: 'test'
+  ...
+# Subtest: auto: bent tunnel haul pays its full path, and fortification spends local reserves
+ok 280 - auto: bent tunnel haul pays its full path, and fortification spends local reserves
+  ---
+  duration_ms: 2.919939
+  type: 'test'
+  ...
+# Subtest: auto: cutoff consumes actual reserve, reconnect refills gradually, and empty reserves retreat
+ok 281 - auto: cutoff consumes actual reserve, reconnect refills gradually, and empty reserves retreat
+  ---
+  duration_ms: 2.8051
+  type: 'test'
+  ...
+# Subtest: auto: deployment transfers paid rations and unsupported raiders cannot multiply
+ok 282 - auto: deployment transfers paid rations and unsupported raiders cannot multiply
+  ---
+  duration_ms: 5.620475
+  type: 'test'
+  ...
+# Subtest: auto: shields and turrets share local reserves, depletion removes bonuses and prevents fire
+ok 283 - auto: shields and turrets share local reserves, depletion removes bonuses and prevents fire
+  ---
+  duration_ms: 3.281233
+  type: 'test'
+  ...
+# Subtest: auto: supply state survives public simulation, pause and reset without aliasing
+ok 284 - auto: supply state survives public simulation, pause and reset without aliasing
+  ---
+  duration_ms: 6.781767
+  type: 'test'
+  ...
+# Subtest: auto: AI never raids with empty reserves and chooses a legal recovery action
+ok 285 - auto: AI never raids with empty reserves and chooses a legal recovery action
+  ---
+  duration_ms: 23.26475
+  type: 'test'
+  ...
+# Subtest: both pages wire the same planner, strategy provider and screenshot history/export controls
+ok 286 - both pages wire the same planner, strategy provider and screenshot history/export controls
+  ---
+  duration_ms: 4.703671
+  type: 'test'
+  ...
+# Subtest: real worker entry point and synchronous shared planner return identical decisions across modes and imported doctrine
+ok 287 - real worker entry point and synchronous shared planner return identical decisions across modes and imported doctrine
+  ---
+  duration_ms: 786.230641
+  type: 'test'
+  ...
+# Subtest: comparable goal fixtures use the common planner while retaining normal win / Auto campaign rules
+ok 288 - comparable goal fixtures use the common planner while retaining normal win / Auto campaign rules
+  ---
+  duration_ms: 67.377447
+  type: 'test'
+  ...
+# Subtest: normal 2–6 player snapshot windows count 18 actions and clear on replay
+ok 289 - normal 2–6 player snapshot windows count 18 actions and clear on replay
+  ---
+  duration_ms: 77.324724
+  type: 'test'
+  ...
+# Subtest: [historical96c109a normal Hex] seed terrain: 300 layouts preserve three-way rotational access and reproducibility; seeds vary terrain
+ok 290 - [historical96c109a normal Hex] seed terrain: 300 layouts preserve three-way rotational access and reproducibility; seeds vary terrain
+  ---
+  duration_ms: 147.607165
+  type: 'test'
+  ...
+# Subtest: [historical96c109a normal Hex] rivers require public engineering before place/double/turret/trap occupancy and actual connection
+ok 291 - [historical96c109a normal Hex] rivers require public engineering before place/double/turret/trap occupancy and actual connection
+  ---
+  duration_ms: 1.625933
+  type: 'test'
+  ...
+# Subtest: [historical96c109a normal Hex] bridge legality rejects all owners, reverse, partial collinear overlap, crossings and T junctions; endpoints may connect
+ok 292 - [historical96c109a normal Hex] bridge legality rejects all owners, reverse, partial collinear overlap, crossings and T junctions; endpoints may connect
+  ---
+  duration_ms: 3.045813
+  type: 'test'
+  ...
+# Subtest: [historical96c109a normal Hex] hill occupancy lasts three subsequent owner actions; other players, pause and counter waiting do not tick it
+ok 293 - [historical96c109a normal Hex] hill occupancy lasts three subsequent owner actions; other players, pause and counter waiting do not tick it
+  ---
+  duration_ms: 3.274361
+  type: 'test'
+  ...
+# Subtest: [historical96c109a normal Hex] hill retreat removes attached bridges/turrets before a connection can win; engineer stabilizes own hill
+ok 294 - [historical96c109a normal Hex] hill retreat removes attached bridges/turrets before a connection can win; engineer stabilizes own hill
+  ---
+  duration_ms: 0.712603
+  type: 'test'
+  ...
+# Subtest: [historical96c109a normal Hex] mixed deck composition varies, bounds hold, each seat gets same 13-card recipe and only one shield
+ok 295 - [historical96c109a normal Hex] mixed deck composition varies, bounds hold, each seat gets same 13-card recipe and only one shield
+  ---
+  duration_ms: 9.09859
+  type: 'test'
+  ...
+# Subtest: [historical96c109a normal Hex] timed cards include acquisition turn, expire only after third owner action, free hand space, and conserve all cards
+ok 296 - [historical96c109a normal Hex] timed cards include acquisition turn, expire only after third owner action, free hand space, and conserve all cards
+  ---
+  duration_ms: 1.777841
+  type: 'test'
+  ...
+# Subtest: [historical96c109a normal Hex] full hand holds the deck; discard is voluntary, consumes exactly one action, and invalid discard is atomic
+ok 297 - [historical96c109a normal Hex] full hand holds the deck; discard is voluntary, consumes exactly one action, and invalid discard is atomic
+  ---
+  duration_ms: 0.383825
+  type: 'test'
+  ...
+# Subtest: [historical96c109a normal Hex] expired shield cannot counter and pause never expires a card; responding ticks attacker, not defender
+ok 298 - [historical96c109a normal Hex] expired shield cannot counter and pause never expires a card; responding ticks attacker, not defender
+  ---
+  duration_ms: 0.732136
+  type: 'test'
+  ...
+# Subtest: [historical96c109a normal Hex] terraform river bridges and places atomically but still triggers hidden traps; public forecast cannot see them
+ok 299 - [historical96c109a normal Hex] terraform river bridges and places atomically but still triggers hidden traps; public forecast cannot see them
+  ---
+  duration_ms: 0.847369
+  type: 'test'
+  ...
+# Subtest: [historical96c109a normal Hex] neutral warning has three public actions, can be disarmed by every seat, and no option creates an endless match
+ok 300 - [historical96c109a normal Hex] neutral warning has three public actions, can be disarmed by every seat, and no option creates an endless match
+  ---
+  duration_ms: 1.873997
+  type: 'test'
+  ...
+# Subtest: [historical96c109a normal Hex] neutral target and kind ignore humans, private cards and traps; waves stop at four
+ok 301 - [historical96c109a normal Hex] neutral target and kind ignore humans, private cards and traps; waves stop at four
+  ---
+  duration_ms: 3.048483
+  type: 'test'
+  ...
+# Subtest: [historical96c109a normal Hex] neutral and simultaneous guns resolve before wins, terrain effects preserve occupied cells and public roads
+ok 302 - [historical96c109a normal Hex] neutral and simultaneous guns resolve before wins, terrain effects preserve occupied cells and public roads
+  ---
+  duration_ms: 1.275588
+  type: 'test'
+  ...
+# Subtest: [historical96c109a normal Hex] new observation boundary hides enemy cards/decks/deadlines/traps including spectator mode; AI unchanged under hidden permutations
+ok 303 - [historical96c109a normal Hex] new observation boundary hides enemy cards/decks/deadlines/traps including spectator mode; AI unchanged under hidden permutations
+  ---
+  duration_ms: 421.716115
+  type: 'test'
+  ...
+# Subtest: [historical96c109a normal Hex] same seed/config replays full games; six seeded timed/event/terrain games terminate with only legal AI actions
+ok 304 - [historical96c109a normal Hex] same seed/config replays full games; six seeded timed/event/terrain games terminate with only legal AI actions
+  ---
+  duration_ms: 22358.264478
+  type: 'test'
+  ...
+# Subtest: [historical96c109a normal Hex] all 16 river meanders leave equal finite paths; every inaccessible empty cell can be engineered without a card
+ok 305 - [historical96c109a normal Hex] all 16 river meanders leave equal finite paths; every inaccessible empty cell can be engineered without a card
+  ---
+  duration_ms: 20.356426
+  type: 'test'
+  ...
+# Subtest: [historical96c109a normal Hex] neutral flood at a just-fired turret center, hill retreat, expiry, and simultaneous connection ordering are consistent
+ok 306 - [historical96c109a normal Hex] neutral flood at a just-fired turret center, hill retreat, expiry, and simultaneous connection ordering are consistent
+  ---
+  duration_ms: 1.491349
+  type: 'test'
+  ...
+# Subtest: [historical96c109a normal Hex] AI bridge candidates obey the same all-owner crossing guard on crowded states
+ok 307 - [historical96c109a normal Hex] AI bridge candidates obey the same all-owner crossing guard on crowded states
+  ---
+  duration_ms: 114.859664
+  type: 'test'
+  ...
+# Subtest: shared factories isolate geometries and all2–6active seat clocks, homes and directed goals
+ok 308 - shared factories isolate geometries and all2–6active seat clocks, homes and directed goals
+  ---
+  duration_ms: 123.101835
+  type: 'test'
+  ...
+# Subtest: every spatial selection uses own pre-action radius5 independently of straight bridge span2–3
+ok 309 - every spatial selection uses own pre-action radius5 independently of straight bridge span2–3
+  ---
+  duration_ms: 174.152449
+  type: 'test'
+  ...
+# Subtest: both modes reject every-owner surface duplicate, reverse, overlap, crossing andT but share true endpoints
+ok 310 - both modes reject every-owner surface duplicate, reverse, overlap, crossing andT but share true endpoints
+  ---
+  duration_ms: 363.998532
+  type: 'test'
+  ...
+# Subtest: bent tunnels provide an actual owner-only supply edge without claiming or terraforming interiors
+ok 311 - bent tunnels provide an actual owner-only supply edge without claiming or terraforming interiors
+  ---
+  duration_ms: 30.714681
+  type: 'test'
+  ...
+# Subtest: tunnel path bounds reject jumps, loops, repeats andfour edges even when endpoints are nearby
+ok 312 - tunnel path bounds reject jumps, loops, repeats andfour edges even when endpoints are nearby
+  ---
+  duration_ms: 174.578431
+  type: 'test'
+  ...
+# Subtest: tunnel interiors exclude anchors, facilities, turrets andother tunnels; surface crossings remain legal
+ok 313 - tunnel interiors exclude anchors, facilities, turrets andother tunnels; surface crossings remain legal
+  ---
+  duration_ms: 186.417665
+  type: 'test'
+  ...
+# Subtest: public tunnel counterplay costs two energy, honors pacts, andendpoint loss immediately collapses it
+ok 314 - public tunnel counterplay costs two energy, honors pacts, andendpoint loss immediately collapses it
+  ---
+  duration_ms: 60.78559
+  type: 'test'
+  ...
+# Subtest: engineering really converts river/hill state to ordinary terrain; bridges do not
+ok 315 - engineering really converts river/hill state to ordinary terrain; bridges do not
+  ---
+  duration_ms: 135.551335
+  type: 'test'
+  ...
+# Subtest: hill retreat counts exactlythree subsequent owner actions, while engineering ownhill stabilizes it
+ok 316 - hill retreat counts exactlythree subsequent owner actions, while engineering ownhill stabilizes it
+  ---
+  duration_ms: 47.509493
+  type: 'test'
+  ...
+# Subtest: normal mode rejects all diplomacy at the engine boundary including injected offers
+ok 317 - normal mode rejects all diplomacy at the engine boundary including injected offers
+  ---
+  duration_ms: 37.551727
+  type: 'test'
+  ...
+# Subtest: every active seat shares one13-per-seat shoe with exactlyone shield per recipe and finite reshuffle conservation
+ok 318 - every active seat shares one13-per-seat shoe with exactlyone shield per recipe and finite reshuffle conservation
+  ---
+  duration_ms: 119.566189
+  type: 'test'
+  ...
+# Subtest: optional card expiry uses own action clocks and returns cards to the same physical shoe
+ok 319 - optional card expiry uses own action clocks and returns cards to the same physical shoe
+  ---
+  duration_ms: 24.685235
+  type: 'test'
+  ...
+# Subtest: normal first settled connection ends immediately whileAuto continues the scored campaign
+ok 320 - normal first settled connection ends immediately whileAuto continues the scored campaign
+  ---
+  duration_ms: 27.789053
+  type: 'test'
+  ...
+# Subtest: normal finite100-per-active-seat action cap andAuto foreground clock have explicit separate endings
+ok 321 - normal finite100-per-active-seat action cap andAuto foreground clock have explicit separate endings
+  ---
+  duration_ms: 136.025627
+  type: 'test'
+  ...
+# Subtest: seeded terrain is identical for every normal seat count, including inactive home clearings
+ok 322 - seeded terrain is identical for every normal seat count, including inactive home clearings
+  ---
+  duration_ms: 107.465728
+  type: 'test'
+  ...
+# Subtest: identical local positions resolve the same paid common actions in normal and Auto modes
+ok 323 - identical local positions resolve the same paid common actions in normal and Auto modes
+  ---
+  duration_ms: 47.326674
+  type: 'test'
+  ...
+# Subtest: two tunnels may share an owned endpoint, enforce the owner cap and collapse on capture or withdrawal
+ok 324 - two tunnels may share an owned endpoint, enforce the owner cap and collapse on capture or withdrawal
+  ---
+  duration_ms: 55.760976
+  type: 'test'
+  ...
+# Subtest: normal2–6 seeded twelve-action replays preserve actual actions, hidden cards and bounded planner state
+ok 325 - normal2–6 seeded twelve-action replays preserve actual actions, hidden cards and bounded planner state
+  ---
+  duration_ms: 2350.474052
+  type: 'test'
+  ...
+# Subtest: strategy JSON defaults match checked-in data and normalize to a detached canonical configuration
+ok 326 - strategy JSON defaults match checked-in data and normalize to a detached canonical configuration
+  ---
+  duration_ms: 11.661482
+  type: 'test'
+  ...
+# Subtest: strategy parser rejects malformed, oversized, unsupported and executable-looking structures atomically
+ok 327 - strategy parser rejects malformed, oversized, unsupported and executable-looking structures atomically
+  ---
+  duration_ms: 1.415849
+  type: 'test'
+  ...
+# Subtest: all mission programs enforce finite integer budgets, known enums, unique IDs and bounded names
+ok 328 - all mission programs enforce finite integer budgets, known enums, unique IDs and bounded names
+  ---
+  duration_ms: 2.91557
+  type: 'test'
+  ...
+# Subtest: normalization never invokes accessors or custom array methods and rejects sparse profile lists
+ok 329 - normalization never invokes accessors or custom array methods and rejects sparse profile lists
+  ---
+  duration_ms: 0.600979
+  type: 'test'
+  ...
+# Subtest: external transport programs execute different real routes on the identical supplied river-gap puzzle
+ok 330 - external transport programs execute different real routes on the identical supplied river-gap puzzle
+  ---
+  duration_ms: 235.807915
+  type: 'test'
+  ...
+# Subtest: a public opponent can sabotage the tempting tunnel; the planner instead completes a durable ground repair
+ok 331 - a public opponent can sabotage the tempting tunnel; the planner instead completes a durable ground repair
+  ---
+  duration_ms: 250.979375
+  type: 'test'
+  ...
+# Subtest: external airport investment executes its paid follow-on while avoid chooses ground actions on the same public board
+ok 332 - external airport investment executes its paid follow-on while avoid chooses ground actions on the same public board
+  ---
+  duration_ms: 1584.645186
+  type: 'test'
+  ...
+# Subtest: airport investment budget survives forced mission reviews and enforces twelve owner turns of cooldown
+ok 333 - airport investment budget survives forced mission reviews and enforces twelve owner turns of cooldown
+  ---
+  duration_ms: 1229.492238
+  type: 'test'
+  ...
+# Subtest: accepted program memory is private, cloned, finite, resettable and cannot commit with an illegal action
+ok 334 - accepted program memory is private, cloned, finite, resettable and cannot commit with an illegal action
+  ---
+  duration_ms: 150.749455
+  type: 'test'
+  ...
+# Subtest: [historical96c109a normal Hex] tactical 13-card recipe is equal for every seat, bounded, seeded, one shield and one each new card
+ok 335 - [historical96c109a normal Hex] tactical 13-card recipe is equal for every seat, bounded, seeded, one shield and one each new card
+  ---
+  duration_ms: 46.005922
+  type: 'test'
+  ...
+# Subtest: [historical96c109a normal Hex] all action types share public atomic legality, including malformed new actions
+ok 336 - [historical96c109a normal Hex] all action types share public atomic legality, including malformed new actions
+  ---
+  duration_ms: 1.936183
+  type: 'test'
+  ...
+# Subtest: [historical96c109a normal Hex] reroute replaces exactly one own bridge and preserves stones; both endpoint orderings work
+ok 337 - [historical96c109a normal Hex] reroute replaces exactly one own bridge and preserves stones; both endpoint orderings work
+  ---
+  duration_ms: 2.508162
+  type: 'test'
+  ...
+# Subtest: [historical96c109a normal Hex] reroute rejects same endpoint, foreign bridge, missing endpoint, nonstraight or unbridged river endpoint
+ok 338 - [historical96c109a normal Hex] reroute rejects same endpoint, foreign bridge, missing endpoint, nonstraight or unbridged river endpoint
+  ---
+  duration_ms: 0.618734
+  type: 'test'
+  ...
+# Subtest: [historical96c109a normal Hex] reroute and new bridges reject every-owner crossing/overlap/T junction, allow true shared endpoints
+ok 339 - [historical96c109a normal Hex] reroute and new bridges reject every-owner crossing/overlap/T junction, allow true shared endpoints
+  ---
+  duration_ms: 1.344895
+  type: 'test'
+  ...
+# Subtest: [historical96c109a normal Hex] rerouted bridge still disappears when cannon or hill expiry removes its new endpoint
+ok 340 - [historical96c109a normal Hex] rerouted bridge still disappears when cannon or hill expiry removes its new endpoint
+  ---
+  duration_ms: 4.823385
+  type: 'test'
+  ...
+# Subtest: [historical96c109a normal Hex] block lasts three subsequent completed actions, all players can clear it without cards
+ok 341 - [historical96c109a normal Hex] block lasts three subsequent completed actions, all players can clear it without cards
+  ---
+  duration_ms: 4.492725
+  type: 'test'
+  ...
+# Subtest: [historical96c109a normal Hex] blocker legality does not reveal traps; blocks every occupancy/engineering action but leaves terrain/traps intact
+ok 342 - [historical96c109a normal Hex] blocker legality does not reveal traps; blocks every occupancy/engineering action but leaves terrain/traps intact
+  ---
+  duration_ms: 1.96758
+  type: 'test'
+  ...
+# Subtest: [historical96c109a normal Hex] block requires walkable empty terrain, ignores overhead bridges, and cannot bias terminal relaxed scores
+ok 343 - [historical96c109a normal Hex] block requires walkable empty terrain, ignores overhead bridges, and cannot bias terminal relaxed scores
+  ---
+  duration_ms: 6.548059
+  type: 'test'
+  ...
+# Subtest: [historical96c109a normal Hex] pause and pending shield do not tick blockers; neutral changes beneath a block still require terrain legality
+ok 344 - [historical96c109a normal Hex] pause and pending shield do not tick blockers; neutral changes beneath a block still require terrain legality
+  ---
+  duration_ms: 4.851344
+  type: 'test'
+  ...
+# Subtest: [historical96c109a normal Hex] AI always has a clearing escape when every empty cell is temporarily blocked and hand is empty
+ok 345 - [historical96c109a normal Hex] AI always has a clearing escape when every empty cell is temporarily blocked and hand is empty
+  ---
+  duration_ms: 10.071104
+  type: 'test'
+  ...
+# Subtest: [historical96c109a normal Hex] exchange moves an own ordinary stone to adjacent empty or enemy cell without adding stones
+ok 346 - [historical96c109a normal Hex] exchange moves an own ordinary stone to adjacent empty or enemy cell without adding stones
+  ---
+  duration_ms: 1.075604
+  type: 'test'
+  ...
+# Subtest: [historical96c109a normal Hex] exchange rejects remote/friendly/foreign source, either turret or bridge endpoint, blocked and unbridged river targets
+ok 347 - [historical96c109a normal Hex] exchange rejects remote/friendly/foreign source, either turret or bridge endpoint, blocked and unbridged river targets
+  ---
+  duration_ms: 0.775897
+  type: 'test'
+  ...
+# Subtest: [historical96c109a normal Hex] exchange never moves hidden traps, landings trigger by each stone owner simultaneously
+ok 348 - [historical96c109a normal Hex] exchange never moves hidden traps, landings trigger by each stone owner simultaneously
+  ---
+  duration_ms: 3.099577
+  type: 'test'
+  ...
+# Subtest: [historical96c109a normal Hex] exchange landing in a friendly trap leaves it armed; no secret location is used for legality
+ok 349 - [historical96c109a normal Hex] exchange landing in a friendly trap leaves it armed; no secret location is used for legality
+  ---
+  duration_ms: 9.277647
+  type: 'test'
+  ...
+# Subtest: [historical96c109a normal Hex] exchange preserves existing hill lifetime and assigns exactly three subsequent owner turns to new hill entrants
+ok 350 - [historical96c109a normal Hex] exchange preserves existing hill lifetime and assigns exactly three subsequent owner turns to new hill entrants
+  ---
+  duration_ms: 1.089226
+  type: 'test'
+  ...
+# Subtest: [historical96c109a normal Hex] exchange into cannon range resolves before wins and neutral event; it can also escape imminent fire
+ok 351 - [historical96c109a normal Hex] exchange into cannon range resolves before wins and neutral event; it can also escape imminent fire
+  ---
+  duration_ms: 0.763689
+  type: 'test'
+  ...
+# Subtest: [historical96c109a normal Hex] exchange can complete both players simultaneously, or give the displaced enemy the sole win
+ok 352 - [historical96c109a normal Hex] exchange can complete both players simultaneously, or give the displaced enemy the sole win
+  ---
+  duration_ms: 1.017431
+  type: 'test'
+  ...
+# Subtest: [historical96c109a normal Hex] new cards expire with the same own-turn clock and invalid actions never consume them
+ok 353 - [historical96c109a normal Hex] new cards expire with the same own-turn clock and invalid actions never consume them
+  ---
+  duration_ms: 6.34987
+  type: 'test'
+  ...
+# Subtest: [historical96c109a normal Hex] hidden enemy hand/deck/trap permutations leave new legality and AI actions identical for every profile and spectator
+ok 354 - [historical96c109a normal Hex] hidden enemy hand/deck/trap permutations leave new legality and AI actions identical for every profile and spectator
+  ---
+  duration_ms: 373.067637
+  type: 'test'
+  ...
+# Subtest: [historical96c109a normal Hex] new-card public forecast and game agree under simultaneous expiry, hill retreat, cannon and neutral changes
+ok 355 - [historical96c109a normal Hex] new-card public forecast and game agree under simultaneous expiry, hill retreat, cannon and neutral changes
+  ---
+  duration_ms: 0.983725
+  type: 'test'
+  ...
+# Subtest: [historical96c109a normal Hex] seed replay full tactical games terminate with public legal AI, conserved cards and reset clears every temporary structure
+ok 356 - [historical96c109a normal Hex] seed replay full tactical games terminate with public legal AI, conserved cards and reset clears every temporary structure
+  ---
+  duration_ms: 19629.036877
+  type: 'test'
+  ...
+# Subtest: [historical96c109a normal Hex] every personality uses reroute and exchange when they uniquely complete a public winning route
+ok 357 - [historical96c109a normal Hex] every personality uses reroute and exchange when they uniquely complete a public winning route
+  ---
+  duration_ms: 68.114456
+  type: 'test'
+  ...
+# Subtest: [historical96c109a normal Hex] AI uses a cannon-proof temporary block when an ordinary blocking stone would immediately be destroyed
+ok 358 - [historical96c109a normal Hex] AI uses a cannon-proof temporary block when an ordinary blocking stone would immediately be destroyed
+  ---
+  duration_ms: 17.986192
+  type: 'test'
+  ...
+# Subtest: the shared collection has the exact 18 game and 25 action IDs with a uniform native SVG contract
+ok 359 - the shared collection has the exact 18 game and 25 action IDs with a uniform native SVG contract
+  ---
+  duration_ms: 1.815714
+  type: 'test'
+  ...
+# Subtest: all painted geometry including stroke stays at least 6 px inside the 48 px square
+ok 360 - all painted geometry including stroke stays at least 6 px inside the 48 px square
+  ---
+  duration_ms: 115.266792
+  type: 'test'
+  ...
+# Subtest: mirror-symmetric tokens and gameplay shapes preserve their declared centerline
+ok 361 - mirror-symmetric tokens and gameplay shapes preserve their declared centerline
+  ---
+  duration_ms: 212.366171
+  type: 'test'
+  ...
+# Subtest: three-way Hex and cyclic game icons preserve rotational geometry
+ok 362 - three-way Hex and cyclic game icons preserve rotational geometry
+  ---
+  duration_ms: 82.73186
+  type: 'test'
+  ...
+# Subtest: filled suit silhouettes remain distinct and use a consistent visible area instead of font glyphs
+ok 363 - filled suit silhouettes remain distinct and use a consistent visible area instead of font glyphs
+  ---
+  duration_ms: 9.729054
+  type: 'test'
+  ...
+# Subtest: homepage maps every game to its own shared icon and keeps each accessible entry link
+ok 364 - homepage maps every game to its own shared icon and keeps each accessible entry link
+  ---
+  duration_ms: 1.887713
+  type: 'test'
+  ...
+# Subtest: pulse arena is local, shares the shell, and both scripts compile
+ok 365 - pulse arena is local, shares the shell, and both scripts compile
+  ---
+  duration_ms: 2.539262
+  type: 'test'
+  ...
+# Subtest: pulse simulation freezes ready/paused/over, resumes deliberately, and reset clears every transient
+ok 366 - pulse simulation freezes ready/paused/over, resumes deliberately, and reset clears every transient
+  ---
+  duration_ms: 7.05744
+  type: 'test'
+  ...
+# Subtest: ring grants five seconds grace, shrinks continuously, and stops at the specified final radius
+ok 367 - ring grants five seconds grace, shrinks continuously, and stops at the specified final radius
+  ---
+  duration_ms: 0.117581
+  type: 'test'
+  ...
+# Subtest: normalized motion, inertia, reverse braking, and charge slowdown are actual physical rules
+ok 368 - normalized motion, inertia, reverse braking, and charge slowdown are actual physical rules
+  ---
+  duration_ms: 0.486281
+  type: 'test'
+  ...
+# Subtest: holding charges, release attacks once, full charge auto-releases, and a held button cannot repeat
+ok 369 - holding charges, release attacks once, full charge auto-releases, and a held button cannot repeat
+  ---
+  duration_ms: 8.603182
+  type: 'test'
+  ...
+# Subtest: cooldown rejects premature presses, with a fresh press required after readiness
+ok 370 - cooldown rejects premature presses, with a fresh press required after readiness
+  ---
+  duration_ms: 0.496571
+  type: 'test'
+  ...
+# Subtest: pulse respects radius, pushes outward, scales with charge, and cannot hit its owner
+ok 371 - pulse respects radius, pushes outward, scales with charge, and cannot hit its owner
+  ---
+  duration_ms: 0.208185
+  type: 'test'
+  ...
+# Subtest: equal-mass collisions separate bodies and conserve momentum while losing bounce energy
+ok 372 - equal-mass collisions separate bodies and conserve momentum while losing bounce energy
+  ---
+  duration_ms: 0.116042
+  type: 'test'
+  ...
+# Subtest: full body must remain inside the ring; all-out collision step is a draw and a lone survivor wins
+ok 373 - full body must remain inside the ring; all-out collision step is a draw and a lone survivor wins
+  ---
+  duration_ms: 6.181166
+  type: 'test'
+  ...
+# Subtest: surviving timeout is a draw; a dead player never shares a surviving tie
+ok 374 - surviving timeout is a draw; a dead player never shares a surviving tie
+  ---
+  duration_ms: 0.393793
+  type: 'test'
+  ...
+# Subtest: AI styles choose center control, direct pursuit and flanking, and all recover from the edge
+ok 375 - AI styles choose center control, direct pursuit and flanking, and all recover from the edge
+  ---
+  duration_ms: 0.298826
+  type: 'test'
+  ...
+# Subtest: 60 seeded AI matches terminate with bounded velocities, physical pulses, and no growing effects
+ok 376 - 60 seeded AI matches terminate with bounded velocities, physical pulses, and no growing effects
+  ---
+  duration_ms: 2563.696888
+  type: 'test'
+  ...
+# Subtest: single-use anchor prevents impulses for five seconds, but never prevents shrink elimination
+ok 377 - single-use anchor prevents impulses for five seconds, but never prevents shrink elimination
+  ---
+  duration_ms: 0.356542
+  type: 'test'
+  ...
+# Subtest: shield saves exactly one boundary crossing and expires on simulation time
+ok 378 - shield saves exactly one boundary crossing and expires on simulation time
+  ---
+  duration_ms: 0.153548
+  type: 'test'
+  ...
+# Subtest: super pulse has thirty ticks of warning and then attacks once
+ok 379 - super pulse has thirty ticks of warning and then attacks once
+  ---
+  duration_ms: 0.392336
+  type: 'test'
+  ...
+# Subtest: black hole warning, attraction, owner exclusion and lifetime use the same clock
+ok 380 - black hole warning, attraction, owner exclusion and lifetime use the same clock
+  ---
+  duration_ms: 0.415133
+  type: 'test'
+  ...
+# Subtest: AI uses visible danger and one carried item; pickups cannot exceed capacity
+ok 381 - AI uses visible danger and one carried item; pickups cannot exceed capacity
+  ---
+  duration_ms: 0.231403
+  type: 'test'
+  ...
+# Subtest: shared native SVG sprite defines every catalogue and agreed control symbol exactly once
+ok 382 - shared native SVG sprite defines every catalogue and agreed control symbol exactly once
+  ---
+  duration_ms: 12.950391
+  type: 'test'
+  ...
+# Subtest: sprite is entirely local vector geometry with no font, raster or executable assets
+ok 383 - sprite is entirely local vector geometry with no font, raster or executable assets
+  ---
+  duration_ms: 0.792456
+  type: 'test'
+  ...
+# Subtest: active and archive catalogues together have eighteen valid game links and uses each matching shared icon
+ok 384 - active and archive catalogues together have eighteen valid game links and uses each matching shared icon
+  ---
+  duration_ms: 9.509302
+  type: 'test'
+  ...
+# Subtest: tux2d: shared shell, accessible native header icon and local symbol references
+ok 385 - tux2d: shared shell, accessible native header icon and local symbol references
+  ---
+  duration_ms: 6.600088
+  type: 'test'
+  ...
+# Subtest: autohex: shared shell, accessible native header icon and local symbol references
+ok 386 - autohex: shared shell, accessible native header icon and local symbol references
+  ---
+  duration_ms: 0.727307
+  type: 'test'
+  ...
+# Subtest: autohex_3d: shared shell, accessible native header icon and local symbol references
+ok 387 - autohex_3d: shared shell, accessible native header icon and local symbol references
+  ---
+  duration_ms: 0.38397
+  type: 'test'
+  ...
+# Subtest: cyclic_tictactoe: shared shell, accessible native header icon and local symbol references
+ok 388 - cyclic_tictactoe: shared shell, accessible native header icon and local symbol references
+  ---
+  duration_ms: 0.449999
+  type: 'test'
+  ...
+# Subtest: cyclic_connect4_torus: shared shell, accessible native header icon and local symbol references
+ok 389 - cyclic_connect4_torus: shared shell, accessible native header icon and local symbol references
+  ---
+  duration_ms: 0.427308
+  type: 'test'
+  ...
+# Subtest: trackgame: shared shell, accessible native header icon and local symbol references
+ok 390 - trackgame: shared shell, accessible native header icon and local symbol references
+  ---
+  duration_ms: 1.28782
+  type: 'test'
+  ...
+# Subtest: card_hex: shared shell, accessible native header icon and local symbol references
+ok 391 - card_hex: shared shell, accessible native header icon and local symbol references
+  ---
+  duration_ms: 1.322418
+  type: 'test'
+  ...
+# Subtest: gravity_brawl: shared shell, accessible native header icon and local symbol references
+ok 392 - gravity_brawl: shared shell, accessible native header icon and local symbol references
+  ---
+  duration_ms: 0.569797
+  type: 'test'
+  ...
+# Subtest: flip_five: shared shell, accessible native header icon and local symbol references
+ok 393 - flip_five: shared shell, accessible native header icon and local symbol references
+  ---
+  duration_ms: 2.074098
+  type: 'test'
+  ...
+# Subtest: effect_snake: shared shell, accessible native header icon and local symbol references
+ok 394 - effect_snake: shared shell, accessible native header icon and local symbol references
+  ---
+  duration_ms: 0.700703
+  type: 'test'
+  ...
+# Subtest: duplicate_bridge: shared shell, accessible native header icon and local symbol references
+ok 395 - duplicate_bridge: shared shell, accessible native header icon and local symbol references
+  ---
+  duration_ms: 0.546692
+  type: 'test'
+  ...
+# Subtest: rummikub: shared shell, accessible native header icon and local symbol references
+ok 396 - rummikub: shared shell, accessible native header icon and local symbol references
+  ---
+  duration_ms: 0.718284
+  type: 'test'
+  ...
+# Subtest: blackjack: shared shell, accessible native header icon and local symbol references
+ok 397 - blackjack: shared shell, accessible native header icon and local symbol references
+  ---
+  duration_ms: 0.631603
+  type: 'test'
+  ...
+# Subtest: tank_arena: shared shell, accessible native header icon and local symbol references
+ok 398 - tank_arena: shared shell, accessible native header icon and local symbol references
+  ---
+  duration_ms: 10.167561
+  type: 'test'
+  ...
+# Subtest: pulse_arena: shared shell, accessible native header icon and local symbol references
+ok 399 - pulse_arena: shared shell, accessible native header icon and local symbol references
+  ---
+  duration_ms: 0.444651
+  type: 'test'
+  ...
+# Subtest: territory_loop: shared shell, accessible native header icon and local symbol references
+ok 400 - territory_loop: shared shell, accessible native header icon and local symbol references
+  ---
+  duration_ms: 0.469858
+  type: 'test'
+  ...
+# Subtest: star_feast: shared shell, accessible native header icon and local symbol references
+ok 401 - star_feast: shared shell, accessible native header icon and local symbol references
+  ---
+  duration_ms: 0.375089
+  type: 'test'
+  ...
+# Subtest: front_line: shared shell, accessible native header icon and local symbol references
+ok 402 - front_line: shared shell, accessible native header icon and local symbol references
+  ---
+  duration_ms: 0.731427
+  type: 'test'
+  ...
+# Subtest: shared CSS defines non-shrinking icon layout and geometric classic stones
+ok 403 - shared CSS defines non-shrinking icon layout and geometric classic stones
+  ---
+  duration_ms: 0.314961
+  type: 'test'
+  ...
+# Subtest: independent shared Hex audit: 271 cells, adjacency and directed goals preserve rotation
+ok 404 - independent shared Hex audit: 271 cells, adjacency and directed goals preserve rotation
+  ---
+  duration_ms: 74.074667
+  type: 'test'
+  ...
+# Subtest: independent shared Hex audit: every active observer ignores other hands, deck order and private plans
+ok 405 - independent shared Hex audit: every active observer ignores other hands, deck order and private plans
+  ---
+  duration_ms: 1535.792006
+  type: 'test'
+  ...
+# Subtest: independent shared Hex audit: one finite common shoe, equal draws and all starting seats
+ok 406 - independent shared Hex audit: one finite common shoe, equal draws and all starting seats
+  ---
+  duration_ms: 208.28358
+  type: 'test'
+  ...
+# Subtest: four seats start with 14 tiles each and conserve 106 distinct physical tiles
+ok 407 - four seats start with 14 tiles each and conserve 106 distinct physical tiles
+  ---
+  duration_ms: 6.243826
+  type: 'test'
+  ...
+# Subtest: runs, groups and jokers validate without wrapping or repeated colours
+ok 408 - runs, groups and jokers validate without wrapping or repeated colours
+  ---
+  duration_ms: 0.759949
+  type: 'test'
+  ...
+# Subtest: opening needs 30 own points and cannot modify existing public melds
+ok 409 - opening needs 30 own points and cannot modify existing public melds
+  ---
+  duration_ms: 0.905645
+  type: 'test'
+  ...
+# Subtest: rearrangement cannot lose, duplicate or take public tiles back
+ok 410 - rearrangement cannot lose, duplicate or take public tiles back
+  ---
+  duration_ms: 5.471416
+  type: 'test'
+  ...
+# Subtest: draw advances all four seats, and four empty-pool passes settle with zero-sum scores
+ok 411 - draw advances all four seats, and four empty-pool passes settle with zero-sum scores
+  ---
+  duration_ms: 0.897114
+  type: 'test'
+  ...
+# Subtest: small bounded AI search returns a legal 30-point opening and public extension
+ok 412 - small bounded AI search returns a legal 30-point opening and public extension
+  ---
+  duration_ms: 6.02816
+  type: 'test'
+  ...
+# Subtest: all pages parse and share the shell; no missing catalogue links or remote game dependency
+ok 413 - all pages parse and share the shell; no missing catalogue links or remote game dependency
+  ---
+  duration_ms: 58.915822
+  type: 'test'
+  ...
+# Subtest: ready, paused and finished games freeze; reset clears every round resource
+ok 414 - ready, paused and finished games freeze; reset clears every round resource
+  ---
+  duration_ms: 8.635819
+  type: 'test'
+  ...
+# Subtest: keyboard diagonals are normalized; joystick magnitude supports slower movement
+ok 415 - keyboard diagonals are normalized; joystick magnitude supports slower movement
+  ---
+  duration_ms: 6.188125
+  type: 'test'
+  ...
+# Subtest: food is consumed once, adds its mass, grows the circle, and replenishes gradually
+ok 416 - food is consumed once, adds its mass, grows the circle, and replenishes gradually
+  ---
+  duration_ms: 1.321272
+  type: 'test'
+  ...
+# Subtest: at least 20% more mass AND enclosing the centre are required to eat
+ok 417 - at least 20% more mass AND enclosing the centre are required to eat
+  ---
+  duration_ms: 4.053518
+  type: 'test'
+  ...
+# Subtest: larger AI swallowing the player ends the game with a preserved final mass
+ok 418 - larger AI swallowing the player ends the game with a preserved final mass
+  ---
+  duration_ms: 0.382277
+  type: 'test'
+  ...
+# Subtest: boost has duration and cooldown, does not cost mass, and cannot stack
+ok 419 - boost has duration and cooldown, does not cost mass, and cannot stack
+  ---
+  duration_ms: 9.564128
+  type: 'test'
+  ...
+# Subtest: all walls stop the entire circle; movement and growth never wrap or leave bounds
+ok 420 - all walls stop the entire circle; movement and growth never wrap or leave bounds
+  ---
+  duration_ms: 1.569096
+  type: 'test'
+  ...
+# Subtest: AI selects food, hunts smaller opponents, and prioritizes fleeing a nearby predator
+ok 421 - AI selects food, hunts smaller opponents, and prioritizes fleeing a nearby predator
+  ---
+  duration_ms: 0.63056
+  type: 'test'
+  ...
+# Subtest: target mass, survival and timeout outcomes are explicit
+ok 422 - target mass, survival and timeout outcomes are explicit
+  ---
+  duration_ms: 1.494872
+  type: 'test'
+  ...
+# Subtest: 30 complete seeded matches keep positions, mass, food and timers consistent
+ok 423 - 30 complete seeded matches keep positions, mass, food and timers consistent
+  ---
+  duration_ms: 6676.584687
+  type: 'test'
+  ...
+# Subtest: two teams of two alternate units; bounded movement and one turn transition per shot
+ok 424 - two teams of two alternate units; bounded movement and one turn transition per shot
+  ---
+  duration_ms: 4.018768
+  type: 'test'
+  ...
+# Subtest: public trajectory equals actual impact and detects thin walls
+ok 425 - public trajectory equals actual impact and detects thin walls
+  ---
+  duration_ms: 4.584424
+  type: 'test'
+  ...
+# Subtest: building placement rejects invalid locations without consuming cards, and one-card budget is shared
+ok 426 - building placement rejects invalid locations without consuming cards, and one-card budget is shared
+  ---
+  duration_ms: 1.999452
+  type: 'test'
+  ...
+# Subtest: repair cap, drill tradeoff, friendly fire, terrain craters and destroyed walls are real
+ok 427 - repair cap, drill tradeoff, friendly fire, terrain craters and destroyed walls are real
+  ---
+  duration_ms: 0.605205
+  type: 'test'
+  ...
+# Subtest: bunker reduces splash and can be countered by destruction
+ok 428 - bunker reduces splash and can be countered by destruction
+  ---
+  duration_ms: 0.437896
+  type: 'test'
+  ...
+# Subtest: pause freezes AI/projectile; restart discards pending projectile and all tactical state
+ok 429 - pause freezes AI/projectile; restart discards pending projectile and all tactical state
+  ---
+  duration_ms: 0.440605
+  type: 'test'
+  ...
+# Subtest: AI observation excludes opponent hand and RNG; changing hidden hand cannot alter chosen shot
+ok 430 - AI observation excludes opponent hand and RNG; changing hidden hand cannot alter chosen shot
+  ---
+  duration_ms: 66.961069
+  type: 'test'
+  ...
+# Subtest: elimination, turn cap and ties terminate explicitly
+ok 431 - elimination, turn cap and ties terminate explicitly
+  ---
+  duration_ms: 0.515213
+  type: 'test'
+  ...
+# Subtest: two bounded autonomous matches reach a result using identical shot physics
+ok 432 - two bounded autonomous matches reach a result using identical shot physics
+  ---
+  duration_ms: 339.654811
+  type: 'test'
+  ...
+# Long-run evidence: {"simulatedMinutes":120,"totals":{"captures":6745,"cuts":2208,"conversions":422,"severed":759,"spawns":1929,"helpers":1455},"maxActors":11,"worstAverageStepMs":0.799}
+# Subtest: shipped scripts parse, local-only dependencies and endless UI
+ok 433 - shipped scripts parse, local-only dependencies and endless UI
+  ---
+  duration_ms: 8.417828
+  type: 'test'
+  ...
+# Subtest: ready/pause freeze everything; reset restores four factions and bounded empty helper slots
+ok 434 - ready/pause freeze everything; reset restores four factions and bounded empty helper slots
+  ---
+  duration_ms: 47.734775
+  type: 'test'
+  ...
+# Subtest: closed loop captures its interior and enemy land, leaving open exterior alone
+ok 435 - closed loop captures its interior and enemy land, leaving open exterior alone
+  ---
+  duration_ms: 2.630058
+  type: 'test'
+  ...
+# Subtest: map edges are not closing walls; flood fill visits all four boundaries
+ok 436 - map edges are not closing walls; flood fill visits all four boundaries
+  ---
+  duration_ms: 5.649295
+  type: 'test'
+  ...
+# Subtest: a capture through a narrow enemy bridge neutralizes only disconnected land
+ok 437 - a capture through a narrow enemy bridge neutralizes only disconnected land
+  ---
+  duration_ms: 5.01697
+  type: 'test'
+  ...
+# Subtest: losing a core retires only that faction; all its trails and helpers are removed
+ok 438 - losing a core retires only that faction; all its trails and helpers are removed
+  ---
+  duration_ms: 0.483117
+  type: 'test'
+  ...
+# Subtest: self collision clears a player faction and automatically respawns without ending play
+ok 439 - self collision clears a player faction and automatically respawns without ending play
+  ---
+  duration_ms: 11.369877
+  type: 'test'
+  ...
+# Subtest: cutting a helper only kills that actor; cutting a leader removes its faction
+ok 440 - cutting a helper only kills that actor; cutting a leader removes its faction
+  ---
+  duration_ms: 0.322039
+  type: 'test'
+  ...
+# Subtest: an enemy trail enclosed in a capture is cut with no orphan state
+ok 441 - an enemy trail enclosed in a capture is cut with no orphan state
+  ---
+  duration_ms: 7.011871
+  type: 'test'
+  ...
+# Subtest: four walls stop without wrapping; allied trails block without killing or overwriting
+ok 442 - four walls stop without wrapping; allied trails block without killing or overwriting
+  ---
+  duration_ms: 0.741126
+  type: 'test'
+  ...
+# Subtest: queued keys cannot reverse the last executed move
+ok 443 - queued keys cannot reverse the last executed move
+  ---
+  duration_ms: 48.444228
+  type: 'test'
+  ...
+# Subtest: land thresholds unlock helpers gradually, shared land is used, loss does not delete survivors
+ok 444 - land thresholds unlock helpers gradually, shared land is used, loss does not delete survivors
+  ---
+  duration_ms: 1.199267
+  type: 'test'
+  ...
+# Subtest: exact helper thresholds and global capacity apply to all four factions, including recruitment
+ok 445 - exact helper thresholds and global capacity apply to all four factions, including recruitment
+  ---
+  duration_ms: 1118.783188
+  type: 'test'
+  ...
+# Subtest: helpers close loops for their faction and a recruit survives its former leader defeat
+ok 446 - helpers close loops for their faction and a recruit survives its former leader defeat
+  ---
+  duration_ms: 0.450898
+  type: 'test'
+  ...
+# Subtest: contact converts helpers in both directions, clears old trails and enforces immunity
+ok 447 - contact converts helpers in both directions, clears old trails and enforces immunity
+  ---
+  duration_ms: 0.296281
+  type: 'test'
+  ...
+# Subtest: helper touching an enemy leader converts before collisions without overwriting new allied trail
+ok 448 - helper touching an enemy leader converts before collisions without overwriting new allied trail
+  ---
+  duration_ms: 0.107927
+  type: 'test'
+  ...
+# Subtest: helper-to-helper contact recruits the touched actor, not the moving actor
+ok 449 - helper-to-helper contact recruits the touched actor, not the moving actor
+  ---
+  duration_ms: 0.090334
+  type: 'test'
+  ...
+# Subtest: AI pursues exposed lines from several cells away and returns around its own trail
+ok 450 - AI pursues exposed lines from several cells away and returns around its own trail
+  ---
+  duration_ms: 4.947467
+  type: 'test'
+  ...
+# Subtest: AI chooses invasion near an enemy frontier and targets a narrow supply neck
+ok 451 - AI chooses invasion near an enemy frontier and targets a narrow supply neck
+  ---
+  duration_ms: 8.220137
+  type: 'test'
+  ...
+# Subtest: enemy elimination continuously replenishes; full maps reclaim a safe fringe and preserve protected bases
+ok 452 - enemy elimination continuously replenishes; full maps reclaim a safe fringe and preserve protected bases
+  ---
+  duration_ms: 4.809889
+  type: 'test'
+  ...
+# Subtest: unsafe spawn is deferred; an encircled AI relinquishes its path instead of stalling forever
+ok 453 - unsafe spawn is deferred; an encircled AI relinquishes its path instead of stalling forever
+  ---
+  duration_ms: 1.688205
+  type: 'test'
+  ...
+# Subtest: there is no percentage, countdown or last-survivor ending
+ok 454 - there is no percentage, countdown or last-survivor ending
+  ---
+  duration_ms: 220.525609
+  type: 'test'
+  ...
+# Subtest: six 20-minute simulations keep expanding, fighting, converting and respawning with bounded state
+ok 455 - six 20-minute simulations keep expanding, fighting, converting and respawning with bounded state
+  ---
+  duration_ms: 34255.943711
+  type: 'test'
+  ...
+# Subtest: catalog links are valid and the removed game remains absent
+ok 456 - catalog links are valid and the removed game remains absent
+  ---
+  duration_ms: 1.443966
+  type: 'test'
+  ...
+# AI expedition {"time":86.53333333332971,"telemetry":{"hits":8,"blocks":24,"pickups":42,"boost":8,"shield":39,"snowball":11,"supply":11,"express":4,"deliveries":15},"standings":[{"id":0,"name":"Tux","rank":1,"score":1423,"parcels":3,"cargo":86,"finished":true,"time":73.2666666666638,"z":7200},{"id":2,"name":"Nova","rank":2,"score":1405,"parcels":3,"cargo":100,"finished":true,"time":77.53333333333022,"z":7200},{"id":3,"name":"Mochi","rank":3,"score":1293,"parcels":3,"cargo":86,"finished":true,"time":86.53333333332971,"z":7200},{"id":4,"name":"Sunny","rank":4,"score":1216,"parcels":3,"cargo":72,"finished":true,"time":86.01666666666307,"z":7200},{"id":1,"name":"Pip","rank":5,"score":1081,"parcels":3,"cargo":72,"finished":true,"time":85.33333333332978,"z":7200}]}
+# Subtest: pre-start follow cameras always show the first station
+ok 457 - pre-start follow cameras always show the first station
+  ---
+  duration_ms: 10.464668
+  type: 'test'
+  ...
+# Subtest: ready, pause, resume and reset preserve the fixed-step clock
+ok 458 - ready, pause, resume and reset preserve the fixed-step clock
+  ---
+  duration_ms: 3.723408
+  type: 'test'
+  ...
+# Subtest: same seed and inputs reproduce the entire state
+ok 459 - same seed and inputs reproduce the entire state
+  ---
+  duration_ms: 93.541643
+  type: 'test'
+  ...
+# Subtest: shared energy pays the exact cost and cannot go negative or repeat while held
+ok 460 - shared energy pays the exact cost and cannot go negative or repeat while held
+  ---
+  duration_ms: 4.159618
+  type: 'test'
+  ...
+# Subtest: shield absorbs exactly one hit, immunity prevents stacked damage, cargo clamps
+ok 461 - shield absorbs exactly one hit, immunity prevents stacked damage, cargo clamps
+  ---
+  duration_ms: 0.502566
+  type: 'test'
+  ...
+# Subtest: fork entry commits each side; supply repairs only once and express is faster
+ok 462 - fork entry commits each side; supply repairs only once and express is faster
+  ---
+  duration_ms: 0.751087
+  type: 'test'
+  ...
+# Subtest: battery collected once per driver; traffic and snowball use the same hit rule
+ok 463 - battery collected once per driver; traffic and snowball use the same hit rule
+  ---
+  duration_ms: 1.038217
+  type: 'test'
+  ...
+# Subtest: delivery scores cargo, finish ends a human run, timeout and replay work
+ok 464 - delivery scores cargo, finish ends a human run, timeout and replay work
+  ---
+  duration_ms: 0.524785
+  type: 'test'
+  ...
+# Subtest: bounded single-seed AI expedition completes using shared resources and both routes
+ok 465 - bounded single-seed AI expedition completes using shared resources and both routes
+  ---
+  duration_ms: 658.452866
+  type: 'test'
+  ...
+1..465
+# tests 465
+# suites 0
+# pass 465
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 109693.450538

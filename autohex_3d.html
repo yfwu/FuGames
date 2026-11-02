@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="AutoHex-3D：與 AutoHex 共用同一套規則核心的 3D 即時指揮版。圍繞補給線與陣地作戰，搭配共享牌池抽卡，六方十分鐘戰役。">
+  <title>AutoHex-3D - FuGames</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="fulab-theme.css">
+  <link rel="stylesheet" href="autohex3d.css">
+</head>
+<body data-hex-mode="auto">
+<main class="game-page ah3-page">
+  <nav class="site-nav" aria-label="遊戲導覽"><a class="site-brand" href="index.html"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>FuGames</a><a href="index.html">所有遊戲 <svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#launch"></use></svg></a></nav>
+  <header class="page-header ah3-header"><div><p class="eyebrow">策略 / 3D 即時指揮</p><h1><svg class="page-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#autohex_3d"></use></svg>AutoHex-3D</h1><p class="lead">補給線就是生命線。拉長戰線、守住陣地、抽牌改變戰局——六方同時爭奪對岸。</p></div><span class="ah3-local">與 AutoHex 同一規則核心 · 本機運算</span></header>
+
+  <section class="card ah3-command" aria-label="戰役設定">
+    <div class="ah3-settings">
+      <label>模式<select id="match-mode"><option value="human">親自指揮 · 你 + 5 AI</option><option value="spectator">觀戰 · 6 AI</option></select></label>
+      <label>你的陣營<select id="human-seat"><option value="1">A 青綠</option><option value="2">B 珊瑚</option><option value="3">C 紫藤</option><option value="4">D 藍灰</option><option value="5">E 草綠</option><option value="6">F 琥珀</option></select></label>
+      <label class="ah3-seed">戰場 seed<input id="seed" type="text" maxlength="64" autocomplete="off" spellcheck="false" value="autohex3d-2026"></label>
+      <label>先手<select id="starter"><option value="1">A 青綠</option><option value="2">B 珊瑚</option><option value="3">C 紫藤</option><option value="4">D 藍灰</option><option value="5">E 草綠</option><option value="6">F 琥珀</option></select></label>
+      <label>配置輪替<select id="rotation"><option value="0">原始配置</option><option value="1">輪替 1</option><option value="2">輪替 2</option><option value="3">輪替 3</option><option value="4">輪替 4</option><option value="5">輪替 5</option></select></label>
+      <label>中立事件<select id="neutral-events"><option value="on">開啟</option><option value="off">關閉</option></select></label>
+      <label>地形<select id="terrain-mode"><option value="mixed">河流與山丘</option><option value="plain">全平地</option></select></label>
+      <label>手牌期限<select id="timed-cards"><option value="keep">保留至使用</option><option value="timed">3 次己方行動</option></select></label>
+      <label>指揮時限<select id="command-window"><option value="0">不限（同 AutoHex）</option><option value="30">30 秒</option><option value="20" selected>20 秒</option><option value="12">12 秒</option></select></label>
+      <label>AI 每步<select id="step-seconds"><option value="0.8">0.8 秒</option><option value="0.45" selected>0.45 秒</option><option value="0.25">0.25 秒</option><option value="0.1">0.1 秒</option></select></label>
+    </div>
+    <div class="ah3-controls"><button class="btn primary" id="play">開始戰役</button><button class="btn" id="pause" disabled>暫停</button><button class="btn" id="restart">新戰場</button><button class="btn" id="replay">重播此局</button></div>
+    <p class="ah3-meta" id="campaign-note">十分鐘前景戰役，最高分獲勝。首次接通對岸 +12、守線每輪 +2、斷線重連 +6；攻占／擊毀各 +1。規則與 AutoHex 完全相同，3D 版只改變指揮方式與畫面。</p>
+  </section>
+
+  <section class="ah3-result card" id="result" hidden aria-live="polite"><div><p class="eyebrow">CAMPAIGN COMPLETE</p><h2 id="result-title">戰役結束</h2><p id="result-description"></p><ol id="standings"></ol></div><button class="btn primary" id="sandbox">繼續自由對戰</button></section>
+
+  <div class="ah3-layout">
+    <section class="card play-panel ah3-stage" aria-label="3D 戰場">
+      <div class="ah3-viewport" id="viewport">
+        <canvas id="view" tabindex="0" role="application" aria-label="3D 六角戰場。拖曳平移、右鍵或雙指旋轉、滾輪或雙指縮放；點按格子下令。" aria-describedby="cell-info"></canvas>
+        <canvas id="overlay" aria-hidden="true"></canvas>
+        <div class="ah3-hud-top">
+          <div class="ah3-clock"><span id="clock">10:00</span><small id="clock-note">前景、未暫停才計時</small><i class="ah3-progress"><b id="campaign-progress"></b></i></div>
+          <div class="ah3-turn"><strong id="turn-label">等待開局</strong><span id="round-label">第 0 輪 · 0 次行動</span><i class="ah3-window" id="window-bar" hidden><b id="window-fill"></b></i></div>
+          <div class="ah3-resources"><span id="energy" title="能量：每回合 +3，上限 8">⚡ 0/8</span><span id="supplies" title="後方物資庫">▣ 12/24</span><span id="haul" title="本次配送運距">⇢ 0/96</span></div>
+        </div>
+        <div class="ah3-layers" role="group" aria-label="圖層">
+          <button class="btn" id="layer-supply" aria-pressed="true" title="補給流向與斷線">補給</button>
+          <button class="btn" id="layer-position" aria-pressed="false" title="炮台射程、護盾、工事">陣地</button>
+          <button class="btn" id="layer-choke" aria-pressed="true" title="一失守就斷補的關鍵格">弱點</button>
+          <button class="btn" id="layer-plan" aria-pressed="false" title="AI 公開路線">AI 路線</button>
+        </div>
+        <div class="ah3-view-buttons"><button class="btn" id="view-home" title="回到我的家園 (H)">⌂</button><button class="btn" id="view-front" title="前線 (F)">⚑</button><button class="btn" id="view-fit" title="全圖">◎</button><button class="btn" id="view-rotate" title="旋轉 60°">⟳</button></div>
+        <div class="ah3-minimap"><canvas id="minimap" tabindex="0" role="img" aria-label="小地圖；點按移動視角"></canvas></div>
+        <div class="ah3-notice" id="notice"><strong>六條補給線，一個對岸</strong><span>按「開始戰役」。拖曳平移、右鍵旋轉、滾輪縮放。</span></div>
+        <div class="ah3-toast" id="toast" role="status" aria-live="polite"></div>
+        <p class="ah3-fallback" id="webgl-fallback" hidden>此瀏覽器無法啟用 WebGL2。請改用 <a href="autohex.html">AutoHex 平面版</a>，規則與 AI 完全相同。</p>
+      </div>
+      <div class="ah3-commandbar" aria-label="指揮列">
+        <div class="ah3-orders" id="orders" role="group" aria-label="基本指令">
+          <button class="btn" data-action="deploy" aria-pressed="true">鋪子／攻占<small>2／4⚡</small></button>
+          <button class="btn" data-action="engineer" aria-pressed="false">工程<small>2⚡</small></button>
+          <button class="btn" data-action="tunnel" aria-pressed="false">地道<small>4⚡</small></button>
+          <button class="btn" data-action="withdraw" aria-pressed="false">撤回<small>0⚡</small></button>
+          <button class="btn" data-action="breach" aria-pressed="false" hidden>破陣令<small>6⚡</small></button>
+          <button class="btn" data-action="airdrop" aria-pressed="false" hidden>空投炮台<small>6⚡ 6▣</small></button>
+          <button class="btn" data-action="bombard" aria-pressed="false" hidden>航空轟炸<small>7⚡ 4▣</small></button>
+          <button class="btn" id="rest">休整<small>+3⚡</small></button>
+        </div>
+        <div class="ah3-cards">
+          <div class="ah3-hand" id="hand" role="group" aria-label="手牌"></div>
+          <div class="ah3-deck" id="deck" title="共享牌池：配方公開，順序與他人手牌不公開"><strong id="deck-count">牌堆 0</strong><span id="discard-count">棄牌 0</span><div class="ah3-recipe" id="recipe"></div></div>
+        </div>
+        <div class="ah3-selection"><span id="selection-label">已選：鋪子</span><button class="btn" id="discard" hidden>棄掉此牌</button><button class="btn" id="back-selection" hidden>退一格</button><button class="btn primary" id="confirm-selection" hidden>完成地道</button><button class="btn" id="cancel-selection">取消</button></div>
+        <div class="ah3-queue" aria-label="指令佇列"><span class="ah3-queue-title">指令佇列 <small>AI 行動時點選格子即可預約，輪到你時自動依序執行第一個合法指令</small></span><ol id="queue"></ol></div>
+      </div>
+      <p id="status" class="ah3-status" role="status" aria-live="polite">選擇模式並開始戰役。</p>
+      <p id="cell-info" class="ah3-cell-info">點按格子查看補給、存糧與陣地。</p>
+    </section>
+
+    <aside class="ah3-sidebar">
+      <section class="card ah3-panel" aria-label="補給線"><div class="ah3-panel-head"><h2>補給線</h2><span id="supply-tag" class="ah3-tag">我方</span></div>
+        <div class="ah3-gauges" id="supply-gauges"></div>
+        <h3>斷補中 <small>剩餘存糧耗盡即撤退</small></h3><ul id="cut-list" class="ah3-list"></ul>
+        <h3>補給弱點 <small>失守即斷補的格子</small></h3><ul id="choke-list" class="ah3-list"></ul>
+        <h3>斷補目標 <small>敵方最脆弱的節點</small></h3><ul id="target-list" class="ah3-list"></ul>
+      </section>
+      <section class="card ah3-panel" aria-label="陣地"><div class="ah3-panel-head"><h2>陣地</h2><span class="ah3-tag">炮台 · 護盾 · 工事</span></div><div class="ah3-gauges" id="position-gauges"></div><ul id="turret-list" class="ah3-list"></ul></section>
+      <section class="card ah3-panel" aria-label="各方戰況"><div class="ah3-panel-head"><h2>六方戰況</h2><span class="ah3-tag">點按聚焦</span></div><ol id="factions" class="ah3-factions"></ol></section>
+      <section class="card ah3-panel" id="diplomacy" aria-label="公開外交"><div class="ah3-panel-head"><h2>公開外交</h2><span class="ah3-tag">占一回合</span></div><div id="offers" class="ah3-offers"></div><div class="ah3-diplomacy-row"><select id="diplomacy-target" aria-label="交涉對象"></select><button class="btn" id="offer">提議停戰</button><button class="btn" id="betray">背盟</button></div><p class="ah3-meta" id="alliances">尚無停戰。</p></section>
+      <section class="card ah3-panel" aria-label="戰報"><div class="ah3-panel-head"><h2>戰報</h2><span class="ah3-tag">公開資訊</span></div><ol id="event-log" class="ah3-log"><li>戰場已就緒。</li></ol></section>
+    </aside>
+  </div>
+
+  <details class="card rules ah3-rules"><summary>規則、指揮方式與操作</summary><div class="ah3-rules-grid">
+    <section><h3>同一套規則</h3><p>AutoHex-3D 直接載入 AutoHex 的 <code>hex-core.js</code>、同一個 AI 規劃器與 Worker。合法性、花費、補給、計分與 AI 決策全部由同一核心判定；3D 頁只負責畫面與下令方式，不另寫任何規則。相同 seed 與行動序列在兩個頁面得到相同戰局。</p>
+    <h3>補給線</h3><p>只有一種物資：後方物資庫與棋子存糧。每次己方行動後家園產 4、連通物資站各 +2（上限 24）。物資從家園沿己方相鄰格、橋梁與地道運送：每格每次最多轉運 4、每子最多補 2，全軍運距預算 96。連通且靜止的棋子不耗糧。</p><p>斷線的棋子不會立刻消失：從下一次己方行動起每次耗 1 存糧，耗盡撤退；作戰會更早耗盡。缺糧棋子不能提供進攻鄰援、護盾與防守加成失效，炮台不足 2 不發射。重連後逐步補回。畫面上流動的光點是補給方向，閃爍紅框與數字是斷補棋子與剩餘存糧。</p>
+    <h3>補給弱點與斷補目標</h3><p>「弱點」圖層標出失守後會讓後方棋子斷補的格子（數字為受影響棋子數），與 AutoHex 的斷補預覽是同一個計算。敵方最脆弱的節點列為斷補目標：拆除、攻占或炮擊這些格子，比正面推進更有效。</p></section>
+    <section><h3>陣地</h3><p>山丘防守 +1，但占領後經過 3 次己方行動撤退；工程可整平。連續保有 31 次己方行動形成工事，抵擋中立游擊與災害。炮台每 3 次己方回合射擊 3 格內一個敵子（每發 2 存糧），護盾防守 +2 並吸收一次拆除或炮擊（耗 1 存糧）。「陣地」圖層顯示所有炮台射程。</p>
+    <h3>抽卡</h3><p>六方共用一個牌池，每人 13 張配方（炮台、拆除、橋梁、改接、護盾、換位；護盾只有 1 張）。手牌上限 5，每次行動後補抽一張；棄牌也占一回合。牌堆用完時棄牌重洗。配方公開，牌序與他人手牌不公開。</p>
+    <h3>行動</h3><p>每回合只做一件事，回合開始 +3 能量（上限 8）。鋪空格 2 能量並從 5 格內己子移交 3 存糧；攻占 4 能量並須足夠鄰援。工程 2、地道 4（2–3 步可轉彎）、撤回回復 1、休整 +3。橋梁兩端相距 2–3 直線格。機場需連通家園並維持 12 子連片 3 次己方行動才啟用；空投炮台 6 能量 6 物資、轟炸 7 能量 4 物資，共用 6 回合冷卻。</p></section>
+    <section><h3>即時指揮（3D 版新增的操作方式）</h3><p><strong>指揮時限</strong>：輪到你時有限定秒數（只計算未暫停的前景時間），逾時自動「休整」——休整本來就是合法行動，規則不變。選「不限」即與 AutoHex 相同。</p><p><strong>指令佇列</strong>：AI 行動時，你可以先點選指令與格子預約，最多 4 個。輪到你時依序檢查，第一個在當下仍合法的指令自動執行（仍只算一次行動）；已失效的指令會被移除並提示。手牌指令記住卡種，不記位置。</p>
+    <h3>操作</h3><p>滑鼠：左鍵拖曳平移、右鍵拖曳旋轉與俯仰、滾輪縮放。觸控：單指平移、雙指縮放與旋轉。鍵盤：WASD／方向鍵平移、Q／E 旋轉、＋／－縮放、1–5 選手牌、H 家園、F 前線、空白鍵暫停、Esc 取消。</p>
+    <h3>計分與外交</h3><p>首次接通對岸 +12、守線每輪 +2、斷線後重連 +6（12 輪冷卻）；攻占或擊毀 +1。可提議 12 輪停戰（最多 2 盟友），背盟扣 4 分。中立事件每 12 輪發生並提前 2 輪預警。十分鐘後最高分獲勝，可繼續自由對戰。</p></section>
+  </div></details>
+  <footer class="ah3-footer">AutoHex-3D · 與 AutoHex 共用規則核心與 AI · 所有運算都在此裝置</footer>
+</main>
+<script src="hex-strategies.js"></script>
+<script src="autohex-planner.js"></script>
+<script src="hex-core.js"></script>
+<script src="autohex-engine.js"></script>
+<script src="autohex-visuals.js"></script>
+<script src="autohex3d-logic.js"></script>
+<script src="autohex3d-render.js"></script>
+<script src="autohex3d-ui.js"></script>
+</body>
+</html>

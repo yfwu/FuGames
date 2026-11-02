@@ -22,7 +22,7 @@ with sync_playwright() as p:
         page.on('pageerror',lambda e:errors.append(str(e)))
         page.on('console',lambda m:errors.append(m.text) if m.type=='error' else None)
         page.goto(BASE+'index.html');page.wait_for_load_state('networkidle')
-        assert page.locator('.game-card').count()==15
+        assert page.locator('.game-card').count()==16
         assert page.evaluate('document.documentElement.scrollWidth <= innerWidth')
         measures=page.locator('.game-icon').evaluate_all('(nodes)=>nodes.map(n=>({width:n.getBoundingClientRect().width,height:n.getBoundingClientRect().height,view:n.getAttribute("viewBox"),use:{width:n.querySelector("use").getBBox().width,height:n.querySelector("use").getBBox().height}}))')
         assert len({(i['width'],i['height']) for i in measures})==1
