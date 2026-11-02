@@ -21,7 +21,7 @@ python -m http.server 8000 --bind 0.0.0.0
 - 已封存 Tux 2D：`tux2d.html`（原創追尾像素山路快遞；三站配送、岔路補給、道具與四位 AI）
 - AutoHex：`autohex.html`（共用 Hex 核心的大型六方戰役；六 AI 觀戰或人類下場）
 - AutoHex-3D：`autohex_3d.html`（與 AutoHex 同一規則核心與 AI 的 3D 即時指揮版；補給線／陣地圖層、指揮時限與指令佇列）
-- 抽牌 Hex：`card_hex.html`（271 格、2–6 席本機玩家／AI，無聯盟）
+- MiniHex（原抽牌 Hex）：`card_hex.html`（271 格、2–6 席本機玩家／AI，無聯盟）
 - 重力大亂鬥：`gravity_brawl.html`
 - 已封存 翻轉五子棋：`flip_five.html`
 - 效果貪食蛇：`effect_snake.html`（90 秒質量競賽；花質量加速、同格爭食、蛇身反制）
