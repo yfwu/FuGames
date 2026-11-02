@@ -149,21 +149,24 @@
     wedge: () => wedge(),
     ring: () => hexRing(.16)
   };
-  const STRIDE = 13; // pos3 scale3 yaw1 color4 glow1 tilt1
+  const STRIDE = 14; // pos3 scale3 yaw1 color4 glow1 tilt1 roll1
+  const PSTRIDE = 10; // particle: pos3 size1 color4 glow1 seed1
 
   const VS = `#version 300 es
   layout(location=0) in vec3 aPos; layout(location=1) in vec3 aNormal;
   layout(location=2) in vec3 iPos; layout(location=3) in vec3 iScale; layout(location=4) in float iRot;
-  layout(location=5) in vec4 iColor; layout(location=6) in float iGlow; layout(location=7) in float iTilt;
+  layout(location=5) in vec4 iColor; layout(location=6) in float iGlow; layout(location=7) in float iTilt; layout(location=8) in float iRoll;
   uniform mat4 uViewProj; uniform float uTime;
   out vec3 vNormal; out vec4 vColor; out float vGlow; out vec3 vWorld;
   void main() {
-    // Tilt (about local Z: raises +X) first, then yaw about Y.
-    float tc = cos(iTilt), ts = sin(iTilt), c = cos(iRot), s = sin(iRot);
+    // Roll (about local X), then tilt (about local Z: raises +X), then yaw about Y.
+    float rc = cos(iRoll), rs = sin(iRoll), tc = cos(iTilt), ts = sin(iTilt), c = cos(iRot), s = sin(iRot);
     vec3 p = aPos * iScale;
+    p = vec3(p.x, rc * p.y - rs * p.z, rs * p.y + rc * p.z);
     p = vec3(tc * p.x - ts * p.y, ts * p.x + tc * p.y, p.z);
     p = vec3(c * p.x - s * p.z, p.y, s * p.x + c * p.z);
     vec3 n = aNormal * sign(iScale) / max(abs(iScale), vec3(1e-4));
+    n = vec3(n.x, rc * n.y - rs * n.z, rs * n.y + rc * n.z);
     n = vec3(tc * n.x - ts * n.y, ts * n.x + tc * n.y, n.z);
     n = vec3(c * n.x - s * n.z, n.y, s * n.x + c * n.z);
     vec3 w = p + iPos;
@@ -186,6 +189,7 @@
       base += vec3(0.05, 0.08, 0.1) * w;
     }
     vec3 col = base * (0.42 + 0.22 * hemi + 0.5 * diff);
+    col *= clamp(0.72 + (vWorld.y + 0.7) * 0.4, 0.72, 1.0); // darker toward the tile skirts
     if (vGlow > 0.0) {
       float pulse = 0.55 + 0.45 * sin(uTime * 5.0 + vWorld.x * 0.7 + vWorld.z * 0.5);
       col += vColor.rgb * vGlow * pulse;
@@ -205,7 +209,7 @@
   class Layer {
     constructor() { this.data = {}; this.count = {}; this.dirty = true; }
     clear() { for (const k in this.count) this.count[k] = 0; this.dirty = true; }
-    add(mesh, x, y, z, sx, sy, sz, rot, color, glow = 0, tilt = 0) {
+    add(mesh, x, y, z, sx, sy, sz, rot, color, glow = 0, tilt = 0, roll = 0) {
       const transparent = color[3] < 0.999, key = mesh + (transparent ? ':t' : '');
       let arr = this.data[key], n = this.count[key] || 0;
       if (!arr || (n + 1) * STRIDE > arr.length) {
@@ -214,7 +218,7 @@
       }
       const o = n * STRIDE;
       arr[o] = x; arr[o + 1] = y; arr[o + 2] = z; arr[o + 3] = sx; arr[o + 4] = sy; arr[o + 5] = sz; arr[o + 6] = rot;
-      arr[o + 7] = color[0]; arr[o + 8] = color[1]; arr[o + 9] = color[2]; arr[o + 10] = color[3]; arr[o + 11] = glow; arr[o + 12] = tilt;
+      arr[o + 7] = color[0]; arr[o + 8] = color[1]; arr[o + 9] = color[2]; arr[o + 10] = color[3]; arr[o + 11] = glow; arr[o + 12] = tilt; arr[o + 13] = roll;
       this.count[key] = n + 1; this.dirty = true;
     }
     // A horizontal-ish beam from (ax,ay,az) to (bx,by,bz) using a box.
@@ -232,6 +236,55 @@
     }
   }
 
+  // Soft camera-facing particles: smoke / dust use alpha blending, fire / sparks add light.
+  class ParticleLayer {
+    constructor() { this.data = { normal: new Float32Array(2048 * PSTRIDE), additive: new Float32Array(1024 * PSTRIDE) }; this.count = { normal: 0, additive: 0 }; }
+    clear() { this.count.normal = this.count.additive = 0; }
+    add(x, y, z, size, color, glow = 0, seed = 0) {
+      const key = glow > 0 ? 'additive' : 'normal';
+      let arr = this.data[key], n = this.count[key];
+      if ((n + 1) * PSTRIDE > arr.length) { const grown = new Float32Array(arr.length * 2); grown.set(arr); this.data[key] = arr = grown; }
+      const o = n * PSTRIDE;
+      arr[o] = x; arr[o + 1] = y; arr[o + 2] = z; arr[o + 3] = size;
+      arr[o + 4] = color[0]; arr[o + 5] = color[1]; arr[o + 6] = color[2]; arr[o + 7] = color[3]; arr[o + 8] = glow; arr[o + 9] = seed;
+      this.count[key] = n + 1;
+    }
+  }
+  const PVS = `#version 300 es
+  layout(location=0) in vec2 aCorner;
+  layout(location=1) in vec3 iPos; layout(location=2) in float iSize; layout(location=3) in vec4 iColor; layout(location=4) in float iGlow; layout(location=5) in float iSeed;
+  uniform mat4 uViewProj; uniform vec3 uRight; uniform vec3 uUp;
+  out vec2 vUv; out vec4 vColor; out float vGlow; out float vSeed; out vec3 vWorld;
+  void main() {
+    float a = iSeed * 6.2831; vec2 r = vec2(cos(a) * aCorner.x - sin(a) * aCorner.y, sin(a) * aCorner.x + cos(a) * aCorner.y);
+    vec3 w = iPos + (uRight * aCorner.x + uUp * aCorner.y) * iSize;
+    vUv = r; vColor = iColor; vGlow = iGlow; vSeed = iSeed; vWorld = w;
+    gl_Position = uViewProj * vec4(w, 1.0);
+  }`;
+  const PFS = `#version 300 es
+  precision highp float;
+  in vec2 vUv; in vec4 vColor; in float vGlow; in float vSeed; in vec3 vWorld;
+  uniform vec3 uEye; uniform vec3 uFog; uniform float uFogNear; uniform float uFogFar;
+  out vec4 outColor;
+  void main() {
+    float d = length(vUv);
+    if (d > 1.0) discard;
+    // Billowy edge: a few lobes break up the disc so puffs read as smoke, not balls.
+    float ang = atan(vUv.y, vUv.x);
+    float lobes = 0.82 + 0.1 * sin(ang * 5.0 + vSeed * 40.0) + 0.08 * sin(ang * 9.0 - vSeed * 23.0);
+    float edge = smoothstep(lobes, lobes * 0.35, d);
+    float grain = 0.85 + 0.15 * sin(vUv.x * 9.0 + vSeed * 31.0) * sin(vUv.y * 8.0 - vSeed * 17.0);
+    float alpha = vColor.a * edge * grain;
+    float f = clamp((distance(vWorld, uEye) - uFogNear) / max(uFogFar - uFogNear, 1.0), 0.0, 0.6);
+    if (vGlow > 0.0) {
+      vec3 hot = mix(vColor.rgb, vec3(1.0, 0.97, 0.85), smoothstep(0.6, 0.0, d) * 0.6);
+      outColor = vec4(hot * min(vGlow, 1.2) * alpha * 0.55 * (1.0 - f), 1.0);
+    } else {
+      vec3 shade = vColor.rgb * (0.82 + 0.3 * clamp(vUv.y * 0.5 + 0.5, 0.0, 1.0));
+      outColor = vec4(mix(shade, uFog, f), alpha);
+    }
+  }`;
+
   function create(canvas, options = {}) {
     const gl = canvas.getContext('webgl2', { antialias: true, alpha: false, preserveDrawingBuffer: !!options.preserve, powerPreference: 'high-performance' });
     if (!gl) return null;
@@ -242,6 +295,20 @@
     if (!gl.getProgramParameter(program, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(program));
     const U = name => gl.getUniformLocation(program, name);
     const uni = { viewProj: U('uViewProj'), time: U('uTime'), eye: U('uEye'), sun: U('uSun'), fog: U('uFog'), fogNear: U('uFogNear'), fogFar: U('uFogFar') };
+    // Particle program and its quad.
+    const pprogram = gl.createProgram();
+    gl.attachShader(pprogram, compile(gl, gl.VERTEX_SHADER, PVS));
+    gl.attachShader(pprogram, compile(gl, gl.FRAGMENT_SHADER, PFS));
+    gl.linkProgram(pprogram);
+    if (!gl.getProgramParameter(pprogram, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(pprogram));
+    const PU = name => gl.getUniformLocation(pprogram, name);
+    const puni = { viewProj: PU('uViewProj'), right: PU('uRight'), up: PU('uUp'), eye: PU('uEye'), fog: PU('uFog'), fogNear: PU('uFogNear'), fogFar: PU('uFogFar') };
+    const pvao = gl.createVertexArray(), pquad = gl.createBuffer(), pbuffers = { normal: gl.createBuffer(), additive: gl.createBuffer() };
+    gl.bindVertexArray(pvao);
+    gl.bindBuffer(gl.ARRAY_BUFFER, pquad); gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, 1, 1, -1, -1, 1, 1, -1, 1]), gl.STATIC_DRAW);
+    gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 8, 0);
+    for (const loc of [1, 2, 3, 4, 5]) { gl.enableVertexAttribArray(loc); gl.vertexAttribDivisor(loc, 1); }
+    gl.bindVertexArray(null);
     const meshes = {};
     for (const [name, build] of Object.entries(MESHES)) {
       const vertices = build(), vao = gl.createVertexArray(), vbo = gl.createBuffer(), ibo = gl.createBuffer();
@@ -250,7 +317,7 @@
       gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 24, 0);
       gl.enableVertexAttribArray(1); gl.vertexAttribPointer(1, 3, gl.FLOAT, false, 24, 12);
       gl.bindBuffer(gl.ARRAY_BUFFER, ibo);
-      const attrs = [[2, 3, 0], [3, 3, 12], [4, 1, 24], [5, 4, 28], [6, 1, 44], [7, 1, 48]];
+      const attrs = [[2, 3, 0], [3, 3, 12], [4, 1, 24], [5, 4, 28], [6, 1, 44], [7, 1, 48], [8, 1, 52]];
       for (const [loc, size, offset] of attrs) { gl.enableVertexAttribArray(loc); gl.vertexAttribPointer(loc, size, gl.FLOAT, false, STRIDE * 4, offset); gl.vertexAttribDivisor(loc, 1); }
       gl.bindVertexArray(null);
       meshes[name] = { vao, ibo, vertices: vertices.length / 6 };
@@ -262,7 +329,8 @@
       if (!map[key]) map[key] = { buffer: gl.createBuffer(), size: 0 };
       return map[key];
     }
-    const camera = { tx: 0, tz: 0, yaw: 0, pitch: 0.95, dist: 60, minDist: 6, maxDist: 110, fov: 0.75 };
+    const camera = { tx: 0, tz: 0, yaw: 0, pitch: 0.95, dist: 60, minDist: 6, maxDist: 110, fov: 0.75, shake: 0 };
+    let right = [1, 0, 0], up = [0, 1, 0];
     let viewProj = null, inverse = null, eye = [0, 0, 0], width = 1, height = 1, dpr = 1;
     const background = options.background || [0.93, 0.95, 0.97];
     function resize() {
@@ -277,13 +345,15 @@
       camera.dist = Math.max(camera.minDist, Math.min(camera.maxDist, camera.dist));
       const bound = options.bound || 40, r = Math.hypot(camera.tx, camera.tz);
       if (r > bound) { camera.tx *= bound / r; camera.tz *= bound / r; }
-      const cp = Math.cos(camera.pitch);
-      eye = [camera.tx + camera.dist * cp * Math.sin(camera.yaw), camera.dist * Math.sin(camera.pitch), camera.tz + camera.dist * cp * Math.cos(camera.yaw)];
-      const proj = perspective(camera.fov, width / height, 0.5, 400);
-      viewProj = multiply(proj, lookAt(eye, [camera.tx, 0, camera.tz], [0, 1, 0]));
+      const cp = Math.cos(camera.pitch), t = performance.now() / 1000, k = camera.shake || 0;
+      const jx = k * Math.sin(t * 61) * .5, jy = k * Math.sin(t * 47 + 1) * .35, jz = k * Math.sin(t * 53 + 2) * .5;
+      eye = [camera.tx + jx + camera.dist * cp * Math.sin(camera.yaw), jy + camera.dist * Math.sin(camera.pitch), camera.tz + jz + camera.dist * cp * Math.cos(camera.yaw)];
+      const proj = perspective(camera.fov, width / height, 0.5, 400), view = lookAt(eye, [camera.tx + jx, jy, camera.tz + jz], [0, 1, 0]);
+      viewProj = multiply(proj, view);
+      right = [view[0], view[4], view[8]]; up = [view[1], view[5], view[9]];
       inverse = invert(viewProj);
     }
-    function draw(layers, time) {
+    function draw(layers, time, particles) {
       resize(); updateCamera();
       gl.viewport(0, 0, canvas.width, canvas.height);
       gl.clearColor(background[0], background[1], background[2], 1);
@@ -314,11 +384,28 @@
             buf.stale = layer.version;
           }
           // Re-point instance attributes at this buffer (VAO captured ibo at creation).
-          const attrs = [[2, 3, 0], [3, 3, 12], [4, 1, 24], [5, 4, 28], [6, 1, 44], [7, 1, 48]];
+          const attrs = [[2, 3, 0], [3, 3, 12], [4, 1, 24], [5, 4, 28], [6, 1, 44], [7, 1, 48], [8, 1, 52]];
           for (const [loc, size, offset] of attrs) gl.vertexAttribPointer(loc, size, gl.FLOAT, false, STRIDE * 4, offset);
           gl.drawArraysInstanced(gl.TRIANGLES, 0, mesh.vertices, n);
         }
         if (pass === 'transparent') { gl.disable(gl.BLEND); gl.depthMask(true); }
+      }
+      if (particles && (particles.count.normal || particles.count.additive)) {
+        gl.useProgram(pprogram);
+        gl.uniformMatrix4fv(puni.viewProj, false, viewProj);
+        gl.uniform3fv(puni.right, right); gl.uniform3fv(puni.up, up); gl.uniform3fv(puni.eye, eye); gl.uniform3fv(puni.fog, background);
+        gl.uniform1f(puni.fogNear, camera.dist * 0.9); gl.uniform1f(puni.fogFar, camera.dist * 2.6);
+        gl.bindVertexArray(pvao); gl.enable(gl.BLEND); gl.depthMask(false);
+        for (const key of ['normal', 'additive']) {
+          const n = particles.count[key]; if (!n) continue;
+          if (key === 'normal') gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA); else gl.blendFunc(gl.ONE, gl.ONE);
+          gl.bindBuffer(gl.ARRAY_BUFFER, pbuffers[key]);
+          gl.bufferData(gl.ARRAY_BUFFER, particles.data[key].subarray(0, n * PSTRIDE), gl.STREAM_DRAW);
+          const at = [[1, 3, 0], [2, 1, 12], [3, 4, 16], [4, 1, 32], [5, 1, 36]];
+          for (const [loc, size, offset] of at) gl.vertexAttribPointer(loc, size, gl.FLOAT, false, PSTRIDE * 4, offset);
+          gl.drawArraysInstanced(gl.TRIANGLES, 0, 6, n);
+        }
+        gl.disable(gl.BLEND); gl.depthMask(true);
       }
       gl.bindVertexArray(null);
     }
@@ -349,5 +436,5 @@
     return { gl, camera, Layer, draw, ray, project, pan, resize, update: () => { resize(); updateCamera(); }, get size() { return { width, height, dpr }; }, get eye() { return eye; } };
   }
 
-  root.AutoHex3DRender = Object.freeze({ create, Layer, perspective, lookAt, multiply, invert });
+  root.AutoHex3DRender = Object.freeze({ create, Layer, ParticleLayer, perspective, lookAt, multiply, invert });
 })(typeof window !== 'undefined' ? window : globalThis);

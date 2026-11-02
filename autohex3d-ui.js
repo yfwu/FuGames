@@ -38,7 +38,7 @@
   let R = null;
   try { R = R3.create(canvas, { bound: E.RADIUS * 1.75, background: rgb('#eef2f6'), maxDpr: matchMedia('(max-width: 640px)').matches ? 1.5 : 2 }); } catch (error) { console.error(error); R = null; }
   if (!R) { $('webgl-fallback').hidden = false; $('notice').hidden = true; }
-  const staticLayer = new R3.Layer(), dynamicLayer = new R3.Layer();
+  const staticLayer = new R3.Layer(), dynamicLayer = new R3.Layer(), particleLayer = new R3.ParticleLayer();
   const scene = window.AutoHex3DScene.create({ E, X: E.CELLS.map(c => c.x), Z: E.CELLS.map(c => c.y), colors: COLORS });
   const X = E.CELLS.map(c => c.x), Z = E.CELLS.map(c => c.y);
   const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
@@ -47,8 +47,8 @@
   let game = null, view = null, planView = null, recipe = null, mode = 'human', human = 1, focusFaction = 1;
   let initialTerrain = null, paved = new Set(), goalOf = new Int8Array(E.COUNT);
   let selection = { type: 'deploy', cells: [] }, queue = [], legal = new Set(), legalKey = '';
-  let hovered = -1, focused = -1, actionLog = [], lastEventId = 0, prevBoard = new Uint8Array(E.COUNT), appear = new Float64Array(E.COUNT);
-  let forest = [], routes = [], aim = new Map(), scars = [], chokes = [], targets = [], staticDirty = true, riseUntil = 0;
+  let hovered = -1, focused = -1, actionLog = [], lastEventId = 0, tileColors = null, tileAnim = new Map(), holdUntil = new Map();
+  let forest = [], routes = [], aim = new Map(), scars = [], chokes = [], targets = [], staticDirty = true, animUntil = 0;
   let effects = [], layers = { supply: true, position: false, choke: true, plan: false };
   let aiTimer = null, queueTimer = null, generation = 0, timing = false, lastStamp = 0, windowStart = 0, windowPly = -1, lastClockPaint = 0, lastMini = 0;
   let animClock = 0, toastTimer = null, lastHandKey = '', resultShown = false, wasStarted = false;
@@ -169,7 +169,7 @@
     goalOf = new Int8Array(E.COUNT);
     for (const p of E.PLAYERS) for (let i = 0; i < E.COUNT; i++) if (E.goalCell(game, p, i)) goalOf[i] = p;
     selection = { type: 'deploy', cells: [] }; queue = []; legal = new Set(); legalKey = '';
-    actionLog = []; lastEventId = 0; effects = []; scars = []; prevBoard = Uint8Array.from(game.board); appear.fill(0);
+    actionLog = []; lastEventId = 0; effects = []; scars = []; tileColors = null; tileAnim.clear(); holdUntil.clear(); scene.P.list.length = 0;
     windowPly = -1; resultShown = false; wasStarted = start; lastHandKey = '';
     $('result').hidden = true; $('event-log').replaceChildren(node('li', '', '戰場已就緒。'));
     if (start) game.start();
@@ -203,22 +203,30 @@
       lastEventId = e.id;
       const cells = (e.cells || []).filter(i => Number.isInteger(i) && i >= 0 && i < E.COUNT);
       const fx = (kind, extra) => effects.push({ kind, start: now, player: e.player, ...extra });
+      // Board changes at a struck cell are shown when the round lands, not before.
+      const hold = (cell, ms) => holdUntil.set(cell, Math.max(holdUntil.get(cell) || 0, now + ms));
+      const shell = (from, to, after) => { const dur = 600 + 110 * E.distance(from, to); fx('shell', { from, to, dur, after }); hold(to, dur); };
       const hit = e.type === 'destroy';
-      if ((hit || e.type === 'shield-block') && e.source === 'bombard' && Number.isInteger(e.origin) && cells.length) fx('sortie', { from: e.origin, to: cells[0], dur: 3400, payload: 'bomb', hit });
-      else if ((hit || e.type === 'shield-block') && Number.isInteger(e.origin) && cells.length) fx('shell', { from: e.origin, to: cells[0], dur: 750, after: hit ? 'blast' : 'deflect' });
-      else if (hit) for (const i of cells) { fx('blast', { at: i, dur: 2600, scale: .9 }); scars.push({ at: i, until: now + 30000, dx: 0, dz: 0 }); }
-      else if (e.type === 'shield-block' || e.type === 'neutral-block') for (const i of cells) fx('deflect', { at: i, dur: 900 });
-      else if (e.type === 'capture') for (const i of cells) fx('capture', { at: i, dur: 1100 });
-      else if (e.type === 'supply-retreat') for (const i of cells.slice(0, 40)) fx('retreat', { at: i, dur: 1600 });
-      else if (e.type === 'airdrop' && cells.length >= 2) { const to = cells[cells.length - 1]; fx('sortie', { from: cells[0], to, dur: 3400, payload: 'crate' }); appear[to] = now + 2900; }
-      else if (e.type === 'neutral-strike') for (const i of cells) fx(e.kind === 'disaster' || e.source === 'disaster' ? 'bolt' : 'blast', { at: i, dur: e.kind === 'disaster' ? 1200 : 2200, scale: .6 });
-      else if (e.type === 'tunnel-collapse') for (const i of cells) fx('blast', { at: i, dur: 2000, scale: .5 });
-      else if (e.type === 'goal-arrival') for (const i of E.CELLS.filter(c => goalOf[c.i] === e.player && view.board[c.i] === e.player).map(c => c.i)) fx('beam', { at: i, dur: 1800 });
+      if ((hit || e.type === 'shield-block') && e.source === 'bombard' && Number.isInteger(e.origin) && cells.length) {
+        const plan = scene.planSortie(view, e.origin, cells[0], 'bomb'); fx('sortie', { plan, hit, hits: [], dur: plan.dur + 300 }); hold(cells[0], plan.landAt);
+      } else if ((hit || e.type === 'shield-block') && Number.isInteger(e.origin) && cells.length) shell(e.origin, cells[0], hit ? 'blast' : 'deflect');
+      else if ((hit || e.type === 'shield-block') && cells.length) { // demolition: shelled from the nearest own position
+        let from = -1; for (let i = 0; i < E.COUNT; i++) if (view.board[i] === e.player && (from < 0 || E.distance(i, cells[0]) < E.distance(from, cells[0]))) from = i;
+        if (from >= 0) shell(from, cells[0], hit ? 'blast' : 'deflect'); else fx('boom', { at: cells[0], dur: 100, scale: .9 });
+      } else if (e.type === 'neutral-block') for (const i of cells) fx('boom', { at: i, dur: 100, scale: .4 });
+      else if (e.type === 'capture') for (const i of cells) fx('capture', { at: i, dur: 100 });
+      else if (e.type === 'supply-retreat') for (const i of cells.slice(0, 40)) fx('retreat', { at: i, dur: 100 });
+      else if (e.type === 'airdrop' && cells.length >= 2) { const to = cells[cells.length - 1], plan = scene.planSortie(view, cells[0], to, 'crate'); fx('sortie', { plan, hits: [], dur: plan.dur + 300 }); hold(to, plan.landAt); }
+      else if (e.type === 'neutral-strike') for (const i of cells) {
+        if (e.kind === 'disaster') { fx('bolt', { at: i, dur: 1000 }); hold(i, 120); }
+        else for (let k = 0; k < 3; k++) { effects.push({ kind: 'boom', at: i, start: now + k * 260, dur: 100, scale: .45, dx: (k - 1) * .35, dz: (k % 2 - .5) * .4, player: 0 }); hold(i, 600); }
+      } else if (e.type === 'tunnel-collapse') for (const i of cells.slice(1, -1)) fx('boom', { at: i, dur: 100, scale: .5 });
+      else if (e.type === 'goal-arrival') for (const i of E.CELLS.filter(c => goalOf[c.i] === e.player && view.board[c.i] === e.player).map(c => c.i)) fx('flare', { at: i, dur: 100 });
       if (e.type === 'goal-arrival' || e.type === 'goal-lost' || e.type === 'breach-ready' && e.player === observer()) toast(`${localName(e.player)}：${EVENT_TEXT[e.type]}`, e.type === 'goal-lost' && e.player === observer());
       if (e.type === 'supply-retreat' && e.player === observer()) toast(`補給告急：${cells.length} 枚棋子存糧耗盡撤退`, true);
       if (!QUIET.has(e.type) || e.player === observer() && observer()) logEvent(e);
     }
-    if (effects.length > 120) effects.splice(0, effects.length - 120);
+    if (effects.length > 160) effects.splice(0, effects.length - 160);
   }
   function logEvent(e) {
     const text = EVENT_TEXT[e.type] || e.type;
@@ -234,9 +242,17 @@
     if (!game) return;
     const now = animClock;
     view = game.observation(observer()); planView = null;
-    for (let i = 0; i < E.COUNT; i++) if (view.board[i] && view.board[i] !== prevBoard[i]) appear[i] = now;
-    prevBoard = Uint8Array.from(view.board);
     paved = new Set(L.engineeredCells(initialTerrain, view.terrain));
+    ingestEvents(now);
+    // Captured / lost ground fades to its new colour (after any incoming round lands).
+    const colors = E.CELLS.map(c => scene.tileColor(view, c.i, paved));
+    if (tileColors) for (let i = 0; i < E.COUNT; i++) {
+      const a = tileColors[i], b = colors[i];
+      if (Math.abs(a[0] - b[0]) + Math.abs(a[1] - b[1]) + Math.abs(a[2] - b[2]) < 1e-3) continue;
+      const running = tileAnim.get(i), from = running ? currentTileColor(i, now) : a;
+      tileAnim.set(i, { from, to: b, start: Math.max(now, holdUntil.get(i) || 0), dur: 650 });
+    }
+    tileColors = colors;
     forest = V.supplyForest(view, E.ADJ);
     routes = scene.routes(view, forest);
     aim = new Map(view.turrets.map(t => [t.cell, scene.aimFor(view, t.cell, t.owner)]));
@@ -244,7 +260,6 @@
     targets = [];
     for (const p of E.PLAYERS) if (p !== subject() && !E.allied(view, subject(), p)) targets.push(...L.supplyChokepoints(view, E, p).filter(c => c.cut >= 3).slice(0, 2));
     targets.sort((a, b) => b.cut - a.cut);
-    ingestEvents(now);
     staticDirty = true; legalKey = '';
     renderAll();
     if (game.phase === 'over' && !resultShown) showResult();
@@ -484,48 +499,46 @@
   }
 
   // ---------- 3D scene ----------
+  function currentTileColor(i, now) {
+    const a = tileAnim.get(i); if (!a) return tileColors ? tileColors[i] : scene.tileColor(view, i, paved);
+    const k = Math.max(0, Math.min(1, (now - a.start) / a.dur)), e = k * k * (3 - 2 * k);
+    return [a.from[0] + (a.to[0] - a.from[0]) * e, a.from[1] + (a.to[1] - a.from[1]) * e, a.from[2] + (a.to[2] - a.from[2]) * e];
+  }
   function buildStatic(now) {
     const S = staticLayer; S.clear(); stats.staticBuilds++;
-    riseUntil = 0;
-    scene.terrain(S, view, { paved, goalOf, subject: subject() });
+    for (const [i, a] of tileAnim) if (now >= a.start + a.dur) tileAnim.delete(i);
+    animUntil = 0; for (const a of tileAnim.values()) animUntil = Math.max(animUntil, a.start + a.dur);
+    scene.terrain(S, view, { paved, goalOf, subject: subject(), skip: new Set(tileAnim.keys()) });
     for (const a of view.airports) scene.airfield(S, view, a);
     for (const d of view.depots) scene.depot(S, view, d);
     // Supply roads follow each faction's home-rooted supply tree.
-    for (const link of forest) if (!link.bridge) scene.road(S, view, link.a, link.b, link.owner, link.owner === subject());
+    const nodes = new Set();
+    for (const link of forest) if (!link.bridge) { scene.road(S, view, link.a, link.b, link.owner, link.owner === subject()); nodes.add(link.a); nodes.add(link.b); }
+    for (const i of nodes) if (!view.anchors[i]) scene.junction(S, view, i);
     for (const b of view.bridges) if (view.board[b.a] === b.owner && view.board[b.b] === b.owner) scene.bridge(S, view, b);
     for (const t of view.tunnels) scene.tunnel(S, view, t);
-    const ctx = { turrets: new Set(view.turrets.filter(t => view.board[t.cell] === t.owner).map(t => t.cell)), aim };
-    for (let i = 0; i < E.COUNT; i++) {
-      const p = view.board[i]; if (!p) continue;
-      if (now - appear[i] < 520) { riseUntil = Math.max(riseUntil, appear[i] + 520); continue; }
-      if (view.anchors[i]) scene.castle(S, view, i, p, scene.top(view, i));
-      else scene.camp(S, view, i, p, scene.top(view, i), 0, ctx);
-    }
+    for (let i = 0; i < E.COUNT; i++) if (view.anchors[i] && view.board[i]) scene.castle(S, view, i, view.board[i], scene.top(view, i));
     if (layers.position) for (const t of view.turrets) {
       if (view.board[t.cell] !== t.owner) continue;
-      for (const c of E.CELLS) if (E.distance(t.cell, c.i) <= E.RULES.turretRange && c.i !== t.cell) S.add('hexFlat', X[c.i], scene.top(view, c.i) + .01, Z[c.i], .9, .03, .9, 0, rgba(PC[t.owner], .16));
+      for (const c of E.CELLS) if (E.distance(t.cell, c.i) <= E.RULES.turretRange && c.i !== t.cell) S.add('hexFlat', X[c.i], scene.top(view, c.i) + .01, Z[c.i], .9, .02, .9, 0, rgba(PC[t.owner], .16));
     }
     staticDirty = false;
   }
-  function buildDynamic(now) {
-    const D = dynamicLayer; D.clear();
+  function buildDynamic(now, dt) {
+    const D = dynamicLayer; D.clear(); particleLayer.clear();
     const t = now / 1000, tops = i => scene.top(view, i), still = reducedMotion.matches;
-    // New positions drop in (airdrops wait for the crate to land).
-    const ctx = { turrets: new Set(view.turrets.map(v => v.cell)), aim };
-    for (let i = 0; i < E.COUNT; i++) if (view.board[i] && now >= appear[i] && now - appear[i] < 520) {
-      const k = (now - appear[i]) / 520, ease = 1 - Math.pow(1 - k, 3), rise = (1 - ease) * 2.2;
-      if (view.anchors[i]) scene.castle(D, view, i, view.board[i], tops(i) + rise); else scene.camp(D, view, i, view.board[i], tops(i), rise, ctx);
-    }
-    if (layers.supply && !still) scene.trucks(D, routes, t, subject());
-    if (!still) scene.airTraffic(D, view, t);
-    // Severed positions pulse; the overlay prints their remaining reserve.
+    for (const [i, a] of tileAnim) if (now < a.start + a.dur) scene.tile(D, view, i, currentTileColor(i, now));
+    for (const tur of view.turrets) if (view.board[tur.cell] === tur.owner && now >= (holdUntil.get(tur.cell) || 0)) scene.turret(D, view, tur.cell, tur.owner, tops(tur.cell), aim.get(tur.cell), now);
+    if (layers.supply && !still) scene.trucks(D, particleLayer, routes, t, dt, subject(), view);
+    if (!still) scene.airTraffic(D, view, t, dt);
+    // Severed ground pulses along its own edge; the overlay prints remaining reserve.
     for (let i = 0; i < E.COUNT; i++) {
       const p = view.board[i];
-      if (p && !view.supplied[i] && !view.anchors[i]) D.add('ring', X[i], tops(i) + .02, Z[i], .92, .08, .92, 0, rgba(rgb('#d24a32'), p === subject() ? .95 : .55), .8);
+      if (p && !view.supplied[i] && !view.anchors[i]) D.add('ring', X[i], tops(i) - .01, Z[i], .99, .035, .99, 0, rgba(rgb('#d24a32'), p === subject() ? .95 : .55), .8);
     }
     if (layers.choke) {
-      for (const c of chokes.slice(0, 14)) if (c.cut >= 2) D.add('ring', X[c.cell], tops(c.cell) + .5, Z[c.cell], .86, .05, .86, t * .6, rgba(rgb('#e58a2c'), .95), .6);
-      for (const c of targets) D.add('ring', X[c.cell], tops(c.cell) + .5, Z[c.cell], .95, .05, .95, -t * .6, rgba(rgb('#c2263a'), .95), .7);
+      for (const c of chokes.slice(0, 14)) if (c.cut >= 2) D.add('ring', X[c.cell], tops(c.cell) + .04, Z[c.cell], .8, .02, .8, t * .6, rgba(rgb('#e58a2c'), .95), .6);
+      for (const c of targets) D.add('ring', X[c.cell], tops(c.cell) + .04, Z[c.cell], .85, .02, .85, -t * .6, rgba(rgb('#c2263a'), .95), .7);
     }
     if (view.neutralWarning) for (const i of view.neutralWarning.cells) D.add('cone', X[i], tops(i) + 1.5 + Math.sin(t * 4) * .12, Z[i], .26, -.5, .26, t, rgba(rgb('#d9a52b')), .7);
     if (layers.plan) for (const p of E.PLAYERS) {
@@ -533,19 +546,32 @@
       for (const i of intent.path || []) D.add('sphere', X[i], tops(i) + .65, Z[i], .08, .08, .08, 0, rgba(PLIGHT[p]), .4);
       if (Number.isInteger(intent.target) && intent.target >= 0) D.add('oct', X[intent.target], tops(intent.target) + 1.4 + Math.sin(t * 2 + p) * .15, Z[intent.target], .22, .3, .22, t, rgba(PC[p]), .5);
     }
-    // Legal targets: a small disc at each cell centre keeps the terrain readable.
-    if (legal.size) { const mark = isHumanTurn() ? rgb('#1f2a36') : rgb('#5b6f8a'); for (const i of legal) D.add('cyl', X[i], tops(i) + (view.board[i] ? .55 : .01), Z[i], .2, .03, .2, 0, rgba(mark, isHumanTurn() ? .7 : .45), .15); }
-    for (const i of selection.cells) D.add('ring', X[i], tops(i) + .45, Z[i], .95, .1, .95, 0, rgba(rgb('#267477')), .6);
-    if (hovered >= 0) D.add('ring', X[hovered], tops(hovered) + .03, Z[hovered], 1, .12, 1, 0, rgba(legal.has(hovered) ? rgb('#1d8f92') : WHITE), .4);
-    if (focused >= 0 && focused !== hovered) D.add('ring', X[focused], tops(focused) + .03, Z[focused], 1, .1, 1, 0, rgba(rgb('#2e3440'), .7));
-    // Craters, shells, sorties and explosions.
+    if (legal.size) { const mark = isHumanTurn() ? rgb('#1f2a36') : rgb('#5b6f8a'); for (const i of legal) D.add('cyl', X[i], tops(i) + .02, Z[i], .2, .03, .2, 0, rgba(mark, isHumanTurn() ? .7 : .45), .15); }
+    for (const i of selection.cells) D.add('ring', X[i], tops(i) + .02, Z[i], .95, .06, .95, 0, rgba(rgb('#267477')), .6);
+    if (hovered >= 0) D.add('ring', X[hovered], tops(hovered) + .02, Z[hovered], 1, .05, 1, 0, rgba(legal.has(hovered) ? rgb('#1d8f92') : WHITE), .4);
+    if (focused >= 0 && focused !== hovered) D.add('ring', X[focused], tops(focused) + .02, Z[focused], 1, .04, 1, 0, rgba(rgb('#2e3440'), .7));
+    // Craters, shells, sorties, explosions and smoke.
     scars = scars.filter(v => v.until > now);
     scene.scars(D, view, scars, now);
-    effects = effects.filter(e => now - e.start < e.dur + 300);
+    effects = effects.filter(e => now - e.start < e.dur + 400);
     const spawned = [];
-    scene.effects(D, view, effects, now, e => { spawned.push({ ...e, start: now }); if (e.scar) scars.push({ at: e.at, until: now + 30000, dx: (Math.random() - .5) * .3, dz: (Math.random() - .5) * .3 }); });
+    scene.effects(D, particleLayer, view, effects, now, dt, ev => {
+      if (ev.kind === 'blast') {
+        scene.blast(ev.x, ev.y, ev.z, ev.scale);
+        scars.push({ x: ev.x, y: ev.y, z: ev.z, r: ev.scale, yaw: Math.random() * 6, until: now + 30000 });
+        spawned.push({ kind: 'fire', x: ev.x, y: ev.y, z: ev.z, start: now, dur: 2400 * ev.scale });
+        shake(ev.x, ev.z, ev.scale);
+      } else if (ev.kind === 'deflect') { scene.deflect(ev.x, ev.y, ev.z); shake(ev.x, ev.z, .3); }
+    });
     effects.push(...spawned);
     if (scars.length > 80) scars.splice(0, scars.length - 80);
+    if (!still) scene.P.update(dt);
+    scene.P.draw(particleLayer);
+  }
+  function shake(x, z, scale) {
+    if (!R || reducedMotion.matches) return;
+    const c = R.camera, d = Math.hypot(x - c.tx, z - c.tz), near = Math.max(0, 1 - d / (c.dist * .8));
+    c.shake = Math.min(.5, (c.shake || 0) + scale * .28 * near * Math.min(1, 22 / c.dist));
   }
   function drawOverlay() {
     const { width, height, dpr } = R.size;
@@ -760,10 +786,12 @@
     applyKeys(dt);
     if (tween) { const k = Math.min(1, (now - tween.start) / tween.dur), e = 1 - Math.pow(1 - k, 3); for (const key of ['tx', 'tz', 'dist']) R.camera[key] = tween.from[key] + (tween.to[key] - tween.from[key]) * e; if (k >= 1) tween = null; }
     const start = performance.now();
-    if (staticDirty || riseUntil && animClock > riseUntil) buildStatic(animClock);
-    buildDynamic(animClock);
+    if (staticDirty || animUntil && animClock > animUntil) buildStatic(animClock);
+    const animDt = game.phase === 'paused' ? 0 : Math.min(.064, dt / 1000);
+    buildDynamic(animClock, animDt);
+    if (R.camera.shake) R.camera.shake = R.camera.shake * Math.exp(-animDt * 6) < .002 ? 0 : R.camera.shake * Math.exp(-animDt * 6);
     const built = performance.now();
-    R.draw([staticLayer, dynamicLayer], now);
+    R.draw([staticLayer, dynamicLayer], now, particleLayer);
     drawOverlay();
     if (now - lastMini > 250) drawMinimap(now);
     const end = performance.now();
@@ -773,7 +801,7 @@
 
   // ---------- test and automation hook (read-only plus explicit commands) ----------
   window.autoHex3D = {
-    E, L, stats, get effects() { return effects.map(e => ({ kind: e.kind, age: Math.round(animClock - e.start), dur: e.dur, at: e.at, from: e.from, to: e.to })); },
+    E, L, stats, get effects() { return effects.map(e => ({ kind: e.kind, age: Math.round(animClock - e.start), dur: e.dur, at: e.at, from: e.from ?? e.plan?.from, to: e.to ?? e.plan?.to, plan: e.plan && { t1: e.plan.t1, t2: e.plan.t2, release: e.plan.release, tf: e.plan.tf, landAt: e.plan.landAt, payload: e.plan.payload } })); }, get particles() { return scene.P.list.length; }, get animClock() { return animClock; },
     get game() { return game; }, get view() { return view; }, get actionLog() { return actionLog; }, get queue() { return queue.slice(); },
     get selection() { return { ...selection, cells: selection.cells.slice() }; }, get legal() { computeLegal(); return [...legal]; },
     get camera() { return R ? { ...R.camera } : null; }, get webgl() { return !!R; }, get human() { return human; }, get mode() { return mode; },

@@ -1,6 +1,6 @@
-/* AutoHex-3D battlefield models: terrain, camps, forts, turrets, roads, bridges,
-   tunnels, airfields, depots, trucks, aircraft and explosions. Pure drawing
-   from a public observation; no rules and no game mutation. */
+/* AutoHex-3D battlefield: terrain that takes its owner's colour, roads and
+   convoys, bridges, tunnels, airfields, field guns, aircraft and a particle
+   system for fire, smoke, dust and debris. Drawing only; reads a public view. */
 (function (root) {
   'use strict';
   const rgb = hex => [parseInt(hex.slice(1, 3), 16) / 255, parseInt(hex.slice(3, 5), 16) / 255, parseInt(hex.slice(5, 7), 16) / 255];
@@ -8,47 +8,104 @@
   const rgba = (c, a = 1) => [c[0], c[1], c[2], a];
   const hash = i => { let h = (i + 1) * 2654435761 >>> 0; h ^= h >>> 13; h = Math.imul(h, 0x5bd1e995) >>> 0; h ^= h >>> 15; return (h % 10000) / 10000; };
   const lerp = (a, b, t) => a + (b - a) * t;
+  const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+  const smooth = t => t * t * (3 - 2 * t);
   const C = {
-    grass: rgb('#b4c493'), grassDark: rgb('#9fb27f'), paved: rgb('#d5d5cd'), river: rgb('#5a93b6'), hill: rgb('#a4976f'),
+    grass: rgb('#b0c08f'), grassDark: rgb('#9cae7c'), paved: rgb('#cfd0c8'), river: rgb('#5a93b6'), hill: rgb('#a4976f'),
     rock: rgb('#8f8670'), snow: rgb('#ecebe4'), trunk: rgb('#6b4e33'), pine: rgb('#4c7340'), pine2: rgb('#5d8749'),
-    asphalt: rgb('#4d525a'), runway: rgb('#3c4148'), paint: rgb('#f2efe2'), concrete: rgb('#b3b5b2'), stone: rgb('#a39e8f'),
-    sandbag: rgb('#b9a979'), canvas: rgb('#7a7853'), wood: rgb('#9a7649'), steel: rgb('#3c4148'), glass: rgb('#8db7c9'),
-    dark: rgb('#22262c'), white: [1, 1, 1], grey: rgb('#8b9097'), fire: rgb('#ff8a3d'), flash: rgb('#fff2b0'), smoke: rgb('#5d5f62'),
-    lightSmoke: rgb('#c9cbcd'), shield: rgb('#8fb0ff'), tarp: rgb('#66683f'), red: rgb('#d24a32')
+    asphalt: rgb('#4a4f56'), shoulder: rgb('#8e8466'), runway: rgb('#3c4148'), paint: rgb('#f2efe2'), concrete: rgb('#b3b5b2'), stone: rgb('#a39e8f'),
+    sandbag: rgb('#b9a979'), canvas: rgb('#6f7149'), wood: rgb('#9a7649'), steel: rgb('#3c4148'), glass: rgb('#9cc4d6'), tyre: rgb('#1d1f22'),
+    dark: rgb('#22262c'), white: [1, 1, 1], grey: rgb('#8b9097'), red: rgb('#d24a32'), shield: rgb('#8fb0ff'),
+    fireHot: rgb('#ffd27a'), fire: rgb('#ff8a3d'), ember: rgb('#c2401a'), smokeDark: rgb('#3b3a38'), smoke: rgb('#6e6c68'), smokeLight: rgb('#b9b7b1'),
+    dirt: rgb('#6b5536'), dust: rgb('#b8a17a'), flash: rgb('#fff1c4')
   };
-  const DEG60 = Math.PI / 3;
+  const DEG60 = Math.PI / 3, G = 9.8;
+  const WIND = [.35, 0, .12];
+
+  // ---------- particle simulation ----------
+  class Particles {
+    constructor(limit = 2600) { this.list = []; this.limit = limit; this.seed = 1; }
+    rand() { this.seed = (this.seed * 16807) % 2147483647; return this.seed / 2147483647; }
+    emit(p) {
+      if (this.list.length >= this.limit) this.list.shift();
+      this.list.push(Object.assign({ vx: 0, vy: 0, vz: 0, age: 0, life: 1, s0: .2, s1: .4, c0: C.smoke, c1: C.smoke, a0: .6, a1: 0, g0: 0, g1: 0, drag: 0, grav: 0, buoy: 0, wind: 0, floor: -Infinity, seed: this.rand() }, p));
+    }
+    update(dt) {
+      if (dt <= 0) return;
+      const keep = [];
+      for (const p of this.list) {
+        p.age += dt; if (p.age >= p.life) continue;
+        const d = Math.exp(-p.drag * dt);
+        p.vx = p.vx * d + WIND[0] * p.wind * dt; p.vz = p.vz * d + WIND[2] * p.wind * dt; p.vy = p.vy * d + (p.buoy - p.grav) * dt;
+        p.x += p.vx * dt; p.y += p.vy * dt; p.z += p.vz * dt;
+        if (p.y < p.floor) { p.y = p.floor; p.vy = -p.vy * .25; p.vx *= .5; p.vz *= .5; }
+        keep.push(p);
+      }
+      this.list = keep;
+    }
+    draw(PL) {
+      for (const p of this.list) {
+        const k = p.age / p.life, e = 1 - (1 - k) * (1 - k), fade = Math.min(1, p.age / .04);
+        const c = mix(p.c0, p.c1, k), a = lerp(p.a0, p.a1, k) * fade, g = lerp(p.g0, p.g1, k);
+        if (a <= .01) continue;
+        PL.add(p.x, p.y, p.z, lerp(p.s0, p.s1, e), [c[0], c[1], c[2], a], g, p.seed);
+      }
+    }
+  }
 
   function create({ E, X, Z, colors }) {
-    const PC = colors.map(rgb), PCUT = PC.map(c => mix(c, C.grey, .6)), PLIGHT = PC.map(c => mix(c, C.white, .6));
+    const PC = colors.map(rgb), PCUT = PC.map(c => mix(c, C.grey, .62)), PLIGHT = PC.map(c => mix(c, C.white, .6));
     const facilityCells = new Set();
     const TOP = t => t === 1 ? 0.1 : t === 2 ? 0.8 : 0.32;
     const top = (view, i) => TOP(view.terrain[i]) + (view.terrain[i] === 0 ? (hash(i) - .5) * .04 : 0);
+    const P = new Particles();
+    const rnd = () => P.rand();
 
-    // Compose a model from parts in its local frame (+X forward), then yaw / tilt it.
-    function parts(L, x, y, z, yaw, tilt, list) {
-      const cy = Math.cos(yaw), sy = Math.sin(yaw), ct = Math.cos(tilt), st = Math.sin(tilt);
-      for (const [mesh, dx, dy, dz, sx, sh, sz, color, glow = 0, extraTilt = 0] of list) {
-        const tx = dx * ct - dy * st, ty = dx * st + dy * ct;
-        L.add(mesh, x + tx * cy - dz * sy, y + ty, z + tx * sy + dz * cy, sx, sh, sz, yaw, color, glow, tilt + extraTilt);
+    function parts(L, x, y, z, yaw, tilt, list, roll = 0) {
+      const cy = Math.cos(yaw), sy = Math.sin(yaw), ct = Math.cos(tilt), st = Math.sin(tilt), cr = Math.cos(roll), sr = Math.sin(roll);
+      for (const [mesh, dx, dy, dz, sx, sh, sz, color, glow = 0, extraTilt = 0, extraRoll = 0] of list) {
+        const ry = dy * cr - dz * sr, rz = dy * sr + dz * cr;      // roll about local X
+        const tx = dx * ct - ry * st, ty = dx * st + ry * ct;       // tilt about local Z
+        L.add(mesh, x + tx * cy - rz * sy, y + ty, z + tx * sy + rz * cy, sx, sh, sz, yaw, color, glow, tilt + extraTilt, roll + extraRoll);
       }
     }
+    function shadow(L, x, z, ground, height, size, yaw = 0) {
+      const a = clamp(.32 - height * .05, .06, .32), s = size * (1 + height * .08);
+      L.add('cyl', x, ground + .012, z, s, .004, s * .55, yaw, [0, 0, 0, a]);
+    }
 
-    // ---------- terrain ----------
+    // ---------- terrain: occupied ground takes the owner's colour ----------
+    function baseColor(view, i, paved) {
+      const t = view.terrain[i];
+      return t === 1 ? C.river : t === 2 ? C.hill : paved && paved.has(i) ? C.paved : mix(C.grass, C.grassDark, hash(i * 7 + 3));
+    }
+    function tileColor(view, i, paved) {
+      const base = baseColor(view, i, paved), p = view.board[i];
+      if (!p) return base;
+      const team = view.anchors[i] ? PC[p] : view.supplied[i] ? PC[p] : PCUT[p];
+      return mix(base, team, view.anchors[i] ? .85 : view.terrain[i] === 2 ? .5 : .66);
+    }
+    function tile(L, view, i, color) {
+      L.add('hex', X[i], -0.7, Z[i], .985, top(view, i) + .7, .985, 0, rgba(color), view.terrain[i] === 1 ? -1 : 0);
+    }
     function terrain(S, view, ctx) {
       facilityCells.clear();
       for (const f of [...view.airports, ...view.depots]) facilityCells.add(f.cell);
       for (let i = 0; i < E.COUNT; i++) {
-        const t = view.terrain[i], h = top(view, i), x = X[i], z = Z[i], r = hash(i * 7 + 3);
-        let color = t === 1 ? C.river : t === 2 ? C.hill : ctx.paved.has(i) ? C.paved : mix(C.grass, C.grassDark, r);
-        S.add('hex', x, -0.7, z, .985, h + .7, .985, 0, rgba(color), t === 1 ? -1 : 0);
+        const t = view.terrain[i], h = top(view, i), x = X[i], z = Z[i], p = view.board[i];
+        if (!ctx.skip || !ctx.skip.has(i)) tile(S, view, i, tileColor(view, i, ctx.paved));
         if (ctx.goalOf[i]) S.add('ring', x, h - .05, z, .99, .07, .99, 0, rgba(PC[ctx.goalOf[i]], ctx.goalOf[i] === ctx.subject ? 1 : .55));
-        if (view.board[i] || facilityCells.has(i)) continue;
-        if (t === 2) { // mountain with a snow cap and a foothill
-          const yaw = hash(i) * 6;
-          S.add('cone', x - .1, h, z + .06, .66, .62, .66, yaw, rgba(mix(C.hill, C.rock, .45)));
+        if (p && !view.anchors[i]) { // status sits flush in the tile's own edge
+          if (view.fortified[i]) S.add('ring', x, h - .02, z, .985, .045, .985, 0, rgba(mix(PC[p], C.dark, .55)));
+          if (view.shields[i]) S.add('ring', x, h - .015, z, .9, .04, .9, 0, rgba(C.shield, view.reserve[i] > 0 ? .9 : .4), .5);
+        }
+        if (facilityCells.has(i)) continue;
+        if (t === 2) { // mountains stay; an owner tints the slopes
+          const yaw = hash(i) * 6, rock = p ? mix(mix(C.hill, C.rock, .45), PC[p], .35) : mix(C.hill, C.rock, .45);
+          S.add('cone', x - .1, h, z + .06, .66, .62, .66, yaw, rgba(rock));
           S.add('cone', x - .1, h + .44, z + .06, .19, .18, .19, yaw, rgba(C.snow));
-          S.add('cone', x + .4, h, z - .3, .34, .32, .34, 0, rgba(mix(C.hill, C.rock, .2)));
-        } else if (t === 0 && !ctx.paved.has(i) && hash(i * 13 + 1) < .3) { // copse of pines
+          S.add('cone', x + .4, h, z - .3, .34, .32, .34, 0, rgba(p ? mix(C.hill, PC[p], .3) : mix(C.hill, C.rock, .2)));
+        } else if (t === 0 && !p && !(ctx.paved && ctx.paved.has(i)) && hash(i * 13 + 1) < .3) {
           const n = 1 + (hash(i * 5) > .45) + (hash(i * 5) > .8);
           for (let k = 0; k < n; k++) {
             const a = hash(i * 31 + k) * Math.PI * 2, d = .2 + hash(i * 17 + k) * .38, tx = x + Math.cos(a) * d, tz = z + Math.sin(a) * d;
@@ -57,63 +114,43 @@
             S.add('cone', tx, h + .08 * s, tz, .18 * s, .32 * s, .18 * s, a, rgba(green));
             S.add('cone', tx, h + .27 * s, tz, .12 * s, .26 * s, .12 * s, a, rgba(mix(green, C.white, .08)));
           }
-        } else if (t === 1 && hash(i * 3) < .35) { // reeds on the bank
-          S.add('cyl', x + .55, h, z - .35, .05, .16, .05, 0, rgba(C.pine2));
-        }
+        } else if (t === 1 && hash(i * 3) < .35) S.add('cyl', x + .55, h, z - .35, .05, .16, .05, 0, rgba(C.pine2));
       }
     }
 
-    // ---------- positions ----------
-    function camp(L, view, i, p, h, rise, ctx) {
-      const x = X[i], z = Z[i], y = h + rise, supplied = view.supplied[i], fortified = view.fortified[i];
-      const team = supplied ? PC[p] : PCUT[p], yaw = Math.floor(hash(i) * 6) * DEG60;
-      L.add('hexFlat', x, y, z, .64, .07, .64, 0, rgba(team));
-      L.add('ring', x, y + .07, z, .6, fortified ? .18 : .12, .6, 0, rgba(fortified ? C.concrete : C.sandbag));
-      if (ctx.turrets.has(i)) turret(L, view, i, p, y + .07, ctx.aim.get(i));
-      else {
-        parts(L, x, y + .07, z, yaw, 0, [['wedge', -.06, 0, .06, .46, .27, .36, rgba(mix(team, C.canvas, .55))]]);
-        if (fortified) parts(L, x, y + .07, z, yaw, 0, [['box', .2, 0, -.18, .22, .16, .22, rgba(C.concrete)], ['box', .31, .08, -.18, .02, .03, .14, rgba(C.dark)]]);
-      }
-      // Field reserve as supply crates (0–6).
-      const r = Math.min(6, view.reserve[i]);
-      for (let k = 0; k < r; k++) L.add('box', x - .34 + (k % 3) * .12, y + .07 + (k >= 3 ? 0 : 0), z + .3 + Math.floor(k / 3) * .11, .1, .09, .1, 0, rgba(supplied ? C.wood : mix(C.wood, C.red, .3)));
-      // Flag: faction colour; a cut-off camp flies it at half-mast.
-      const fx = x + .32, fz = z - .26;
-      L.add('box', fx, y + .07, fz, .025, .62, .025, 0, rgba(C.dark));
-      L.add('box', fx + .11, y + (supplied ? .55 : .32), fz, .2, .12, .015, 0, rgba(supplied ? PC[p] : C.grey), supplied ? .12 : 0);
-      if (view.shields[i]) L.add('sphere', x, y + .07, z, .74, .6, .74, 0, rgba(C.shield, view.reserve[i] > 0 ? .22 : .1), .15);
-    }
+    // ---------- structures ----------
     function castle(L, view, i, p, h) {
       const x = X[i], z = Z[i];
-      L.add('hexFlat', x, h, z, .88, .1, .88, 0, rgba(PC[p]));
-      L.add('ring', x, h + .1, z, .82, .5, .82, 0, rgba(C.stone));
+      L.add('ring', x, h, z, .82, .5, .82, 0, rgba(C.stone));
       for (let k = 0; k < 6; k += 2) {
         const a = -Math.PI / 6 + k * DEG60, tx = x + Math.cos(a) * .76, tz = z + Math.sin(a) * .76;
-        L.add('cyl', tx, h + .1, tz, .15, .78, .15, 0, rgba(mix(C.stone, C.dark, .1)));
-        L.add('cone', tx, h + .88, tz, .19, .26, .19, 0, rgba(mix(PC[p], C.dark, .2)));
+        L.add('cyl', tx, h, tz, .15, .78, .15, 0, rgba(mix(C.stone, C.dark, .1)));
+        L.add('cone', tx, h + .78, tz, .19, .26, .19, 0, rgba(mix(PC[p], C.dark, .2)));
       }
-      L.add('box', x, h + .1, z, .56, .72, .56, 0, rgba(mix(C.stone, C.white, .1)));
-      L.add('wedge', x, h + .82, z, .6, .3, .6, 0, rgba(PC[p]));
-      L.add('box', x - .05, h + .82, z + .05, .03, 1.15, .03, 0, rgba(C.dark));
-      L.add('box', x + .16, h + 1.62, z + .05, .4, .24, .02, 0, rgba(PC[p]), .2);
+      L.add('box', x, h, z, .56, .72, .56, 0, rgba(mix(C.stone, C.white, .1)));
+      L.add('wedge', x, h + .72, z, .6, .3, .6, 0, rgba(PC[p]));
+      L.add('box', x - .05, h + .72, z + .05, .03, 1.15, .03, 0, rgba(C.dark));
+      L.add('box', x + .16, h + 1.52, z + .05, .4, .24, .02, 0, rgba(PC[p]), .2);
     }
-    // Field gun: sandbag pit, turret housing, a long barrel aimed at its next target.
-    function turret(L, view, i, p, y, aim) {
+    const recoil = new Map();
+    function turret(L, view, i, p, y, aim, now) {
       const x = X[i], z = Z[i], t = view.turrets.find(v => v.cell === i), armed = view.reserve[i] >= 2;
-      const yaw = aim ? Math.atan2(Z[aim] - z, X[aim] - x) : Math.floor(hash(i) * 6) * DEG60;
-      const elevation = armed ? .2 : -.06, steel = mix(C.steel, PC[p], .25);
-      L.add('cyl', x, y, z, .33, .1, .33, 0, rgba(C.sandbag));
-      parts(L, x, y + .1, z, yaw, 0, [
-        ['cyl', 0, 0, 0, .2, .17, .2, rgba(steel)],
-        ['box', .14, .05, 0, .14, .1, .16, rgba(mix(steel, C.dark, .2))]
-      ]);
-      parts(L, x + Math.cos(yaw) * .18, y + .2, z + Math.sin(yaw) * .18, yaw, elevation, [
-        ['box', .27, 0, 0, .54, .065, .065, rgba(armed ? C.dark : C.grey)],
-        ['box', .55, -.012, 0, .07, .09, .09, rgba(armed ? C.dark : C.grey)]
-      ]);
+      const yaw = Number.isInteger(aim) ? Math.atan2(Z[aim] - z, X[aim] - x) : Math.floor(hash(i) * 6) * DEG60;
+      const elevation = armed ? .2 : -.06, steel = mix(C.steel, PC[p], .3);
+      const kick = recoil.has(i) ? Math.max(0, 1 - (now - recoil.get(i)) / 260) : 0;
+      L.add('cyl', x, y, z, .34, .1, .34, 0, rgba(C.sandbag));
+      parts(L, x, y + .1, z, yaw, 0, [['cyl', 0, 0, 0, .21, .17, .21, rgba(steel)], ['box', .15, .05, 0, .15, .1, .17, rgba(mix(steel, C.dark, .2))]]);
+      parts(L, x + Math.cos(yaw) * (.18 - kick * .12), y + .2, z + Math.sin(yaw) * (.18 - kick * .12), yaw, elevation, [
+        ['box', .28, 0, 0, .56, .065, .065, rgba(armed ? C.dark : C.grey)], ['box', .57, -.012, 0, .07, .09, .09, rgba(armed ? C.dark : C.grey)]]);
       if (t && t.countdown === 1 && armed) L.add('sphere', x, y + .38, z, .05, .05, .05, 0, rgba(C.red), 1);
     }
-    // Engine-equivalent public target order: turrets first, then most supported, nearest.
+    function muzzle(i, aim, now) {
+      const yaw = Math.atan2(Z[aim] - Z[i], X[aim] - X[i]), y = TOP(0) + .44, x = X[i] + Math.cos(yaw) * .82, z = Z[i] + Math.sin(yaw) * .82;
+      recoil.set(i, now);
+      for (let k = 0; k < 2; k++) P.emit({ x, y, z, vx: Math.cos(yaw) * 2, vz: Math.sin(yaw) * 2, life: .1 + rnd() * .06, s0: .2, s1: .45, c0: C.flash, c1: C.fire, a0: .9, a1: .2, g0: 1, g1: .3, drag: 8 });
+      P.emit({ x, y, z, vx: Math.cos(yaw) * 1.2, vz: Math.sin(yaw) * 1.2, life: .18, s0: .18, s1: .4, c0: C.fireHot, c1: C.fire, a0: .9, a1: 0, drag: 6 });
+      for (let k = 0; k < 9; k++) { const sp = .6 + rnd() * 2.2, a = yaw + (rnd() - .5) * .9; P.emit({ x, y, z, vx: Math.cos(a) * sp, vy: rnd() * .5, vz: Math.sin(a) * sp, life: .9 + rnd() * .8, s0: .12, s1: .55 + rnd() * .3, c0: C.smokeLight, c1: C.smokeLight, a0: .55, a1: 0, drag: 2.5, buoy: .35, wind: 1 }); }
+    }
     function aimFor(view, cell, owner) {
       let best = null, bestKey = null;
       const turretCells = new Set(view.turrets.map(t => t.cell));
@@ -127,15 +164,19 @@
       return best;
     }
 
-    // ---------- logistics ----------
+    // ---------- roads, bridges, tunnels ----------
     function road(S, view, a, b, owner, own) {
-      const ha = top(view, a) + .075, hb = top(view, b) + .075;
-      S.rod(X[a], ha, Z[a], X[b], hb, Z[b], .3, .03, rgba(C.asphalt));
-      const dash = rgba(own ? C.paint : mix(PC[owner], C.white, .55));
-      for (const k of [.36, .64]) {
-        const x0 = lerp(X[a], X[b], k - .07), z0 = lerp(Z[a], Z[b], k - .07), x1 = lerp(X[a], X[b], k + .07), z1 = lerp(Z[a], Z[b], k + .07);
-        S.rod(x0, lerp(ha, hb, k) + .03, z0, x1, lerp(ha, hb, k) + .03, z1, .035, .008, dash);
+      const ha = top(view, a) + .012, hb = top(view, b) + .012;
+      S.rod(X[a], ha - .006, Z[a], X[b], hb - .006, Z[b], .36, .012, rgba(C.shoulder));
+      S.rod(X[a], ha, Z[a], X[b], hb, Z[b], .26, .016, rgba(C.asphalt));
+      const dash = rgba(own ? C.paint : mix(PC[owner], C.white, .5));
+      for (const k of [.2, .5, .8]) {
+        const x0 = lerp(X[a], X[b], k - .06), z0 = lerp(Z[a], Z[b], k - .06), x1 = lerp(X[a], X[b], k + .06), z1 = lerp(Z[a], Z[b], k + .06);
+        S.rod(x0, lerp(ha, hb, k) + .016, z0, x1, lerp(ha, hb, k) + .016, z1, .025, .004, dash);
       }
+    }
+    function junction(S, view, i) {
+      S.add('hexFlat', X[i], top(view, i), Z[i], .17, .028, .17, 0, rgba(C.asphalt));
     }
     function deckHeight(view, a, b) {
       let h = Math.max(top(view, a), top(view, b));
@@ -150,11 +191,10 @@
       const a = b.a, c = b.b, deck = deckHeight(view, a, c), n = E.distance(a, c);
       const dx = X[c] - X[a], dz = Z[c] - Z[a], len = Math.hypot(dx, dz), ux = dx / len, uz = dz / len, px = -uz, pz = ux;
       const ramp = .62, sx = X[a] + ux * ramp, sz = Z[a] + uz * ramp, ex = X[c] - ux * ramp, ez = Z[c] - uz * ramp;
-      S.rod(X[a], top(view, a) + .075, Z[a], sx, deck, sz, .22, .04, rgba(C.asphalt));
-      S.rod(ex, deck, ez, X[c], top(view, c) + .075, Z[c], .22, .04, rgba(C.asphalt));
+      S.rod(X[a], top(view, a) + .012, Z[a], sx, deck, sz, .24, .04, rgba(C.asphalt));
+      S.rod(ex, deck, ez, X[c], top(view, c) + .012, Z[c], .24, .04, rgba(C.asphalt));
       S.rod(sx, deck - .02, sz, ex, deck - .02, ez, .3, .05, rgba(C.concrete));
-      S.rod(sx, deck + .03, sz, ex, deck + .03, ez, .2, .012, rgba(C.asphalt));
-      // Truss railings in the owner's colour.
+      S.rod(sx, deck + .03, sz, ex, deck + .03, ez, .22, .012, rgba(C.asphalt));
       for (const side of [-1, 1]) {
         const ox = px * .15 * side, oz = pz * .15 * side;
         S.rod(sx + ox, deck + .03, sz + oz, ex + ox, deck + .03, ez + oz, .025, .03, rgba(PC[b.owner]));
@@ -162,7 +202,6 @@
         const posts = Math.max(3, Math.round(len * 3));
         for (let k = 0; k <= posts; k++) { const f = k / posts; S.add('box', lerp(sx, ex, f) + ox, deck + .03, lerp(sz, ez, f) + oz, .025, .12, .025, 0, rgba(PC[b.owner])); }
       }
-      // Girder under the deck and piers standing in the river / valley.
       S.rod(sx, deck - .09, sz, ex, deck - .09, ez, .16, .07, rgba(mix(C.concrete, C.dark, .3)));
       for (let k = 1; k < n; k++) {
         const qa = E.CELLS[a], qc = E.CELLS[c], i = E.index(Math.round(lerp(qa.q, qc.q, k / n)), Math.round(lerp(qa.r, qc.r, k / n)));
@@ -173,16 +212,13 @@
     function tunnel(S, view, t) {
       const color = rgba(C.concrete), mouth = rgba(C.dark);
       const portal = (end, next) => {
-        const dx = X[next] - X[end], dz = Z[next] - Z[end], yaw = Math.atan2(dz, dx), h = top(view, end) + .07;
-        // Earth mound with a concrete portal facing along the tunnel, just outside the camp wall.
-        parts(S, X[end], h - .07, Z[end], yaw, 0, [
-          ['wedge', .84, 0, 0, .5, .42, .6, rgba(mix(C.hill, C.rock, .3)), 0, 0],
+        const yaw = Math.atan2(Z[next] - Z[end], X[next] - X[end]), h = top(view, end);
+        parts(S, X[end], h, Z[end], yaw, 0, [
+          ['wedge', .84, 0, 0, .5, .42, .6, rgba(mix(C.hill, C.rock, .3))],
           ['box', .66, 0, -.2, .08, .34, .08, color], ['box', .66, 0, .2, .08, .34, .08, color],
-          ['box', .66, .34, 0, .12, .09, .5, color], ['box', .68, 0, 0, .05, .32, .34, mouth]
-        ]);
+          ['box', .66, .34, 0, .12, .09, .5, color], ['box', .68, 0, 0, .05, .32, .34, mouth]]);
       };
       portal(t.a, t.path[1]); portal(t.b, t.path[t.path.length - 2]);
-      // The public route: dashed surface markers between portals.
       for (let k = 1; k < t.path.length; k++) {
         const a = t.path[k - 1], b = t.path[k];
         for (const f of [.2, .5, .8]) {
@@ -190,13 +226,10 @@
           S.rod(x0, y, z0, x1, y, z1, .1, .015, rgba(mix(PC[t.owner], C.dark, .45)));
         }
       }
-      for (const i of t.path.slice(1, -1)) { // ventilation shaft
-        S.add('cyl', X[i], top(view, i), Z[i], .11, .22, .11, 0, color);
-        S.add('cyl', X[i], top(view, i) + .22, Z[i], .14, .03, .14, 0, rgba(PC[t.owner]));
-      }
+      for (const i of t.path.slice(1, -1)) { S.add('cyl', X[i], top(view, i), Z[i], .11, .22, .11, 0, color); S.add('cyl', X[i], top(view, i) + .22, Z[i], .14, .03, .14, 0, rgba(PC[t.owner])); }
     }
-    // Routes for trucks: home -> each stone that received supplies last action,
-    // along the faction's public supply tree (roads, bridge decks, tunnels).
+
+    // ---------- convoys ----------
     function routes(view, forest) {
       const parent = new Map(), kind = new Map(), out = [];
       const tunnels = new Set((view.tunnels || []).map(t => [t.a, t.b].sort((a, b) => a - b).join(':')));
@@ -207,53 +240,70 @@
         targets.sort((a, b) => view.delivered[b] - view.delivered[a] || a - b);
         for (const target of targets.slice(0, 8)) {
           const cells = [target]; while (parent.has(cells[0]) && cells.length < 200) cells.unshift(parent.get(cells[0]));
-          const pts = [{ x: X[cells[0]], y: top(view, cells[0]) + .08, z: Z[cells[0]], hidden: false }];
+          const pts = [{ x: X[cells[0]], y: top(view, cells[0]) + .03, z: Z[cells[0]] }];
           for (let k = 1; k < cells.length; k++) {
             const a = cells[k - 1], b = cells[k], how = kind.get(b);
             if (how === 'bridge') {
-              const deck = deckHeight(view, a, b) + .07, dx = X[b] - X[a], dz = Z[b] - Z[a], len = Math.hypot(dx, dz);
+              const deck = deckHeight(view, a, b) + .045, dx = X[b] - X[a], dz = Z[b] - Z[a], len = Math.hypot(dx, dz);
               pts.push({ x: X[a] + dx / len * .62, y: deck, z: Z[a] + dz / len * .62 }, { x: X[b] - dx / len * .62, y: deck, z: Z[b] - dz / len * .62 });
             }
-            pts.push({ x: X[b], y: top(view, b) + .08, z: Z[b], hidden: how === 'tunnel' });
-            if (how === 'tunnel') pts[pts.length - 2].hiddenNext = true;
+            if (how === 'tunnel') pts[pts.length - 1].under = true;
+            pts.push({ x: X[b], y: top(view, b) + .03, z: Z[b] });
           }
-          let length = 0; for (let k = 1; k < pts.length; k++) { pts[k].s = length += Math.hypot(pts[k].x - pts[k - 1].x, pts[k].y - pts[k - 1].y, pts[k].z - pts[k - 1].z); }
-          pts[0].s = 0;
-          out.push({ owner: p, target, pts, length, seed: hash(target * 3 + p) });
+          let length = 0; pts[0].s = 0;
+          for (let k = 1; k < pts.length; k++) pts[k].s = length += Math.hypot(pts[k].x - pts[k - 1].x, pts[k].y - pts[k - 1].y, pts[k].z - pts[k - 1].z);
+          out.push({ owner: p, target, pts, length, seed: hash(target * 3 + p), trucks: Math.min(3, view.delivered[target]) });
         }
       }
       return out;
     }
-    function truck(L, x, y, z, yaw, tilt, owner, loaded) {
-      parts(L, x, y, z, yaw, tilt, [
-        ['box', 0, .03, 0, .44, .05, .17, rgba(C.dark)],
-        ['box', -.15, -.01, 0, .07, .06, .2, rgba(C.dark)], ['box', .13, -.01, 0, .07, .06, .2, rgba(C.dark)],
-        ['box', .15, .08, 0, .12, .12, .16, rgba(PC[owner])],
-        ['box', .2, .14, 0, .02, .05, .13, rgba(C.glass)],
-        ['box', -.06, .08, 0, .26, loaded ? .13 : .03, .17, rgba(loaded ? C.tarp : C.wood)]
-      ]);
+    function along(r, s) {
+      s = clamp(s, 0, r.length);
+      let k = 1; while (k < r.pts.length - 1 && r.pts[k].s < s) k++;
+      const a = r.pts[k - 1], b = r.pts[k], f = clamp((s - a.s) / Math.max(1e-4, b.s - a.s), 0, 1);
+      return { x: lerp(a.x, b.x, f), y: lerp(a.y, b.y, f), z: lerp(a.z, b.z, f), under: !!a.under };
     }
-    function trucks(D, list, t, subject) {
+    function truckModel(L, x, y, z, yaw, tilt, owner, loaded) {
+      const body = PC[owner], cab = mix(body, C.dark, .15);
+      const list = [
+        ['box', -.02, .045, 0, .46, .035, .16, rgba(C.dark)],
+        ['box', .17, .08, 0, .1, .09, .16, rgba(cab)], ['wedge', .17, .17, 0, .1, .04, .16, rgba(cab), 0, 0],
+        ['box', .23, .07, 0, .03, .06, .14, rgba(mix(cab, C.dark, .3))], ['box', .205, .13, 0, .015, .045, .13, rgba(C.glass)],
+        ['box', -.08, .08, 0, .28, .05, .17, rgba(C.wood)]
+      ];
+      if (loaded) list.push(['box', -.08, .13, 0, .27, .07, .165, rgba(C.canvas)], ['cyl', .055, .2, 0, .083, .27, .083, rgba(C.canvas), 0, Math.PI / 2]);
+      for (const ax of [.15, -.06, -.17]) for (const side of [-1, 1]) list.push(['cyl', ax, .045, side > 0 ? .07 : -.1, .045, .03, .045, rgba(C.tyre), 0, 0, Math.PI / 2]);
+      parts(L, x, y, z, yaw, tilt, list);
+    }
+    function trucks(D, PL, list, t, dt, subject, view) {
       for (const r of list) {
-        const speed = 1.5, travel = r.length / speed, period = travel * 2 + 1.4;
-        let u = ((t + r.seed * period) % period), back = false;
-        if (u > travel + .7) { u = Math.min(travel, u - travel - .7); back = true; } else u = Math.min(travel, u);
-        const s = back ? r.length - u * speed : u * speed;
-        let k = 1; while (k < r.pts.length - 1 && r.pts[k].s < s) k++;
-        const a = r.pts[k - 1], b = r.pts[k], seg = Math.max(1e-4, b.s - a.s), f = Math.max(0, Math.min(1, (s - a.s) / seg));
-        if (b.hidden || a.hiddenNext) continue; // underground in a tunnel
-        const dx = b.x - a.x, dz = b.z - a.z, dy = b.y - a.y;
-        let yaw = Math.atan2(dz, dx), tilt = Math.atan2(dy, Math.hypot(dx, dz));
-        if (back) { yaw += Math.PI; tilt = -tilt; }
-        if (r.owner !== subject && r.seed > .6) continue; // keep other factions' traffic lighter
-        truck(D, lerp(a.x, b.x, f), lerp(a.y, b.y, f), lerp(a.z, b.z, f), yaw, tilt, r.owner, !back);
+        if (r.owner !== subject && r.seed > .55) continue;
+        const speed = 1.35, travel = r.length / speed, period = travel * 2 + 2.6;
+        for (let n = 0; n < r.trucks; n++) {
+          let u = ((t + r.seed * period - n * .55) % period + period) % period, back = false, s;
+          if (u < travel) s = smooth(u / travel) * r.length;
+          else if (u < travel + 1.3) s = r.length; // unloading
+          else if (u < travel * 2 + 1.3) { back = true; s = (1 - smooth((u - travel - 1.3) / travel)) * r.length; }
+          else s = 0;                              // loading at home
+          const p = along(r, s); if (p.under) continue;
+          const ahead = along(r, s + (back ? -.12 : .12)), behind = along(r, s - (back ? -.12 : .12));
+          const dx = ahead.x - behind.x, dz = ahead.z - behind.z, flat = Math.hypot(dx, dz);
+          if (flat < 1e-4) continue;
+          const yaw = Math.atan2(dz, dx), tilt = Math.atan2(ahead.y - behind.y, flat);
+          const lane = .065, x = p.x - Math.sin(yaw) * lane * -1, z = p.z + Math.cos(yaw) * lane * -1;
+          truckModel(D, x, p.y, z, yaw, tilt, r.owner, !back && s < r.length);
+          shadow(D, x, z, p.y - .03, 0, .24, yaw);
+          PL.add(x + Math.cos(yaw) * .25, p.y + .09, z + Math.sin(yaw) * .25, .05, [1, .95, .8, .55], .9, .3);
+          const moving = s > 0 && s < r.length;
+          if (moving && rnd() < dt * 4) P.emit({ x: x - Math.cos(yaw) * .24, y: p.y + .05, z: z - Math.sin(yaw) * .24, vy: .2, life: .9, s0: .05, s1: .22, c0: C.smokeLight, c1: C.smokeLight, a0: .35, a1: 0, drag: 1.5, buoy: .2, wind: 1 });
+        }
       }
     }
 
-    // ---------- airfields and depots ----------
+    // ---------- airfields, depots, aircraft ----------
     const runwayYaw = cell => (cell % 3) * DEG60;
     function airfield(S, view, a) {
-      const i = a.cell, x = X[i], z = Z[i], h = top(view, i) + .005, yaw = runwayYaw(i), owner = a.owner;
+      const i = a.cell, x = X[i], z = Z[i], h = top(view, i) + .005, yaw = runwayYaw(i);
       const list = [['box', 0, 0, 0, 3.0, .03, .46, rgba(C.runway)]];
       for (const d of [-1.38, 1.38]) list.push(['box', d, .03, 0, .06, .006, .38, rgba(C.paint)]);
       for (let k = -2; k <= 2; k++) list.push(['box', k * .42, .03, 0, .18, .006, .04, rgba(C.paint)]);
@@ -261,13 +311,10 @@
       list.push(['box', -.55, 0, -.62, .55, .28, .4, rgba(mix(C.canvas, C.grey, .4))], ['wedge', -.55, .28, -.62, .55, .14, .4, rgba(mix(C.steel, C.grey, .3))]);
       list.push(['cyl', .55, 0, -.6, .08, .78, .08, rgba(C.concrete)], ['box', .55, .78, -.6, .24, .14, .24, rgba(C.glass)]);
       parts(S, x, h, z, yaw, 0, list);
-      if (a.active) parts(S, x, h, z, yaw, 0, [['sphere', .55, .98, -.6, .05, .05, .05, rgba(PC[owner]), 1.2]]);
-      if (owner) {
-        const n = a.active ? 2 : 1;
-        for (let k = 0; k < n; k++) {
-          const lx = -.15 + k * .5, cx = x + lx * Math.cos(yaw) - .62 * Math.sin(yaw), cz = z + lx * Math.sin(yaw) + .62 * Math.cos(yaw);
-          plane(S, cx, h + .06, cz, yaw + Math.PI / 2, 0, owner, .7);
-        }
+      if (a.active) parts(S, x, h, z, yaw, 0, [['sphere', .55, .98, -.6, .05, .05, .05, rgba(PC[a.owner]), 1.2]]);
+      if (a.owner) for (let k = 0; k < (a.active ? 2 : 1); k++) {
+        const lx = -.15 + k * .5, cx = x + lx * Math.cos(yaw) - .62 * Math.sin(yaw), cz = z + lx * Math.sin(yaw) + .62 * Math.cos(yaw);
+        fighter(S, cx, h + .07, cz, yaw + Math.PI / 2, 0, 0, a.owner, .7);
       }
     }
     function depot(S, view, d) {
@@ -275,111 +322,191 @@
       parts(S, x, h, z, 0, 0, [
         ['box', -.2, 0, .22, .58, .3, .38, rgba(mix(C.canvas, C.grey, .3))], ['wedge', -.2, .3, .22, .58, .16, .38, rgba(C.steel)],
         ['cyl', .38, .1, -.3, .1, .5, .1, rgba(C.concrete), 0, Math.PI / 2], ['cyl', .38, .1, -.06, .1, .5, .1, rgba(C.concrete), 0, Math.PI / 2],
-        ['box', -.4, 0, -.3, .14, .12, .14, rgba(C.wood)], ['box', -.25, 0, -.32, .14, .12, .14, rgba(C.wood)], ['box', -.33, .12, -.31, .14, .12, .14, rgba(C.wood)]
-      ]);
+        ['box', -.4, 0, -.3, .14, .12, .14, rgba(C.wood)], ['box', -.25, 0, -.32, .14, .12, .14, rgba(C.wood)], ['box', -.33, .12, -.31, .14, .12, .14, rgba(C.wood)]]);
       S.add('box', x + .5, h, z + .35, .025, .7, .025, 0, rgba(C.dark));
       S.add('box', x + .61, h + .58, z + .35, .2, .12, .015, 0, rgba(owned ? PC[d.owner] : rgb('#d9b45d')), owned ? .15 : 0);
     }
-    function plane(L, x, y, z, yaw, tilt, owner, scale = 1, alpha = 1) {
-      const body = rgba(mix(PC[owner], C.grey, .35), alpha), wing = rgba(PC[owner], alpha), s = scale;
+    function fighter(L, x, y, z, yaw, tilt, roll, owner, s = 1, alpha = 1) {
+      const body = rgba(mix(PC[owner], C.grey, .35), alpha), wing = rgba(PC[owner], alpha);
       parts(L, x, y, z, yaw, tilt, [
-        ['box', 0, 0, 0, .82 * s, .11 * s, .13 * s, body],
-        ['box', .44 * s, .01 * s, 0, .08 * s, .08 * s, .09 * s, rgba(C.dark, alpha)],
-        ['box', .03 * s, .03 * s, 0, .24 * s, .025 * s, .94 * s, wing],
-        ['box', -.35 * s, .05 * s, 0, .12 * s, .02 * s, .34 * s, wing],
-        ['box', -.35 * s, .07 * s, 0, .14 * s, .18 * s, .025 * s, body],
-        ['box', .2 * s, .1 * s, 0, .14 * s, .05 * s, .08 * s, rgba(C.glass, alpha)]
-      ]);
+        ['box', 0, 0, 0, .82 * s, .11 * s, .13 * s, body], ['box', .44 * s, .01 * s, 0, .08 * s, .08 * s, .09 * s, rgba(C.dark, alpha)],
+        ['box', .03 * s, .03 * s, 0, .24 * s, .025 * s, .94 * s, wing], ['box', -.35 * s, .05 * s, 0, .12 * s, .02 * s, .34 * s, wing],
+        ['box', -.35 * s, .07 * s, 0, .14 * s, .18 * s, .025 * s, body], ['box', .2 * s, .1 * s, 0, .14 * s, .05 * s, .08 * s, rgba(C.glass, alpha)]], roll);
     }
-    // Active airfields keep a training circuit going: take off, climb out, return, land.
-    function airTraffic(D, view, t) {
+    // Twin-engine aircraft for bombing runs and supply drops.
+    function heavy(L, x, y, z, yaw, tilt, roll, owner, alpha = 1, bay = 0) {
+      const body = rgba(mix(PC[owner], C.grey, .45), alpha), wing = rgba(mix(PC[owner], C.grey, .15), alpha), dark = rgba(C.dark, alpha);
+      const list = [
+        ['cyl', .62, .09, 0, .1, 1.24, .1, body, 0, Math.PI / 2], ['cone', .62, .09, 0, .1, .16, .1, body, 0, -Math.PI / 2],
+        ['box', .08, .1, 0, .3, .03, 1.7, wing], ['box', -.55, .12, 0, .16, .025, .62, wing], ['box', -.55, .14, 0, .18, .26, .03, body],
+        ['box', .5, .16, 0, .1, .04, .1, rgba(C.glass, alpha)]
+      ];
+      for (const side of [-1, 1]) list.push(['cyl', .32, .08, side * .42, .055, .34, .055, dark, 0, Math.PI / 2], ['box', .33, .08, side * .42, .015, .2, .015, rgba(C.grey, alpha)]);
+      if (bay) list.push(['box', .02, .0, 0, .3, .02, .1, dark]);
+      parts(L, x, y, z, yaw, tilt, list, roll);
+    }
+    function engineSmoke(x, y, z, yaw, dt, strength = 1) {
+      if (rnd() < dt * 18 * strength) for (const side of [-1, 1]) P.emit({ x: x - Math.cos(yaw) * .15 - Math.sin(yaw) * side * .42, y: y + .08, z: z - Math.sin(yaw) * .15 + Math.cos(yaw) * side * .42, life: 1.6, s0: .05, s1: .3, c0: C.smokeLight, c1: C.white, a0: .35, a1: 0, drag: 1, wind: 1 });
+    }
+    function airTraffic(D, view, t, dt) {
       for (const a of view.airports) {
         if (!a.active) continue;
-        const i = a.cell, yaw = runwayYaw(i), h = top(view, i) + .06, cy = Math.cos(yaw), sy = Math.sin(yaw);
-        const u = ((t + a.id * 4.3) % 14) / 14;
-        let d, y, tilt, alpha = 1;
-        if (u < .38) { const s = u / .38; d = -1.35 + 9 * s * s; y = h + Math.max(0, d - 1.1) * .32; tilt = d > 1.1 ? .28 : 0; alpha = Math.min(1, Math.max(0, (8 - d) / 2)); }
-        else if (u > .58) { const s = (u - .58) / .42; d = -8 + 9.1 * (1 - (1 - s) * (1 - s)); y = h + Math.max(0, -1.2 - d) * .3; tilt = d < -1.2 ? -.16 : 0; alpha = Math.min(1, Math.max(0, (d + 8) / 2)); }
+        const i = a.cell, yaw = runwayYaw(i), h = top(view, i) + .07, cy = Math.cos(yaw), sy = Math.sin(yaw);
+        const u = ((t + a.id * 4.3) % 16) / 16;
+        let d, y, tilt, roll = 0, alpha = 1;
+        if (u < .36) { const s = u / .36; d = -1.35 + 9 * s * s; y = h + Math.max(0, d - 1.1) * .32; tilt = d > 1.1 ? .25 : 0; roll = d > 4 ? -.35 * Math.min(1, (d - 4) / 2) : 0; alpha = clamp((8 - d) / 2, 0, 1); }
+        else if (u > .58) { const s = (u - .58) / .42; d = -8 + 9.1 * (1 - (1 - s) * (1 - s)); y = h + Math.max(0, -1.2 - d) * .3; tilt = d < -1.2 ? -.14 : 0; alpha = clamp((d + 8) / 2, 0, 1); }
         else continue;
         if (alpha <= .02) continue;
-        plane(D, X[i] + d * cy, y, Z[i] + d * sy, yaw, tilt, a.owner, 1, alpha);
+        const x = X[i] + d * cy, z = Z[i] + d * sy;
+        fighter(D, x, y, z, yaw, tilt, roll, a.owner, 1, alpha);
+        shadow(D, x, z, h - .07, y - h, .35, yaw);
       }
     }
 
-    // ---------- effects ----------
-    function blast(D, x, y, z, k, scale, seed) {
-      const s = scale;
-      if (k < .14) D.add('sphere', x, y + .3, z, (.2 + k * 8) * s, (.2 + k * 7) * s, (.2 + k * 8) * s, 0, rgba(C.flash, 1 - k * 6), 1.6);
-      if (k < .35) { const f = k / .35; D.add('sphere', x, y + .25 + f * .5 * s, z, (.35 + f * .7) * s, (.3 + f * .6) * s, (.35 + f * .7) * s, 0, rgba(mix(C.fire, C.smoke, f), 1 - f * .7), 1.1 - f); }
-      if (k < .25) { const f = k / .25; D.add('ring', x, y + .02, z, (.3 + f * 2.2) * s, .04, (.3 + f * 2.2) * s, 0, rgba(C.lightSmoke, .7 * (1 - f))); }
-      for (let p = 0; p < 5; p++) {
-        const f = Math.max(0, k - .08) / .92, ox = (hash(seed + p) - .5) * .6 * s, oz = (hash(seed + p * 7) - .5) * .6 * s, sz = (.25 + f * .9 + hash(seed + p * 3) * .2) * s;
-        if (f > 0) D.add('sphere', x + ox * (1 + f), y + .4 + f * (1.6 + p * .25) * s, z + oz * (1 + f), sz, sz * .85, sz, 0, rgba(p % 2 ? C.smoke : mix(C.smoke, C.lightSmoke, .5), .55 * (1 - f)));
+    // ---------- explosions ----------
+    function blast(x, y, z, s = 1) {
+      P.emit({ x, y: y + .3, z, life: .12, s0: .7 * s, s1: 1.3 * s, c0: C.flash, c1: C.fireHot, a0: .9, a1: 0, g0: .9, g1: .3 });
+      for (let k = 0; k < 12; k++) {
+        const a = rnd() * Math.PI * 2, up = .3 + rnd() * .7, sp = (1.2 + rnd() * 2.2) * s;
+        P.emit({ x, y: y + .2, z, vx: Math.cos(a) * sp * (1 - up * .6), vy: sp * up * 1.4, vz: Math.sin(a) * sp * (1 - up * .6), life: .5 + rnd() * .5, s0: .28 * s, s1: (.75 + rnd() * .4) * s, c0: C.fireHot, c1: C.ember, a0: .95, a1: 0, drag: 4, buoy: 1.5 });
       }
-      const time = k * 2.6;
-      for (let p = 0; p < 8 && time < 1.1; p++) {
-        const a = hash(seed * 3 + p) * Math.PI * 2, v = (1.2 + hash(seed + p * 11) * 1.6) * s, vy = 3 + hash(seed + p * 5) * 2;
-        const py = y + .3 + vy * time - 4.9 * time * time; if (py < y) continue;
-        D.add('box', x + Math.cos(a) * v * time, py, z + Math.sin(a) * v * time, .07, .07, .07, a + time * 9, rgba(C.dark), 0, time * 7);
+      for (let k = 0; k < 16; k++) {
+        const a = rnd() * Math.PI * 2, sp = (.3 + rnd() * .9) * s;
+        P.emit({ x: x + Math.cos(a) * .2 * s, y: y + .3, z: z + Math.sin(a) * .2 * s, vx: Math.cos(a) * sp, vy: (.9 + rnd() * 1.6) * s, vz: Math.sin(a) * sp, life: 2.2 + rnd() * 2.2, s0: .4 * s, s1: (1.3 + rnd() * .9) * s, c0: C.smokeDark, c1: C.smoke, a0: .75, a1: 0, drag: 1.1, buoy: .6, wind: 1 });
+      }
+      for (let k = 0; k < 16; k++) {
+        const a = rnd() * Math.PI * 2, sp = (1.4 + rnd() * 2.6) * s;
+        P.emit({ x, y: y + .2, z, vx: Math.cos(a) * sp, vy: (3 + rnd() * 3.5) * s, vz: Math.sin(a) * sp, life: 1 + rnd() * .6, s0: .045 + rnd() * .04, s1: .07, c0: mix(C.dirt, C.dark, .3), c1: C.dirt, a0: 1, a1: .7, grav: G, drag: .3, floor: y + .02 });
+      }
+      for (let k = 0; k < 14; k++) {
+        const a = rnd() * Math.PI * 2, sp = (2.5 + rnd() * 3) * s;
+        P.emit({ x, y: y + .3, z, vx: Math.cos(a) * sp, vy: (1.5 + rnd() * 3) * s, vz: Math.sin(a) * sp, life: .4 + rnd() * .5, s0: .04, s1: .02, c0: C.fireHot, c1: C.fire, a0: 1, a1: 0, g0: 1.2, g1: .3, grav: G * .7, floor: y });
+      }
+      for (let k = 0; k < 18; k++) {
+        const a = k / 18 * Math.PI * 2, sp = (2.6 + rnd()) * s;
+        P.emit({ x, y: y + .08, z, vx: Math.cos(a) * sp, vz: Math.sin(a) * sp, life: 1.3 + rnd() * .4, s0: .25 * s, s1: 1 * s, c0: C.dust, c1: C.dust, a0: .5, a1: 0, drag: 2.6, buoy: .15, wind: 1 });
       }
     }
-    function effects(D, view, list, now, emit) {
-      for (const e of list) {
-        const k = Math.max(0, Math.min(1, (now - e.start) / e.dur));
-        if (now < e.start) continue;
-        const tx = X[e.to ?? e.at], tz = Z[e.to ?? e.at], ty = top(view, e.to ?? e.at);
-        if (e.kind === 'shell') {
-          const fx = X[e.from], fz = Z[e.from], fy = top(view, e.from) + .5, peak = 1.6 + E.distance(e.from, e.to) * .35;
-          if (k < .12) { const yaw = Math.atan2(tz - fz, tx - fx); D.add('sphere', fx + Math.cos(yaw) * .8, fy, fz + Math.sin(yaw) * .8, .18, .14, .18, 0, rgba(C.flash, 1 - k * 8), 1.6); }
-          if (k < 1) {
-            for (let j = 0; j < 7; j++) {
-              const kk = k - j * .035; if (kk < 0) break;
-              const x = lerp(fx, tx, kk), z = lerp(fz, tz, kk), y = lerp(fy, ty + .3, kk) + Math.sin(kk * Math.PI) * peak;
-              D.add('sphere', x, y, z, j ? .05 + j * .02 : .07, j ? .05 + j * .02 : .07, j ? .05 + j * .02 : .07, 0, j ? rgba(C.lightSmoke, .5 - j * .06) : rgba(C.dark), j ? 0 : .3);
-            }
-          } else if (!e.spawned) { e.spawned = true; emit(e.after === 'deflect' ? { kind: 'deflect', at: e.to, dur: 900 } : { kind: 'blast', at: e.to, dur: 2600, scar: true }); }
-        } else if (e.kind === 'blast') blast(D, tx, ty, tz, k, e.scale || 1, (e.at + 1) * 97);
-        else if (e.kind === 'deflect') {
-          D.add('sphere', tx, ty + .07, tz, .74 + k * .3, .6 + k * .25, .74 + k * .3, 0, rgba(C.shield, .55 * (1 - k)), 1.2);
-          for (let p = 0; p < 6; p++) { const a = p * DEG60 + k * 2; D.add('box', tx + Math.cos(a) * (.4 + k * .8), ty + .6 + k * .3, tz + Math.sin(a) * (.4 + k * .8), .05, .05, .05, a, rgba(C.flash, 1 - k), 1.2); }
-        } else if (e.kind === 'capture') {
-          D.add('ring', tx, ty + .1 + k * .3, tz, .6 + k * .9, .08, .6 + k * .9, 0, rgba(PC[e.player] || C.grey, 1 - k), .8);
-          D.add('sphere', tx, ty + .4 + k * .8, tz, .3 + k * .5, .3 + k * .4, .3 + k * .5, 0, rgba(C.lightSmoke, .5 * (1 - k)));
-        } else if (e.kind === 'retreat') {
-          D.add('sphere', tx, ty + .3 + k * 1.5, tz, .3 + k * .45, .3 + k * .4, .3 + k * .45, 0, rgba(C.smoke, .5 * (1 - k)));
-          D.add('wedge', tx, ty + .07 - k * .2, tz, .46 * (1 - k * .5), .27 * (1 - k), .36, 0, rgba(C.canvas, 1 - k));
-        } else if (e.kind === 'bolt') {
-          D.add('box', tx, ty, tz, .1, 7 * (1 - k * .6), .1, 0, rgba(C.flash, 1 - k), 1.6);
-          if (k > .1) blast(D, tx, ty, tz, (k - .1) / .9, .7, e.at * 13);
-        } else if (e.kind === 'sortie') { // aircraft from the runway to a target and away
-          const a = e.from, yaw0 = runwayYaw(a), ax = X[a], az = Z[a], ah = top(view, a) + .06;
-          const sx = ax + Math.cos(yaw0) * 1.4, sz = az + Math.sin(yaw0) * 1.4, cruise = Math.max(ah, ty) + 3;
-          let x, y, z, yaw = Math.atan2(tz - sz, tx - sx), tilt = 0;
-          if (k < .15) { const s = k / .15; x = lerp(ax - Math.cos(yaw0) * 1.3, sx, s * s); z = lerp(az - Math.sin(yaw0) * 1.3, sz, s * s); y = ah + Math.max(0, s - .7) * 1; yaw = yaw0; tilt = s > .7 ? .25 : 0; }
-          else if (k < .6) { const s = (k - .15) / .45; x = lerp(sx, tx, s); z = lerp(sz, tz, s); y = lerp(ah + .3, cruise, Math.min(1, s * 2)); tilt = s < .5 ? .15 : 0; }
-          else { const s = (k - .6) / .4; x = tx + Math.cos(yaw) * s * 9; z = tz + Math.sin(yaw) * s * 9; y = cruise + s * 2; tilt = .1; }
-          const alpha = k > .85 ? (1 - k) / .15 : 1;
-          plane(D, x, y, z, yaw, tilt, e.player, 1.15, alpha);
-          if (k >= .6) {
-            const s = Math.min(1, (k - .6) / .25);
-            if (e.payload === 'crate') {
-              const py = lerp(cruise - .3, ty + .07, s);
-              if (s < 1) { D.add('sphere', tx, py + .5, tz, .32, .18, .32, 0, rgba(C.paint)); D.rod(tx - .2, py + .5, tz, tx, py + .1, tz, .01, .01, rgba(C.dark)); D.rod(tx + .2, py + .5, tz, tx, py + .1, tz, .01, .01, rgba(C.dark)); }
-              D.add('box', tx, py, tz, .2, .18, .2, 0, rgba(C.wood));
-            } else if (s < 1) for (let b = 0; b < 2; b++) D.add('sphere', tx + (b - .5) * .25, lerp(cruise - .2, ty + .2, s * s), tz, .07, .11, .07, 0, rgba(C.dark));
-            else if (!e.spawned) { e.spawned = true; if (e.payload === 'bomb') emit({ kind: e.hit ? 'blast' : 'deflect', at: e.to, dur: e.hit ? 2600 : 900, scar: !!e.hit, scale: 1.25 }); }
+    function burning(x, y, z, dt, strength) { // a crater keeps smouldering
+      if (rnd() < dt * 10 * strength) P.emit({ x: x + (rnd() - .5) * .3, y: y + .1, z: z + (rnd() - .5) * .3, vy: .5 + rnd() * .4, life: .5 + rnd() * .3, s0: .12, s1: .25, c0: C.fireHot, c1: C.ember, a0: .9, a1: 0, buoy: .8 });
+      if (rnd() < dt * 5 * strength) P.emit({ x: x + (rnd() - .5) * .3, y: y + .3, z: z + (rnd() - .5) * .3, vy: .8 + rnd() * .5, life: 2.5 + rnd() * 1.2, s0: .22, s1: 1, c0: C.smokeDark, c1: C.smokeLight, a0: .55, a1: 0, drag: .6, buoy: .25, wind: 1.4 });
+    }
+    function deflect(x, y, z) {
+      P.emit({ x, y: y + .35, z, life: .35, s0: .8, s1: 1.4, c0: C.shield, c1: C.shield, a0: .8, a1: 0, g0: .8, g1: 0 });
+      for (let k = 0; k < 14; k++) { const a = rnd() * Math.PI * 2, sp = 2 + rnd() * 2.5; P.emit({ x, y: y + .4, z, vx: Math.cos(a) * sp, vy: 1 + rnd() * 2, vz: Math.sin(a) * sp, life: .5 + rnd() * .3, s0: .05, s1: .02, c0: C.white, c1: C.shield, a0: 1, a1: 0, g0: 1.1, g1: .3, grav: G * .6 }); }
+    }
+
+    // ---------- sorties: take-off, climbing turn, run-in, drop, egress ----------
+    function planSortie(view, from, to, payload) {
+      const yaw0 = runwayYaw(from), ux = Math.cos(yaw0), uz = Math.sin(yaw0), h0 = top(view, from) + .08, alt = Math.max(top(view, to), h0) + 3.2;
+      const start = { x: X[from] - ux * 1.3, z: Z[from] - uz * 1.3 }, lift = { x: X[from] + ux * 1.4, z: Z[from] + uz * 1.4 };
+      let ax = X[to] - lift.x, az = Z[to] - lift.z, al = Math.hypot(ax, az) || 1; ax /= al; az /= al;
+      const runIn = { x: X[to] - ax * 5.5, z: Z[to] - az * 5.5 }, exit = { x: X[to] + ax * 9, z: Z[to] + az * 9 };
+      const c1 = { x: lift.x + ux * 3.5, z: lift.z + uz * 3.5 };
+      const speed = 5.5, roll = 1.25, climb = Math.hypot(runIn.x - lift.x, runIn.z - lift.z) * 1.15 / speed + 1.2, run = 5.5 / speed, out = 9 / speed;
+      const tf = Math.sqrt(2 * (alt - top(view, to)) / G), lead = speed * tf;
+      const t1 = roll, t2 = t1 + climb, tTarget = t2 + run, t3 = tTarget + out;
+      const release = tTarget - lead / speed;
+      return { payload, from, to, yaw0, ux, uz, h0, alt, start, lift, c1, runIn, exit, ax, az, speed, t1, t2, tTarget, t3, release, tf, dur: t3 * 1000,
+        landAt: payload === 'crate' ? (tTarget + 3.2) * 1000 : (release + tf) * 1000, groundAt: top(view, to) };
+    }
+    function bez(a, b, c, d, t) { const u = 1 - t; return u * u * u * a + 3 * u * u * t * b + 3 * u * t * t * c + t * t * t * d; }
+    function sortiePose(f, t) {
+      if (t < f.t1) { const s = t / f.t1, e = s * s; return { x: lerp(f.start.x, f.lift.x, e), z: lerp(f.start.z, f.lift.z, e), y: f.h0 + Math.max(0, e - .75) * 1.2, yaw: f.yaw0, tilt: e > .75 ? .22 : 0 }; }
+      if (t < f.t2) {
+        const s = (t - f.t1) / (f.t2 - f.t1), c2 = { x: f.runIn.x - f.ax * 3, z: f.runIn.z - f.az * 3 };
+        const x = bez(f.lift.x, f.c1.x, c2.x, f.runIn.x, s), z = bez(f.lift.z, f.c1.z, c2.z, f.runIn.z, s);
+        const s2 = Math.min(1, s + .02), x2 = bez(f.lift.x, f.c1.x, c2.x, f.runIn.x, s2), z2 = bez(f.lift.z, f.c1.z, c2.z, f.runIn.z, s2);
+        return { x, z, y: lerp(f.h0 + .3, f.alt, smooth(Math.min(1, s * 1.4))), yaw: Math.atan2(z2 - z, x2 - x), tilt: s < .6 ? .14 : 0, turning: true };
+      }
+      if (t < f.t3) {
+        const s = (t - f.t2) * f.speed, out = t > f.tTarget + .6 ? (t - f.tTarget - .6) : 0;
+        return { x: f.runIn.x + f.ax * s, z: f.runIn.z + f.az * s, y: f.alt + out * out * .25, yaw: Math.atan2(f.az, f.ax), tilt: out ? .18 : 0 };
+      }
+      return null;
+    }
+    function sortie(D, PL, view, e, now, dt, emit) {
+      const f = e.plan, t = (now - e.start) / 1000, pose = sortiePose(f, t);
+      if (pose) {
+        let roll = 0;
+        if (pose.turning) { const prev = sortiePose(f, Math.max(0, t - .1)); let dy = pose.yaw - prev.yaw; dy = Math.atan2(Math.sin(dy), Math.cos(dy)); roll = clamp(-dy * 6, -.7, .7); }
+        const alpha = t > f.t3 - .8 ? (f.t3 - t) / .8 : 1;
+        heavy(D, pose.x, pose.y, pose.z, pose.yaw, pose.tilt, roll, e.player, alpha, f.payload === 'bomb' && Math.abs(t - f.release) < 1 ? 1 : 0);
+        shadow(D, pose.x, pose.z, f.payload === 'crate' ? f.groundAt : .32, pose.y - .3, .9, pose.yaw);
+        if (t > f.t1 * .7) engineSmoke(pose.x, pose.y, pose.z, pose.yaw, dt, .6);
+      }
+      if (f.payload === 'bomb') { // a stick of four; the third lands on the target
+        for (let k = 0; k < 4; k++) {
+          const off = (k - 2) * .55, tr = f.release + off / f.speed, tb = t - tr;
+          if (tb < 0) continue;
+          const rx = f.runIn.x + f.ax * (tr - f.t2) * f.speed, rz = f.runIn.z + f.az * (tr - f.t2) * f.speed;
+          const x = rx + f.ax * f.speed * tb, z = rz + f.az * f.speed * tb, y = f.alt - .5 * G * tb * tb;
+          const ground = .32;
+          if (y > ground + .05 && tb < f.tf) parts(D, x, y, z, Math.atan2(f.az, f.ax), -Math.atan2(G * tb, f.speed), [['cyl', .12, 0, 0, .045, .24, .045, rgba(C.dark), 0, Math.PI / 2], ['box', -.13, 0, 0, .05, .06, .1, rgba(C.dark)]]);
+          else if (!e.hits[k]) { e.hits[k] = true; const onTarget = k === 2; emit({ kind: onTarget && !e.hit ? 'deflect' : 'blast', x: onTarget ? X[f.to] : x, z: onTarget ? Z[f.to] : z, y: onTarget ? top(view, f.to) : ground, scale: onTarget ? 1.25 : .75, cell: onTarget ? f.to : null }); }
+        }
+      } else { // parachute crate
+        const tr = f.tTarget - .1, tb = t - tr;
+        if (tb >= 0 && !e.landed) {
+          const free = Math.min(tb, .35), y0 = f.alt - .2 - .5 * G * free * free, y = tb < .35 ? y0 : Math.max(f.groundAt + .05, y0 - (tb - .35) * .9);
+          const swing = Math.sin(tb * 3.1) * .18 * Math.min(1, tb);
+          const x = X[f.to] + Math.sin(swing) * .2, z = Z[f.to];
+          parts(D, x, y, z, 0, 0, [['box', 0, 0, 0, .22, .2, .22, rgba(C.wood)], ['box', 0, .2, 0, .23, .02, .23, rgba(C.dark)]]);
+          if (tb > .35) {
+            const cy = y + 1.0, open = Math.min(1, (tb - .35) / .3);
+            D.add('sphere', x + Math.sin(swing) * .5, cy, z, .55 * open, .3 * open, .55 * open, 0, rgba(mix(C.paint, PC[e.player], .25)));
+            for (const sx of [-1, 1]) for (const sz of [-1, 1]) D.rod(x + sx * .1, y + .2, z + sz * .1, x + Math.sin(swing) * .5 + sx * .42 * open, cy, z + sz * .42 * open, .008, .008, rgba(C.dark));
           }
-        } else if (e.kind === 'beam') D.add('cyl', tx, ty, tz, .14, 3.5 * Math.sin(k * Math.PI), .14, 0, rgba(PC[e.player] || C.grey, .55), .9);
+          if (y <= f.groundAt + .051) { e.landed = true; for (let k = 0; k < 12; k++) { const a = k / 12 * Math.PI * 2; P.emit({ x: X[f.to], y: f.groundAt + .05, z: Z[f.to], vx: Math.cos(a) * 1.4, vz: Math.sin(a) * 1.4, life: 1, s0: .15, s1: .6, c0: C.dust, c1: C.dust, a0: .5, a1: 0, drag: 2.5, wind: 1 }); } }
+        }
+      }
+    }
+
+    // ---------- effect driver ----------
+    function effects(D, PL, view, list, now, dt, emit) {
+      for (const e of list) {
+        if (now < e.start) continue;
+        const k = clamp((now - e.start) / e.dur, 0, 1);
+        if (e.kind === 'shell') {
+          const fx = X[e.from], fz = Z[e.from], fy = top(view, e.from) + .45, tx = X[e.to], tz = Z[e.to], ty = top(view, e.to) + .1;
+          if (!e.fired) { e.fired = true; muzzle(e.from, e.to, now); }
+          const apex = .9 + E.distance(e.from, e.to) * .45, pos = q => ({ x: lerp(fx, tx, q), z: lerp(fz, tz, q), y: lerp(fy, ty, q) + 4 * apex * q * (1 - q) });
+          if (k < 1) {
+            const p = pos(k), q = pos(Math.min(1, k + .02)), yaw = Math.atan2(q.z - p.z, q.x - p.x), tilt = Math.atan2(q.y - p.y, Math.hypot(q.x - p.x, q.z - p.z));
+            parts(D, p.x, p.y, p.z, yaw, tilt, [['box', 0, 0, 0, .16, .045, .045, rgba(C.dark)]]);
+            PL.add(p.x, p.y + .02, p.z, .07, [1, .8, .45, .9], .9, .2);
+            shadow(D, p.x, p.z, lerp(top(view, e.from), top(view, e.to), k), p.y, .08);
+            const step = Math.max(1, Math.round(dt * 60));
+            for (let n = 0; n < step; n++) P.emit({ x: p.x, y: p.y, z: p.z, life: .8 + rnd() * .4, s0: .05, s1: .26, c0: C.smokeLight, c1: C.white, a0: .45, a1: 0, drag: 1.2, wind: 1 });
+          } else if (!e.done) { e.done = true; emit(e.after === 'deflect' ? { kind: 'deflect', x: tx, y: ty - .1, z: tz } : { kind: 'blast', x: tx, y: ty - .1, z: tz, scale: 1, cell: e.to }); }
+        } else if (e.kind === 'sortie') sortie(D, PL, view, e, now, dt, emit);
+        else if (e.kind === 'fire') burning(e.x, e.y, e.z, dt, 1 - k);
+        else if (e.kind === 'capture') {
+          if (!e.done) { e.done = true; for (let n = 0; n < 10; n++) { const a = rnd() * 6.28; P.emit({ x: X[e.at], y: top(view, e.at) + .1, z: Z[e.at], vx: Math.cos(a) * 1.2, vy: .4, vz: Math.sin(a) * 1.2, life: 1.2, s0: .2, s1: .7, c0: C.dust, c1: C.smokeLight, a0: .45, a1: 0, drag: 2, wind: 1 }); } }
+        } else if (e.kind === 'retreat') {
+          if (!e.done) { e.done = true; for (let n = 0; n < 6; n++) P.emit({ x: X[e.at] + (rnd() - .5) * .5, y: top(view, e.at) + .2, z: Z[e.at] + (rnd() - .5) * .5, vy: .6 + rnd() * .4, life: 2.5, s0: .25, s1: 1, c0: C.smoke, c1: C.smokeLight, a0: .45, a1: 0, drag: .8, buoy: .2, wind: 1 }); }
+        } else if (e.kind === 'bolt') {
+          if (k < .25 && Math.floor(now / 60) % 2) { let x = X[e.at], y = top(view, e.at) + 7, z = Z[e.at]; for (let n = 0; n < 6; n++) { const nx = X[e.at] + (n < 5 ? (hash(e.at * 7 + n) - .5) * .8 : 0), ny = y - 7 / 6, nz = Z[e.at] + (n < 5 ? (hash(e.at * 3 + n) - .5) * .8 : 0); D.rod(x, y, z, nx, ny, nz, .06, .06, rgba(C.flash), 2); x = nx; y = ny; z = nz; } }
+          if (!e.done && k > .1) { e.done = true; emit({ kind: 'blast', x: X[e.at], y: top(view, e.at), z: Z[e.at], scale: .7, cell: e.at }); }
+        } else if (e.kind === 'boom') {
+          if (!e.done) { e.done = true; emit({ kind: 'blast', x: X[e.at] + (e.dx || 0), y: top(view, e.at), z: Z[e.at] + (e.dz || 0), scale: e.scale || .6, cell: e.at }); }
+        } else if (e.kind === 'flare') {
+          if (!e.done) { e.done = true; for (let n = 0; n < 8; n++) P.emit({ x: X[e.at], y: top(view, e.at) + .2, z: Z[e.at], vx: (rnd() - .5) * .8, vy: 4 + rnd() * 2, vz: (rnd() - .5) * .8, life: 1.8, s0: .12, s1: .06, c0: mix(PC[e.player] || C.grey, C.white, .4), c1: PC[e.player] || C.grey, a0: 1, a1: 0, g0: 1.1, g1: .4, grav: 3, drag: .5 }); }
+        }
       }
     }
     function scars(D, view, list, now) {
       for (const s of list) {
-        const left = (s.until - now) / 5000, alpha = Math.max(0, Math.min(1, left)) * .5;
-        if (alpha > 0) D.add('cyl', X[s.at] + s.dx, top(view, s.at) + .005, Z[s.at] + s.dz, .42, .012, .42, 0, rgba(C.dark, alpha));
+        const alpha = clamp((s.until - now) / 6000, 0, 1);
+        if (alpha <= 0) continue;
+        D.add('cyl', s.x, s.y + .006, s.z, .5 * s.r, .006, .5 * s.r, s.yaw, rgba(rgb('#3a3226'), .45 * alpha));
+        D.add('cyl', s.x, s.y + .009, s.z, .28 * s.r, .006, .28 * s.r, 0, rgba(C.dark, .6 * alpha));
       }
     }
 
-    return { top, TOP, parts, terrain, camp, castle, turret, aimFor, road, bridge, tunnel, routes, trucks, airfield, depot, plane, airTraffic, effects, scars, colors: { PC, PCUT, PLIGHT }, C, rgb, mix, rgba };
+    return { top, TOP, parts, P, Particles, tileColor, tile, terrain, castle, turret, muzzle, aimFor, road, junction, bridge, tunnel, routes, trucks, airfield, depot,
+      fighter, heavy, airTraffic, blast, deflect, planSortie, effects, scars, colors: { PC, PCUT, PLIGHT }, C, rgb, mix, rgba };
   }
-  root.AutoHex3DScene = Object.freeze({ create });
+  root.AutoHex3DScene = Object.freeze({ create, Particles });
 })(typeof window !== 'undefined' ? window : globalThis);
