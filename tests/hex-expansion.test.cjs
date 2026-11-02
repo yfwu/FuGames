@@ -159,7 +159,7 @@ test('AI uses every structure, launches and intercepts drones, and stays legal a
   assert.ok(by.arsenal > 0 && by.flak > 0 && by.workshop > 0, JSON.stringify(by));
   assert.ok(x.dronesLaunched > 0 && x.droneStrikes > 0 && x.dronesDown > 0, JSON.stringify(x));
   assert.ok(g.drones.length <= X.maxDrones * E.PLAYERS.length);
-  for (const p of E.PLAYERS) for (const type of E.STRUCTURE_TYPES) assert.ok(g.structures.filter(t => t.owner === p && t.type === type).length <= 2);
+  for (const p of E.PLAYERS) { for (const type of E.STRUCTURE_TYPES) assert.ok(g.structures.filter(t => t.owner === p && t.type === type).length <= 2); assert.ok(g.structures.filter(t => t.owner === p && t.type === 'arsenal').length <= X.maxArsenals); }
   const again = playSeed('expansion-ai', 520, { expansion: true });
   assert.deepEqual(again.actions, actions);
 });

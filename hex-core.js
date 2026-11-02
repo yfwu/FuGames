@@ -33,8 +33,8 @@
   // Optional Front Line expansion (off unless a Game is created with expansion: true).
   // Rear arsenals launch drones, flak guns intercept drones and aircraft,
   // workshops raise rear supply production. All costs use existing resources.
-  const EXPANSION = Object.freeze({ arsenalSupplies: 8, workshopSupplies: 5, maxArsenals: 2, maxFlak: 2, maxWorkshops: 2, rearSafety: 3,
-    dronePeriod: 5, droneCost: 3, droneRange: 9, droneSpeed: 3, droneLife: 5, maxDrones: 2, flakRange: 3, flakShot: 1, workshopProduction: 2 });
+  const EXPANSION = Object.freeze({ arsenalSupplies: 8, workshopSupplies: 5, maxArsenals: 1, maxFlak: 2, maxWorkshops: 2, rearSafety: 3,
+    dronePeriod: 6, droneCost: 3, droneRange: 9, droneSpeed: 3, droneLife: 5, maxDrones: 2, flakRange: 3, flakShot: 1, workshopProduction: 2 });
   const STRUCTURE_TYPES = Object.freeze(['arsenal', 'flak', 'workshop']);
   const PLANNER_LIMITS = Object.freeze({ nodes: 20, depth: 3, beam: 2, actionsPerPlan: 2, plans: 6, privatePath: 64, publicPath: 16, waypoints: 4 });
   const INTENT_TYPES = ['direct', 'flank', 'airport', 'interdict', 'defend', 'recover', 'fortify', 'expand'];
@@ -76,7 +76,7 @@
     accept: Object.freeze({ label: 'Accept pact', slots: 0, cost: 0, description: 'Accept a public incoming offer. Ends the turn.' }),
     reject: Object.freeze({ label: 'Reject offer', slots: 0, cost: 0, description: 'Reject a public incoming offer. Ends the turn.' }),
     arsenal: Object.freeze({ label: 'Arsenal', slots: 1, cost: 4, expansion: true,
-      description: 'Expansion. Build on an own supplied rear stone (no enemy within 3) for 4 energy and 8 supplies. Every 5 owner turns, while supplied, it spends 3 supplies to launch a drone at an enemy stone within 9 (at most 2 drones aloft). Maximum 2.' }),
+      description: 'Expansion. Build on an own supplied rear stone (no enemy within 3) for 4 energy and 8 supplies. Every 6 owner turns, while supplied, it spends 3 supplies to launch a drone at an enemy stone within 9 (at most 2 drones aloft). Maximum 1.' }),
     flak: Object.freeze({ label: 'Flak gun', slots: 1, cost: 3, expansion: true,
       description: 'Expansion. Build on an own stone for 3 energy and 1 local reserve. Spends 1 reserve to shoot down a hostile drone, airdrop or bombardment within 3. Maximum 2.' }),
     workshop: Object.freeze({ label: 'Supply workshop', slots: 1, cost: 3, expansion: true,
@@ -1293,7 +1293,7 @@
     if (count('workshop') < 1 && done >= 9 && pl.supplies >= EXPANSION.workshopSupplies && pl.supplies <= 16 && pl.energy >= ACTION_META.workshop.cost) {
       const action = first('workshop', rear.slice().sort((a, b) => distance(pl.home, a) - distance(pl.home, b) || a - b)); if (action) return action;
     }
-    if (count('arsenal') < (pl.supplies >= 16 && done >= 30 ? 2 : 1) && pl.supplies >= EXPANSION.arsenalSupplies + 4 && pl.energy >= ACTION_META.arsenal.cost) {
+    if (count('arsenal') < EXPANSION.maxArsenals && pl.supplies >= EXPANSION.arsenalSupplies + 4 && pl.energy >= ACTION_META.arsenal.cost) {
       const reach = i => CELL_IDS.filter(j => hostile(view.board[j]) && !view.anchors[j] && distance(i, j) <= EXPANSION.droneRange).length;
       const cells = rear.filter(i => reach(i) > 0).sort((a, b) => reach(b) - reach(a) || a - b);
       const action = first('arsenal', cells.slice(0, 12)); if (action) return action;
