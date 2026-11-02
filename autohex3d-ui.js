@@ -3,6 +3,7 @@
 (() => {
   'use strict';
   const E = window.AutoHex, V = window.AutoHexVisuals, L = window.AutoHex3DLogic, R3 = window.AutoHex3DRender;
+  if (!window.AutoHex3DScene) { document.getElementById('status').textContent = '戰場載入失敗，請重新整理此頁。'; return; }
   const $ = id => document.getElementById(id);
   if (!E || !V || !L || !R3) { $('status').textContent = '戰場載入失敗，請重新整理此頁。'; return; }
 
@@ -12,7 +13,9 @@
   const LETTER = p => String.fromCharCode(64 + p);
   const localName = p => p ? `${LETTER(p)} ${NAMES[p]}` : '中立';
   const LABELS = { breach: '破陣令', deploy: '鋪子／攻占', engineer: '工程', tunnel: '地道', withdraw: '撤回', rest: '休整', turret: '炮台', destroy: '拆除', bridge: '橋梁', reroute: '改接', shield: '護盾', exchange: '換位', discard: '棄牌', offer: '提議停戰', accept: '接受停戰', reject: '拒絕停戰', betray: '背盟', airdrop: '空投炮台', bombard: '航空轟炸' };
-  const MARKS = { turret: '✣', destroy: '✕', bridge: '⌁', reroute: '↗', shield: '◎', exchange: '⇄', breach: '⚑' };
+  const MARKS = { reroute: '↗', exchange: '⇄', breach: '⚑' };
+  const ICONS = { turret: 'turret', destroy: 'remove', bridge: 'bridge', shield: 'shield' };
+  const cardMark = type => { if (!ICONS[type]) return node('span', 'mark', MARKS[type] || '•'); const span = node('span', 'mark'); span.innerHTML = `<svg viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#${ICONS[type]}"></use></svg>`; return span; };
   const CARD_TEXT = { turret: '射程 3，每 3 次己方回合開火；每發 2 存糧。', destroy: '移除 5 格內敵子；附近己子付 2 存糧。', bridge: '連接相距 2–3 直線格的兩枚己子，傳遞補給。', reroute: '改接既有橋梁的一端。', shield: '防守 +2，吸收一次拆除或炮擊。', exchange: '與相鄰空格或敵方普通棋子換位。', breach: '公開儲備：預告突破格，下次攻占忽略鄰援。' };
   const HINTS = { deploy: '鋪空格 2 能量並從 5 格內己子移交 3 存糧；攻占 4 能量，須足夠鄰援。河流先工程。', engineer: '把河流或山丘整成平地，或破壞敵方地道內部格。', tunnel: '從己子出發逐格選 3–4 格相鄰路徑，終點是另一枚己子，再按「完成地道」。', withdraw: '撤回自己的非家園棋子，回復 1 能量。', turret: '選自己的非家園棋子架炮台。', destroy: '選 5 格內敵方非家園棋子。', bridge: '依序選兩枚己子，相距 2–3 直線格。', reroute: '依序選保留端點、舊端點、新端點。', shield: '選自己的非家園棋子。', exchange: '先選自己的普通棋子，再選相鄰的空格或敵子。', breach: '選一枚與補給線相鄰、向對岸前進的敵子。', airdrop: '先選啟用的己方機場，再選 10 格內空格。', bombard: '先選啟用的己方機場，再選 12 格內敵子。' };
   const EVENT_TEXT = { capture: '攻占敵子', destroy: '擊毀敵子', 'shield-block': '護盾擋下攻擊', 'supply-retreat': '斷補撤退', tunnel: '建造地道', turret: '架設炮台', shield: '架設護盾', bridge: '架橋', reroute: '改接橋梁', exchange: '換位', airdrop: '空投炮台', bombard: '航空轟炸', offer: '提議停戰', accept: '接受停戰', reject: '拒絕停戰', betray: '背盟（−4 分）', 'goal-arrival': '接通對岸！', 'goal-lost': '失去對岸連線', 'airport-unlocked': '機場啟用', 'airport-lost': '機場停用', 'depot-control': '接管物資站', fortified: '工事完成', 'hill-retreat': '山丘撤退', 'card-expired': '手牌到期', 'tunnel-collapse': '地道崩塌', 'neutral-warning': '中立事件預警', 'neutral-strike': '中立事件命中', 'neutral-block': '擋下中立事件', reshuffle: '棄牌重洗', 'breach-ready': '取得破陣令', breach: '預告破陣', 'campaign-end': '戰役結算', sandbox: '自由對戰開始', 'alliance-expired': '停戰到期', withdraw: '撤回', engineer: '工程', deploy: '鋪子', rest: '休整', discard: '棄牌', ready: '戰場就緒' };
@@ -25,7 +28,6 @@
   const rgba = (c, a = 1) => [c[0], c[1], c[2], a];
   const WHITE = [1, 1, 1], GREY = [0.55, 0.58, 0.62], DARK = [0.18, 0.2, 0.25];
   const PC = COLORS.map(rgb), PLIGHT = PC.map(c => mix(c, WHITE, 0.55)), PCUT = PC.map(c => mix(c, GREY, 0.6));
-  const TERRAIN = { plain: rgb('#dbe3cc'), paved: rgb('#f7f7f2'), river: rgb('#69a3c4'), hill: rgb('#b5a67d') };
   const TOP = t => t === 1 ? 0.1 : t === 2 ? 0.8 : 0.32;
   const meta = type => E.CARD_META[type] || E.ACTION_META[type] || { cost: 0, slots: 1 };
   const node = (tag, className, text) => { const el = document.createElement(tag); if (className) el.className = className; if (text !== undefined) el.textContent = text; return el; };
@@ -37,6 +39,7 @@
   try { R = R3.create(canvas, { bound: E.RADIUS * 1.75, background: rgb('#eef2f6'), maxDpr: matchMedia('(max-width: 640px)').matches ? 1.5 : 2 }); } catch (error) { console.error(error); R = null; }
   if (!R) { $('webgl-fallback').hidden = false; $('notice').hidden = true; }
   const staticLayer = new R3.Layer(), dynamicLayer = new R3.Layer();
+  const scene = window.AutoHex3DScene.create({ E, X: E.CELLS.map(c => c.x), Z: E.CELLS.map(c => c.y), colors: COLORS });
   const X = E.CELLS.map(c => c.x), Z = E.CELLS.map(c => c.y);
   const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
 
@@ -45,10 +48,10 @@
   let initialTerrain = null, paved = new Set(), goalOf = new Int8Array(E.COUNT);
   let selection = { type: 'deploy', cells: [] }, queue = [], legal = new Set(), legalKey = '';
   let hovered = -1, focused = -1, actionLog = [], lastEventId = 0, prevBoard = new Uint8Array(E.COUNT), appear = new Float64Array(E.COUNT);
-  let forest = [], depth = new Int16Array(E.COUNT), chokes = [], targets = [], staticDirty = true, riseUntil = 0;
+  let forest = [], routes = [], aim = new Map(), scars = [], chokes = [], targets = [], staticDirty = true, riseUntil = 0;
   let effects = [], layers = { supply: true, position: false, choke: true, plan: false };
   let aiTimer = null, queueTimer = null, generation = 0, timing = false, lastStamp = 0, windowStart = 0, windowPly = -1, lastClockPaint = 0, lastMini = 0;
-  let toastTimer = null, lastHandKey = '', resultShown = false, wasStarted = false;
+  let animClock = 0, toastTimer = null, lastHandKey = '', resultShown = false, wasStarted = false;
   let aiWorker = null, pendingDecision = null, decisionSerial = 0, workerFailed = false;
   const stats = { frames: 0, staticBuilds: 0, lastFrameMs: 0, aiDecisions: 0, queueExecuted: 0, queueDropped: 0, autoRests: 0 };
   const commandLimit = () => Number($('command-window').value) || 0;
@@ -166,7 +169,7 @@
     goalOf = new Int8Array(E.COUNT);
     for (const p of E.PLAYERS) for (let i = 0; i < E.COUNT; i++) if (E.goalCell(game, p, i)) goalOf[i] = p;
     selection = { type: 'deploy', cells: [] }; queue = []; legal = new Set(); legalKey = '';
-    actionLog = []; lastEventId = 0; effects = []; prevBoard = Uint8Array.from(game.board); appear.fill(0);
+    actionLog = []; lastEventId = 0; effects = []; scars = []; prevBoard = Uint8Array.from(game.board); appear.fill(0);
     windowPly = -1; resultShown = false; wasStarted = start; lastHandKey = '';
     $('result').hidden = true; $('event-log').replaceChildren(node('li', '', '戰場已就緒。'));
     if (start) game.start();
@@ -199,16 +202,18 @@
       if (e.id <= lastEventId) continue;
       lastEventId = e.id;
       const cells = (e.cells || []).filter(i => Number.isInteger(i) && i >= 0 && i < E.COUNT);
-      const color = PC[e.player] || PC[0];
-      if ((e.type === 'destroy' || e.type === 'shield-block') && Number.isInteger(e.origin) && cells.length) effects.push({ kind: 'shell', from: e.origin, to: cells[0], start: now, dur: 650, color, after: e.type === 'destroy' ? 'burst' : 'spark' });
-      else if (e.type === 'destroy') for (const i of cells) effects.push({ kind: 'burst', at: i, start: now, dur: 700, color: rgb('#c2513a') });
-      else if (e.type === 'shield-block') for (const i of cells) effects.push({ kind: 'spark', at: i, start: now, dur: 600, color: rgb('#9a7fd1') });
-      else if (e.type === 'capture') for (const i of cells) effects.push({ kind: 'ring', at: i, start: now, dur: 800, color });
-      else if (e.type === 'supply-retreat') for (const i of cells.slice(0, 40)) effects.push({ kind: 'smoke', at: i, start: now, dur: 1300, color: PCUT[e.player] || GREY });
-      else if (e.type === 'airdrop' && cells.length >= 2) effects.push({ kind: 'plane', from: cells[0], to: cells[cells.length - 1], start: now, dur: 900, color });
-      else if (e.type === 'neutral-strike' || e.type === 'neutral-block') for (const i of cells) effects.push({ kind: 'bolt', at: i, start: now, dur: 700, color: rgb(e.type === 'neutral-block' ? '#9aa5b1' : '#d9a52b') });
-      else if (e.type === 'tunnel-collapse') for (const i of cells) effects.push({ kind: 'smoke', at: i, start: now, dur: 900, color: GREY });
-      else if (e.type === 'goal-arrival') for (const i of E.CELLS.filter(c => goalOf[c.i] === e.player && view.board[c.i] === e.player).map(c => c.i)) effects.push({ kind: 'beam', at: i, start: now, dur: 1800, color });
+      const fx = (kind, extra) => effects.push({ kind, start: now, player: e.player, ...extra });
+      const hit = e.type === 'destroy';
+      if ((hit || e.type === 'shield-block') && e.source === 'bombard' && Number.isInteger(e.origin) && cells.length) fx('sortie', { from: e.origin, to: cells[0], dur: 3400, payload: 'bomb', hit });
+      else if ((hit || e.type === 'shield-block') && Number.isInteger(e.origin) && cells.length) fx('shell', { from: e.origin, to: cells[0], dur: 750, after: hit ? 'blast' : 'deflect' });
+      else if (hit) for (const i of cells) { fx('blast', { at: i, dur: 2600, scale: .9 }); scars.push({ at: i, until: now + 30000, dx: 0, dz: 0 }); }
+      else if (e.type === 'shield-block' || e.type === 'neutral-block') for (const i of cells) fx('deflect', { at: i, dur: 900 });
+      else if (e.type === 'capture') for (const i of cells) fx('capture', { at: i, dur: 1100 });
+      else if (e.type === 'supply-retreat') for (const i of cells.slice(0, 40)) fx('retreat', { at: i, dur: 1600 });
+      else if (e.type === 'airdrop' && cells.length >= 2) { const to = cells[cells.length - 1]; fx('sortie', { from: cells[0], to, dur: 3400, payload: 'crate' }); appear[to] = now + 2900; }
+      else if (e.type === 'neutral-strike') for (const i of cells) fx(e.kind === 'disaster' || e.source === 'disaster' ? 'bolt' : 'blast', { at: i, dur: e.kind === 'disaster' ? 1200 : 2200, scale: .6 });
+      else if (e.type === 'tunnel-collapse') for (const i of cells) fx('blast', { at: i, dur: 2000, scale: .5 });
+      else if (e.type === 'goal-arrival') for (const i of E.CELLS.filter(c => goalOf[c.i] === e.player && view.board[c.i] === e.player).map(c => c.i)) fx('beam', { at: i, dur: 1800 });
       if (e.type === 'goal-arrival' || e.type === 'goal-lost' || e.type === 'breach-ready' && e.player === observer()) toast(`${localName(e.player)}：${EVENT_TEXT[e.type]}`, e.type === 'goal-lost' && e.player === observer());
       if (e.type === 'supply-retreat' && e.player === observer()) toast(`補給告急：${cells.length} 枚棋子存糧耗盡撤退`, true);
       if (!QUIET.has(e.type) || e.player === observer() && observer()) logEvent(e);
@@ -227,13 +232,14 @@
   // ---------- refresh after every state change ----------
   function refresh() {
     if (!game) return;
-    const now = performance.now();
+    const now = animClock;
     view = game.observation(observer()); planView = null;
     for (let i = 0; i < E.COUNT; i++) if (view.board[i] && view.board[i] !== prevBoard[i]) appear[i] = now;
     prevBoard = Uint8Array.from(view.board);
     paved = new Set(L.engineeredCells(initialTerrain, view.terrain));
-    forest = V.supplyForest(view, E.ADJ); depth.fill(0);
-    for (const link of forest) depth[link.b] = depth[link.a] + 1;
+    forest = V.supplyForest(view, E.ADJ);
+    routes = scene.routes(view, forest);
+    aim = new Map(view.turrets.map(t => [t.cell, scene.aimFor(view, t.cell, t.owner)]));
     chokes = L.supplyChokepoints(view, E, subject());
     targets = [];
     for (const p of E.PLAYERS) if (p !== subject() && !E.allied(view, subject(), p)) targets.push(...L.supplyChokepoints(view, E, p).filter(c => c.cut >= 3).slice(0, 2));
@@ -309,7 +315,7 @@
       const fresh = hand.length && previous.length && hand.length >= previous.length ? hand.length - 1 : -1;
       container.replaceChildren(...hand.map((type, k) => {
         const button = node('button', 'ah3-card' + (k === fresh && hand[k] !== previous[k] ? ' is-drawn' : '')); button.type = 'button'; button.dataset.card = String(k);
-        button.append(node('span', 'mark', MARKS[type] || '•'), node('strong', '', LABELS[type]), node('span', 'cost', `${meta(type).cost}⚡ · ${meta(type).slots} 格`), node('span', 'desc', CARD_TEXT[type] || ''), node('span', 'key', String(k + 1)));
+        button.append(cardMark(type), node('strong', '', LABELS[type]), node('span', 'cost', `${meta(type).cost}⚡ · ${meta(type).slots} 格`), node('span', 'desc', CARD_TEXT[type] || ''), node('span', 'key', String(k + 1)));
         if (view.timedCards && view.cardLife?.[k] !== undefined) button.append(node('span', 'life', `剩 ${view.cardLife[k]}`));
         button.style.setProperty('--card', CARD_COLORS[type] || '#267477');
         button.addEventListener('click', () => selectAction(type, k));
@@ -478,147 +484,68 @@
   }
 
   // ---------- 3D scene ----------
-  function tile(i) {
-    const t = view.terrain[i], top = TOP(t) + (t === 0 ? (hashCell(i) - .5) * .04 : 0);
-    let color = t === 1 ? TERRAIN.river : t === 2 ? TERRAIN.hill : paved.has(i) ? TERRAIN.paved : TERRAIN.plain;
-    if (t !== 1) color = mix(color, DARK, (hashCell(i * 7) - .5) * .06);
-    return { top, color };
-  }
   function buildStatic(now) {
     const S = staticLayer; S.clear(); stats.staticBuilds++;
     riseUntil = 0;
-    const tops = new Float32Array(E.COUNT);
-    for (let i = 0; i < E.COUNT; i++) {
-      const { top, color } = tile(i); tops[i] = top;
-      S.add('hex', X[i], -0.6, Z[i], 0.985, top + 0.6, 0.985, 0, rgba(color), view.terrain[i] === 1 ? -1 : 0);
-      if (view.terrain[i] === 2 && !view.board[i]) {
-        S.add('cone', X[i] - .12, top, Z[i] + .08, .66, .62, .66, hashCell(i) * 6, rgba(mix(TERRAIN.hill, DARK, .12)));
-        S.add('cone', X[i] + .38, top, Z[i] - .3, .34, .34, .34, 0, rgba(mix(TERRAIN.hill, WHITE, .12)));
-      }
-      if (goalOf[i]) S.add('ring', X[i], top - .05, Z[i], .99, .07, .99, 0, rgba(PC[goalOf[i]], goalOf[i] === subject() ? 1 : .55));
-    }
-    // Facilities sit on the terrain under any stone.
-    for (const a of view.airports) {
-      const i = a.cell, t = tops[i];
-      S.add('box', X[i], t, Z[i], 1.35, .05, .36, .52, rgba(mix(GREY, DARK, .3)));
-      S.add('cyl', X[i] + .45, t, Z[i] + .5, .12, .9, .12, 0, rgba(a.active ? PC[a.owner] : GREY), a.active ? .5 : 0);
-    }
-    for (const d of view.depots) {
-      const i = d.cell, t = tops[i], c = d.owner && d.supplied ? PLIGHT[d.owner] : rgb('#d9b45d');
-      S.add('box', X[i] - .42, t, Z[i] + .42, .28, .26, .28, .3, rgba(c)); S.add('box', X[i] + .44, t, Z[i] + .38, .24, .22, .24, -.2, rgba(c));
-    }
-    // Supply lines: forest links drawn on top of the stones.
-    if (layers.supply) for (const link of forest) {
-      const a = link.a, b = link.b, h = Math.max(tops[a], tops[b]) + .44, light = PLIGHT[link.owner];
-      if (link.bridge) continue;
-      S.beam(X[a], h, Z[a], X[b], h, Z[b], .09, .03, rgba(light, link.owner === subject() ? .95 : .6));
-    }
-    const turretCells = new Set(view.turrets.map(t => t.cell));
+    scene.terrain(S, view, { paved, goalOf, subject: subject() });
+    for (const a of view.airports) scene.airfield(S, view, a);
+    for (const d of view.depots) scene.depot(S, view, d);
+    // Supply roads follow each faction's home-rooted supply tree.
+    for (const link of forest) if (!link.bridge) scene.road(S, view, link.a, link.b, link.owner, link.owner === subject());
+    for (const b of view.bridges) if (view.board[b.a] === b.owner && view.board[b.b] === b.owner) scene.bridge(S, view, b);
+    for (const t of view.tunnels) scene.tunnel(S, view, t);
+    const ctx = { turrets: new Set(view.turrets.filter(t => view.board[t.cell] === t.owner).map(t => t.cell)), aim };
     for (let i = 0; i < E.COUNT; i++) {
       const p = view.board[i]; if (!p) continue;
-      const top = tops[i];
       if (now - appear[i] < 520) { riseUntil = Math.max(riseUntil, appear[i] + 520); continue; }
-      stone(S, i, p, top, 0);
-      if (turretCells.has(i)) turretModel(S, i, p, top);
-    }
-    for (const b of view.bridges) {
-      if (view.board[b.a] !== b.owner || view.board[b.b] !== b.owner) continue;
-      const h = Math.max(tops[b.a], tops[b.b]) + .3;
-      S.beam(X[b.a], h, Z[b.a], X[b.b], h, Z[b.b], .34, .12, rgba(mix(PC[b.owner], WHITE, .25)));
-      const mx = (X[b.a] + X[b.b]) / 2, mz = (Z[b.a] + Z[b.b]) / 2;
-      S.add('cyl', mx, -.2, mz, .1, h + .2, .1, 0, rgba(mix(PC[b.owner], DARK, .3)));
-    }
-    for (const t of view.tunnels) {
-      const color = rgba(mix(PC[t.owner], DARK, .55), .9);
-      for (let k = 1; k < t.path.length; k++) { const a = t.path[k - 1], b = t.path[k]; S.beam(X[a], tops[a] + .01, Z[a], X[b], tops[b] + .01, Z[b], .2, .05, color); }
-      for (const end of [t.a, t.b]) S.add('cone', X[end], tops[end] + .3, Z[end], .2, .2, .2, 0, color);
+      if (view.anchors[i]) scene.castle(S, view, i, p, scene.top(view, i));
+      else scene.camp(S, view, i, p, scene.top(view, i), 0, ctx);
     }
     if (layers.position) for (const t of view.turrets) {
       if (view.board[t.cell] !== t.owner) continue;
-      for (const c of E.CELLS) if (E.distance(t.cell, c.i) <= E.RULES.turretRange && c.i !== t.cell) S.add('hexFlat', X[c.i], tops[c.i] + .01, Z[c.i], .9, .03, .9, 0, rgba(PC[t.owner], .16));
+      for (const c of E.CELLS) if (E.distance(t.cell, c.i) <= E.RULES.turretRange && c.i !== t.cell) S.add('hexFlat', X[c.i], scene.top(view, c.i) + .01, Z[c.i], .9, .03, .9, 0, rgba(PC[t.owner], .16));
     }
     staticDirty = false;
   }
-  function stone(S, i, p, top, rise) {
-    const supplied = view.supplied[i], anchor = view.anchors[i];
-    const color = supplied ? PC[p] : PCUT[p], y = top + rise;
-    if (anchor) {
-      S.add('hex', X[i], y, Z[i], .74, 1.15, .74, 0, rgba(PC[p]));
-      S.add('cone', X[i], y + 1.15, Z[i], .82, .62, .82, 0, rgba(mix(PC[p], DARK, .25)));
-      S.add('box', X[i] + .1, y + 1.7, Z[i], .04, .55, .04, 0, rgba(DARK));
-      S.add('box', X[i] + .32, y + 2.0, Z[i], .42, .22, .03, 0, rgba(PLIGHT[p]), .3);
-      return;
-    }
-    const height = .34 + Math.min(view.reserve[i], 6) * .015;
-    S.add('hex', X[i], y, Z[i], .62, height, .62, 0, rgba(color));
-    if (view.fortified[i]) S.add('ring', X[i], y, Z[i], .8, .26, .8, 0, rgba(mix(PC[p], DARK, .35)));
-    if (view.shields[i]) S.add('sphere', X[i], y + .18, Z[i], .76, .6, .76, 0, rgba(rgb('#9a7fd1'), view.reserve[i] > 0 ? .28 : .12), .12);
-    if (view.delivered[i]) S.add('sphere', X[i], y + height + .05, Z[i], .09, .09, .09, 0, rgba(rgb('#3ec7c9')), .5);
-    // Reserve pips: up to six tiny blocks along one edge.
-    const r = view.reserve[i];
-    if (r < 6 || !supplied) for (let k = 0; k < r; k++) S.add('box', X[i] - .3 + k * .12, y + height, Z[i] + .48, .08, .08, .08, 0, rgba(supplied ? mix(PC[p], WHITE, .6) : rgb('#e0a14a')));
-  }
-  function turretModel(S, i, p, top) {
-    const t = view.turrets.find(v => v.cell === i), armed = view.reserve[i] >= 2;
-    const y = top + .34, rot = hashCell(i) * Math.PI * 2;
-    S.add('oct', X[i], y, Z[i], .3, .42, .3, 0, rgba(mix(PC[p], DARK, .45)));
-    S.add('box', X[i] + Math.cos(rot) * .25, y + .3, Z[i] - Math.sin(rot) * .25, .55, .1, .1, rot, rgba(armed ? DARK : GREY));
-    if (t && t.countdown === 1 && armed) S.add('sphere', X[i], y + .5, Z[i], .1, .1, .1, 0, rgba(rgb('#e46c4a')), .9);
-  }
-  function lerp(a, b, t) { return a + (b - a) * t; }
   function buildDynamic(now) {
     const D = dynamicLayer; D.clear();
-    const t = now / 1000, tops = i => TOP(view.terrain[i]);
-    // Rising new stones.
-    for (let i = 0; i < E.COUNT; i++) if (view.board[i] && now - appear[i] < 520) {
-      const k = (now - appear[i]) / 520, ease = 1 - Math.pow(1 - k, 3);
-      stone(D, i, view.board[i], tops(i), (1 - ease) * 2.2);
+    const t = now / 1000, tops = i => scene.top(view, i), still = reducedMotion.matches;
+    // New positions drop in (airdrops wait for the crate to land).
+    const ctx = { turrets: new Set(view.turrets.map(v => v.cell)), aim };
+    for (let i = 0; i < E.COUNT; i++) if (view.board[i] && now >= appear[i] && now - appear[i] < 520) {
+      const k = (now - appear[i]) / 520, ease = 1 - Math.pow(1 - k, 3), rise = (1 - ease) * 2.2;
+      if (view.anchors[i]) scene.castle(D, view, i, view.board[i], tops(i) + rise); else scene.camp(D, view, i, view.board[i], tops(i), rise, ctx);
     }
-    // Supply convoys flow from home outward along the BFS forest.
-    if (layers.supply && !reducedMotion.matches) for (const link of forest) {
-      const a = link.a, b = link.b, phase = ((t * .9 - depth[a] * .22) % 1 + 1) % 1;
-      const h = Math.max(tops(a), tops(b)) + (link.bridge ? .6 : .52) + (link.bridge ? Math.sin(phase * Math.PI) * .25 : 0);
-      const own = link.owner === subject();
-      D.add('sphere', lerp(X[a], X[b], phase), h, lerp(Z[a], Z[b], phase), own ? .1 : .075, own ? .1 : .075, own ? .1 : .075, 0, rgba(own ? rgb('#3ec7c9') : PLIGHT[link.owner]), own ? .7 : .25);
-    }
-    // Severed stones pulse; the overlay prints their remaining reserve.
+    if (layers.supply && !still) scene.trucks(D, routes, t, subject());
+    if (!still) scene.airTraffic(D, view, t);
+    // Severed positions pulse; the overlay prints their remaining reserve.
     for (let i = 0; i < E.COUNT; i++) {
       const p = view.board[i];
       if (p && !view.supplied[i] && !view.anchors[i]) D.add('ring', X[i], tops(i) + .02, Z[i], .92, .08, .92, 0, rgba(rgb('#d24a32'), p === subject() ? .95 : .55), .8);
     }
     if (layers.choke) {
-      for (const c of chokes.slice(0, 14)) if (c.cut >= 2) D.add('ring', X[c.cell], tops(c.cell) + .4, Z[c.cell], .86, .05, .86, t * .6, rgba(rgb('#e58a2c'), .95), .6);
-      for (const c of targets) D.add('ring', X[c.cell], tops(c.cell) + .4, Z[c.cell], .95, .05, .95, -t * .6, rgba(rgb('#c2263a'), .95), .7);
+      for (const c of chokes.slice(0, 14)) if (c.cut >= 2) D.add('ring', X[c.cell], tops(c.cell) + .5, Z[c.cell], .86, .05, .86, t * .6, rgba(rgb('#e58a2c'), .95), .6);
+      for (const c of targets) D.add('ring', X[c.cell], tops(c.cell) + .5, Z[c.cell], .95, .05, .95, -t * .6, rgba(rgb('#c2263a'), .95), .7);
     }
-    if (view.neutralWarning) for (const i of view.neutralWarning.cells) D.add('cone', X[i], tops(i) + 1.3 + Math.sin(t * 4) * .12, Z[i], .26, -.5, .26, t, rgba(rgb('#d9a52b')), .7);
+    if (view.neutralWarning) for (const i of view.neutralWarning.cells) D.add('cone', X[i], tops(i) + 1.5 + Math.sin(t * 4) * .12, Z[i], .26, -.5, .26, t, rgba(rgb('#d9a52b')), .7);
     if (layers.plan) for (const p of E.PLAYERS) {
       const intent = view.intents?.[p]; if (!intent || mode === 'human' && p === human) continue;
-      for (const i of intent.path || []) D.add('sphere', X[i], tops(i) + .55, Z[i], .08, .08, .08, 0, rgba(PLIGHT[p]), .4);
-      if (Number.isInteger(intent.target) && intent.target >= 0) D.add('oct', X[intent.target], tops(intent.target) + 1.2 + Math.sin(t * 2 + p) * .15, Z[intent.target], .22, .3, .22, t, rgba(PC[p]), .5);
+      for (const i of intent.path || []) D.add('sphere', X[i], tops(i) + .65, Z[i], .08, .08, .08, 0, rgba(PLIGHT[p]), .4);
+      if (Number.isInteger(intent.target) && intent.target >= 0) D.add('oct', X[intent.target], tops(intent.target) + 1.4 + Math.sin(t * 2 + p) * .15, Z[intent.target], .22, .3, .22, t, rgba(PC[p]), .5);
     }
-    // Legal targets and the current partial selection.
     // Legal targets: a small disc at each cell centre keeps the terrain readable.
-    if (legal.size) { const mark = isHumanTurn() ? rgb('#1f2a36') : rgb('#5b6f8a'); for (const i of legal) D.add('cyl', X[i], tops(i) + (view.board[i] ? .4 : .01), Z[i], .2, .03, .2, 0, rgba(mark, isHumanTurn() ? .7 : .45), .15); }
+    if (legal.size) { const mark = isHumanTurn() ? rgb('#1f2a36') : rgb('#5b6f8a'); for (const i of legal) D.add('cyl', X[i], tops(i) + (view.board[i] ? .55 : .01), Z[i], .2, .03, .2, 0, rgba(mark, isHumanTurn() ? .7 : .45), .15); }
     for (const i of selection.cells) D.add('ring', X[i], tops(i) + .45, Z[i], .95, .1, .95, 0, rgba(rgb('#267477')), .6);
     if (hovered >= 0) D.add('ring', X[hovered], tops(hovered) + .03, Z[hovered], 1, .12, 1, 0, rgba(legal.has(hovered) ? rgb('#1d8f92') : WHITE), .4);
     if (focused >= 0 && focused !== hovered) D.add('ring', X[focused], tops(focused) + .03, Z[focused], 1, .1, 1, 0, rgba(rgb('#2e3440'), .7));
-    // Combat and logistics effects.
-    effects = effects.filter(e => now - e.start < e.dur + (e.kind === 'shell' ? 500 : 0));
-    for (const e of effects) {
-      const k = Math.max(0, Math.min(1, (now - e.start) / e.dur));
-      if (e.kind === 'shell' || e.kind === 'plane') {
-        if (k >= 1) { if (e.after && !e.spawned) { e.spawned = true; effects.push({ kind: e.after, at: e.to, start: now, dur: 600, color: e.after === 'burst' ? rgb('#c2513a') : rgb('#9a7fd1') }); } continue; }
-        const peak = e.kind === 'plane' ? 3.2 : 2.2 + E.distance(e.from, e.to) * .15;
-        const x = lerp(X[e.from], X[e.to], k), z = lerp(Z[e.from], Z[e.to], k), y = lerp(tops(e.from), tops(e.to), k) + .6 + Math.sin(k * Math.PI) * peak;
-        if (e.kind === 'plane') { D.add('box', x, y, z, .9, .12, .2, -Math.atan2(Z[e.to] - Z[e.from], X[e.to] - X[e.from]), rgba(DARK)); D.add('box', x, y, z, .22, .06, .9, -Math.atan2(Z[e.to] - Z[e.from], X[e.to] - X[e.from]), rgba(e.color)); }
-        else D.add('sphere', x, y, z, .14, .14, .14, 0, rgba(rgb('#ffcf6b')), 1);
-      } else if (e.kind === 'burst' || e.kind === 'spark') {
-        const s = .3 + k * (e.kind === 'burst' ? 1.1 : .7); D.add('sphere', X[e.at], tops(e.at) + .4, Z[e.at], s, s * .8, s, 0, rgba(e.color, (1 - k) * .75), .8);
-      } else if (e.kind === 'ring') D.add('ring', X[e.at], tops(e.at) + .4 + k * .4, Z[e.at], .6 + k * .9, .12, .6 + k * .9, 0, rgba(e.color, 1 - k), .8);
-      else if (e.kind === 'smoke') D.add('sphere', X[e.at], tops(e.at) + .3 + k * 1.4, Z[e.at], .35 + k * .3, .35 + k * .3, .35 + k * .3, 0, rgba(e.color, (1 - k) * .55));
-      else if (e.kind === 'bolt') D.add('box', X[e.at], tops(e.at), Z[e.at], .12, 6 * (1 - k * .5), .12, 0, rgba(e.color, 1 - k), 1);
-      else if (e.kind === 'beam') D.add('cyl', X[e.at], tops(e.at), Z[e.at], .18, 3.5 * Math.sin(k * Math.PI), .18, 0, rgba(e.color, .6), .9);
-    }
+    // Craters, shells, sorties and explosions.
+    scars = scars.filter(v => v.until > now);
+    scene.scars(D, view, scars, now);
+    effects = effects.filter(e => now - e.start < e.dur + 300);
+    const spawned = [];
+    scene.effects(D, view, effects, now, e => { spawned.push({ ...e, start: now }); if (e.scar) scars.push({ at: e.at, until: now + 30000, dx: (Math.random() - .5) * .3, dz: (Math.random() - .5) * .3 }); });
+    effects.push(...spawned);
+    if (scars.length > 80) scars.splice(0, scars.length - 80);
   }
   function drawOverlay() {
     const { width, height, dpr } = R.size;
@@ -627,12 +554,19 @@
     if (!view) return;
     const zoomed = R.camera.dist < 40;
     octx.textAlign = 'center'; octx.textBaseline = 'middle';
-    const badge = (i, y, text, bg, fg = '#fff', size = 11) => {
+    const badge = (i, y, text, bg, fg = '#fff', size = 11, gun = false) => {
       const s = R.project(X[i], y, Z[i]); if (!s || s.x < -20 || s.y < -20 || s.x > width + 20 || s.y > height + 20) return;
       octx.font = `700 ${size}px ui-monospace, Menlo, monospace`;
-      const w = Math.max(16, octx.measureText(text).width + 8);
+      const pad = gun ? 17 : 0, w = Math.max(16, octx.measureText(text).width + 8 + pad);
       octx.fillStyle = bg; octx.beginPath(); octx.roundRect ? octx.roundRect(s.x - w / 2, s.y - 9, w, 18, 9) : octx.rect(s.x - w / 2, s.y - 9, w, 18); octx.fill();
-      octx.fillStyle = fg; octx.fillText(text, s.x, s.y + .5);
+      if (gun) { // field-gun pictogram: tracks, turret dome, raised barrel
+        const gx = s.x - w / 2 + 5, gy = s.y + 4;
+        octx.strokeStyle = fg; octx.fillStyle = fg; octx.lineWidth = 1.6; octx.lineCap = 'round';
+        octx.beginPath(); octx.roundRect ? octx.roundRect(gx, gy - 1, 13, 3.5, 1.7) : octx.rect(gx, gy - 1, 13, 3.5); octx.fill();
+        octx.beginPath(); octx.arc(gx + 5.5, gy - 1.5, 3.6, Math.PI, 0); octx.fill();
+        octx.beginPath(); octx.moveTo(gx + 7.5, gy - 4); octx.lineTo(gx + 14, gy - 8.5); octx.stroke();
+      }
+      octx.fillStyle = fg; octx.fillText(text, s.x + pad / 2, s.y + .5);
     };
     for (const p of E.PLAYERS) { const h = view.players[p].home; badge(h, TOP(view.terrain[h]) + 2.9, `${LETTER(p)} ${view.players[p].score}`, COLORS[p], '#fff', 12); }
     for (let i = 0; i < E.COUNT; i++) {
@@ -643,7 +577,7 @@
       for (const c of chokes.slice(0, 5)) if (c.cut >= 2) badge(c.cell, TOP(view.terrain[c.cell]) + 1.25, `−${c.cut}`, '#e58a2c');
       for (const c of targets.slice(0, 6)) badge(c.cell, TOP(view.terrain[c.cell]) + 1.25, `✂${c.cut}`, '#c2263a');
     }
-    if (zoomed || layers.position) for (const t of view.turrets) if (view.board[t.cell] === t.owner) badge(t.cell, TOP(view.terrain[t.cell]) + 1.35, `✣${t.countdown}`, view.reserve[t.cell] >= 2 ? '#2e3440' : '#9aa5b1');
+    if (zoomed || layers.position) for (const t of view.turrets) if (view.board[t.cell] === t.owner) badge(t.cell, TOP(view.terrain[t.cell]) + 1.35, String(t.countdown), view.reserve[t.cell] >= 2 ? '#2e3440' : '#9aa5b1', '#fff', 11, true);
     for (const a of view.airports) badge(a.cell, TOP(view.terrain[a.cell]) + 1.4, a.active ? '✈' : a.owner ? `✈${a.progress}/3` : '✈', a.active ? COLORS[a.owner] : '#708090');
     for (const d of view.depots) badge(d.cell, TOP(view.terrain[d.cell]) + 1.1, '◇', d.owner && d.supplied ? COLORS[d.owner] : '#b58a2a');
     if (view.neutralWarning) for (const i of view.neutralWarning.cells) badge(i, TOP(view.terrain[i]) + 2.1, '⚠', '#d9a52b', '#2e3440');
@@ -806,10 +740,15 @@
   document.addEventListener('visibilitychange', () => { if (document.hidden && game?.phase === 'running') { flushClock(); game.pause(); stopTimers(); refresh(); toast('切換分頁，戰役已暫停。'); } });
 
   // ---------- main loop ----------
-  let lastFrame = performance.now();
-  function frame(now) {
+  let lastFrame = performance.now(), lastAnim = lastFrame;
+  function frame() {
     requestAnimationFrame(frame);
+    // One clock for effects, events and animation (rAF stamps can drift from it).
+    const now = performance.now();
     const dt = Math.min(64, now - lastFrame); lastFrame = now;
+    // Battlefield animation (shells, blasts, trucks, aircraft) freezes while paused.
+    if (game?.phase !== 'paused') animClock += now - lastAnim;
+    lastAnim = now;
     if (!game || !view) return;
     flushClock();
     if (isHumanTurn() && commandLimit() && windowPly === game.ply && game.activeMs - windowStart >= commandLimit() * 1000 && !queue.length) {
@@ -821,8 +760,8 @@
     applyKeys(dt);
     if (tween) { const k = Math.min(1, (now - tween.start) / tween.dur), e = 1 - Math.pow(1 - k, 3); for (const key of ['tx', 'tz', 'dist']) R.camera[key] = tween.from[key] + (tween.to[key] - tween.from[key]) * e; if (k >= 1) tween = null; }
     const start = performance.now();
-    if (staticDirty || riseUntil && now > riseUntil) buildStatic(now);
-    buildDynamic(now);
+    if (staticDirty || riseUntil && animClock > riseUntil) buildStatic(animClock);
+    buildDynamic(animClock);
     const built = performance.now();
     R.draw([staticLayer, dynamicLayer], now);
     drawOverlay();
@@ -834,7 +773,7 @@
 
   // ---------- test and automation hook (read-only plus explicit commands) ----------
   window.autoHex3D = {
-    E, L, stats,
+    E, L, stats, get effects() { return effects.map(e => ({ kind: e.kind, age: Math.round(animClock - e.start), dur: e.dur, at: e.at, from: e.from, to: e.to })); },
     get game() { return game; }, get view() { return view; }, get actionLog() { return actionLog; }, get queue() { return queue.slice(); },
     get selection() { return { ...selection, cells: selection.cells.slice() }; }, get legal() { computeLegal(); return [...legal]; },
     get camera() { return R ? { ...R.camera } : null; }, get webgl() { return !!R; }, get human() { return human; }, get mode() { return mode; },

@@ -112,6 +112,18 @@
     for (const [a, b, c, d, n] of faces) { pushTri(out, a, b, c, n); pushTri(out, a, c, d, n); }
     return new Float32Array(out);
   }
+  // Triangular prism along X (tent / roof): base on y=0 spanning z -0.5..0.5, ridge at y=1.
+  function wedge() {
+    const out = [];
+    const a0 = [-.5, 0, -.5], b0 = [-.5, 0, .5], c0 = [-.5, 1, 0], a1 = [.5, 0, -.5], b1 = [.5, 0, .5], c1 = [.5, 1, 0];
+    quad(out, a0, c0, c1, a1); quad(out, b0, b1, c1, c0);
+    pushTri(out, a0, b0, c0, [-1, 0, 0]); pushTri(out, a1, c1, b1, [1, 0, 0]);
+    for (let i = 0; i < out.length; i += 18) { // outward normals for the slopes
+      const cz = (out[i + 2] + out[i + 8] + out[i + 14]) / 3;
+      if (Math.abs(out[i + 3]) < .5 && out[i + 5] * cz < 0) for (let v = 0; v < 3; v++) { out[i + v * 6 + 4] *= -1; out[i + v * 6 + 5] *= -1; }
+    }
+    return new Float32Array(out);
+  }
   // Flat hexagonal ring (outline) lying on y=0..1 with width w.
   function hexRing(w) {
     const out = [];
@@ -134,20 +146,26 @@
     cone: () => cone(14),
     sphere: () => sphere(8, 14),
     box: () => box(),
+    wedge: () => wedge(),
     ring: () => hexRing(.16)
   };
-  const STRIDE = 12; // pos3 scale3 rot1 color4 glow1
+  const STRIDE = 13; // pos3 scale3 yaw1 color4 glow1 tilt1
 
   const VS = `#version 300 es
   layout(location=0) in vec3 aPos; layout(location=1) in vec3 aNormal;
   layout(location=2) in vec3 iPos; layout(location=3) in vec3 iScale; layout(location=4) in float iRot;
-  layout(location=5) in vec4 iColor; layout(location=6) in float iGlow;
+  layout(location=5) in vec4 iColor; layout(location=6) in float iGlow; layout(location=7) in float iTilt;
   uniform mat4 uViewProj; uniform float uTime;
   out vec3 vNormal; out vec4 vColor; out float vGlow; out vec3 vWorld;
   void main() {
-    vec3 p = aPos * iScale; float c = cos(iRot), s = sin(iRot);
+    // Tilt (about local Z: raises +X) first, then yaw about Y.
+    float tc = cos(iTilt), ts = sin(iTilt), c = cos(iRot), s = sin(iRot);
+    vec3 p = aPos * iScale;
+    p = vec3(tc * p.x - ts * p.y, ts * p.x + tc * p.y, p.z);
     p = vec3(c * p.x - s * p.z, p.y, s * p.x + c * p.z);
-    vec3 n = aNormal * sign(iScale) / max(abs(iScale), vec3(1e-4)); n = vec3(c * n.x - s * n.z, n.y, s * n.x + c * n.z);
+    vec3 n = aNormal * sign(iScale) / max(abs(iScale), vec3(1e-4));
+    n = vec3(tc * n.x - ts * n.y, ts * n.x + tc * n.y, n.z);
+    n = vec3(c * n.x - s * n.z, n.y, s * n.x + c * n.z);
     vec3 w = p + iPos;
     vNormal = normalize(n); vColor = iColor; vGlow = iGlow; vWorld = w;
     gl_Position = uViewProj * vec4(w, 1.0);
@@ -187,7 +205,7 @@
   class Layer {
     constructor() { this.data = {}; this.count = {}; this.dirty = true; }
     clear() { for (const k in this.count) this.count[k] = 0; this.dirty = true; }
-    add(mesh, x, y, z, sx, sy, sz, rot, color, glow = 0) {
+    add(mesh, x, y, z, sx, sy, sz, rot, color, glow = 0, tilt = 0) {
       const transparent = color[3] < 0.999, key = mesh + (transparent ? ':t' : '');
       let arr = this.data[key], n = this.count[key] || 0;
       if (!arr || (n + 1) * STRIDE > arr.length) {
@@ -196,14 +214,21 @@
       }
       const o = n * STRIDE;
       arr[o] = x; arr[o + 1] = y; arr[o + 2] = z; arr[o + 3] = sx; arr[o + 4] = sy; arr[o + 5] = sz; arr[o + 6] = rot;
-      arr[o + 7] = color[0]; arr[o + 8] = color[1]; arr[o + 9] = color[2]; arr[o + 10] = color[3]; arr[o + 11] = glow;
+      arr[o + 7] = color[0]; arr[o + 8] = color[1]; arr[o + 9] = color[2]; arr[o + 10] = color[3]; arr[o + 11] = glow; arr[o + 12] = tilt;
       this.count[key] = n + 1; this.dirty = true;
     }
     // A horizontal-ish beam from (ax,ay,az) to (bx,by,bz) using a box.
     beam(ax, ay, az, bx, by, bz, width, height, color, glow = 0) {
       const dx = bx - ax, dz = bz - az, len = Math.hypot(dx, dz);
       if (len < 1e-4) return;
-      this.add('box', (ax + bx) / 2, Math.min(ay, by), (az + bz) / 2, len, height + Math.abs(by - ay), width, -Math.atan2(dz, dx), color, glow);
+      this.add('box', (ax + bx) / 2, Math.min(ay, by), (az + bz) / 2, len, height + Math.abs(by - ay), width, Math.atan2(dz, dx), color, glow);
+    }
+    // A straight rod between two 3D points (slopes, barrels, ramps, trails).
+    rod(ax, ay, az, bx, by, bz, width, height, color, glow = 0) {
+      const dx = bx - ax, dy = by - ay, dz = bz - az, flat = Math.hypot(dx, dz), len = Math.hypot(flat, dy);
+      if (len < 1e-4) return;
+      const tilt = Math.atan2(dy, flat);
+      this.add('box', (ax + bx) / 2 + Math.sin(tilt) * height / 2 * dx / (flat || 1), (ay + by) / 2 - Math.cos(tilt) * height / 2, (az + bz) / 2 + Math.sin(tilt) * height / 2 * dz / (flat || 1), len, height, width, Math.atan2(dz, dx), color, glow, tilt);
     }
   }
 
@@ -225,7 +250,7 @@
       gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 24, 0);
       gl.enableVertexAttribArray(1); gl.vertexAttribPointer(1, 3, gl.FLOAT, false, 24, 12);
       gl.bindBuffer(gl.ARRAY_BUFFER, ibo);
-      const attrs = [[2, 3, 0], [3, 3, 12], [4, 1, 24], [5, 4, 28], [6, 1, 44]];
+      const attrs = [[2, 3, 0], [3, 3, 12], [4, 1, 24], [5, 4, 28], [6, 1, 44], [7, 1, 48]];
       for (const [loc, size, offset] of attrs) { gl.enableVertexAttribArray(loc); gl.vertexAttribPointer(loc, size, gl.FLOAT, false, STRIDE * 4, offset); gl.vertexAttribDivisor(loc, 1); }
       gl.bindVertexArray(null);
       meshes[name] = { vao, ibo, vertices: vertices.length / 6 };
@@ -289,7 +314,7 @@
             buf.stale = layer.version;
           }
           // Re-point instance attributes at this buffer (VAO captured ibo at creation).
-          const attrs = [[2, 3, 0], [3, 3, 12], [4, 1, 24], [5, 4, 28], [6, 1, 44]];
+          const attrs = [[2, 3, 0], [3, 3, 12], [4, 1, 24], [5, 4, 28], [6, 1, 44], [7, 1, 48]];
           for (const [loc, size, offset] of attrs) gl.vertexAttribPointer(loc, size, gl.FLOAT, false, STRIDE * 4, offset);
           gl.drawArraysInstanced(gl.TRIANGLES, 0, mesh.vertices, n);
         }

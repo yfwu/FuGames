@@ -23,7 +23,7 @@ test('3D page loads exactly the AutoHex rules stack, in the same order, and the 
   const core = ['hex-strategies.js', 'autohex-planner.js', 'hex-core.js', 'autohex-engine.js', 'autohex-visuals.js'];
   assert.deepEqual(core.filter(f => flat.includes(f)), core);
   assert.deepEqual(deep.slice(0, core.length), core, 'rules scripts load first and unchanged');
-  assert.deepEqual(deep.slice(core.length), ['autohex3d-logic.js', 'autohex3d-render.js', 'autohex3d-ui.js']);
+  assert.deepEqual(deep.slice(core.length), ['autohex3d-logic.js', 'autohex3d-render.js', 'autohex3d-scene.js', 'autohex3d-ui.js']);
   const ui = read('autohex3d-ui.js');
   assert.match(ui, /new Worker\('autohex-ai-worker\.js'\)/);
   assert.match(ui, /window\.AutoHex\b/);
@@ -31,7 +31,7 @@ test('3D page loads exactly the AutoHex rules stack, in the same order, and the 
 });
 
 test('3D presentation never writes game state: every change goes through game.act / start / pause / continueSandbox', () => {
-  for (const file of ['autohex3d-ui.js', 'autohex3d-logic.js', 'autohex3d-render.js']) {
+  for (const file of ['autohex3d-ui.js', 'autohex3d-logic.js', 'autohex3d-render.js', 'autohex3d-scene.js']) {
     const source = read(file);
     assert.doesNotMatch(source, /\b(?:game|view|g)\.(?:board|terrain|reserve|anchors|shields|unsupplied|hands|players|turrets|bridges|tunnels|airports|depots|drawPile|discardPile)\s*(?:\[[^\]]*\])?\s*=(?!=)/, file);
     assert.doesNotMatch(source, /\.(?:_remove|_capture|_damage|_draw|_beginTurn|_settleSupply|_finish)\s*\(/, file);
@@ -127,7 +127,7 @@ test('engineered terrain is the difference from the opening map', () => {
 });
 
 test('renderer and UI scripts parse; the page keeps the shared shell, rules and local assets', () => {
-  for (const file of ['autohex3d-render.js', 'autohex3d-ui.js', 'autohex3d-logic.js']) assert.doesNotThrow(() => new vm.Script(read(file), { filename: file }));
+  for (const file of ['autohex3d-render.js', 'autohex3d-scene.js', 'autohex3d-ui.js', 'autohex3d-logic.js']) assert.doesNotThrow(() => new vm.Script(read(file), { filename: file }));
   const html = read('autohex_3d.html');
   assert.match(html, /<details class="card rules ah3-rules">/); assert.match(html, /class="card play-panel ah3-stage"/);
   assert.match(html, /<use href="icons\.svg#autohex_3d">/);
