@@ -397,6 +397,65 @@
       for (let k = 0; k < 14; k++) { const a = rnd() * Math.PI * 2, sp = 2 + rnd() * 2.5; P.emit({ x, y: y + .4, z, vx: Math.cos(a) * sp, vy: 1 + rnd() * 2, vz: Math.sin(a) * sp, life: .5 + rnd() * .3, s0: .05, s1: .02, c0: C.white, c1: C.shield, a0: 1, a1: 0, g0: 1.1, g1: .3, grav: G * .6 }); }
     }
 
+    // ---------- Front Line expansion: arsenal, flak, workshop, drones ----------
+    const BRICK = rgb('#8d5a43'), ROOF = rgb('#4b4f55');
+    function arsenal(S, view, t) {
+      const i = t.cell, x = X[i], z = Z[i], h = top(view, i), team = PC[t.owner], yaw = Math.floor(hash(i) * 6) * DEG60;
+      const list = [['box', 0, 0, 0, .86, .3, .56, rgba(BRICK)], ['box', 0, .3, .29, .86, .015, .02, rgba(team)]];
+      for (let k = 0; k < 3; k++) list.push(['wedge', -.29 + k * .29, .3, 0, .28, .16, .56, rgba(ROOF), 0, 0, 0]);
+      list.push(['box', .44, 0, 0, .02, .2, .3, rgba(t.countdown <= 1 ? mix(C.fireHot, C.dark, .3) : C.dark), t.countdown <= 1 ? .5 : 0]);
+      list.push(['cyl', -.3, 0, -.2, .07, .78, .07, rgba(mix(BRICK, C.dark, .2))], ['cyl', -.3, .78, -.2, .085, .04, .085, rgba(C.dark)]);
+      list.push(['box', .1, 0, .42, .5, .02, .24, rgba(C.concrete)]);
+      parts(S, x, h, z, yaw, 0, list);
+    }
+    function chimney(view, t, dt) {
+      const i = t.cell, yaw = Math.floor(hash(i) * 6) * DEG60, h = top(view, i);
+      const cx = X[i] - .3 * Math.cos(yaw) + .2 * Math.sin(yaw), cz = Z[i] - .3 * Math.sin(yaw) - .2 * Math.cos(yaw);
+      if (rnd() < dt * (view.supplied[i] ? 3.5 : .8)) P.emit({ x: cx, y: h + .85, z: cz, vy: .45, life: 2.6, s0: .1, s1: .55, c0: C.smoke, c1: C.smokeLight, a0: .45, a1: 0, drag: .6, buoy: .25, wind: 1.3 });
+    }
+    function workshop(S, view, t) {
+      const i = t.cell, x = X[i], z = Z[i], h = top(view, i), yaw = Math.floor(hash(i * 3) * 6) * DEG60, team = PC[t.owner];
+      parts(S, x, h, z, yaw, 0, [
+        ['box', -.12, 0, 0, .66, .26, .46, rgba(mix(C.canvas, C.grey, .35))], ['wedge', -.12, .26, 0, .66, .13, .46, rgba(mix(team, C.steel, .4))],
+        ['box', .21, 0, 0, .02, .18, .22, rgba(C.dark)],
+        ['box', .38, 0, -.28, .04, .82, .04, rgba(rgb('#d9a52b'))], ['box', .2, .8, -.28, .5, .04, .04, rgba(rgb('#d9a52b'))],
+        ['box', .02, .5, -.28, .006, .3, .006, rgba(C.dark)], ['box', .02, .4, -.28, .12, .1, .12, rgba(C.wood)],
+        ['box', .32, 0, .3, .13, .11, .13, rgba(C.wood)], ['box', .45, 0, .26, .13, .11, .13, rgba(C.wood)], ['box', .38, .11, .28, .13, .11, .13, rgba(C.wood)]]);
+    }
+    function flakGun(L, view, t, aim, now) {
+      const i = t.cell, x = X[i], z = Z[i], h = top(view, i), armed = view.reserve[i] >= 1;
+      const yaw = aim !== null && aim !== undefined ? Math.atan2(aim.z - z, aim.x - x) : (now / 3000 + hash(i) * 6) % (Math.PI * 2);
+      const kick = recoil.has('f' + i) ? Math.max(0, 1 - (now - recoil.get('f' + i)) / 200) : 0;
+      L.add('cyl', x, h, z, .32, .09, .32, 0, rgba(C.sandbag));
+      parts(L, x, h + .09, z, yaw, 0, [['cyl', 0, 0, 0, .17, .08, .17, rgba(mix(C.steel, PC[t.owner], .3))], ['box', 0, .08, 0, .2, .14, .2, rgba(mix(C.steel, PC[t.owner], .2))]]);
+      for (const side of [-1, 1]) parts(L, x - Math.cos(yaw) * kick * .05, h + .26, z - Math.sin(yaw) * kick * .05, yaw, armed ? .95 : .25, [['box', .25, 0, side * .055, .5, .04, .04, rgba(armed ? C.dark : C.grey)]]);
+    }
+    function droneModel(L, x, y, z, yaw, t, owner, tilt = 0) {
+      const body = mix(PC[owner], C.dark, .35), list = [['box', 0, 0, 0, .2, .06, .2, rgba(body)], ['sphere', .06, -.01, 0, .035, .035, .035, rgba(C.red), 1.2]];
+      for (let k = 0; k < 4; k++) {
+        const a = Math.PI / 4 + k * Math.PI / 2, ax = Math.cos(a) * .17, az = Math.sin(a) * .17;
+        list.push(['box', ax / 2, .02, az / 2, .2, .015, .02, rgba(C.dark), 0, 0, 0]);
+        list.push(['cyl', ax, .045, az, .085, .006, .085, rgba(C.grey, .45)]);
+      }
+      parts(L, x, y, z, yaw, tilt, list);
+      for (let k = 0; k < 4; k++) { // spinning blades
+        const a = Math.PI / 4 + k * Math.PI / 2, bx = x + Math.cos(yaw) * Math.cos(a) * .17 - Math.sin(yaw) * Math.sin(a) * .17, bz = z + Math.sin(yaw) * Math.cos(a) * .17 + Math.cos(yaw) * Math.sin(a) * .17;
+        L.add('box', bx, y + .052, bz, .17, .005, .018, t * 40 + k, rgba(C.dark));
+      }
+    }
+    function airburst(x, y, z, ground, s = .6) {
+      P.emit({ x, y, z, life: .1, s0: .5 * s, s1: 1.1 * s, c0: C.flash, c1: C.fireHot, a0: .9, a1: 0, g0: 1, g1: .3 });
+      for (let k = 0; k < 6; k++) { const a = rnd() * 6.28, v = 1 + rnd(); P.emit({ x, y, z, vx: Math.cos(a) * v, vy: rnd() - .2, vz: Math.sin(a) * v, life: .4 + rnd() * .3, s0: .2 * s, s1: .6 * s, c0: C.fireHot, c1: C.ember, a0: .9, a1: 0, drag: 4 }); }
+      for (let k = 0; k < 7; k++) { const a = rnd() * 6.28, v = .4 + rnd() * .6; P.emit({ x, y, z, vx: Math.cos(a) * v, vy: rnd() * .3, vz: Math.sin(a) * v, life: 2 + rnd() * 1.4, s0: .25 * s, s1: (1 + rnd() * .6) * s, c0: C.smokeDark, c1: C.smoke, a0: .75, a1: 0, drag: 1.4, wind: 1.2 }); }
+      for (let k = 0; k < 8; k++) { const a = rnd() * 6.28, v = 1 + rnd() * 2; P.emit({ x, y, z, vx: Math.cos(a) * v, vy: rnd() * 2, vz: Math.sin(a) * v, life: 1.6, s0: .05, s1: .05, c0: C.dark, c1: C.dark, a0: 1, a1: .8, grav: G, floor: ground }); }
+    }
+    function tracers(PL, fx, fy, fz, tx, ty, tz, k) { // a stream of glowing rounds
+      for (let n = 0; n < 8; n++) { const q = ((k * 3 + n / 8) % 1); PL.add(lerp(fx, tx, q), lerp(fy, ty, q), lerp(fz, tz, q), .075, [1, .78, .35, .95], 1.2, .1 + n * .1); }
+    }
+    function flakPuffs(x, y, z) {
+      for (let k = 0; k < 3; k++) { const ox = (rnd() - .5) * 1.4, oy = (rnd() - .3) * .8, oz = (rnd() - .5) * 1.4; P.emit({ x: x + ox, y: y + oy, z: z + oz, life: .08, s0: .2, s1: .35, c0: C.flash, c1: C.fireHot, a0: .9, a1: 0, g0: .9, g1: .2 }); P.emit({ x: x + ox, y: y + oy, z: z + oz, life: 2.2, s0: .2, s1: .7, c0: C.smokeDark, c1: C.smoke, a0: .8, a1: 0, drag: 1.5, wind: 1 }); }
+    }
+
     // ---------- sorties: take-off, climbing turn, run-in, drop, egress ----------
     function planSortie(view, from, to, payload) {
       const yaw0 = runwayYaw(from), ux = Math.cos(yaw0), uz = Math.sin(yaw0), h0 = top(view, from) + .08, alt = Math.max(top(view, to), h0) + 3.2;
@@ -432,10 +491,18 @@
         let roll = 0;
         if (pose.turning) { const prev = sortiePose(f, Math.max(0, t - .1)); let dy = pose.yaw - prev.yaw; dy = Math.atan2(Math.sin(dy), Math.cos(dy)); roll = clamp(-dy * 6, -.7, .7); }
         const alpha = t > f.t3 - .8 ? (f.t3 - t) / .8 : 1;
-        heavy(D, pose.x, pose.y, pose.z, pose.yaw, pose.tilt, roll, e.player, alpha, f.payload === 'bomb' && Math.abs(t - f.release) < 1 ? 1 : 0);
+        if (e.intercept && t > f.release - .7) { // flak finds the aircraft on its run-in
+          roll += Math.sin(t * 9) * .12;
+          if (!e.hitBy) { e.hitBy = true; recoil.set('f' + e.flak, now); }
+          if (t < f.release) { tracers(PL, X[e.flak], top(view, e.flak) + .4, Z[e.flak], pose.x, pose.y, pose.z, t); if (rnd() < dt * 8) flakPuffs(pose.x, pose.y, pose.z); }
+          if (t > f.release - .2 && rnd() < dt * 25) P.emit({ x: pose.x, y: pose.y + .1, z: pose.z, life: 2.4, s0: .12, s1: .6, c0: C.smokeDark, c1: C.smoke, a0: .8, a1: 0, drag: .8, wind: 1 });
+          if (t > f.release - .2 && rnd() < dt * 10) P.emit({ x: pose.x, y: pose.y + .1, z: pose.z, life: .3, s0: .12, s1: .2, c0: C.fireHot, c1: C.fire, a0: .9, a1: 0 });
+        }
+        heavy(D, pose.x, pose.y, pose.z, pose.yaw, pose.tilt, roll, e.player, alpha, f.payload === 'bomb' && !e.intercept && Math.abs(t - f.release) < 1 ? 1 : 0);
         shadow(D, pose.x, pose.z, f.payload === 'crate' ? f.groundAt : .32, pose.y - .3, .9, pose.yaw);
         if (t > f.t1 * .7) engineSmoke(pose.x, pose.y, pose.z, pose.yaw, dt, .6);
       }
+      if (e.intercept) return;
       if (f.payload === 'bomb') { // a stick of four; the third lands on the target
         for (let k = 0; k < 4; k++) {
           const off = (k - 2) * .55, tr = f.release + off / f.speed, tb = t - tr;
@@ -491,6 +558,15 @@
           if (!e.done && k > .1) { e.done = true; emit({ kind: 'blast', x: X[e.at], y: top(view, e.at), z: Z[e.at], scale: .7, cell: e.at }); }
         } else if (e.kind === 'boom') {
           if (!e.done) { e.done = true; emit({ kind: 'blast', x: X[e.at] + (e.dx || 0), y: top(view, e.at), z: Z[e.at] + (e.dz || 0), scale: e.scale || .6, cell: e.at }); }
+        } else if (e.kind === 'dive') { // drone dives onto its target
+          const fy = top(view, e.from) + 1.25, ty = top(view, e.to) + .15, q = k * k;
+          const x = lerp(X[e.from], X[e.to], k), z = lerp(Z[e.from], Z[e.to], k), y = lerp(fy, ty, q);
+          if (k < 1) { droneModel(D, x, y, z, Math.atan2(Z[e.to] - Z[e.from], X[e.to] - X[e.from]), now / 1000, e.player, -.6); P.emit({ x, y, z, life: .6, s0: .05, s1: .2, c0: C.smokeLight, c1: C.white, a0: .4, a1: 0, drag: 1 }); }
+          else if (!e.done) { e.done = true; emit(e.hit ? { kind: 'blast', x: X[e.to], y: top(view, e.to), z: Z[e.to], scale: .75, cell: e.to } : { kind: 'deflect', x: X[e.to], y: top(view, e.to), z: Z[e.to] }); }
+        } else if (e.kind === 'flakdown') { // tracers climb to the drone; it bursts and falls
+          const y = top(view, e.at) + 1.25;
+          if (k < .45) { tracers(PL, X[e.flak], top(view, e.flak) + .4, Z[e.flak], X[e.at], y, Z[e.at], k); recoil.set('f' + e.flak, now); droneModel(D, X[e.at], y, Z[e.at], 0, now / 1000, e.from); }
+          else if (!e.done) { e.done = true; airburst(X[e.at], y, Z[e.at], top(view, e.at), .55); }
         } else if (e.kind === 'flare') {
           if (!e.done) { e.done = true; for (let n = 0; n < 8; n++) P.emit({ x: X[e.at], y: top(view, e.at) + .2, z: Z[e.at], vx: (rnd() - .5) * .8, vy: 4 + rnd() * 2, vz: (rnd() - .5) * .8, life: 1.8, s0: .12, s1: .06, c0: mix(PC[e.player] || C.grey, C.white, .4), c1: PC[e.player] || C.grey, a0: 1, a1: 0, g0: 1.1, g1: .4, grav: 3, drag: .5 }); }
         }
@@ -506,6 +582,7 @@
     }
 
     return { top, TOP, parts, P, Particles, tileColor, tile, terrain, castle, turret, muzzle, aimFor, road, junction, bridge, tunnel, routes, trucks, airfield, depot,
+      arsenal, chimney, workshop, flakGun, droneModel, airburst,
       fighter, heavy, airTraffic, blast, deflect, planSortie, effects, scars, colors: { PC, PCUT, PLIGHT }, C, rgb, mix, rgba };
   }
   root.AutoHex3DScene = Object.freeze({ create, Particles });

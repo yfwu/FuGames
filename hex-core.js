@@ -30,6 +30,12 @@
     airCooldown: 6, airdropRange: 10, bombardRange: 12, fortifyAge: 31,
     neutralPeriod: 12, neutralWarningRounds: 2, neutralTargets: 2, bridgeMin: 2, bridgeMax: 3, maxTunnels: 2, tunnelMaxSteps: 3, hillTurns: 3, cardExpiryTurns: 3 });
   const MAX_STONES = RULES.maxStones;
+  // Optional Front Line expansion (off unless a Game is created with expansion: true).
+  // Rear arsenals launch drones, flak guns intercept drones and aircraft,
+  // workshops raise rear supply production. All costs use existing resources.
+  const EXPANSION = Object.freeze({ arsenalSupplies: 8, workshopSupplies: 5, maxArsenals: 2, maxFlak: 2, maxWorkshops: 2, rearSafety: 3,
+    dronePeriod: 5, droneCost: 3, droneRange: 9, droneSpeed: 3, droneLife: 5, maxDrones: 2, flakRange: 3, flakShot: 1, workshopProduction: 2 });
+  const STRUCTURE_TYPES = Object.freeze(['arsenal', 'flak', 'workshop']);
   const PLANNER_LIMITS = Object.freeze({ nodes: 20, depth: 3, beam: 2, actionsPerPlan: 2, plans: 6, privatePath: 64, publicPath: 16, waypoints: 4 });
   const INTENT_TYPES = ['direct', 'flank', 'airport', 'interdict', 'defend', 'recover', 'fortify', 'expand'];
   const INTENT_STAGES = ['approach', 'build', 'hold', 'project', 'advance', 'repair'];
@@ -69,6 +75,12 @@
       description: 'Offer a 12-round nonaggression pact. Offer lasts 3 rounds; each faction may have at most 2 pacts.' }),
     accept: Object.freeze({ label: 'Accept pact', slots: 0, cost: 0, description: 'Accept a public incoming offer. Ends the turn.' }),
     reject: Object.freeze({ label: 'Reject offer', slots: 0, cost: 0, description: 'Reject a public incoming offer. Ends the turn.' }),
+    arsenal: Object.freeze({ label: 'Arsenal', slots: 1, cost: 4, expansion: true,
+      description: 'Expansion. Build on an own supplied rear stone (no enemy within 3) for 4 energy and 8 supplies. Every 5 owner turns, while supplied, it spends 3 supplies to launch a drone at an enemy stone within 9 (at most 2 drones aloft). Maximum 2.' }),
+    flak: Object.freeze({ label: 'Flak gun', slots: 1, cost: 3, expansion: true,
+      description: 'Expansion. Build on an own stone for 3 energy and 1 local reserve. Spends 1 reserve to shoot down a hostile drone, airdrop or bombardment within 3. Maximum 2.' }),
+    workshop: Object.freeze({ label: 'Supply workshop', slots: 1, cost: 3, expansion: true,
+      description: 'Expansion. Build on an own supplied rear stone (no enemy within 3) for 3 energy and 5 supplies. Adds 2 rear supplies after each own action while supplied. Maximum 2.' }),
     betray: Object.freeze({ label: 'Betray pact', slots: 0, cost: 3,
       description: 'End a pact, lose 4 score and 2 reputation, and incur an 18-round diplomacy cooldown and mutual grudge. Ends the turn.' })
   });
@@ -221,6 +233,8 @@
   }
   function logisticsCost(state, action) {
     if (action.type === 'airdrop') return RULES.deploymentSupply;
+    if (action.type === 'arsenal') return EXPANSION.arsenalSupplies;
+    if (action.type === 'workshop') return EXPANSION.workshopSupplies;
     return 0;
   }
   function combatPayment(state, p, action) {
@@ -236,7 +250,7 @@
       return {cell:source,amount:RULES.deploymentSupply+(connected[source]?0:1)};
     }
     if (action.type === 'destroy' || action.type === 'breach' || action.type === 'engineer' && sabotageTunnel(state,p,a)) return { cell: supplySource(state,p,a,2), amount: 2 };
-    if (action.type === 'shield' || action.type === 'turret' || action.type === 'exchange') return { cell: reserveAt(state,a) >= 1 ? a : undefined, amount: 1 };
+    if (action.type === 'shield' || action.type === 'turret' || action.type === 'exchange' || action.type === 'flak') return { cell: reserveAt(state,a) >= 1 ? a : undefined, amount: 1 };
     return null;
   }
   // Deterministic, bounded flow allocation. Every delivered unit consumes one
@@ -318,13 +332,31 @@
     if (state.board[a] !== player || state.board[b] !== player || distance(a,b) < 2 || (state.tunnels || []).filter(t => t.owner === player).length >= RULES.maxTunnels) return false;
     if (path.some((i,k) => k && !ADJ[path[k-1]].includes(i))) return false;
     const facilities = new Set([...(state.airports || []), ...(state.depots || [])].map(f => f.cell));
-    if (interior.some(i => state.anchors[i] || facilities.has(i) || (state.turrets || []).some(t => t.cell === i))) return false;
+    if (interior.some(i => state.anchors[i] || facilities.has(i) || (state.turrets || []).some(t => t.cell === i) || (state.structures || []).some(t => t.cell === i))) return false;
     for (const tunnel of state.tunnels || []) for (const i of path) if (tunnel.path.includes(i) && !(tunnel.owner === player && (i === a || i === b) && (i === tunnel.a || i === tunnel.b))) return false;
     return true;
   }
   function sabotageTunnel(state, player, i) { return (state.tunnels || []).find(t => t.owner !== player && !allied(state, player, t.owner) && t.path.slice(1,-1).includes(i)); }
   function ordinary(state, i) {
-    return !state.anchors[i] && !(state.turrets || []).some(t => t.cell === i) && ![...(state.bridges || []), ...(state.tunnels || [])].some(b => b.a === i || b.b === i);
+    return !state.anchors[i] && !(state.turrets || []).some(t => t.cell === i) && !(state.structures || []).some(t => t.cell === i) && ![...(state.bridges || []), ...(state.tunnels || [])].some(b => b.a === i || b.b === i);
+  }
+  function structureAt(state, i) { return (state.structures || []).find(t => t.cell === i && state.board[i] === t.owner) || null; }
+  function rearCell(state, p, i) {
+    for (const j of NEAR[i]) if (distance(i, j) <= EXPANSION.rearSafety && state.board[j] && state.board[j] !== p && !allied(state, p, state.board[j])) return false;
+    return true;
+  }
+  function droneTarget(state, p, from) {
+    let best = -1;
+    for (const c of CELLS) {
+      const i = c.i, o = state.board[i];
+      if (!o || o === p || state.anchors[i] || allied(state, p, o) || distance(from, i) > EXPANSION.droneRange) continue;
+      if (best < 0 || distance(from, i) < distance(from, best)) best = i;
+    }
+    return best;
+  }
+  function flakCover(state, p, i) { // first armed hostile flak gun covering cell i
+    return (state.structures || []).filter(t => t.type === 'flak' && t.owner !== p && !allied(state, p, t.owner) && state.board[t.cell] === t.owner && reserveAt(state, t.cell) >= EXPANSION.flakShot && distance(t.cell, i) <= EXPANSION.flakRange)
+      .sort((a, b) => distance(a.cell, i) - distance(b.cell, i) || a.cell - b.cell)[0] || null;
   }
   function adjacentCount(state, i, owner) { let n = 0; for (const j of ADJ[i]) if (state.board[j] === owner) n++; return n; }
   function combatStrength(state, player, i) {
@@ -376,6 +408,14 @@
       return !state.board[b] && !state.anchors[b] && !(state.tunnels || []).some(t => t.path.slice(1,-1).includes(b)) && state.terrain[b] !== 1 && stones < MAX_STONES && state.turrets.filter(t => t.owner === p).length < RULES.maxTurrets;
     }
     if (type === 'breach') return !!player.breachReady && !player.breachUsed && breachTarget(state,p,a);
+    if (meta.expansion) {
+      if (!state.expansion || state.board[a] !== p || state.anchors[a] || (state.turrets || []).some(t => t.cell === a) || (state.structures || []).some(t => t.cell === a)) return false;
+      if ((state.tunnels || []).some(t => t.path.slice(1,-1).includes(a))) return false;
+      const own = (state.structures || []).filter(t => t.owner === p && t.type === type && state.board[t.cell] === p).length;
+      if (own >= EXPANSION[type === 'arsenal' ? 'maxArsenals' : type === 'flak' ? 'maxFlak' : 'maxWorkshops']) return false;
+      if (type === 'flak') return true;
+      return !!computeSupply(state, p)[a] && rearCell(state, p, a);
+    }
     if (type === 'rest') return true;
     if (type === 'discard') return Number.isInteger(action.cardIndex) && action.cardIndex >= 0 && action.cardIndex < hand.length;
     if (type === 'deploy') {
@@ -390,7 +430,7 @@
     if (type === 'engineer') return !!sabotageTunnel(state, p, a) || !state.board[a] && state.terrain[a] === 1 || state.terrain[a] === 2 && (!state.board[a] || state.board[a] === p);
     if (type === 'tunnel') return tunnelLegal(state, p, cells);
     if (type === 'withdraw') return state.board[a] === p && !state.anchors[a];
-    if (type === 'turret') return !(state.tunnels || []).some(t => t.path.slice(1,-1).includes(a)) && state.board[a] === p && !state.anchors[a] && !(state.turrets || []).some(t => t.cell === a) && (state.turrets || []).filter(t => t.owner === p).length < RULES.maxTurrets;
+    if (type === 'turret') return !(state.tunnels || []).some(t => t.path.slice(1,-1).includes(a)) && state.board[a] === p && !state.anchors[a] && !(state.turrets || []).some(t => t.cell === a) && !(state.structures || []).some(t => t.cell === a) && (state.turrets || []).filter(t => t.owner === p).length < RULES.maxTurrets;
     if (type === 'shield') return state.board[a] === p && !state.anchors[a] && !state.shields[a];
     if (type === 'destroy') return !!state.board[a] && state.board[a] !== p && !state.anchors[a] && !allied(state, p, state.board[a]);
     if (type === 'bridge') return bridgeLegal(state, p, a, b);
@@ -448,6 +488,7 @@
       this.neutralEvents = options.neutralEvents === undefined ? mode === 'auto' : !!options.neutralEvents;
       this.terrainMode = options.terrain === 'classic' ? 'classic' : 'seeded';
       this.timedCards = options.timedCards === true || options.timed === true;
+      this.expansion = options.expansion === true;
       this.strategyConfig = strategyProvider ? strategyProvider.normalize(options.strategyConfig === undefined ? strategyProvider.DEFAULT_CONFIG : options.strategyConfig) : null;
       this.strategyConfigId = strategyProvider ? strategyProvider.id(this.strategyConfig) : 'builtin';
       this.strategyIds = Array.isArray(options.strategyIds) ? options.strategyIds.slice() : null;
@@ -469,7 +510,7 @@
       this.airports = airportCells(seed).map((cell, id) => ({ id, cell, owner: 0, supplied: false, cluster: 0, progress: 0, active: false }));
       this.depots = DEPOT_CELLS.map((cell, id) => ({ id, cell, owner: 0, supplied: false }));
       this.neutralWarning = null; this._neutralSector = Math.floor(this._neutralRandom() * 6); this._neutralCount = 0;
-      this.bridges = []; this.tunnels = []; this._tunnelId = 0; this.turrets = []; this.offers = []; this.alliances = []; this.events = []; this.recentActions = [];
+      this.bridges = []; this.tunnels = []; this._tunnelId = 0; this.turrets = []; this.structures = []; this.drones = []; this._droneId = 0; this.offers = []; this.alliances = []; this.events = []; this.recentActions = [];
       this.plannerStates = Array(playerCount + 1).fill(null); this.intents = Array(playerCount + 1).fill(null);
       this.players = [null]; this.hands = Array.from({ length: playerCount + 1 }, () => []);
       this.handAges = Array.from({ length: playerCount + 1 }, () => []);
@@ -508,6 +549,7 @@
         for (const i of inward) this.board[i] = p;
       }
       prepareFacilities(this);
+      if (this.expansion) this.telemetry.expansion = { arsenals: 0, flak: 0, workshops: 0, dronesLaunched: 0, droneStrikes: 0, dronesDown: 0, dronesExpired: 0, airIntercepts: 0, workshopSupplies: 0 };
       for (let k = 0; k < RULES.initialHand; k++) for (const p of PLAYERS) this._draw(p);
       this._event('ready', 0, mode === 'auto' ? 'Six directed routes. Hold the opposite edge; highest score after ten active minutes wins.' : playerCount + ' directed routes. First settled connection wins.');
       return this;
@@ -556,7 +598,9 @@
       this.board[i] = 0; this.shields[i] = 0; this.unsupplied[i] = 0; this.hillAge[i] = 0; this.age[i] = 0; this.fortified[i] = 0;
       this.bridges = this.bridges.filter(b => b.a !== i && b.b !== i);
       for (const tunnel of this.tunnels.filter(t => t.a === i || t.b === i)) this._collapseTunnel(tunnel, 0, 'endpoint-lost');
-      this.turrets = this.turrets.filter(t => t.cell !== i); return true;
+      this.turrets = this.turrets.filter(t => t.cell !== i);
+      if (this.structures && this.structures.length) this.structures = this.structures.filter(t => t.cell !== i);
+      return true;
     }
     _collapseTunnel(tunnel, actor, source) {
       this.tunnels = this.tunnels.filter(t => t.id !== tunnel.id);
@@ -607,7 +651,48 @@
         }
       }
       this.turrets = this.turrets.filter(t => t.life > 0 && this.board[t.cell] === t.owner);
+      if (this.expansion) this._expansionTurn(p);
       this._refreshFacilities(); this._countStones();
+    }
+    // Drones of the active owner fly, then its arsenals may launch new ones.
+    _expansionTurn(p) {
+      const X = this.telemetry.expansion || {};
+      for (const drone of (this.drones || []).filter(d => d.owner === p).sort((a, b) => a.id - b.id)) {
+        drone.life--;
+        const valid = i => i >= 0 && this.board[i] && this.board[i] !== p && !this.anchors[i] && !allied(this, p, this.board[i]);
+        if (!valid(drone.target)) drone.target = droneTarget(this, p, drone.cell);
+        if (drone.life < 0 || drone.target < 0) { this.drones = this.drones.filter(d => d !== drone); X.dronesExpired = (X.dronesExpired || 0) + 1; this._event('drone-expire', p, this.players[p].name + "'s drone ran out of fuel.", { cells: [drone.cell] }); continue; }
+        const from = drone.cell; let done = false;
+        for (let step = 0; step < EXPANSION.droneSpeed && !done; step++) {
+          if (distance(drone.cell, drone.target) <= 1) break;
+          let next = -1;
+          for (const j of ADJ[drone.cell]) if (next < 0 || distance(j, drone.target) < distance(next, drone.target) || distance(j, drone.target) === distance(next, drone.target) && j < next) next = j;
+          drone.cell = next;
+          const flak = flakCover(this, p, drone.cell);
+          if (flak) {
+            this.reserve[flak.cell] -= EXPANSION.flakShot; this.drones = this.drones.filter(d => d !== drone); done = true; X.dronesDown = (X.dronesDown || 0) + 1;
+            this._event('drone-down', flak.owner, this.players[flak.owner].name + ' flak shot down a ' + this.players[p].name + ' drone.', { cells: [drone.cell], origin: flak.cell, from: p, path: [from, drone.cell] });
+          }
+        }
+        if (done) continue;
+        if (distance(drone.cell, drone.target) <= 1) {
+          const target = drone.target; this.drones = this.drones.filter(d => d !== drone);
+          X.droneStrikes = (X.droneStrikes || 0) + 1;
+          this._damage(p, target, 'drone', drone.cell);
+        }
+      }
+      const supplied = computeSupply(this, p), player = this.players[p];
+      for (const arsenal of (this.structures || []).filter(t => t.type === 'arsenal' && t.owner === p && this.board[t.cell] === p).sort((a, b) => a.cell - b.cell)) {
+        arsenal.countdown--;
+        if (arsenal.countdown > 0) continue;
+        arsenal.countdown = EXPANSION.dronePeriod;
+        const target = droneTarget(this, p, arsenal.cell);
+        if (!supplied[arsenal.cell] || player.supplies < EXPANSION.droneCost || target < 0 || this.drones.filter(d => d.owner === p).length >= EXPANSION.maxDrones) continue;
+        player.supplies -= EXPANSION.droneCost; this.telemetry.suppliesSpent += EXPANSION.droneCost;
+        this.drones.push({ id: ++this._droneId, owner: p, cell: arsenal.cell, from: arsenal.cell, target, life: EXPANSION.droneLife });
+        X.dronesLaunched = (X.dronesLaunched || 0) + 1;
+        this._event('drone-launch', p, player.name + ' launched a drone.', { cells: [arsenal.cell], origin: arsenal.cell, target });
+      }
     }
     _refreshFacilities(progressPlayer = 0) {
       const supplies = new Map();
@@ -701,8 +786,10 @@
     }
     _settleSupply(p, beforeBoard = this.board) {
       const supplied = computeSupply(this,p), player=this.players[p], cells=[];
-      const gain=Math.min(RULES.suppliesCap-player.supplies,RULES.supplyProduction+2*this.depots.filter(d=>this.board[d.cell]===p&&supplied[d.cell]).length);
+      const shops=this.expansion?(this.structures||[]).filter(t=>t.type==='workshop'&&t.owner===p&&this.board[t.cell]===p&&supplied[t.cell]).length:0;
+      const gain=Math.min(RULES.suppliesCap-player.supplies,RULES.supplyProduction+2*this.depots.filter(d=>this.board[d.cell]===p&&supplied[d.cell]).length+EXPANSION.workshopProduction*shops);
       player.supplies+=gain;this.telemetry.suppliesEarned+=gain;
+      if(shops&&this.telemetry.expansion)this.telemetry.expansion.workshopSupplies+=Math.min(gain,EXPANSION.workshopProduction*shops);
       for(const i of CELL_IDS) if(this.board[i]===p) {
         this.delivered[i]=0;this.supplyLoad[i]=0;
         if(this.anchors[i]) { this.unsupplied[i]=0; continue; }
@@ -795,6 +882,15 @@
       else if (type === 'rest') player.energy = Math.min(RULES.energyCap, player.energy + 3);
       else if (type === 'turret') this.turrets.push({ owner: p, cell: a, countdown: RULES.turretPeriod, life: RULES.turretLife });
       else if (type === 'destroy') this._damage(p, a, 'demolition');
+      else if (airAction && this.expansion && flakCover(this, p, b)) {
+        const flak = flakCover(this, p, b); this.reserve[flak.cell] -= EXPANSION.flakShot;
+        if (this.telemetry.expansion) this.telemetry.expansion.airIntercepts++;
+        this._event('air-intercept', flak.owner, this.players[flak.owner].name + ' flak intercepted a ' + type + '.', { cells: [b], origin: flak.cell, from: p, source: type, airport: a });
+      }
+      else if (type === 'arsenal' || type === 'flak' || type === 'workshop') {
+        this.structures.push({ type, owner: p, cell: a, countdown: type === 'arsenal' ? EXPANSION.dronePeriod : 0 });
+        if (this.telemetry.expansion) this.telemetry.expansion[{ arsenal: 'arsenals', flak: 'flak', workshop: 'workshops' }[type]]++;
+      }
       else if (type === 'airdrop') {
         this.reserve[b] = RULES.deploymentSupply; this.board[b] = p; this.age[b] = 0; this.fortified[b] = 0; this.unsupplied[b] = 0; this.shields[b] = 0;
         this.turrets.push({ owner: p, cell: b, countdown: RULES.turretPeriod, life: RULES.turretLife }); this.telemetry.airdrops++;
@@ -837,7 +933,7 @@
         activeMs: this.activeMs, captures: this.telemetry.captures - before.captures, destroyed: this.telemetry.destroyed - before.destroyed, meaningful };
       this.lastAction = record; this.recentActions.push(record);
       if (this.recentActions.length > RULES.recentActionLimit) this.recentActions.shift();
-      const messages = { breach: 'announced a breakthrough for its next action', tunnel: 'constructed a public tunnel', deploy: 'deployed a stone', engineer: 'completed engineering', withdraw: 'withdrew a stone', turret: 'built a turret', shield: 'raised a shield', bridge: 'linked a bridge', reroute: 'rerouted a bridge', exchange: 'exchanged positions', offer: 'offered a pact', accept: 'accepted a pact', reject: 'rejected a pact', betray: 'broke a pact (−4 score)', discard: 'recycled a card', rest: 'rested', airdrop: 'airdropped a turret', bombard: 'launched an air bombardment' };
+      const messages = { arsenal: 'built a rear arsenal', flak: 'emplaced a flak gun', workshop: 'opened a supply workshop', breach: 'announced a breakthrough for its next action', tunnel: 'constructed a public tunnel', deploy: 'deployed a stone', engineer: 'completed engineering', withdraw: 'withdrew a stone', turret: 'built a turret', shield: 'raised a shield', bridge: 'linked a bridge', reroute: 'rerouted a bridge', exchange: 'exchanged positions', offer: 'offered a pact', accept: 'accepted a pact', reject: 'rejected a pact', betray: 'broke a pact (−4 score)', discard: 'recycled a card', rest: 'rested', airdrop: 'airdropped a turret', bombard: 'launched an air bombardment' };
       if (type !== 'destroy') this._event(type, p, player.name + ' ' + messages[type] + (action.target ? ' with ' + this.players[action.target].name : '') + '.', { cells: cells.slice(), target: action.target, ...(airAction ? { origin: a, source: type } : {}) });
       if (this._simulation) { this._supplyCache = null; this._simulationCells = Array.from({ length: playerCount + 1 }, () => []); for (let i = 0; i < COUNT; i++) if (this.board[i]) this._simulationCells[this.board[i]].push(i); }
       this._settleSupply(p, beforeBoard); this._completeOwnAction(p, beforeBoard, airAction, cells);
@@ -865,6 +961,7 @@
         reserve: Array.from(this.reserve), delivered: Array.from(this.delivered), supplyLoad: Array.from(this.supplyLoad), anchors: Array.from(this.anchors), shields: Array.from(this.shields), unsupplied: Array.from(this.unsupplied), supplied: Array.from(supplied), range: Array.from(range),
         hillAge: Array.from(this.hillAge), age: Array.from(this.age), fortified: Array.from(this.fortified), airports: this.airports.map(a => ({ ...a })), depots: this.depots.map(d => ({ ...d })),
         neutralEvents: this.neutralEvents, neutralWarning: this.neutralWarning ? { ...this.neutralWarning, cells: this.neutralWarning.cells.slice() } : null,
+        expansion: !!this.expansion, structures: (this.structures || []).map(t => ({ ...t })), drones: (this.drones || []).map(d => ({ ...d })),
         bridges: this.bridges.map(b => ({ ...b })), tunnels: this.tunnels.map(t => ({ ...t, path: t.path.slice() })), turrets: this.turrets.map(t => ({ ...t })), players: this.players.map(p => p && ({ ...p, profile: { ...p.profile }, strategy: p.strategy && clone(p.strategy), grudgeUntil: p.grudgeUntil.slice() })),
         offers: this.offers.map(o => ({ ...o })), alliances: this.alliances.map(a => ({ ...a })), events: clone(this.events),
         plannerMemory: PLAYERS.includes(player) && this.plannerStates[player] ? clone(this.plannerStates[player]) : null,
@@ -1133,7 +1230,8 @@
     sim.coreConfig = CORE_CONFIG; sim.terrainMode = view.terrainMode; sim.timedCards = !!view.timedCards; sim.strategyConfig = view.strategyConfig || null; sim.strategyConfigId = view.strategyConfigId; sim.deckRecipe = (view.deckRecipe || []).slice();
     sim.age = Uint16Array.from(view.age || Array(COUNT).fill(0));
     sim.players = view.players.map(p => p && ({ ...p, profile: { ...p.profile }, strategy: p.strategy && JSON.parse(JSON.stringify(p.strategy)), grudgeUntil: (p.grudgeUntil || Array(playerCount + 1).fill(0)).slice() }));
-    for (const name of ['bridges', 'turrets', 'airports', 'depots', 'offers', 'alliances']) sim[name] = (view[name] || []).map(x => ({ ...x }));
+    for (const name of ['bridges', 'turrets', 'airports', 'depots', 'offers', 'alliances', 'structures', 'drones']) sim[name] = (view[name] || []).map(x => ({ ...x }));
+    sim.expansion = !!view.expansion; sim._droneId = Math.max(0, ...sim.drones.map(d => d.id || 0));
     sim.tunnels = (view.tunnels || []).map(t => ({ ...t, path: t.path.slice() })); sim._tunnelId = Math.max(0,...sim.tunnels.map(t => t.id || 0));
     sim.handAges = Array.from({ length: playerCount + 1 }, () => []);
     sim.handAges[perspective] = (view.handAges && (view._simulation ? view.handAges[perspective] : view.handAges) || []).slice();
@@ -1164,15 +1262,54 @@
     return sim;
   }
   let strategicPlanner = null;
+  // Front Line expansion doctrine. The rollout planner cannot see payoffs that
+  // arrive many turns later, so builds are chosen by these public, deterministic
+  // rules before the planner; with the expansion off this never runs.
+  function expansionAction(view) {
+    if (!view.expansion) return null;
+    const p = view.turn, pl = view.players[p], done = pl.completedActions || 0;
+    if (done < 6 || done % 3 !== 1) return null;
+    const supply = computeSupply(view, p), own = [];
+    let cut = 0;
+    for (let i = 0; i < COUNT; i++) if (view.board[i] === p) { own.push(i); if (!supply[i]) cut++; }
+    if (cut >= 3) return null;
+    const count = type => (view.structures || []).filter(t => t.owner === p && t.type === type && view.board[t.cell] === p).length;
+    const first = (type, cells) => { for (const i of cells) { const action = { type, cells: [i] }; if (legalAction(view, action)) return action; } return null; };
+    const hostile = o => o && o !== p && !allied(view, p, o);
+    const threat = i => {
+      let n = 0;
+      for (const a of view.airports || []) if (a.active && hostile(a.owner) && distance(a.cell, i) <= RULES.bombardRange) n += 2;
+      for (const d of view.drones || []) if (hostile(d.owner) && distance(d.cell, i) <= EXPANSION.droneRange) n += 3;
+      for (const t of view.structures || []) if (t.type === 'arsenal' && hostile(t.owner) && view.board[t.cell] === t.owner && distance(t.cell, i) <= EXPANSION.droneRange + 2) n += 2;
+      return n;
+    };
+    if (count('flak') < EXPANSION.maxFlak && pl.energy >= ACTION_META.flak.cost) {
+      const cover = i => own.filter(j => supply[j] && distance(i, j) <= EXPANSION.flakRange).length;
+      const cells = own.filter(i => !view.anchors[i] && ordinary(view, i) && reserveAt(view, i) >= 2 && threat(i) >= 3)
+        .sort((a, b) => threat(b) * 2 + cover(b) - (threat(a) * 2 + cover(a)) || a - b);
+      const action = first('flak', cells.slice(0, 12)); if (action) return action;
+    }
+    const rear = own.filter(i => !view.anchors[i] && supply[i] && ordinary(view, i) && rearCell(view, p, i));
+    if (count('workshop') < 1 && done >= 9 && pl.supplies >= EXPANSION.workshopSupplies && pl.supplies <= 16 && pl.energy >= ACTION_META.workshop.cost) {
+      const action = first('workshop', rear.slice().sort((a, b) => distance(pl.home, a) - distance(pl.home, b) || a - b)); if (action) return action;
+    }
+    if (count('arsenal') < (pl.supplies >= 16 && done >= 30 ? 2 : 1) && pl.supplies >= EXPANSION.arsenalSupplies + 4 && pl.energy >= ACTION_META.arsenal.cost) {
+      const reach = i => CELL_IDS.filter(j => hostile(view.board[j]) && !view.anchors[j] && distance(i, j) <= EXPANSION.droneRange).length;
+      const cells = rear.filter(i => reach(i) > 0).sort((a, b) => reach(b) - reach(a) || a - b);
+      const action = first('arsenal', cells.slice(0, 12)); if (action) return action;
+    }
+    return null;
+  }
   function chooseAction(state) {
     if (!state || state.phase !== 'running' || (state.observer !== undefined && state.observer !== state.turn)) return null;
     const view = state instanceof Game && !state._simulation ? state.observation(state.turn) : state;
+    const built = expansionAction(view); if (built) return built;
     return strategicPlanner ? strategicPlanner.choose(view) : greedyAction(view);
   }
   const api = { Game, CORE_CONFIG, mode, playerCount, TURN_LIMIT, SEAT_SLOTS, RECIPE_SIZE, makeRecipe, legalSelection, tunnelLegal, transportLinks, RADIUS, COUNT, CELLS, ADJ, PLAYERS, CARD_META, ACTION_META, CARD_TYPES, DECK_SIZE, MAX_STONES,
     RULES, PROFILES, PLANNER_LIMITS, TACTICS: strategyProvider.DEFAULT_CONFIG.tactics, index, distance, breachTarget, breachBoost, legalAction, chooseAction, inRange, computeSupply, supplyDelivery, reserveAt, supplySource, logisticsCost, combatPayment, goalCell, allied, alliesOf,
     bridgeConflict, bridgesConflict, bridgeLegal, combatStrength, actionCost, AIRPORT_CELLS, DEPOT_CELLS, airportCells, airportStatus, activeAirport, sectorOf,
-    createPublicSimulation, greedyAction };
+    createPublicSimulation, greedyAction, EXPANSION, STRUCTURE_TYPES, expansionAction, flakCover, droneTarget, rearCell };
   const provider = typeof module === 'object' && module.exports ? require('./autohex-planner.js') : globalThis.AutoHexPlanner;
   if (provider) strategicPlanner = provider.create(api);
   api.plannerAvailable = !!strategicPlanner;

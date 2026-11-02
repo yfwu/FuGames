@@ -47,6 +47,9 @@ async function decide(page) {
     const targets = [];
     for (const p of E.PLAYERS) if (p !== me) for (const c of L.supplyChokepoints(v, E, p)) targets.push(c);
     const cutValue = new Map(targets.map(c => [c.cell, c.cut]));
+    // Front Line expansion: build through the same buttons a player uses.
+    const build = E.expansionAction ? E.expansionAction(v) : null;
+    if (build) { h.select(build.type); if (h.legal.includes(build.cells[0])) return { type: build.type, cell: build.cells[0] }; }
     const k = v.hand.indexOf('destroy');
     if (k >= 0 && pl.energy >= 5) { const pick = try_('destroy', k, i => (cutValue.get(i) || 0) >= 3 ? cutValue.get(i) : -1e9); if (pick) return pick; }
     const chokes = new Map(L.supplyChokepoints(v, E, me).map(c => [c.cell, c.cut]));
@@ -131,7 +134,9 @@ async function click(page, cell, touch = false) {
       await page.evaluate(() => autoHex3D.focus(autoHex3D.E.index(0, 0), 62)); await page.waitForTimeout(300);
       await page.locator('#viewport').screenshot({ path: path.join(out, 'spectator-overview.png') });
       const data = await snapshot(page); assertSame(page, data); assert.deepEqual(errors, []);
-      report.cases.push({ name: 'desktop-1280-spectator', plies: data.ply, scores: data.scores, activeSeconds: Math.round((await page.evaluate(() => autoHex3D.game.activeMs)) / 1000), replayIdentical: true, errors });
+      const expansion = await page.evaluate(() => ({ ...autoHex3D.game.telemetry.expansion, structures: autoHex3D.view.structures.length }));
+      assert.ok(expansion.structures > 0 && expansion.dronesLaunched > 0, 'expansion is on by default and used');
+      report.cases.push({ name: 'desktop-1280-spectator', plies: data.ply, scores: data.scores, activeSeconds: Math.round((await page.evaluate(() => autoHex3D.game.activeMs)) / 1000), expansion, replayIdentical: true, errors });
       await page.close();
     }
     // 3. Phones: touch taps on the canvas, no horizontal overflow.
@@ -169,7 +174,7 @@ async function click(page, cell, touch = false) {
       await page.screenshot({ path: path.join(out, 'full-campaign-result.png') });
       const data = await snapshot(page); assertSame(page, data);
       const result = await page.evaluate(() => autoHex3D.game.result);
-      const telemetry = await page.evaluate(() => { const t = autoHex3D.game.telemetry; return { captures: t.captures, destroyed: t.destroyed, supplyRetreats: t.supplyRetreats, goalArrivals: t.goalArrivals, cardsUsed: t.cardsUsed, turretShots: t.turretShots, airdrops: t.airdrops, bombardments: t.bombardments, reshuffles: t.reshuffles }; });
+      const telemetry = await page.evaluate(() => { const t = autoHex3D.game.telemetry; return { captures: t.captures, destroyed: t.destroyed, supplyRetreats: t.supplyRetreats, goalArrivals: t.goalArrivals, cardsUsed: t.cardsUsed, turretShots: t.turretShots, airdrops: t.airdrops, bombardments: t.bombardments, reshuffles: t.reshuffles, expansion: t.expansion }; });
       assert.equal(await page.locator('#result').isVisible(), true); assert.deepEqual(errors, []);
       report.cases.push({ name: 'full-campaign-spectator', plies: data.ply, standings: result.standings, telemetry, replayIdentical: true, errors });
       await page.close();

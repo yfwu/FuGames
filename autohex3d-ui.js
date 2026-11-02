@@ -12,13 +12,13 @@
   const NAMES = ['中立', '青綠', '珊瑚', '紫藤', '藍灰', '草綠', '琥珀'];
   const LETTER = p => String.fromCharCode(64 + p);
   const localName = p => p ? `${LETTER(p)} ${NAMES[p]}` : '中立';
-  const LABELS = { breach: '破陣令', deploy: '鋪子／攻占', engineer: '工程', tunnel: '地道', withdraw: '撤回', rest: '休整', turret: '炮台', destroy: '拆除', bridge: '橋梁', reroute: '改接', shield: '護盾', exchange: '換位', discard: '棄牌', offer: '提議停戰', accept: '接受停戰', reject: '拒絕停戰', betray: '背盟', airdrop: '空投炮台', bombard: '航空轟炸' };
+  const LABELS = { arsenal: '兵工廠', flak: '防空砲', workshop: '補給工坊', breach: '破陣令', deploy: '鋪子／攻占', engineer: '工程', tunnel: '地道', withdraw: '撤回', rest: '休整', turret: '炮台', destroy: '拆除', bridge: '橋梁', reroute: '改接', shield: '護盾', exchange: '換位', discard: '棄牌', offer: '提議停戰', accept: '接受停戰', reject: '拒絕停戰', betray: '背盟', airdrop: '空投炮台', bombard: '航空轟炸' };
   const MARKS = { reroute: '↗', exchange: '⇄', breach: '⚑' };
   const ICONS = { turret: 'turret', destroy: 'remove', bridge: 'bridge', shield: 'shield' };
   const cardMark = type => { if (!ICONS[type]) return node('span', 'mark', MARKS[type] || '•'); const span = node('span', 'mark'); span.innerHTML = `<svg viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#${ICONS[type]}"></use></svg>`; return span; };
   const CARD_TEXT = { turret: '射程 3，每 3 次己方回合開火；每發 2 存糧。', destroy: '移除 5 格內敵子；附近己子付 2 存糧。', bridge: '連接相距 2–3 直線格的兩枚己子，傳遞補給。', reroute: '改接既有橋梁的一端。', shield: '防守 +2，吸收一次拆除或炮擊。', exchange: '與相鄰空格或敵方普通棋子換位。', breach: '公開儲備：預告突破格，下次攻占忽略鄰援。' };
-  const HINTS = { deploy: '鋪空格 2 能量並從 5 格內己子移交 3 存糧；攻占 4 能量，須足夠鄰援。河流先工程。', engineer: '把河流或山丘整成平地，或破壞敵方地道內部格。', tunnel: '從己子出發逐格選 3–4 格相鄰路徑，終點是另一枚己子，再按「完成地道」。', withdraw: '撤回自己的非家園棋子，回復 1 能量。', turret: '選自己的非家園棋子架炮台。', destroy: '選 5 格內敵方非家園棋子。', bridge: '依序選兩枚己子，相距 2–3 直線格。', reroute: '依序選保留端點、舊端點、新端點。', shield: '選自己的非家園棋子。', exchange: '先選自己的普通棋子，再選相鄰的空格或敵子。', breach: '選一枚與補給線相鄰、向對岸前進的敵子。', airdrop: '先選啟用的己方機場，再選 10 格內空格。', bombard: '先選啟用的己方機場，再選 12 格內敵子。' };
-  const EVENT_TEXT = { capture: '攻占敵子', destroy: '擊毀敵子', 'shield-block': '護盾擋下攻擊', 'supply-retreat': '斷補撤退', tunnel: '建造地道', turret: '架設炮台', shield: '架設護盾', bridge: '架橋', reroute: '改接橋梁', exchange: '換位', airdrop: '空投炮台', bombard: '航空轟炸', offer: '提議停戰', accept: '接受停戰', reject: '拒絕停戰', betray: '背盟（−4 分）', 'goal-arrival': '接通對岸！', 'goal-lost': '失去對岸連線', 'airport-unlocked': '機場啟用', 'airport-lost': '機場停用', 'depot-control': '接管物資站', fortified: '工事完成', 'hill-retreat': '山丘撤退', 'card-expired': '手牌到期', 'tunnel-collapse': '地道崩塌', 'neutral-warning': '中立事件預警', 'neutral-strike': '中立事件命中', 'neutral-block': '擋下中立事件', reshuffle: '棄牌重洗', 'breach-ready': '取得破陣令', breach: '預告破陣', 'campaign-end': '戰役結算', sandbox: '自由對戰開始', 'alliance-expired': '停戰到期', withdraw: '撤回', engineer: '工程', deploy: '鋪子', rest: '休整', discard: '棄牌', ready: '戰場就緒' };
+  const HINTS = { arsenal: '選連通家園、3 格內沒有敵子的後方棋子：4 能量、8 物資。每 5 次己方回合放出一架無人機。', flak: '選自己的棋子架防空砲：3 能量、當地 1 存糧。擊落 3 格內的敵方無人機、空投與轟炸。', workshop: '選連通家園的後方棋子：3 能量、5 物資。之後每次己方行動物資庫 +2。', deploy: '鋪空格 2 能量並從 5 格內己子移交 3 存糧；攻占 4 能量，須足夠鄰援。河流先工程。', engineer: '把河流或山丘整成平地，或破壞敵方地道內部格。', tunnel: '從己子出發逐格選 3–4 格相鄰路徑，終點是另一枚己子，再按「完成地道」。', withdraw: '撤回自己的非家園棋子，回復 1 能量。', turret: '選自己的非家園棋子架炮台。', destroy: '選 5 格內敵方非家園棋子。', bridge: '依序選兩枚己子，相距 2–3 直線格。', reroute: '依序選保留端點、舊端點、新端點。', shield: '選自己的非家園棋子。', exchange: '先選自己的普通棋子，再選相鄰的空格或敵子。', breach: '選一枚與補給線相鄰、向對岸前進的敵子。', airdrop: '先選啟用的己方機場，再選 10 格內空格。', bombard: '先選啟用的己方機場，再選 12 格內敵子。' };
+  const EVENT_TEXT = { arsenal: '建造兵工廠', flak: '架設防空砲', workshop: '開設補給工坊', 'drone-launch': '放出無人機', 'drone-down': '防空砲擊落無人機', 'drone-expire': '無人機燃料耗盡', 'air-intercept': '防空砲攔截空中行動', capture: '攻占敵子', destroy: '擊毀敵子', 'shield-block': '護盾擋下攻擊', 'supply-retreat': '斷補撤退', tunnel: '建造地道', turret: '架設炮台', shield: '架設護盾', bridge: '架橋', reroute: '改接橋梁', exchange: '換位', airdrop: '空投炮台', bombard: '航空轟炸', offer: '提議停戰', accept: '接受停戰', reject: '拒絕停戰', betray: '背盟（−4 分）', 'goal-arrival': '接通對岸！', 'goal-lost': '失去對岸連線', 'airport-unlocked': '機場啟用', 'airport-lost': '機場停用', 'depot-control': '接管物資站', fortified: '工事完成', 'hill-retreat': '山丘撤退', 'card-expired': '手牌到期', 'tunnel-collapse': '地道崩塌', 'neutral-warning': '中立事件預警', 'neutral-strike': '中立事件命中', 'neutral-block': '擋下中立事件', reshuffle: '棄牌重洗', 'breach-ready': '取得破陣令', breach: '預告破陣', 'campaign-end': '戰役結算', sandbox: '自由對戰開始', 'alliance-expired': '停戰到期', withdraw: '撤回', engineer: '工程', deploy: '鋪子', rest: '休整', discard: '棄牌', ready: '戰場就緒' };
   const QUIET = new Set(['deploy', 'rest', 'discard', 'engineer', 'goal-hold', 'withdraw', 'offer-expired', 'ready']);
   const CARD_ORDER = ['turret', 'destroy', 'bridge', 'reroute', 'shield', 'exchange'];
   const CARD_COLORS = { turret: '#ad7b23', destroy: '#a65e46', bridge: '#267477', reroute: '#4d739e', shield: '#84618c', exchange: '#668047' };
@@ -48,7 +48,7 @@
   let initialTerrain = null, paved = new Set(), goalOf = new Int8Array(E.COUNT);
   let selection = { type: 'deploy', cells: [] }, queue = [], legal = new Set(), legalKey = '';
   let hovered = -1, focused = -1, actionLog = [], lastEventId = 0, tileColors = null, tileAnim = new Map(), holdUntil = new Map();
-  let forest = [], routes = [], aim = new Map(), scars = [], chokes = [], targets = [], staticDirty = true, animUntil = 0;
+  let forest = [], routes = [], aim = new Map(), droneAnim = new Map(), scars = [], chokes = [], targets = [], staticDirty = true, animUntil = 0;
   let effects = [], layers = { supply: true, position: false, choke: true, plan: false };
   let aiTimer = null, queueTimer = null, generation = 0, timing = false, lastStamp = 0, windowStart = 0, windowPly = -1, lastClockPaint = 0, lastMini = 0;
   let animClock = 0, toastTimer = null, lastHandKey = '', resultShown = false, wasStarted = false;
@@ -155,7 +155,7 @@
 
   // ---------- game lifecycle ----------
   function readRecipe() {
-    return { seed: $('seed').value.trim() || 'autohex3d', first: Number($('starter').value), rotation: Number($('rotation').value), durationMs: E.RULES.durationMs,
+    return { seed: $('seed').value.trim() || 'autohex3d', first: Number($('starter').value), rotation: Number($('rotation').value), durationMs: E.RULES.durationMs, expansion: $('expansion').value !== 'off',
       neutralEvents: $('neutral-events').value !== 'off', terrain: $('terrain-mode').value === 'plain' ? 'classic' : 'seeded', timedCards: $('timed-cards').value === 'timed' };
   }
   function reset({ fresh = false, start = false, keep = false } = {}) {
@@ -169,7 +169,7 @@
     goalOf = new Int8Array(E.COUNT);
     for (const p of E.PLAYERS) for (let i = 0; i < E.COUNT; i++) if (E.goalCell(game, p, i)) goalOf[i] = p;
     selection = { type: 'deploy', cells: [] }; queue = []; legal = new Set(); legalKey = '';
-    actionLog = []; lastEventId = 0; effects = []; scars = []; tileColors = null; tileAnim.clear(); holdUntil.clear(); scene.P.list.length = 0;
+    actionLog = []; lastEventId = 0; effects = []; scars = []; tileColors = null; tileAnim.clear(); holdUntil.clear(); droneAnim.clear(); scene.P.list.length = 0;
     windowPly = -1; resultShown = false; wasStarted = start; lastHandKey = '';
     $('result').hidden = true; $('event-log').replaceChildren(node('li', '', '戰場已就緒。'));
     if (start) game.start();
@@ -207,7 +207,10 @@
       const hold = (cell, ms) => holdUntil.set(cell, Math.max(holdUntil.get(cell) || 0, now + ms));
       const shell = (from, to, after) => { const dur = 600 + 110 * E.distance(from, to); fx('shell', { from, to, dur, after }); hold(to, dur); };
       const hit = e.type === 'destroy';
-      if ((hit || e.type === 'shield-block') && e.source === 'bombard' && Number.isInteger(e.origin) && cells.length) {
+      if ((hit || e.type === 'shield-block') && e.source === 'drone' && Number.isInteger(e.origin) && cells.length) { fx('dive', { from: e.origin, to: cells[0], dur: 520, hit }); hold(cells[0], 520); }
+      else if (e.type === 'drone-down' && cells.length) fx('flakdown', { at: cells[0], flak: e.origin, from: e.from, dur: 700 });
+      else if (e.type === 'air-intercept' && Number.isInteger(e.airport) && cells.length) { const plan = scene.planSortie(view, e.airport, cells[0], e.source === 'airdrop' ? 'crate' : 'bomb'); effects.push({ kind: 'sortie', start: now, player: e.from, plan, hits: [], intercept: true, flak: e.origin, dur: plan.dur + 300 }); }
+      else if ((hit || e.type === 'shield-block') && e.source === 'bombard' && Number.isInteger(e.origin) && cells.length) {
         const plan = scene.planSortie(view, e.origin, cells[0], 'bomb'); fx('sortie', { plan, hit, hits: [], dur: plan.dur + 300 }); hold(cells[0], plan.landAt);
       } else if ((hit || e.type === 'shield-block') && Number.isInteger(e.origin) && cells.length) shell(e.origin, cells[0], hit ? 'blast' : 'deflect');
       else if ((hit || e.type === 'shield-block') && cells.length) { // demolition: shelled from the nearest own position
@@ -256,6 +259,15 @@
     forest = V.supplyForest(view, E.ADJ);
     routes = scene.routes(view, forest);
     aim = new Map(view.turrets.map(t => [t.cell, scene.aimFor(view, t.cell, t.owner)]));
+    const alive = new Set();
+    for (const d of view.drones || []) {
+      alive.add(d.id);
+      const to = { x: X[d.cell], y: scene.top(view, d.cell) + 1.25, z: Z[d.cell], cell: d.cell, target: d.target, owner: d.owner }, old = droneAnim.get(d.id);
+      if (!old) droneAnim.set(d.id, { from: { x: X[d.from], y: scene.top(view, d.from) + .35, z: Z[d.from] }, to, start: now, dur: 900 });
+      else if (old.to.cell !== d.cell) droneAnim.set(d.id, { from: dronePos(old, now), to, start: now, dur: 1000 });
+      else old.to.target = d.target;
+    }
+    for (const id of [...droneAnim.keys()]) if (!alive.has(id)) droneAnim.delete(id);
     chokes = L.supplyChokepoints(view, E, subject());
     targets = [];
     for (const p of E.PLAYERS) if (p !== subject() && !E.allied(view, subject(), p)) targets.push(...L.supplyChokepoints(view, E, p).filter(c => c.cut >= 3).slice(0, 2));
@@ -308,6 +320,12 @@
         enabled = enabled && pl.airCooldown === 0 && pl.supplies >= m.supplyCost + E.logisticsCost(v, { type, cells: [] });
       }
       if (type === 'tunnel') enabled = enabled && (v.tunnels || []).filter(t => t.owner === human).length < E.RULES.maxTunnels;
+      if (m.expansion) {
+        visible = !!(v || view).expansion;
+        const built = ((v || view).structures || []).filter(t => t.owner === human && t.type === type).length, max = E.EXPANSION[type === 'arsenal' ? 'maxArsenals' : type === 'flak' ? 'maxFlak' : 'maxWorkshops'];
+        enabled = enabled && built < max && pl.supplies >= E.logisticsCost(v, { type, cells: [] });
+        button.title = `${LABELS[type]}：已建 ${built}/${max}`;
+      }
       button.hidden = !visible; button.disabled = !enabled;
       button.setAttribute('aria-pressed', String(selection.type === type && selection.cardIndex === undefined));
     }
@@ -375,7 +393,7 @@
     $('supply-tag').textContent = mode === 'human' ? `${localName(p)}（你）` : `${localName(p)}（觀察）`;
     $('supply-gauges').replaceChildren(
       gauge('後方物資庫', `${rep.supplies}/${rep.suppliesCap}`, rep.supplies / rep.suppliesCap, rep.supplies < 4, '每次己方行動後家園產 4，連通物資站各 +2'),
-      gauge('每次產出', `+${rep.production}`, null, false, `家園 4 + 物資站 ${rep.depots} × 2`),
+      gauge('每次產出', `+${rep.production}`, null, false, `家園 4 + 物資站 ${rep.depots} × 2${view.expansion ? ` + 補給工坊 ${rep.workshops} × 2` : ''}`),
       gauge('運距預算', `${rep.haulUsed}/${rep.haulBudget}`, rep.haulUsed / rep.haulBudget, rep.haulUsed > rep.haulBudget * .85, '上次配送使用的運距；長線拖慢回補'),
       gauge('連通棋子', `${rep.linked}/${rep.stones}`, rep.stones ? rep.linked / rep.stones : 0, rep.cut.length > 0, '連回家園的棋子'),
       gauge('距對岸', rep.reached ? '已接通' : rep.goalGap === null ? '—' : `${rep.goalGap} 格`, rep.goalGap === null ? 0 : 1 - rep.goalGap / (E.RADIUS * 2), false, '最前線連通棋子到對岸的距離'),
@@ -399,7 +417,9 @@
       gauge('山丘駐守', String(pos.hills), null, pos.hillCells.some(h => h.left <= 1), '山丘防守 +1，但 3 次己方行動後撤退'));
     const list = $('turret-list');
     list.replaceChildren(...pos.turrets.map(t => listButton(`炮台 (${E.CELLS[t.cell].q}, ${E.CELLS[t.cell].r})${t.armed ? '' : ' · 缺糧停火'}`, `倒數 ${t.countdown} · 壽命 ${t.life}`, t.cell, COLORS[p])),
-      ...pos.hillCells.map(h => listButton(`山丘 (${E.CELLS[h.cell].q}, ${E.CELLS[h.cell].r})`, `撤退 ${h.left}`, h.cell, COLORS[p])));
+      ...pos.hillCells.map(h => listButton(`山丘 (${E.CELLS[h.cell].q}, ${E.CELLS[h.cell].r})`, `撤退 ${h.left}`, h.cell, COLORS[p])),
+      ...(view.structures || []).filter(s => s.owner === p && view.board[s.cell] === p).map(s => listButton(`${LABELS[s.type]} (${E.CELLS[s.cell].q}, ${E.CELLS[s.cell].r})${s.type !== 'flak' && !view.supplied[s.cell] ? ' · 斷補停工' : ''}`,
+        s.type === 'arsenal' ? `出機 ${s.countdown} · 空中 ${(view.drones || []).filter(d => d.owner === p).length}` : s.type === 'flak' ? `彈藥 ${view.reserve[s.cell]}` : '+2 物資', s.cell, COLORS[p])));
     if (!list.children.length) list.append(node('li', 'is-empty', '尚無炮台或山丘駐守。'));
   }
   function renderFactions() {
@@ -518,6 +538,7 @@
     for (const b of view.bridges) if (view.board[b.a] === b.owner && view.board[b.b] === b.owner) scene.bridge(S, view, b);
     for (const t of view.tunnels) scene.tunnel(S, view, t);
     for (let i = 0; i < E.COUNT; i++) if (view.anchors[i] && view.board[i]) scene.castle(S, view, i, view.board[i], scene.top(view, i));
+    for (const t of view.structures || []) if (view.board[t.cell] === t.owner) { if (t.type === 'arsenal') scene.arsenal(S, view, t); else if (t.type === 'workshop') scene.workshop(S, view, t); }
     if (layers.position) for (const t of view.turrets) {
       if (view.board[t.cell] !== t.owner) continue;
       for (const c of E.CELLS) if (E.distance(t.cell, c.i) <= E.RULES.turretRange && c.i !== t.cell) S.add('hexFlat', X[c.i], scene.top(view, c.i) + .01, Z[c.i], .9, .02, .9, 0, rgba(PC[t.owner], .16));
@@ -530,6 +551,16 @@
     for (const [i, a] of tileAnim) if (now < a.start + a.dur) scene.tile(D, view, i, currentTileColor(i, now));
     for (const tur of view.turrets) if (view.board[tur.cell] === tur.owner && now >= (holdUntil.get(tur.cell) || 0)) scene.turret(D, view, tur.cell, tur.owner, tops(tur.cell), aim.get(tur.cell), now);
     if (layers.supply && !still) scene.trucks(D, particleLayer, routes, t, dt, subject(), view);
+    for (const s of view.structures || []) {
+      if (view.board[s.cell] !== s.owner) continue;
+      if (s.type === 'arsenal' && !still) scene.chimney(view, s, dt);
+      if (s.type === 'flak') scene.flakGun(D, view, s, flakAim(s, now), now);
+    }
+    for (const a of droneAnim.values()) {
+      const p = dronePos(a, now), yaw = Math.atan2(a.to.z - a.from.z, a.to.x - a.from.x) || 0;
+      scene.droneModel(D, p.x, p.y + (still ? 0 : Math.sin(t * 3 + a.to.cell) * .05), p.z, yaw, still ? 0 : t, a.to.owner, (now - a.start) < a.dur ? .18 : 0);
+      D.add('cyl', p.x, scene.top(view, a.to.cell) + .012, p.z, .14, .004, .14, 0, [0, 0, 0, .18]);
+    }
     if (!still) scene.airTraffic(D, view, t, dt);
     // Severed ground pulses along its own edge; the overlay prints remaining reserve.
     for (let i = 0; i < E.COUNT; i++) {
@@ -568,6 +599,17 @@
     if (!still) scene.P.update(dt);
     scene.P.draw(particleLayer);
   }
+  function dronePos(a, now) {
+    const k = Math.max(0, Math.min(1, (now - a.start) / a.dur)), e = k * k * (3 - 2 * k), lift = Math.sin(k * Math.PI) * .25;
+    return { x: a.from.x + (a.to.x - a.from.x) * e, y: a.from.y + (a.to.y - a.from.y) * e + lift, z: a.from.z + (a.to.z - a.from.z) * e };
+  }
+  function flakAim(s, now) {
+    let best = null, bestD = Infinity;
+    for (const a of droneAnim.values()) if (a.to.owner !== s.owner && !E.allied(view, s.owner, a.to.owner)) { const p = dronePos(a, now), d = Math.hypot(p.x - X[s.cell], p.z - Z[s.cell]); if (d < bestD) { bestD = d; best = p; } }
+    if (best && bestD < 9) return best;
+    for (const a of view.airports) if (a.active && a.owner !== s.owner && !E.allied(view, s.owner, a.owner)) { const d = Math.hypot(X[a.cell] - X[s.cell], Z[a.cell] - Z[s.cell]); if (d < bestD) { bestD = d; best = { x: X[a.cell], z: Z[a.cell] }; } }
+    return best;
+  }
   function shake(x, z, scale) {
     if (!R || reducedMotion.matches) return;
     const c = R.camera, d = Math.hypot(x - c.tx, z - c.tz), near = Math.max(0, 1 - d / (c.dist * .8));
@@ -604,6 +646,11 @@
       for (const c of targets.slice(0, 6)) badge(c.cell, TOP(view.terrain[c.cell]) + 1.25, `✂${c.cut}`, '#c2263a');
     }
     if (zoomed || layers.position) for (const t of view.turrets) if (view.board[t.cell] === t.owner) badge(t.cell, TOP(view.terrain[t.cell]) + 1.35, String(t.countdown), view.reserve[t.cell] >= 2 ? '#2e3440' : '#9aa5b1', '#fff', 11, true);
+    for (const s of view.structures || []) if (view.board[s.cell] === s.owner && (zoomed || layers.position || s.owner === subject())) {
+      if (s.type === 'arsenal') badge(s.cell, TOP(view.terrain[s.cell]) + 1.35, `廠 ${s.countdown}`, COLORS[s.owner]);
+      else if (s.type === 'flak') badge(s.cell, TOP(view.terrain[s.cell]) + 1.0, view.reserve[s.cell] >= 1 ? '防空' : '防空✕', view.reserve[s.cell] >= 1 ? '#2e3440' : '#9aa5b1');
+      else badge(s.cell, TOP(view.terrain[s.cell]) + 1.1, '+2', COLORS[s.owner]);
+    }
     for (const a of view.airports) badge(a.cell, TOP(view.terrain[a.cell]) + 1.4, a.active ? '✈' : a.owner ? `✈${a.progress}/3` : '✈', a.active ? COLORS[a.owner] : '#708090');
     for (const d of view.depots) badge(d.cell, TOP(view.terrain[d.cell]) + 1.1, '◇', d.owner && d.supplied ? COLORS[d.owner] : '#b58a2a');
     if (view.neutralWarning) for (const i of view.neutralWarning.cells) badge(i, TOP(view.terrain[i]) + 2.1, '⚠', '#d9a52b', '#2e3440');
@@ -745,7 +792,7 @@
   $('pause').addEventListener('click', togglePause);
   $('restart').addEventListener('click', () => reset({ fresh: true, start: false }));
   $('replay').addEventListener('click', () => reset({ keep: true, start: wasStarted }));
-  for (const id of ['match-mode', 'human-seat', 'seed', 'starter', 'rotation', 'neutral-events', 'terrain-mode', 'timed-cards']) $(id).addEventListener('change', () => reset());
+  for (const id of ['match-mode', 'human-seat', 'seed', 'starter', 'rotation', 'neutral-events', 'terrain-mode', 'timed-cards', 'expansion']) $(id).addEventListener('change', () => reset());
   $('command-window').addEventListener('change', () => { windowPly = -1; schedule(); });
   $('step-seconds').addEventListener('change', () => schedule());
   $('sandbox').addEventListener('click', () => { if (game.continueSandbox()) { $('result').hidden = true; refresh(); schedule(); } });

@@ -42,6 +42,22 @@ test('3D presentation never writes game state: every change goes through game.ac
   assert.deepEqual([...new Set(mutations)].sort(), ['act', 'advanceTime', 'continueSandbox', 'observation', 'pause', 'start'].sort());
 });
 
+test('3D page offers the optional Front Line expansion, on by default, and passes it to the shared core', () => {
+  const html = read('autohex_3d.html'), ui = read('autohex3d-ui.js');
+  assert.match(html, /<select id="expansion"><option value="on" selected>/);
+  for (const type of ['arsenal', 'flak', 'workshop']) assert.match(html, new RegExp(`data-action="${type}"`));
+  assert.match(ui, /expansion: \$\('expansion'\)\.value !== 'off'/);
+  assert.doesNotMatch(read('autohex.html') + read('card_hex.html') + read('autohex-ui.js'), /expansion/, '2D pages keep the expansion off');
+  const g = new E.Game({ seed: '3d-expansion-report', expansion: true }); g.start();
+  for (let k = 0; k < 180; k++) { const a = E.chooseAction(g.observation()); if (!a || !g.act(a)) g.act({ type: 'rest', cells: [] }); }
+  const view = g.observation(0);
+  for (const p of E.PLAYERS) {
+    const rep = L.supplyReport(view, E, p), supplied = E.computeSupply(view, p);
+    const shops = view.structures.filter(t => t.type === 'workshop' && t.owner === p && view.board[t.cell] === p && supplied[t.cell]).length;
+    assert.equal(rep.workshops, shops); assert.equal(rep.production, E.RULES.supplyProduction + 2 * rep.depots + E.EXPANSION.workshopProduction * shops);
+  }
+});
+
 test('supply chokepoints equal the shared supply-cut preview for every own supplied stone', () => {
   let checks = 0;
   for (const seed of ['3d-choke-a', '3d-choke-b']) {

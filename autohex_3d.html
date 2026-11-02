@@ -24,6 +24,7 @@
       <label>中立事件<select id="neutral-events"><option value="on">開啟</option><option value="off">關閉</option></select></label>
       <label>地形<select id="terrain-mode"><option value="mixed">河流與山丘</option><option value="plain">全平地</option></select></label>
       <label>手牌期限<select id="timed-cards"><option value="keep">保留至使用</option><option value="timed">3 次己方行動</option></select></label>
+      <label>三路前線擴充<select id="expansion"><option value="on" selected>開啟 · 兵工廠／防空砲／補給工坊</option><option value="off">關閉（同 AutoHex）</option></select></label>
       <label>指揮時限<select id="command-window"><option value="0">不限（同 AutoHex）</option><option value="30">30 秒</option><option value="20" selected>20 秒</option><option value="12">12 秒</option></select></label>
       <label>AI 每步<select id="step-seconds"><option value="0.8">0.8 秒</option><option value="0.45" selected>0.45 秒</option><option value="0.25">0.25 秒</option><option value="0.1">0.1 秒</option></select></label>
     </div>
@@ -61,6 +62,9 @@
           <button class="btn" data-action="engineer" aria-pressed="false">工程<small>2⚡</small></button>
           <button class="btn" data-action="tunnel" aria-pressed="false">地道<small>4⚡</small></button>
           <button class="btn" data-action="withdraw" aria-pressed="false">撤回<small>0⚡</small></button>
+          <button class="btn" data-action="arsenal" aria-pressed="false" hidden>兵工廠<small>4⚡ 8▣</small></button>
+          <button class="btn" data-action="flak" aria-pressed="false" hidden>防空砲<small>3⚡ 1存糧</small></button>
+          <button class="btn" data-action="workshop" aria-pressed="false" hidden>補給工坊<small>3⚡ 5▣</small></button>
           <button class="btn" data-action="breach" aria-pressed="false" hidden>破陣令<small>6⚡</small></button>
           <button class="btn" data-action="airdrop" aria-pressed="false" hidden>空投炮台<small>6⚡ 6▣</small></button>
           <button class="btn" data-action="bombard" aria-pressed="false" hidden>航空轟炸<small>7⚡ 4▣</small></button>
@@ -98,6 +102,8 @@
     <section><h3>陣地</h3><p>山丘防守 +1，但占領後經過 3 次己方行動撤退；工程可整平。連續保有 31 次己方行動形成工事，抵擋中立游擊與災害。炮台每 3 次己方回合射擊 3 格內一個敵子（每發 2 存糧），護盾防守 +2 並吸收一次拆除或炮擊（耗 1 存糧）。「陣地」圖層顯示所有炮台射程。</p>
     <h3>抽卡</h3><p>六方共用一個牌池，每人 13 張配方（炮台、拆除、橋梁、改接、護盾、換位；護盾只有 1 張）。手牌上限 5，每次行動後補抽一張；棄牌也占一回合。牌堆用完時棄牌重洗。配方公開，牌序與他人手牌不公開。</p>
     <h3>行動</h3><p>每回合只做一件事，回合開始 +3 能量（上限 8）。鋪空格 2 能量並從 5 格內己子移交 3 存糧；攻占 4 能量並須足夠鄰援。工程 2、地道 4（2–3 步可轉彎）、撤回回復 1、休整 +3。橋梁兩端相距 2–3 直線格。機場需連通家園並維持 12 子連片 3 次己方行動才啟用；空投炮台 6 能量 6 物資、轟炸 7 能量 4 物資，共用 6 回合冷卻。</p></section>
+    <section><h3>三路前線擴充（可關閉）</h3><p>開局可選「三路前線擴充」，預設開啟；關閉時規則與 AutoHex 完全相同。三種建築都蓋在自己的棋子上，一格一座，各方每種最多 2 座，棋子失守建築就消失；仍是一回合一個行動。</p>
+    <p><strong>兵工廠</strong>：4 能量、8 物資，須蓋在連通家園的後方棋子（3 格內沒有敵子）。每 5 次自己的回合，若仍連通且物資庫至少 3，就花 3 物資放出一架無人機，鎖定 9 格內最近的敵方非家園棋子（同時最多 2 架）。無人機每次自己的回合飛 3 格，抵達目標旁就攻擊，如同炮擊：護盾可擋一次；5 回合沒命中會耗盡燃料。<strong>防空砲</strong>：3 能量、當地 1 存糧，可蓋在前線。敵方無人機飛進 3 格內、或敵方空投／轟炸的目標在 3 格內時，花 1 存糧將其擊落；被擊落的空中行動照樣花費能量、物資與冷卻。<strong>補給工坊</strong>：3 能量、5 物資，須蓋在後方的連通棋子；每次己方行動後物資庫多 +2。切斷兵工廠或工坊的補給，它們就停工。</p></section>
     <section><h3>即時指揮（3D 版新增的操作方式）</h3><p><strong>指揮時限</strong>：輪到你時有限定秒數（只計算未暫停的前景時間），逾時自動「休整」——休整本來就是合法行動，規則不變。選「不限」即與 AutoHex 相同。</p><p><strong>指令佇列</strong>：AI 行動時，你可以先點選指令與格子預約，最多 4 個。輪到你時依序檢查，第一個在當下仍合法的指令自動執行（仍只算一次行動）；已失效的指令會被移除並提示。手牌指令記住卡種，不記位置。</p>
     <h3>操作</h3><p>滑鼠：左鍵拖曳平移、右鍵拖曳旋轉與俯仰、滾輪縮放。觸控：單指平移、雙指縮放與旋轉。鍵盤：WASD／方向鍵平移、Q／E 旋轉、＋／－縮放、1–5 選手牌、H 家園、F 前線、空白鍵暫停、Esc 取消。</p>
     <h3>計分與外交</h3><p>首次接通對岸 +12、守線每輪 +2、斷線後重連 +6（12 輪冷卻）；攻占或擊毀 +1。可提議 12 輪停戰（最多 2 盟友），背盟扣 4 分。中立事件每 12 輪發生並提前 2 輪預警。十分鐘後最高分獲勝，可繼續自由對戰。</p></section>
