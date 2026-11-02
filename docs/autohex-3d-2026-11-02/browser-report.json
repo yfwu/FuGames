@@ -27,13 +27,13 @@
     },
     {
       "name": "desktop-1280-spectator",
-      "plies": 306,
+      "plies": 303,
       "scores": [
         7,
         3,
         3,
         5,
-        9,
+        8,
         5
       ],
       "activeSeconds": 56,
@@ -58,7 +58,7 @@
     },
     {
       "name": "full-campaign-spectator",
-      "plies": 1835,
+      "plies": 1823,
       "standings": [
         {
           "player": 3,
@@ -80,7 +80,7 @@
         },
         {
           "player": 5,
-          "score": 75,
+          "score": 74,
           "name": "Jade",
           "rank": 4
         },
@@ -99,11 +99,11 @@
       ],
       "telemetry": {
         "captures": 251,
-        "destroyed": 129,
-        "supplyRetreats": 549,
+        "destroyed": 128,
+        "supplyRetreats": 544,
         "goalArrivals": 6,
-        "cardsUsed": 81,
-        "turretShots": 114,
+        "cardsUsed": 80,
+        "turretShots": 113,
         "airdrops": 6,
         "bombardments": 5,
         "reshuffles": 1
