@@ -5,21 +5,24 @@
       "name": "desktop-1440-human",
       "humanTurns": 30,
       "humanActions": {
-        "deploy": 23,
+        "deploy": 20,
+        "workshop": 1,
+        "arsenal": 1,
         "destroy": 4,
-        "shield": 3
+        "shield": 2,
+        "flak": 2
       },
       "queued": 2,
       "queueRuns": 2,
       "timeoutRests": 1,
-      "plies": 195,
+      "plies": 194,
       "scores": [
+        6,
+        3,
+        2,
         5,
-        1,
-        1,
-        8,
-        4,
-        2
+        2,
+        3
       ],
       "replayIdentical": true,
       "overflow": 0,
@@ -27,16 +30,28 @@
     },
     {
       "name": "desktop-1280-spectator",
-      "plies": 303,
+      "plies": 305,
       "scores": [
-        7,
-        3,
-        3,
+        6,
+        6,
         5,
-        8,
+        17,
+        9,
         5
       ],
-      "activeSeconds": 56,
+      "activeSeconds": 51,
+      "expansion": {
+        "arsenals": 6,
+        "flak": 14,
+        "workshops": 3,
+        "dronesLaunched": 14,
+        "droneStrikes": 11,
+        "dronesDown": 2,
+        "dronesExpired": 0,
+        "airIntercepts": 0,
+        "workshopSupplies": 118,
+        "structures": 17
+      },
       "replayIdentical": true,
       "errors": []
     },
@@ -58,55 +73,66 @@
     },
     {
       "name": "full-campaign-spectator",
-      "plies": 1823,
+      "plies": 1818,
       "standings": [
         {
-          "player": 3,
-          "score": 96,
-          "name": "Violet",
+          "player": 4,
+          "score": 188,
+          "name": "Gold",
           "rank": 1
         },
         {
-          "player": 2,
-          "score": 85,
-          "name": "Ember",
+          "player": 1,
+          "score": 168,
+          "name": "Azure",
           "rank": 2
         },
         {
-          "player": 4,
-          "score": 80,
-          "name": "Gold",
+          "player": 5,
+          "score": 109,
+          "name": "Jade",
           "rank": 3
         },
         {
-          "player": 5,
-          "score": 74,
-          "name": "Jade",
+          "player": 2,
+          "score": 82,
+          "name": "Ember",
           "rank": 4
         },
         {
-          "player": 1,
-          "score": 70,
-          "name": "Azure",
+          "player": 3,
+          "score": 56,
+          "name": "Violet",
           "rank": 5
         },
         {
           "player": 6,
-          "score": 38,
+          "score": 52,
           "name": "Rose",
           "rank": 6
         }
       ],
       "telemetry": {
-        "captures": 251,
-        "destroyed": 128,
-        "supplyRetreats": 544,
-        "goalArrivals": 6,
-        "cardsUsed": 80,
-        "turretShots": 113,
-        "airdrops": 6,
-        "bombardments": 5,
-        "reshuffles": 1
+        "captures": 193,
+        "destroyed": 278,
+        "supplyRetreats": 538,
+        "goalArrivals": 12,
+        "cardsUsed": 75,
+        "turretShots": 101,
+        "airdrops": 2,
+        "bombardments": 4,
+        "reshuffles": 1,
+        "expansion": {
+          "arsenals": 7,
+          "flak": 35,
+          "workshops": 7,
+          "dronesLaunched": 279,
+          "droneStrikes": 163,
+          "dronesDown": 115,
+          "dronesExpired": 0,
+          "airIntercepts": 0,
+          "workshopSupplies": 3485
+        }
       },
       "replayIdentical": true,
       "errors": []

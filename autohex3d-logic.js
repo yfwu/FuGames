@@ -78,10 +78,11 @@
     cut.sort((a, b) => a.reserve - b.reserve || a.cell - b.cell);
     const depots = (view.depots || []).filter(d => d.owner === player && d.supplied).length;
     const airports = (view.airports || []).filter(a => a.owner === player && a.active).length;
+    const workshops = view.expansion ? (view.structures || []).filter(t => t.type === 'workshop' && t.owner === player && view.board[t.cell] === player && connected[t.cell]).length : 0;
     return {
       player, stones, linked, cut, low, depots, airports,
       supplies: pl.supplies || 0, suppliesCap: R.suppliesCap,
-      production: R.supplyProduction + 2 * depots,
+      production: R.supplyProduction + 2 * depots + (engine.EXPANSION ? engine.EXPANSION.workshopProduction : 2) * workshops, workshops,
       haulUsed: pl.haulUsed || 0, haulBudget: R.haulBudget,
       delivered: pl.deliveredSupply || 0,
       goalGap: gap === Infinity ? null : gap, frontline,
