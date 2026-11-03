@@ -20,12 +20,12 @@ python -m http.server 8000 --bind 0.0.0.0
 
 首頁（7 款）：
 
-- AutoHex-3D：`autohex_3d.html`（與 AutoHex 同一規則核心與 AI 的 3D 即時指揮版；補給線／陣地圖層、指揮時限與指令佇列）
+- AutoHex-3D：`autohex_3d.html`（與 AutoHex 同一規則核心與 AI 的 3D 即時指揮版；補給線／陣地圖層、指揮時限與指令佇列；可關閉的三路前線擴充：兵工廠與無人機、防空砲、補給工坊）
 - 立體三子循環棋：`cyclic_tictactoe_3d.html`（3×3×3、49 條連線、每人三顆 FIFO；交換規則、三次重複與 120 手和局；可旋轉立體圖加三層平面輸入；規則核心 `cyclic3d-engine.js`，AI 在 `cyclic3d-ai-worker.js` 執行）
 - 效果貪食蛇：`effect_snake.html`（90 秒質量競賽；花質量加速、同格爭食、蛇身反制）
 - 複式橋牌：`duplicate_bridge.html`
 - 經典 21 點：`blackjack.html`
-- 脈衝擂台：`pulse_arena.html`（原有蓄力慣性，另有定錨／強脈衝／救命盾／黑洞）
+- 脈衝擂台：`pulse_arena.html`（多輪王冠賽：分段縮圈、挑戰者外圈入場、衛冕者王者能力；霓虹擂台、粒子特效與合成音效；另有定錨／強脈衝／救命盾／黑洞）
 - 圈地漫遊 Territory Loop：`territory_loop.html`
 
 已封存（12 款，[archive.html](archive.html)；保留原版與舊網址）：
