@@ -29,7 +29,7 @@ python -m http.server 8000 --bind 0.0.0.0
 - 複式橋牌：`duplicate_bridge.html`
 - 經典 21 點：`blackjack.html`
 - 鋼芯競技場：`tank_arena.html`（雙蟲回合炮擊、可破壞地形、建築與四種戰術牌）
-- 脈衝擂台：`pulse_arena.html`（原有蓄力慣性，另有定錨／強脈衝／救命盾／黑洞）
+- 脈衝擂台：`pulse_arena.html`（多輪王冠賽：分段縮圈、挑戰者外圈入場、衛冕者王者能力；霓虹擂台、粒子特效與合成音效；另有定錨／強脈衝／救命盾／黑洞）
 - 三子循環棋：`cyclic_tictactoe.html`
 - 環面直落四子：`cyclic_connect4_torus.html`
 - 軌道棋：`trackgame.html`
