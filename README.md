@@ -27,7 +27,7 @@ python -m http.server 8000 --bind 0.0.0.0
 - AutoHex-3D：`autohex_3d.html`（與 AutoHex 同一規則核心與 AI 的 3D 即時指揮版；補給線／陣地圖層、指揮時限與指令佇列；可關閉的三路前線擴充：兵工廠與無人機、防空砲、補給工坊）
 - 立體三子循環棋：`cyclic_tictactoe_3d.html`（3×3×3、49 條連線、每人三顆 FIFO；交換規則、三次重複與 120 手和局；可旋轉立體圖加三層平面輸入；規則核心 `cyclic3d-engine.js`，AI 在 `cyclic3d-ai-worker.js` 執行）
 - 效果貪食蛇：`effect_snake.html`（90 秒質量競賽；花質量加速、同格爭食、蛇身反制）
-- 複式橋牌：`duplicate_bridge.html`
+- 複式橋牌：`duplicate_bridge.html`（2/1 成局迫叫自然制 AI：Stayman、轉換、Jacoby 2NT、Splinter、RKCB、負加倍、Michaels 等，每個叫品可點看說明與各家推論；出牌用依叫牌推論抽樣暗手的蒙地卡羅雙明手求解。核心 `bridge-engine.js`、求解器 `bridge-dds.js`、叫牌 `bridge-bidding.js`、出牌 `bridge-play.js`，AI 在 `bridge-ai-worker.js` 執行；agent 可用 `node tools/bridge-agent.cjs` 以 JSON 逐行接入南家）
 - 經典 21 點：`blackjack.html`
 - 脈衝擂台：`pulse_arena.html`（多輪王冠賽：分段縮圈、挑戰者外圈入場、衛冕者王者能力；霓虹擂台、粒子特效與合成音效；另有定錨／強脈衝／救命盾／黑洞）
 - 圈地漫遊 Territory Loop：`territory_loop.html`
