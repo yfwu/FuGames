@@ -51,7 +51,9 @@ test('active and archive catalogues together have nineteen valid game links and 
   assert.equal(new Set(linked).size,GAMES.length);
 });
 
-for(const name of GAMES)test(`${name}: shared shell, accessible native header icon and local symbol references`,()=>{
+// Full-screen 3D pages (pulse_arena) replace the card shell with their own HUD; tests/pulse-arena.test.cjs covers them.
+const FULLSCREEN=new Set(['pulse_arena']);
+for(const name of GAMES.filter(n=>!FULLSCREEN.has(n)))test(`${name}: shared shell, accessible native header icon and local symbol references`,()=>{
   const source=read(name+'.html');
   assert.match(source,/<link\b[^>]*href=["']fulab-theme\.css["']/);
   assert.match(source,/<nav\b[^>]*class=["'][^"']*\bsite-nav\b/);
