@@ -2,6 +2,8 @@
 
 FuLab 風格的靜態網頁遊戲集。遊戲與 AI 都在瀏覽器 JavaScript 內執行，不需要遊戲伺服器、帳號、外部資源或 npm 套件。各遊戲共用 `fulab-theme.css` 及本地 `icons.svg`。
 
+**共用設計語言「朱墨」**：改版中的遊戲與入口網站改用 `shared/`（`fu.css`、`fu-shell.js`、`fu-palette.js`、`fu-three.js`）與本地 three.js（`vendor/three/`，r170）：滿版舞台、HUD 疊加、設定收進抽屜。規則與元件見 [shared/README.md](shared/README.md)，範例頁 `shared/demo.html`。尚未改版的頁面繼續用 `fulab-theme.css`。
+
 ## 本機預覽
 
 在 repository 目錄執行：
@@ -13,6 +15,8 @@ python -m http.server 8000 --bind 0.0.0.0
 開啟 `http://localhost:8000/`；圈地漫遊的網址是 `http://localhost:8000/territory_loop.html`。雲端環境可將 8000 port 轉送至本機預覽。此指令只提供本機靜態檔案，不會部署網站。
 
 本次雲端 Chromium 的管理政策禁止 `file://`（`ERR_BLOCKED_BY_ADMINISTRATOR`），因此驗證與預覽使用本機 HTTP。遊戲不會向伺服器傳送遊戲狀態；頁面載入後已驗證可在離線模式繼續遊玩。
+
+2026-11-04（三）：入口網站改用「朱墨」設計語言重做：滿版 three.js 六角地景（`portal.js`），選到哪款遊戲地景就變成那款遊戲的母題；左側遊戲索引支援 ↑↓／Enter，右下是說明面板，手機改為捲動版面。封存頁同步換新，遊戲清單與舊網址不變。入口網站樣式在 `portal.css`，頁面由同一份遊戲資料產生。
 
 2026-11-02（二）：首頁精簡為 7 款，新增[立體三子循環棋](docs/cyclic-3d-2026-11-02/notes.md)；AutoHex、MiniHex、重力大亂鬥、四人拉密、鋼芯競技場、星點吞噬、環面直落四子、軌道棋、三路前線與平面版三子循環棋移入[封存遊戲](archive.html)（共 12 款，舊網址不變）。2026-11-02：首頁 16 款（新增 AutoHex-3D）。2026-10-14：首頁 15 款；[封存遊戲](archive.html)保留 2 款及舊網址。[分批驗證](docs/refresh-2026-10-14/verification.md)與[三子立體提案](docs/refresh-2026-10-14/cyclic-3d-proposal.md)。三子原遊戲未更動。
 

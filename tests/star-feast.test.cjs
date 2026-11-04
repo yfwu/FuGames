@@ -17,13 +17,19 @@ function fixture() {
 test('all pages parse and share the shell; no missing catalogue links or remote game dependency', () => {
   for (const name of fs.readdirSync(root).filter(name => name.endsWith('.html'))) {
     const source = fs.readFileSync(path.join(root, name), 'utf8');
-    // Full-screen 3D pages bring their own HUD instead of the card shell.
-    if (!['pulse_arena.html'].includes(name)) {
+    // Shared shell: the legacy FuLab theme, or the Vermilion Ink design system (shared/README.md).
+    const vermilion = /href="shared\/fu\.css"/.test(source);
+    if (!vermilion) {
       assert.match(source, /href="fulab-theme.css"/);
       assert.match(source, /class="[^"]*\bsite-nav\b[^"]*"/); assert.match(source, /class="[^"]*\bpage-header\b[^"]*"/);
-      if (!['index.html','archive.html'].includes(name)) { assert.match(source, /class="card play-panel(?: [^"]*)?"/); assert.match(source, /<details class="card rules(?: [^"]*)?">/); }
+    } else assert.match(source, /class="[^"]*\bfu-app\b[^"]*"/);
+    if (!vermilion && !['index.html','archive.html'].includes(name)) { assert.match(source, /class="card play-panel(?: [^"]*)?"/); assert.match(source, /<details class="card rules(?: [^"]*)?">/); }
+    for (const [, attrs, script] of source.matchAll(/<script([^>]*)>([\s\S]*?)<\/script>/g)) {
+      // Inline ES modules (three.js pages): drop static imports and syntax-check the body as an async function.
+      if (/type="(?:application\/json|importmap)"/.test(attrs)) { assert.doesNotThrow(() => JSON.parse(script), name); continue; }
+      const body = /type="module"/.test(attrs) ? '(async () => {' + script.replace(/^\s*import\b[^;]*;/gm, '') + '\n})' : script;
+      assert.doesNotThrow(() => new vm.Script(body), name);
     }
-    for (const [, attrs, script] of source.matchAll(/<script([^>]*)>([\s\S]*?)<\/script>/g)) { if (/importmap/.test(attrs)) continue; assert.doesNotThrow(() => new vm.Script(/type="module"/.test(attrs) ? script.replace(/^import .*$/gm, '') : script), name); }
     for (const [, tag, href] of source.matchAll(/<([a-z]+)\b[^>]*\bhref="([^"]+)"/g)) {
       // A credit is an optional navigation link, not a fetched game asset.
       if (/^https:\/\//.test(href)) { assert.equal(tag, 'a', name + ' -> remote asset ' + href); continue; }
