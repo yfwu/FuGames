@@ -8,7 +8,7 @@ const root = path.join(__dirname, '..');
 const html = fs.readFileSync(path.join(root, 'front_line.html'), 'utf8');
 const F = vm.runInNewContext(html.match(/<script id="front-engine">([\s\S]*?)<\/script>/)[1] + '; FrontLine;');
 const seeds = Number(process.argv[2]) || 20;
-const pairs = [['normal', 'normal'], ['hard', 'normal'], ['normal', 'easy'], ['hard', 'easy']];
+const pairs = [['normal', 'normal'], ['hard', 'normal'], ['normal', 'easy'], ['hard', 'easy'], ['elite', 'hard']];
 const report = { seeds, pairs: [] };
 for (const [a, b] of pairs) {
   const row = { a, b, games: 0, wins: { [a + '@0']: 0, [a + '@1']: 0, [b + '@0']: 0, [b + '@1']: 0, draw: 0 }, minutes: [], timeouts: 0, totals: { built: 0, launched: 0, cards: 0, bombs: 0, destroyed: 0, engineers: 0 } };
