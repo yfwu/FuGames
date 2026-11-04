@@ -1,416 +1,1048 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="zh-Hant">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>立體三子循環棋 - FuGames</title>
-  <link rel="icon" href="favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="fulab-theme.css">
-  <style>
-    .c3-stage { display: grid; gap: 14px; grid-template-columns: minmax(0, 1fr); padding: 14px; }
-    @media (min-width: 760px) { .c3-stage { grid-template-columns: minmax(0, 1fr) 176px; align-items: start; } }
-    .c3-view { position: relative; width: min(100%, 560px); margin-inline: auto; border: 1px solid var(--fulab-silver); border-radius: 12px; background: white; overflow: hidden; }
-    .c3-view canvas { display: block; width: 100%; aspect-ratio: 1; touch-action: none; cursor: grab; outline-offset: -3px; }
-    .c3-view canvas.dragging { cursor: grabbing; }
-    .c3-view-note { position: absolute; left: 10px; bottom: 8px; margin: 0; font-size: 11px; color: var(--fulab-muted); pointer-events: none; }
-    .c3-layers { display: grid; gap: 10px; grid-template-columns: repeat(3, minmax(0, 1fr)); }
-    @media (min-width: 760px) { .c3-layers { grid-template-columns: 1fr; } }
-    .c3-layer h3 { display: flex; align-items: center; gap: 6px; margin: 0 0 6px; font-size: 12px; font-weight: 700; color: var(--fulab-graphite); }
-    .c3-layer h3 i { width: 10px; height: 10px; border-radius: 3px; background: var(--swatch); }
-    .c3-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; }
-    .c3-grid .cell { aspect-ratio: 1; min-height: 30px; border: 1px solid var(--fulab-silver); border-radius: 8px; background: white; display: grid; place-items: center; cursor: pointer; }
-    .c3-grid .cell:hover:not(:disabled), .c3-grid .cell.hover { border-color: var(--fulab-teal); background: var(--fulab-tint-teal); }
-    .c3-grid .cell .classic-stone { width: 62%; border-width: 1.5px; }
-    .c3-grid .cell.leaving .classic-stone { opacity: .35; border-style: dashed; }
-    .c3-grid .cell.selected { border: 2px solid var(--fulab-ink-teal); background: var(--fulab-tint-emerald); }
-    .c3-grid .cell.selected::before { content: ''; width: 58%; aspect-ratio: 1; border-radius: 50%; border: 2px dashed var(--fulab-ink-teal); grid-area: 1 / 1; }
-    .c3-grid .cell.threat-1 { box-shadow: inset 0 0 0 3px var(--fulab-tint-teal); border-color: var(--fulab-teal); }
-    .c3-grid .cell.threat-2 { box-shadow: inset 0 0 0 3px var(--fulab-tint-plum); border-color: var(--fulab-plum); }
-    .c3-grid .cell .queue-badge { position: absolute; top: 2px; right: 2px; min-width: 14px; height: 14px; display: grid; place-items: center; border-radius: 4px; font-size: 9px; font-weight: 750; background: var(--fulab-graphite); color: white; -webkit-text-fill-color: white; }
-    .c3-grid .cell .queue-badge.second { border: 1px solid var(--fulab-muted); background: white; color: var(--fulab-muted); -webkit-text-fill-color: var(--fulab-muted); }
-    .c3-grid .cell.win .queue-badge { display: none; }
-    .classic-page .c3-grid .cell.win::after { inset: 3px; border-width: 3px; border-radius: 6px; }
-    .queue-key { display: inline-grid; place-items: center; width: 18px; height: 18px; border: 1px solid var(--fulab-muted); border-radius: 4px; font-size: 10px; }
-    .queue-key.first { color: white; background: var(--fulab-graphite); border-color: var(--fulab-graphite); }
-    .threat-key { display: inline-block; width: 12px; height: 12px; transform: rotate(45deg); border-radius: 2px; background: var(--fulab-teal); }
-    .threat-key.white { background: var(--fulab-plum); }
-    .pie-panel { margin-top: 14px; padding: 14px; border: 1px solid var(--fulab-amber); border-radius: 12px; background: var(--fulab-tint-amber); }
-    .pie-panel p { margin: 0 0 10px; font-size: 13px; }
-    .pie-panel .btnRow { display: flex; gap: 8px; flex-wrap: wrap; }
-    .move-buttons { display: flex; gap: 8px; flex-wrap: wrap; }
-    .move-buttons .btn { white-space: nowrap; }
-    .hint-options { display: grid; gap: 8px; margin: 12px 0; }
-    .hint-options label { display: flex; align-items: center; gap: 8px; min-height: 32px; }
-    .hint-options input { accent-color: var(--fulab-ink-teal); width: 17px; height: 17px; }
-    .settings-grid select { width: 100%; min-height: 40px; border: 1px solid var(--fulab-silver); border-radius: 10px; padding: 0 10px; background: white; font: inherit; }
-    @media (max-width: 600px) { .c3-stage { padding: 10px; gap: 12px; } .c3-layers { gap: 6px; } .c3-grid { gap: 3px; } .c3-layer h3 { font-size: 11px; } .game-actions .move-buttons { width: 100%; flex-wrap: nowrap; } .game-actions .btn { flex: 1; } }
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="3×3×3 立方、49 條連線、每人只有三顆棋：放滿後移動最早的那一顆。五級 AI、四種變體、十四道殘局挑戰與段位生涯。">
+<meta name="theme-color" content="#07090c">
+<title>立體三子循環棋 - FuGames</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="shared/fu.css">
+<style>
+/* 立體三子循環棋 on the shared Vermilion Ink shell. Seat 0 (you / player one) = seal, seat 1 = azure. */
+html,body{height:100%;overflow:hidden;overscroll-behavior:none}
+[hidden]{display:none!important}
+:root{--seat-0:var(--fu-side-1);--seat-1:var(--fu-side-2)}
+.fu-scrim{z-index:81}.fu-drawer{z-index:82}.fu-toasts{z-index:86}
+.fu-stage canvas{cursor:grab;outline:none}
+.fu-stage canvas.dragging{cursor:grabbing}
+.fu-stage canvas:focus-visible{box-shadow:inset 0 0 0 2px var(--fu-seal)}
+.c3-nogl{position:absolute;inset:0;display:grid;place-items:center;padding:24px;text-align:center;color:var(--fu-paper-dim)}
+.fu-topbar__title svg{width:22px;height:22px;flex:none;align-self:center;color:var(--fu-seal)}
+.c3-lv{display:flex;flex-direction:column;justify-content:center;gap:5px;min-width:112px;min-height:44px;padding:6px 12px;border:1px solid var(--fu-line-strong);background:var(--fu-surface);cursor:pointer;text-align:left}
+.c3-lv:hover{border-color:var(--fu-paper)}
+.c3-lv .row{display:flex;align-items:baseline;gap:7px}
+.c3-lv b{font:700 15px/1 var(--fu-font-mono);color:var(--fu-gold)}
+.c3-lv span{font:600 10.5px/1 var(--fu-font-mono);letter-spacing:.14em;color:var(--fu-paper-dim)}
+.c3-lv .fu-meter{height:3px}
+/* match panel */
+.c3-match{width:304px}
+.c3-seats{display:grid;gap:0}
+.c3-seat{--seat:var(--seat-0);position:relative;display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:8px;padding:7px 0 7px 10px;border-bottom:1px solid var(--fu-line)}
+.c3-seat::before{content:"";position:absolute;left:0;top:7px;bottom:7px;width:2px;background:var(--seat);opacity:.25}
+.c3-seat.is-turn::before{opacity:1}
+.c3-seat[data-tone="1"]{--seat:var(--seat-1)}
+.c3-seat .fu-side{--side:var(--seat)}
+.c3-seat__who{min-width:0;display:flex;flex-direction:column;gap:2px}
+.c3-seat__who b{font:700 15px/1.1 var(--fu-font-display);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.c3-seat__who em{font:600 10px/1 var(--fu-font-mono);font-style:normal;letter-spacing:.14em;color:var(--fu-paper-dim)}
+.c3-queue{display:flex;gap:3px}
+.c3-q{min-width:36px;height:22px;padding:0 4px;display:grid;place-items:center;border:1px solid color-mix(in srgb,var(--seat) 60%,transparent);font:600 10px/1 var(--fu-font-mono);color:var(--fu-paper-dim);letter-spacing:0}
+.c3-q.is-next{background:var(--seat);border-color:var(--seat);color:var(--fu-ink-0)}
+.c3-q.is-empty{border-style:dashed;opacity:.4}
+.c3-status{margin:10px 0 0;font-size:13px;line-height:1.5;min-height:3em}
+.c3-status b{color:var(--fu-paper)}
+.c3-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+/* layer map */
+.c3-map{width:212px}
+.c3-layers{display:flex;flex-direction:column;gap:10px}
+.c3-layer{display:grid;gap:5px}
+.c3-layer__tab{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:26px;padding:0 8px;border:1px solid var(--fu-line);background:transparent;cursor:pointer;font:700 10.5px/1 var(--fu-font-mono);letter-spacing:.16em;color:var(--fu-paper-dim)}
+.c3-layer__tab:hover{border-color:var(--fu-line-strong);color:var(--fu-paper)}
+.c3-layer__tab[aria-pressed="true"]{border-color:var(--fu-paper);color:var(--fu-paper);background:rgba(236,228,208,.06)}
+.c3-layer__tab i{font-style:normal;color:var(--fu-mute);letter-spacing:.05em}
+.c3-layers.is-focused .c3-layer:not(.is-focus) .c3-grid{opacity:.38}
+.c3-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:3px}
+.c3-grid .cell{position:relative;aspect-ratio:1;min-height:30px;padding:0;border:1px solid var(--fu-line-strong);border-radius:0;background:var(--fu-ink-2);display:grid;place-items:center;cursor:pointer;color:var(--fu-paper)}
+.c3-grid .cell:disabled{cursor:default}
+.c3-grid .cell:hover:not(:disabled),.c3-grid .cell.hover{border-color:var(--fu-paper);background:var(--fu-ink-3)}
+.c3-grid .cell.cursor{outline:2px solid var(--fu-paper);outline-offset:-4px}
+.c3-grid .cell.unsupported:not(.stone-0):not(.stone-1){background:repeating-linear-gradient(135deg,transparent 0 4px,rgba(236,228,208,.06) 4px 5px),var(--fu-ink-1)}
+.c3-grid .cell .st{width:58%;aspect-ratio:1;background:var(--seat);clip-path:polygon(0 0,calc(100% - 4px) 0,100% 4px,100% 100%,4px 100%,0 calc(100% - 4px))}
+.c3-grid .cell.stone-0{--seat:var(--seat-0)}.c3-grid .cell.stone-1{--seat:var(--seat-1)}
+.c3-grid .cell.leaving .st{opacity:.3}
+.c3-grid .cell.block{background:repeating-linear-gradient(45deg,var(--fu-ink-3) 0 3px,var(--fu-ink-1) 3px 7px);cursor:not-allowed}
+.c3-grid .cell .qb{position:absolute;top:1px;right:1px;min-width:12px;height:12px;display:grid;place-items:center;font:700 9px/1 var(--fu-font-mono);background:var(--fu-paper);color:var(--fu-ink-0)}
+.c3-grid .cell .qb.second{background:transparent;color:var(--fu-paper-dim);border:1px solid var(--fu-paper-dim)}
+.c3-grid .cell .th{position:absolute;inset:26%;transform:rotate(45deg);border:2px solid var(--th)}
+.c3-grid .cell .th.t0{--th:var(--seat-0)}.c3-grid .cell .th.t1{--th:var(--seat-1);inset:18%}
+.c3-grid .cell.selected{border-color:var(--fu-seal);box-shadow:inset 0 0 0 1px var(--fu-seal)}
+.c3-grid .cell.selected::before{content:"";position:absolute;inset:22%;background:var(--sel,var(--seat-0));opacity:.45;clip-path:polygon(0 0,calc(100% - 4px) 0,100% 4px,100% 100%,4px 100%,0 calc(100% - 4px))}
+.c3-grid .cell.hint{box-shadow:inset 0 0 0 2px var(--fu-gold)}
+.c3-grid .cell.win{box-shadow:inset 0 0 0 2px var(--fu-paper)}
+/* dock */
+.fu-dock .c3-confirm:not(:disabled){background:var(--fu-seal);color:var(--fu-ink-0)}
+.fu-dock .c3-confirm:not(:disabled):hover{background:var(--fu-paper)}
+.fu-dock .fu-btn{min-width:64px}
+.fu-dock .fu-btn small{font-size:10px;color:inherit;opacity:.7;letter-spacing:.05em}
+/* pie prompt */
+.c3-pie{width:min(440px,calc(100vw - 32px));text-align:left}
+.c3-pie p{margin:0 0 10px;font-size:13.5px;line-height:1.55}
+.c3-pie .row{display:flex;gap:8px;flex-wrap:wrap}
+.c3-pie .row .fu-btn{flex:1}
+/* curtains */
+.c3-curtain .fu-curtain__inner{width:min(640px,100%);gap:14px}
+.fu-curtain{overflow:auto;place-items:safe center}
+#lobby{background:radial-gradient(70% 60% at 50% 50%,rgba(7,9,12,.62),rgba(7,9,12,.9))}
+.c3-lobby .fu-display{font-size:clamp(46px,9vw,104px);line-height:1}
+.c3-lobby .fu-field{width:100%;margin:0;text-align:left}
+.c3-lobby .fu-seg>button{flex-direction:column;gap:3px;min-height:44px}
+.c3-lobby .fu-seg>button small{font:600 9.5px/1 var(--fu-font-mono);letter-spacing:.06em;color:var(--fu-gold)}
+.c3-lobby .fu-seg>button:disabled{opacity:.42;cursor:not-allowed}
+.c3-desc{margin:4px 0 0;min-height:2.6em;font-size:12.5px;line-height:1.5;color:var(--fu-paper-dim)}
+.c3-career{width:100%;display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 16px;align-items:center;padding:12px 14px;border:1px solid var(--fu-line);background:rgba(236,228,208,.03);text-align:left}
+.c3-career .lv{grid-row:span 2;font:800 32px/1 var(--fu-font-mono);color:var(--fu-gold)}
+.c3-career .lv small{display:block;margin-bottom:4px;font:700 9.5px/1 var(--fu-font-mono);letter-spacing:.16em;color:var(--fu-paper-dim)}
+.c3-career .who{display:flex;justify-content:space-between;gap:10px;font:700 14px/1.2 var(--fu-font-display)}
+.c3-career .who span{font:500 11px/1.2 var(--fu-font-mono);color:var(--fu-paper-dim)}
+.c3-result .fu-display{font-size:clamp(42px,9vw,96px)}
+.c3-reason{margin:0;max-width:52ch;color:var(--fu-paper-dim);line-height:1.6}
+.c3-xp{width:100%;display:grid;grid-template-columns:1fr auto;gap:6px 16px;margin:0;padding:12px 14px;border:1px solid var(--fu-line);font-size:13px;text-align:left}
+.c3-xp dt{color:var(--fu-paper-dim)}.c3-xp dd{margin:0;text-align:right;font-family:var(--fu-font-mono);color:var(--fu-gold)}
+.c3-xp .total{border-top:1px solid var(--fu-line);padding-top:8px;color:var(--fu-paper);font-weight:700}
+.c3-levelup{width:100%;padding:10px 14px;border:1px solid rgba(233,185,73,.45);background:rgba(233,185,73,.07);font-size:13px;line-height:1.6;text-align:left}
+.c3-levelup b{color:var(--fu-gold)}
+.c3-puzzles{width:100%;display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;text-align:left}
+.c3-puz{position:relative;display:flex;flex-direction:column;gap:4px;min-height:74px;padding:10px 12px;border:1px solid var(--fu-line);background:rgba(236,228,208,.03);cursor:pointer;text-align:left}
+.c3-puz:hover:not(:disabled){border-color:var(--fu-paper)}
+.c3-puz:disabled{opacity:.45;cursor:not-allowed}
+.c3-puz b{font:700 15px/1.2 var(--fu-font-display)}
+.c3-puz span{font:600 10px/1.3 var(--fu-font-mono);letter-spacing:.1em;color:var(--fu-paper-dim)}
+.c3-puz em{position:absolute;top:9px;right:10px;font:700 10px/1 var(--fu-font-mono);font-style:normal;letter-spacing:.1em;color:var(--fu-gold)}
+.c3-puz.solved em{color:var(--fu-jade)}
+/* drawers */
+.c3-rules li{margin-bottom:9px;line-height:1.65}
+.c3-rules strong{color:var(--fu-paper)}
+.c3-legend{display:grid;grid-template-columns:auto 1fr;gap:8px 12px;align-items:center;font-size:13px}
+.c3-legend i{display:inline-block;width:16px;height:16px}
+.c3-stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.c3-stats div{padding:9px 11px;border:1px solid var(--fu-line)}
+.c3-stats b{display:block;font:700 19px/1.1 var(--fu-font-mono)}
+.c3-stats span{font-size:11px;color:var(--fu-paper-dim)}
+.c3-unlocks li{justify-content:space-between;font-size:13px}
+.c3-unlocks li.got{color:var(--fu-paper)}.c3-unlocks li:not(.got){color:var(--fu-mute)}
+.c3-unlocks li span{font:600 11px/1 var(--fu-font-mono)}
+.c3-note{font-size:12px;color:var(--fu-mute);margin:4px 0 0}
+@media (max-width:720px){
+ .fu-topbar{gap:10px}
+ .fu-topbar__title svg{display:none}
+ .fu-topbar__title .fu-heading{font-size:16px}
+ .c3-lv{min-width:0;padding:6px 9px}
+ .c3-lv span{display:none}
+ .fu-hud--tl{left:12px;right:12px;max-width:none}
+ .c3-match{width:auto;padding:8px 10px}
+ .c3-match .fu-panel__head{display:none}
+ .c3-seats{grid-template-columns:1fr 1fr;column-gap:10px}
+ .c3-seat{grid-template-columns:auto minmax(0,1fr);padding:4px 0 4px 9px;border-bottom:0}
+ .c3-seat .c3-queue{grid-column:1 / -1}
+ .c3-q{min-width:0;flex:1;height:18px;font-size:9.5px}
+ .c3-status{margin-top:6px;font-size:12px;min-height:2.6em}
+ .c3-tags{display:none}
+ .fu-hud--br{left:12px;right:12px;bottom:calc(max(12px,env(safe-area-inset-bottom)) + 54px);max-width:none;align-items:stretch}
+ .c3-map{width:auto;padding:8px}
+ .c3-map .fu-panel__head{display:none}
+ .c3-layers{flex-direction:row;gap:8px}
+ .c3-layer{flex:1;min-width:0}
+ .c3-layer__tab{min-height:24px;padding:0 6px;font-size:10px}
+ .c3-layer__tab i{display:none}
+ .c3-grid .cell{min-height:0}
+ .fu-dock{left:12px;right:12px;transform:none;max-width:none;bottom:max(12px,env(safe-area-inset-bottom))}
+ .fu-dock .fu-btn{flex:1;min-width:0;padding:0 6px;font-size:11px;letter-spacing:.06em}
+ .fu-dock .fu-kbd{display:none}
+ .c3-lobby .fu-display{font-size:46px}
+ .c3-curtain .fu-curtain__inner{gap:11px}
+ .c3-lobby .fu-seal--lg{--s:52px;--f:19px}
+ .c3-lobby .fu-seg>button{padding:0 4px;font-size:10.5px;letter-spacing:.04em}
+ .c3-lobby .fu-curtain__actions .fu-btn{flex:1}
+}
+@media (max-height:640px) and (min-width:721px){
+ .fu-hud--br{bottom:calc(var(--fu-gutter) + 54px)}
+ .c3-layers{flex-direction:row}.c3-map{width:auto}.c3-grid .cell{min-height:24px;width:26px}
+}
+</style>
 </head>
-<body>
-  <main class="game-page classic-page">
-    <nav class="site-nav" aria-label="遊戲導覽"><a class="site-brand" href="index.html"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>FuGames</a><a href="index.html" aria-label="所有遊戲 ↗">所有遊戲<svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#launch"></use></svg></a></nav>
-    <header class="page-header"><p class="eyebrow">立體棋盤 / 單人 × AI・同機雙人</p><h1><svg class="page-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#cyclic_tictactoe_3d"></use></svg>立體三子循環棋</h1><p class="lead">3×3×3 立方、49 條連線。每人仍只有三顆棋；放滿後，移動最早落下的那一顆。</p></header>
-    <section class="card play-panel" aria-label="立體三子循環棋棋盤">
-      <div class="game-toolbar"><p class="game-status" id="info" role="status" aria-live="polite">輪到你（黑子）</p><div class="game-metrics"><span>步數 <strong id="moveCount">0</strong> / <span id="plyLimit">120</span></span><span>重複 <strong id="repeatCount">1</strong> / 3</span></div></div>
-      <div class="c3-stage game-floor">
-        <div class="c3-view"><canvas id="cube" tabindex="0" role="img" aria-label="立體棋盤，拖曳或方向鍵旋轉；點選格子後按落子"></canvas><p class="c3-view-note">拖曳旋轉 · 點格預覽</p></div>
-        <div class="c3-layers" id="layers" role="group" aria-label="三層平面棋盤"></div>
-      </div>
-      <div class="pie-panel" id="piePanel" hidden><p id="pieText">黑子已落下第一顆。你可以接管黑子，或繼續執白子。</p><div class="btnRow"><button class="btn primary" type="button" id="pieSwap"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#rotate"></use></svg>交換：接管黑子</button><button class="btn" type="button" id="pieKeep">不交換：繼續執白</button></div></div>
-      <div class="classic-legend"><span class="stone-key"><span class="queue-key first" aria-hidden="true">1</span>下一顆移動</span><span class="stone-key"><span class="queue-key" aria-hidden="true">2</span>再下一顆</span><span class="stone-key"><span class="threat-key" aria-hidden="true"></span>黑子立即勝格</span><span class="stone-key"><span class="threat-key white" aria-hidden="true"></span>白子立即勝格</span></div>
-      <div class="game-actions"><div class="move-buttons"><button class="btn primary" type="button" id="confirmMove" disabled><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#play"></use></svg>落子</button><button class="btn" type="button" id="cancelMove" disabled>取消</button></div><div class="move-buttons"><button class="btn" type="button" id="resetView"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#rotate"></use></svg>重設視角</button><button class="btn" type="button" id="newGame"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#restart"></use></svg>重新開始</button></div></div>
+<body class="fu-app fu-vignette">
+<header class="fu-topbar">
+  <a class="fu-brand" href="index.html" aria-label="回到 FuGames 所有遊戲"><span class="fu-seal" aria-hidden="true">福遊</span><span class="fu-hide-sm">FuGames</span></a>
+  <div class="fu-topbar__title"><svg viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#cyclic_tictactoe_3d"></use></svg><h1 class="fu-heading">立體三子循環棋</h1><span class="fu-label fu-hide-sm">Cyclic Cube · 3×3×3</span></div>
+  <div class="fu-topbar__actions">
+    <button class="c3-lv" id="lvChip" type="button" aria-label="生涯等級與段位"><span class="row"><b class="fu-num" id="lvNum">1</b><span id="lvRank">入門</span></span><span class="fu-meter fu-meter--gold" id="lvBar" style="--value:0"><i></i></span></button>
+    <button class="fu-btn fu-hide-sm" type="button" id="topChallenges">殘局 <span class="fu-kbd">C</span></button>
+    <button class="fu-btn fu-hide-sm" type="button" id="topLobby">大廳 <span class="fu-kbd">L</span></button>
+    <button class="fu-btn fu-btn--ghost fu-btn--icon" type="button" data-fu-open="rules" aria-label="規則" data-fu-tip="規則 ?">?</button>
+    <button class="fu-btn fu-btn--icon" type="button" data-fu-open="settings" aria-label="設定" data-fu-tip="設定 S"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><path d="M14 4v6M6 14v6"/></svg></button>
+  </div>
+</header>
+
+<main class="fu-stage" id="stage"><canvas id="cube" tabindex="0" aria-label="立體棋盤：拖曳旋轉、滾輪或雙指縮放，點一格預覽、再點一次落子。方向鍵移動游標，Q／E 換層，Enter 確認。"></canvas></main>
+
+<div class="fu-hud fu-hud--tl">
+  <section class="fu-panel fu-panel--tight c3-match" aria-label="對局狀態">
+    <div class="fu-panel__head"><p class="fu-label"><b>01</b> / 對局</p><span class="fu-label fu-num" id="plyLabel">手 0/120 · 重複 1/3</span></div>
+    <div class="c3-seats">
+      <div class="c3-seat" data-seat="0" id="seatRow0"><span class="fu-side" aria-hidden="true"></span><span class="c3-seat__who"><b id="seatName0">你</b><em id="seatRole0">先手</em></span><span class="c3-queue" id="queue0" aria-label="你的棋子順序"></span></div>
+      <div class="c3-seat" data-seat="1" data-tone="1" id="seatRow1"><span class="fu-side" aria-hidden="true"></span><span class="c3-seat__who"><b id="seatName1">AI</b><em id="seatRole1">後手</em></span><span class="c3-queue" id="queue1" aria-label="對手的棋子順序"></span></div>
+    </div>
+    <p class="c3-status" id="info" role="status" aria-live="polite">選好對手與變體，開始對局。</p>
+    <div class="c3-tags"><span class="fu-chip fu-chip--azure" id="tierChip">AI · 普通</span><span class="fu-chip fu-chip--gold" id="variantChip">標準</span></div>
+  </section>
+</div>
+
+<div class="fu-hud fu-hud--top" id="piePanel" hidden>
+  <section class="fu-panel c3-pie" aria-label="交換選邊">
+    <p id="pieText">先手已落下第一顆。你可以接管先手，或繼續當後手。</p>
+    <div class="row"><button class="fu-btn fu-btn--seal" type="button" id="pieSwap">交換：接管先手</button><button class="fu-btn" type="button" id="pieKeep">不交換</button></div>
+  </section>
+</div>
+
+<div class="fu-hud fu-hud--br">
+  <section class="fu-panel fu-panel--tight c3-map" aria-label="三層平面圖">
+    <div class="fu-panel__head"><p class="fu-label"><b>02</b> / 平面層</p><span class="fu-label" id="focusLabel">全部</span></div>
+    <div class="c3-layers" id="layers" role="group" aria-label="三層平面棋盤"></div>
+  </section>
+</div>
+
+<nav class="fu-dock" aria-label="指令">
+  <button class="fu-btn" type="button" id="cancelMove" disabled>取消</button>
+  <button class="fu-btn c3-confirm" type="button" id="confirmMove" disabled>落子 <span class="fu-kbd">⏎</span></button>
+  <button class="fu-btn" type="button" id="layerBtn" aria-label="切換聚焦層">層 · 全</button>
+  <button class="fu-btn" type="button" id="hintBtn">提示 <small id="hintLeft">3</small></button>
+  <button class="fu-btn" type="button" id="undoBtn">悔棋</button>
+  <button class="fu-btn fu-hide-sm" type="button" id="resetView">視角 <span class="fu-kbd">V</span></button>
+</nav>
+
+<!-- lobby -->
+<div class="fu-curtain c3-curtain" id="lobby" role="dialog" aria-modal="true" aria-labelledby="lobbyTitle">
+  <div class="fu-curtain__inner c3-lobby">
+    <span class="fu-seal fu-seal--lg fu-stamp" aria-hidden="true">循環</span>
+    <p class="fu-label">FuGames / Cyclic Cube · 27 格 · 49 線</p>
+    <h2 class="fu-display" id="lobbyTitle">立體三子<br>循環棋</h2>
+    <p class="fu-dim" style="margin:0;max-width:46ch">每人只有三顆棋。放滿後，每手都要把<strong>最早</strong>落下的那一顆移走。跨層連成一直線就贏。</p>
+    <div class="c3-career" id="lobbyCareer"></div>
+    <div class="fu-field"><span>對手</span><div class="fu-seg" id="tierSeg" role="radiogroup" aria-label="對手難度"></div></div>
+    <div class="fu-field"><span>變體</span><div class="fu-seg" id="variantSeg" role="radiogroup" aria-label="規則變體"></div><p class="c3-desc" id="variantDesc"></p></div>
+    <div class="fu-curtain__actions"><button class="fu-btn fu-btn--seal fu-btn--lg" type="button" id="startBtn">開始對局</button><button class="fu-btn fu-btn--lg" type="button" id="lobbyChallenges">殘局挑戰</button><button class="fu-btn fu-btn--lg fu-btn--icon" type="button" data-fu-open="settings" aria-label="設定"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><path d="M14 4v6M6 14v6"/></svg></button></div>
+  </div>
+</div>
+
+<!-- challenges -->
+<div class="fu-curtain c3-curtain" id="challenges" role="dialog" aria-modal="true" aria-labelledby="chTitle" hidden>
+  <div class="fu-curtain__inner">
+    <p class="fu-label"><b>■</b> 殘局挑戰 / Forced wins</p>
+    <h2 class="fu-title" id="chTitle">在限定手數內，逼出連線</h2>
+    <p class="fu-dim" style="margin:0;max-width:52ch">每一題都由搜尋驗證過：輪到你，而且只有<strong>一個</strong>正確的第一手。困難 AI 會全力防守；用完手數仍未連線就算失敗。依序解鎖，部分題目需要等級。</p>
+    <div class="c3-puzzles" id="puzzleList"></div>
+    <div class="fu-curtain__actions"><button class="fu-btn fu-btn--lg" type="button" id="chBack">返回</button></div>
+  </div>
+</div>
+
+<!-- result -->
+<div class="fu-curtain c3-curtain" id="result" role="dialog" aria-modal="true" aria-labelledby="resultTitle" hidden>
+  <div class="fu-curtain__inner c3-result">
+    <span class="fu-seal fu-seal--lg fu-stamp" id="resultSeal" aria-hidden="true">大勝</span>
+    <p class="fu-label" id="resultKicker">對局結束</p>
+    <h2 class="fu-display" id="resultTitle">你贏了</h2>
+    <p class="c3-reason" id="resultReason"></p>
+    <dl class="c3-xp" id="resultXp"></dl>
+    <div class="c3-levelup" id="resultLevelUp" hidden></div>
+    <div class="c3-career" id="resultCareer"></div>
+    <div class="fu-curtain__actions"><button class="fu-btn fu-btn--seal fu-btn--lg" type="button" id="againBtn">再來一局</button><button class="fu-btn fu-btn--lg" type="button" id="viewBoardBtn">檢視棋盤</button><button class="fu-btn fu-btn--lg" type="button" id="resultLobbyBtn">大廳</button></div>
+  </div>
+</div>
+
+<!-- settings -->
+<aside class="fu-drawer" id="settings" aria-label="設定">
+  <div class="fu-drawer__head"><span class="fu-label"><b>■</b> 設定</span><button class="fu-btn fu-btn--ghost fu-btn--icon" type="button" data-fu-close aria-label="關閉">✕</button></div>
+  <div class="fu-drawer__body" id="settingsForm">
+    <section>
+      <h3>對局（下一局生效）</h3>
+      <label class="fu-field"><span>模式</span><select class="fu-select" name="mode" id="modeSelect"><option value="ai">對 AI</option><option value="pvp">同機雙人</option></select></label>
+      <label class="fu-field"><span>你的座位</span><select class="fu-select" name="seat" id="seatSelect"><option value="0">先手</option><option value="1">後手</option><option value="random">隨機</option></select></label>
+      <label class="fu-switch"><span>首手交換規則</span><input type="checkbox" name="pie" id="togglePie" checked></label>
+      <p class="c3-note">先手下第一顆後，後手可以選擇接管先手。關閉後，AI 先手會直接佔中心。</p>
     </section>
-    <details class="card rules"><summary>玩法與設定</summary><div class="rules-body">
-      <ul class="list">
+    <section>
+      <h3>輔助</h3>
+      <label class="fu-switch"><span>標出下一顆要移走的棋（1）</span><input type="checkbox" name="next" id="toggleNext" checked></label>
+      <label class="fu-switch"><span>標出再下一顆（2）</span><input type="checkbox" name="next2" id="toggleNext2" checked></label>
+      <label class="fu-switch"><span>標出雙方的立即勝格</span><input type="checkbox" name="threat" id="toggleThreat" checked></label>
+      <label class="fu-switch"><span>預覽時畫出穿過該格的連線</span><input type="checkbox" name="lines" id="toggleLines" checked></label>
+    </section>
+    <section>
+      <h3>畫面</h3>
+      <label class="fu-field"><span>層距</span><input class="fu-range" type="range" name="spread" id="spreadRange" min="1" max="1.8" step="0.05" value="1.3"></label>
+      <label class="fu-switch"><span>大廳時立方緩慢自轉</span><input type="checkbox" name="spin" checked></label>
+      <label class="fu-switch"><span>落子動畫</span><input type="checkbox" name="anim" checked></label>
+    </section>
+    <section>
+      <h3>生涯</h3>
+      <div class="c3-career" id="drawerCareer"></div>
+      <div class="c3-stats" id="careerStats" style="margin-top:10px"></div>
+      <ul class="fu-list c3-unlocks" id="unlockList" style="margin-top:12px"></ul>
+      <button class="fu-btn fu-btn--sm" type="button" id="resetCareer" style="margin-top:12px">重置生涯</button>
+    </section>
+  </div>
+  <div class="fu-drawer__foot"><button class="fu-btn fu-btn--block" type="button" id="drawerLobby">回大廳</button><button class="fu-btn fu-btn--seal fu-btn--block" type="button" id="newGame">重新開始</button></div>
+</aside>
+
+<!-- rules -->
+<aside class="fu-drawer fu-drawer--left" id="rules" aria-label="規則">
+  <div class="fu-drawer__head"><span class="fu-label"><b>■</b> 規則與操作</span><button class="fu-btn fu-btn--ghost fu-btn--icon" type="button" data-fu-close aria-label="關閉">✕</button></div>
+  <div class="fu-drawer__body c3-rules">
+    <section>
+      <h3>規則</h3>
+      <ul>
         <li>棋盤是上、中、下三層 3×3，共 27 格。座標寫成「層 + A–C 列 + 1–3 行」，例如「中層 B2」是正中心。</li>
         <li>每人最多三顆。放滿後，每手都要把自己<strong>最早</strong>放下的棋移到另一個空格；不能放回原格，也不能吃子。</li>
-        <li>三顆連成一直線就贏：同層橫、直、斜，跨三層的垂直柱與斜線，以及四條穿過中心的空間對角線，共 49 條。彎線與繞邊不算。</li>
-        <li>交換規則：黑子下第一顆後，執白的一方可以選擇接管黑子。棋子與順序不變，接著仍輪到白子。中心格穿過 13 條線，開在中心容易被對方接管。</li>
+        <li>三顆連成一直線就贏：同層橫、直、斜，跨三層的垂直柱與斜線，以及四條穿過中心的空間對角線，共 49 條。彎線與繞邊不算。勝負在舊棋移走<strong>之後</strong>判定。</li>
+        <li><strong>交換規則：</strong>先手下第一顆後，後手可以選擇接管先手。棋子與順序不變，接著仍輪到後手的顏色走。中心格穿過 13 條線，開在中心容易被對方接管。</li>
         <li>同一完整局面（含雙方移動順序與輪到誰）第三次出現，或總步數達 120 手仍無人連線，判為和局。</li>
-        <li>操作：在立體圖或右側／下方的平面層點一格預覽，再按「落子」或再點同一格確認。預覽會淡化即將移走的舊棋。</li>
       </ul>
-      <div class="settings-grid">
-        <div class="field"><label for="modeSelect">對手</label><select id="modeSelect"><option value="normal" selected>AI・普通</option><option value="hard">AI・困難</option><option value="easy">AI・簡單</option><option value="pvp">同機雙人</option></select></div>
-        <div class="field"><label for="seatSelect">你的座位</label><select id="seatSelect"><option value="0" selected>先手（黑子）</option><option value="1">後手（白子）</option></select></div>
+    </section>
+    <section>
+      <h3>變體</h3>
+      <ul id="variantRules"></ul>
+    </section>
+    <section>
+      <h3>對手</h3>
+      <ul>
+        <li><strong>新手</strong>只看一步、常隨手走；<strong>簡單</strong>看兩步；<strong>普通</strong>看四步；<strong>困難</strong>看七步、不隨機；<strong>大師</strong>最多看十步、思考更久（等級 4 解鎖）。</li>
+        <li>越難的對手、越特別的變體，經驗越多。提示每用一次經驗 −15%，悔棋則減半。</li>
+      </ul>
+    </section>
+    <section>
+      <h3>操作</h3>
+      <ul>
+        <li>在立方或右下平面圖點一格預覽，再點一次或按「落子」確認。預覽會淡化即將移走的舊棋，並畫出穿過該格的所有連線。</li>
+        <li>拖曳旋轉；滾輪或雙指縮放。點平面圖的層名（或按 1／2／3）只看那一層，再按一次回到全部。</li>
+        <li>方向鍵移動游標、Q／E 換層、Enter 確認、Esc 取消；Shift＋方向鍵旋轉視角，V 重設。H 提示、U 悔棋、N 重新開始、C 殘局、L 大廳、S 設定。</li>
+      </ul>
+    </section>
+    <section>
+      <h3>圖例</h3>
+      <div class="c3-legend">
+        <i style="background:var(--seat-0)"></i><span>你（或玩家一）的棋</span>
+        <i style="background:var(--seat-1)"></i><span>對手（或玩家二）的棋</span>
+        <i style="background:var(--fu-paper);width:12px;height:12px"></i><span>「1」下一手會被移走；「2」再下一手</span>
+        <i style="border:2px solid var(--seat-0);transform:rotate(45deg);width:12px;height:12px"></i><span>立即勝格（顏色代表誰）</span>
+        <i style="background:repeating-linear-gradient(45deg,var(--fu-ink-3) 0 3px,var(--fu-ink-1) 3px 7px);border:1px solid var(--fu-line-strong)"></i><span>封石：不能下，也擋住所有穿過它的線</span>
       </div>
-      <div class="hint-options">
-        <label><input type="checkbox" id="togglePie" checked>啟用首手交換規則（重新開始後生效）</label>
-        <label><input type="checkbox" id="toggleNext" checked>顯示下回合將移動的棋子</label>
-        <label><input type="checkbox" id="toggleNext2" checked>顯示下下回合將移動的棋子</label>
-        <label><input type="checkbox" id="toggleThreat" checked>標示雙方的立即勝格</label>
-        <label><input type="checkbox" id="toggleLines" checked>預覽時顯示穿過該格的所有連線</label>
-      </div>
-    </div></details>
-    <footer class="site-footer">FuGames · 隨時來一局</footer>
-  </main>
-  <script src="cyclic3d-engine.js"></script>
-  <script>
-  (()=>{
-    const C=window.CyclicCube,{BLACK,WHITE}=C;
-    const $=id=>document.getElementById(id);
-    const canvas=$('cube'),ctx=canvas.getContext('2d'),info=$('info');
-    const reduceMotion=matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const LAYER_COLORS=['#5EBCBF','#81A1C1','#B48EAD'];
-    const DEFAULT_VIEW={yaw:-0.55,pitch:0.6};
-    const opts={next:true,next2:true,threat:true,lines:true};
-    let game,mode='normal',humanSeat=0,selected=-1,hover=-1,view={...DEFAULT_VIEW},aiToken=0,aiBusy=false,anim=null,notice='';
-    let worker=null;
-    try{worker=new Worker('cyclic3d-ai-worker.js');worker.onmessage=e=>onAIMove(e.data);worker.onerror=()=>{worker=null;};}catch(err){worker=null;}
+    </section>
+  </div>
+</aside>
 
-    // ---------- seats & names ----------
-    const colorName=c=>c===BLACK?'黑子':'白子';
-    function seatName(seat){if(mode==='pvp')return seat===0?'玩家一':'玩家二';return seat===humanSeat?'你':'AI';}
-    function who(color){const seat=game.seatOf(color);return seatName(seat)+'（'+colorName(color)+'）';}
-    const isAISeat=seat=>mode!=='pvp'&&seat!==humanSeat;
-    const humanToMove=()=>!game.over&&!game.pieOpen&&!aiBusy&&!isAISeat(game.seatOf(game.turn));
-    const pieForHuman=()=>!game.over&&game.pieOpen&&!isAISeat(game.seatOf(WHITE));
+<script id="cyclic-career">
+'use strict';
+// Career progression for 立體三子循環棋: pure functions over a small saved profile.
+// XP comes from finished games (scaled by AI tier and variant) and first-time challenge solves.
+const CyclicCareer=(()=>{
+  const MAX_LEVEL=30,KEY='cyclic3d-career',VERSION=1;
+  const need=level=>90+level*30;
+  function levelOf(xp){let level=1,rest=Math.max(0,Math.floor(Number(xp)||0));while(level<MAX_LEVEL&&rest>=need(level)){rest-=need(level);level++;}return{level,into:level<MAX_LEVEL?rest:0,need:level<MAX_LEVEL?need(level):0,max:level>=MAX_LEVEL};}
+  const RANKS=[{from:1,name:'入門'},{from:3,name:'初段'},{from:6,name:'二段'},{from:10,name:'三段'},{from:15,name:'四段'},{from:20,name:'五段'},{from:26,name:'立方名人'}];
+  const rankOf=level=>RANKS.filter(r=>level>=r.from).pop().name;
+  const TIERS=[{id:'novice',name:'新手',xp:.5},{id:'easy',name:'簡單',xp:.75},{id:'normal',name:'普通',xp:1},{id:'hard',name:'困難',xp:1.4},{id:'master',name:'大師',xp:1.9}];
+  const VARIANT_XP={standard:1,hollow:1.15,four:1.15,scaffold:1.2,rubble:1.15};
+  const UNLOCKS=[
+    {level:1,kind:'tier',id:'novice'},{level:1,kind:'tier',id:'easy'},{level:1,kind:'tier',id:'normal'},{level:1,kind:'tier',id:'hard'},{level:1,kind:'variant',id:'standard'},
+    {level:2,kind:'variant',id:'hollow'},{level:3,kind:'variant',id:'four'},{level:4,kind:'tier',id:'master'},{level:5,kind:'variant',id:'scaffold'},{level:7,kind:'variant',id:'rubble'}
+  ];
+  const unlockLevel=(kind,id)=>{const u=UNLOCKS.find(u=>u.kind===kind&&u.id===id);return u?u.level:Infinity;};
+  const unlocked=(level,kind,id)=>level>=unlockLevel(kind,id);
+  const tierIndex=id=>TIERS.findIndex(t=>t.id===id);
+  const tierXP=id=>(TIERS.find(t=>t.id===id)||TIERS[2]).xp;
+  const sum=lines=>lines.reduce((n,l)=>n+l[1],0);
+  // s: {outcome:'win'|'loss'|'draw', tier, variant, plies, second, hints, undos, pvp}
+  function matchXP(s){
+    if(s.pvp){const lines=[['同機對局',10]];return{lines,base:10,mult:1,total:10};}
+    const lines=[['完成對局',20]];
+    if(s.outcome==='win'){lines.push(['勝局',60]);if(s.plies<=24)lines.push(['速勝（24 手內）',20]);if(s.second)lines.push(['後手取勝',15]);}
+    else if(s.outcome==='draw')lines.push(['和局',25]);
+    let mult=tierXP(s.tier)*(VARIANT_XP[s.variant]||1);
+    if(s.hints)mult*=Math.pow(.85,s.hints);
+    if(s.undos)mult*=.5;
+    mult=Math.round(mult*1000)/1000;
+    const base=sum(lines);return{lines,base,mult,total:Math.round(base*mult)};
+  }
+  function challengeXP(p,first){
+    if(!first){const lines=[['重解殘局',10]];return{lines,base:10,mult:1,total:10};}
+    const lines=[['首次破解',40],[p.moves+' 手殺',30*p.moves]];const base=sum(lines);return{lines,base,mult:1,total:base};
+  }
+  const blank=()=>({v:VERSION,xp:0,games:0,wins:0,losses:0,draws:0,streak:0,bestStreak:0,fastest:0,bestTier:-1,solved:[]});
+  function sanitize(p){
+    const b=blank();if(!p||typeof p!=='object')return b;
+    for(const k of Object.keys(b)){if(k==='solved'||k==='v')continue;if(Number.isFinite(p[k])&&p[k]>=(k==='bestTier'?-1:0))b[k]=Math.floor(p[k]);}
+    if(Array.isArray(p.solved))b.solved=[...new Set(p.solved.filter(id=>typeof id==='string'&&/^p\d\d$/.test(id)))];
+    return b;
+  }
+  function finish(p,next,gain){const before=levelOf(p.xp),after=levelOf(next.xp);return{profile:next,gain,before,after,unlocked:UNLOCKS.filter(u=>u.level>before.level&&u.level<=after.level)};}
+  function record(profile,s){
+    const p=sanitize(profile),gain=matchXP(s),win=s.outcome==='win';
+    const next={...p,solved:p.solved.slice(),xp:p.xp+gain.total,games:p.games+1};
+    if(!s.pvp){
+      next.wins=p.wins+(win?1:0);next.losses=p.losses+(s.outcome==='loss'?1:0);next.draws=p.draws+(s.outcome==='draw'?1:0);
+      next.streak=win?p.streak+1:0;next.bestStreak=Math.max(p.bestStreak,next.streak);
+      if(win&&(!p.fastest||s.plies<p.fastest))next.fastest=s.plies;
+      if(win)next.bestTier=Math.max(p.bestTier,tierIndex(s.tier));
+    }
+    return finish(p,next,gain);
+  }
+  function recordChallenge(profile,puzzle,solved){
+    const p=sanitize(profile);
+    if(!solved)return finish(p,{...p,solved:p.solved.slice()},{lines:[['未破解',0]],base:0,mult:1,total:0});
+    const first=!p.solved.includes(puzzle.id),gain=challengeXP(puzzle,first);
+    return finish(p,{...p,xp:p.xp+gain.total,solved:first?p.solved.concat(puzzle.id):p.solved.slice()},gain);
+  }
+  // A challenge opens when your level reaches it and the one before it is solved.
+  function challengeOpen(profile,puzzles,i){const p=sanitize(profile),lv=levelOf(p.xp).level;return lv>=puzzles[i].level&&(i===0||p.solved.includes(puzzles[i-1].id));}
+  function load(storage){try{return sanitize(JSON.parse(storage.getItem(KEY)||'null'));}catch(e){return blank();}}
+  function save(storage,p){try{storage.setItem(KEY,JSON.stringify(sanitize(p)));return true;}catch(e){return false;}}
+  return{MAX_LEVEL,KEY,need,levelOf,RANKS,rankOf,TIERS,VARIANT_XP,UNLOCKS,unlockLevel,unlocked,tierIndex,matchXP,challengeXP,blank,sanitize,record,recordChallenge,challengeOpen,load,save};
+})();
+</script>
+<script src="shared/fu-palette.js"></script>
+<script src="shared/fu-shell.js" defer></script>
+<script src="cyclic3d-engine.js"></script>
+<script type="module" id="cyclic-app">
+import { THREE, createStage, palette } from './shared/fu-three.js';
+// Page controller + three.js view. Rules live in cyclic3d-engine.js; this file only reads them.
+const C=window.CyclicCube,K=CyclicCareer,{BLACK,WHITE}=C;
+const $=id=>document.getElementById(id);
+const info=$('info');
+const prefs=Fu.prefs('cyclic3d',{tier:'normal',variant:'standard',mode:'ai',seat:'0',pie:true,next:true,next2:true,threat:true,lines:true,spread:1.3,spin:true,anim:true});
+const opts=Fu.bindSettings('settingsForm',prefs,(name,value)=>{
+  if(name==='spread')layoutScene();
+  if(['next','next2','threat','lines'].includes(name))update();
+});
+const storage=(()=>{try{return window.localStorage;}catch(e){return null;}})();
+let profile=storage?K.load(storage):K.blank();
+const reduceMotion=()=>Fu.reducedMotion();
+const TIER_NAME=Object.fromEntries(K.TIERS.map(t=>[t.id,t.name]));
+const SEAT_HEX=[palette.sides[0],palette.sides[1]];
+// Colour tone of a seat: against the AI you are always the seal colour, whichever seat you take.
+const tone=seat=>cfg&&!cfg.pvp&&humanSeat===1?1-seat:seat;
 
-    // ---------- flat layer boards ----------
-    const layerBox=$('layers'),buttons=[];
-    for(const layer of [2,1,0]){
-      const box=document.createElement('div');box.className='c3-layer';
-      box.innerHTML=`<h3><i style="--swatch:${LAYER_COLORS[layer]}"></i>${C.LAYER_NAMES[layer]}</h3>`;
-      const grid=document.createElement('div');grid.className='c3-grid';grid.setAttribute('role','group');grid.setAttribute('aria-label',C.LAYER_NAMES[layer]+' 3×3');
-      for(let r=0;r<3;r++)for(let c=0;c<3;c++){
-        const cell=C.index(layer,r,c),b=document.createElement('button');
-        b.type='button';b.className='cell';b.dataset.cell=cell;
-        b.addEventListener('click',()=>pick(cell));
-        b.addEventListener('pointerenter',()=>{hover=cell;draw();});
-        b.addEventListener('pointerleave',()=>{if(hover===cell){hover=-1;draw();}});
-        b.addEventListener('focus',()=>{hover=cell;draw();});
-        buttons[cell]=b;grid.appendChild(b);
-      }
-      box.appendChild(grid);layerBox.appendChild(box);
-    }
+// ---------- state ----------
+let game=null,cfg=null,phase='lobby',humanSeat=0,selected=-1,hover=-1,cursor=13,focus=-1;
+let aiToken=0,aiBusy=false,hintCell=-1,hintsUsed=0,hintBusy=false,undos=0,notice='',humanMoves=0,lastRecord=null,anim=null;
+let worker=null;
+try{worker=new Worker('cyclic3d-ai-worker.js');worker.onmessage=e=>onWorker(e.data);worker.onerror=()=>{worker=null;};}catch(err){worker=null;}
 
-    // ---------- game flow ----------
-    function newGame(){
-      aiToken++;aiBusy=false;selected=-1;anim=null;notice='';
-      mode=$('modeSelect').value;humanSeat=Number($('seatSelect').value);
-      game=new C.Game({pieRule:$('togglePie').checked});
-      update();schedule();
-    }
-    function pick(cell){
-      if(!humanToMove()||!game.legal(cell))return;
-      if(selected===cell){commit();return;}
-      selected=cell;update();
-    }
-    function cancel(){if(selected<0)return;selected=-1;update();}
-    function commit(){
-      if(selected<0||!humanToMove())return;
-      const cell=selected;selected=-1;play(cell);
-    }
-    function play(cell){
-      const record=game.play(cell);if(!record)return;
-      notice='';
-      anim=reduceMotion?null:{from:record.from,to:record.to,player:record.player,t0:performance.now()};
-      update();schedule();
-    }
-    function schedule(){
-      if(game.over)return;
-      if(game.pieOpen){
-        if(isAISeat(game.seatOf(WHITE))){
-          const token=++aiToken;aiBusy=true;update();
-          setTimeout(()=>{if(token!==aiToken)return;aiBusy=false;
-            if(C.shouldSwap(game)){game.swap();notice='AI 交換選邊：接管了黑子。';}else{game.declineSwap();notice='AI 不交換，繼續執白。';}
-            update();schedule();},reduceMotion?0:450);
-        }
-        return;
-      }
-      if(!isAISeat(game.seatOf(game.turn)))return;
+const seatName=seat=>cfg&&cfg.pvp?(seat===0?'玩家一':'玩家二'):seat===humanSeat?'你':'AI';
+const roleName=color=>color===BLACK?'先手':'後手';
+const who=color=>seatName(game.seatOf(color))+'（'+roleName(color)+'）';
+const isAISeat=seat=>cfg&&!cfg.pvp&&seat!==humanSeat;
+const humanToMove=()=>phase==='play'&&!game.over&&!game.pieOpen&&!aiBusy&&!isAISeat(game.seatOf(game.turn));
+const pieForHuman=()=>phase==='play'&&!game.over&&game.pieOpen&&!isAISeat(game.seatOf(WHITE));
+const seatOfCell=cell=>{const v=game.board[cell];return v===BLACK||v===WHITE?game.seatOf(v):-1;};
+const levelNow=()=>K.levelOf(profile.xp).level;
+
+// ---------- flat layer map ----------
+const buttons=[],layerTabs=[];
+for(const layer of [2,1,0]){
+  const box=document.createElement('div');box.className='c3-layer';box.dataset.layer=layer;
+  const tab=document.createElement('button');tab.type='button';tab.className='c3-layer__tab';tab.setAttribute('aria-pressed','false');
+  tab.innerHTML=`<span>${C.LAYER_NAMES[layer]}</span><i>${layer+1}</i>`;tab.addEventListener('click',()=>setFocus(focus===layer?-1:layer));
+  layerTabs[layer]=tab;box.appendChild(tab);
+  const grid=document.createElement('div');grid.className='c3-grid';grid.setAttribute('role','group');grid.setAttribute('aria-label',C.LAYER_NAMES[layer]+' 3×3');
+  for(let r=0;r<3;r++)for(let c=0;c<3;c++){
+    const cell=C.index(layer,r,c),b=document.createElement('button');
+    b.type='button';b.className='cell';b.dataset.cell=cell;
+    b.addEventListener('click',()=>{cursor=cell;pick(cell);});
+    b.addEventListener('pointerenter',e=>{if(e.pointerType!=='mouse')return;hover=cell;update(false);});
+    b.addEventListener('pointerleave',()=>{if(hover===cell){hover=-1;update(false);}});
+    buttons[cell]=b;grid.appendChild(b);
+  }
+  box.appendChild(grid);$('layers').appendChild(box);
+}
+$('variantRules').innerHTML=C.VARIANT_IDS.map(id=>`<li><strong>${C.VARIANTS[id].name}</strong>：${C.VARIANTS[id].desc}${id==='standard'?'':`（等級 ${K.unlockLevel('variant',id)} 解鎖，經驗 ×${K.VARIANT_XP[id]}）`}</li>`).join('');
+
+// ---------- game flow ----------
+function matchConfig(){
+  let tier=prefs.get('tier'),variant=prefs.get('variant');
+  if(!K.unlocked(levelNow(),'tier',tier))tier='normal';
+  if(!K.unlocked(levelNow(),'variant',variant))variant='standard';
+  const pvp=prefs.get('mode')==='pvp',seatPref=prefs.get('seat');
+  const seat=seatPref==='random'?(Math.random()<.5?0:1):Number(seatPref)||0;
+  const seed=(Math.random()*4294967296)>>>0;
+  return{kind:'match',tier,variant,pvp,seat,options:Object.assign({pieRule:!!prefs.get('pie')},C.variantOptions(variant,seed))};
+}
+function resetTransient(){aiToken++;aiBusy=false;hintBusy=false;selected=-1;hintCell=-1;hintsUsed=0;undos=0;notice='';humanMoves=0;anim=null;lastRecord=null;}
+function startMatch(config){
+  resetTransient();cfg=config||matchConfig();humanSeat=cfg.seat;
+  game=new C.Game(cfg.options);phase='play';
+  hideCurtains();setFocus(-1,true);
+  cursor=firstLegal();update();schedule();
+}
+function startChallenge(index){
+  const p=C.PUZZLES[index];if(!p||!K.challengeOpen(profile,C.PUZZLES,index))return false;
+  resetTransient();game=C.puzzleGame(p);
+  cfg={kind:'challenge',puzzle:p,index,tier:'hard',variant:p.variant,pvp:false,seat:game.seatOf(game.turn),options:Object.assign({pieRule:false},C.variantOptions(p.variant))};
+  humanSeat=cfg.seat;phase='play';hideCurtains();setFocus(-1,true);
+  notice=`殘局「${p.name}」：${p.moves} 手內連線。`;cursor=firstLegal();update();schedule();
+  return true;
+}
+function restart(){if(!cfg)return startMatch();if(cfg.kind==='challenge')return startChallenge(cfg.index);const c=matchConfig();startMatch(c);}
+const firstLegal=()=>{const m=game.legalMoves();return m.includes(13)?13:(m[0]??13);};
+function pick(cell){
+  if(!humanToMove()||!game.legal(cell))return;
+  if(selected===cell){commit();return;}
+  selected=cell;update();
+}
+function cancel(){if(selected<0)return;selected=-1;update();}
+function commit(){if(selected<0||!humanToMove())return;const cell=selected;selected=-1;play(cell);}
+function play(cell){
+  const mover=game.seatOf(game.turn),record=game.play(cell);if(!record)return;
+  if(!isAISeat(mover))humanMoves++;
+  hintCell=-1;notice='';lastRecord=record;
+  anim=prefs.get('anim')&&!reduceMotion()?{from:record.from,to:record.to,seat:game.seatOf(record.player),t0:performance.now(),dur:record.from>=0?520:300}:null;
+  if(cfg.kind==='challenge'&&!game.over&&!isAISeat(mover)&&humanMoves>=cfg.puzzle.moves){finishGame('challenge-out');return;}
+  if(game.over){finishGame();return;}
+  update();schedule();
+}
+function schedule(){
+  if(phase!=='play'||game.over)return;
+  if(game.pieOpen){
+    if(isAISeat(game.seatOf(WHITE))){
       const token=++aiToken;aiBusy=true;update();
-      const level=mode,seed=(Math.random()*4294967296)>>>0,state=game.toJSON();
-      const delay=reduceMotion?0:320;
-      if(worker){setTimeout(()=>{if(token===aiToken)worker.postMessage({token,state,level,seed});},delay);}
-      else setTimeout(()=>{if(token!==aiToken)return;const m=C.chooseMove(game,{level});onAIMove({token,cell:m&&m.cell});},delay+30);
+      setTimeout(()=>{if(token!==aiToken)return;aiBusy=false;
+        if(C.shouldSwap(game)){game.swap();notice='AI 交換選邊：接管了先手。';Fu.toast('AI 接管了你的中心開局',{tone:'warn'});}else{game.declineSwap();notice='AI 不交換。';}
+        update();schedule();},reduceMotion()?0:500);
     }
-    function onAIMove({token,cell}){
-      if(token!==aiToken||!aiBusy)return;aiBusy=false;
-      if(cell==null||!game.legal(cell)){update();return;}
-      play(cell);
-    }
-    function swapByHuman(swap){
-      if(!pieForHuman())return;
-      if(swap){game.swap();notice=mode==='pvp'?'已交換：'+seatName(game.seatOf(BLACK))+'接管黑子。':'你接管了黑子；AI 改執白子。';}
-      else{game.declineSwap();notice='不交換，繼續執白。';}
-      update();schedule();
-    }
+    return;
+  }
+  if(!isAISeat(game.seatOf(game.turn)))return;
+  const token=++aiToken;aiBusy=true;update();
+  ask('move',token,cfg.tier,reduceMotion()?0:380);
+}
+function ask(kind,token,level,delay){
+  const seed=(Math.random()*4294967296)>>>0,state=game.toJSON();
+  if(worker)setTimeout(()=>{if(token===aiToken||kind==='hint')worker.postMessage({token,kind,state,level,seed});},delay);
+  else setTimeout(()=>{const g=C.Game.from(state),m=C.chooseMove(g,{level});onWorker({token,kind,cell:m&&m.cell});},delay+30);
+}
+let hintSerial=0;
+function onWorker({token,kind,cell}){
+  if(kind==='hint'){
+    if(token!==hintSerial||!hintBusy)return;hintBusy=false;
+    if(cell!=null&&humanToMove()&&game.legal(cell)){hintCell=cell;hintsUsed++;notice='提示：'+C.label(cell)+'。';}
+    update();return;
+  }
+  if(token!==aiToken||!aiBusy)return;aiBusy=false;
+  if(cell==null||!game.legal(cell)){update();return;}
+  play(cell);
+}
+function requestHint(){
+  if(!hintAllowed())return;
+  hintBusy=true;hintSerial++;update();ask('hint',hintSerial,'hard',0);
+}
+const HINTS=3;
+const hintAllowed=()=>humanToMove()&&!hintBusy&&cfg.kind==='match'&&hintsUsed<HINTS;
+const undoAllowed=()=>phase==='play'&&cfg&&cfg.kind==='match'&&!cfg.pvp&&!game.over&&game.moves.some(m=>!m.swap&&game.seatOf(m.player)===humanSeat);
+function rebuild(moves){const g=new C.Game(cfg.options);for(const m of moves){if(m.swap){g.swap();continue;}if(g.pieOpen)g.declineSwap();g.play(m.to);}return g;}
+function undo(){
+  if(!undoAllowed())return;
+  aiToken++;aiBusy=false;
+  const ms=game.moves.slice();let g;
+  do{ms.pop();g=rebuild(ms);}while(ms.length&&isAISeat(g.seatOf(g.turn)));
+  game=g;undos++;selected=-1;hintCell=-1;anim=null;notice='已悔棋：本局經驗減半。';
+  update();schedule();
+}
+function swapByHuman(swap){
+  if(!pieForHuman())return;
+  if(swap){game.swap();notice=cfg.pvp?seatName(game.seatOf(BLACK))+'接管先手。':'你接管了先手；AI 改當後手。';}
+  else{game.declineSwap();notice='不交換。';}
+  update();schedule();
+}
 
-    // ---------- status ----------
-    function lineName(line){
-      const p=line.map(C.coord),same=k=>p.every(q=>q[k]===p[0][k]);
-      if(same('layer'))return same('row')||same('col')?'同層直線':'同層斜線';
-      if(same('row')&&same('col'))return '垂直柱';
-      return same('row')||same('col')?'跨層斜線':'空間對角線';
-    }
-    function statusText(){
-      if(game.winner){const line=game.winLine;return who(game.winner)+' 連成'+lineName(line)+'：'+line.map(C.label).join(' → ')+'，獲勝！';}
-      if(game.draw==='repetition')return '同一局面第三次出現，和局。';
-      if(game.draw==='ply-limit')return '已達 '+C.PLY_LIMIT+' 手上限，無人連線，和局。';
-      if(game.pieOpen){
-        if(pieForHuman())return (mode==='pvp'?seatName(game.seatOf(WHITE)):'你')+'可以選擇是否交換選邊。';
-        return 'AI 正在考慮是否交換選邊…';
-      }
-      if(aiBusy)return (notice?notice+' ':'')+'AI（'+colorName(game.turn)+'）思考中…';
-      const pre=notice?notice+' ':'';
-      if(selected>=0){
-        const lift=game.leaving(game.turn);
-        return '預覽：'+C.label(selected)+(lift>=0?'（'+C.label(lift)+' 將移走）':'')+'，按「落子」確認。';
-      }
-      const lift=game.leaving(game.turn);
-      return pre+'輪到 '+who(game.turn)+(lift>=0?'，這手會移動 '+C.label(lift)+'。':'。');
-    }
-    function update(){
-      info.textContent=statusText();
-      $('moveCount').textContent=game.ply;$('plyLimit').textContent=C.PLY_LIMIT;$('repeatCount').textContent=game.repetitions();
-      $('confirmMove').disabled=selected<0||!humanToMove();$('cancelMove').disabled=selected<0;
-      const pie=$('piePanel');pie.hidden=!pieForHuman();
-      if(!pie.hidden)$('pieText').textContent=(mode==='pvp'?seatName(game.seatOf(WHITE))+'：':'')+'黑子已下在 '+C.label(game.queues[BLACK][0])+'。可以接管黑子（之後仍由白子落子），或繼續執白子。';
-      renderGrids();draw();
-    }
-    function queueMarks(){
-      const marks=new Map();
-      for(const p of [BLACK,WHITE]){const q=game.queues[p];if(q.length<C.STONES)continue;if(opts.next)marks.set(q[0],1);if(opts.next2&&!marks.has(q[1]))marks.set(q[1],2);}
-      return marks;
-    }
-    function threatSets(){
-      if(!opts.threat||game.over)return{[BLACK]:new Set(),[WHITE]:new Set()};
-      return{[BLACK]:new Set(game.threats(BLACK)),[WHITE]:new Set(game.threats(WHITE))};
-    }
-    function renderGrids(){
-      const marks=queueMarks(),threats=threatSets(),win=new Set(game.winLine||[]),lift=selected>=0?game.leaving(game.turn):-1,canPlay=humanToMove();
-      for(let cell=0;cell<C.CELLS;cell++){
-        const b=buttons[cell],v=game.board[cell];
-        b.className='cell';b.innerHTML='';
-        let text=C.label(cell)+'，'+(v?colorName(v):'空格');
-        if(v){const s=document.createElement('span');s.className='classic-stone'+(v===WHITE?' white':'');s.setAttribute('aria-hidden','true');b.appendChild(s);}
-        if(marks.has(cell)){const m=marks.get(cell),badge=document.createElement('span');badge.className='queue-badge'+(m===2?' second':'');badge.textContent=m;badge.setAttribute('aria-hidden','true');b.appendChild(badge);text+=m===1?'，下一顆移動':'，再下一顆移動';}
-        if(!v&&threats[BLACK].has(cell)){b.classList.add('threat-1');text+='，黑子立即勝格';}
-        else if(!v&&threats[WHITE].has(cell)){b.classList.add('threat-2');text+='，白子立即勝格';}
-        if(cell===selected){b.classList.add('selected');text+='，預覽中，再按一次落子';}
-        if(cell===lift)b.classList.add('leaving');
-        if(win.has(cell)){b.classList.add('win');text+='，勝利連線';}
-        if(cell===hover)b.classList.add('hover');
-        b.disabled=!canPlay||v!==0;
-        b.setAttribute('aria-label',text);
-      }
-    }
+// ---------- end of game ----------
+function lineName(line){
+  const p=line.map(C.coord),same=k=>p.every(q=>q[k]===p[0][k]);
+  if(same('layer'))return same('row')||same('col')?'同層直線':'同層斜線';
+  if(same('row')&&same('col'))return '垂直柱';
+  return same('row')||same('col')?'跨層斜線':'空間對角線';
+}
+function finishGame(reason){
+  phase='over';selected=-1;hintCell=-1;aiToken++;aiBusy=false;
+  update();
+  let out;
+  const humanColor=game.colorOf(humanSeat);
+  if(cfg.kind==='challenge'){
+    const solved=game.winner===humanColor;
+    out=K.recordChallenge(profile,cfg.puzzle,solved);
+    out.view={seal:solved?'破題':'未破',kicker:'殘局 '+cfg.puzzle.id.slice(1)+' · '+cfg.puzzle.name,title:solved?'破解成功':'未能破解',
+      reason:solved?describeWin():reason==='challenge-out'?`${cfg.puzzle.moves} 手已用完，對手守住了。正確的第一手只有一個，換個角度再找找。`:game.winner?'對手搶先連線。':'局面重複，和局收場。'};
+  }else{
+    const outcome=game.winner?(cfg.pvp?'win':game.winner===humanColor?'win':'loss'):'draw';
+    out=K.record(profile,{outcome,tier:cfg.tier,variant:cfg.variant,plies:game.ply,second:humanColor===WHITE,hints:hintsUsed,undos,pvp:cfg.pvp});
+    let seal,title;
+    if(cfg.pvp){seal=game.winner?'終局':'和局';title=game.winner?seatName(game.seatOf(game.winner))+'勝':'和局';}
+    else{seal=outcome==='win'?'大勝':outcome==='loss'?'惜敗':'和局';title=outcome==='win'?'你贏了':outcome==='loss'?'AI 勝出':'和局';}
+    out.view={seal,title,kicker:(cfg.pvp?'同機雙人':'AI · '+TIER_NAME[cfg.tier])+' · '+C.VARIANTS[cfg.variant].name,reason:game.winner?describeWin():game.draw==='repetition'?'同一局面第三次出現，和局。':'已達 '+C.PLY_LIMIT+' 手上限，無人連線，和局。'};
+  }
+  profile=out.profile;if(storage)K.save(storage,profile);
+  renderCareer();
+  for(const u of out.unlocked)Fu.toast('解鎖：'+unlockName(u),{tone:'ok',ms:4200});
+  const delay=reduceMotion()?150:1500;
+  setTimeout(()=>{if(phase==='over'&&game)showResult(out);},delay);
+}
+function describeWin(){const line=game.winLine;return who(game.winner)+'在第 '+game.ply+' 手連成'+lineName(line)+'：'+line.map(C.label).join(' → ')+'。';}
+const unlockName=u=>u.kind==='tier'?'對手「'+TIER_NAME[u.id]+'」':'變體「'+C.VARIANTS[u.id].name+'」';
+function showResult(out){
+  const v=out.view;$('resultSeal').textContent=v.seal;$('resultKicker').textContent=v.kicker;$('resultTitle').textContent=v.title;$('resultReason').textContent=v.reason;
+  const g=out.gain;
+  $('resultXp').innerHTML=g.lines.map(([k,n])=>`<dt>${k}</dt><dd>+${n}</dd>`).join('')+(g.mult!==1?`<dt>倍率</dt><dd>×${g.mult}</dd>`:'')+`<dt class="total">經驗</dt><dd class="total">+${g.total}</dd>`;
+  const up=$('resultLevelUp');
+  if(out.after.level>out.before.level){up.hidden=false;up.innerHTML=`升到 <b>等級 ${out.after.level}</b>・${K.rankOf(out.after.level)}`+(out.unlocked.length?'。解鎖：'+out.unlocked.map(unlockName).join('、'):'');}
+  else up.hidden=true;
+  $('againBtn').textContent=cfg.kind==='challenge'?(game.winner===game.colorOf(humanSeat)?'下一題':'再試一次'):'再來一局';
+  showCurtain('result');
+}
 
-    // ---------- 3D view ----------
-    const GAP=1.4,DIST=9;
-    // Fit the cube to the canvas for the current tilt. Bounds are taken over a full turn of
-    // yaw, so dragging sideways never zooms; only tilting changes the framing.
-    let fit={pitch:null,s:1,oy:0};
-    function rawProject(x,y,z,yaw,pitch){
-      const cy=Math.cos(yaw),sy=Math.sin(yaw),cp=Math.cos(pitch),sp=Math.sin(pitch);
-      const rx=x*cy-y*sy,ry=x*sy+y*cy,depth=-ry*cp+z*sp,f=DIST/(DIST-depth);
-      return{x:rx*f,y:(-z*cp-ry*sp)*f,f,depth};
-    }
-    function updateFit(){
-      if(fit.pitch===view.pitch)return;
-      let minX=0,maxX=0,minY=Infinity,maxY=-Infinity;
-      for(let a=0;a<24;a++)for(const z of [-GAP,0,GAP])for(const [x,y] of [[-1.6,-1.6],[1.6,-1.6],[1.6,1.6],[-1.6,1.6]]){
-        const p=rawProject(x,y,z,a*Math.PI/12,view.pitch);
-        minX=Math.min(minX,p.x);maxX=Math.max(maxX,p.x);minY=Math.min(minY,p.y);maxY=Math.max(maxY,p.y);
-      }
-      const half=Math.max(maxX,-minX);
-      fit={pitch:view.pitch,s:Math.min(0.84/(2*half),0.84/(maxY-minY)),oy:-(minY+maxY)/2};
-    }
-    function project(x,y,z,W){
-      const p=rawProject(x,y,z,view.yaw,view.pitch),s=fit.s*W;
-      return{x:W/2+p.x*s,y:W/2+(p.y+fit.oy)*s,f:p.f,depth:p.depth,scale:p.f*s};
-    }
-    function cellWorld(cell){const p=C.coord(cell);return[p.col-1,p.row-1,(p.layer-1)*GAP];}
-    let projected=[];
-    function sizeCanvas(){
-      const rect=canvas.getBoundingClientRect(),dpr=Math.min(window.devicePixelRatio||1,2),w=Math.round(rect.width*dpr);
-      if(canvas.width!==w){canvas.width=w;canvas.height=w;}
-      return w;
-    }
-    let raf=0;
-    function draw(){if(!raf)raf=requestAnimationFrame(frame);}
-    function frame(now){
-      raf=0;if(!game)return;
-      const W=sizeCanvas();if(!W)return;
-      updateFit();
-      const k=W/560;
-      ctx.clearRect(0,0,W,W);
-      let t=1;if(anim){t=Math.min(1,(now-anim.t0)/320);if(t>=1)anim=null;}
-      const ease=1-Math.pow(1-t,3);
-      projected=[];
-      const marks=queueMarks(),threats=threatSets(),win=new Set(game.winLine||[]);
-      const lift=selected>=0?game.leaving(game.turn):-1;
-      const focus=selected>=0?selected:hover;
-      for(let layer=0;layer<3;layer++){
-        const z=(layer-1)*GAP;
-        // plate
-        const corners=[[-1.55,-1.55],[1.55,-1.55],[1.55,1.55],[-1.55,1.55]].map(([x,y])=>project(x,y,z,W));
-        ctx.beginPath();corners.forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y));ctx.closePath();
-        ctx.fillStyle=LAYER_COLORS[layer]+'22';ctx.fill();ctx.lineWidth=1.5*k;ctx.strokeStyle=LAYER_COLORS[layer]+'aa';ctx.stroke();
-        ctx.lineWidth=1*k;ctx.strokeStyle=LAYER_COLORS[layer]+'66';
-        for(const g of [-0.5,0.5]){
-          let a=project(g,-1.55,z,W),b=project(g,1.55,z,W);ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke();
-          a=project(-1.55,g,z,W);b=project(1.55,g,z,W);ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke();
-        }
-        // layer label at the left-most plate corner
-        const lc=corners.reduce((m,p)=>p.x<m.x?p:m);ctx.textAlign='left';
-        ctx.fillStyle='#657283';ctx.font=`600 ${Math.round(12*k)}px system-ui, sans-serif`;ctx.textBaseline='bottom';ctx.fillText(C.LAYER_NAMES[layer],Math.max(4*k,lc.x-14*k),lc.y-6*k);
-        if(layer===0){
-          ctx.textAlign='center';ctx.font=`600 ${Math.round(10*k)}px system-ui, sans-serif`;
-          for(let i=0;i<3;i++){let p=project(i-1,1.85,z,W);ctx.fillText(String(i+1),p.x,p.y);p=project(-1.85,i-1,z,W);ctx.fillText(C.ROW_NAMES[i],p.x,p.y);}
-        }
-        // cells of this layer, back to front
-        const cells=[];for(let r=0;r<3;r++)for(let c=0;c<3;c++){const cell=C.index(layer,r,c),[x,y,zz]=cellWorld(cell);cells.push({cell,p:project(x,y,zz,W)});}
-        cells.sort((a,b)=>a.p.depth-b.p.depth);
-        for(const {cell,p} of cells){
-          projected.push({cell,p});
-          const R=p.scale*0.3,v=game.board[cell];
-          let alpha=1,lift3d=0,scale=1;
-          if(anim&&cell===anim.to){lift3d=(1-ease)*0.7;scale=0.7+0.3*ease;alpha=ease;}
-          // empty marker
-          if(!v||(anim&&cell===anim.to)){
-            ctx.beginPath();ctx.arc(p.x,p.y,R*0.22,0,Math.PI*2);ctx.fillStyle=LAYER_COLORS[layer]+'99';ctx.fill();
-            if(threats[BLACK].has(cell)||threats[WHITE].has(cell))drawDiamond(p,R,threats[BLACK].has(cell)?'#5EBCBF':'#B48EAD',threats[BLACK].has(cell)&&threats[WHITE].has(cell));
-          }
-          if(anim&&cell===anim.from&&anim.from>=0)drawStone(p,R,anim.player,1-ease,0,1,false);
-          if(v){
-            const q=lift3d?project(...cellWorld(cell).slice(0,2),cellWorld(cell)[2]+lift3d,W):p;
-            drawStone(q,R*scale,v,cell===lift?0.38:alpha,lift3d,1,cell===lift);
-            if(marks.has(cell)&&!win.has(cell))drawBadge(q,R,marks.get(cell),k);
-          }
-          if(cell===selected)drawGhost(p,R,game.turn,k);
-          if(cell===hover&&cell!==selected&&humanToMove()&&!v){ctx.beginPath();ctx.arc(p.x,p.y,R*0.85,0,Math.PI*2);ctx.lineWidth=2*k;ctx.strokeStyle='#5EBCBF';ctx.stroke();}
-        }
-      }
-      // lines through the focused cell
-      if(opts.lines&&focus>=0&&!game.over){
-        ctx.save();ctx.lineWidth=2*k;ctx.strokeStyle='#267477';ctx.globalAlpha=0.28;ctx.setLineDash([5*k,5*k]);
-        for(const id of C.LINES_BY_CELL[focus])strokeLine(C.LINES[id],W);
-        ctx.restore();
-      }
-      if(game.winLine){
-        ctx.save();ctx.lineCap='round';ctx.lineWidth=7*k;ctx.strokeStyle='#ffffffcc';strokeLine(game.winLine,W);
-        ctx.lineWidth=3.5*k;ctx.strokeStyle='#267477';strokeLine(game.winLine,W);
-        for(const cell of game.winLine){const p=project(...cellWorld(cell),W);ctx.beginPath();ctx.arc(p.x,p.y,p.scale*0.38,0,Math.PI*2);ctx.lineWidth=2.5*k;ctx.stroke();}
-        ctx.restore();
-      }
-      if(anim)draw();
-    }
-    function strokeLine(line,W){const a=project(...cellWorld(line[0]),W),b=project(...cellWorld(line[2]),W);ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke();}
-    function drawStone(p,R,player,alpha,lift,_s,dashed){
-      ctx.save();ctx.globalAlpha=alpha;
-      if(!lift){ctx.beginPath();ctx.ellipse(p.x,p.y+R*0.55,R*0.9,R*0.32,0,0,Math.PI*2);ctx.fillStyle='#2e344018';ctx.fill();}
-      const g=ctx.createRadialGradient(p.x-R*0.35,p.y-R*0.4,R*0.1,p.x,p.y,R);
-      if(player===BLACK){g.addColorStop(0,'#5b6475');g.addColorStop(1,'#1f242d');}else{g.addColorStop(0,'#ffffff');g.addColorStop(1,'#d8dee9');}
-      ctx.beginPath();ctx.arc(p.x,p.y,R,0,Math.PI*2);ctx.fillStyle=g;ctx.fill();
-      ctx.lineWidth=Math.max(1.2,R*0.08);ctx.strokeStyle='#2E3440';if(dashed)ctx.setLineDash([R*0.25,R*0.2]);ctx.stroke();
-      ctx.restore();
-    }
-    function drawGhost(p,R,player,k){
-      ctx.save();ctx.beginPath();ctx.arc(p.x,p.y,R,0,Math.PI*2);ctx.fillStyle=player===BLACK?'#2E344055':'#ffffffaa';ctx.fill();
-      ctx.setLineDash([4*k,3*k]);ctx.lineWidth=2.2*k;ctx.strokeStyle='#267477';ctx.stroke();ctx.restore();
-    }
-    function drawDiamond(p,R,color,both){
-      ctx.save();ctx.translate(p.x,p.y);ctx.rotate(Math.PI/4);const s=R*0.62;
-      ctx.lineWidth=Math.max(1.5,R*0.12);ctx.strokeStyle=color;ctx.strokeRect(-s/2,-s/2,s,s);
-      if(both){ctx.strokeStyle='#B48EAD';ctx.strokeRect(-s*0.8,-s*0.8,s*1.6,s*1.6);}
-      ctx.restore();
-    }
-    function drawBadge(p,R,n,k){
-      const s=Math.max(13*k,R*0.62),x=p.x+R*0.55,y=p.y-R*0.95;
-      ctx.save();ctx.beginPath();ctx.roundRect?ctx.roundRect(x,y,s,s,3*k):ctx.rect(x,y,s,s);
-      ctx.fillStyle=n===1?'#2E3440':'#ffffff';ctx.fill();ctx.lineWidth=1*k;ctx.strokeStyle=n===1?'#2E3440':'#657283';ctx.stroke();
-      ctx.fillStyle=n===1?'#ffffff':'#657283';ctx.font=`750 ${Math.round(s*0.68)}px system-ui, sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(String(n),x+s/2,y+s/2+0.5);
-      ctx.restore();
-    }
-    function cellAt(clientX,clientY){
-      const rect=canvas.getBoundingClientRect(),ratio=canvas.width/rect.width,x=(clientX-rect.left)*ratio,y=(clientY-rect.top)*ratio;
-      // The last-drawn (front-most) cell under the pointer wins, matching what is visible.
-      for(let i=projected.length-1;i>=0;i--){const {cell,p}=projected[i];if(Math.hypot(p.x-x,p.y-y)<=p.scale*0.36)return cell;}
-      return -1;
-    }
-    // drag to rotate, tap to pick
-    let drag=null;
-    canvas.addEventListener('pointerdown',e=>{drag={x:e.clientX,y:e.clientY,yaw:view.yaw,pitch:view.pitch,moved:false,id:e.pointerId};canvas.setPointerCapture(e.pointerId);});
-    canvas.addEventListener('pointermove',e=>{
-      if(drag&&drag.id===e.pointerId){
-        const dx=e.clientX-drag.x,dy=e.clientY-drag.y;
-        if(!drag.moved&&Math.hypot(dx,dy)>6){drag.moved=true;canvas.classList.add('dragging');}
-        if(drag.moved){view.yaw=drag.yaw+dx*0.01;view.pitch=Math.max(0.18,Math.min(1.4,drag.pitch+dy*0.008));draw();}
-        return;
-      }
-      if(e.pointerType==='mouse'){const c=cellAt(e.clientX,e.clientY);if(c!==hover){hover=c;renderGrids();draw();}}
-    });
-    const endDrag=e=>{
-      if(!drag||drag.id!==e.pointerId)return;
-      const moved=drag.moved;drag=null;canvas.classList.remove('dragging');
-      if(!moved&&e.type==='pointerup'){const c=cellAt(e.clientX,e.clientY);if(c>=0)pick(c);}
-    };
-    canvas.addEventListener('pointerup',endDrag);canvas.addEventListener('pointercancel',endDrag);
-    canvas.addEventListener('pointerleave',e=>{if(!drag&&hover>=0&&e.pointerType==='mouse'){hover=-1;renderGrids();draw();}});
-    canvas.addEventListener('keydown',e=>{
-      const step=0.12;
-      if(e.key==='ArrowLeft')view.yaw-=step;else if(e.key==='ArrowRight')view.yaw+=step;
-      else if(e.key==='ArrowUp')view.pitch=Math.min(1.4,view.pitch+step);else if(e.key==='ArrowDown')view.pitch=Math.max(0.18,view.pitch-step);
-      else if(e.key==='Enter')commit();else if(e.key==='Escape')cancel();else return;
-      e.preventDefault();draw();
-    });
-    document.addEventListener('keydown',e=>{if(e.key==='Escape')cancel();});
-    window.addEventListener('resize',draw);
+// ---------- curtains & lobby ----------
+const CURTAINS=['lobby','challenges','result'];
+function showCurtain(id){for(const c of CURTAINS)$(c).hidden=c!==id;const f=$(id).querySelector('.fu-btn--seal, .c3-puz:not(:disabled), button');if(f)setTimeout(()=>f.focus({preventScroll:true}),40);}
+function hideCurtains(){for(const c of CURTAINS)$(c).hidden=true;}
+const curtainOpen=()=>CURTAINS.some(c=>!$(c).hidden);
+function goLobby(){if(Fu.isOpen('settings'))Fu.close('settings');aiToken++;aiBusy=false;if(phase==='play')phase='lobby';renderLobby();showCurtain('lobby');update();}
+function renderSeg(el,items,current,onPick){
+  el.innerHTML='';
+  for(const it of items){
+    const b=document.createElement('button');b.type='button';b.value=it.id;b.setAttribute('aria-pressed',String(it.id===current));b.disabled=!it.open;
+    b.innerHTML=it.name+(it.open?'':`<small>Lv${it.level}</small>`);b.addEventListener('click',()=>onPick(it.id));el.appendChild(b);
+  }
+}
+function renderLobby(){
+  const lv=levelNow();let tier=prefs.get('tier'),variant=prefs.get('variant');
+  if(!K.unlocked(lv,'tier',tier))tier='normal';if(!K.unlocked(lv,'variant',variant))variant='standard';
+  renderSeg($('tierSeg'),K.TIERS.map(t=>({id:t.id,name:t.name,open:K.unlocked(lv,'tier',t.id),level:K.unlockLevel('tier',t.id)})),tier,id=>{prefs.set('tier',id);renderLobby();});
+  renderSeg($('variantSeg'),C.VARIANT_IDS.map(id=>({id,name:C.VARIANTS[id].name,open:K.unlocked(lv,'variant',id),level:K.unlockLevel('variant',id)})),variant,id=>{prefs.set('variant',id);renderLobby();});
+  $('variantDesc').textContent=C.VARIANTS[variant].desc+'　對手經驗 ×'+K.TIERS.find(t=>t.id===tier).xp+(variant==='standard'?'':'，變體 ×'+K.VARIANT_XP[variant])+'。';
+  renderCareer();
+}
+function renderPuzzles(){
+  const list=$('puzzleList');list.innerHTML='';
+  C.PUZZLES.forEach((p,i)=>{
+    const open=K.challengeOpen(profile,C.PUZZLES,i),solved=profile.solved.includes(p.id);
+    const b=document.createElement('button');b.type='button';b.className='c3-puz'+(solved?' solved':'');b.disabled=!open;b.dataset.puzzle=p.id;
+    b.innerHTML=`<span>殘局 ${p.id.slice(1)} · ${C.VARIANTS[p.variant].name}</span><b>${p.name}</b><span>${p.moves} 手殺 · 執${p.turn===BLACK?'先手':'後手'}</span><em>${solved?'已破':open?'未破':levelNow()<p.level?'LV'+p.level:'鎖'}</em>`;
+    b.addEventListener('click',()=>startChallenge(i));list.appendChild(b);
+  });
+}
+function openChallenges(){if(Fu.isOpen('settings'))Fu.close('settings');renderPuzzles();if(phase==='play'){aiToken++;aiBusy=false;phase='lobby';}showCurtain('challenges');update();}
+function careerHTML(){
+  const lv=K.levelOf(profile.xp);
+  return `<div class="lv"><small>LEVEL</small>${lv.level}</div><div class="who"><span style="font:inherit;color:var(--fu-paper)">${K.rankOf(lv.level)}</span><span>${lv.max?'MAX':lv.into+' / '+lv.need+' XP'}</span></div><div class="fu-meter fu-meter--gold" style="--value:${lv.max?1:(lv.into/lv.need).toFixed(3)}"><i></i></div>`;
+}
+function renderCareer(){
+  const lv=K.levelOf(profile.xp);
+  $('lvNum').textContent=lv.level;$('lvRank').textContent=K.rankOf(lv.level);$('lvBar').style.setProperty('--value',lv.max?1:(lv.into/lv.need).toFixed(3));
+  for(const id of ['lobbyCareer','resultCareer','drawerCareer'])$(id).innerHTML=careerHTML();
+  const p=profile;
+  $('careerStats').innerHTML=[[p.games,'對局'],[p.wins+' / '+p.losses+' / '+p.draws,'勝 / 負 / 和'],[p.bestStreak,'最長連勝'],[p.fastest||'—','最快勝（手）'],[p.bestTier>=0?K.TIERS[p.bestTier].name:'—','擊敗過的最強對手'],[p.solved.length+' / '+C.PUZZLES.length,'殘局已破']].map(([b,s])=>`<div><b>${b}</b><span>${s}</span></div>`).join('');
+  $('unlockList').innerHTML=K.UNLOCKS.filter(u=>u.level>1).map(u=>`<li class="${lv.level>=u.level?'got':''}">${unlockName(u)}<span>${lv.level>=u.level?'已解鎖':'LV '+u.level}</span></li>`).join('')+'<li class="'+(lv.level>=3?'got':'')+'">三手殺殘局<span>'+(lv.level>=3?'已解鎖':'LV 3')+'</span></li>';
+}
 
-    // ---------- controls ----------
-    $('confirmMove').addEventListener('click',commit);
-    $('cancelMove').addEventListener('click',cancel);
-    $('resetView').addEventListener('click',()=>{view={...DEFAULT_VIEW};draw();});
-    $('newGame').addEventListener('click',newGame);
-    $('pieSwap').addEventListener('click',()=>swapByHuman(true));
-    $('pieKeep').addEventListener('click',()=>swapByHuman(false));
-    $('modeSelect').addEventListener('change',newGame);
-    $('seatSelect').addEventListener('change',newGame);
-    for(const [id,key] of [['toggleNext','next'],['toggleNext2','next2'],['toggleThreat','threat'],['toggleLines','lines']])
-      $(id).addEventListener('change',e=>{opts[key]=e.target.checked;update();});
-    window.CyclicCubePage={get game(){return game;},pick,commit,newGame,get busy(){return aiBusy;}};
-    newGame();
-  })();
-  </script>
+// ---------- status & panels ----------
+function statusText(){
+  if(phase==='lobby')return '選好對手與變體，開始對局。';
+  if(game.winner)return who(game.winner)+' 連成'+lineName(game.winLine)+'：'+game.winLine.map(C.label).join(' → ')+'，獲勝！';
+  if(game.draw==='repetition')return '同一局面第三次出現，和局。';
+  if(game.draw==='ply-limit')return '已達 '+C.PLY_LIMIT+' 手上限，無人連線，和局。';
+  if(phase==='over')return '對局結束。';
+  if(game.pieOpen)return pieForHuman()?(cfg.pvp?seatName(game.seatOf(WHITE)):'你')+'可以選擇是否交換選邊。':'AI 正在考慮是否交換選邊…';
+  const pre=notice?notice+' ':'';
+  if(aiBusy)return pre+'AI 思考中…';
+  if(hintBusy)return '正在找提示…';
+  const lift=game.leaving(game.turn);
+  if(selected>=0)return '預覽 <b>'+C.label(selected)+'</b>'+(lift>=0?'（'+C.label(lift)+' 將移走）':'')+'。再點一次或按落子確認。';
+  const left=cfg.kind==='challenge'?'　剩 '+(cfg.puzzle.moves-humanMoves)+' 手。':'';
+  return pre+'輪到 <b>'+who(game.turn)+'</b>'+(lift>=0?'，這手會移走 '+C.label(lift)+'。':'。')+left;
+}
+function queueMarks(){
+  const marks=new Map();if(!game)return marks;
+  for(const p of [BLACK,WHITE]){const q=game.queues[p];if(q.length<game.stones)continue;if(prefs.get('next'))marks.set(q[0],1);if(prefs.get('next2')&&!marks.has(q[1]))marks.set(q[1],2);}
+  return marks;
+}
+function threatSets(){
+  const none={[BLACK]:new Set(),[WHITE]:new Set()};
+  if(!game||!prefs.get('threat')||game.over||phase!=='play')return none;
+  return{[BLACK]:new Set(game.threats(BLACK)),[WHITE]:new Set(game.threats(WHITE))};
+}
+let dirty=true;
+function update(full=true){
+  if(!game)return;
+  info.innerHTML=statusText();
+  $('plyLabel').textContent='手 '+game.ply+'/'+C.PLY_LIMIT+' · 重複 '+game.repetitions()+'/3';
+  for(const seat of [0,1]){
+    const color=game.colorOf(seat),q=game.queues[color];
+    $('seatName'+seat).textContent=seatName(seat)+(cfg&&!cfg.pvp&&seat!==humanSeat?' · '+TIER_NAME[cfg.tier]:'');
+    $('seatRole'+seat).textContent=roleName(color)+' · '+q.length+'/'+game.stones;
+    $('seatRow'+seat).classList.toggle('is-turn',!game.over&&game.turn===color);$('seatRow'+seat).dataset.tone=tone(seat);
+    const slots=[];for(let i=0;i<game.stones;i++){const c=q[i];slots.push(c==null?'<span class="c3-q is-empty">—</span>':`<span class="c3-q${i===0&&q.length>=game.stones?' is-next':''}" title="${C.label(c)}">${C.LAYER_NAMES[C.coord(c).layer][0]}${C.ROW_NAMES[C.coord(c).row]}${C.coord(c).col+1}</span>`);}
+    $('queue'+seat).innerHTML=slots.join('');
+  }
+  $('tierChip').textContent=cfg?(cfg.kind==='challenge'?'殘局 '+cfg.puzzle.id.slice(1):cfg.pvp?'同機雙人':'AI · '+TIER_NAME[cfg.tier]):'AI';
+  $('variantChip').textContent=cfg?C.VARIANTS[cfg.variant].name+(cfg.options.pieRule?' · 交換':''):'標準';
+  const canPlay=humanToMove();
+  $('confirmMove').disabled=selected<0||!canPlay;$('cancelMove').disabled=selected<0;
+  $('hintBtn').disabled=!hintAllowed();$('hintLeft').textContent=cfg&&cfg.kind==='match'?String(HINTS-hintsUsed):'—';
+  $('undoBtn').disabled=!undoAllowed();
+  const pie=$('piePanel');pie.hidden=!pieForHuman();
+  if(!pie.hidden)$('pieText').textContent=(cfg.pvp?seatName(game.seatOf(WHITE))+'：':'')+'先手已下在 '+C.label(game.queues[BLACK][0])+'。可以接管先手（之後仍由後手的顏色走），或維持原樣。';
+  renderGrids();dirty=true;
+}
+function renderGrids(){
+  const marks=queueMarks(),threats=threatSets(),win=new Set(game.winLine||[]),lift=selected>=0?game.leaving(game.turn):-1,canPlay=humanToMove();
+  const turnSeat=game.seatOf(game.turn);
+  for(let cell=0;cell<C.CELLS;cell++){
+    const b=buttons[cell],v=game.board[cell],seat=seatOfCell(cell);
+    b.className='cell';b.innerHTML='';
+    let text=C.label(cell)+'，';
+    if(v===C.BLOCK){b.classList.add('block');text+='封石';}
+    else if(seat>=0){b.classList.add('stone-'+tone(seat));b.insertAdjacentHTML('beforeend','<span class="st" aria-hidden="true"></span>');text+=seatName(seat)+'的棋';}
+    else{text+='空格';if(game.support&&cell>=9&&!game.canPlace(game.turn,cell)){b.classList.add('unsupported');text+='（沒有底座）';}}
+    if(marks.has(cell)){const m=marks.get(cell);b.insertAdjacentHTML('beforeend',`<span class="qb${m===2?' second':''}" aria-hidden="true">${m}</span>`);text+=m===1?'，下一顆移走':'，再下一顆移走';}
+    for(const p of [BLACK,WHITE])if(!v&&threats[p].has(cell)){b.insertAdjacentHTML('beforeend',`<span class="th t${tone(game.seatOf(p))}" aria-hidden="true"></span>`);text+='，'+seatName(game.seatOf(p))+'立即勝格';}
+    if(cell===selected){b.classList.add('selected');b.style.setProperty('--sel',`var(--seat-${tone(turnSeat)})`);text+='，預覽中，再按一次落子';}
+    if(cell===lift)b.classList.add('leaving');
+    if(cell===hintCell){b.classList.add('hint');text+='，提示';}
+    if(win.has(cell)){b.classList.add('win');text+='，勝利連線';}
+    if(cell===hover)b.classList.add('hover');
+    if(cell===cursor&&kbdActive)b.classList.add('cursor');
+    b.disabled=!canPlay||!game.legal(cell);
+    b.setAttribute('aria-label',text);
+  }
+}
+function setFocus(layer,silent){
+  focus=layer;
+  $('layers').classList.toggle('is-focused',focus>=0);
+  document.querySelectorAll('.c3-layer').forEach(el=>el.classList.toggle('is-focus',Number(el.dataset.layer)===focus));
+  layerTabs.forEach((t,i)=>t.setAttribute('aria-pressed',String(i===focus)));
+  const name=focus<0?'全部':C.LAYER_NAMES[focus];
+  $('focusLabel').textContent=name;$('layerBtn').textContent='層 · '+(focus<0?'全':C.LAYER_NAMES[focus][0]);
+  if(focus>=0&&C.coord(cursor).layer!==focus)cursor=C.index(focus,C.coord(cursor).row,C.coord(cursor).col);
+  if(!silent&&focus>=0)Fu.toast('只看'+name+'（再按一次回到全部）',{tone:'info',ms:1400});
+  dirty=true;
+}
+
+// ---------- keyboard ----------
+let kbdActive=false;
+const playing=()=>phase!=='lobby'&&!curtainOpen()&&!Fu.isOpen('settings')&&!Fu.isOpen('rules');
+function moveCursor(dl,dr,dc){
+  kbdActive=true;const p=C.coord(cursor);
+  const l=Math.max(0,Math.min(2,p.layer+dl)),r=Math.max(0,Math.min(2,p.row+dr)),c=Math.max(0,Math.min(2,p.col+dc));
+  cursor=C.index(l,r,c);hover=cursor;if(focus>=0&&l!==focus)setFocus(l,true);update(false);
+}
+function rotate(dy,dp){view.yaw+=dy;view.pitch=Math.max(.12,Math.min(1.45,view.pitch+dp));}
+Fu.hotkey('arrowleft','游標左移（Shift 旋轉）',e=>e.shiftKey?rotate(-.18,0):moveCursor(0,0,-1),{when:playing});
+Fu.hotkey('arrowright','游標右移（Shift 旋轉）',e=>e.shiftKey?rotate(.18,0):moveCursor(0,0,1),{when:playing});
+Fu.hotkey('arrowup','游標上移（Shift 俯仰）',e=>e.shiftKey?rotate(0,.12):moveCursor(0,-1,0),{when:playing});
+Fu.hotkey('arrowdown','游標下移（Shift 俯仰）',e=>e.shiftKey?rotate(0,-.12):moveCursor(0,1,0),{when:playing});
+Fu.hotkey('q','游標下一層',()=>moveCursor(-1,0,0),{when:playing});
+Fu.hotkey('e','游標上一層',()=>moveCursor(1,0,0),{when:playing});
+Fu.hotkey('enter','預覽／落子',()=>{kbdActive=true;if(selected===cursor)commit();else pick(cursor);},{when:()=>playing()&&humanToMove()});
+Fu.hotkey(' ','預覽／落子',()=>{kbdActive=true;if(selected===cursor)commit();else pick(cursor);},{when:()=>playing()&&humanToMove()});
+Fu.hotkey('escape','取消預覽',cancel,{when:playing});
+for(const k of ['1','2','3'])Fu.hotkey(k,'只看第 '+k+' 層',()=>setFocus(focus===Number(k)-1?-1:Number(k)-1),{when:playing});
+Fu.hotkey('0','顯示全部層',()=>setFocus(-1),{when:playing});
+Fu.hotkey('v','重設視角',()=>resetView(),{when:playing});
+Fu.hotkey('h','提示',requestHint,{when:playing});
+Fu.hotkey('u','悔棋',undo,{when:playing});
+Fu.hotkey('n','重新開始',restart,{when:()=>playing()});
+Fu.hotkey('c','殘局挑戰',openChallenges,{when:()=>!Fu.isOpen('settings')&&$('challenges').hidden});
+Fu.hotkey('l','大廳',goLobby,{when:()=>$('lobby').hidden});
+Fu.hotkey('s','設定',()=>Fu.toggle('settings'));
+Fu.hotkey('?','規則',()=>Fu.toggle('rules'));
+
+// ---------- controls ----------
+$('confirmMove').addEventListener('click',commit);
+$('cancelMove').addEventListener('click',cancel);
+$('layerBtn').addEventListener('click',()=>setFocus(focus>=2?-1:focus+1));
+$('hintBtn').addEventListener('click',requestHint);
+$('undoBtn').addEventListener('click',undo);
+$('resetView').addEventListener('click',()=>resetView());
+$('pieSwap').addEventListener('click',()=>swapByHuman(true));
+$('pieKeep').addEventListener('click',()=>swapByHuman(false));
+$('startBtn').addEventListener('click',()=>startMatch());
+$('lobbyChallenges').addEventListener('click',openChallenges);
+$('topChallenges').addEventListener('click',openChallenges);
+$('topLobby').addEventListener('click',goLobby);
+$('drawerLobby').addEventListener('click',goLobby);
+$('chBack').addEventListener('click',()=>{renderLobby();showCurtain('lobby');});
+$('newGame').addEventListener('click',()=>{Fu.close('settings');restart();});
+$('againBtn').addEventListener('click',()=>{
+  if(cfg.kind==='challenge'&&game.winner===game.colorOf(humanSeat)){const next=cfg.index+1;if(next<C.PUZZLES.length&&K.challengeOpen(profile,C.PUZZLES,next))return startChallenge(next);return openChallenges();}
+  restart();
+});
+$('viewBoardBtn').addEventListener('click',()=>{hideCurtains();update();});
+$('resultLobbyBtn').addEventListener('click',goLobby);
+$('lvChip').addEventListener('click',()=>{Fu.open('settings');setTimeout(()=>$('drawerCareer').scrollIntoView({block:'start'}),60);});
+$('resetCareer').addEventListener('click',()=>{if(!confirm('清除這台裝置上的等級、戰績與殘局紀錄？'))return;profile=K.blank();if(storage)K.save(storage,profile);renderCareer();renderLobby();Fu.toast('生涯已重置',{tone:'info'});});
+
+// ================= three.js view =================
+const canvas=$('cube');
+let stage=null;
+try{stage=createStage(canvas,{fov:34,fog:[30,80],exposure:1.08});}catch(err){stage=null;}
+const cam={yaw:.62,pitch:.5,zoom:1};
+const DEFAULT_VIEW={yaw:.62,pitch:.5,zoom:1};
+function resetView(){Object.assign(view,DEFAULT_VIEW);}
+if(innerWidth/Math.max(1,innerHeight)<.8)DEFAULT_VIEW.pitch=.7; // portrait: look down more, use the height
+const view={...DEFAULT_VIEW};
+Object.assign(cam,DEFAULT_VIEW);
+const S=2.1;
+const spread=()=>Number(prefs.get('spread'))||1.3;
+const cellPos=(cell,out=new THREE.Vector3())=>{const p=C.coord(cell);return out.set((p.col-1)*S,(p.layer-1)*2.4*spread(),(p.row-1)*S);};
+let scene3=null;
+if(!stage){
+  const d=document.createElement('div');d.className='c3-nogl';d.innerHTML='<p>這台裝置無法啟用 WebGL。<br>你仍可以用右下的三層平面圖完整遊玩。</p>';$('stage').appendChild(d);
+}else{
+  const {scene,camera}=stage;
+  const root=new THREE.Group();scene.add(root);
+  const col=hex=>new THREE.Color(hex);
+  // text sprite
+  function textSprite(text,{size=.62,color='#a8a08c',font='700 64px "Noto Serif TC","Songti TC",serif'}={}){
+    const c=document.createElement('canvas');c.width=256;c.height=128;const g=c.getContext('2d');g.font=font;g.fillStyle=color;g.textAlign='center';g.textBaseline='middle';g.fillText(text,128,66);
+    const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;
+    const s=new THREE.Sprite(new THREE.SpriteMaterial({map:t,transparent:true,depthWrite:false,fog:false}));s.scale.set(size*2,size,1);return s;
+  }
+  function badgeTex(n){
+    const c=document.createElement('canvas');c.width=c.height=64;const g=c.getContext('2d');
+    g.beginPath();g.moveTo(4,4);g.lineTo(50,4);g.lineTo(60,14);g.lineTo(60,60);g.lineTo(14,60);g.lineTo(4,50);g.closePath();
+    if(n===1){g.fillStyle='#ece4d0';g.fill();g.fillStyle='#07090c';}else{g.fillStyle='rgba(7,9,12,.85)';g.fill();g.lineWidth=4;g.strokeStyle='#a8a08c';g.stroke();g.fillStyle='#ece4d0';}
+    g.font='700 40px ui-monospace,Menlo,monospace';g.textAlign='center';g.textBaseline='middle';g.fillText(String(n),32,34);
+    const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;return t;
+  }
+  const BADGE=[null,badgeTex(1),badgeTex(2)];
+  // ground: a ruled ink floor that fades into fog
+  const grid=new THREE.GridHelper(80,40,palette.ink3,palette.ink3);grid.material.transparent=true;grid.material.opacity=.55;root.add(grid);
+  // layers
+  const plateShape=(()=>{const h=S*1.58,k=.55,sh=new THREE.Shape();sh.moveTo(-h,-h);sh.lineTo(h-k,-h);sh.lineTo(h,-h+k);sh.lineTo(h,h);sh.lineTo(-h+k,h);sh.lineTo(-h,h-k);sh.closePath();return sh;})();
+  const plateGeo=new THREE.ExtrudeGeometry(plateShape,{depth:.08,bevelEnabled:false});plateGeo.rotateX(-Math.PI/2);plateGeo.translate(0,-.36,0);
+  const plateEdgeGeo=new THREE.EdgesGeometry(plateGeo);
+  const gridGeo=(()=>{const h=S*1.5,pts=[];for(const g of [-.5,.5]){pts.push(g*S,-.27,-h,g*S,-.27,h,-h,-.27,g*S,h,-.27,g*S);}const b=new THREE.BufferGeometry();b.setAttribute('position',new THREE.Float32BufferAttribute(pts,3));return b;})();
+  const socketGeo=new THREE.RingGeometry(.2,.27,4,1);socketGeo.rotateX(-Math.PI/2);socketGeo.rotateY(Math.PI/4);
+  const layers=[0,1,2].map(l=>{
+    const g=new THREE.Group();root.add(g);
+    const plateMat=new THREE.MeshStandardMaterial({color:palette.ink2,roughness:.9,metalness:.05,transparent:true,opacity:.62,depthWrite:false,flatShading:true});
+    const plate=new THREE.Mesh(plateGeo,plateMat);plate.renderOrder=-1;g.add(plate);
+    const edgeMat=new THREE.LineBasicMaterial({color:palette.paperDim,transparent:true,opacity:.42});
+    g.add(new THREE.LineSegments(plateEdgeGeo,edgeMat));
+    const gridMat=new THREE.LineBasicMaterial({color:palette.paper,transparent:true,opacity:.16});
+    g.add(new THREE.LineSegments(gridGeo,gridMat));
+    const label=textSprite(C.LAYER_NAMES[l],{size:.7});g.add(label);
+    return{g,plateMat,edgeMat,gridMat,label,alpha:1};
+  });
+  // coordinate labels on the bottom plate
+  const coordLabels=[];
+  for(let i=0;i<3;i++){coordLabels.push([textSprite(String(i+1),{size:.5,font:'600 52px ui-monospace,Menlo,monospace'}),'col',i],[textSprite(C.ROW_NAMES[i],{size:.5,font:'600 52px ui-monospace,Menlo,monospace'}),'row',i]);}
+  coordLabels.forEach(([s])=>layers[0].g.add(s));
+  // cells
+  const stoneGeo=new THREE.CylinderGeometry(.56,.64,.5,8,1);stoneGeo.rotateY(Math.PI/8);
+  const blockGeo=new THREE.BoxGeometry(1.2,1.2,1.2);const blockEdge=new THREE.EdgesGeometry(blockGeo);
+  const diamondGeo=(()=>{const r=.62,b=new THREE.BufferGeometry();b.setAttribute('position',new THREE.Float32BufferAttribute([r,0,0,0,0,r,-r,0,0,0,0,-r],3));return b;})();
+  const cells=[];
+  for(let cell=0;cell<C.CELLS;cell++){
+    const l=C.coord(cell).layer,grp=new THREE.Group();layers[l].g.add(grp);
+    const sockMat=new THREE.MeshBasicMaterial({color:palette.paperDim,transparent:true,opacity:.5,side:THREE.DoubleSide,depthWrite:false});
+    const socket=new THREE.Mesh(socketGeo,sockMat);socket.position.y=-.26;grp.add(socket);
+    const stoneMat=new THREE.MeshStandardMaterial({color:0xffffff,roughness:.5,metalness:.08,flatShading:true,transparent:true,emissive:0x000000});
+    const stone=new THREE.Mesh(stoneGeo,stoneMat);stone.visible=false;grp.add(stone);
+    const badge=new THREE.Sprite(new THREE.SpriteMaterial({map:BADGE[1],transparent:true,depthTest:false,fog:false}));badge.scale.set(.46,.46,1);badge.position.set(.5,.72,0);badge.visible=false;badge.renderOrder=5;grp.add(badge);
+    const threat=[0,1].map(i=>{const m=new THREE.LineLoop(diamondGeo,new THREE.LineBasicMaterial({color:SEAT_HEX[i],transparent:true,opacity:.95}));m.position.y=-.2;m.scale.setScalar(i?1.25:1);m.visible=false;grp.add(m);return m;});
+    cells.push({grp,layer:l,socket,sockMat,stone,stoneMat,badge,threat,block:null,pos:new THREE.Vector3()});
+  }
+  // ghost (selection / hover), hint marker, focus lines, win beam, flying stone
+  const ghostMat=new THREE.MeshStandardMaterial({color:0xffffff,roughness:.5,flatShading:true,transparent:true,opacity:.4,depthWrite:false});
+  const ghost=new THREE.Mesh(stoneGeo,ghostMat);ghost.visible=false;root.add(ghost);
+  const ringGeo=new THREE.RingGeometry(.78,.86,4,1);ringGeo.rotateX(-Math.PI/2);ringGeo.rotateY(Math.PI/4);
+  const ring=new THREE.Mesh(ringGeo,new THREE.MeshBasicMaterial({color:palette.seal,transparent:true,opacity:.95,side:THREE.DoubleSide,depthWrite:false,toneMapped:false}));ring.visible=false;root.add(ring);
+  const cursorRing=new THREE.Mesh(ringGeo,new THREE.MeshBasicMaterial({color:palette.paper,transparent:true,opacity:.7,side:THREE.DoubleSide,depthWrite:false}));cursorRing.visible=false;root.add(cursorRing);
+  const hintRing=new THREE.Mesh(ringGeo,new THREE.MeshBasicMaterial({color:palette.gold,transparent:true,opacity:.95,side:THREE.DoubleSide,depthWrite:false,toneMapped:false}));hintRing.visible=false;root.add(hintRing);
+  const focusLines=new THREE.LineSegments(new THREE.BufferGeometry(),new THREE.LineBasicMaterial({color:palette.paper,transparent:true,opacity:.32,depthWrite:false}));root.add(focusLines);
+  const beamMat=new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:.95,toneMapped:false});
+  const beam=new THREE.Mesh(new THREE.CylinderGeometry(.09,.09,1,6),beamMat);beam.visible=false;root.add(beam);
+  const flyMat=new THREE.MeshStandardMaterial({color:0xffffff,roughness:.5,flatShading:true,emissive:0x000000});
+  const fly=new THREE.Mesh(stoneGeo,flyMat);fly.visible=false;root.add(fly);
+
+  function layoutScene(){
+    const L=2.4*spread();
+    layers.forEach((ly,l)=>{ly.g.position.y=(l-1)*L;ly.label.position.set(-S*1.58-.85,-.2,S*1.58-.2);});
+    for(const [s,kind,i] of coordLabels){if(kind==='col')s.position.set((i-1)*S,-.25,S*1.58+.55);else s.position.set(-S*1.58-.5,-.25,(i-1)*S);}
+    for(let cell=0;cell<C.CELLS;cell++){const p=C.coord(cell),o=cells[cell];o.grp.position.set((p.col-1)*S,0,(p.row-1)*S);cellPos(cell,o.pos);}
+    grid.position.y=-L-1.6;
+    fitCamera();dirty=true;
+  }
+  window.__c3layout=layoutScene;
+  // camera: orbit about the cube, framed into the free area between the HUD panels
+  const safe={cx:0,cy:0,half:200};
+  function safeRect(){
+    const W=innerWidth,H=innerHeight,phone=W<=720;
+    let top=56,bottom=H-16,left=0,right=W;
+    const dock=document.querySelector('.fu-dock').getBoundingClientRect();bottom=Math.min(bottom,dock.top-6);
+    const tl=document.querySelector('.c3-match').getBoundingClientRect(),map=document.querySelector('.c3-map').getBoundingClientRect();
+    if(phone||W<980){top=Math.max(top,tl.bottom+4);if(map.width)bottom=Math.min(bottom,map.top-4);}
+    else{left=Math.max(left,Math.min(tl.right+8,W*.3));right=Math.min(right,Math.max(map.left-8,W*.7));}
+    if(!$('piePanel').hidden){const pp=$('piePanel').getBoundingClientRect();top=Math.max(top,Math.min(pp.bottom+4,H*.4));}
+    return{left,right,top,bottom:Math.max(bottom,top+120)};
+  }
+  // The free area's share of the viewport; the distance itself is solved every frame
+  // from the current tilt (never from yaw, so turning the cube does not zoom).
+  const fit={fh:1,fv:1};
+  function fitCamera(){
+    stage.resize();
+    const W=stage.size.width,H=stage.size.height,r=safeRect();
+    const cx=(r.left+r.right)/2,cy=(r.top+r.bottom)/2;
+    camera.setViewOffset(W,H,W/2-cx,H/2-cy,W,H);
+    fit.fh=Math.max(.2,(r.right-r.left)/W);fit.fv=Math.max(.2,(r.bottom-r.top)/H);
+  }
+  function fitDistance(pitch){
+    const tanV=Math.tan(THREE.MathUtils.degToRad(camera.fov/2)),tanH=tanV*stage.size.aspect;
+    const plate=S*1.58,hHalf=Math.SQRT2*plate+.7,vHalf=(2.4*spread()+.45)*Math.cos(pitch)+Math.SQRT2*plate*Math.sin(pitch);
+    return Math.max(hHalf/(tanH*fit.fh),vHalf/(tanV*fit.fv))+plate*.8;
+  }
+  window.addEventListener('resize',()=>requestAnimationFrame(fitCamera));
+  if(typeof ResizeObserver!=='undefined'){const ro=new ResizeObserver(()=>fitCamera());for(const el of [document.querySelector('.c3-match'),document.querySelector('.c3-map'),document.querySelector('.fu-dock'),$('piePanel')])ro.observe(el);}
+  new MutationObserver(()=>fitCamera()).observe($('piePanel'),{attributes:true,attributeFilter:['hidden']});
+
+  // picking: project every cell centre; the front-most cell under the pointer wins
+  const tmp=new THREE.Vector3(),tmp2=new THREE.Vector3(),right=new THREE.Vector3();
+  function cellAt(clientX,clientY){
+    const rect=canvas.getBoundingClientRect();let best=-1,bestDepth=Infinity;
+    right.setFromMatrixColumn(camera.matrixWorld,0);
+    for(let cell=0;cell<C.CELLS;cell++){
+      const o=cells[cell];if(focus>=0&&o.layer!==focus)continue;
+      o.grp.getWorldPosition(tmp);
+      tmp2.copy(tmp).addScaledVector(right,.72).project(camera);
+      const depth=tmp.distanceTo(camera.position);tmp.project(camera);
+      const sx=(tmp.x+1)/2*rect.width,sy=(1-tmp.y)/2*rect.height,rad=Math.abs((tmp2.x-tmp.x)/2*rect.width);
+      if(Math.hypot(sx-(clientX-rect.left),sy-(clientY-rect.top))<=rad&&depth<bestDepth){best=cell;bestDepth=depth;}
+    }
+    return best;
+  }
+  window.__c3project=cell=>{cells[cell].grp.getWorldPosition(tmp);tmp.project(camera);const rect=canvas.getBoundingClientRect();return{x:rect.left+(tmp.x+1)/2*rect.width,y:rect.top+(1-tmp.y)/2*rect.height};};
+  // pointer: drag rotates, pinch / wheel zooms, a tap picks
+  const pointers=new Map();let drag=null,pinch=null;
+  canvas.addEventListener('pointerdown',e=>{
+    canvas.setPointerCapture(e.pointerId);pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
+    if(pointers.size===2){const [a,b]=[...pointers.values()];pinch={d:Math.hypot(a.x-b.x,a.y-b.y),zoom:view.zoom};drag=null;return;}
+    drag={x:e.clientX,y:e.clientY,yaw:view.yaw,pitch:view.pitch,moved:false,id:e.pointerId};
+  });
+  canvas.addEventListener('pointermove',e=>{
+    if(pointers.has(e.pointerId))pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
+    if(pinch&&pointers.size===2){const [a,b]=[...pointers.values()];view.zoom=Math.max(.55,Math.min(1.8,pinch.zoom*pinch.d/Math.max(20,Math.hypot(a.x-b.x,a.y-b.y))));return;}
+    if(drag&&drag.id===e.pointerId){
+      const dx=e.clientX-drag.x,dy=e.clientY-drag.y;
+      if(!drag.moved&&Math.hypot(dx,dy)>7){drag.moved=true;canvas.classList.add('dragging');}
+      if(drag.moved){view.yaw=drag.yaw-dx*.009;view.pitch=Math.max(.12,Math.min(1.45,drag.pitch+dy*.007));}
+      return;
+    }
+    if(e.pointerType==='mouse'&&!pointers.size){const c=cellAt(e.clientX,e.clientY);if(c!==hover){hover=c;kbdActive=false;update(false);}}
+  });
+  const endPointer=e=>{
+    pointers.delete(e.pointerId);
+    if(pinch){if(pointers.size<2)pinch=null;drag=null;return;}
+    if(!drag||drag.id!==e.pointerId)return;
+    const moved=drag.moved;drag=null;canvas.classList.remove('dragging');
+    if(!moved&&e.type==='pointerup'){const c=cellAt(e.clientX,e.clientY);if(c>=0){kbdActive=false;cursor=c;pick(c);}}
+  };
+  canvas.addEventListener('pointerup',endPointer);canvas.addEventListener('pointercancel',endPointer);
+  canvas.addEventListener('pointerleave',e=>{if(e.pointerType==='mouse'&&!pointers.size&&hover>=0){hover=-1;update(false);}});
+  canvas.addEventListener('wheel',e=>{e.preventDefault();view.zoom=Math.max(.55,Math.min(1.8,view.zoom*Math.exp(e.deltaY*.0012)));},{passive:false});
+
+  // per-frame sync of the board into the scene
+  const easeOut=t=>1-Math.pow(1-t,3);
+  function setLineGeo(lines){
+    const pts=[];for(const line of lines){cellPos(line[0],tmp);pts.push(tmp.x,tmp.y,tmp.z);cellPos(line[2],tmp);pts.push(tmp.x,tmp.y,tmp.z);}
+    focusLines.geometry.dispose();focusLines.geometry=new THREE.BufferGeometry();focusLines.geometry.setAttribute('position',new THREE.Float32BufferAttribute(pts,3));
+  }
+  let lastFocusKey='';
+  function sync(t,dt){
+    if(!game)return;
+    const marks=queueMarks(),threats=threatSets(),win=new Set(game.winLine||[]),lift=selected>=0?game.leaving(game.turn):-1;
+    const now=performance.now();let flight=null;
+    if(anim){const k=Math.min(1,(now-anim.t0)/anim.dur);if(k>=1)anim=null;else flight={k:easeOut(k),...anim};}
+    // layer fading for focus
+    layers.forEach((ly,l)=>{const target=focus<0||focus===l?1:.12;ly.alpha+=(target-ly.alpha)*Math.min(1,dt*10);ly.plateMat.opacity=.62*ly.alpha;ly.edgeMat.opacity=(focus===l?.85:.42)*ly.alpha;ly.gridMat.opacity=(focus===l?.3:.16)*ly.alpha;ly.label.material.opacity=Math.max(.25,ly.alpha);});
+    const pulse=.5+.5*Math.sin(t*4);
+    for(let cell=0;cell<C.CELLS;cell++){
+      const o=cells[cell],v=game.board[cell],a=layers[o.layer].alpha,seat=seatOfCell(cell);
+      if(v===C.BLOCK){
+        if(!o.block){const m=new THREE.Mesh(blockGeo,new THREE.MeshStandardMaterial({color:palette.ink3,roughness:.95,flatShading:true,transparent:true}));m.add(new THREE.LineSegments(blockEdge,new THREE.LineBasicMaterial({color:palette.bone,transparent:true,opacity:.5})));m.scale.setScalar(.82);m.position.y=.1;o.grp.add(m);o.block=m;}
+        o.block.visible=true;o.block.material.opacity=a;o.block.children[0].material.opacity=.5*a;
+      }else if(o.block)o.block.visible=false;
+      const legal=phase==='play'&&humanToMove()&&game.legal(cell);
+      o.socket.visible=v===0;o.sockMat.opacity=(legal?.75:.22)*a;o.sockMat.color.setHex(cell===hover&&legal?palette.paper:palette.paperDim);
+      o.socket.scale.setScalar(cell===hover&&legal?1.5:1);
+      const show=seat>=0&&!(flight&&flight.to===cell);
+      o.stone.visible=show;
+      if(show){
+        o.stoneMat.color.setHex(SEAT_HEX[tone(seat)]);
+        o.stoneMat.emissive.setHex(SEAT_HEX[tone(seat)]);
+        o.stoneMat.emissiveIntensity=win.has(cell)?.55+.35*pulse:marks.get(cell)===1?.12+.12*pulse:.1;
+        o.stoneMat.opacity=(cell===lift?.3:1)*a;o.stoneMat.depthWrite=o.stoneMat.opacity>.9;
+        o.stone.position.y=win.has(cell)?.12+.08*pulse:0;
+      }
+      const m=show?marks.get(cell):0;o.badge.visible=!!m&&!win.has(cell)&&a>.5;if(m)o.badge.material.map=BADGE[m];
+      for(const p of [BLACK,WHITE]){const s=tone(game.seatOf(p)),d=o.threat[s];d.visible=v===0&&threats[p].has(cell)&&a>.3;if(d.visible){d.material.opacity=.55+.4*pulse;d.rotation.y=t*.8*(s?-1:1);}}
+    }
+    // flying stone: the oldest stone lifts out of its cell and arcs to the new one
+    if(flight){
+      fly.visible=true;flyMat.color.setHex(SEAT_HEX[tone(flight.seat)]);flyMat.emissive.setHex(SEAT_HEX[tone(flight.seat)]);flyMat.emissiveIntensity=.25;
+      const to=cellPos(flight.to,tmp2.clone());
+      if(flight.from>=0){const from=cellPos(flight.from,new THREE.Vector3());fly.position.lerpVectors(from,to,flight.k);fly.position.y+=Math.sin(Math.PI*flight.k)*2.2;}
+      else{fly.position.copy(to);fly.position.y+=(1-flight.k)*1.8;}
+      fly.rotation.y=flight.k*Math.PI;
+    }else fly.visible=false;
+    // selection ghost, keyboard cursor, hint
+    const turnSeat=game.seatOf(game.turn);
+    if(selected>=0){cellPos(selected,ghost.position);ghost.visible=true;ghostMat.color.setHex(SEAT_HEX[tone(turnSeat)]);ghostMat.opacity=.5+.15*pulse;ring.visible=true;ring.position.copy(ghost.position);ring.position.y-=.22;ring.material.color.setHex(SEAT_HEX[tone(turnSeat)]);}
+    else if(hover>=0&&humanToMove()&&game.legal(hover)){cellPos(hover,ghost.position);ghost.visible=true;ghostMat.color.setHex(SEAT_HEX[tone(turnSeat)]);ghostMat.opacity=.22;ring.visible=false;}
+    else{ghost.visible=false;ring.visible=false;}
+    cursorRing.visible=kbdActive&&phase==='play'&&cursor!==selected;if(cursorRing.visible){cellPos(cursor,cursorRing.position);cursorRing.position.y-=.24;cursorRing.scale.setScalar(1.1+.06*pulse);}
+    hintRing.visible=hintCell>=0;if(hintRing.visible){cellPos(hintCell,hintRing.position);hintRing.position.y-=.22;hintRing.scale.setScalar(1+.15*pulse);}
+    // lines through the previewed / hovered cell
+    const f=prefs.get('lines')&&!game.over&&phase==='play'?(selected>=0?selected:hover):-1;
+    const key=f+'|'+spread()+'|'+game.blocked.join();
+    if(key!==lastFocusKey){lastFocusKey=key;setLineGeo(f>=0?C.LINES_BY_CELL[f].map(id=>C.LINES[id]).filter(l=>!l.some(c=>game.board[c]===C.BLOCK)):[]);}
+    focusLines.visible=f>=0;
+    // winning line: a beam that draws itself through the three stones
+    if(game.winLine){
+      const a=cellPos(game.winLine[0],new THREE.Vector3()),b=cellPos(game.winLine[2],new THREE.Vector3());
+      if(!beam.userData.t0)beam.userData.t0=now;const k=Math.min(1,(now-beam.userData.t0)/700),grow=easeOut(k)*1.18;
+      const dir=b.clone().sub(a),len=dir.length();
+      beam.visible=true;beam.position.copy(a).add(b).multiplyScalar(.5);
+      beam.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),dir.normalize());beam.scale.set(1+.6*pulse,len*grow,1+.6*pulse);
+      beamMat.color.setHex(SEAT_HEX[tone(game.seatOf(game.winner))]);
+    }else{beam.visible=false;beam.userData.t0=0;}
+  }
+  layoutScene();
+  stage.loop((dt,t,{reducedMotion})=>{
+    if(phase==='lobby'&&prefs.get('spin')&&!reducedMotion&&!drag)view.yaw+=dt*.12;
+    const k=Math.min(1,dt*9);
+    cam.yaw+=(view.yaw-cam.yaw)*k;cam.pitch+=(view.pitch-cam.pitch)*k;cam.zoom+=(view.zoom-cam.zoom)*k;
+    const d=fitDistance(cam.pitch)*cam.zoom,cp=Math.cos(cam.pitch);
+    camera.position.set(Math.sin(cam.yaw)*cp*d,Math.sin(cam.pitch)*d,Math.cos(cam.yaw)*cp*d);camera.lookAt(0,0,0);
+    camera.updateMatrixWorld();
+    sync(t,dt);
+  });
+}
+function layoutScene(){if(window.__c3layout)window.__c3layout();}
+
+// The page API for tests and local agents: read state, list legal cells, play a cell.
+window.CyclicCubePage={
+  get game(){return game;},get busy(){return aiBusy;},get phase(){return phase;},get config(){return cfg;},get profile(){return profile;},get humanSeat(){return humanSeat;},
+  start:c=>startMatch(c?Object.assign(matchConfig(),c,{options:Object.assign({pieRule:true},c.options||C.variantOptions(c.variant||'standard',1))}):undefined),
+  startChallenge:id=>startChallenge(C.PUZZLES.findIndex(p=>p.id===id)),
+  pick,commit,cancel,undo,hint:requestHint,setFocus,
+  play:cell=>{if(!humanToMove()||!game.legal(cell))return false;selected=cell;commit();return true;},
+  legal:()=>humanToMove()?game.legalMoves():[],
+  project:cell=>window.__c3project?window.__c3project(cell):null,
+  state:()=>game&&({phase,turnSeat:game.seatOf(game.turn),humanSeat,board:game.board.slice(),queues:{black:game.queues[BLACK].slice(),white:game.queues[WHITE].slice()},winner:game.winner?game.seatOf(game.winner):-1,draw:game.draw,ply:game.ply,pieOpen:game.pieOpen,legal:humanToMove()?game.legalMoves():[]})
+};
+renderLobby();
+cfg={kind:'match',tier:prefs.get('tier'),variant:'standard',pvp:false,seat:0,options:{pieRule:true}};
+game=new C.Game(cfg.options);
+update();
+</script>
 </body>
 </html>
