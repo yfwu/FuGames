@@ -1142,7 +1142,9 @@ const BlackjackCareer = (() => {
 </script>
 <script type="module" id="blackjack-view">
 // 3D card room. It only reads window.BlackjackApp (game state + prefs); every rule stays in the engine above.
-import { THREE, createStage, palette } from './shared/fu-three.js';
+import { THREE, createStage, palette, fonts, loadFonts } from './shared/fu-three.js';
+// 牌面與桌布用的宋體字先載入（canvas 不會自動下載按需切片的字型）
+await loadFonts('A2345678910JQK騎后王福遊莊家軟十七要牌點皆停保險二賠一爆黑傑克');
 const app = window.BlackjackApp, canvas = document.getElementById('table3d'), labelLayer = document.getElementById('labels');
 let stage = null;
 try { stage = createStage(canvas, { fov: 32, fog: [24, 70], exposure: 1.0, near: 1, far: 200 }); } catch (e) {
@@ -1153,7 +1155,7 @@ const { scene, camera, lights } = stage;
 const B = Blackjack, CW = .92, CH = 1.29, TAU = Math.PI * 2;
 lights.hemi.intensity = .5; lights.key.intensity = 1.1; lights.rim.intensity = .9;
 const spot = new THREE.SpotLight(0xfff1dc, 2.4, 0, Math.PI / 4.4, .6, 0); spot.position.set(0, 15, 1.5); spot.target.position.set(0, 0, -.6); scene.add(spot, spot.target);
-const FONT_D = '"Noto Serif TC","Source Han Serif TC","Songti TC","PMingLiU",serif', FONT_M = '"Iosevka YFWU",ui-monospace,"DejaVu Sans Mono",monospace', FONT_S = '"DejaVu Sans","Segoe UI Symbol","Noto Sans Symbols",sans-serif';
+const FONT_D = fonts.display, FONT_M = '"Iosevka YFWU",ui-monospace,"DejaVu Sans Mono",monospace', FONT_S = '"DejaVu Sans","Segoe UI Symbol","Noto Sans Symbols",sans-serif';
 const css = name => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
 const SIDE = [palette.seal, palette.azure, palette.jade, palette.gold];
 const SIDE_CSS = ['--fu-seal', '--fu-azure', '--fu-jade', '--fu-gold'].map(css);
