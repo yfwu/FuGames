@@ -16,10 +16,14 @@ for(let cell=0;cell<CELLS;cell++){
 }
 const positional=Array.from({length:CELLS},(_,i)=>8-Math.abs(Math.floor(i/9)-4)-Math.abs(i%9-4));
 const contribution=(a,b)=>b===0?WEIGHTS[a]:a===0?-WEIGHTS[b]:0;
+// Neutral rocks (3, the 石陣 variant) are fixed for a whole game: they stop rays like any non-opponent
+// cell, and a five-cell segment that contains one is dead for both sides. Without rocks nothing changes.
+const NO_DEAD=new Uint8Array(0);
 function state(board){
-  const s={board:Uint8Array.from(board),a:new Uint8Array(segments.length),b:new Uint8Array(segments.length),value:0,count1:0,empty:0,position:0,winner:-1};
-  for(let i=0;i<CELLS;i++){const p=s.board[i];if(!p)s.empty++;else {s.count1+=p===1;s.position+=(p===1?1:-1)*positional[i];}}
-  for(let j=0;j<segments.length;j++){for(const i of segments[j]){s.a[j]+=s.board[i]===1;s.b[j]+=s.board[i]===2;}s.value+=contribution(s.a[j],s.b[j]);}
+  const s={board:Uint8Array.from(board),a:new Uint8Array(segments.length),b:new Uint8Array(segments.length),value:0,count1:0,empty:0,position:0,winner:-1,rocks:0,dead:NO_DEAD};
+  for(let i=0;i<CELLS;i++){const p=s.board[i];if(!p)s.empty++;else if(p===3)s.rocks++;else {s.count1+=p===1;s.position+=(p===1?1:-1)*positional[i];}}
+  if(s.rocks){s.dead=new Uint8Array(segments.length);for(let j=0;j<segments.length;j++)for(const i of segments[j])if(s.board[i]===3)s.dead[j]=1;}
+  for(let j=0;j<segments.length;j++){for(const i of segments[j]){s.a[j]+=s.board[i]===1;s.b[j]+=s.board[i]===2;}if(!s.rocks||!s.dead[j])s.value+=contribution(s.a[j],s.b[j]);}
   const result=F.outcome(Array.from(s.board));if(result)s.winner=result.winner;
   return s;
 }
@@ -29,16 +33,16 @@ function changes(s,cell,player){
   return changed;
 }
 function apply(s,cell,player,changed=changes(s,cell,player)){
-  const t={board:s.board.slice(),a:s.a.slice(),b:s.b.slice(),value:s.value,count1:s.count1,empty:s.empty-1,position:s.position,winner:-1,flips:changed.length-1};
-  for(const i of changed){const old=t.board[i];t.board[i]=player;t.count1+=(player===1?1:0)-(old===1?1:0);t.position+=((player===1?1:-1)-(old===0?0:old===1?1:-1))*positional[i];for(const j of members[i]){t.value-=contribution(t.a[j],t.b[j]);if(old===1)t.a[j]--;else if(old===2)t.b[j]--;if(player===1)t.a[j]++;else t.b[j]++;t.value+=contribution(t.a[j],t.b[j]);}}
+  const t={board:s.board.slice(),a:s.a.slice(),b:s.b.slice(),value:s.value,count1:s.count1,empty:s.empty-1,position:s.position,winner:-1,flips:changed.length-1,rocks:s.rocks,dead:s.dead};
+  for(const i of changed){const old=t.board[i];t.board[i]=player;t.count1+=(player===1?1:0)-(old===1?1:0);t.position+=((player===1?1:-1)-(old===0?0:old===1?1:-1))*positional[i];for(const j of members[i]){if(t.rocks&&t.dead[j])continue;t.value-=contribution(t.a[j],t.b[j]);if(old===1)t.a[j]--;else if(old===2)t.b[j]--;if(player===1)t.a[j]++;else t.b[j]++;t.value+=contribution(t.a[j],t.b[j]);}}
   // A legal placement/capture cannot create a line for the other color. The
   // input root was checked for pre-existing terminal lines before searching.
   const counts=player===1?t.a:t.b;outer:for(const i of changed)for(const j of members[i])if(counts[j]===5){t.winner=player;break outer;}
-  if(t.winner<0&&!t.empty)t.winner=t.count1*2===CELLS?0:t.count1*2>CELLS?1:2;
+  if(t.winner<0&&!t.empty){const stones=CELLS-t.rocks;t.winner=t.count1*2===stones?0:t.count1*2>stones?1:2;}
   return t;
 }
 function tie(cell,seed){let x=(Math.imul(cell+1,0x9e3779b1)^(seed>>>0))>>>0;x^=x>>>16;x=Math.imul(x,0x85ebca6b)>>>0;x^=x>>>13;return x>>>0;}
-function evaluate(s,player,profile){if(s.winner>=0)return s.winner===0?0:s.winner===player?WIN:-WIN;const material=s.count1*2-(CELLS-s.empty),v=s.value+s.position+(profile==='flipper'?12:1)*material;return player===1?v:-v;}
+function evaluate(s,player,profile){if(s.winner>=0)return s.winner===0?0:s.winner===player?WIN:-WIN;const material=s.count1*2-(CELLS-s.empty-s.rocks),v=s.value+s.position+(profile==='flipper'?12:1)*material;return player===1?v:-v;}
 function makeContext(observation,options){return {profile:observation.profile==='flipper'?'flipper':'architect',seed:(options.seed??0)>>>0,nodeBudget:Math.max(8000,Math.min(250000,Math.floor(options.nodeBudget??36000))),maxDepth:Math.max(1,Math.min(6,Math.floor(options.maxDepth??4))),width:Math.max(4,Math.min(24,Math.floor(options.width??12))),nodes:0,generated:0,completeDepth:0,stopped:false,tacticalChecks:0,rootCandidates:0,safeCandidates:0};}
 // A quick exact hypothetical-win probe changes only the local board, restores it,
 // and avoids allocating a whole search state. Counts remain untouched.
@@ -47,7 +51,7 @@ function winningMove(s,cell,player,ctx){
   if(CELLS-s.empty<4)return false;
   for(const i of changed)s.board[i]=player;
   let win=false;outer:for(const i of changed)for(const j of members[i]){const segment=segments[j];let full=true;for(const k of segment)if(s.board[k]!==player){full=false;break;}if(full){win=true;break outer;}}
-  if(!win&&s.empty===1){const count1=s.count1+(player===1?changed.length:-(changed.length-1));win=player===1?count1*2>CELLS:count1*2<CELLS;}
+  if(!win&&s.empty===1){const count1=s.count1+(player===1?changed.length:-(changed.length-1)),stones=CELLS-s.rocks;win=player===1?count1*2>stones:count1*2<stones;}
   s.board[cell]=0;for(let j=1;j<changed.length;j++)s.board[changed[j]]=3-player;
   return win;
 }
@@ -74,7 +78,7 @@ function search(s,player,depth,alpha,beta,ctx){
   return best;
 }
 function chooseMove(observation,options={}){
-  if(!observation||!Array.isArray(observation.board)&&!ArrayBuffer.isView(observation.board)||observation.board.length!==CELLS||![1,2].includes(observation.player)||Array.from(observation.board).some(p=>![0,1,2].includes(p)))return null;
+  if(!observation||!Array.isArray(observation.board)&&!ArrayBuffer.isView(observation.board)||observation.board.length!==CELLS||![1,2].includes(observation.player)||Array.from(observation.board).some(p=>![0,1,2,3].includes(p)))return null;
   const root=state(observation.board),player=observation.player;if(root.winner>=0||!root.empty)return null;
   const ctx=makeContext(observation,options),moves=generate(root,player,ctx);ctx.rootCandidates=moves.length;
   const win=moves.find(move=>move.next.winner===player);
@@ -102,5 +106,47 @@ function chooseMove(observation,options={}){
   const reason=!safe.length?'搜尋可延後對手連線的應手':best.next.flips?'用夾翻拆線並搜尋後續攻守':'搜尋後續夾翻，保留攻守支點';
   return result(best,bestScore,reason);
 }
-return {chooseMove,version:'bounded-continuation-1',_testing:{state,apply,evaluate,winningMove,segments,changes}};
+// Opponent tiers. master is the original bounded search with its original options (the strongest
+// choice before tiers existed, and still the default). grand only spends a larger, still bounded,
+// placement budget. adept is the legacy one-reply screen; novice is a deterministic, seeded weak player
+// that always takes a win but only sometimes sees your threat.
+const TIERS=Object.freeze({
+  novice:Object.freeze({label:'入門',kind:'novice'}),
+  adept:Object.freeze({label:'中階',kind:'legacy'}),
+  expert:Object.freeze({label:'高階',kind:'search',search:Object.freeze({nodeBudget:12000,maxDepth:3,width:8})}),
+  master:Object.freeze({label:'大師',kind:'search',search:Object.freeze({nodeBudget:36000,maxDepth:4,width:12})}),
+  grand:Object.freeze({label:'宗師',kind:'search',search:Object.freeze({nodeBudget:120000,maxDepth:5,width:12})})
+});
+const TIER_ORDER=Object.freeze(['novice','adept','expert','master','grand']);
+function searchOptions(tier,seed=0){const spec=TIERS[tier]||TIERS.master;return spec.search?{seed:seed>>>0,...spec.search}:{seed:seed>>>0};}
+function valid(observation){return !!observation&&(Array.isArray(observation.board)||ArrayBuffer.isView(observation.board))&&observation.board.length===CELLS&&[1,2].includes(observation.player)&&!Array.from(observation.board).some(p=>![0,1,2,3].includes(p));}
+function chooseNovice(observation,seed){
+  const board=Array.from(observation.board),player=observation.player,other=3-player;
+  if(F.outcome(board)||!board.includes(0))return null;
+  const filled=board.filter(p=>p===1||p===2).length,roll=k=>tie(filled*31+k,seed)/4294967296;
+  const moves=F.legalMoves(board).map(cell=>{const next=F.apply(board,cell,player);return {cell,next,result:F.outcome(next.board),score:F.evaluate(next.board,player,observation.profile)+next.flipped.length*3};});
+  const stats={nodes:moves.length,nodeBudget:CELLS,completedDepth:1,requestedDepth:1,budgetExhausted:false,rootCandidates:moves.length,safeCandidates:0,quietBeamWidth:4,seed:seed>>>0,proof:false,tier:'novice'};
+  const win=moves.find(m=>m.result&&m.result.winner===player);
+  if(win)return {cell:win.cell,score:WIN,reason:win.next.flipped.length?'夾翻後接成五連':'完成五連',stats};
+  // Sees one of your immediate wins 70% of the time, then blocks the first square it finds.
+  const threats=F.immediateWins(board,other);
+  if(threats.length&&roll(1)<.7){const block=moves.find(m=>!F.immediateWins(m.next.board,other).length)||moves.find(m=>m.cell===threats[0]);if(block)return {cell:block.cell,score:0,reason:'看見你的即勝點',stats};}
+  moves.sort((a,b)=>b.score-a.score||a.cell-b.cell);
+  const pick=moves[Math.floor(roll(2)*Math.min(4,moves.length))];
+  return {cell:pick.cell,score:pick.score,reason:pick.next.flipped.length?`順手翻轉 ${pick.next.flipped.length} 子`:'憑直覺佈局',stats};
+}
+function chooseTier(observation,tier='master',options={}){
+  if(!valid(observation))return null;
+  const spec=TIERS[tier]||TIERS.master,seed=(options.seed??0)>>>0;
+  if(spec.kind==='novice')return chooseNovice(observation,seed);
+  if(spec.kind==='legacy'){
+    const board=Array.from(observation.board);if(F.outcome(board)||!board.includes(0))return null;
+    const move=F.chooseLegacyMove({board,player:observation.player,profile:observation.profile});
+    return move&&{...move,stats:{nodes:0,nodeBudget:0,completedDepth:1,requestedDepth:1,budgetExhausted:false,rootCandidates:F.legalMoves(board).length,safeCandidates:0,quietBeamWidth:12,seed,proof:false,tier}};
+  }
+  const move=chooseMove(observation,{...searchOptions(tier,seed),...(options.override||{})});
+  if(move)move.stats.tier=TIERS[tier]?tier:'master';
+  return move;
+}
+return {chooseMove,chooseTier,searchOptions,TIERS,TIER_ORDER,version:'bounded-continuation-2',_testing:{state,apply,evaluate,winningMove,segments,changes}};
 });

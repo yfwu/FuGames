@@ -1,5 +1,8 @@
 """Real foreground Flip Five games through trusted desktop clicks/mobile taps.
 
+The board is a three.js stage; the 81 cell buttons are laid over the rendered
+cells, so clicks and taps land on real buttons at the cells' screen positions.
+
 The human slot is driven by the published legacy public-board chooser; no game
 state or actions are injected. This is UI acceptance, not an AI strength study.
 No virtual clock is used. The new bounded AI runs in its real browser Worker.
@@ -58,6 +61,7 @@ def finish_game(p,mobile,label):
   else:p.wait_for_timeout(40)
  assert data['ply']<=81 and data['result']
  assert not data['pending'] and not data['scheduled']
+ until(p,"!document.getElementById('result-curtain').hidden")
  assert p.locator('#result').is_visible()
  winning=p.evaluate('[...new Set(flipGame.result.lines.flat(2))].sort((a,b)=>a-b)')
  rendered=p.evaluate('[...document.querySelectorAll(".flip-cell.winning")].map(b=>Number(b.dataset.cell)).sort((a,b)=>a-b)')
@@ -83,7 +87,8 @@ try:
        const ok=act.call(this,cell,...args);if(ok)flipAccepted.push({ply:this.ply,player:this.last.player,
          cell,flipped:this.last.flipped.slice(),changed:this.board.map((v,i)=>v!==before[i]?i:-1).filter(i=>i>=0)});return ok;};}''')
    assert len(page.locator('.flip-cell').all())==81
-   # Match the saved baseline: architect, human opens at E5, then pause at ply 2.
+   page.wait_for_function('window.FlipView&&FlipView.ready')
+   # Classic defaults (master tier, architect): human opens at E5, then pause at ply 2.
    if mobile:activate(page,'#play',True)
    else:
     page.locator('#play').focus();page.keyboard.press('Space')
@@ -93,27 +98,28 @@ try:
     page.keyboard.press('ArrowLeft');assert page.evaluate('document.activeElement.dataset.cell')=='40'
    activate(page,'[data-cell="40"]',mobile)
    until(page,'flipGame.ply===2');activate(page,'#pause',mobile)
+   assert page.locator('#pause-curtain').is_visible()
    frozen=check_board(page);page.wait_for_timeout(600);assert check_board(page)==frozen
    assert frozen['phase']=='paused' and not frozen['pending']
    page.screenshot(path=str(OUT/'screenshots'/f'after-{name}.png'),full_page=True)
    report['viewports'].append({'name':name,'width':width,'height':height,'dpr':dpr,'baselineComparison':frozen})
-   if mobile:activate(page,'#pause',True)
-   else:page.locator('#pause').focus();page.keyboard.press('Space')
+   if mobile:activate(page,'#resume',True)
+   else:page.locator('#resume').focus();page.keyboard.press('Space')
    assert page.evaluate('flipGame.phase')=='running'
    if not mobile:
     # Actual keyboard placement, including a live preview, before the controller takes over.
     cell=page.evaluate('flipGame.board.findIndex(v=>!v)')
     page.locator(f'[data-cell="{cell}"]').focus()
-    assert '落子後翻轉' in page.locator('#preview').inner_text()
+    assert '翻轉' in page.locator('#preview').inner_text()
     page.keyboard.press('Enter');until(page,'flipGame.ply>=4')
    finish_game(page,mobile,name+'-architect-human-first')
    # A real result-screen profile change and rematch alternate the starter.
-   page.select_option('#personality','flipper');page.evaluate('window.flipAccepted=[]');activate(page,'#play',mobile)
+   page.evaluate("Fu.open('settings')");page.wait_for_timeout(400);page.select_option('#personality','flipper');page.evaluate("Fu.close('settings')")
+   page.evaluate('window.flipAccepted=[]');activate(page,'#again',mobile)
    assert page.evaluate('flipGame.first')==2 and page.evaluate('flipGame.profile')=='flipper'
-   assert page.evaluate('flipGame.ply')==0
-   assert page.locator('#personality').is_disabled()
+   assert page.evaluate('flipGame.ply')<=1
    finish_game(page,mobile,name+'-flipper-ai-first')
-   activate(page,'#restart',mobile)
+   activate(page,'#review',mobile);activate(page,'#restart',mobile)
    assert page.evaluate('flipGame.first')==1 and page.evaluate('flipGame.ply')==0
    assert page.evaluate('flipGame.board.every(v=>v===0)')
    activate(page,'#pause',mobile);context.close()
@@ -121,11 +127,6 @@ try:
  assert not report['errors'],report['errors']
  assert all(row['status']==200 for row in report['requests']),report['requests']
  assert hashes()==report['sourceSha256'],'Source changed during acceptance'
- before=json.loads((OUT/'before-browser.json').read_text())
- css=re.search(r'<style>(.*?)</style>',(ROOT/'flip_five.html').read_text(),re.S).group(1)
- report['stylesheetSha256']=hashlib.sha256(css.encode()).hexdigest()
- report['stylesheetPreserved']=report['stylesheetSha256']==before['cssSha256']
- assert report['stylesheetPreserved'],'Existing game stylesheet changed'
  report['passed']=True
 finally:
  report['finishedUtc']=datetime.now(timezone.utc).isoformat()

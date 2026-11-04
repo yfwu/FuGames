@@ -1,18 +1,147 @@
 <!doctype html>
-<html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="Tux 2D 山路快遞：像素追尾公路、岔路補給、雪球攻防。保護三站貨物，與四位 AI 競逐配送積分。"><title>Tux 2D 山路快遞 - FuGames</title><link rel="icon" href="favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="fulab-theme.css"><link rel="stylesheet" href="tux2d.css"></head>
-<body><main class="game-page tux-page">
-<nav class="site-nav" aria-label="遊戲導覽"><a class="site-brand" href="index.html"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>FuGames</a><a href="index.html">所有遊戲 <svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#launch"></use></svg></a></nav><aside class="card" aria-label="封存狀態">這款遊戲已封存，仍可遊玩。<a href="archive.html">查看封存遊戲</a> · <a href="index.html">回首頁</a></aside>
-<header class="page-header tux-header"><div><p class="eyebrow">ARCADE / ALPINE POST</p><h1><svg class="page-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#tux2d"></use></svg>Tux 2D <span>山路快遞</span></h1><p class="lead">送得快，也要送得好。穿越三座山站，把貨物平安帶回雪港。</p></div><span class="tux-badge">像素公路 · 3 站配送 · 4 位 AI</span></header>
-<section class="card tux-setup" aria-label="出發設定"><div class="tux-settings"><label>駕駛<select id="tux-mode"><option value="human">你 + 4 位 AI</option><option value="spectator">觀戰 · 5 位 AI</option></select></label><label>路線 seed<input id="tux-seed" value="alpine-post" maxlength="40" autocomplete="off"></label><button class="btn primary" id="tux-play">出發配送</button><button class="btn" id="tux-restart">重新開始</button><span id="tux-status" role="status" aria-live="polite">自動油門。先用 ← → 駕駛，再試試補給與道具。</span></div></section>
-<section class="card play-panel tux-arena" aria-label="山路快遞遊戲區">
-<div class="tux-race-hud"><div><small>SPEED / 速度</small><strong id="race-speed">0 <em>km/h</em></strong></div><div><small>TIME / 剩餘</small><strong id="race-time">110</strong></div><div><small>POST / 已送</small><strong id="race-lap">0 / 3</strong></div><div><small>SCORE / 積分</small><strong id="race-score">0</strong></div><canvas id="tux-minimap" width="170" height="52" aria-label="三站配送路線與車手位置"></canvas><button class="btn" id="tux-pause" disabled aria-label="暫停遊戲">Ⅱ</button></div>
-<div class="tux-stage"><canvas id="tux-board" width="960" height="540" tabindex="0" role="application" aria-label="山路快遞。左右鍵駕駛，下鍵煞車，Shift 衝刺，空白鍵護盾，F 雪球，P 暫停。" aria-describedby="driving-help"></canvas><div class="tux-route" id="route-hint">雪港郵務局 → 第一站：松林</div><div class="tux-overlay" id="race-overlay"><small>WELCOME TO ALPINE POST</small><strong id="overlay-title">山路快遞，準備出發</strong><span id="overlay-copy">← → 轉向 · 自動前進<br>綠色補給保貨，橘色快線搶時間。</span></div><div id="race-event" class="tux-event" aria-live="polite"></div><div class="tux-road-label"><span>FUGAMES / ORIGINAL PIXEL DRIVE</span><span id="road-name">01 · 松林公路</span></div></div>
-<div class="tux-dashboard"><div class="tux-resources"><label>貨物完整 <strong id="cargo-value">100%</strong><meter id="cargo-meter" min="0" max="100" value="100">100%</meter></label><label>共用能量 <strong id="energy-value">65</strong><meter id="energy-meter" min="0" max="100" value="65">65</meter></label></div><div class="tux-actions"><button class="btn" id="action-boost"><b>» 衝刺 <small>30</small></b><span>Shift · 2.3 秒加速</span></button><button class="btn" id="action-shield"><b>◎ 護盾 <small>25</small></b><span>Space · 擋一次撞擊</span></button><button class="btn" id="action-snowball"><b>❄ 雪球 <small>20</small></b><span>F · 向前攻擊</span></button></div></div>
-<div class="tux-touch" aria-label="觸控駕駛"><button class="btn" id="touch-left" aria-label="向左轉">← 左轉</button><button class="btn" id="touch-brake" aria-label="煞車">↓ 煞車</button><button class="btn" id="touch-right" aria-label="向右轉">右轉 →</button></div>
-<div class="tux-tools"><p id="driving-help">← → / A D 轉向 · ↓ / S 煞車 · Shift 衝刺 · Space 護盾 · F 雪球 · P / Esc 暫停</p><label id="follow-label" hidden>跟拍 <select id="follow-kart"><option value="0">Tux</option><option value="1">Pip</option><option value="2">Nova</option><option value="3">Mochi</option><option value="4">Sunny</option></select></label></div>
-</section>
-<section class="card tux-result" id="tux-result" hidden aria-live="polite"><div><p class="eyebrow">DELIVERY REPORT</p><h2 id="tux-result-title"></h2><p id="tux-result-copy"></p></div><ol id="tux-final-standings"></ol><button class="btn primary" id="tux-race-again">再送一趟</button></section>
-<div class="tux-info"><section class="card"><p class="eyebrow">CHOOSE YOUR ROAD</p><h2>每站，一次取捨</h2><div class="tux-route-guide"><p><b>↖ 補給線</b><span>靠左進入。慢一些，但中途修復 25 貨物、補充 45 能量。</span></p><p><b>↗ 冰面快線</b><span>靠右進入。車速更高，轉向較滑；留意落石，備好護盾。</span></p></div><p class="tux-note">岔路隔島內不能換線。路肩會減速；青色電池 +18 能量。每位車手都能各取一次。</p></section><section class="card"><div class="tux-section-head"><h2>配送積分榜</h2><span id="race-position">1 / 5</span></div><ol id="tux-standings"></ol><p class="tux-note">每站按貨物完整度 ×3 計分；電池 +20 分，完程每剩 1 秒 +10 分。以本局結束時的積分排名。</p></section></div>
-<details class="card rules tux-rules"><summary>第一次配送？玩法與操作</summary><div><h3>保貨，也要趕路</h3><p>110 秒內通過三站，每站自動配送。碰到車、石頭或雪球會損失 14 貨物並減速；短暫保護期間不會連續受傷。失去全部貨物仍可到補給線修復。你的第三站送達，或時間用完，本局立即結算全部車手的現有積分。</p><h3>三個道具，共用一條能量</h3><p>衝刺適合空曠路段；護盾維持 4 秒、擋一次傷害；雪球直線向前，只打中一位對手。按一次使用一次，按住不會連發。能量不足時按鈕變暗；先撿電池或走補給線。所有 AI 使用相同速度、碰撞、能量與道路規則，沒有瞬移或額外資源。</p><h3>自在操作</h3><p>預設自動油門，煞車優先。手機可同時按轉向與道具；橫放會切換緊湊駕駛區。P / Esc 或 Ⅱ 暫停；切換分頁或視窗失焦會自動暫停，回來後按繼續。重開保留 seed，可重玩同一道路。觀戰模式可切換跟拍車手。</p></div></details>
-<footer class="tux-footer">原創像素山景、企鵝車輛與遊戲程式。復古公路街機風格；未使用參考遊戲的圖像素材。</footer>
-</main><script src="tux2d-engine.js"></script><script src="tux2d-ui.js"></script></body></html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Tux 2D 山路快遞：水墨雪山上的 3D 追尾配送賽。三站岔路取捨、雪球攻防、天候與貨物變化、四級 AI 對手與郵差生涯。">
+<meta name="theme-color" content="#07090c">
+<title>Tux 2D 山路快遞 - FuGames</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="shared/fu.css">
+<link rel="stylesheet" href="tux2d.css">
+<script src="shared/fu-shell.js" defer></script>
+<script src="tux2d-engine.js" defer></script>
+<script src="tux2d-ui.js" defer></script>
+<script type="module" src="tux2d-view.js"></script>
+</head>
+<body class="fu-app fu-vignette tux" data-phase="ready">
+<main class="fu-stage" id="tux-stage"><canvas id="tux-board" tabindex="0" role="application" aria-label="山路快遞 3D 賽道。左右鍵轉向，下鍵煞車，Shift 衝刺，空白鍵護盾，F 雪球，P 暫停。" aria-describedby="driving-help"></canvas></main>
+
+<header class="fu-topbar">
+ <a class="fu-brand" href="index.html" aria-label="回到 FuGames 所有遊戲"><span class="fu-seal" aria-hidden="true">福遊</span><span class="fu-hide-sm">FuGames</span></a>
+ <div class="fu-topbar__title"><h1 class="fu-heading">山路快遞</h1><span class="fu-label fu-hide-sm">Tux 2D · Alpine Post</span></div>
+ <div class="fu-topbar__actions">
+  <button class="tux-lv" id="career-chip" type="button" aria-label="郵差生涯"><span class="fu-label">LV</span><b class="fu-num" id="lv">1</b><span class="tux-lv__rank fu-hide-sm" id="rank">見習郵差</span><i class="tux-lv__bar"><i id="lv-fill"></i></i></button>
+  <button class="fu-btn fu-btn--icon" id="tux-pause" type="button" disabled aria-label="暫停遊戲"><svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><g class="i-pause"><rect x="6" y="5" width="4" height="14"/><rect x="14" y="5" width="4" height="14"/></g><path class="i-play" d="M7 5l12 7-12 7z"/></svg></button>
+  <button class="fu-btn fu-btn--icon" id="menu-btn" type="button" data-fu-open="menu" aria-controls="menu" aria-label="選單：出車、玩法、設定與生涯"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h16M4 17h10"/></svg></button>
+ </div>
+</header>
+
+<!-- HUD: race gauge (top-left) and the field (top-right). -->
+<div class="fu-hud fu-hud--tl tux-hud-race">
+ <section class="fu-panel fu-panel--tight tux-race" aria-label="車況">
+  <div class="tux-speed"><b class="fu-num" id="race-speed">0</b><span class="fu-label">KM/H</span></div>
+  <div class="tux-figs">
+   <div><span class="fu-label">剩餘</span><b class="fu-num" id="race-time">110</b></div>
+   <div><span class="fu-label">已送</span><b class="fu-num" id="race-lap">0 / 3</b></div>
+   <div><span class="fu-label">積分</span><b class="fu-num" id="race-score">0</b></div>
+  </div>
+  <div class="tux-gauges">
+   <label><span class="fu-label">貨物 <b class="fu-num" id="cargo-value">100%</b></span><span class="fu-meter fu-meter--jade" id="cargo-meter" style="--value:1"><i></i></span></label>
+   <label><span class="fu-label">能量 <b class="fu-num" id="energy-value">65</b></span><span class="fu-meter fu-meter--gold" id="energy-meter" style="--value:.65"><i></i></span></label>
+  </div>
+ </section>
+</div>
+<div class="fu-hud fu-hud--tr tux-hud-field">
+ <section class="fu-panel fu-panel--tight fu-panel--quiet tux-field" aria-label="配送積分榜">
+  <div class="fu-panel__head"><p class="fu-label"><b id="race-position">1 / 5</b> 名次</p><span class="fu-label" id="road-name">01 · 松林公路</span></div>
+  <div class="tux-progress" id="tux-progress" aria-hidden="true"><i class="tux-progress__line"></i></div>
+  <ol class="tux-standings" id="tux-standings"></ol>
+ </section>
+</div>
+<div class="tux-route" id="route-hint" aria-live="polite">雪港郵務局 → 第一站：松林</div>
+<div class="tux-event" id="race-event" aria-live="polite"></div>
+<div class="tux-count" id="race-count" aria-hidden="true"></div>
+<div class="tux-flash" id="tux-flash" aria-hidden="true"></div>
+
+<!-- Driving: items in the dock; touch pads at the bottom corners on touch screens. -->
+<nav class="fu-dock tux-dock" aria-label="道具">
+ <button class="fu-btn tux-item" id="action-boost" type="button" disabled><b>衝刺</b><span class="fu-label">30<span class="k"> · Shift</span></span><i class="tux-item__ready"></i></button>
+ <button class="fu-btn tux-item" id="action-shield" type="button" disabled><b>護盾</b><span class="fu-label">25<span class="k"> · Space</span></span><i class="tux-item__ready"></i></button>
+ <button class="fu-btn tux-item" id="action-snowball" type="button" disabled><b>雪球</b><span class="fu-label">20<span class="k"> · F</span></span><i class="tux-item__ready"></i></button>
+</nav>
+<div class="tux-touch" aria-label="觸控駕駛">
+ <button class="tux-pad tux-pad--left" id="touch-left" type="button" aria-label="向左轉"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.4"/></svg></button>
+ <button class="tux-pad tux-pad--brake" id="touch-brake" type="button" aria-label="煞車"><span>煞車</span></button>
+ <button class="tux-pad tux-pad--right" id="touch-right" type="button" aria-label="向右轉"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.4"/></svg></button>
+</div>
+<p class="fu-sr-only" id="driving-help">← → 或 A D 轉向，↓ 或 S 煞車，Shift 衝刺，空白鍵護盾，F 雪球，P 或 Esc 暫停，M 開選單。</p>
+
+<!-- Lobby / pause / result curtain -->
+<div class="fu-curtain tux-curtain" id="curtain" data-mode="lobby">
+ <div class="tux-sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-title">
+  <div data-view="lobby">
+   <span class="fu-seal fu-seal--lg fu-stamp" aria-hidden="true">福遊</span>
+   <p class="fu-label">FuGames / Alpine Post · 原創 3D 配送賽</p>
+   <h2 class="fu-display" id="sheet-title">山路快遞</h2>
+   <p class="tux-lede">三站山路、四位對手。每個岔路都要取捨：左側補給修貨，右側冰面快線搶時間。雪球、護盾、衝刺共用一條能量。</p>
+   <div class="tux-career" id="lobby-career"></div>
+   <section class="tux-pick"><h3 class="fu-label">對手 <span id="tier-copy"></span></h3><div class="fu-seg tux-seg" id="tier-seg" role="group" aria-label="對手難度"></div></section>
+   <section class="tux-pick"><h3 class="fu-label">委託 <span>完成可得額外經驗</span></h3><div class="tux-contracts" id="contract-chips" role="group" aria-label="本趟委託"></div></section>
+   <p class="tux-runline"><span class="fu-label">本趟</span><span id="run-summary">松林線 · 晴朗 · 包裹</span><button class="fu-btn fu-btn--sm fu-btn--ghost" id="open-run" type="button">路線・天候・貨物</button></p>
+   <div class="fu-curtain__actions"><button class="fu-btn fu-btn--seal fu-btn--lg" id="tux-play" type="button">出發配送 <span class="fu-kbd">Enter</span></button></div>
+  </div>
+  <div data-view="pause">
+   <p class="fu-label">已暫停</p>
+   <h2 class="fu-display">郵差休息中</h2>
+   <p class="tux-lede">計時、車流與道具都已暫停。</p>
+   <div class="fu-curtain__actions"><button class="fu-btn fu-btn--lg" id="tux-abandon" type="button">放棄本趟</button><button class="fu-btn fu-btn--seal fu-btn--lg" id="tux-resume" type="button">繼續配送 <span class="fu-kbd">P</span></button></div>
+  </div>
+  <div data-view="result" id="tux-result">
+   <p class="fu-label" id="result-kicker">Delivery report</p>
+   <h2 class="fu-display tux-result-title" id="tux-result-title"></h2>
+   <p class="tux-lede" id="tux-result-copy"></p>
+   <ol class="tux-final" id="tux-final-standings"></ol>
+   <div class="tux-xp"><dl id="xp-lines"></dl><div class="tux-levelup" id="levelup" hidden></div></div>
+   <div class="tux-career" id="result-career"></div>
+   <div class="fu-curtain__actions"><button class="fu-btn fu-btn--lg" id="tux-to-lobby" type="button">換條路線</button><button class="fu-btn fu-btn--seal fu-btn--lg" id="tux-race-again" type="button">再送一趟 <span class="fu-kbd">Enter</span></button></div>
+  </div>
+ </div>
+</div>
+
+<!-- Menu drawer: run setup, rules, settings, career -->
+<aside class="fu-drawer tux-drawer" id="menu" aria-label="選單">
+ <div class="fu-drawer__head"><span class="fu-label"><b>■</b> 山路快遞</span><button class="fu-btn fu-btn--ghost fu-btn--icon" data-fu-close aria-label="關閉">✕</button></div>
+ <div class="tux-tabs" role="tablist"><button role="tab" id="tab-run" aria-selected="true" aria-controls="panel-run">出車</button><button role="tab" id="tab-rules" aria-selected="false" aria-controls="panel-rules">玩法</button><button role="tab" id="tab-settings" aria-selected="false" aria-controls="panel-settings">設定</button><button role="tab" id="tab-career" aria-selected="false" aria-controls="panel-career">生涯</button></div>
+ <div class="fu-drawer__body">
+  <div role="tabpanel" id="panel-run" aria-labelledby="tab-run">
+   <section><h3>路線</h3><div class="tux-options" id="route-options"></div></section>
+   <section><h3>天候</h3><div class="tux-options" id="weather-options"></div></section>
+   <section><h3>貨物</h3><div class="tux-options" id="cargo-options"></div></section>
+   <section><h3>規則</h3>
+    <label class="fu-switch"><span>尾流加速<small class="tux-sub">緊跟前車 70 m 內：極速 +10、加速 +18。AI 也會追。</small></span><input type="checkbox" id="opt-draft" checked></label>
+    <label class="fu-field"><span>駕駛</span><select class="fu-select" id="tux-mode"><option value="human">你 + 4 位 AI</option><option value="spectator">觀戰 · 5 位 AI</option></select></label>
+    <label class="fu-field" id="follow-label" hidden><span>跟拍</span><select class="fu-select" id="follow-kart"></select></label>
+    <label class="fu-field"><span>路線 seed</span><input class="fu-input" id="tux-seed" value="alpine-post" maxlength="40" autocomplete="off" spellcheck="false"><small>同一 seed + 設定 = 同一條路與同樣的 AI。</small></label>
+   </section>
+  </div>
+  <div role="tabpanel" id="panel-rules" aria-labelledby="tab-rules" hidden>
+   <section><h3>保貨，也要趕路</h3><p>110 秒內通過三站，每站自動配送並按貨物完整度計分。撞到車、石頭、對手或雪球會損失貨物並減速；短暫保護期間不會連續受傷。你送達第三站或時間用完時，所有車手以現有積分結算。</p></section>
+   <section><h3>岔路取捨</h3><p><b class="tux-jade">← 補給線</b>：慢一些（極速 68），中段修復 25 貨物、補 45 能量。<br><b class="tux-gold">冰面快線 →</b>：極速 120，但冰面轉向較滑，還有落石。進入岔路後隔島不能換線。</p></section>
+   <section><h3>三個道具，共用能量</h3><p><b>衝刺</b> 30：2.3 秒極速 +38。<b>護盾</b> 25：4 秒內擋一次撞擊。<b>雪球</b> 20：直線向前，打中第一位對手。路上的電池 +18 能量、+20 分，每人各取一次。</p></section>
+   <section><h3>計分</h3><p>每站：貨物完整度 × 貨物倍率（包裹 ×3）。電池 +20。完程時每剩 1 秒再加分。依積分排名。</p></section>
+   <section><h3>對手</h3><p>四級 AI 與你用完全相同的速度、碰撞、能量與道路規則：新手反應慢、看得近；標準是原版 AI；老練挑空檔車道、追尾流；宗師每幀判斷、搶電池、提早開盾。</p></section>
+   <section><h3>路線・天候・貨物</h3><p>落石峽谷彎更急、山壁會在你前方預警後落石；冰河高原主線也結冰。大雪降低抓地，側風把車推向路肩。易碎瓷器、重型零件、生鮮漁獲各有不同的扣損、加速與倍率。越難，經驗倍率越高。</p></section>
+   <section><h3>操作</h3><div class="fu-hotkeys" id="hotkey-list"></div><p class="tux-sub">手機：左右下角按住轉向，中間煞車；道具在底部指令列，可同時按。</p></section>
+   <section><h3>Agent / 無頭</h3><p class="tux-sub">規則引擎 <code>tux2d-engine.js</code> 不依賴畫面，可在 Node 以 <code>new Tux2D.Game(options)</code> 逐步呼叫 <code>step({steer,brake,action})</code>，並以 <code>observation()</code> 讀取狀態；瀏覽器內可用 <code>window.tux2dGame</code>。</p></section>
+  </div>
+  <div role="tabpanel" id="panel-settings" aria-labelledby="tab-settings" hidden>
+   <section><h3>畫面</h3>
+    <div class="fu-field"><span>鏡頭</span><div class="fu-seg" id="camera-seg"><button type="button" value="chase" aria-pressed="true">追尾</button><button type="button" value="high" aria-pressed="false">高空</button><button type="button" value="low" aria-pressed="false">低角</button></div></div>
+    <label class="fu-switch"><span>降雪粒子</span><input type="checkbox" id="set-particles" checked></label>
+    <label class="fu-switch"><span>撞擊震動與閃光</span><input type="checkbox" id="set-shake" checked></label>
+    <label class="fu-switch"><span>合成音效</span><input type="checkbox" id="set-sound" checked></label>
+   </section>
+   <section><h3>本趟</h3><button class="fu-btn fu-btn--block" id="tux-restart" type="button">重新開始（不計經驗）</button></section>
+  </div>
+  <div role="tabpanel" id="panel-career" aria-labelledby="tab-career" hidden>
+   <div class="tux-career" id="drawer-career"></div>
+   <div class="tux-statgrid" id="career-stats"></div>
+   <section><h3>解鎖進度</h3><ul class="fu-list tux-unlocks" id="unlock-list"></ul></section>
+   <section><button class="fu-btn fu-btn--block" id="reset-career" type="button">重置生涯</button></section>
+  </div>
+ </div>
+</aside>
+<noscript><div class="tux-fail">請開啟 JavaScript 才能開始配送。</div></noscript>
+</body>
+</html>
