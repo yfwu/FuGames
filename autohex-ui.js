@@ -16,8 +16,21 @@
   const renderCache = { valid: false, rebuilds: 0, composites: 0, minimaps: 0 };
   const mini = $('minimap'), mctx = mini.getContext('2d');
   let P = E.PLAYERS;
-  const COLORS = ['', '#267477', '#a65e46', '#84618c', '#4d739e', '#668047', '#ad7b23'];
-  const TINTS = ['', '#e2f1ef', '#f4e5df', '#eee5f1', '#e3ebf4', '#eaf0df', '#f7edda'];
+  // Pages on the shared 朱墨 shell (body.fu-app) draw the board in ink: dark
+  // cells, bright faction colours. Older light pages keep the original palette.
+  const INK = typeof document !== 'undefined' && !!document.body && document.body.classList.contains('fu-app');
+  const COLORS = INK ? ['', '#35d0a8', '#ff6b4a', '#b98cff', '#4fa3ff', '#a3c95b', '#e9b949'] : ['', '#267477', '#a65e46', '#84618c', '#4d739e', '#668047', '#ad7b23'];
+  const TINTS = INK ? ['', '#10312a', '#3a1a14', '#2a2040', '#14263c', '#24301a', '#3a2e12'] : ['', '#e2f1ef', '#f4e5df', '#eee5f1', '#e3ebf4', '#eaf0df', '#f7edda'];
+  const INK_MAP = {
+    '#ffffff': '#1a2129', '#dcecf4': '#0f2433', '#f2ebd9': '#2a261d', '#dbe3e7': '#07090c', '#93b3c5': '#3f7495', '#bcaa78': '#8a7849',
+    '#8a6724': '#e9b949', '#fff': '#0d1116', '#ffffffdc': '#07090cdc', '#fffffff0': '#0d1116f0', '#ffffffed': '#0d1116ed', '#795633': '#e9b949',
+    '#e5f2ed': '#123029', '#f9fbfc': '#151b23', '#d9e1e7': '#2b3440', '#fffcf2': '#1c1a14', '#ffe6af': '#5a4720', '#80551c': '#e9b949',
+    '#fffdf6': '#151b23', '#723807': '#e9b949', '#dfc9a8': '#3a3122', '#aa7430': '#e9b949', '#b54949': '#ff4b2b', '#168b82': '#35d0a8',
+    '#a87534': '#e9b949', '#a36520': '#e9b949', '#9a5b12': '#e9b949', '#b67729': '#e9b949', '#a65e46': '#ff6b4a', '#4d739e': '#4fa3ff',
+    '#2e3440': '#ece4d0', '#d5e6ed': '#123247', '#e6dec9': '#3a3326', '#566576': '#6d7380', '#a28b56': '#a08a55', '#267477': '#35d0a8',
+    '#26747760': '#35d0a860', '#5ebcbf30': '#4fa3ff33', '#5ebcbf0b': '#4fa3ff0d', '#708090': '#8892a0', '#918368': '#a39573', '#ffffff12': '#ece4d014'
+  };
+  const K = color => INK ? INK_MAP[color] || color : color;
   const NAMES = ['', '青綠', '珊瑚', '紫藤', '藍灰', '草綠', '琥珀'];
   const LETTER = p => String.fromCharCode(64 + p);
   const PLAN_TYPES = { direct: '接通對岸', flank: '側翼繞行', airport: '建立航空支點', interdict: '切斷敵方補給', defend: '處理連線威脅', recover: '修復家園補給', fortify: '加固補給線', expand: '搶占物資站' };
@@ -621,7 +634,7 @@
     for (const t of view.tunnels || []) {
       ctx.save(); ctx.strokeStyle = COLORS[t.owner]; ctx.lineWidth = Math.max(.1, 1.5 / scale); ctx.setLineDash([1.4 / scale, 3 / scale]); ctx.beginPath();
       t.path.forEach((i, k) => { const p = points[i]; k ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y); }); ctx.stroke(); ctx.setLineDash([]);
-      for (const i of [t.a, t.b]) { const p = points[i], r = Math.max(.7, 5 / scale); ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(p.x, p.y, r, Math.PI, 0); ctx.lineTo(p.x + r, p.y + r * .55); ctx.lineTo(p.x - r, p.y + r * .55); ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.fillStyle = COLORS[t.owner]; ctx.font = `bold ${Math.max(.45, 7 / scale)}px sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(LETTER(t.owner), p.x, p.y); }
+      for (const i of [t.a, t.b]) { const p = points[i], r = Math.max(.7, 5 / scale); ctx.fillStyle = K('#fff'); ctx.beginPath(); ctx.arc(p.x, p.y, r, Math.PI, 0); ctx.lineTo(p.x + r, p.y + r * .55); ctx.lineTo(p.x - r, p.y + r * .55); ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.fillStyle = COLORS[t.owner]; ctx.font = `bold ${Math.max(.45, 7 / scale)}px sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(LETTER(t.owner), p.x, p.y); }
       ctx.restore();
     }
   }
@@ -639,49 +652,49 @@
         ctx.beginPath(); ctx.moveTo(p.x + Math.cos(a), p.y + Math.sin(a)); ctx.lineTo(p.x + Math.cos(b), p.y + Math.sin(b)); ctx.stroke();
       }
     }
-    ctx.setLineDash([]); for (const i of inspectedRange.targets) crosshair(i, '#a65e46', scale, .7); ctx.restore();
+    ctx.setLineDash([]); for (const i of inspectedRange.targets) crosshair(i, K('#a65e46'), scale, .7); ctx.restore();
   }
   function drawTurrets(scale, visible) {
     for (const t of view.turrets || []) {
       const p = points[t.cell]; if (!visible(p)) continue;
       const size = Math.max(12, scale * 1.35) / scale, x = p.x, y = p.y, color = COLORS[t.owner];
-      ctx.save(); ctx.strokeStyle = '#fff'; ctx.lineJoin = 'round'; ctx.lineCap = 'round';
-      if (!view.supplied[t.cell]) { ctx.strokeStyle = '#a87534'; ctx.lineWidth = 1.4 / scale; ctx.setLineDash([2.5 / scale, 2 / scale]); ctx.beginPath(); ctx.arc(x, y, size * .8, 0, Math.PI * 2); ctx.stroke(); ctx.setLineDash([]); ctx.strokeStyle = '#fff'; }
+      ctx.save(); ctx.strokeStyle = K('#fff'); ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+      if (!view.supplied[t.cell]) { ctx.strokeStyle = K('#a87534'); ctx.lineWidth = 1.4 / scale; ctx.setLineDash([2.5 / scale, 2 / scale]); ctx.beginPath(); ctx.arc(x, y, size * .8, 0, Math.PI * 2); ctx.stroke(); ctx.setLineDash([]); ctx.strokeStyle = K('#fff'); }
       // Solid plinth, armored body and raised barrel remain legible at whole-map zoom.
       ctx.lineWidth = Math.max(.12, 2.4 / scale); ctx.fillStyle = color;
       ctx.beginPath(); ctx.moveTo(x - size * .48, y + size * .36); ctx.lineTo(x + size * .48, y + size * .36); ctx.lineTo(x + size * .34, y - size * .13); ctx.lineTo(x - size * .34, y - size * .13); ctx.closePath(); ctx.stroke(); ctx.fill();
       ctx.beginPath(); ctx.moveTo(x, y - size * .1); ctx.lineTo(x + size * .31, y - size * .62); ctx.lineWidth = size * .25 + 2 / scale; ctx.stroke(); ctx.strokeStyle = color; ctx.lineWidth = size * .25; ctx.stroke();
-      ctx.fillStyle = '#fff'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.font = `bold ${Math.max(6.5 / scale, size * .42)}px sans-serif`; ctx.fillText(LETTER(t.owner), x - size * .03, y + size * .1);
-      ctx.fillStyle = '#fff'; ctx.strokeStyle = color; ctx.lineWidth = 1 / scale; ctx.beginPath(); ctx.arc(x + size * .58, y - size * .35, Math.max(4.7 / scale, size * .28), 0, Math.PI * 2); ctx.fill(); ctx.stroke(); ctx.fillStyle = color; ctx.font = `bold ${Math.max(7 / scale, size * .4)}px sans-serif`; ctx.fillText(t.countdown, x + size * .58, y - size * .35);
+      ctx.fillStyle = K('#fff'); ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.font = `bold ${Math.max(6.5 / scale, size * .42)}px sans-serif`; ctx.fillText(LETTER(t.owner), x - size * .03, y + size * .1);
+      ctx.fillStyle = K('#fff'); ctx.strokeStyle = color; ctx.lineWidth = 1 / scale; ctx.beginPath(); ctx.arc(x + size * .58, y - size * .35, Math.max(4.7 / scale, size * .28), 0, Math.PI * 2); ctx.fill(); ctx.stroke(); ctx.fillStyle = color; ctx.font = `bold ${Math.max(7 / scale, size * .4)}px sans-serif`; ctx.fillText(t.countdown, x + size * .58, y - size * .35);
       ctx.restore();
     }
   }
   function drawFacilities(scale, visible) {
     for (const a of view.airports || []) {
       const p = points[a.cell]; if (!visible(p)) continue;
-      const size = Math.max(13, scale * 1.42) / scale, color = COLORS[a.owner] || '#708090', x = p.x, y = p.y;
-      ctx.save(); ctx.fillStyle = a.active ? '#e5f2ed' : '#f9fbfc'; ctx.strokeStyle = color; ctx.lineWidth = Math.max(.11, 1.4 / scale); ctx.fillRect(x - size * .59, y - size * .59, size * 1.18, size * 1.18); ctx.strokeRect(x - size * .59, y - size * .59, size * 1.18, size * 1.18);
+      const size = Math.max(13, scale * 1.42) / scale, color = COLORS[a.owner] || K('#708090'), x = p.x, y = p.y;
+      ctx.save(); ctx.fillStyle = a.active ? K('#e5f2ed') : K('#f9fbfc'); ctx.strokeStyle = color; ctx.lineWidth = Math.max(.11, 1.4 / scale); ctx.fillRect(x - size * .59, y - size * .59, size * 1.18, size * 1.18); ctx.strokeRect(x - size * .59, y - size * .59, size * 1.18, size * 1.18);
       // Aircraft planform: fuselage, swept wings and tail, distinct from a cannon.
       ctx.fillStyle = color; ctx.beginPath(); ctx.moveTo(x, y - size * .46); ctx.lineTo(x + size * .09, y - size * .07); ctx.lineTo(x + size * .42, y + size * .13); ctx.lineTo(x + size * .4, y + size * .24); ctx.lineTo(x + size * .08, y + size * .12); ctx.lineTo(x + size * .07, y + size * .33); ctx.lineTo(x + size * .18, y + size * .42); ctx.lineTo(x - size * .18, y + size * .42); ctx.lineTo(x - size * .07, y + size * .33); ctx.lineTo(x - size * .08, y + size * .12); ctx.lineTo(x - size * .4, y + size * .24); ctx.lineTo(x - size * .42, y + size * .13); ctx.lineTo(x - size * .09, y - size * .07); ctx.closePath(); ctx.fill();
-      for (let k = 0; k < 3; k++) { ctx.fillStyle = a.active || a.progress > k ? color : '#d9e1e7'; ctx.fillRect(x - size * .59 + k * size * .42, y + size * .68, size * .34, Math.max(.12, 2 / scale)); }
+      for (let k = 0; k < 3; k++) { ctx.fillStyle = a.active || a.progress > k ? color : K('#d9e1e7'); ctx.fillRect(x - size * .59 + k * size * .42, y + size * .68, size * .34, Math.max(.12, 2 / scale)); }
       if (a.owner && scale > 7) { ctx.font = `bold ${Math.max(.48, 7 / scale)}px sans-serif`; ctx.textAlign = 'left'; ctx.fillStyle = color; ctx.fillText(LETTER(a.owner), x + size * .68, y + size * .12); }
       ctx.restore();
     }
     for (const d of view.depots || []) {
       const p = points[d.cell]; if (!visible(p)) continue;
-      const size = Math.max(9, scale * 1.06) / scale, color = COLORS[d.owner] || '#918368';
-      ctx.save(); ctx.fillStyle = '#fffcf2'; ctx.strokeStyle = color; ctx.lineWidth = Math.max(.1, 1.2 / scale); ctx.beginPath(); ctx.moveTo(p.x, p.y - size * .66); ctx.lineTo(p.x + size * .66, p.y); ctx.lineTo(p.x, p.y + size * .66); ctx.lineTo(p.x - size * .66, p.y); ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.fillStyle = color; ctx.fillRect(p.x - size * .27, p.y - size * .24, size * .54, size * .48); ctx.strokeStyle = '#fff'; ctx.lineWidth = 1 / scale; ctx.beginPath(); ctx.moveTo(p.x, p.y - size * .23); ctx.lineTo(p.x, p.y + size * .23); ctx.stroke(); ctx.restore();
+      const size = Math.max(9, scale * 1.06) / scale, color = COLORS[d.owner] || K('#918368');
+      ctx.save(); ctx.fillStyle = K('#fffcf2'); ctx.strokeStyle = color; ctx.lineWidth = Math.max(.1, 1.2 / scale); ctx.beginPath(); ctx.moveTo(p.x, p.y - size * .66); ctx.lineTo(p.x + size * .66, p.y); ctx.lineTo(p.x, p.y + size * .66); ctx.lineTo(p.x - size * .66, p.y); ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.fillStyle = color; ctx.fillRect(p.x - size * .27, p.y - size * .24, size * .54, size * .48); ctx.strokeStyle = K('#fff'); ctx.lineWidth = 1 / scale; ctx.beginPath(); ctx.moveTo(p.x, p.y - size * .23); ctx.lineTo(p.x, p.y + size * .23); ctx.stroke(); ctx.restore();
     }
   }
   function drawStrategicOverlays(scale) {
     if (airRangeCells.length) {
-      const included = new Set(airRangeCells); ctx.save(); ctx.strokeStyle = '#4d739e'; ctx.lineWidth = Math.max(.12, 1.6 / scale); ctx.setLineDash([6 / scale, 3 / scale]);
+      const included = new Set(airRangeCells); ctx.save(); ctx.strokeStyle = K('#4d739e'); ctx.lineWidth = Math.max(.12, 1.6 / scale); ctx.setLineDash([6 / scale, 3 / scale]);
       for (const i of airRangeCells) { const c = E.CELLS[i], p = points[i]; for (const [dq, dr, angle] of [[1, 0, 0], [0, 1, 60], [-1, 1, 120], [-1, 0, 180], [0, -1, 240], [1, -1, 300]]) if (!included.has(E.index(c.q + dq, c.r + dr))) { const a = (angle - 30) * Math.PI / 180, b = (angle + 30) * Math.PI / 180; ctx.beginPath(); ctx.moveTo(p.x + Math.cos(a), p.y + Math.sin(a)); ctx.lineTo(p.x + Math.cos(b), p.y + Math.sin(b)); ctx.stroke(); } } ctx.restore();
     }
     for (const i of view.neutralWarning?.cells || []) {
       const p = points[i]; if (!p) continue;
-      ctx.save(); hexPath(ctx, p.x, p.y, 1.07); ctx.strokeStyle = '#a36520'; ctx.lineWidth = Math.max(.14, 2 / scale); ctx.stroke();
-      const radius = Math.max(.28, 4.5 / scale), x = p.x + Math.max(.7, 6 / scale), y = p.y - Math.max(.7, 6 / scale); ctx.fillStyle = '#ffe6af'; ctx.lineWidth = 1 / scale; ctx.beginPath(); ctx.moveTo(x, y - radius); ctx.lineTo(x + radius, y + radius * .8); ctx.lineTo(x - radius, y + radius * .8); ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.font = `bold ${Math.max(.35, 7 / scale)}px sans-serif`; ctx.fillStyle = '#80551c'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('!', x, y + radius * .15); ctx.restore();
+      ctx.save(); hexPath(ctx, p.x, p.y, 1.07); ctx.strokeStyle = K('#a36520'); ctx.lineWidth = Math.max(.14, 2 / scale); ctx.stroke();
+      const radius = Math.max(.28, 4.5 / scale), x = p.x + Math.max(.7, 6 / scale), y = p.y - Math.max(.7, 6 / scale); ctx.fillStyle = K('#ffe6af'); ctx.lineWidth = 1 / scale; ctx.beginPath(); ctx.moveTo(x, y - radius); ctx.lineTo(x + radius, y + radius * .8); ctx.lineTo(x - radius, y + radius * .8); ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.font = `bold ${Math.max(.35, 7 / scale)}px sans-serif`; ctx.fillStyle = K('#80551c'); ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('!', x, y + radius * .15); ctx.restore();
     }
   }
   function drawPlan(context, scale, minimap = false) {
@@ -690,30 +703,30 @@
     context.save(); context.lineJoin = 'round'; context.lineCap = 'round';
     if (path.length > 1) {
       const trace = () => { context.beginPath(); path.forEach((p, i) => i ? context.lineTo(p.x, p.y) : context.moveTo(p.x, p.y)); };
-      trace(); context.strokeStyle = '#ffffffdc'; context.lineWidth = (minimap ? 3 : 4.6) / scale; context.stroke();
+      trace(); context.strokeStyle = K('#ffffffdc'); context.lineWidth = (minimap ? 3 : 4.6) / scale; context.stroke();
       trace(); context.strokeStyle = color; context.lineWidth = (minimap ? 1.3 : 2) / scale; context.setLineDash(minimap ? [] : [5 / scale, 4 / scale]); context.stroke(); context.setLineDash([]);
       if (!minimap) { const a = path[path.length - 2], b = path[path.length - 1], angle = Math.atan2(b.y - a.y, b.x - a.x), size = 5 / scale; context.fillStyle = color; context.beginPath(); context.moveTo(b.x, b.y); context.lineTo(b.x - Math.cos(angle - .6) * size, b.y - Math.sin(angle - .6) * size); context.lineTo(b.x - Math.cos(angle + .6) * size, b.y - Math.sin(angle + .6) * size); context.closePath(); context.fill(); }
     }
     if (target) {
       const size = minimap ? 3.2 / scale : Math.max(.76, 7 / scale);
       context.beginPath(); context.moveTo(target.x, target.y - size); context.lineTo(target.x + size, target.y); context.lineTo(target.x, target.y + size); context.lineTo(target.x - size, target.y); context.closePath();
-      context.strokeStyle = '#fff'; context.lineWidth = (minimap ? 3.3 : 5) / scale; context.stroke(); context.strokeStyle = color; context.lineWidth = (minimap ? 1.3 : 2) / scale; context.stroke();
-      if (!minimap) { const font = Math.max(.5, 8 / scale), y = target.y - size - 5 / scale; context.font = `bold ${font}px sans-serif`; context.textAlign = 'center'; context.textBaseline = 'middle'; context.fillStyle = '#fffffff0'; context.fillRect(target.x - font * .65, y - font * .65, font * 1.3, font * 1.3); context.fillStyle = color; context.fillText(LETTER(plan.player), target.x, y); }
+      context.strokeStyle = K('#fff'); context.lineWidth = (minimap ? 3.3 : 5) / scale; context.stroke(); context.strokeStyle = color; context.lineWidth = (minimap ? 1.3 : 2) / scale; context.stroke();
+      if (!minimap) { const font = Math.max(.5, 8 / scale), y = target.y - size - 5 / scale; context.font = `bold ${font}px sans-serif`; context.textAlign = 'center'; context.textBaseline = 'middle'; context.fillStyle = K('#fffffff0'); context.fillRect(target.x - font * .65, y - font * .65, font * 1.3, font * 1.3); context.fillStyle = color; context.fillText(LETTER(plan.player), target.x, y); }
     }
     context.restore();
   }
   function drawEffects(scale) {
     for (const effect of effects.effects) {
-      const reduced = reducedQuery.matches, progress = Math.min(1, effect.age / effect.duration), color = COLORS[effect.from || effect.player] || '#a65e46';
+      const reduced = reducedQuery.matches, progress = Math.min(1, effect.age / effect.duration), color = COLORS[effect.from || effect.player] || K('#a65e46');
       ctx.save(); ctx.globalAlpha = reduced ? .9 : Math.min(1, (1 - progress) * 2.5);
       for (const i of effect.cells.slice(0, 16)) {
         const p = points[i]; if (!p) continue;
         const radius = Math.max(.5, 4 / scale);
         if (['turret', 'bombard', 'airdrop'].includes(effect.source) && points[effect.origin]) {
-          const source = points[effect.origin]; ctx.strokeStyle = '#b67729'; ctx.lineWidth = Math.max(.1, 1.5 / scale); ctx.setLineDash(reduced ? [3 / scale, 2 / scale] : []); ctx.beginPath(); ctx.moveTo(source.x, source.y); ctx.lineTo(p.x, p.y); ctx.stroke(); ctx.setLineDash([]);
-          if (!reduced && progress < .45) { const t = Math.min(1, progress / .45); ctx.fillStyle = '#a65e46'; ctx.beginPath(); ctx.arc(source.x + (p.x - source.x) * t, source.y + (p.y - source.y) * t, Math.max(.13, 2 / scale), 0, Math.PI * 2); ctx.fill(); }
+          const source = points[effect.origin]; ctx.strokeStyle = K('#b67729'); ctx.lineWidth = Math.max(.1, 1.5 / scale); ctx.setLineDash(reduced ? [3 / scale, 2 / scale] : []); ctx.beginPath(); ctx.moveTo(source.x, source.y); ctx.lineTo(p.x, p.y); ctx.stroke(); ctx.setLineDash([]);
+          if (!reduced && progress < .45) { const t = Math.min(1, progress / .45); ctx.fillStyle = K('#a65e46'); ctx.beginPath(); ctx.arc(source.x + (p.x - source.x) * t, source.y + (p.y - source.y) * t, Math.max(.13, 2 / scale), 0, Math.PI * 2); ctx.fill(); }
         }
-        ctx.strokeStyle = ['shield-block', 'neutral-block'].includes(effect.type) ? '#4d739e' : color; ctx.lineWidth = Math.max(.11, 1.4 / scale);
+        ctx.strokeStyle = ['shield-block', 'neutral-block'].includes(effect.type) ? K('#4d739e') : color; ctx.lineWidth = Math.max(.11, 1.4 / scale);
         if (['shield-block', 'neutral-block'].includes(effect.type)) { ctx.beginPath(); ctx.arc(p.x, p.y, radius * (reduced ? 1.35 : 1 + progress), 0, Math.PI * 2); ctx.stroke(); }
         else if (effect.type === 'capture' || effect.type === 'airdrop') crosshair(i, COLORS[effect.player], scale, radius);
         else {
@@ -726,7 +739,7 @@
         }
       }
       const p = points[effect.cells[0]];
-      if (p) { const title = ['destroy', 'neutral-strike'].includes(effect.type) ? '棋子崩解' : effect.type === 'supply-retreat' ? '斷補撤退' : effect.type === 'shield-block' ? '護盾吸收' : effect.type === 'neutral-block' ? '防護生效' : effect.type === 'airdrop' ? '炮台空投' : '攻占'; const font = Math.max(.45, 8.5 / scale), y = p.y - Math.max(1.2, 13 / scale); ctx.font = `bold ${font}px sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; const width = ctx.measureText(title).width + 4 / scale; ctx.fillStyle = '#ffffffed'; ctx.fillRect(p.x - width / 2, y - font * .8, width, font * 1.6); ctx.fillStyle = '#795633'; ctx.fillText(title, p.x, y); }
+      if (p) { const title = ['destroy', 'neutral-strike'].includes(effect.type) ? '棋子崩解' : effect.type === 'supply-retreat' ? '斷補撤退' : effect.type === 'shield-block' ? '護盾吸收' : effect.type === 'neutral-block' ? '防護生效' : effect.type === 'airdrop' ? '炮台空投' : '攻占'; const font = Math.max(.45, 8.5 / scale), y = p.y - Math.max(1.2, 13 / scale); ctx.font = `bold ${font}px sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; const width = ctx.measureText(title).width + 4 / scale; ctx.fillStyle = K('#ffffffed'); ctx.fillRect(p.x - width / 2, y - font * .8, width, font * 1.6); ctx.fillStyle = K('#795633'); ctx.fillText(title, p.x, y); }
       ctx.restore();
     }
   }
@@ -746,32 +759,32 @@
     for (const c of E.CELLS) {
       const i = c.i, pt = points[i]; if (!visible(pt)) continue;
       const owner = view.board[i], river = terrainIs(view.terrain[i], 'river'), hill = terrainIs(view.terrain[i], 'hill');
-      ctx.fillStyle = river ? '#dcecf4' : hill ? '#f2ebd9' : '#ffffff';
-      hexPath(ctx, pt.x, pt.y); ctx.fill(); ctx.strokeStyle = '#dbe3e7'; ctx.lineWidth = .06; ctx.stroke();
-      if (mode === 'human' && $('show-range').checked && isHumanTurn() && (isAirAction() ? rangeValid.has(i) : view.range?.[i]) && !owner) { ctx.fillStyle = rangeValid.has(i) ? '#5ebcbf30' : '#5ebcbf0b'; ctx.fill(); }
-      if (river && !owner && scale > 10) { ctx.strokeStyle = '#93b3c5'; ctx.lineWidth = .08; ctx.beginPath(); ctx.moveTo(pt.x - .4, pt.y + .12); ctx.bezierCurveTo(pt.x - .1, pt.y - .18, pt.x + .1, pt.y + .4, pt.x + .4, pt.y + .1); ctx.stroke(); }
-      if (hill && !owner && scale > 10) { ctx.strokeStyle = '#bcaa78'; ctx.lineWidth = .07; ctx.beginPath(); ctx.moveTo(pt.x - .32, pt.y + .2); ctx.lineTo(pt.x, pt.y - .28); ctx.lineTo(pt.x + .32, pt.y + .2); ctx.stroke(); }
-      if (hill && owner && !view.anchors[i]) { const size = Math.max(.4, 6 / scale); ctx.fillStyle = '#8a6724'; ctx.font = `bold ${size}px sans-serif`; ctx.textAlign = 'right'; ctx.textBaseline = 'top'; ctx.fillText(`⌛${Math.max(0, 3 - (view.hillAge?.[i] || 0))}`, pt.x + .85, pt.y + .5); }
+      ctx.fillStyle = river ? K('#dcecf4') : hill ? K('#f2ebd9') : K('#ffffff');
+      hexPath(ctx, pt.x, pt.y); ctx.fill(); ctx.strokeStyle = K('#dbe3e7'); ctx.lineWidth = .06; ctx.stroke();
+      if (mode === 'human' && $('show-range').checked && isHumanTurn() && (isAirAction() ? rangeValid.has(i) : view.range?.[i]) && !owner) { ctx.fillStyle = rangeValid.has(i) ? K('#5ebcbf30') : K('#5ebcbf0b'); ctx.fill(); }
+      if (river && !owner && scale > 10) { ctx.strokeStyle = K('#93b3c5'); ctx.lineWidth = .08; ctx.beginPath(); ctx.moveTo(pt.x - .4, pt.y + .12); ctx.bezierCurveTo(pt.x - .1, pt.y - .18, pt.x + .1, pt.y + .4, pt.x + .4, pt.y + .1); ctx.stroke(); }
+      if (hill && !owner && scale > 10) { ctx.strokeStyle = K('#bcaa78'); ctx.lineWidth = .07; ctx.beginPath(); ctx.moveTo(pt.x - .32, pt.y + .2); ctx.lineTo(pt.x, pt.y - .28); ctx.lineTo(pt.x + .32, pt.y + .2); ctx.stroke(); }
+      if (hill && owner && !view.anchors[i]) { const size = Math.max(.4, 6 / scale); ctx.fillStyle = K('#8a6724'); ctx.font = `bold ${size}px sans-serif`; ctx.textAlign = 'right'; ctx.textBaseline = 'top'; ctx.fillText(`⌛${Math.max(0, 3 - (view.hillAge?.[i] || 0))}`, pt.x + .85, pt.y + .5); }
       if (owner) {
         const broken = view.supplied && !view.supplied[i], radius = Math.max(.48, (broken ? 3.5 : 2.3) / scale);
-        ctx.fillStyle = broken ? '#fff' : COLORS[owner]; ctx.strokeStyle = COLORS[owner]; ctx.lineWidth = Math.max(.09, 1.1 / scale);
+        ctx.fillStyle = broken ? K('#fff') : COLORS[owner]; ctx.strokeStyle = COLORS[owner]; ctx.lineWidth = Math.max(.09, 1.1 / scale);
         ownerPath(owner, pt.x, pt.y, radius); ctx.fill(); if (broken) ctx.stroke();
-        if (broken) { ctx.strokeStyle = '#a87534'; ctx.lineWidth = Math.max(.1, 1.3 / scale); ctx.setLineDash([2.2 / scale, 1.5 / scale]); ctx.beginPath(); ctx.arc(pt.x, pt.y, radius + 1.9 / scale, 0, Math.PI * 2); ctx.stroke(); ctx.setLineDash([]); ctx.fillStyle = COLORS[owner]; ctx.font = `bold ${Math.max(.5, 7 / scale)}px sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(view.reserve?.[i] || 0, pt.x, pt.y + .03); }
-        else if (scale > 20 && !view.anchors[i]) { ctx.fillStyle = '#fff'; ctx.font = 'bold .51px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(LETTER(owner), pt.x, pt.y + .02); }
+        if (broken) { ctx.strokeStyle = K('#a87534'); ctx.lineWidth = Math.max(.1, 1.3 / scale); ctx.setLineDash([2.2 / scale, 1.5 / scale]); ctx.beginPath(); ctx.arc(pt.x, pt.y, radius + 1.9 / scale, 0, Math.PI * 2); ctx.stroke(); ctx.setLineDash([]); ctx.fillStyle = COLORS[owner]; ctx.font = `bold ${Math.max(.5, 7 / scale)}px sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(view.reserve?.[i] || 0, pt.x, pt.y + .03); }
+        else if (scale > 20 && !view.anchors[i]) { ctx.fillStyle = K('#fff'); ctx.font = 'bold .51px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(LETTER(owner), pt.x, pt.y + .02); }
       }
       if(owner && !view.anchors[i]) {
         const reserve=view.reserve?.[i]||0, w=Math.max(.8,8/scale), y=pt.y+.65;
-        if(reserve<3){ctx.fillStyle='#dfc9a8';ctx.fillRect(pt.x-w/2,y,w,Math.max(.09,2/scale));ctx.fillStyle=reserve?'#aa7430':'#b54949';ctx.fillRect(pt.x-w/2,y,w*Math.max(.08,reserve/6),Math.max(.09,2/scale));}
-        if(view.delivered?.[i]){ctx.fillStyle='#168b82';ctx.beginPath();ctx.arc(pt.x+.55,pt.y-.55,Math.max(.1,1.6/scale),0,Math.PI*2);ctx.fill();}
+        if(reserve<3){ctx.fillStyle=K('#dfc9a8');ctx.fillRect(pt.x-w/2,y,w,Math.max(.09,2/scale));ctx.fillStyle=reserve?K('#aa7430'):K('#b54949');ctx.fillRect(pt.x-w/2,y,w*Math.max(.08,reserve/6),Math.max(.09,2/scale));}
+        if(view.delivered?.[i]){ctx.fillStyle=K('#168b82');ctx.beginPath();ctx.arc(pt.x+.55,pt.y-.55,Math.max(.1,1.6/scale),0,Math.PI*2);ctx.fill();}
       }
-      if (view.shields?.[i]) { ctx.strokeStyle = COLORS[owner] || '#708090'; ctx.lineWidth = .1; ctx.beginPath(); ctx.arc(pt.x, pt.y, .69, 0, Math.PI * 2); ctx.stroke(); }
+      if (view.shields?.[i]) { ctx.strokeStyle = COLORS[owner] || K('#708090'); ctx.lineWidth = .1; ctx.beginPath(); ctx.arc(pt.x, pt.y, .69, 0, Math.PI * 2); ctx.stroke(); }
       if (owner && view.fortified?.[i] && !view.anchors[i]) {
         const r = Math.max(.65, 4.5 / scale); ctx.strokeStyle = COLORS[owner]; ctx.lineWidth = Math.max(.1, 1.2 / scale); ctx.strokeRect(pt.x - r, pt.y - r * .72, r * 2, r * 1.6); ctx.fillStyle = COLORS[owner]; for (let k = 0; k < 3; k++) ctx.fillRect(pt.x - r + k * r * .78, pt.y - r * .97, r * .45, r * .4);
       }
       if (view.anchors[i]) {
-        ctx.fillStyle = '#fff'; ctx.font = 'bold .85px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('⌂', pt.x, pt.y - .05);
+        ctx.fillStyle = K('#fff'); ctx.font = 'bold .85px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('⌂', pt.x, pt.y - .05);
       }
-      if (rangeValid.has(i) && !owner && scale > 12) { ctx.fillStyle = '#26747760'; ctx.beginPath(); ctx.arc(pt.x, pt.y, .1, 0, Math.PI * 2); ctx.fill(); }
+      if (rangeValid.has(i) && !owner && scale > 12) { ctx.fillStyle = K('#26747760'); ctx.beginPath(); ctx.arc(pt.x, pt.y, .1, 0, Math.PI * 2); ctx.fill(); }
     }
     drawSupply(scale);
     for (const b of view.bridges || []) { const a = points[b.a], z = points[b.b]; ctx.strokeStyle = COLORS[b.owner]; ctx.lineWidth = .18; ctx.setLineDash([.28, .17]); ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(z.x, z.y); ctx.stroke(); ctx.setLineDash([]); }
@@ -784,22 +797,22 @@
       ctx.save();ctx.font=`bold ${11/scale}px sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle';
       const text=scale>=14?`${letters} 破陣 · 下次行動`:`${letters} ⚑`,w=ctx.measureText(text).width+10/scale,h=18/scale,y=pt.y-2.15;
       ctx.strokeStyle=color;ctx.lineWidth=1/scale;ctx.beginPath();ctx.moveTo(pt.x,pt.y-.8);ctx.lineTo(pt.x,y);ctx.stroke();
-      ctx.fillStyle='#fffdf6';ctx.fillRect(pt.x-w/2,y-h,w,h);ctx.strokeRect(pt.x-w/2,y-h,w,h);
-      ctx.fillStyle='#723807';ctx.fillText(text,pt.x,y-h/2);ctx.restore();
+      ctx.fillStyle=K('#fffdf6');ctx.fillRect(pt.x-w/2,y-h,w,h);ctx.strokeRect(pt.x-w/2,y-h,w,h);
+      ctx.fillStyle=K('#723807');ctx.fillText(text,pt.x,y-h/2);ctx.restore();
     }
-    if (['destroy', 'bombard', 'breach'].includes(selection.type) && isHumanTurn()) for (const i of rangeValid) crosshair(i, '#a65e46', scale);
+    if (['destroy', 'bombard', 'breach'].includes(selection.type) && isHumanTurn()) for (const i of rangeValid) crosshair(i, K('#a65e46'), scale);
     drawFacilities(scale, visible); drawTurrets(scale, visible); drawStrategicOverlays(scale); drawPlan(ctx, scale);
     ctx = frontContext; clearLayer(ctx);
     drawGoals(ctx, scale);
     if (cutPreview) {
-      ctx.save(); ctx.strokeStyle = '#9a5b12'; ctx.lineWidth = Math.max(.12, 1.5 / scale); ctx.setLineDash([3 / scale, 2 / scale]);
+      ctx.save(); ctx.strokeStyle = K('#9a5b12'); ctx.lineWidth = Math.max(.12, 1.5 / scale); ctx.setLineDash([3 / scale, 2 / scale]);
       for (const i of cutPreview.affected) { const p = points[i]; hexPath(ctx, p.x, p.y, .88); ctx.stroke(); }
       ctx.setLineDash([]); const p = points[cutPreview.cell]; hexPath(ctx, p.x, p.y, 1.04); ctx.stroke(); ctx.restore();
     }
     for (const [n, i] of selection.cells.entries()) {
-      const p = points[i]; hexPath(ctx, p.x, p.y, 1.02); ctx.strokeStyle = '#2e3440'; ctx.lineWidth = .18; ctx.stroke(); ctx.fillStyle = '#2e3440'; ctx.beginPath(); ctx.arc(p.x + .65, p.y - .65, .4, 0, Math.PI * 2); ctx.fill(); ctx.fillStyle = '#fff'; ctx.font = 'bold .55px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(n + 1, p.x + .65, p.y - .63);
+      const p = points[i]; hexPath(ctx, p.x, p.y, 1.02); ctx.strokeStyle = K('#2e3440'); ctx.lineWidth = .18; ctx.stroke(); ctx.fillStyle = K('#2e3440'); ctx.beginPath(); ctx.arc(p.x + .65, p.y - .65, .4, 0, Math.PI * 2); ctx.fill(); ctx.fillStyle = K('#fff'); ctx.font = 'bold .55px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(n + 1, p.x + .65, p.y - .63);
     }
-    if (focused >= 0 || hovered >= 0) { const i = hovered >= 0 ? hovered : focused, p = points[i]; hexPath(ctx, p.x, p.y, 1.02); ctx.strokeStyle = isHumanTurn() && !rangeValid.has(i) && selection.cells.length + 1 === meta(selection.type).slots ? '#a65e46' : '#2e3440'; ctx.lineWidth = .14; ctx.stroke(); }
+    if (focused >= 0 || hovered >= 0) { const i = hovered >= 0 ? hovered : focused, p = points[i]; hexPath(ctx, p.x, p.y, 1.02); ctx.strokeStyle = isHumanTurn() && !rangeValid.has(i) && selection.cells.length + 1 === meta(selection.type).slots ? K('#a65e46') : K('#2e3440'); ctx.lineWidth = .14; ctx.stroke(); }
     } finally { ctx = mainContext; }
     renderCache.valid = true; renderCache.rebuilds++;
     $('zoom-level').textContent = `${Math.round(camera.scale / camera.fit * 100)}%`;
@@ -823,21 +836,21 @@
       const arrow = Math.abs(nx) < .3 ? (ny < 0 ? '↑' : '↓') : nx < 0 ? (ny < 0 ? '↖' : '↙') : ny < 0 ? '↗' : '↘';
       context.fillText(`${LETTER(p)} ${arrow}`, goal.x + nx * 2.4, goal.y + ny * 2.4);
       context.font = `bold ${Math.max(.7, 8 / scale)}px sans-serif`;
-      context.fillStyle = '#fff'; context.fillRect(home.x - 1.65, home.y + .95, 3.3, 1.12); context.fillStyle = COLORS[p]; context.fillText(`${LETTER(p)} ⌂`, home.x, home.y + 1.48);
+      context.fillStyle = K('#fff'); context.fillRect(home.x - 1.65, home.y + .95, 3.3, 1.12); context.fillStyle = COLORS[p]; context.fillText(`${LETTER(p)} ⌂`, home.x, home.y + 1.48);
     }
   }
   function miniTransform() { const rect = mini.getBoundingClientRect(); return { width: rect.width, height: rect.height, scale: Math.min((rect.width - 12) / (bounds.maxX - bounds.minX), (rect.height - 10) / (bounds.maxY - bounds.minY)) }; }
   function drawMini() {
     const m = miniTransform(); if (!m.width) return;
     const dpr = mini.width / m.width; mctx.setTransform(dpr, 0, 0, dpr, 0, 0); mctx.clearRect(0, 0, m.width, m.height); mctx.translate(m.width / 2, m.height / 2); mctx.scale(m.scale, m.scale);
-    for (const c of E.CELLS) { const i = c.i, p = points[i]; mctx.fillStyle = view.board[i] ? COLORS[view.board[i]] : terrainIs(view.terrain[i], 'river') ? '#d5e6ed' : terrainIs(view.terrain[i], 'hill') ? '#e6dec9' : '#ffffff'; hexPath(mctx, p.x, p.y, .98); mctx.fill(); }
-    for (const p of P) { const h = points[view.players[p].home]; mctx.fillStyle = '#fff'; mctx.strokeStyle = COLORS[p]; mctx.lineWidth = .5; mctx.beginPath(); mctx.arc(h.x, h.y, 1.25, 0, Math.PI * 2); mctx.fill(); mctx.stroke(); }
-    for (const a of view.airports || []) { const p = points[a.cell], r = 1.5 / m.scale; mctx.fillStyle = a.active ? COLORS[a.owner] : '#fff'; mctx.strokeStyle = COLORS[a.owner] || '#566576'; mctx.lineWidth = .85 / m.scale; mctx.fillRect(p.x - r, p.y - r, r * 2, r * 2); mctx.strokeRect(p.x - r, p.y - r, r * 2, r * 2); }
-    for (const d of view.depots || []) { const p = points[d.cell], r = 1.4 / m.scale; mctx.fillStyle = COLORS[d.owner] || '#a28b56'; mctx.beginPath(); mctx.moveTo(p.x, p.y - r); mctx.lineTo(p.x + r, p.y); mctx.lineTo(p.x, p.y + r); mctx.lineTo(p.x - r, p.y); mctx.closePath(); mctx.fill(); }
-    for (const i of view.neutralWarning?.cells || []) { const p = points[i]; mctx.strokeStyle = '#a36520'; mctx.lineWidth = 1 / m.scale; mctx.beginPath(); mctx.arc(p.x, p.y, 3 / m.scale, 0, Math.PI * 2); mctx.stroke(); }
+    for (const c of E.CELLS) { const i = c.i, p = points[i]; mctx.fillStyle = view.board[i] ? COLORS[view.board[i]] : terrainIs(view.terrain[i], 'river') ? K('#d5e6ed') : terrainIs(view.terrain[i], 'hill') ? K('#e6dec9') : K('#ffffff'); hexPath(mctx, p.x, p.y, .98); mctx.fill(); }
+    for (const p of P) { const h = points[view.players[p].home]; mctx.fillStyle = K('#fff'); mctx.strokeStyle = COLORS[p]; mctx.lineWidth = .5; mctx.beginPath(); mctx.arc(h.x, h.y, 1.25, 0, Math.PI * 2); mctx.fill(); mctx.stroke(); }
+    for (const a of view.airports || []) { const p = points[a.cell], r = 1.5 / m.scale; mctx.fillStyle = a.active ? COLORS[a.owner] : K('#fff'); mctx.strokeStyle = COLORS[a.owner] || K('#566576'); mctx.lineWidth = .85 / m.scale; mctx.fillRect(p.x - r, p.y - r, r * 2, r * 2); mctx.strokeRect(p.x - r, p.y - r, r * 2, r * 2); }
+    for (const d of view.depots || []) { const p = points[d.cell], r = 1.4 / m.scale; mctx.fillStyle = COLORS[d.owner] || K('#a28b56'); mctx.beginPath(); mctx.moveTo(p.x, p.y - r); mctx.lineTo(p.x + r, p.y); mctx.lineTo(p.x, p.y + r); mctx.lineTo(p.x - r, p.y); mctx.closePath(); mctx.fill(); }
+    for (const i of view.neutralWarning?.cells || []) { const p = points[i]; mctx.strokeStyle = K('#a36520'); mctx.lineWidth = 1 / m.scale; mctx.beginPath(); mctx.arc(p.x, p.y, 3 / m.scale, 0, Math.PI * 2); mctx.stroke(); }
     drawPlan(mctx, m.scale, true);
     const w = camera.width / camera.scale, h = camera.height / camera.scale;
-    mctx.fillStyle = '#ffffff12'; mctx.strokeStyle = '#fff'; mctx.lineWidth = 2.5 / m.scale; mctx.fillRect(camera.x - w / 2, camera.y - h / 2, w, h); mctx.strokeRect(camera.x - w / 2, camera.y - h / 2, w, h); mctx.strokeStyle = '#267477'; mctx.lineWidth = 1 / m.scale; mctx.strokeRect(camera.x - w / 2, camera.y - h / 2, w, h);
+    mctx.fillStyle = K('#ffffff12'); mctx.strokeStyle = INK ? '#ece4d0' : '#fff'; mctx.lineWidth = 2.5 / m.scale; mctx.fillRect(camera.x - w / 2, camera.y - h / 2, w, h); mctx.strokeRect(camera.x - w / 2, camera.y - h / 2, w, h); mctx.strokeStyle = K('#267477'); mctx.lineWidth = 1 / m.scale; mctx.strokeRect(camera.x - w / 2, camera.y - h / 2, w, h);
   }
   function localPoint(event, element = canvas) { const rect = element.getBoundingClientRect(); return { x: event.clientX - rect.left, y: event.clientY - rect.top }; }
   canvas.addEventListener('pointerdown', event => {
