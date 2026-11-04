@@ -664,7 +664,11 @@
   pointer-events: none;
 }
 
-/* 熱鍵說明（Fu.showHotkeys 產生） */
+/* 頂列與畫面上緣的提示改往下開，免得超出視窗 */
+.fu-topbar [data-fu-tip]::after, .fu-hud--top [data-fu-tip]::after, [data-fu-tip-below]::after { bottom: auto; top: calc(100% + 8px); }
+.fu-topbar__actions [data-fu-tip]::after { left: auto; right: 0; transform: none; }
+
+/* 熱鍵說明（Fu.hotkeyList 提供資料） */
 .fu-hotkeys { display: grid; grid-template-columns: auto 1fr; gap: 8px 14px; align-items: center; text-align: left; font-size: 13px; }
 
 /* ==========================================================================
