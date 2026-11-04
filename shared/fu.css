@@ -104,9 +104,9 @@
   text-rendering: optimizeLegibility;
   overflow-x: hidden;
 }
-.fu-app *, .fu-app *::before, .fu-app *::after { box-sizing: border-box; }
-.fu-app a { color: inherit; }
-.fu-app button, .fu-app input, .fu-app select, .fu-app textarea { font: inherit; color: inherit; }
+:where(.fu-app) *, :where(.fu-app) *::before, :where(.fu-app) *::after { box-sizing: border-box; }
+:where(.fu-app) a { color: inherit; }
+:where(.fu-app) :where(button, input, select, textarea) { font: inherit; color: inherit; }
 .fu-app ::selection { background: var(--fu-seal); color: var(--fu-ink-0); }
 
 /* 紙紋顆粒 + 暗角：所有朱墨頁面的「空氣」 */
@@ -129,7 +129,7 @@
   background: radial-gradient(120% 90% at 50% 40%, transparent 55%, rgba(0, 0, 0, .55) 100%);
 }
 
-.fu-app :focus-visible {
+:where(.fu-app) :focus-visible {
   outline: 2px solid var(--fu-seal);
   outline-offset: 2px;
 }

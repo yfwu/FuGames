@@ -1,26 +1,70 @@
 <!doctype html>
 <html lang="zh-Hant">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>FuGames - FuLab 遊戲集</title><link rel="icon" href="favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="fulab-theme.css"><style>
-.game-list { display: grid; gap: 12px; }
-.game-card { display: flex; align-items: center; gap: 20px; padding: 22px; background: white; border: 1px solid var(--fulab-silver); border-radius: var(--fulab-radius); }
-.game-icon { width: 64px; height: 64px; flex-shrink: 0; padding: 8px; border-radius: 14px; fill: none; color: var(--fulab-ink-teal); background: var(--fulab-tint-teal); }
-.game-icon-action { color: #456586; background: var(--fulab-tint-indigo); }
-.game-icon-cards { color: #77566f; background: var(--fulab-tint-plum); }
-.game-card .btn { gap: 8px; white-space: nowrap; }
-.game-copy { flex: 1; min-width: 0; }
-.game-copy h2 { font-size: 21px; margin-bottom: 6px; }
-.game-copy .text-small { margin: 0; }
-@media(max-width:600px) { .game-card { padding: 16px; gap: 12px; flex-wrap: wrap; } .game-icon { width: 56px; height: 56px; } .game-copy { flex-basis: calc(100% - 68px); } .game-copy h2 { font-size: 20px; } .game-card .btn { width: 100%; } }
-</style></head><body><main>
-<nav class="site-nav" aria-label="遊戲導覽"><a class="site-brand" href="index.html"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>FuGames</a><span class="nav-label">你的口袋遊戲室</span></nav>
-<header class="page-header"><p class="eyebrow">FUGAMES / 遊戲室</p><h1>留一點時間，玩一局。</h1><p class="lead">七款隨開即玩的遊戲。所有 AI 都在你的裝置運行。</p></header>
-<div class="game-list">
-<article class="game-card"><svg class="game-icon game-icon-board" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#autohex_3d"></use></svg><div class="game-copy"><p class="eyebrow">3D 即時指揮 / 六方 AI・可下場</p><h2>AutoHex-3D</h2><p class="text-small">與 AutoHex 同一規則核心的 3D 版；補給線、陣地與抽牌，指揮時限與指令佇列。</p></div><a class="btn primary" href="autohex_3d.html" aria-label="開始遊玩 AutoHex-3D">開始遊玩 <svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#launch"></use></svg></a></article>
-<article class="game-card"><svg class="game-icon game-icon-board" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#cyclic_tictactoe_3d"></use></svg><div class="game-copy"><p class="eyebrow">立體棋盤 / 單人 × AI・同機雙人</p><h2>立體三子循環棋</h2><p class="text-small">3×3×3 立方、49 條連線；每人仍只有三顆，移動最早的一顆，可拖曳旋轉看穿三層。</p></div><a class="btn primary" href="cyclic_tictactoe_3d.html" aria-label="開始遊玩立體三子循環棋">開始遊玩 <svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#launch"></use></svg></a></article>
-<article class="game-card"><svg class="game-icon game-icon-action" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#effect_snake"></use></svg><div class="game-copy"><p class="eyebrow">競技 / 單人 × 3 AI</p><h2>效果貪食蛇</h2><p class="text-small">花質量加速、搶食成長；截路反制大蛇，90 秒競逐總分。</p></div><a class="btn primary" href="effect_snake.html" aria-label="開始遊玩效果貪食蛇">開始遊玩 <svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#launch"></use></svg></a></article>
-<article class="game-card"><svg class="game-icon game-icon-cards" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#duplicate_bridge"></use></svg><div class="game-copy"><p class="eyebrow">牌桌 / 本地複式比較</p><h2>複式橋牌</h2><p class="text-small">從叫牌到十三墩，與獨立 AI 桌比較同一副牌。</p></div><a class="btn primary" href="duplicate_bridge.html" aria-label="開始遊玩複式橋牌">開始遊玩 <svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#launch"></use></svg></a></article>
-<article class="game-card"><svg class="game-icon game-icon-cards" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#blackjack"></use></svg><div class="game-copy"><p class="eyebrow">牌桌 / 免費虛擬籌碼</p><h2>經典 21 點</h2><p class="text-small">與性格各異的 AI 牌友入座，挑戰固定規則的莊家。</p></div><a class="btn primary" href="blackjack.html" aria-label="開始遊玩經典 21 點">開始遊玩 <svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#launch"></use></svg></a></article>
-<article class="game-card"><svg class="game-icon game-icon-action" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#pulse_arena"></use></svg><div class="game-copy"><p class="eyebrow">IO / 單人 × 3 AI</p><h2>脈衝擂台</h2><p class="text-small">一輪又一輪縮圈：挑戰者從外圈殺入，把衛冕者推下王座。</p></div><a class="btn primary" href="pulse_arena.html" aria-label="開始遊玩脈衝擂台">開始遊玩 <svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#launch"></use></svg></a></article>
-<article class="game-card"><svg class="game-icon game-icon-action" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#territory_loop"></use></svg><div class="game-copy"><p class="eyebrow">IO / 持續陣營戰</p><h2>圈地漫遊</h2><p class="text-small">圈地擴張、切斷補給、招降助手。四陣營不間斷角逐。</p></div><a class="btn primary" href="territory_loop.html" aria-label="開始遊玩圈地漫遊">開始遊玩 <svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#launch"></use></svg></a></article></div>
-<p><a class="btn" href="archive.html">封存遊戲 · 12 款</a></p><footer class="site-footer">FuGames · 隨時來一局</footer>
-</main></body></html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#07090c">
+<title>FuGames - 福遊遊戲室</title>
+<meta name="description" content="FuGames：在你的裝置上執行、離線可玩的單機線上遊戲。">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="shared/fu.css">
+<link rel="stylesheet" href="portal.css">
+<script src="shared/fu-palette.js"></script>
+<script src="shared/fu-shell.js" defer></script>
+</head>
+<body class="fu-app fu-vignette portal">
+<header class="fu-topbar portal-nav">
+  <a class="fu-brand" href="index.html"><span class="fu-seal" aria-hidden="true">福遊</span>FuGames</a>
+  <div class="fu-topbar__title"><span class="fu-label fu-hide-sm">單機線上遊戲室</span></div>
+  <nav class="fu-topbar__actions" aria-label="網站導覽">
+    <a class="fu-label" href="archive.html">封存 · 12</a>
+  </nav>
+</header>
+
+<div class="fu-stage" aria-hidden="true"><canvas id="portalStage"></canvas></div>
+<div class="portal-veil" aria-hidden="true"></div>
+<div class="portal-numeral fu-num" id="portalNumeral" aria-hidden="true">01</div>
+
+<main class="portal-main">
+  <header class="portal-hero fu-rise">
+    <p class="fu-label"><b>FuGames</b> / 現役 7 款 · 全部在你的裝置執行</p>
+    <h1>留一點時間，<br><em>玩一局。</em></h1>
+    <p class="lead">7 款仔細打磨的單機遊戲。AI 對手在瀏覽器裡思考，不需要帳號，斷網也能玩。</p>
+  </header>
+
+  <section aria-labelledby="indexTitle">
+    <div class="portal-index-head"><h2 class="fu-label" id="indexTitle">遊戲索引</h2><span class="fu-label fu-hide-sm">↑ ↓ 選擇 · Enter 開始</span></div>
+    <div class="game-list" id="gameList">
+<article class="game-card"><a class="game-link" data-game="autohex_3d" style="--accent:var(--fu-seal)" href="autohex_3d.html" aria-label="開始遊玩 AutoHex-3D"><span class="game-no">01</span><svg class="game-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#autohex_3d"></use></svg><span class="game-copy"><span class="game-name">AutoHex-3D</span><span class="game-kind">3D 即時指揮 · 六方 AI</span><span class="game-blurb">與 AutoHex 同一規則核心的 3D 戰場：補給線、陣地與抽牌，在指揮時限內排下指令佇列。</span></span><svg class="game-go" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#launch"></use></svg></a></article>
+<article class="game-card"><a class="game-link" data-game="cyclic_tictactoe_3d" style="--accent:var(--fu-orchid)" href="cyclic_tictactoe_3d.html" aria-label="開始遊玩 立體三子循環棋"><span class="game-no">02</span><svg class="game-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#cyclic_tictactoe_3d"></use></svg><span class="game-copy"><span class="game-name">立體三子循環棋</span><span class="game-kind">立體棋盤 · 單人 × AI</span><span class="game-blurb">3×3×3 立方、49 條連線；每人只有三顆，下第四顆就移走最早那顆。拖曳旋轉看穿三層。</span></span><svg class="game-go" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#launch"></use></svg></a></article>
+<article class="game-card"><a class="game-link" data-game="effect_snake" style="--accent:var(--fu-jade)" href="effect_snake.html" aria-label="開始遊玩 效果貪食蛇"><span class="game-no">03</span><svg class="game-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#effect_snake"></use></svg><span class="game-copy"><span class="game-name">效果貪食蛇</span><span class="game-kind">競技 · 單人 × 3 AI</span><span class="game-blurb">花質量換速度、同格爭食、用蛇身截路反制大蛇，90 秒競逐總分。</span></span><svg class="game-go" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#launch"></use></svg></a></article>
+<article class="game-card"><a class="game-link" data-game="duplicate_bridge" style="--accent:var(--fu-azure)" href="duplicate_bridge.html" aria-label="開始遊玩 複式橋牌"><span class="game-no">04</span><svg class="game-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#duplicate_bridge"></use></svg><span class="game-copy"><span class="game-name">複式橋牌</span><span class="game-kind">牌桌 · 本地複式比較</span><span class="game-blurb">從叫牌到十三墩，同一副牌在獨立 AI 桌重打一次，用複式計分比較你的判斷。</span></span><svg class="game-go" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#launch"></use></svg></a></article>
+<article class="game-card"><a class="game-link" data-game="blackjack" style="--accent:var(--fu-gold)" href="blackjack.html" aria-label="開始遊玩 經典 21 點"><span class="game-no">05</span><svg class="game-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#blackjack"></use></svg><span class="game-copy"><span class="game-name">經典 21 點</span><span class="game-kind">牌桌 · 免費虛擬籌碼</span><span class="game-blurb">與性格各異的 AI 牌友同桌，挑戰固定規則的莊家；籌碼全是虛擬的。</span></span><svg class="game-go" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#launch"></use></svg></a></article>
+<article class="game-card"><a class="game-link" data-game="pulse_arena" style="--accent:var(--fu-seal)" href="pulse_arena.html" aria-label="開始遊玩 脈衝擂台"><span class="game-no">06</span><svg class="game-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#pulse_arena"></use></svg><span class="game-copy"><span class="game-name">脈衝擂台</span><span class="game-kind">IO · 單人 × 3 AI</span><span class="game-blurb">一輪又一輪縮圈：挑戰者從外圈殺入，用脈衝把衛冕者推下王座。</span></span><svg class="game-go" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#launch"></use></svg></a></article>
+<article class="game-card"><a class="game-link" data-game="territory_loop" style="--accent:var(--fu-bone)" href="territory_loop.html" aria-label="開始遊玩 圈地漫遊"><span class="game-no">07</span><svg class="game-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#territory_loop"></use></svg><span class="game-copy"><span class="game-name">圈地漫遊</span><span class="game-kind">IO · 持續陣營戰</span><span class="game-blurb">走出一圈就佔下一塊地；切斷補給、招降助手，四個陣營不間斷角逐。</span></span><svg class="game-go" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#launch"></use></svg></a></article>
+    </div>
+  </section>
+
+  <footer class="portal-foot">
+    <a class="fu-btn fu-btn--sm" href="archive.html">封存遊戲 · 12 款</a>
+    <span class="fu-label">FuGames · 隨時來一局</span>
+  </footer>
+</main>
+
+<aside class="portal-detail fu-panel" id="portalDetail" aria-live="polite">
+  <div class="detail-swap">
+    <div class="fu-panel__head"><span class="fu-label"><b id="detailNo">01</b> / 7</span><span class="fu-label" id="detailKind">Hex Command 3D</span></div>
+    <h2 id="detailName">AutoHex-3D</h2>
+    <p class="detail-en" id="detailEn">Hex Command 3D</p>
+    <p class="detail-blurb" id="detailBlurb">與 AutoHex 同一規則核心的 3D 戰場：補給線、陣地與抽牌，在指揮時限內排下指令佇列。</p>
+    <div class="detail-tags" id="detailTags"><span class="fu-chip">六方 AI</span><span class="fu-chip">可下場</span><span class="fu-chip">即時</span></div>
+  </div>
+  <a class="fu-btn fu-btn--seal fu-btn--lg fu-btn--block" id="detailPlay" href="autohex_3d.html">開始遊玩</a>
+</aside>
+
+<div class="portal-status" aria-hidden="true"><span class="fu-chip fu-chip--jade">離線可玩</span><span class="fu-chip">本機 AI</span></div>
+
+<script type="application/json" id="portalGames">{"autohex_3d": {"name": "AutoHex-3D", "en": "Hex Command 3D", "kind": "3D 即時指揮 · 六方 AI", "blurb": "與 AutoHex 同一規則核心的 3D 戰場：補給線、陣地與抽牌，在指揮時限內排下指令佇列。", "tags": ["六方 AI", "可下場", "即時"], "accent": "seal"}, "cyclic_tictactoe_3d": {"name": "立體三子循環棋", "en": "Cyclic Cube", "kind": "立體棋盤 · 單人 × AI", "blurb": "3×3×3 立方、49 條連線；每人只有三顆，下第四顆就移走最早那顆。拖曳旋轉看穿三層。", "tags": ["單人 × AI", "同機雙人", "抽象棋"], "accent": "orchid"}, "effect_snake": {"name": "效果貪食蛇", "en": "Effect Snake", "kind": "競技 · 單人 × 3 AI", "blurb": "花質量換速度、同格爭食、用蛇身截路反制大蛇，90 秒競逐總分。", "tags": ["單人 × 3 AI", "90 秒", "動作"], "accent": "jade"}, "duplicate_bridge": {"name": "複式橋牌", "en": "Duplicate Bridge", "kind": "牌桌 · 本地複式比較", "blurb": "從叫牌到十三墩，同一副牌在獨立 AI 桌重打一次，用複式計分比較你的判斷。", "tags": ["叫牌", "坐莊防守", "複式計分"], "accent": "azure"}, "blackjack": {"name": "經典 21 點", "en": "Blackjack", "kind": "牌桌 · 免費虛擬籌碼", "blurb": "與性格各異的 AI 牌友同桌，挑戰固定規則的莊家；籌碼全是虛擬的。", "tags": ["AI 牌友", "虛擬籌碼", "輕鬆"], "accent": "gold"}, "pulse_arena": {"name": "脈衝擂台", "en": "Pulse Arena", "kind": "IO · 單人 × 3 AI", "blurb": "一輪又一輪縮圈：挑戰者從外圈殺入，用脈衝把衛冕者推下王座。", "tags": ["單人 × 3 AI", "王冠賽", "動作"], "accent": "seal"}, "territory_loop": {"name": "圈地漫遊", "en": "Territory Loop", "kind": "IO · 持續陣營戰", "blurb": "走出一圈就佔下一塊地；切斷補給、招降助手，四個陣營不間斷角逐。", "tags": ["四陣營", "持續對戰", "圈地"], "accent": "bone"}}</script>
+<script type="module" src="portal.js"></script>
+</body>
+</html>
