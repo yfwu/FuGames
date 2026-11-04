@@ -26,7 +26,7 @@ test('all pages parse and share the shell; no missing catalogue links or remote 
     if (!vermilion && !['index.html','archive.html'].includes(name)) { assert.match(source, /class="card play-panel(?: [^"]*)?"/); assert.match(source, /<details class="card rules(?: [^"]*)?">/); }
     for (const [, attrs, script] of source.matchAll(/<script([^>]*)>([\s\S]*?)<\/script>/g)) {
       // Inline ES modules (three.js pages): drop static imports and syntax-check the body as an async function.
-      if (/type="application\/json"/.test(attrs)) { assert.doesNotThrow(() => JSON.parse(script), name); continue; }
+      if (/type="(?:application\/json|importmap)"/.test(attrs)) { assert.doesNotThrow(() => JSON.parse(script), name); continue; }
       const body = /type="module"/.test(attrs) ? '(async () => {' + script.replace(/^\s*import\b[^;]*;/gm, '') + '\n})' : script;
       assert.doesNotThrow(() => new vm.Script(body), name);
     }

@@ -2,13 +2,20 @@
 const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),vm=require('node:vm');
 const html=fs.readFileSync(path.join(__dirname,'..','pulse_arena.html'),'utf8');
 const T=vm.runInNewContext(html.match(/<script id="pulse-engine">([\s\S]*?)<\/script>/)[1]+';PulseArena;');
+const Career=vm.runInNewContext(html.match(/<script id="pulse-career">([\s\S]*?)<\/script>/)[1]+';PulseCareer;');
 const seeded=seed=>()=>((seed=(Math.imul(seed,1664525)+1013904223)>>>0)/4294967296);
 const idle=()=>({x:0,y:0,charge:false});
 function fixture(){const g=new T.Game(seeded(1));g.start();g.aiInput=idle;g.actors.forEach((a,i)=>{a.x=220+i*90;a.y=360;});return g;}
 // Finish the current round with `winner` as sole survivor and run through the result screen.
 function winRound(g,winner){while(g.stage==='intro')g.step();g.actors.forEach(a=>{if(a.id!==winner)a.alive=false;});g.checkResult();assert.equal(g.stage,'outro');for(let i=0;i<T.OUTRO_TICKS&&g.phase==='running';i++)g.step();}
 
-test('pulse arena is local, shares the shell, and both scripts compile',()=>{assert.match(html,/class="site-nav"/);assert.match(html,/class="card play-panel"/);assert.match(html,/<details class="card rules">/);assert.doesNotMatch(html.replaceAll("document.createElementNS('http://www.w3.org/2000/svg',", "document.createElementNS('SVG_NAMESPACE',"),/<script[^>]+src=|fetch\(|WebSocket|https?:\/\//);for(const [,s]of html.matchAll(/<script[^>]*>([\s\S]*?)<\/script>/g))assert.doesNotThrow(()=>new vm.Script(s));});
+test('pulse arena is local, full-screen, and every script compiles',()=>{
+ assert.match(html,/<canvas id="board"/);assert.match(html,/id="drawer"/);assert.match(html,/id="overlay"/);assert.match(html,/id="panel-rules"/);
+ // three.js is vendored next to the page; nothing loads from the network.
+ assert.match(html,/"three":"\.\/vendor\/three\/three\.module\.min\.js"/);assert.ok(fs.existsSync(path.join(__dirname,'..','vendor','three','three.module.min.js')));
+ assert.doesNotMatch(html,/<script[^>]+src=|fetch\(|WebSocket|https?:\/\//);
+ for(const [,attrs,s]of html.matchAll(/<script([^>]*)>([\s\S]*?)<\/script>/g)){if(/importmap/.test(attrs))continue;const body=/type="module"/.test(attrs)?s.replace(/^import .*$/gm,''):s;assert.doesNotThrow(()=>new vm.Script(body));}
+});
 test('simulation freezes ready/paused/over, resumes deliberately, and reset clears every transient',()=>{const g=new T.Game(seeded(1));g.step();assert.equal(g.tick,0);g.start();g.step({charge:true});g.pause();const state=JSON.stringify(g);g.step({charge:false});assert.equal(JSON.stringify(g),state);g.start();g.step({charge:false});assert.ok(g.waves.length);g.phase='over';const end=JSON.stringify(g);g.step();assert.equal(JSON.stringify(g),end);g.reset();assert.equal(g.phase,'ready');assert.equal(g.tick,0);assert.equal(g.round,1);assert.equal(g.stage,'fight');assert.equal(g.champion,null);assert.equal(g.waves.length,0);assert.equal(g.result,null);assert.ok(g.actors.every(a=>a.alive&&a.cooldown===0&&!a.charging&&a.hits===0&&a.crowns===0&&a.kos===0));});
 
 test('ring holds for a grace period, then snaps inward stage by stage while previewing the next boundary',()=>{
@@ -78,3 +85,47 @@ test('shield saves exactly one boundary crossing and expires on simulation time'
 test('super pulse has thirty ticks of warning and then attacks once',()=>{const g=fixture(),a=g.actors[0],b=g.actors[1];a.x=300;b.x=420;a.item='super';g.useItem(a);for(let i=0;i<29;i++)g.step();assert.equal(b.vx,0);g.step();assert.ok(b.vx>0);assert.equal(a.superAt,0);assert.equal(a.item,null);assert.ok(g.events.some(e=>e.type==='super'));});
 test('black hole warning, attraction, owner exclusion and lifetime use the same clock',()=>{const g=fixture(),a=g.actors[0],b=g.actors[1];a.x=300;b.x=400;a.item='hole';g.useItem(a);for(let i=0;i<34;i++)g.step();assert.equal(b.vx,0);g.step();assert.ok(b.vx<0);assert.equal(a.vx,0);assert.equal(b.lastHit.by,0);g.pause();const state=JSON.stringify(g);g.step();assert.equal(JSON.stringify(g),state);g.reset();assert.equal(g.holes.length,0);assert.equal(g.pickups.length,0);});
 test('AI uses visible danger and one carried item; pickups cannot exceed capacity',()=>{const g=fixture(),a=g.actors[1];g.aiInput=T.Game.prototype.aiInput;for(let i=0;i<10;i++)g.spawnItem();assert.equal(g.pickups.length,3);a.item='shield';a.x=620;assert.equal(g.aiInput(a).item,true);g.holes=[{x:a.x+30,y:a.y,owner:0,starts:g.tick+20,ends:g.tick+200}];assert.match((g.aiInput(a),a.mode),/黑洞/);});
+
+test('options default to the original elite match and normalize bad input',()=>{
+ assert.deepEqual({...T.normalizeOptions()},{tier:2,mutators:false,loadout:'none',aiLoadouts:false});
+ assert.deepEqual({...T.normalizeOptions({tier:9,loadout:'rocket',mutators:1})},{tier:2,mutators:true,loadout:'none',aiLoadouts:false});
+ assert.equal(T.normalizeOptions({tier:3}).aiLoadouts,true);
+ // Same seed, explicit defaults: identical simulation to the no-options game.
+ const a=new T.Game(seeded(5)),b=new T.Game(seeded(5),{tier:2});a.start();b.start();for(let i=0;i<1500;i++){a.step(a.aiInput(a.actors[0]));b.step(b.aiInput(b.actors[0]));}
+ assert.equal(JSON.stringify(a.actors.map(x=>[x.x,x.y,x.crowns])),JSON.stringify(b.actors.map(x=>[x.x,x.y,x.crowns])));
+});
+test('lower tiers re-plan less often and sometimes miss a visible charge; legend AI carry loadouts',()=>{
+ const g=new T.Game(seeded(2),{tier:0});g.start();let calls=0;const real=g.aiInput.bind(g);g.aiInput=a=>{calls++;return real(a);};for(let i=0;i<90;i++)g.step();assert.ok(calls<=3*11,'rookie thinks every 9 ticks: '+calls);
+ const e=new T.Game(seeded(2));e.start();let c2=0;const r2=e.aiInput.bind(e);e.aiInput=a=>{c2++;return r2(a);};for(let i=0;i<90;i++)e.step();assert.equal(c2,270);
+ const misses=new Set();for(let tick=0;tick<2000;tick+=25){g.tick=tick;misses.add(g.aiAlert(g.actors[1]));}assert.deepEqual([...misses].sort(),[false,true]);
+ const l=new T.Game(seeded(2),{tier:3});assert.deepEqual([...l.actors.map(a=>a.loadout)],['none','heavy','quick','spring']);assert.ok(l.accelOf(l.actors[3])>l.accelOf(l.actors[0]));
+});
+test('loadouts change charge, mass, knockback, dash access and opening items',()=>{
+ const base=fixture(),quick=new T.Game(seeded(1),{loadout:'quick'});quick.start();quick.aiInput=()=>({x:0,y:0,charge:false});
+ for(let i=0;i<10;i++){base.step({charge:true});quick.step({charge:true});}assert.ok(quick.actors[0].charge>base.actors[0].charge);
+ const heavy=new T.Game(seeded(1),{loadout:'heavy'});assert.ok(heavy.mass(heavy.actors[0])>heavy.mass(heavy.actors[1]));assert.ok(heavy.takenOf(heavy.actors[0])<1);
+ const blink=new T.Game(seeded(1),{loadout:'blink'});blink.start();const a=blink.actors[0];assert.equal(blink.perks(a).dash,false);assert.ok(blink.canDash(a));assert.ok(blink.dash(a,{x:1,y:0}));assert.equal(a.dashCd,7);assert.equal(blink.canDash(blink.actors[1]),false);
+ const scout=new T.Game(seeded(1),{loadout:'scout'});assert.ok(scout.actors[0].item);assert.equal(scout.actors[1].item,null);
+});
+test('mutators start from round two, draw from the seed, and change the arena rules',()=>{
+ const g=new T.Game(seeded(4),{mutators:true});g.start();g.aiInput=idle;assert.equal(g.mutator,null);const seen=new Set();
+ for(let r=0;r<8&&g.phase==='running';r++){winRound(g,r%4);if(g.phase!=='running')break;assert.ok(T.MUTATOR_IDS.includes(g.mutator));seen.add(g.mutator);if(g.mutator==='pillars')assert.equal(g.pillars.length,3);else assert.equal(g.pillars.length,0);}
+ assert.ok(seen.size>=2,'several mutators appear: '+[...seen]);
+ const ice=fixture(),slip=fixture();slip.mutator='ice';ice.step({x:1});slip.step({x:1});for(let i=0;i<20;i++){ice.step();slip.step();}assert.ok(slip.actors[0].vx>ice.actors[0].vx*1.5);
+ const hv=fixture();hv.mutator='heavy';const nb=fixture();for(const q of [hv,nb])q.applyPulse({owner:0,x:q.actors[1].x-40,y:360,charge:.5,range:120});assert.ok(Math.abs(hv.actors[1].vx/nb.actors[1].vx-1.35)<1e-9);
+ const rain=fixture();rain.mutator='rain';while(rain.roundTick<61)rain.step();assert.equal(rain.pickups.length,1);for(let i=0;i<10;i++)rain.spawnItem();assert.equal(rain.pickups.length,4);
+ const pl=fixture();pl.mutator='pillars';pl.pillars=[{x:360,y:360,r:T.PILLAR_R}];const b=pl.actors[1];b.x=360-T.R-T.PILLAR_R+4;b.y=360;b.vx=200;pl.bumpPillars();assert.ok(b.vx<0);assert.ok(T.distance(b,{x:360,y:360})>=T.R+T.PILLAR_R-1e-9);
+ pl.pillars=[{x:360+300,y:360,r:T.PILLAR_R}];pl.roundTick=T.GRACE+T.SHRINK;pl.step();assert.equal(pl.pillars.length,0);
+});
+test('mutator matches with legend AI stay bounded and finish',()=>{for(let seed=1;seed<=8;seed++){const g=new T.Game(seeded(seed),{tier:3,mutators:true,loadout:'blink'});g.start();let steps=0;while(g.phase==='running'&&steps<60000){g.step(g.aiInput(g.actors[0]));steps++;for(const a of g.actors)assert.ok(Number.isFinite(a.x)&&Number.isFinite(a.vx));}assert.equal(g.phase,'over');}});
+test('career XP scales with performance and tier, levels unlock options, and bad saves are sanitized',()=>{
+ assert.deepEqual({...Career.levelOf(0)},{level:1,into:0,need:160,max:false});assert.equal(Career.levelOf(160).level,2);assert.equal(Career.levelOf(1e9).level,Career.MAX_LEVEL);
+ const win={outcome:'win',crowns:4,kos:5,hits:20,streak:3,tier:2,mutators:false},loss={...win,outcome:'loss',crowns:0,kos:0,hits:0,streak:0};
+ assert.ok(Career.matchXP(win).total>Career.matchXP(loss).total);assert.ok(Career.matchXP({...win,tier:3}).total>Career.matchXP(win).total);assert.ok(Career.matchXP({...win,mutators:true}).total>Career.matchXP(win).total);
+ assert.equal(Career.matchXP(loss).total,30);
+ const r=Career.record(Career.blank(),win);assert.equal(r.profile.matches,1);assert.equal(r.profile.wins,1);assert.equal(r.profile.bestTier,2);assert.ok(r.after.level>1);assert.ok(r.unlocked.some(u=>u.kind==='loadout'));
+ assert.equal(Career.unlocked(1,'tier',3),false);assert.equal(Career.unlocked(5,'tier',3),true);assert.equal(Career.unlocked(2,'mutators','on'),false);
+ for(const u of Career.UNLOCKS){if(u.kind==='loadout')assert.ok(T.LOADOUTS[u.id]);if(u.kind==='tier')assert.ok(T.TIERS[u.id]);}
+ assert.deepEqual({...Career.sanitize({xp:-5,wins:'x',kos:3.7})},{...Career.blank(),kos:3});
+ const mem=new Map(),storage={getItem:k=>mem.get(k)??null,setItem:(k,v)=>mem.set(k,v)};assert.ok(Career.save(storage,r.profile));assert.equal(Career.load(storage).xp,r.profile.xp);mem.set(Career.KEY,'{broken');assert.equal(Career.load(storage).xp,0);
+});
