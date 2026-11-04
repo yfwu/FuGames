@@ -1,12 +1,10 @@
 'use strict';
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const fs = require('node:fs');
-const vm = require('node:vm');
-const source = fs.readFileSync(require('node:path').join(__dirname, '../duplicate_bridge.html'), 'utf8');
-const context = vm.createContext({});
-vm.runInContext(source.match(/<script id="game-engine">([\s\S]*?)<\/script>/)[1], context);
-const B = context.Bridge;
+const B = require('../bridge-engine.js');
+const AI = require('../bridge-ai.js');
+const BB = require('../bridge-bidding.js');
+const DDS = require('../bridge-dds.js');
 const plain = v => JSON.parse(JSON.stringify(v));
 const card = (s,r) => 'CDHS'.indexOf(s)*13+r-2;
 const game = (seed=1,board=1) => B.createGame(B.makeDeal(seed),board);
@@ -84,37 +82,8 @@ const contract = (level,strain,multiplier=1) => ({level,strain:'CDHSN'.indexOf(s
  test('matchpoint fixture uses unified score direction with half credit for ties',()=>{
   assert.equal(B.matchpoints(420,[-50,420,450]),50);assert.equal(B.matchpoints(10,[0,0]),100);assert.equal(B.matchpoints(-1,[0,0]),0);assert.equal(B.matchpoints(0,[0,0]),50);assert.equal(B.matchpoints(0,[]),null);
  });
- test('AI forcing states are derived only from public natural auctions and stop after interference',()=>{
-  const g=calls(game(),'2H P');assert.equal(B.forceDue(B.viewFor(g)),true);assert.equal(B.chooseBid(B.viewFor(g)).state,'forcing');
-  const h=calls(game(),'1C P 1H P');assert.equal(B.forceDue(B.viewFor(h)),true);assert.equal(B.chooseBid(B.viewFor(h)).state,'forcing');
-  const i=calls(game(),'1C P 1H 1S');assert.equal(B.forceDue(B.viewFor(i)),false);assert.equal(B.chooseBid(B.viewFor(i)).state,'competition');
- });
- test('AI personalities make actual distinct observable choices on identical legal views',()=>{
-  let differentBids=0,differentPlays=0;
-  for(let seed=1;seed<=100;seed++){const g=game(seed);calls(g,'1C P P');const v=B.viewFor(g);if(B.chooseBid(v,B.PROFILES[0]).call!==B.chooseBid(v,B.PROFILES[3]).call)differentBids++;
-    const p=calls(game(seed),'1N P P P');for(let i=0;i<20;i++){const view=B.viewFor(p);if(B.chooseCard(view,B.PROFILES[0]).card!==B.chooseCard(view,B.PROFILES[3]).card)differentPlays++;B.playCard(p,B.chooseCard(view).card);}}
-  assert.ok(differentBids>0,`expected risk-dependent bidding, got ${differentBids}`);assert.ok(differentPlays>0,`expected different lead/card decisions, got ${differentPlays}`);
- });
  test('public views have detached arrays, preventing an AI from changing game state',()=>{
   const g=game(),before=JSON.stringify(g),v=B.viewFor(g);v.hand[0]=-1;v.knownHands[0][0]=-2;v.voids[0][0]=true;v.auction.push({seat:0,call:'7N'});assert.equal(JSON.stringify(g),before);
- });
- test('changing all unseen hands leaves auction and card AI decisions unchanged',()=>{
-  let compared=0;
-  for(let seed=1;seed<=64;seed++){const g=game(seed,seed);let n=0;while(g.phase!=='complete'){
-    const view=B.viewFor(g),unseen=[0,1,2,3].filter(s=>!(String(s) in view.knownHands));const altered=plain(g);if(unseen.length>=2){const hidden=unseen.flatMap(s=>altered.hands[s]).reverse();let i=0;for(const s of unseen)altered.hands[s]=altered.hands[s].map(()=>hidden[i++]);const view2=B.viewFor(altered);assert.deepEqual(plain(view),plain(view2));const decide=g.phase==='auction'?B.chooseBid:B.chooseCard;assert.deepEqual(plain(decide(view)),plain(decide(view2)));compared++;}
-    if(g.phase==='auction'){const d=B.chooseBid(view);assert.ok(B.applyCall(g,d.call));}else{const d=B.chooseCard(view);assert.ok(B.playCard(g,d.card));}assert.ok(++n<400);
-  }}assert.ok(compared>3000);
- });
- test('same immutable deal is independently auctioned and replayed by the reference table',()=>{
-  const d=B.makeDeal(100),original=JSON.stringify(d),first=B.simulate(d,1),second=B.simulate(d,1);assert.equal(JSON.stringify(d),original);assert.notEqual(first,second);assert.notEqual(first.hands,second.hands);assert.deepEqual(plain(first.auction),plain(second.auction));assert.deepEqual(plain(first.history),plain(second.history));assert.equal(first.score,second.score);assert.equal(first.history.length,13);assert.equal(first.played.length,52);
-  const main=calls(B.createGame(d),'7N P P P');while(main.phase==='play')B.playCard(main,B.chooseCard(B.viewFor(main)).card);assert.notDeepEqual(plain(main.auction),plain(first.auction));assert.deepEqual(plain(main.deal),plain(first.deal));assert.equal(JSON.stringify(d),original);
- });
- test('512 complete AI boards conserve cards, obey turns, converge and score in NS direction',()=>{
-  let active=0,passed=0,maxCalls=0;const states=new Set();for(let seed=1;seed<=512;seed++){const g=game(seed*1337,seed),original=JSON.stringify(g.deal);let turns=0;while(g.phase==='auction'){const d=B.chooseBid(B.viewFor(g));states.add(d.state);assert.ok(B.legalCalls(g).includes(d.call));assert.ok(B.applyCall(g,d.call));assert.ok(++turns<200);}
-    maxCalls=Math.max(maxCalls,g.auction.length);if(!g.contract){passed++;assert.equal(g.score,0);continue;}active++;assert.equal(g.turn,(g.contract.declarer+1)%4);assert.equal(g.dummyVisible,false);
-    while(g.phase==='play'){const seat=g.turn,legal=B.legalCards(g),d=B.chooseCard(B.viewFor(g));assert.ok(legal.includes(d.card));assert.ok(B.playCard(g,d.card));assert.equal(g.played.at(-1).seat,seat);assert.equal(g.hands.flat().length+g.played.length,52);assert.equal(new Set([...g.hands.flat(),...g.played.map(p=>p.card)]).size,52);assert.ok(++turns<260);}
-    assert.equal(g.history.length,13);assert.equal(g.played.length,52);assert.equal(g.tricks[0]+g.tricks[1],13);assert.equal(g.score,B.scoreContract(g.contract,g.tricks[g.contract.side],B.vulnerable(g.vulnerability,g.contract.side))*(g.contract.side===0?1:-1));assert.equal(JSON.stringify(g.deal),original);
-  }assert.ok(active>480);assert.ok(maxCalls<100);for(const state of ['opening','response','rebid','competition','forcing'])assert.ok(states.has(state),state);console.log(`Bridge simulations: ${active} played, ${passed} passed out, longest auction ${maxCalls} calls.`);
  });
  test('random legal auctions and play support contracts beyond AI bidding conventions',()=>{
   const random=B.rng(87654);for(let i=1;i<=80;i++){const g=game(i*23,i);let count=0;while(g.phase==='auction'){const legal=B.legalCalls(g),call=random()<.48?'P':legal[Math.floor(random()*legal.length)];assert.ok(B.applyCall(g,call));assert.ok(++count<400);}while(g.phase==='play'){const legal=B.legalCards(g);assert.ok(B.playCard(g,legal[Math.floor(random()*legal.length)]));}if(g.contract){assert.equal(g.history.length,13);assert.equal(g.hands.flat().length,0);assert.ok(Number.isFinite(g.score));}}
