@@ -1,394 +1,810 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="zh-Hant">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>三子循環棋 - FuGames</title>
-  <link rel="icon" href="favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="fulab-theme.css">
-  <style>
-
-    .board { width: min(100%, 340px); display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
-    .cell { aspect-ratio: 1; border: 1px solid var(--fulab-silver); border-radius: 12px; background: white; padding: 0; display: grid; place-items: center; cursor: pointer; }
-    .cell:hover:not(:disabled) { border-color: var(--fulab-teal); }
-    .cell:disabled { color: var(--fulab-graphite); -webkit-text-fill-color: var(--fulab-graphite); opacity: 1; }
-    .cell.highlight { background: var(--fulab-tint-emerald); border-color: var(--fulab-emerald); }
-    .cell.hint-x-next { background: var(--fulab-tint-teal); border-color: var(--fulab-teal); }
-    .cell.hint-o-next { background: var(--fulab-tint-plum); border-color: var(--fulab-plum); }
-    .cell.hint-x-next2, .cell.hint-o-next2 { border-style: dashed; }
-    .queue-badge { position: absolute; top: 7px; right: 7px; min-width: 19px; height: 19px; display: grid; place-items: center; border-radius: 5px; font-size: 11px; font-weight: 750; line-height: 1; background: var(--fulab-graphite); color: white; -webkit-text-fill-color: white; }
-    .queue-badge.second { border: 1px solid var(--fulab-muted); background: white; color: var(--fulab-muted); -webkit-text-fill-color: var(--fulab-muted); }
-    .cell.highlight .queue-badge { display: none; }
-    .queue-key { display: inline-grid; place-items: center; width: 18px; height: 18px; border: 1px solid var(--fulab-muted); border-radius: 4px; font-size: 10px; }
-    .queue-key.first { color: white; background: var(--fulab-graphite); border-color: var(--fulab-graphite); }
-    .hint-options input { accent-color: var(--fulab-ink-teal); width: 17px; height: 17px; }
-    @media(max-width: 400px) { .queue-badge { top: 5px; right: 5px; width: 17px; min-width: 17px; height: 17px; font-size: 10px; } }
-    .hint-options { display: grid; gap: 10px; margin: 12px 0; }
-    .hint-options label { display: flex; align-items: center; gap: 8px; min-height: 32px; }
-
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="三子循環棋：每人只有三顆棋，放滿後移動最早的那一顆。五級 AI（大師查完整解表）、四種變體、十五道殘局與段位生涯。">
+<meta name="theme-color" content="#07090c">
+<title>三子循環棋 - FuGames</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="shared/fu.css">
+<style>
+/* 三子循環棋 (flat) on the shared Vermilion Ink shell. Seat 0 (you / player one) = seal, seat 1 = azure. */
+html,body{height:100%;overflow:hidden;overscroll-behavior:none}
+[hidden]{display:none!important}
+:root{--seat-0:var(--fu-side-1);--seat-1:var(--fu-side-2)}
+.fu-scrim{z-index:81}.fu-drawer{z-index:82}.fu-toasts{z-index:86}
+.fu-stage{touch-action:manipulation}
+.fu-stage canvas{display:block;width:100%;height:100%}
+.fu-topbar__title svg{width:22px;height:22px;flex:none;align-self:center;color:var(--fu-seal)}
+/* board overlay: transparent buttons over the canvas cells (input, focus and screen readers) */
+.cc-board{position:absolute;display:grid;gap:0;z-index:2}
+.cc-board .cell{position:relative;min-width:0;min-height:0;padding:0;border:0;border-radius:0;background:transparent;cursor:pointer;color:transparent;-webkit-tap-highlight-color:transparent}
+.cc-board .cell:disabled{cursor:default}
+.cc-board .cell:focus-visible{outline:2px solid var(--fu-paper);outline-offset:-6px}
+.c3-lv{display:flex;flex-direction:column;justify-content:center;gap:5px;min-width:112px;min-height:44px;padding:6px 12px;border:1px solid var(--fu-line-strong);background:var(--fu-surface);cursor:pointer;text-align:left;color:var(--fu-paper)}
+.c3-lv:hover{border-color:var(--fu-paper)}
+.c3-lv .row{display:flex;align-items:baseline;gap:7px}
+.c3-lv b{font:700 15px/1 var(--fu-font-mono);color:var(--fu-gold)}
+.c3-lv span{font:600 10.5px/1 var(--fu-font-mono);letter-spacing:.14em;color:var(--fu-paper-dim)}
+.c3-lv .fu-meter{height:3px}
+/* match panel */
+.cc-match{width:300px}
+.cc-seat{--seat:var(--seat-0);position:relative;display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:8px;padding:7px 0 7px 10px;border-bottom:1px solid var(--fu-line)}
+.cc-seat::before{content:"";position:absolute;left:0;top:7px;bottom:7px;width:2px;background:var(--seat);opacity:.25}
+.cc-seat.is-turn::before{opacity:1}
+.cc-seat[data-tone="1"]{--seat:var(--seat-1)}
+.cc-seat .fu-side{--side:var(--seat)}
+.cc-seat__who{min-width:0;display:flex;flex-direction:column;gap:2px}
+.cc-seat__who b{font:700 15px/1.1 var(--fu-font-display);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cc-seat__who em{font:600 10px/1 var(--fu-font-mono);font-style:normal;letter-spacing:.14em;color:var(--fu-paper-dim)}
+.cc-queue{display:flex;gap:3px}
+.cc-q{min-width:30px;height:22px;padding:0 4px;display:grid;place-items:center;border:1px solid color-mix(in srgb,var(--seat) 60%,transparent);font:600 10.5px/1 var(--fu-font-mono);color:var(--fu-paper-dim)}
+.cc-q.is-next{background:var(--seat);border-color:var(--seat);color:var(--fu-ink-0)}
+.cc-q.is-alt{border-color:var(--seat);color:var(--fu-paper);border-style:dashed}
+.cc-q.is-empty{border-style:dashed;opacity:.4}
+.cc-status{margin:10px 0 0;font-size:13px;line-height:1.5;min-height:3em}
+.cc-status b{color:var(--fu-paper)}
+.cc-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+/* dock */
+.fu-dock .fu-btn{min-width:64px}
+.fu-dock .fu-btn small{font-size:10px;color:inherit;opacity:.7;letter-spacing:.05em}
+.fu-dock .cc-claim{color:var(--fu-gold)}
+/* curtains */
+.cc-curtain .fu-curtain__inner{width:min(640px,100%);gap:14px}
+.fu-curtain{overflow:auto;place-items:safe center}
+.cc-lobby .fu-display{font-size:clamp(46px,9vw,104px);line-height:1}
+.cc-lobby .fu-field{width:100%;margin:0;text-align:left}
+.cc-lobby .fu-seg>button{flex-direction:column;gap:3px;min-height:44px}
+.cc-lobby .fu-seg>button small{font:600 9.5px/1 var(--fu-font-mono);letter-spacing:.06em;color:var(--fu-gold)}
+.cc-lobby .fu-seg>button:disabled{opacity:.42;cursor:not-allowed}
+.cc-desc{margin:4px 0 0;min-height:2.6em;font-size:12.5px;line-height:1.5;color:var(--fu-paper-dim)}
+.cc-career{width:100%;display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 16px;align-items:center;padding:12px 14px;border:1px solid var(--fu-line);background:rgba(236,228,208,.03);text-align:left}
+.cc-career .lv{grid-row:span 2;font:800 32px/1 var(--fu-font-mono);color:var(--fu-gold)}
+.cc-career .lv small{display:block;margin-bottom:4px;font:700 9.5px/1 var(--fu-font-mono);letter-spacing:.16em;color:var(--fu-paper-dim)}
+.cc-career .who{display:flex;justify-content:space-between;gap:10px;font:700 14px/1.2 var(--fu-font-display)}
+.cc-career .who span{font:500 11px/1.2 var(--fu-font-mono);color:var(--fu-paper-dim)}
+.cc-result .fu-display{font-size:clamp(42px,9vw,96px)}
+.cc-reason{margin:0;max-width:52ch;color:var(--fu-paper-dim);line-height:1.6}
+.cc-xp{width:100%;display:grid;grid-template-columns:1fr auto;gap:6px 16px;margin:0;padding:12px 14px;border:1px solid var(--fu-line);font-size:13px;text-align:left}
+.cc-xp dt{color:var(--fu-paper-dim)}.cc-xp dd{margin:0;text-align:right;font-family:var(--fu-font-mono);color:var(--fu-gold)}
+.cc-xp .total{border-top:1px solid var(--fu-line);padding-top:8px;color:var(--fu-paper);font-weight:700}
+.cc-levelup{width:100%;padding:10px 14px;border:1px solid rgba(233,185,73,.45);background:rgba(233,185,73,.07);font-size:13px;line-height:1.6;text-align:left}
+.cc-levelup b{color:var(--fu-gold)}
+.cc-puzzles{width:100%;display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;text-align:left}
+.cc-puz{position:relative;display:flex;flex-direction:column;gap:4px;min-height:74px;padding:10px 12px;border:1px solid var(--fu-line);background:rgba(236,228,208,.03);cursor:pointer;text-align:left;color:var(--fu-paper)}
+.cc-puz:hover:not(:disabled){border-color:var(--fu-paper)}
+.cc-puz:disabled{opacity:.45;cursor:not-allowed}
+.cc-puz b{font:700 15px/1.2 var(--fu-font-display)}
+.cc-puz span{font:600 10px/1.3 var(--fu-font-mono);letter-spacing:.1em;color:var(--fu-paper-dim)}
+.cc-puz em{position:absolute;top:9px;right:10px;font:700 10px/1 var(--fu-font-mono);font-style:normal;letter-spacing:.1em;color:var(--fu-gold)}
+.cc-puz.solved em{color:var(--fu-jade)}
+/* drawers */
+.cc-rules li{margin-bottom:9px;line-height:1.65}
+.cc-rules strong{color:var(--fu-paper)}
+.cc-legend{display:grid;grid-template-columns:auto 1fr;gap:8px 12px;align-items:center;font-size:13px}
+.cc-legend i{display:inline-block;width:16px;height:16px}
+.cc-stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.cc-stats div{padding:9px 11px;border:1px solid var(--fu-line)}
+.cc-stats b{display:block;font:700 19px/1.1 var(--fu-font-mono)}
+.cc-stats span{font-size:11px;color:var(--fu-paper-dim)}
+.cc-unlocks li{justify-content:space-between;font-size:13px}
+.cc-unlocks li.got{color:var(--fu-paper)}.cc-unlocks li:not(.got){color:var(--fu-mute)}
+.cc-unlocks li span{font:600 11px/1 var(--fu-font-mono)}
+.cc-note{font-size:12px;color:var(--fu-mute);margin:4px 0 0}
+@media (max-width:720px){
+ .fu-topbar{gap:10px}
+ .fu-topbar__title svg{display:none}
+ .fu-topbar__title .fu-heading{font-size:16px}
+ .c3-lv{min-width:0;padding:6px 9px}
+ .c3-lv span{display:none}
+ .fu-hud--tl{left:12px;right:12px;max-width:none}
+ .cc-match{width:auto;padding:8px 10px}
+ .cc-match .fu-panel__head{display:none}
+ .cc-seats{display:grid;grid-template-columns:1fr 1fr;column-gap:10px}
+ .cc-seat{grid-template-columns:auto minmax(0,1fr);padding:4px 0 4px 9px;border-bottom:0}
+ .cc-seat .cc-queue{grid-column:1 / -1}
+ .cc-q{min-width:0;flex:1;height:18px;font-size:9.5px}
+ .cc-status{margin-top:6px;font-size:12px;min-height:2.6em}
+ .cc-tags{display:none}
+ .fu-dock{left:12px;right:12px;transform:none;max-width:none;bottom:max(12px,env(safe-area-inset-bottom))}
+ .fu-dock .fu-btn{flex:1;min-width:0;padding:0 6px;font-size:11px;letter-spacing:.06em}
+ .fu-dock .fu-kbd{display:none}
+ .cc-lobby .fu-display{font-size:46px}
+ .cc-curtain .fu-curtain__inner{gap:11px}
+ .cc-lobby .fu-seal--lg{--s:52px;--f:19px}
+ .cc-lobby .fu-seg>button{padding:0 4px;font-size:10.5px;letter-spacing:.04em}
+ .cc-lobby .fu-curtain__actions .fu-btn{flex:1}
+}
+</style>
 </head>
-<body>
-  <main class="game-page classic-page">
-    <nav class="site-nav" aria-label="遊戲導覽"><a class="site-brand" href="index.html"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>FuGames</a><a href="index.html" aria-label="所有遊戲 ↗">所有遊戲<svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#launch"></use></svg></a></nav>
-    <header class="page-header"><p class="eyebrow">棋盤 / 單人 × AI</p><h1><svg class="page-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#cyclic_tictactoe"></use></svg>三子循環棋</h1><p class="lead">先連成三子就贏；放滿三顆後，移動最早落下的棋子。</p></header>
-    <section class="card play-panel" aria-label="三子循環棋棋盤">
-      <div class="game-toolbar"><p class="game-status" id="info" role="status" aria-live="polite">你是黑子，AI 是白子</p><div class="game-metrics"><span>步數 <strong id="moveCount">0</strong></span></div></div>
-      <div class="boardWrap game-floor"><div class="board" id="board" role="group" aria-label="三乘三棋盤"></div></div>
-      <div class="classic-legend"><span class="stone-key"><span class="queue-key first" aria-hidden="true">1</span>下一顆移動</span><span class="stone-key"><span class="queue-key" aria-hidden="true">2</span>再下一顆</span></div>
-      <div class="game-actions"><p class="action-note"><span class="stone-key"><span class="classic-stone" aria-hidden="true"></span>你</span>　<span class="stone-key"><span class="classic-stone white" aria-hidden="true"></span>AI</span></p><button class="btn primary" onclick="resetGame()"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#restart"></use></svg>重新開始</button></div>
+<body class="fu-app fu-vignette">
+<header class="fu-topbar">
+  <a class="fu-brand" href="index.html" aria-label="回到 FuGames 所有遊戲"><span class="fu-seal" aria-hidden="true">福遊</span><span class="fu-hide-sm">FuGames</span></a>
+  <div class="fu-topbar__title"><svg viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#cyclic_tictactoe"></use></svg><h1 class="fu-heading">三子循環棋</h1><span class="fu-label fu-hide-sm" id="subTitle">Cyclic · 3×3</span></div>
+  <div class="fu-topbar__actions">
+    <button class="c3-lv" id="lvChip" type="button" aria-label="生涯等級與段位"><span class="row"><b class="fu-num" id="lvNum">1</b><span id="lvRank">入門</span></span><span class="fu-meter fu-meter--gold" id="lvBar" style="--value:0"><i></i></span></button>
+    <button class="fu-btn fu-hide-sm" type="button" id="topChallenges">殘局 <span class="fu-kbd">C</span></button>
+    <button class="fu-btn fu-hide-sm" type="button" id="topLobby">大廳 <span class="fu-kbd">L</span></button>
+    <button class="fu-btn fu-btn--ghost fu-btn--icon" type="button" data-fu-open="rules" aria-label="規則" data-fu-tip="規則 ?">?</button>
+    <button class="fu-btn fu-btn--icon" type="button" data-fu-open="settings" aria-label="設定" data-fu-tip="設定 S"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><path d="M14 4v6M6 14v6"/></svg></button>
+  </div>
+</header>
+
+<main class="fu-stage" id="stage"><canvas id="boardCanvas" aria-hidden="true"></canvas><div class="cc-board" id="board" role="group" aria-label="棋盤"></div></main>
+
+<div class="fu-hud fu-hud--tl" id="hudMatch">
+  <section class="fu-panel fu-panel--tight cc-match" aria-label="對局狀態">
+    <div class="fu-panel__head"><p class="fu-label"><b>01</b> / 對局</p><span class="fu-label fu-num" id="plyLabel">手 0</span></div>
+    <div class="cc-seats">
+      <div class="cc-seat" id="seatRow0"><span class="fu-side" aria-hidden="true"></span><span class="cc-seat__who"><b id="seatName0">你</b><em id="seatRole0">先手</em></span><span class="cc-queue" id="queue0" aria-label="你的棋子順序"></span></div>
+      <div class="cc-seat" data-tone="1" id="seatRow1"><span class="fu-side" aria-hidden="true"></span><span class="cc-seat__who"><b id="seatName1">AI</b><em id="seatRole1">後手</em></span><span class="cc-queue" id="queue1" aria-label="對手的棋子順序"></span></div>
+    </div>
+    <p class="cc-status" id="info" role="status" aria-live="polite">選好對手與變體，開始對局。</p>
+    <div class="cc-tags"><span class="fu-chip fu-chip--azure" id="tierChip">AI · 原版</span><span class="fu-chip fu-chip--gold" id="variantChip">標準</span></div>
+  </section>
+</div>
+
+<nav class="fu-dock" aria-label="指令" id="dock">
+  <button class="fu-btn" type="button" id="hintBtn">提示 <small id="hintLeft">3</small></button>
+  <button class="fu-btn" type="button" id="undoBtn">悔棋 <span class="fu-kbd">U</span></button>
+  <button class="fu-btn cc-claim" type="button" id="claimBtn" hidden>判和</button>
+  <button class="fu-btn" type="button" id="newBtn">重新開始 <span class="fu-kbd">N</span></button>
+</nav>
+
+<!-- lobby -->
+<div class="fu-curtain cc-curtain" id="lobby" role="dialog" aria-modal="true" aria-labelledby="lobbyTitle">
+  <div class="fu-curtain__inner cc-lobby">
+    <span class="fu-seal fu-seal--lg fu-stamp" aria-hidden="true">循環</span>
+    <p class="fu-label">FuGames / Cyclic · 9 格 · 8 線</p>
+    <h2 class="fu-display" id="lobbyTitle">三子循環棋</h2>
+    <p class="fu-dim" style="margin:0;max-width:46ch">每人只有三顆棋。放滿後，每手都要把<strong>最早</strong>落下的那一顆移走。先連成一直線就贏。</p>
+    <div class="cc-career" id="lobbyCareer"></div>
+    <div class="fu-field"><span>對手</span><div class="fu-seg" id="tierSeg" role="radiogroup" aria-label="對手難度"></div></div>
+    <div class="fu-field"><span>變體</span><div class="fu-seg" id="variantSeg" role="radiogroup" aria-label="規則變體"></div><p class="cc-desc" id="variantDesc"></p></div>
+    <div class="fu-curtain__actions"><button class="fu-btn fu-btn--seal fu-btn--lg" type="button" id="startBtn">開始對局</button><button class="fu-btn fu-btn--lg" type="button" id="lobbyChallenges">殘局挑戰</button><button class="fu-btn fu-btn--lg fu-btn--icon" type="button" data-fu-open="settings" aria-label="設定"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square" width="18" height="18"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><path d="M14 4v6M6 14v6"/></svg></button></div>
+  </div>
+</div>
+
+<!-- challenges -->
+<div class="fu-curtain cc-curtain" id="challenges" role="dialog" aria-modal="true" aria-labelledby="chTitle" hidden>
+  <div class="fu-curtain__inner">
+    <p class="fu-label"><b>■</b> 殘局挑戰 / Forced wins</p>
+    <h2 class="fu-title" id="chTitle">在限定手數內，逼出連線</h2>
+    <p class="fu-dim" style="margin:0;max-width:52ch">每一題都由完整解表或窮舉搜尋驗證：輪到你，而且只有<strong>一個</strong>正確的第一手。對手會用最頑強的防守拖延；用完手數仍未連線就算失敗。依序解鎖，部分題目需要等級。</p>
+    <div class="cc-puzzles" id="puzzleList"></div>
+    <div class="fu-curtain__actions"><button class="fu-btn fu-btn--lg" type="button" id="chBack">返回</button></div>
+  </div>
+</div>
+
+<!-- result -->
+<div class="fu-curtain cc-curtain" id="result" role="dialog" aria-modal="true" aria-labelledby="resultTitle" hidden>
+  <div class="fu-curtain__inner cc-result">
+    <span class="fu-seal fu-seal--lg fu-stamp" id="resultSeal" aria-hidden="true">大勝</span>
+    <p class="fu-label" id="resultKicker">對局結束</p>
+    <h2 class="fu-display" id="resultTitle">你贏了</h2>
+    <p class="cc-reason" id="resultReason"></p>
+    <dl class="cc-xp" id="resultXp"></dl>
+    <div class="cc-levelup" id="resultLevelUp" hidden></div>
+    <div class="cc-career" id="resultCareer"></div>
+    <div class="fu-curtain__actions"><button class="fu-btn fu-btn--seal fu-btn--lg" type="button" id="againBtn">再來一局</button><button class="fu-btn fu-btn--lg" type="button" id="viewBoardBtn">檢視棋盤</button><button class="fu-btn fu-btn--lg" type="button" id="resultLobbyBtn">大廳</button></div>
+  </div>
+</div>
+
+<!-- settings -->
+<aside class="fu-drawer" id="settings" aria-label="設定">
+  <div class="fu-drawer__head"><span class="fu-label"><b>■</b> 設定</span><button class="fu-btn fu-btn--ghost fu-btn--icon" type="button" data-fu-close aria-label="關閉">✕</button></div>
+  <div class="fu-drawer__body" id="settingsForm">
+    <section>
+      <h3>對局（下一局生效）</h3>
+      <label class="fu-field"><span>模式</span><select class="fu-select" name="mode" id="modeSelect"><option value="ai">對 AI</option><option value="pvp">同機雙人</option></select></label>
+      <label class="fu-field"><span>你的座位</span><select class="fu-select" name="seat" id="seatSelect"><option value="0">先手</option><option value="1">後手</option><option value="random">隨機</option></select></label>
+      <label class="fu-switch"><span>和局規則（三次重複或 60 手）</span><input type="checkbox" name="drawRule" id="toggleDraw"></label>
+      <p class="cc-note">原版不判和，可以一直下下去；關閉時，同一局面出現三次後可以按「判和」結束。</p>
     </section>
-    <details class="card rules"><summary>玩法與設定</summary><div class="rules-body">
-      <ul class="list"><li>輪流下子，先連成三子者獲勝。</li><li>每人最多三顆棋；放滿後點選空格，自動移動自己最早放下的棋子。</li><li>黑子為玩家、白子為 AI；若 AI 無法移動，直接換你下。</li></ul>
-      <div class="hint-options"><label><input type="checkbox" id="toggleNext" checked>顯示下回合將移動的棋子</label><label><input type="checkbox" id="toggleNext2" checked>顯示下下回合將移動的棋子</label></div>
-    </div></details>
-    <footer class="site-footer">FuGames · 隨時來一局</footer>
-  </main>
+    <section>
+      <h3>輔助</h3>
+      <label class="fu-switch"><span>標出下一顆要移走的棋（1）</span><input type="checkbox" name="next" id="toggleNext" checked></label>
+      <label class="fu-switch"><span>標出再下一顆（2）</span><input type="checkbox" name="next2" id="toggleNext2" checked></label>
+      <label class="fu-switch"><span>標出雙方的立即勝格</span><input type="checkbox" name="threat" id="toggleThreat" checked></label>
+      <label class="fu-switch"><span>兩段式落子（先預覽、再確認）</span><input type="checkbox" name="confirm" id="toggleConfirm"></label>
+      <p class="cc-note">關掉 1、2 兩個標記叫「盲序」：要自己記住順序，勝局經驗 ×1.1。</p>
+    </section>
+    <section>
+      <h3>畫面</h3>
+      <label class="fu-switch"><span>移子動畫</span><input type="checkbox" name="anim" checked></label>
+      <label class="fu-switch"><span>顯示座標</span><input type="checkbox" name="coords" checked></label>
+    </section>
+    <section>
+      <h3>生涯</h3>
+      <div class="cc-career" id="drawerCareer"></div>
+      <div class="cc-stats" id="careerStats" style="margin-top:10px"></div>
+      <ul class="fu-list cc-unlocks" id="unlockList" style="margin-top:12px"></ul>
+      <button class="fu-btn fu-btn--sm" type="button" id="resetCareer" style="margin-top:12px">重置生涯</button>
+    </section>
+  </div>
+  <div class="fu-drawer__foot"><button class="fu-btn fu-btn--block" type="button" id="drawerLobby">回大廳</button><button class="fu-btn fu-btn--seal fu-btn--block" type="button" id="newGame">重新開始</button></div>
+</aside>
 
-  <script>
-    // ==================================
-    // 基本遊戲邏輯
-    // ==================================
+<!-- rules -->
+<aside class="fu-drawer fu-drawer--left" id="rules" aria-label="規則">
+  <div class="fu-drawer__head"><span class="fu-label"><b>■</b> 規則與操作</span><button class="fu-btn fu-btn--ghost fu-btn--icon" type="button" data-fu-close aria-label="關閉">✕</button></div>
+  <div class="fu-drawer__body cc-rules">
+    <section>
+      <h3>規則</h3>
+      <ul>
+        <li>輪流下子，先把三顆連成橫、直或斜的一直線就贏。座標寫成「A–C 列 + 1–3 行」，B2 是中心。</li>
+        <li>每人最多三顆。放滿後，每手都要把自己<strong>最早</strong>放下的棋移到另一個空格；不能放回原格，也不能吃子。勝負在舊棋移走<strong>之後</strong>判定。</li>
+        <li>原版沒有和局：可以在設定開啟「和局規則」（同一局面第三次出現，或滿 60 手），或在局面重複三次後按「判和」。</li>
+        <li>這個遊戲已被完整解出：雙方都不犯錯時，<strong>先手必勝</strong>，但只有一種開局做得到。大師會照解表下，不會失誤。</li>
+      </ul>
+    </section>
+    <section>
+      <h3>變體</h3>
+      <ul id="variantRules"></ul>
+    </section>
+    <section>
+      <h3>對手</h3>
+      <ul>
+        <li><strong>新手</strong>只看一步、常隨手走；<strong>原版</strong>是舊版 AI：能贏就贏，否則挑第一個不讓你立刻贏的格子；<strong>普通</strong>看四步；<strong>困難</strong>看八步；<strong>大師</strong>在 3×3 查完整解表、在 4×4 深算（等級 4 解鎖）。</li>
+        <li>越難的對手、越特別的變體，經驗越多。提示每用一次經驗 −15%，悔棋則減半；盲序勝局 ×1.1。</li>
+      </ul>
+    </section>
+    <section>
+      <h3>操作</h3>
+      <ul>
+        <li>點空格落子；滑鼠移到空格上會預覽：要移走的舊棋變淡，並畫出移動的方向。開啟「兩段式落子」後，第一下只預覽，再點一次才下。</li>
+        <li>「擇二」變體：先點你最早的兩顆之一，選定要移走哪一顆（預設最早的一顆），再點空格。</li>
+        <li>方向鍵移動游標，Enter 或空白鍵落子，T 切換要移走的棋（擇二）。1–9 直接下在對應格（左上是 1）。H 提示、U 悔棋、N 重新開始、C 殘局、L 大廳、S 設定、? 規則。</li>
+      </ul>
+    </section>
+    <section>
+      <h3>圖例</h3>
+      <div class="cc-legend">
+        <i style="background:var(--seat-0)"></i><span>你（或玩家一）的棋</span>
+        <i style="background:var(--seat-1)"></i><span>對手（或玩家二）的棋</span>
+        <i style="background:var(--fu-paper);width:12px;height:12px"></i><span>「1」下一手會被移走；「2」再下一手</span>
+        <i style="border:2px solid var(--seat-0);transform:rotate(45deg);width:12px;height:12px"></i><span>立即勝格（顏色代表誰）</span>
+        <i style="background:repeating-linear-gradient(45deg,var(--fu-ink-3) 0 3px,var(--fu-ink-1) 3px 7px);border:1px solid var(--fu-line-strong)"></i><span>封石：不能下，也擋住穿過它的線</span>
+      </div>
+    </section>
+  </div>
+</aside>
 
-    const boardElem = document.getElementById("board");
-    const infoElem = document.getElementById("info");
-
-    // 9格，每一格可以是 'X', 'O', 或空字串 ''
-    let board = Array(9).fill('');
-    // 假設使用者扮演黑子(X)，AI 扮演白子(O)
-    let currentPlayer = 'X';
-    let placedPieces = { 'X': 0, 'O': 0 };
-    let placeOrder = { 'X': [], 'O': [] };
-    let moveCount = 0;
-    let gameOver = false, winningLine = [];
-    let showNextHint = true;
-    let showNext2Hint = true;
-
-    const moveCountElem = document.getElementById('moveCount');
-    const toggleNextElem = document.getElementById('toggleNext');
-    const toggleNext2Elem = document.getElementById('toggleNext2');
-
-    toggleNextElem.addEventListener('change', () => {
-      showNextHint = toggleNextElem.checked;
-      renderBoard();
-    });
-
-    toggleNext2Elem.addEventListener('change', () => {
-      showNext2Hint = toggleNext2Elem.checked;
-      renderBoard();
-    });
-
-    // 先假設只有 O 為 AI，X 由玩家手動操作
-    function isAI(player) {
-      return (player === 'O');
+<script id="cyclic2d-career">
+'use strict';
+// Career progression for 三子循環棋（平面版）: pure functions over a small saved profile.
+// XP comes from finished games (scaled by AI tier and variant) and first-time challenge solves.
+const CyclicCareer=(()=>{
+  const MAX_LEVEL=30,KEY='cyclic2d-career',VERSION=1;
+  const need=level=>80+level*30;
+  function levelOf(xp){let level=1,rest=Math.max(0,Math.floor(Number(xp)||0));while(level<MAX_LEVEL&&rest>=need(level)){rest-=need(level);level++;}return{level,into:level<MAX_LEVEL?rest:0,need:level<MAX_LEVEL?need(level):0,max:level>=MAX_LEVEL};}
+  const RANKS=[{from:1,name:'入門'},{from:3,name:'初段'},{from:6,name:'二段'},{from:10,name:'三段'},{from:15,name:'四段'},{from:20,name:'五段'},{from:26,name:'循環名人'}];
+  const rankOf=level=>RANKS.filter(r=>level>=r.from).pop().name;
+  // 'classic' is the original page's AI and stays the default opponent.
+  const TIERS=[{id:'novice',name:'新手',xp:.5},{id:'classic',name:'原版',xp:.75},{id:'normal',name:'普通',xp:1},{id:'hard',name:'困難',xp:1.4},{id:'master',name:'大師',xp:2}];
+  const VARIANT_XP={standard:1,hollow:1.1,choice:1.15,wide:1.2};
+  const UNLOCKS=[
+    {level:1,kind:'tier',id:'novice'},{level:1,kind:'tier',id:'classic'},{level:1,kind:'tier',id:'normal'},{level:1,kind:'tier',id:'hard'},{level:1,kind:'variant',id:'standard'},
+    {level:2,kind:'variant',id:'hollow'},{level:3,kind:'variant',id:'choice'},{level:4,kind:'tier',id:'master'},{level:5,kind:'variant',id:'wide'}
+  ];
+  const unlockLevel=(kind,id)=>{const u=UNLOCKS.find(u=>u.kind===kind&&u.id===id);return u?u.level:Infinity;};
+  const unlocked=(level,kind,id)=>level>=unlockLevel(kind,id);
+  const tierIndex=id=>TIERS.findIndex(t=>t.id===id);
+  const tierXP=id=>(TIERS.find(t=>t.id===id)||TIERS[1]).xp;
+  const sum=lines=>lines.reduce((n,l)=>n+l[1],0);
+  // s: {outcome:'win'|'loss'|'draw', tier, variant, plies, second, hints, undos, blind, pvp}
+  function matchXP(s){
+    if(s.pvp){const lines=[['同機對局',10]];return{lines,base:10,mult:1,total:10};}
+    const lines=[['完成對局',20]];
+    if(s.outcome==='win'){lines.push(['勝局',60]);if(s.plies<=13)lines.push(['速勝（13 手內）',20]);if(s.second)lines.push(['後手取勝',15]);}
+    else if(s.outcome==='draw')lines.push(['和局',25]);
+    let mult=tierXP(s.tier)*(VARIANT_XP[s.variant]||1);
+    if(s.blind&&s.outcome==='win')mult*=1.1;
+    if(s.hints)mult*=Math.pow(.85,s.hints);
+    if(s.undos)mult*=.5;
+    mult=Math.round(mult*1000)/1000;
+    const base=sum(lines);return{lines,base,mult,total:Math.round(base*mult)};
+  }
+  function challengeXP(p,first){
+    if(!first){const lines=[['重解殘局',10]];return{lines,base:10,mult:1,total:10};}
+    const lines=[['首次破解',40],[p.moves+' 手殺',25*p.moves]];const base=sum(lines);return{lines,base,mult:1,total:base};
+  }
+  const blank=()=>({v:VERSION,xp:0,games:0,wins:0,losses:0,draws:0,streak:0,bestStreak:0,fastest:0,bestTier:-1,masterWins:0,solved:[]});
+  function sanitize(p){
+    const b=blank();if(!p||typeof p!=='object')return b;
+    for(const k of Object.keys(b)){if(k==='solved'||k==='v')continue;if(Number.isFinite(p[k])&&p[k]>=(k==='bestTier'?-1:0))b[k]=Math.floor(p[k]);}
+    if(Array.isArray(p.solved))b.solved=[...new Set(p.solved.filter(id=>typeof id==='string'&&/^p\d\d$/.test(id)))];
+    return b;
+  }
+  function finish(p,next,gain){const before=levelOf(p.xp),after=levelOf(next.xp);return{profile:next,gain,before,after,unlocked:UNLOCKS.filter(u=>u.level>before.level&&u.level<=after.level)};}
+  function record(profile,s){
+    const p=sanitize(profile),gain=matchXP(s),win=s.outcome==='win';
+    const next={...p,solved:p.solved.slice(),xp:p.xp+gain.total,games:p.games+1};
+    if(!s.pvp){
+      next.wins=p.wins+(win?1:0);next.losses=p.losses+(s.outcome==='loss'?1:0);next.draws=p.draws+(s.outcome==='draw'?1:0);
+      next.streak=win?p.streak+1:0;next.bestStreak=Math.max(p.bestStreak,next.streak);
+      if(win&&(!p.fastest||s.plies<p.fastest))next.fastest=s.plies;
+      if(win)next.bestTier=Math.max(p.bestTier,tierIndex(s.tier));
+      if(win&&s.tier==='master')next.masterWins=p.masterWins+1;
     }
+    return finish(p,next,gain);
+  }
+  function recordChallenge(profile,puzzle,solved){
+    const p=sanitize(profile);
+    if(!solved)return finish(p,{...p,solved:p.solved.slice()},{lines:[['未破解',0]],base:0,mult:1,total:0});
+    const first=!p.solved.includes(puzzle.id),gain=challengeXP(puzzle,first);
+    return finish(p,{...p,xp:p.xp+gain.total,solved:first?p.solved.concat(puzzle.id):p.solved.slice()},gain);
+  }
+  // A challenge opens when your level reaches it and the one before it is solved.
+  function challengeOpen(profile,puzzles,i){const p=sanitize(profile),lv=levelOf(p.xp).level;return lv>=puzzles[i].level&&(i===0||p.solved.includes(puzzles[i-1].id));}
+  function load(storage){try{return sanitize(JSON.parse(storage.getItem(KEY)||'null'));}catch(e){return blank();}}
+  function save(storage,p){try{storage.setItem(KEY,JSON.stringify(sanitize(p)));return true;}catch(e){return false;}}
+  return{MAX_LEVEL,KEY,need,levelOf,RANKS,rankOf,TIERS,VARIANT_XP,UNLOCKS,unlockLevel,unlocked,tierIndex,matchXP,challengeXP,blank,sanitize,record,recordChallenge,challengeOpen,load,save};
+})();
+</script>
+<script src="shared/fu-palette.js"></script>
+<script src="shared/fu-shell.js" defer></script>
+<script src="cyclic2d-engine.js"></script>
+<script type="module" id="cyclic2d-app">
+import { fonts, loadFonts } from './shared/fu-three.js';
+// Page controller + full-screen 2D canvas view. Rules live in cyclic2d-engine.js.
+const C=window.CyclicFlat,K=CyclicCareer,P=window.FuPalette,{X,O,BLOCK}=C;
+const $=id=>document.getElementById(id);
+const info=$('info');
+const prefs=Fu.prefs('cyclic2d',{tier:'classic',variant:'standard',mode:'ai',seat:'0',drawRule:false,next:true,next2:true,threat:true,confirm:false,anim:true,coords:true});
+Fu.bindSettings('settingsForm',prefs,name=>{if(name==='confirm')selected=null;if(name==='coords'&&game)layout();update();});
+const storage=(()=>{try{return window.localStorage;}catch(e){return null;}})();
+let profile=storage?K.load(storage):K.blank();
+const reduceMotion=()=>Fu.reducedMotion();
+const TIER_NAME=Object.fromEntries(K.TIERS.map(t=>[t.id,t.name]));
+// Colour tone of a seat: against the AI you are always the seal colour, whichever seat you take.
+const tone=seat=>cfg&&!cfg.pvp&&humanSeat===1?1-seat:seat;
 
-    function resetGame() {
-      gameOver = false; winningLine = [];
-      board = Array(9).fill('');
-      currentPlayer = 'X';
-      placedPieces = { 'X': 0, 'O': 0 };
-      placeOrder = { 'X': [], 'O': [] };
-      moveCount = 0;
-      updateMoveCount();
-      infoElem.textContent = '遊戲重新開始，輪到 黑子';
-      renderBoard();
+// ---------- state ----------
+let game=null,cfg=null,phase='lobby',humanSeat=0,selected=null,hover=-1,cursor=4,liftPick=-1;
+let aiToken=0,aiBusy=false,hintMove=null,hintsUsed=0,hintBusy=false,undos=0,notice='',humanMoves=0,anim=null,lastRecord=null;
+let worker=null;
+try{worker=new Worker('cyclic2d-ai-worker.js');worker.onmessage=e=>onWorker(e.data);worker.onerror=()=>{worker=null;};}catch(err){worker=null;}
+
+const colorOfSeat=seat=>seat===0?X:O;
+const seatOf=color=>color===X?0:1;
+const seatName=seat=>cfg&&cfg.pvp?(seat===0?'玩家一':'玩家二'):seat===humanSeat?'你':'AI';
+const roleName=color=>color===X?'先手':'後手';
+const who=color=>seatName(seatOf(color))+'（'+roleName(color)+'）';
+const isAISeat=seat=>cfg&&!cfg.pvp&&seat!==humanSeat;
+const humanToMove=()=>phase==='play'&&game&&!game.over&&!aiBusy&&!isAISeat(seatOf(game.turn));
+const levelNow=()=>K.levelOf(profile.xp).level;
+const label=cell=>C.label(cell,game?game.size:3);
+// The stone the human's next move lifts: the oldest, or the picked one under 擇二.
+const liftFor=()=>{const lifts=game.liftable();if(!lifts.length)return -1;return lifts.includes(liftPick)?liftPick:lifts[0];};
+
+// ---------- board overlay ----------
+const boardEl=$('board');let buttons=[];
+function buildBoard(){
+  const n=game.size;boardEl.innerHTML='';buttons=[];
+  $('subTitle').textContent='Cyclic · '+n+'×'+n+(cfg?' · '+C.VARIANTS[cfg.variant].name:'');
+  boardEl.style.gridTemplateColumns=`repeat(${n},1fr)`;boardEl.style.gridTemplateRows=`repeat(${n},1fr)`;
+  boardEl.setAttribute('aria-label',n+'×'+n+' 棋盤');
+  for(let cell=0;cell<n*n;cell++){
+    const b=document.createElement('button');b.type='button';b.className='cell';b.dataset.cell=cell;
+    b.addEventListener('click',()=>{cursor=cell;tap(cell);});
+    b.addEventListener('pointerenter',e=>{if(e.pointerType!=='mouse')return;hover=cell;dirty=true;update(false);});
+    b.addEventListener('pointerleave',()=>{if(hover===cell){hover=-1;dirty=true;update(false);}});
+    buttons[cell]=b;boardEl.appendChild(b);
+  }
+  layout();
+}
+$('variantRules').innerHTML=C.VARIANT_IDS.map(id=>`<li><strong>${C.VARIANTS[id].name}</strong>：${C.VARIANTS[id].desc}${id==='standard'?'':`（等級 ${K.unlockLevel('variant',id)} 解鎖，經驗 ×${K.VARIANT_XP[id]}）`}</li>`).join('');
+
+// ---------- game flow ----------
+function matchConfig(){
+  let tier=prefs.get('tier'),variant=prefs.get('variant');
+  if(!K.unlocked(levelNow(),'tier',tier))tier='classic';
+  if(!K.unlocked(levelNow(),'variant',variant))variant='standard';
+  const pvp=prefs.get('mode')==='pvp',seatPref=prefs.get('seat');
+  const seat=seatPref==='random'?(Math.random()<.5?0:1):Number(seatPref)||0;
+  return{kind:'match',tier,variant,pvp,seat,options:Object.assign({},C.variantOptions(variant),prefs.get('drawRule')?C.DRAW_RULE:{})};
+}
+function resetTransient(){aiToken++;aiBusy=false;hintBusy=false;selected=null;hintMove=null;hintsUsed=0;undos=0;notice='';humanMoves=0;anim=null;lastRecord=null;liftPick=-1;hover=-1;}
+function startMatch(config){
+  resetTransient();cfg=config||matchConfig();humanSeat=cfg.seat;
+  game=new C.Game(cfg.options);phase='play';
+  hideCurtains();buildBoard();cursor=Math.floor(game.cells/2);update();schedule();
+}
+function startChallenge(index){
+  const p=C.PUZZLES[index];if(!p||!K.challengeOpen(profile,C.PUZZLES,index))return false;
+  resetTransient();game=C.puzzleGame(p);
+  cfg={kind:'challenge',puzzle:p,index,tier:'master',variant:p.variant,pvp:false,seat:seatOf(game.turn),options:game.options()};
+  humanSeat=cfg.seat;phase='play';hideCurtains();buildBoard();
+  notice=`殘局「${p.name}」：${p.moves} 手內連線。`;cursor=Math.floor(game.cells/2);update();schedule();
+  return true;
+}
+function restart(){if(!cfg)return startMatch();if(cfg.kind==='challenge')return startChallenge(cfg.index);startMatch(matchConfig());}
+// A tap on a cell: pick which stone to lift (擇二), preview (two-step mode), or play.
+function tap(cell){
+  if(!humanToMove())return;
+  const lifts=game.liftable();
+  if(lifts.length>1&&lifts.includes(cell)){liftPick=cell;selected=null;notice='';update();return;}
+  if(!game.legal(cell))return;
+  const from=liftFor();
+  if(prefs.get('confirm')&&!(selected&&selected.to===cell&&selected.from===from)){selected={to:cell,from};update();return;}
+  play(cell,from);
+}
+function cycleLift(){if(!humanToMove())return;const lifts=game.liftable();if(lifts.length<2)return;liftPick=lifts[(lifts.indexOf(liftFor())+1)%lifts.length];selected=null;update();}
+function play(to,from){
+  const mover=seatOf(game.turn),record=game.play(to,from<0?undefined:from);if(!record)return;
+  if(!isAISeat(mover))humanMoves++;
+  hintMove=null;notice='';selected=null;liftPick=-1;lastRecord=record;
+  anim=prefs.get('anim')&&!reduceMotion()?{from:record.from,to:record.to,player:record.player,t0:performance.now(),dur:record.from>=0?440:240}:null;
+  if(cfg.kind==='challenge'&&!game.over&&!isAISeat(mover)&&humanMoves>=cfg.puzzle.moves){finishGame('challenge-out');return;}
+  if(game.over){finishGame();return;}
+  update();schedule();
+}
+function schedule(){
+  if(phase!=='play'||game.over||!isAISeat(seatOf(game.turn)))return;
+  const token=++aiToken;aiBusy=true;update();
+  ask('move',token,cfg.tier,reduceMotion()?0:420);
+}
+function ask(kind,token,level,delay){
+  const seed=(Math.random()*4294967296)>>>0,state=game.toJSON();
+  if(worker)setTimeout(()=>{if(token===aiToken||kind==='hint')worker.postMessage({token,kind,state,level,seed});},delay);
+  else setTimeout(()=>{const m=C.chooseMove(C.Game.from(state),{level});onWorker({token,kind,from:m&&m.from,to:m&&m.to});},delay+30);
+}
+let hintSerial=0;
+function onWorker({token,kind,from,to}){
+  if(kind==='hint'){
+    if(token!==hintSerial||!hintBusy)return;hintBusy=false;
+    if(to!=null&&humanToMove()&&game.legal(to,from)){hintMove={from,to};hintsUsed++;if(from>=0&&game.liftable().length>1)liftPick=from;notice='提示：'+(from>=0?label(from)+' → ':'')+label(to)+'。';}
+    update();return;
+  }
+  if(token!==aiToken||!aiBusy)return;aiBusy=false;
+  if(to==null||!game.legal(to,from)){update();return;}
+  play(to,from);
+}
+const HINTS=3;
+const hintAllowed=()=>humanToMove()&&!hintBusy&&cfg.kind==='match'&&hintsUsed<HINTS;
+function requestHint(){if(!hintAllowed())return;hintBusy=true;hintSerial++;update();ask('hint',hintSerial,game.size===3?'master':'hard',0);}
+const undoAllowed=()=>phase==='play'&&cfg&&cfg.kind==='match'&&!cfg.pvp&&!game.over&&game.moves.some(m=>seatOf(m.player)===humanSeat);
+function rebuild(moves){const g=new C.Game(cfg.options);for(const m of moves)g.play(m.to,m.from<0?undefined:m.from);return g;}
+function undo(){
+  if(!undoAllowed())return;
+  aiToken++;aiBusy=false;
+  const ms=game.moves.slice();let g;
+  do{ms.pop();g=rebuild(ms);}while(ms.length&&isAISeat(seatOf(g.turn)));
+  game=g;undos++;selected=null;hintMove=null;anim=null;liftPick=-1;notice='已悔棋：本局經驗減半。';
+  update();schedule();
+}
+function claimDraw(){if(phase!=='play'||!game.claimDraw())return;finishGame();}
+
+// ---------- end of game ----------
+function lineName(line){
+  const n=game.size,r=line.map(c=>Math.floor(c/n)),c=line.map(c=>c%n);
+  if(r.every(v=>v===r[0]))return '橫線';if(c.every(v=>v===c[0]))return '直線';return '斜線';
+}
+const drawReason=()=>game.draw==='repetition'?'同一局面第三次出現，和局。':game.draw==='claimed'?'局面重複三次，判為和局。':'已達 '+game.plyLimit+' 手上限，無人連線，和局。';
+function finishGame(reason){
+  phase='over';selected=null;hintMove=null;aiToken++;aiBusy=false;
+  update();
+  let out;
+  const humanColor=colorOfSeat(humanSeat);
+  if(cfg.kind==='challenge'){
+    const solved=game.winner===humanColor;
+    out=K.recordChallenge(profile,cfg.puzzle,solved);
+    out.view={seal:solved?'破題':'未破',kicker:'殘局 '+cfg.puzzle.id.slice(1)+' · '+cfg.puzzle.name,title:solved?'破解成功':'未能破解',
+      reason:solved?describeWin():reason==='challenge-out'?`${cfg.puzzle.moves} 手已用完，對手守住了。正確的第一手只有一個，換個角度再找找。`:game.winner?'對手搶先連線。':drawReason()};
+  }else{
+    const outcome=game.winner?(cfg.pvp?'win':game.winner===humanColor?'win':'loss'):'draw';
+    const blind=!prefs.get('next')&&!prefs.get('next2');
+    out=K.record(profile,{outcome,tier:cfg.tier,variant:cfg.variant,plies:game.ply,second:humanColor===O,hints:hintsUsed,undos,blind,pvp:cfg.pvp});
+    let seal,title;
+    if(cfg.pvp){seal=game.winner?'終局':'和局';title=game.winner?seatName(seatOf(game.winner))+'勝':'和局';}
+    else{seal=outcome==='win'?'大勝':outcome==='loss'?'惜敗':'和局';title=outcome==='win'?'你贏了':outcome==='loss'?'AI 勝出':'和局';}
+    out.view={seal,title,kicker:(cfg.pvp?'同機雙人':'AI · '+TIER_NAME[cfg.tier])+' · '+C.VARIANTS[cfg.variant].name,reason:game.winner?describeWin():drawReason()};
+  }
+  profile=out.profile;if(storage)K.save(storage,profile);
+  renderCareer();
+  for(const u of out.unlocked)Fu.toast('解鎖：'+unlockName(u),{tone:'ok',ms:4200});
+  const delay=reduceMotion()?150:1300;
+  setTimeout(()=>{if(phase==='over'&&game)showResult(out);},delay);
+}
+function describeWin(){const line=game.winLine;return who(game.winner)+'在第 '+game.ply+' 手連成'+lineName(line)+'：'+line.map(label).join(' → ')+'。';}
+const unlockName=u=>u.kind==='tier'?'對手「'+TIER_NAME[u.id]+'」':'變體「'+C.VARIANTS[u.id].name+'」';
+function showResult(out){
+  const v=out.view;$('resultSeal').textContent=v.seal;$('resultKicker').textContent=v.kicker;$('resultTitle').textContent=v.title;$('resultReason').textContent=v.reason;
+  const g=out.gain;
+  $('resultXp').innerHTML=g.lines.map(([k,n])=>`<dt>${k}</dt><dd>+${n}</dd>`).join('')+(g.mult!==1?`<dt>倍率</dt><dd>×${g.mult}</dd>`:'')+`<dt class="total">經驗</dt><dd class="total">+${g.total}</dd>`;
+  const up=$('resultLevelUp');
+  if(out.after.level>out.before.level){up.hidden=false;up.innerHTML=`升到 <b>等級 ${out.after.level}</b>・${K.rankOf(out.after.level)}`+(out.unlocked.length?'。解鎖：'+out.unlocked.map(unlockName).join('、'):'');}
+  else up.hidden=true;
+  const solved=cfg.kind==='challenge'&&game.winner===colorOfSeat(humanSeat);
+  $('againBtn').textContent=cfg.kind==='challenge'?(solved&&C.PUZZLES[cfg.index+1]?'下一題':'再試一次'):'再來一局';
+  showCurtain('result');
+}
+
+// ---------- curtains & lobby ----------
+const CURTAINS=['lobby','challenges','result'];
+function showCurtain(id){for(const c of CURTAINS)$(c).hidden=c!==id;const f=$(id).querySelector('.fu-btn--seal')||$(id).querySelector('.cc-puz:not(:disabled)')||$(id).querySelector('button');if(f)setTimeout(()=>f.focus({preventScroll:true}),40);}
+function hideCurtains(){for(const c of CURTAINS)$(c).hidden=true;}
+const curtainOpen=()=>CURTAINS.some(c=>!$(c).hidden);
+function goLobby(){if(Fu.isOpen('settings'))Fu.close('settings');aiToken++;aiBusy=false;if(phase==='play')phase='lobby';renderLobby();showCurtain('lobby');update();}
+function renderSeg(el,items,current,onPick){
+  el.innerHTML='';
+  for(const it of items){
+    const b=document.createElement('button');b.type='button';b.value=it.id;b.setAttribute('aria-pressed',String(it.id===current));b.disabled=!it.open;
+    b.innerHTML=it.name+(it.open?'':`<small>Lv${it.level}</small>`);b.addEventListener('click',()=>onPick(it.id));el.appendChild(b);
+  }
+}
+function renderLobby(){
+  const lv=levelNow();let tier=prefs.get('tier'),variant=prefs.get('variant');
+  if(!K.unlocked(lv,'tier',tier))tier='classic';if(!K.unlocked(lv,'variant',variant))variant='standard';
+  renderSeg($('tierSeg'),K.TIERS.map(t=>({id:t.id,name:t.name,open:K.unlocked(lv,'tier',t.id),level:K.unlockLevel('tier',t.id)})),tier,id=>{prefs.set('tier',id);renderLobby();});
+  renderSeg($('variantSeg'),C.VARIANT_IDS.map(id=>({id,name:C.VARIANTS[id].name,open:K.unlocked(lv,'variant',id),level:K.unlockLevel('variant',id)})),variant,id=>{prefs.set('variant',id);renderLobby();});
+  $('variantDesc').textContent=C.VARIANTS[variant].desc+'　對手經驗 ×'+K.TIERS.find(t=>t.id===tier).xp+(variant==='standard'?'':'，變體 ×'+K.VARIANT_XP[variant])+'。';
+  renderCareer();
+}
+function renderPuzzles(){
+  const list=$('puzzleList');list.innerHTML='';
+  C.PUZZLES.forEach((p,i)=>{
+    const open=K.challengeOpen(profile,C.PUZZLES,i),solved=profile.solved.includes(p.id);
+    const b=document.createElement('button');b.type='button';b.className='cc-puz'+(solved?' solved':'');b.disabled=!open;b.dataset.puzzle=p.id;
+    b.innerHTML=`<span>殘局 ${p.id.slice(1)} · ${C.VARIANTS[p.variant].name}</span><b>${p.name}</b><span>${p.moves} 手殺 · 執${p.turn===X?'先手':'後手'}</span><em>${solved?'已破':open?'未破':levelNow()<p.level?'LV'+p.level:'鎖'}</em>`;
+    b.addEventListener('click',()=>startChallenge(i));list.appendChild(b);
+  });
+}
+function openChallenges(){if(Fu.isOpen('settings'))Fu.close('settings');renderPuzzles();if(phase==='play'){aiToken++;aiBusy=false;phase='lobby';}showCurtain('challenges');update();}
+function careerHTML(){
+  const lv=K.levelOf(profile.xp);
+  return `<div class="lv"><small>LEVEL</small>${lv.level}</div><div class="who"><span style="font:inherit;color:var(--fu-paper)">${K.rankOf(lv.level)}</span><span>${lv.max?'MAX':lv.into+' / '+lv.need+' XP'}</span></div><div class="fu-meter fu-meter--gold" style="--value:${lv.max?1:(lv.into/lv.need).toFixed(3)}"><i></i></div>`;
+}
+function renderCareer(){
+  const lv=K.levelOf(profile.xp);
+  $('lvNum').textContent=lv.level;$('lvRank').textContent=K.rankOf(lv.level);$('lvBar').style.setProperty('--value',lv.max?1:(lv.into/lv.need).toFixed(3));
+  for(const id of ['lobbyCareer','resultCareer','drawerCareer'])$(id).innerHTML=careerHTML();
+  const p=profile;
+  $('careerStats').innerHTML=[[p.games,'對局'],[p.wins+' / '+p.losses+' / '+p.draws,'勝 / 負 / 和'],[p.bestStreak,'最長連勝'],[p.fastest||'—','最快勝（手）'],[p.bestTier>=0?K.TIERS[p.bestTier].name:'—','擊敗過的最強對手'],[p.solved.length+' / '+C.PUZZLES.length,'殘局已破']].map(([b,s])=>`<div><b>${b}</b><span>${s}</span></div>`).join('');
+  $('unlockList').innerHTML=K.UNLOCKS.filter(u=>u.level>1).map(u=>`<li class="${lv.level>=u.level?'got':''}">${unlockName(u)}<span>${lv.level>=u.level?'已解鎖':'LV '+u.level}</span></li>`).join('');
+}
+
+// ---------- status & panels ----------
+function statusText(){
+  if(phase==='lobby'||!game)return '選好對手與變體，開始對局。';
+  if(game.winner)return who(game.winner)+' 連成'+lineName(game.winLine)+'：'+game.winLine.map(label).join(' → ')+'，獲勝！';
+  if(game.draw)return drawReason();
+  if(phase==='over')return '對局結束。';
+  const pre=notice?notice+' ':'';
+  if(aiBusy)return pre+'AI 思考中…';
+  if(hintBusy)return '正在找提示…';
+  const lift=humanToMove()?liftFor():game.leaving(game.turn);
+  if(selected)return '預覽 <b>'+label(selected.to)+'</b>'+(selected.from>=0?'（'+label(selected.from)+' 將移走）':'')+'。再點一次確認。';
+  const left=cfg.kind==='challenge'?'　剩 '+(cfg.puzzle.moves-humanMoves)+' 手。':'';
+  const choose=humanToMove()&&game.liftable().length>1?'（可改選 '+game.liftable().filter(c=>c!==lift).map(label).join('')+'）':'';
+  return pre+'輪到 <b>'+who(game.turn)+'</b>'+(lift>=0?'，這手會移走 '+label(lift)+choose+'。':'。')+left;
+}
+function update(full=true){
+  dirty=true;
+  if(!game)return;
+  info.innerHTML=statusText();
+  const reps=game.repetitions();
+  $('plyLabel').textContent='手 '+game.ply+(game.plyLimit?'/'+game.plyLimit:'')+(reps>1?' · 重複 '+reps+(game.repeatLimit?'/'+game.repeatLimit:''):'');
+  if(full)for(const seat of [0,1]){
+    const color=colorOfSeat(seat),q=game.queues[color];
+    $('seatName'+seat).textContent=seatName(seat)+(cfg&&!cfg.pvp&&seat!==humanSeat?' · '+TIER_NAME[cfg.tier]:'');
+    $('seatRole'+seat).textContent=roleName(color)+' · '+q.length+'/'+game.stones;
+    $('seatRow'+seat).classList.toggle('is-turn',!game.over&&game.turn===color);$('seatRow'+seat).dataset.tone=tone(seat);
+    const full=q.length>=game.stones,lift=game.turn===color&&humanToMove()?liftFor():q[0];
+    const slots=[];for(let i=0;i<game.stones;i++){const c=q[i];slots.push(c==null?'<span class="cc-q is-empty">—</span>':`<span class="cc-q${full&&c===lift?' is-next':full&&i<game.choice?' is-alt':''}">${label(c)}</span>`);}
+    $('queue'+seat).innerHTML=slots.join('');
+  }
+  $('tierChip').textContent=cfg?(cfg.kind==='challenge'?'殘局 '+cfg.puzzle.id.slice(1):cfg.pvp?'同機雙人':'AI · '+TIER_NAME[cfg.tier]):'AI';
+  $('variantChip').textContent=cfg?C.VARIANTS[cfg.variant].name+(game.repeatLimit?' · 判和':''):'標準';
+  $('hintBtn').disabled=!hintAllowed();$('hintLeft').textContent=cfg&&cfg.kind==='match'?String(HINTS-hintsUsed):'—';
+  $('undoBtn').disabled=!undoAllowed();
+  $('claimBtn').hidden=!(phase==='play'&&game.canClaimDraw()&&!game.repeatLimit);
+  const canPlay=humanToMove(),lifts=canPlay?game.liftable():[];
+  buttons.forEach((b,cell)=>{
+    const v=game.board[cell];
+    const pickable=lifts.length>1&&lifts.includes(cell);
+    b.disabled=!(canPlay&&(v===0||pickable));
+    let t=label(cell)+'，'+(v===BLOCK?'封石':v?seatName(seatOf(v))+'的棋':'空格');
+    if(v===X||v===O){const q=game.queues[v];if(q.length>=game.stones){if(q[0]===cell)t+='，下一顆移動';else if(q[1]===cell)t+='，再下一顆移動';}}
+    if(pickable)t+=cell===liftFor()?'，已選為要移走的棋':'，可改選這顆移走';
+    if(game.winLine&&game.winLine.includes(cell))t+='，勝利連線';
+    b.setAttribute('aria-label',t);
+  });
+}
+
+// ---------- canvas view ----------
+const canvas=$('boardCanvas'),ctx=canvas.getContext('2d');
+const COL={ink0:P.hex('ink-0'),ink1:P.hex('ink-1'),ink2:P.hex('ink-2'),ink3:P.hex('ink-3'),paper:P.hex('paper'),dim:P.hex('paper-dim'),mute:P.hex('mute'),seal:P.hex('seal'),gold:P.hex('gold')};
+const seatColor=seat=>P.side(tone(seat));
+const seatRGBA=(seat,a)=>P.rgba(P.sides[tone(seat)],a);
+let dirty=true,W=0,H=0,DPR=1,rect={x:0,y:0,s:100};
+function layout(){
+  const r=canvas.getBoundingClientRect();W=r.width;H=r.height;DPR=Math.min(2,window.devicePixelRatio||1);
+  canvas.width=Math.round(W*DPR);canvas.height=Math.round(H*DPR);
+  const top=document.querySelector('.fu-topbar').getBoundingClientRect().bottom;
+  const panel=$('hudMatch').getBoundingClientRect(),dock=$('dock').getBoundingClientRect();
+  const phone=W<=720;
+  let x0=16,x1=W-16,y0=top+16,y1=dock.top-16;
+  if(phone)y0=Math.max(y0,panel.bottom+14);
+  else{const side=panel.right+24;if(W-2*side>=Math.min(560,y1-y0))x0=side,x1=W-side;else x0=side;}
+  const pad=prefs.get('coords')?(phone?22:28):8;
+  const s=Math.max(150,Math.min(x1-x0-2*pad,y1-y0-2*pad,720));
+  rect={x:Math.round((x0+x1)/2-s/2),y:Math.round((y0+y1)/2-s/2),s:Math.round(s)};
+  Object.assign(boardEl.style,{left:rect.x+'px',top:rect.y+'px',width:rect.s+'px',height:rect.s+'px'});
+  dirty=true;
+}
+const cellRect=cell=>{const n=game.size,g=rect.s/n;return{x:rect.x+(cell%n)*g,y:rect.y+Math.floor(cell/n)*g,s:g};};
+const cellCenter=cell=>{const r=cellRect(cell);return{x:r.x+r.s/2,y:r.y+r.s/2};};
+function cutRect(x,y,w,h,c){ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+w-c,y);ctx.lineTo(x+w,y+c);ctx.lineTo(x+w,y+h);ctx.lineTo(x+c,y+h);ctx.lineTo(x,y+h-c);ctx.closePath();}
+function stone(cx,cy,size,seat,alpha=1,outline=false){
+  const h=size/2,c=Math.max(4,size*.14);
+  ctx.save();ctx.globalAlpha=alpha;cutRect(cx-h,cy-h,size,size,c);
+  if(outline){ctx.setLineDash([5,4]);ctx.lineWidth=2;ctx.strokeStyle=seatColor(seat);ctx.stroke();}
+  else{ctx.fillStyle=seatColor(seat);ctx.fill();
+    // engraved inner frame
+    ctx.lineWidth=Math.max(1.5,size*.035);ctx.strokeStyle='rgba(7,9,12,.35)';cutRect(cx-h*.62,cy-h*.62,size*.62,size*.62,c*.6);ctx.stroke();}
+  ctx.restore();
+}
+function badge(cell,n,seat){
+  const r=cellRect(cell),sz=Math.max(16,r.s*.17),x=r.x+r.s-sz-r.s*.08,y=r.y+r.s*.08;
+  ctx.save();
+  if(n===1){ctx.fillStyle=COL.paper;ctx.fillRect(x,y,sz,sz);ctx.fillStyle=COL.ink0;}
+  else{ctx.strokeStyle=COL.dim;ctx.lineWidth=1.5;ctx.strokeRect(x+.75,y+.75,sz-1.5,sz-1.5);ctx.fillStyle=COL.dim;}
+  ctx.font=`700 ${Math.round(sz*.66)}px ${fonts.mono}`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(String(n),x+sz/2,y+sz/2+1);
+  ctx.restore();
+}
+function ease(t){return t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;}
+function draw(now){
+  ctx.setTransform(DPR,0,0,DPR,0,0);
+  ctx.fillStyle=COL.ink0;ctx.fillRect(0,0,W,H);
+  // faint ruled field behind the board
+  ctx.strokeStyle='rgba(236,228,208,.035)';ctx.lineWidth=1;
+  const step=Math.max(28,rect.s/(game?game.size*3:9));
+  ctx.beginPath();for(let x=rect.x%step;x<W;x+=step){ctx.moveTo(x+.5,0);ctx.lineTo(x+.5,H);}for(let y=rect.y%step;y<H;y+=step){ctx.moveTo(0,y+.5);ctx.lineTo(W,y+.5);}ctx.stroke();
+  if(!game)return;
+  const n=game.size,g=rect.s/n,gap=Math.max(4,g*.05);
+  // board slab with cut corners and seal registration corners
+  const m=Math.max(10,g*.1);
+  ctx.fillStyle=COL.ink1;cutRect(rect.x-m,rect.y-m,rect.s+2*m,rect.s+2*m,m*1.6);ctx.fill();
+  ctx.strokeStyle='rgba(236,228,208,.14)';ctx.lineWidth=1;ctx.stroke();
+  ctx.strokeStyle=COL.seal;ctx.lineWidth=2;const L=Math.max(14,m*1.4);
+  ctx.beginPath();ctx.moveTo(rect.x-m,rect.y-m+L);ctx.lineTo(rect.x-m,rect.y-m);ctx.lineTo(rect.x-m+L,rect.y-m);
+  ctx.moveTo(rect.x+rect.s+m,rect.y+rect.s+m-L);ctx.lineTo(rect.x+rect.s+m,rect.y+rect.s+m);ctx.lineTo(rect.x+rect.s+m-L,rect.y+rect.s+m);ctx.stroke();
+  if(prefs.get('coords')){
+    ctx.fillStyle=COL.mute;ctx.font=`600 ${Math.round(Math.max(10,Math.min(13,g*.08)))}px ${fonts.mono}`;ctx.textAlign='center';ctx.textBaseline='middle';
+    for(let i=0;i<n;i++){ctx.fillText(String(i+1),rect.x+g*i+g/2,rect.y-m-10);ctx.fillText(C.ROW_NAMES[i],rect.x-m-10,rect.y+g*i+g/2);}
+  }
+  const playing=humanToMove();
+  const marks=new Map();
+  for(const p of [X,O]){const q=game.queues[p];if(q.length<game.stones||game.over)continue;
+    const first=p===game.turn&&playing?liftFor():q[0];
+    if(prefs.get('next'))marks.set(first,1);
+    const second=q.find(c=>c!==first);if(prefs.get('next2')&&second!=null&&!marks.has(second))marks.set(second,2);}
+  const threats=prefs.get('threat')&&!game.over&&phase==='play'?{[X]:new Set(game.threats(X)),[O]:new Set(game.threats(O))}:{[X]:new Set(),[O]:new Set()};
+  const win=new Set(game.winLine||[]);
+  // preview: hovered (mouse), selected (two-step), or keyboard cursor
+  let preview=null;
+  if(playing){
+    const target=selected?selected.to:hover>=0?hover:kbdActive?cursor:-1;
+    if(target>=0&&game.board[target]===0)preview={to:target,from:liftFor()};
+  }
+  const lifts=playing?game.liftable():[];
+  const a=anim&&now-anim.t0<anim.dur?anim:null;if(anim&&!a)anim=null;
+  for(let cell=0;cell<n*n;cell++){
+    const r=cellRect(cell),x=r.x+gap/2,y=r.y+gap/2,s=r.s-gap,v=game.board[cell];
+    if(v===BLOCK){
+      ctx.save();cutRect(x,y,s,s,s*.08);ctx.clip();ctx.fillStyle=COL.ink1;ctx.fillRect(x,y,s,s);
+      ctx.strokeStyle=COL.ink3;ctx.lineWidth=3;ctx.beginPath();for(let k=-s;k<s;k+=10){ctx.moveTo(x+k,y+s);ctx.lineTo(x+k+s,y);}ctx.stroke();ctx.restore();
+      continue;
     }
-
-    function renderBoard(winLine = winningLine) {
-      boardElem.innerHTML = '';
-      const hintTargets = {
-        X: getHintTargets('X'),
-        O: getHintTargets('O')
-      };
-
-      board.forEach((cell, i) => {
-        const cellDiv = document.createElement('button');
-        cellDiv.type = 'button';
-        cellDiv.setAttribute('aria-label', `${coordLabel(i)}，${cell ? playerName(cell) : '空格'}`);
-        cellDiv.disabled = gameOver || isAI(currentPlayer) || Boolean(cell);
-        cellDiv.className = 'cell';
-        if (cell) {
-          const stone = document.createElement('span');
-          stone.className = 'classic-stone' + (cell === 'O' ? ' white' : '');
-          stone.setAttribute('aria-hidden', 'true');
-          cellDiv.appendChild(stone);
-        }
-        if (winLine.includes(i)) {
-          cellDiv.classList.add('highlight');
-        }
-        if (showNextHint) {
-          if (hintTargets.X.next === i) cellDiv.classList.add('hint-x-next');
-          if (hintTargets.O.next === i) cellDiv.classList.add('hint-o-next');
-        }
-        if (showNext2Hint) {
-          if (hintTargets.X.next2 === i) cellDiv.classList.add('hint-x-next2');
-          if (hintTargets.O.next2 === i) cellDiv.classList.add('hint-o-next2');
-        }
-        const first = cellDiv.classList.contains('hint-x-next') || cellDiv.classList.contains('hint-o-next');
-        const second = cellDiv.classList.contains('hint-x-next2') || cellDiv.classList.contains('hint-o-next2');
-        if ((first || second) && !winLine.includes(i)) {
-          const badge = document.createElement('span');
-          badge.className = 'queue-badge' + (first ? '' : ' second');
-          badge.textContent = first ? '1' : '2';
-          badge.setAttribute('aria-hidden', 'true');
-          cellDiv.appendChild(badge);
-          cellDiv.setAttribute('aria-label', cellDiv.getAttribute('aria-label') + (first ? '，下一顆移動' : '，再下一顆移動'));
-        }
-        if (winLine.includes(i)) cellDiv.setAttribute('aria-label', cellDiv.getAttribute('aria-label') + '，勝利連線');
-        // 只有在 X 的回合才可點擊
-        if (!gameOver && !isAI(currentPlayer)) {
-          cellDiv.onclick = () => handleClick(i);
-        } else {
-          cellDiv.onclick = null;
-        }
-        boardElem.appendChild(cellDiv);
-      });
+    ctx.fillStyle=win.has(cell)?'rgba(236,228,208,.12)':(preview&&preview.to===cell)||(cell===cursor&&kbdActive&&playing)?COL.ink3:COL.ink2;
+    cutRect(x,y,s,s,s*.08);ctx.fill();
+    if(cell===cursor&&kbdActive&&playing){ctx.strokeStyle=COL.paper;ctx.lineWidth=2;ctx.strokeRect(x+5,y+5,s-10,s-10);}
+    if(lastRecord&&lastRecord.to===cell&&!win.size){ctx.fillStyle=COL.dim;ctx.fillRect(x+s*.08,y+s-s*.08-4,s*.12,3);}
+    if(hintMove&&hintMove.to===cell){ctx.strokeStyle=COL.gold;ctx.lineWidth=3;cutRect(x+3,y+3,s-6,s-6,s*.07);ctx.stroke();}
+    for(const p of [X,O])if(threats[p].has(cell)&&v===0){
+      const seat=seatOf(p),d=s*(p===game.turn?.2:.15);
+      ctx.save();ctx.translate(x+s/2,y+s/2);ctx.rotate(Math.PI/4);ctx.strokeStyle=seatColor(seat);ctx.lineWidth=2.5;ctx.globalAlpha=p===game.turn?.95:.55;ctx.strokeRect(-d,-d,2*d,2*d);ctx.restore();
     }
-
-    function getHintTargets(player) {
-      if (placedPieces[player] < 3) return { next: null, next2: null };
-      const order = placeOrder[player];
-      return {
-        next: order[0] ?? null,
-        next2: order[1] ?? null
-      };
+    if(v===X||v===O){
+      if(a&&a.to===cell)continue;
+      const seat=seatOf(v),leaving=preview&&preview.from===cell;
+      stone(x+s/2,y+s/2,s*.62,seat,leaving?.28:1);
+      if(lifts.length>1&&lifts.includes(cell)&&v===game.turn){ctx.strokeStyle=cell===liftFor()?COL.paper:COL.dim;ctx.lineWidth=2;ctx.setLineDash(cell===liftFor()?[]:[4,4]);cutRect(x+4,y+4,s-8,s-8,s*.07);ctx.stroke();ctx.setLineDash([]);}
     }
-
-    function coordLabel(idx) {
-      if (idx === null || idx === undefined) return '—';
-      const r = Math.floor(idx / 3) + 1;
-      const c = (idx % 3) + 1;
-      return `${r} 行 ${c} 列`;
+    if(marks.has(cell)&&!win.has(cell))badge(cell,marks.get(cell));
+  }
+  // ghost stone and arrow for the previewed move
+  if(preview){
+    const t=cellCenter(preview.to),seat=seatOf(game.turn);
+    stone(t.x,t.y,(g-gap)*.62,seat,.45);
+    if(preview.from>=0){
+      const f=cellCenter(preview.from);ctx.save();ctx.strokeStyle=seatRGBA(seatOf(game.turn),.8);ctx.lineWidth=2;ctx.setLineDash([6,5]);
+      const dx=t.x-f.x,dy=t.y-f.y,len=Math.hypot(dx,dy),ux=dx/len,uy=dy/len,off=g*.33;
+      ctx.beginPath();ctx.moveTo(f.x+ux*off,f.y+uy*off);ctx.lineTo(t.x-ux*off,t.y-uy*off);ctx.stroke();ctx.setLineDash([]);
+      const hx=t.x-ux*off,hy=t.y-uy*off;ctx.beginPath();ctx.moveTo(hx,hy);ctx.lineTo(hx-ux*10-uy*6,hy-uy*10+ux*6);ctx.lineTo(hx-ux*10+uy*6,hy-uy*10-ux*6);ctx.closePath();ctx.fillStyle=seatRGBA(seatOf(game.turn),.8);ctx.fill();ctx.restore();
     }
+  }
+  // move animation: slide from the lifted cell, or drop in while placing
+  if(a){
+    const k=ease(Math.min(1,(now-a.t0)/a.dur)),t=cellCenter(a.to),seat=seatOf(a.player);
+    if(a.from>=0){const f=cellCenter(a.from);stone(f.x+(t.x-f.x)*k,f.y+(t.y-f.y)*k,(g-gap)*.62,seat);}
+    else stone(t.x,t.y,(g-gap)*.62*(1.25-.25*k),seat,k);
+  }
+  if(game.winLine&&!a){
+    const cs=game.winLine.map(cellCenter);
+    ctx.save();ctx.strokeStyle=COL.paper;ctx.lineWidth=Math.max(4,g*.05);ctx.lineCap='square';
+    ctx.beginPath();ctx.moveTo(cs[0].x,cs[0].y);ctx.lineTo(cs[cs.length-1].x,cs[cs.length-1].y);ctx.stroke();ctx.restore();
+  }
+}
+let kbdActive=false;
+function frame(now){
+  requestAnimationFrame(frame);
+  if(!dirty&&!anim)return;
+  dirty=false;draw(now);
+  if(anim)dirty=true;
+}
+new ResizeObserver(()=>{if(game)layout();else{const r=canvas.getBoundingClientRect();W=r.width;H=r.height;DPR=Math.min(2,window.devicePixelRatio||1);canvas.width=Math.round(W*DPR);canvas.height=Math.round(H*DPR);dirty=true;}}).observe(canvas);
+window.addEventListener('resize',()=>{if(game)layout();});
+// The canvas only draws Latin coordinates in the mono stack, but load the serif first so
+// any canvas text added later never paints in a fallback face.
+loadFonts('ABCD1234').then(()=>{dirty=true;});
 
-    function updateMoveCount() {
-      moveCountElem.textContent = moveCount;
-    }
+// ---------- input ----------
+const playing=()=>phase==='play'&&!curtainOpen()&&!Fu.isOpen('settings')&&!Fu.isOpen('rules');
+function moveCursor(dr,dc){if(!game)return;kbdActive=true;const n=game.size;let r=Math.floor(cursor/n),c=cursor%n;r=(r+dr+n)%n;c=(c+dc+n)%n;cursor=r*n+c;dirty=true;}
+Fu.hotkey('arrowleft','游標左移',()=>moveCursor(0,-1),{when:playing});
+Fu.hotkey('arrowright','游標右移',()=>moveCursor(0,1),{when:playing});
+Fu.hotkey('arrowup','游標上移',()=>moveCursor(-1,0),{when:playing});
+Fu.hotkey('arrowdown','游標下移',()=>moveCursor(1,0),{when:playing});
+// Enter/Space act on the cursor (or the focused cell), but leave other focused buttons alone.
+const onOtherButton=()=>{const el=document.activeElement;return !!(el&&el.closest&&el.closest('button:not(.cell),a,select,input'));};
+const keyPlay=()=>{const el=document.activeElement;if(el&&el.classList&&el.classList.contains('cell'))cursor=Number(el.dataset.cell);kbdActive=true;tap(cursor);};
+Fu.hotkey('enter','落子',keyPlay,{when:()=>playing()&&humanToMove()&&!onOtherButton()});
+Fu.hotkey(' ','落子',keyPlay,{when:()=>playing()&&humanToMove()&&!onOtherButton()});
+Fu.hotkey('t','切換要移走的棋（擇二）',cycleLift,{when:()=>playing()&&humanToMove()&&game.liftable().length>1});
+for(let k=1;k<=9;k++)Fu.hotkey(String(k),'下在第 '+k+' 格',()=>{if(game.size!==3)return;cursor=k-1;tap(k-1);},{when:()=>playing()&&humanToMove()});
+Fu.hotkey('escape','取消預覽',()=>{if(selected){selected=null;update();}},{when:playing});
+Fu.hotkey('h','提示',requestHint,{when:playing});
+Fu.hotkey('u','悔棋',undo,{when:playing});
+Fu.hotkey('n','重新開始',restart,{when:()=>phase!=='lobby'&&!curtainOpen()});
+Fu.hotkey('c','殘局挑戰',openChallenges,{when:()=>!Fu.isOpen('settings')&&$('challenges').hidden});
+Fu.hotkey('l','大廳',goLobby,{when:()=>$('lobby').hidden});
+Fu.hotkey('s','設定',()=>Fu.toggle('settings'));
+Fu.hotkey('?','規則',()=>Fu.toggle('rules'));
+$('stage').addEventListener('pointerdown',e=>{if(e.pointerType!=='mouse')kbdActive=false;});
+document.addEventListener('mousemove',()=>{if(kbdActive){kbdActive=false;dirty=true;}},{passive:true});
 
-    // 用於檢查是否有人連成三子
-    function checkWin(player, theBoard = board) {
-      const lines = [
-        [0,1,2],[3,4,5],[6,7,8],
-        [0,3,6],[1,4,7],[2,5,8],
-        [0,4,8],[2,4,6]
-      ];
-      for (let line of lines) {
-        if (line.every(i => theBoard[i] === player)) {
-          return line;
-        }
-      }
-      return null;
-    }
+$('startBtn').addEventListener('click',()=>startMatch());
+$('lobbyChallenges').addEventListener('click',openChallenges);
+$('topChallenges').addEventListener('click',openChallenges);
+$('topLobby').addEventListener('click',goLobby);
+$('lvChip').addEventListener('click',()=>Fu.open('settings'));
+$('chBack').addEventListener('click',()=>{if(game&&phase!=='over'&&cfg){phase='play';hideCurtains();update();schedule();}else goLobby();});
+$('hintBtn').addEventListener('click',requestHint);
+$('undoBtn').addEventListener('click',undo);
+$('claimBtn').addEventListener('click',claimDraw);
+$('newBtn').addEventListener('click',restart);
+$('newGame').addEventListener('click',()=>{Fu.close('settings');restart();});
+$('drawerLobby').addEventListener('click',goLobby);
+$('againBtn').addEventListener('click',()=>{
+  if(cfg.kind==='challenge'){const solved=game.winner===colorOfSeat(humanSeat);const next=cfg.index+1;if(solved&&C.PUZZLES[next]&&K.challengeOpen(profile,C.PUZZLES,next))return startChallenge(next);if(solved&&C.PUZZLES[next])return openChallenges();return startChallenge(cfg.index);}
+  startMatch();
+});
+$('viewBoardBtn').addEventListener('click',()=>{hideCurtains();update();});
+$('resultLobbyBtn').addEventListener('click',goLobby);
+$('resetCareer').addEventListener('click',()=>{if(!confirm('確定要清除等級、經驗與殘局紀錄？'))return;profile=K.blank();if(storage)K.save(storage,profile);renderLobby();renderPuzzles();Fu.toast('生涯已重置',{tone:'warn'});});
+document.addEventListener('fu:close',e=>{if(e.target.id==='settings'&&game)layout();});
 
-    // 取得當前玩家所有可行走法 (from -> to)
-    // 若尚未放滿3個棋子，from=null 表示此回合是直接放子
-    function getAllMoves(player, b, pPieces, pOrder) {
-      let moves = [];
-      if (pPieces[player] < 3) {
-        // 可以放在任一空位
-        for (let i = 0; i < 9; i++) {
-          if (b[i] === '') {
-            moves.push({ from: null, to: i });
-          }
-        }
-      } else {
-        // 已放滿3顆，必須移動最先放入的那顆
-        if (pOrder[player].length > 0) {
-          const moveFrom = pOrder[player][0];
-          for (let i = 0; i < 9; i++) {
-            if (b[i] === '') {
-              moves.push({ from: moveFrom, to: i });
-            }
-          }
-        }
-      }
-      return moves;
-    }
+// Lobby backdrop: an empty board behind the curtain.
+game=new C.Game();cfg=null;buildBoard();
+renderLobby();showCurtain('lobby');update();
+requestAnimationFrame(frame);
 
-    // 對於 AI 來說，簡易向前看2層：
-    // 1. 嘗試所有自己的合法走法
-    //   a. 如果能直接贏，就選這步
-    //   b. 否則，模擬對方最好的回應
-    // 2. 選取評分最高的走法
-    function aiDecideMove() {
-      const moves = getAllMoves('O', board, placedPieces, placeOrder);
-      if (moves.length === 0) {
-        return null; // 無法移動
-      }
-
-      let bestScore = -Infinity;
-      let bestMove = moves[0];
-
-      for (let mv of moves) {
-        // 複製一份
-        const tmpBoard = board.slice();
-        const tmpPlaced = { 'X': placedPieces.X, 'O': placedPieces.O };
-        const tmpOrder = {
-          'X': placeOrder.X.slice(),
-          'O': placeOrder.O.slice()
-        };
-
-        // 執行 O 的此步
-        if (mv.from === null) {
-          // 放子
-          tmpBoard[mv.to] = 'O';
-          tmpPlaced['O']++;
-          tmpOrder['O'].push(mv.to);
-        } else {
-          // 移子
-          tmpBoard[mv.from] = '';
-          tmpBoard[mv.to] = 'O';
-          tmpOrder['O'].shift();
-          tmpOrder['O'].push(mv.to);
-        }
-
-        // 檢查是否直接贏
-        if (checkWin('O', tmpBoard)) {
-          // 如果能直接贏，給個超高分
-          return mv;
-        }
-
-        // 向前看一步，模擬 X 的可能走法
-        let score = simulateOpponent(tmpBoard, tmpPlaced, tmpOrder);
-
-        // 取最大的score
-        if (score > bestScore) {
-          bestScore = score;
-          bestMove = mv;
-        }
-      }
-
-      return bestMove;
-    }
-
-    // 模擬 X 的最佳回應(只看一步)
-    // 如果對方能贏，AI給負評分；否則就 0
-    function simulateOpponent(tmpBoard, tmpPlaced, tmpOrder) {
-      // 找 X 的所有走法
-      const movesX = getAllMoves('X', tmpBoard, tmpPlaced, tmpOrder);
-      if (movesX.length === 0) {
-        // 對方無法移動，就算是對AI有利
-        return 0;
-      }
-
-      // 如果任何一種走法能令 X 勝利，就很糟糕(給-1)；
-      // 如果都無法令 X 勝利，則 0
-      for (let mv of movesX) {
-        const b2 = tmpBoard.slice();
-        const p2 = { 'X': tmpPlaced.X, 'O': tmpPlaced.O };
-        const o2 = {
-          'X': tmpOrder.X.slice(),
-          'O': tmpOrder.O.slice()
-        };
-
-        if (mv.from === null) {
-          b2[mv.to] = 'X';
-          p2['X']++;
-          o2['X'].push(mv.to);
-        } else {
-          b2[mv.from] = '';
-          b2[mv.to] = 'X';
-          o2['X'].shift();
-          o2['X'].push(mv.to);
-        }
-
-        if (checkWin('X', b2)) {
-          return -1; // X 能贏，AI這條分數不利
-        }
-      }
-      // 如果 X 不能立即贏
-      return 0;
-    }
-
-    function handleClick(i) {
-      // 如果是 AI 回合，不允許手動點擊
-      if (gameOver || isAI(currentPlayer)) {
-        return;
-      }
-
-      doMove(currentPlayer, i);
-    }
-
-    // 執行移動(玩家 or AI)
-    function doMove(player, targetIndex) {
-      // 放棋 or 移動棋
-      if (placedPieces[player] < 3) {
-        if (board[targetIndex] !== '') return; // 格子已被佔
-        board[targetIndex] = player;
-        placedPieces[player]++;
-        placeOrder[player].push(targetIndex);
-      } else {
-        // 按先入順序
-        const from = placeOrder[player][0];
-        // 清除
-        board[from] = '';
-        if (board[targetIndex] !== '') {
-          // 如果要放的位置不空，復原
-          board[from] = player;
-          return;
-        }
-        board[targetIndex] = player;
-        placeOrder[player].shift();
-        placeOrder[player].push(targetIndex);
-      }
-      moveCount++;
-      updateMoveCount();
-      checkAndNext(player);
-    }
-
-    function checkAndNext(player) {
-      const winLine = checkWin(player);
-      if (winLine) {
-        gameOver = true; winningLine = winLine;
-        infoElem.textContent = playerName(player) + " 贏了！";
-        renderBoard(winLine);
-        // 移除點擊事件
-        const cells = document.querySelectorAll('.cell');
-        cells.forEach(cell => cell.onclick = null);
-        return;
-      }
-      switchPlayer();
-    }
-
-    function switchPlayer() {
-      currentPlayer = (currentPlayer === 'X') ? 'O' : 'X';
-      infoElem.textContent = '輪到 ' + playerName(currentPlayer);
-      renderBoard();
-      if (isAI(currentPlayer)) {
-        // AI 執行二層搜索
-        const mv = aiDecideMove();
-        if (!mv) {
-          // AI 無法移動 => 直接跳回玩家
-          switchPlayer();
-          return;
-        }
-        // 執行移動
-        if (mv.from === null) {
-          doMove('O', mv.to);
-        } else {
-          doAIMoveFromTo(mv.from, mv.to);
-        }
-      }
-    }
-
-    // 給 AI 使用的移動 (不需再檢查 from 是否空、to 是否空)
-    function doAIMoveFromTo(f, t) {
-      board[f] = '';
-      board[t] = 'O';
-      placeOrder['O'].shift();
-      placeOrder['O'].push(t);
-      moveCount++;
-      updateMoveCount();
-      checkAndNext('O');
-    }
-
-    function playerName(p) {
-      return p === 'X' ? '黑子' : '白子';
-    }
-
-    // 初始化
-    updateMoveCount();
-    renderBoard();
-  </script>
+// Test hook (Playwright).
+window.CyclicFlatPage={get game(){return game;},get phase(){return phase;},get busy(){return aiBusy||hintBusy;},legal:()=>humanToMove()?game.legalMoves().map(m=>m.to).filter((v,i,a)=>a.indexOf(v)===i):[],cellCenter:cell=>cellCenter(cell),get cfg(){return cfg;},get profile(){return profile;}};
+</script>
 </body>
 </html>
