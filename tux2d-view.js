@@ -1,7 +1,7 @@
 /* Tux 2D 山路快遞 — three.js chase-camera view (ES module).
    Ink-wash alpine valley: ink mountains, paper snow, one vermilion kart (you). It only reads
    window.TuxApp / window.tux2dGame; every rule stays in tux2d-engine.js. Original low-poly art. */
-import { THREE, createStage, palette } from './shared/fu-three.js';
+import { THREE, createStage, palette, fonts, loadFonts } from './shared/fu-three.js';
 
 const app = window.TuxApp, E = window.Tux2D, canvas = document.getElementById('tux-board');
 const ZS = 0.1, HALF = 2.4;              // world units per engine z, road half-width in world units
@@ -68,12 +68,17 @@ function seeded(seed) { let n = 2166136261; for (const c of String(seed)) n = Ma
 // Label textures (signs, gates, name tags): paper text on ink, mono + serif, never an image file.
 function labelTexture(lines, { w = 512, h = 128, bg = '#0d1116', fg = '#ece4d0', accent = null, size = 54 } = {}) {
   const c = document.createElement('canvas'); c.width = w; c.height = h; const g = c.getContext('2d');
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 4;
+  const draw = () => { g.clearRect(0, 0, w, h); paintLabel(g, lines, { w, h, bg, fg, accent, size }); t.needsUpdate = true; };
+  // Canvas text does not fetch the on-demand serif slices, so repaint once this label's glyphs have loaded.
+  draw(); loadFonts(lines.map(l => l.text).join('')).then(draw); return t;
+}
+function paintLabel(g, lines, { w, h, bg, fg, accent, size }) {
   g.fillStyle = bg; g.fillRect(0, 0, w, h);
   g.strokeStyle = 'rgba(236,228,208,.35)'; g.lineWidth = 3; g.strokeRect(6, 6, w - 12, h - 12);
   if (accent) { g.fillStyle = accent; g.fillRect(0, 0, 14, h); }
   g.fillStyle = fg; g.textAlign = 'center'; g.textBaseline = 'middle';
-  lines.forEach((l, i) => { g.font = `${l.weight || 900} ${l.size || size}px ${l.mono ? 'ui-monospace, monospace' : '"Noto Serif TC","Songti TC","PMingLiU",serif'}`; g.fillStyle = l.color || fg; g.fillText(l.text, w / 2 + (accent ? 7 : 0), h * (lines.length === 1 ? .52 : (i + .5) / lines.length + .02)); });
-  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 4; return t;
+  lines.forEach((l, i) => { g.font = `${l.weight || 900} ${l.size || size}px ${l.mono ? fonts.mono : fonts.display}`; g.fillStyle = l.color || fg; g.fillText(l.text, w / 2 + (accent ? 7 : 0), h * (lines.length === 1 ? .52 : (i + .5) / lines.length + .02)); });
 }
 
 // ---------- Static world (rebuilt when the route or seed changes) ----------
