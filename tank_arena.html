@@ -1,23 +1,823 @@
-<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>鋼芯競技場 · 蟲隊炮擊 - FuGames</title><link rel="icon" href="favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="fulab-theme.css"><style>
-.artillery-page{max-width:1100px}.battle-layout{display:grid;grid-template-columns:minmax(0,1fr) 250px;gap:18px}.field{position:relative;align-self:start;border:1px solid #ccd9dd;border-radius:14px;overflow:hidden;background:#eef4f5}.field canvas{display:block;width:100%;aspect-ratio:800/460;touch-action:manipulation}.battle-controls{display:flex;flex-direction:column;gap:12px;min-width:0}.battle-controls label{display:block;font-weight:650;font-size:13px}.battle-controls input{width:100%;min-height:40px;accent-color:#267477}.battle-controls .btn{min-height:44px}.move-row,.action-row{display:flex;gap:8px;flex-wrap:wrap}.move-row>*{flex:1}.hand{display:grid;gap:7px}.hand .btn{display:flex;flex-direction:column;align-items:flex-start;white-space:normal;text-align:left;font-size:13px}.hand small{font-weight:400;color:#64717a}.hand [aria-pressed=true]{background:#dfefeb;border:2px solid #267477}.battle-hud{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}.battle-hud span{padding:6px 10px;background:#f2f5f7;border-radius:8px;font-size:12px}.battle-status{min-height:44px;font-size:13px;margin:10px 0}.turn-badge{font-weight:750;color:#267477}.field .board-overlay{position:absolute;inset:0}.battle-controls h2{font-size:15px;margin:0}.battle-notes{font-size:12px;color:#64717a}.hp-roster{display:flex;flex-wrap:wrap;gap:8px;font-size:12px;margin-top:8px}.hp-roster span{border-left:3px solid var(--team);padding:4px 8px}.battle-controls button:disabled{opacity:.5}
-@media(max-width:700px){.battle-layout{grid-template-columns:1fr}.battle-controls{display:grid;grid-template-columns:1fr 1fr;gap:8px 14px}.hand,.battle-controls h2,.battle-notes,.action-row{grid-column:1/-1}.hand{grid-template-columns:repeat(3,minmax(0,1fr))}.hand .btn{padding:9px;font-size:12px}.hand small{font-size:10px}.battle-controls .action-row .btn{flex:1}.move-row{grid-column:1/-1}.battle-hud{gap:4px}.battle-hud span{font-size:11px;padding:5px}.play-panel{padding:12px!important}.game-dialog{padding:14px!important}.game-dialog p{font-size:12px}.field:has(.board-overlay:not([hidden])){min-height:285px}}
-@media(max-height:500px) and (min-width:701px){.battle-layout{grid-template-columns:minmax(0,1fr) 280px}.battle-controls{max-height:300px;overflow:auto;padding:2px}.page-header{display:none}.artillery-page{padding:10px}.hand{grid-template-columns:1fr}.field{max-height:300px}.field canvas{max-height:300px;object-fit:contain}}
-</style></head><body><main class="game-page artillery-page"><nav class="site-nav" aria-label="遊戲導覽"><a class="site-brand" href="index.html">FuGames</a><a href="index.html">所有遊戲 <svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#launch"></use></svg></a></nav><header class="page-header"><p class="eyebrow">TURN BASED / 原創蟲隊 × AI</p><h1><svg class="page-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#tank_arena"></use></svg>鋼芯競技場</h1><p class="lead">慢慢瞄，穩穩打。兩隻鋼芯蟲、三張戰術牌，一砲改變地形。</p></header>
-<section class="card play-panel" aria-label="蟲隊炮擊戰場"><div class="battle-hud"><span id="turn" class="turn-badge">準備登場</span><span id="wind">風向 0</span><span id="move">可移動 60</span><span>最多 40 回合</span></div><div class="battle-layout"><div><div class="field"><canvas id="board" width="800" height="460" aria-label="炮擊場地。選建築牌後點選空地放置；瞄準請用角度及力度滑桿。" tabindex="0"></canvas><div class="board-overlay" id="overlay"><div class="game-dialog" role="dialog" aria-labelledby="dialog-title"><p class="eyebrow">青綠蟲隊是你 · 橘色蟲隊是 AI</p><h2 id="dialog-title">每回合只需一砲</h2><p id="dialog-copy">先用左右鈕移動，再調角度與力度，虛線就是預測路徑。可先用一張牌：建築選牌後點空地。按「開砲」就換對手，無倒數壓力。</p><button class="btn primary" id="play">開始對戰</button></div></div></div><div class="hp-roster" id="roster"></div><p class="battle-status" id="status" role="status" aria-live="polite">擊敗對方兩隻蟲即勝；40 回合後比總生命。</p></div><div class="battle-controls"><label>角度 <output id="angleValue">45° 向右</output><input type="range" id="angle" min="10" max="170" step="1" value="45" aria-label="瞄準角度"></label><label>力度 <output id="powerValue">65%</output><input type="range" id="powerInput" min="25" max="100" step="1" value="65" aria-label="發射力度"></label><div class="move-row"><button class="btn" id="moveLeft">← 左移 15</button><button class="btn" id="moveRight">右移 15 →</button></div><h2>戰術手牌 · 每回合最多 1 張</h2><div class="hand" id="hand"></div><p class="battle-notes" id="cardHint">建築可放在當前蟲左右 100 格內；掩體保護附近友軍，牆可被轟碎。</p><div class="action-row"><button class="btn primary" id="fire">開砲</button><button class="btn" id="pass">結束回合</button></div><div class="action-row"><button class="btn" id="pause">暫停</button><button class="btn" id="restart">重新開始</button></div></div></div></section>
-<details class="card rules"><summary>玩法、建築與公平 AI</summary><div class="rules-body"><ol><li>雙方各兩隻蟲，每隻 70 HP；你先手，雙方交替行動，同隊存活蟲輪流上場。每回合可移動 60 格、用一張牌，再開一砲；也可結束回合。沒有瞄準倒數。</li><li>角度 10° 朝右、90° 垂直、170° 朝左；力度 25–100。虛線顯示包含風力與障礙的完整彈道，雙方用同一物理公式。高角度可越牆，爆炸會傷到友軍。</li><li>普通彈爆傷最高 42，距離越遠越輕，爆炸範圍 62。地面可炸出坑洞，大落差會造成額外摔傷。砲彈命中牆會提早爆炸。</li><li>每回合抽一張牌（手牌上限 3）；每方起手各有牆與急救包。擋彈牆 36 HP；掩體 40 HP，85 格內友軍爆傷減半；急救包恢復當前蟲 20 HP（不超過 70）；鑽地彈把爆傷改為 28、範圍 86，挖出更大的坑。每回合最多用一張。</li><li>建築須放在當前蟲 100 格內的空地，不能壓人或重疊，場上最多八座。點同張牌取消選擇；放置不合法不扣牌。建築阻擋移動，可用高拋繞過或先轟碎，掩體仍會被破壞。</li><li>AI 只讀公開地形、角色、建築、風向和自己的手牌；不讀你的手牌、未抽牌或隨機狀態。它用有限的 176 組角度／力度選擇攻擊，會急救、建掩體、架牆及用鑽地彈；沒有命中加成。</li><li>一隊全倒就結束；最多 40 回合，依剩餘總 HP 判勝，同 HP 平手。暫停會凍結飛行與 AI；切到背景自動暫停，回來手動繼續。角色、地形、美術與程式皆為 FuGames 原創。</li></ol></div></details><footer class="site-footer">FuGames · 隨時來一局</footer></main>
-<script src="tank-arena-engine.js"></script><script>
+<!doctype html>
+<html lang="zh-Hant">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><meta name="description" content="慢慢瞄，穩穩打。兩隻鋼芯蟲、一手戰術牌、會被轟出坑的地形。五張戰場、四種天候、四級 AI 與生涯等級，FuGames 原創回合制炮擊。"><meta name="theme-color" content="#07090c"><title>鋼芯競技場 - FuGames</title><link rel="icon" href="favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="shared/fu.css">
+<style>
+/* 鋼芯競技場 on the shared Vermilion Ink shell. Player team = seal, AI = azure (FuPalette side order). */
+:root{--side-0:var(--fu-seal);--side-1:var(--fu-azure);--tk-gap:max(16px,env(safe-area-inset-left));--hud-w:268px}
+html,body{height:100%;overflow:hidden;overscroll-behavior:none}
+body.fu-app{background:var(--fu-ink-0)}
+.fu-stage{cursor:crosshair}
+.fu-stage canvas{touch-action:none;outline:none}
+.fu-stage canvas:focus-visible{box-shadow:inset 0 0 0 2px var(--fu-seal)}
+.fu-topbar__title{align-items:center}
+.fu-topbar__title .fu-label{overflow:hidden;text-overflow:ellipsis}
+.tk-lv{display:flex;flex-direction:column;justify-content:center;gap:4px;min-width:112px;min-height:40px;padding:5px 10px;border:1px solid var(--fu-line-strong);background:var(--fu-surface);cursor:pointer;text-align:left}
+.tk-lv .row{display:flex;align-items:baseline;gap:6px;font:600 11px/1 var(--fu-font-mono);letter-spacing:.08em;color:var(--fu-text-dim)}
+.tk-lv .row b{font-size:15px;color:var(--fu-gold);letter-spacing:0}
+.tk-bar{display:block;height:3px;background:var(--fu-ink-3);overflow:hidden}
+.tk-bar i{display:block;height:100%;width:0;background:var(--fu-gold);transition:width .6s var(--fu-ease)}
+#sound[aria-pressed="false"] .wave{display:none}#sound[aria-pressed="true"] .mute{display:none}
+#pause .i-play{display:none}#pause.paused .i-play{display:block}#pause.paused .i-pause{display:none}
+/* labels over the diorama */
+.tk-layer{position:fixed;inset:0;z-index:20;pointer-events:none;overflow:hidden}
+.tk-tag{position:absolute;left:0;top:0;white-space:nowrap;font:700 11px/1.1 var(--fu-font-mono);letter-spacing:.06em;color:var(--fu-paper);text-shadow:0 1px 3px #000c;will-change:transform}
+.tk-tag em{font-style:normal;color:var(--tone)}
+.tk-tag small{display:block;margin-top:3px;width:46px;height:4px;background:#ece4d022}
+.tk-tag small i{display:block;height:100%;background:var(--tone)}
+.tk-tag.dead{opacity:.45}
+.tk-tag.bld{font-size:10px;color:var(--fu-paper-dim)}
+.tk-tag.strike{color:var(--tone);font-size:10px;letter-spacing:.14em}
+@media (max-width:720px){.tk-tag{font-size:10px}.tk-tag small{width:36px}}
+.tk-float{position:absolute;left:0;top:0;font:900 20px/1 var(--fu-font-mono);white-space:nowrap;text-shadow:0 2px 0 #0009,0 0 14px currentColor;will-change:transform,opacity}
+/* HUD: match panel */
+#match{width:var(--hud-w);padding:12px 14px}
+.tk-turn{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.tk-turn .fu-label b{font-size:13px}
+.tk-wind{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:10px;margin:10px 0 8px}
+.tk-gauge{position:relative;height:8px;background:var(--fu-ink-3)}
+.tk-gauge::before{content:"";position:absolute;left:50%;top:-3px;bottom:-3px;width:1px;background:var(--fu-paper-dim)}
+.tk-gauge i{position:absolute;top:0;bottom:0;background:var(--fu-gold);transition:left .3s var(--fu-ease),width .3s var(--fu-ease)}
+.tk-wind .fu-num{min-width:44px;text-align:right;font-size:13px;color:var(--fu-gold)}
+.tk-team{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:8px;padding:6px 0;border-top:1px solid var(--fu-line);font-size:12px}
+.tk-team .fu-side{--side:var(--tone)}
+.tk-team .units{display:flex;gap:4px;margin-top:4px}
+.tk-team .units span{flex:1;height:5px;background:var(--fu-ink-3);position:relative}
+.tk-team .units span i{position:absolute;inset:0 auto 0 0;background:var(--tone);transition:width .3s}
+.tk-team .units span.on{outline:1px solid var(--fu-paper);outline-offset:1px}
+.tk-team .fu-num{font-size:15px;color:var(--fu-paper)}
+#status{margin:8px 0 0;font-size:12px;line-height:1.45;color:var(--fu-paper-dim);min-height:2.9em}
+/* HUD: aim console */
+#console{width:300px;padding:12px 14px;display:grid;grid-template-columns:1fr auto;gap:10px 12px;align-items:center}
+.tk-dial{grid-column:1;display:grid;grid-template-columns:44px 32px 1fr 32px;align-items:center;gap:6px}
+.tk-dial .fu-label{letter-spacing:.12em}
+.tk-dial output{grid-column:1 / -1;order:-1;display:none}
+.tk-dial .val{font:700 14px/1 var(--fu-font-mono);color:var(--fu-paper);min-width:44px}
+.tk-step{min-height:32px;width:32px;padding:0;font-size:15px}
+.tk-move{grid-column:1;display:grid;grid-template-columns:1fr auto 1fr;gap:6px;align-items:center}
+.tk-move .fu-btn{min-height:38px;padding:0 8px}
+.tk-move .fu-label{text-align:center;letter-spacing:.08em}
+#fire{grid-column:2;grid-row:1 / span 3;align-self:stretch;width:92px;flex-direction:column;gap:4px;font-size:15px;letter-spacing:.2em}
+#fire .fu-kbd{color:var(--fu-ink-0);border-color:#07090c66}
+/* Dock: hand + end turn */
+#dock{max-width:calc(100vw - 2 * var(--tk-gap) - 340px);overflow-x:auto;scrollbar-width:none}
+#hand{display:flex;gap:1px}
+.tk-card{flex-direction:column;align-items:flex-start;justify-content:center;gap:3px;min-height:58px;width:150px;padding:6px 12px;text-align:left;white-space:normal;letter-spacing:.04em;text-transform:none;font-family:var(--fu-font-body);font-size:13px}
+.tk-card b{display:flex;align-items:center;gap:7px;font-weight:800}
+.tk-card b .fu-side{width:8px;height:8px;--side:var(--tone)}
+.tk-card small{font-size:11px;line-height:1.3;color:var(--fu-paper-dim);font-weight:400}
+.tk-card .fu-kbd{position:absolute;top:6px;right:8px;min-width:16px;height:16px;font-size:9px}
+.fu-dock .tk-card[aria-pressed="true"] small{color:var(--fu-ink-0)}
+.tk-empty{display:grid;place-items:center;min-height:58px;padding:0 14px;font:600 11px/1.3 var(--fu-font-mono);letter-spacing:.1em;color:var(--fu-mute);background:var(--fu-surface-solid)}
+#pass{min-height:58px}
+/* Curtain sheets */
+.tk-curtain{overflow:auto;place-items:start center;padding:max(16px,env(safe-area-inset-top)) var(--tk-gap) max(16px,env(safe-area-inset-bottom));text-align:left}
+.tk-sheet{position:relative;width:min(860px,100%);margin:auto 0;padding:26px 28px 0}
+.tk-sheet h2{margin:6px 0 8px;font:900 clamp(34px,5.4vw,64px)/1 var(--fu-font-display);letter-spacing:-.01em}
+.tk-sheet h2 em{font-style:normal;color:var(--fu-seal)}
+.tk-sheet .lede{margin:0 0 16px;max-width:64ch;color:var(--fu-paper-dim);font-size:14px;line-height:1.65}
+.tk-sheet section{margin-top:16px}
+.tk-sheet h3{display:flex;justify-content:space-between;gap:10px;margin:0 0 9px;font:700 11px/1.2 var(--fu-font-mono);letter-spacing:.18em;color:var(--fu-paper-dim)}
+.tk-sheet h3 span{letter-spacing:.02em;font-family:var(--fu-font-body);font-weight:400;color:var(--fu-mute)}
+.tk-chips{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+.tk-chips.maps{grid-template-columns:repeat(5,minmax(0,1fr))}
+.tk-chip{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:4px;min-height:44px;padding:10px 12px;border:1px solid var(--fu-line-strong);background:#ece4d006;text-align:left;cursor:pointer}
+.tk-chip b{font-size:14px}
+.tk-chip span{font-size:11.5px;line-height:1.45;color:var(--fu-paper-dim)}
+.tk-chip:hover:not(:disabled){border-color:var(--fu-paper)}
+.tk-chip[aria-pressed="true"]{border-color:var(--fu-seal);box-shadow:inset 0 0 0 1px var(--fu-seal);background:#ff4b2b12}
+.tk-chip:disabled{opacity:.45;cursor:not-allowed}
+.tk-chip .lock{position:absolute;top:9px;right:10px;font:700 10px/1 var(--fu-font-mono);color:var(--fu-gold);font-style:normal}
+.tk-career{display:grid;grid-template-columns:auto 1fr;gap:6px 16px;align-items:center;padding:12px 14px;border:1px solid var(--fu-line)}
+.tk-career .lv{grid-row:span 2;font:900 34px/1 var(--fu-font-mono);color:var(--fu-gold)}
+.tk-career .lv small{display:block;margin-bottom:4px;font:700 10px/1 var(--fu-font-mono);letter-spacing:.14em;color:var(--fu-paper-dim)}
+.tk-career .who{display:flex;justify-content:space-between;gap:10px;font-weight:700}
+.tk-career .who span{font:500 11px/1.4 var(--fu-font-mono);color:var(--fu-paper-dim)}
+.tk-summary{display:flex;flex-wrap:wrap;align-items:center;gap:6px;font-size:12px;color:var(--fu-paper-dim)}
+.tk-actions{position:sticky;bottom:0;display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:flex-end;margin:20px -28px 0;padding:14px 28px 18px;background:linear-gradient(#0d111600,var(--fu-ink-1) 22px)}
+.tk-actions .note{margin-right:auto;font-size:12px;color:var(--fu-mute)}
+.tk-xp{display:grid;grid-template-columns:1fr auto;gap:6px 0;margin:0;padding:12px 14px;border:1px solid var(--fu-line);font-size:13px}
+.tk-xp dt{color:var(--fu-paper-dim)}.tk-xp dd{margin:0;padding-left:16px;text-align:right;font-family:var(--fu-font-mono);color:var(--fu-gold)}
+.tk-xp .total{padding-top:8px;border-top:1px solid var(--fu-line);font-weight:800;color:var(--fu-paper)}
+.tk-board{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+.tk-board div{padding:10px 12px;border:1px solid var(--fu-line)}
+.tk-board b{display:block;font:800 22px/1.1 var(--fu-font-mono)}
+.tk-board span{font-size:11px;color:var(--fu-paper-dim)}
+.tk-levelup{padding:12px 14px;border:1px solid #e9b94977;background:#e9b94912;font-size:13px;line-height:1.6}
+.tk-levelup b{color:var(--fu-gold)}
+[data-view]{display:none!important}
+.tk-curtain[data-mode="lobby"] [data-view~="lobby"],.tk-curtain[data-mode="pause"] [data-view~="pause"],.tk-curtain[data-mode="result"] [data-view~="result"]{display:block!important}
+.tk-curtain[data-mode="lobby"] .tk-actions[data-view~="lobby"],.tk-curtain[data-mode="pause"] .tk-actions[data-view~="pause"],.tk-curtain[data-mode="result"] .tk-actions[data-view~="result"]{display:flex!important}
+.tk-curtain .tk-mark{align-items:center;gap:12px}
+.tk-curtain[data-mode="lobby"] .tk-mark[data-view~="lobby"]{display:flex!important}
+@media (min-width:721px) and (max-width:1180px){#dock{left:var(--fu-gutter);transform:none;max-width:calc(100vw - 2 * var(--fu-gutter) - 320px)}}
+/* Drawer tabs */
+.tk-tabs{display:flex;gap:2px;padding:0 var(--fu-space-4);border-bottom:1px solid var(--fu-line)}
+.tk-tabs button{min-height:44px;padding:0 12px;border:0;border-bottom:2px solid transparent;background:none;font:700 11px/1 var(--fu-font-mono);letter-spacing:.16em;color:var(--fu-paper-dim);cursor:pointer}
+.tk-tabs button[aria-selected="true"]{color:var(--fu-paper);border-color:var(--fu-seal)}
+.tk-pane[hidden]{display:none}
+.tk-pane ul{margin:0;padding-left:18px;font-size:13px;line-height:1.7;color:var(--fu-paper-dim)}
+.tk-pane li{margin-bottom:7px}.tk-pane li strong{color:var(--fu-paper)}
+.tk-pane .fu-seg{flex-wrap:wrap}
+.tk-pane .fu-seg>button{min-width:30%}
+.tk-pane .fu-seg>button:disabled{opacity:.4;cursor:not-allowed}
+.tk-pane p.note{margin:6px 0 0;font-size:12px;color:var(--fu-mute);line-height:1.5}
+.tk-keys{display:grid;grid-template-columns:auto 1fr;gap:6px 12px;font-size:12px;color:var(--fu-paper-dim)}
+.tk-stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;margin-top:12px}
+.tk-stats div{padding:9px 11px;border:1px solid var(--fu-line)}
+.tk-stats b{display:block;font:800 19px/1.1 var(--fu-font-mono)}
+.tk-stats span{font-size:11px;color:var(--fu-paper-dim)}
+.tk-unlocks{list-style:none;margin:0;padding:0!important}
+.tk-unlocks li{display:flex;justify-content:space-between;gap:10px;margin:0!important;padding:7px 0;border-bottom:1px solid var(--fu-line)}
+.tk-unlocks li.got{color:var(--fu-paper)}
+.tk-unlocks li span{font:600 11px/1.6 var(--fu-font-mono)}
+.tk-fail{position:fixed;inset:0;z-index:95;display:grid;place-items:center;padding:24px;text-align:center;background:var(--fu-ink-0)}
+/* Phones: match panel stays top, console and hand stack at the bottom. */
+@media (max-width:720px){
+ :root{--hud-w:auto}
+ .tk-lv{min-width:0;padding:5px 8px}.tk-lv .row span{display:none}
+ .fu-topbar__title .fu-label{display:none}
+ .fu-topbar__actions{gap:4px}
+ .fu-hud--tl{right:var(--fu-gutter)}
+ #match{padding:8px 10px}
+ .tk-wind{margin:6px 0 4px}
+ .tk-teams{display:grid;grid-template-columns:1fr 1fr;gap:0 12px}
+ .tk-team{padding:5px 0}
+ #status{display:none}
+ .fu-hud--br{left:var(--fu-gutter);right:var(--fu-gutter);bottom:max(10px,env(safe-area-inset-bottom))}
+ #console{width:auto;padding:9px 10px;gap:6px 10px}
+ #fire{width:84px}
+ #dock{left:var(--fu-gutter);right:var(--fu-gutter);max-width:none;transform:none;bottom:calc(max(10px,env(safe-area-inset-bottom)) + var(--console-h,150px) + 6px)}
+ #hand{flex:1}
+ .tk-card{flex:1;width:auto;min-width:0;min-height:50px;padding:5px 8px}
+ .tk-card small{display:none}
+ #pass{min-height:50px;padding:0 10px}
+ .tk-card .fu-kbd,#fire .fu-kbd,#pass .fu-kbd{display:none}
+ .tk-card b{font-size:12.5px;white-space:nowrap}
+ .tk-empty{flex:1;min-height:50px}
+ .tk-chips,.tk-chips.maps{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .tk-board{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .tk-sheet{padding:20px 16px 0}
+ .tk-actions{margin:16px -16px 0;padding:12px 16px 16px}
+ .tk-actions .note{display:none}
+ .tk-actions .fu-btn{flex:1}
+}
+@media (max-height:560px) and (min-width:721px){
+ #status{display:none}
+ #match{width:220px;padding:8px 12px}
+ .tk-wind{margin:6px 0 4px}.tk-team{padding:4px 0}
+ .tk-card small,.tk-card .fu-kbd,#fire .fu-kbd{display:none}.tk-card,#pass{min-height:44px}
+ .tk-card{width:auto;min-width:76px;padding:4px 10px}
+ #console{width:auto;grid-template-columns:auto auto auto;gap:4px 8px;padding:6px 8px}
+ .tk-dial{grid-column:auto;grid-row:1;grid-template-columns:auto 30px 30px;gap:4px}
+ .tk-dial input{display:none}
+ .tk-step{width:30px;min-height:30px}
+ .tk-move{grid-column:1 / span 2;grid-row:2}.tk-move .fu-btn{min-height:30px}
+ #fire{grid-column:3;grid-row:1 / span 2;width:76px;font-size:13px}
+ #dock{left:var(--fu-gutter);transform:none;max-width:calc(100vw - 2 * var(--fu-gutter) - var(--console-w,300px) - 8px)}
+}
+</style>
+</head>
+<body class="fu-app">
+<header class="fu-topbar">
+ <a class="fu-brand" href="index.html" aria-label="回到 FuGames 所有遊戲"><span class="fu-seal" aria-hidden="true">福遊</span><span class="fu-hide-sm">FuGames</span></a>
+ <div class="fu-topbar__title"><h1 class="fu-heading">鋼芯競技場</h1><span class="fu-label" id="subtitle">回合制炮擊 · 原創</span></div>
+ <div class="fu-topbar__actions">
+  <button class="tk-lv" id="career-chip" type="button" aria-label="生涯等級"><span class="row"><b class="fu-num" id="lv">1</b><span id="rank">見習砲手</span></span><span class="tk-bar"><i id="lv-fill"></i></span></button>
+  <button class="fu-btn fu-btn--ghost fu-btn--icon" id="sound" type="button" aria-pressed="true" aria-label="音效開關"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor" stroke="none"/><path class="wave" d="M16 9a4 4 0 010 6M18.5 6.5a7.5 7.5 0 010 11"/><path class="mute" d="M16.5 9.5l5 5m0-5l-5 5"/></svg></button>
+  <button class="fu-btn fu-btn--ghost fu-btn--icon" id="pause" type="button" disabled aria-label="暫停"><svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><g class="i-pause"><rect x="6" y="5" width="4" height="14"/><rect x="14" y="5" width="4" height="14"/></g><path class="i-play" d="M7 5l12 7-12 7z"/></svg></button>
+  <button class="fu-btn fu-btn--icon" id="menu-btn" type="button" aria-label="選單：玩法、對局、畫面與生涯" aria-controls="menu"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h16M4 17h10"/></svg></button>
+ </div>
+</header>
+
+<main class="fu-stage"><canvas id="board" tabindex="0" aria-label="炮擊戰場。拖曳瞄準、方向鍵移動與調角度、空白鍵開砲；建築牌選好後點地面放置。" aria-describedby="status"></canvas></main>
+<div class="tk-layer" id="labels" aria-hidden="true"></div>
+
+<div class="fu-hud fu-hud--tl">
+ <section class="fu-panel" id="match" aria-label="戰況">
+  <div class="tk-turn"><p class="fu-label">回合 <b class="fu-num" id="turn-no">1</b> / <span class="fu-num" id="turn-max">40</span></p><span class="fu-chip fu-chip--seal" id="turn">準備登場</span></div>
+  <div class="tk-wind"><span class="fu-label">風</span><div class="tk-gauge" aria-hidden="true"><i id="wind-bar"></i></div><span class="fu-num" id="wind">0</span></div>
+  <div class="tk-teams" id="teams"></div>
+  <p id="status" role="status" aria-live="polite">選好對手與戰場，開戰。</p>
+ </section>
+</div>
+
+<nav class="fu-dock" id="dock" aria-label="戰術手牌">
+ <div id="hand" role="group" aria-label="手牌，每回合最多一張"></div>
+ <button class="fu-btn" id="pass" type="button" disabled>結束 <span class="fu-kbd">E</span></button>
+</nav>
+
+<div class="fu-hud fu-hud--br">
+ <section class="fu-panel fu-panel--tight" id="console" aria-label="瞄準">
+  <div class="tk-dial"><span class="fu-label">角度</span><button class="fu-btn fu-btn--sm tk-step" id="angle-down" type="button" aria-label="角度減一">−</button><input class="fu-range" type="range" id="angle" min="10" max="170" step="1" value="45" aria-label="瞄準角度"><button class="fu-btn fu-btn--sm tk-step" id="angle-up" type="button" aria-label="角度加一">+</button></div>
+  <div class="tk-dial"><span class="fu-label">力度</span><button class="fu-btn fu-btn--sm tk-step" id="power-down" type="button" aria-label="力度減一">−</button><input class="fu-range" type="range" id="powerInput" min="25" max="100" step="1" value="65" aria-label="發射力度"><button class="fu-btn fu-btn--sm tk-step" id="power-up" type="button" aria-label="力度加一">+</button></div>
+  <div class="tk-move"><button class="fu-btn" id="moveLeft" type="button" aria-label="左移 15">← 15</button><span class="fu-label" id="aim-read">45° · 65%</span><button class="fu-btn" id="moveRight" type="button" aria-label="右移 15">15 →</button></div>
+  <button class="fu-btn fu-btn--seal" id="fire" type="button" disabled>開砲<span class="fu-kbd">Space</span></button>
+ </section>
+</div>
+
+<aside class="fu-drawer" id="menu" aria-label="選單">
+ <div class="fu-drawer__head"><span class="fu-label"><b>■</b> 鋼芯競技場</span><button class="fu-btn fu-btn--ghost fu-btn--icon" data-fu-close aria-label="關閉選單">✕</button></div>
+ <div class="tk-tabs" role="tablist">
+  <button role="tab" id="tab-rules" aria-selected="true" aria-controls="pane-rules">玩法</button>
+  <button role="tab" id="tab-match" aria-selected="false" aria-controls="pane-match">對局</button>
+  <button role="tab" id="tab-view" aria-selected="false" aria-controls="pane-view">畫面</button>
+  <button role="tab" id="tab-career" aria-selected="false" aria-controls="pane-career">生涯</button>
+ </div>
+ <div class="fu-drawer__body">
+  <div class="tk-pane" id="pane-rules" role="tabpanel" aria-labelledby="tab-rules"><ul>
+   <li>雙方各兩隻鋼芯蟲，每隻 70 HP。你是<strong>朱色</strong>，AI 是<strong>青色</strong>。你先手，雙方交替，同隊存活的蟲輪流上場。</li>
+   <li>每回合：移動最多 60、用<strong>一張</strong>戰術牌，再開<strong>一砲</strong>；也可直接結束回合。沒有瞄準倒數。</li>
+   <li><strong>瞄準：</strong>在場上按住拖曳，方向就是砲口、拉越遠力度越大；或用角度／力度滑桿。10° 朝右、90° 垂直、170° 朝左。虛線是含風力與障礙的完整彈道，雙方用同一套物理。</li>
+   <li><strong>爆炸：</strong>普通彈爆傷最高 42、範圍 62，越遠越輕，會傷到友軍。地面炸出坑洞；地面一次掉超過 35 會摔傷。砲彈撞到建築會提早爆炸。</li>
+   <li><strong>戰術牌：</strong>每回合抽一張（手牌上限 3）。擋彈牆 36 HP；掩體 40 HP，85 內友軍爆傷減半；急救包回 20 HP；鑽地彈爆傷 28、範圍 86、大坑。擴充牌組再加：重砲彈（58 傷、範圍 50）、集束彈（主爆 + 四枚子彈）、噴射背包（多走 90 且可越過障礙）、定風旗（本回合無風）、空投標記（你下回合開始時落下三枚炸彈，對手看得到標記，可以先躲）。</li>
+   <li><strong>建築：</strong>放在當前蟲 100 內的空地，不能壓人或重疊，場上最多八座。放置不合法不扣牌。建築擋路，可用高拋繞過或先轟碎。</li>
+   <li><strong>戰場：</strong>沙丘（原版）、裂谷（中央深谷）、潮汐群島（掉進海裡會沉，打進海裡算落空）、石台（中央高台）、要塞（中立城牆與塔，可轟碎）。</li>
+   <li><strong>天候：</strong>微風 ±20、無風、強風 ±45、陣風（延續上回合再漂移）。</li>
+   <li><strong>AI：</strong>只讀公開地形、角色、建築、風與自己的手牌，不讀你的手牌或隨機數，沒有命中加成。新兵粗瞄會抖；老手小誤差；精英是原版的 176 組彈道擇優；傳奇先找射位再細調、會算擊殺，起手攻城牌。</li>
+   <li>一隊全倒就結束；回合上限到了比剩餘總 HP，同分平手。暫停凍結飛行與 AI；切到背景會自動暫停。</li>
+   <li><strong>本機 agent：</strong>主控台可用 <code>TankAgent.observe()</code>、<code>TankAgent.act({type:'aim',angle,power})</code>、<code>{type:'move',dx}</code>、<code>{type:'card',index,x}</code>、<code>{type:'fire'}</code>、<code>{type:'end'}</code>、<code>TankAgent.run()</code>。規則引擎 <code>tank-arena-engine.js</code> 也能直接在 Node 裡 <code>require()</code> 對打。</li>
+   <li>角色、地形、美術、音效與程式皆為 FuGames 原創。</li>
+  </ul>
+  <h3 style="margin-top:20px">按鍵</h3>
+  <div class="tk-keys"><span class="fu-kbd">← →</span><span>移動（A / D）</span><span class="fu-kbd">↑ ↓</span><span>抬高／壓低砲口；Shift 一次 5°</span><span class="fu-kbd">W S</span><span>力度 ±1；Shift ±5</span><span class="fu-kbd">F</span><span>砲口左右翻面</span><span class="fu-kbd">1 2 3</span><span>選手牌</span><span class="fu-kbd">Space</span><span>開砲</span><span class="fu-kbd">E</span><span>結束回合</span><span class="fu-kbd">P</span><span>暫停</span><span class="fu-kbd">M</span><span>選單</span></div>
+  </div>
+  <div class="tk-pane" id="pane-match" role="tabpanel" aria-labelledby="tab-match" hidden>
+   <section><h3>天候</h3><div class="fu-seg" id="seg-weather" role="group" aria-label="天候"></div><p class="note" id="weather-note"></p></section>
+   <section><h3>起手牌</h3><div class="fu-seg" id="seg-loadout" role="group" aria-label="起手牌"></div><p class="note" id="loadout-note"></p></section>
+   <section><h3>牌組與瞄準</h3>
+    <label class="fu-switch"><span>擴充牌組（九種戰術牌）</span><input type="checkbox" id="opt-deck"></label><p class="note" id="deck-note"></p>
+    <label class="fu-switch"><span>老兵瞄準：彈道只預覽前段</span><input type="checkbox" id="opt-assist"></label><p class="note">預覽只畫出前 35% 的彈道，經驗 +15%。</p>
+   </section>
+   <section><p class="note">對局設定在下一場開始時生效。</p><button class="fu-btn fu-btn--block" id="restart" type="button" style="margin-top:10px">以目前設定重新開局</button></section>
+  </div>
+  <div class="tk-pane" id="pane-view" role="tabpanel" aria-labelledby="tab-view" hidden>
+   <section><h3>畫面與聲音</h3>
+    <label class="fu-switch"><span>音效（快捷鍵 V）</span><input type="checkbox" id="opt-sound" checked></label>
+    <label class="fu-switch"><span>鏡頭震動與閃光</span><input type="checkbox" id="opt-shake" checked></label>
+    <label class="fu-switch"><span>鏡頭跟隨（窄螢幕自動推近）</span><input type="checkbox" id="opt-follow" checked></label>
+   </section>
+   <section><h3>AI 與飛行速度</h3><div class="fu-seg" id="seg-speed" role="group" aria-label="速度"><button type="button" value="1" aria-pressed="true">×1</button><button type="button" value="2" aria-pressed="false">×2</button><button type="button" value="3" aria-pressed="false">×3</button></div></section>
+  </div>
+  <div class="tk-pane" id="pane-career" role="tabpanel" aria-labelledby="tab-career" hidden>
+   <div class="tk-career" id="drawer-career"></div>
+   <div class="tk-stats" id="stats"></div>
+   <h3 style="margin-top:18px">解鎖進度</h3>
+   <ul class="tk-unlocks" id="unlocks"></ul>
+   <label class="fu-switch" style="margin-top:14px"><span>重置生涯（清除這台裝置的紀錄）</span><button class="fu-btn fu-btn--sm" id="reset-career" type="button">重置</button></label>
+  </div>
+ </div>
+</aside>
+
+<div class="fu-curtain tk-curtain" id="overlay" data-mode="lobby">
+ <div class="fu-panel tk-sheet" role="dialog" aria-modal="true" aria-labelledby="dialog-title">
+  <div class="tk-mark" data-view="lobby"><span class="fu-seal fu-seal--lg fu-stamp" aria-hidden="true">鋼芯</span><p class="fu-label">FuGames · 原創回合制炮擊</p></div>
+  <h2 id="dialog-title" data-view="lobby">鋼芯<em>競技場</em></h2>
+  <p class="lede" data-view="lobby">兩隻鋼芯蟲、一手戰術牌、一砲改變地形。慢慢瞄，穩穩打：築牆擋砲、掘坑摔敵、空投逼位。擊倒對方兩隻蟲即勝。</p>
+  <section data-view="lobby"><div class="tk-career" id="lobby-career"></div></section>
+  <section data-view="lobby"><h3>對手 <span>越難，經驗越多</span></h3><div class="tk-chips" id="tier-chips" role="group" aria-label="對手難度"></div></section>
+  <section data-view="lobby"><h3>戰場 <span>隨等級解鎖</span></h3><div class="tk-chips maps" id="map-chips" role="group" aria-label="戰場"></div></section>
+  <section data-view="lobby"><div class="tk-summary" id="lobby-summary"></div></section>
+  <p class="fu-label" data-view="pause">已暫停</p>
+  <h2 data-view="pause">砲口<em>冷卻</em>中</h2>
+  <p class="lede" data-view="pause">彈道、AI 與風都凍結了。準備好再繼續。</p>
+  <p class="fu-label" data-view="result" id="result-kicker">對戰結束</p>
+  <h2 data-view="result" id="result-title">勝利</h2>
+  <p class="lede" data-view="result" id="result-copy"></p>
+  <section data-view="result"><div class="tk-board" id="result-board"></div></section>
+  <section data-view="result"><h3>經驗 <span id="xp-mult"></span></h3><dl class="tk-xp" id="xp-lines"></dl></section>
+  <section data-view="result" id="levelup-wrap"><div class="tk-levelup" id="levelup"></div></section>
+  <section data-view="result"><div class="tk-career" id="result-career"></div></section>
+  <div class="tk-actions" data-view="lobby"><span class="note">拖曳瞄準 · ←→ 移動 · ↑↓ 角度 · Space 開砲 · P 暫停</span><button class="fu-btn" id="more-rules" type="button">天候與牌組</button><button class="fu-btn fu-btn--seal fu-btn--lg" id="play" type="button">開戰</button></div>
+  <div class="tk-actions" data-view="pause"><button class="fu-btn" id="to-lobby" type="button">放棄本局</button><button class="fu-btn fu-btn--seal fu-btn--lg" id="resume" type="button">繼續</button></div>
+  <div class="tk-actions" data-view="result"><button class="fu-btn" id="result-lobby" type="button">調整對手與戰場</button><button class="fu-btn fu-btn--seal fu-btn--lg" id="again" type="button">再戰一場</button></div>
+ </div>
+</div>
+<noscript><div class="tk-fail"><p>請開啟 JavaScript 才能開始遊戲。</p></div></noscript>
+
+<script src="tank-arena-engine.js"></script>
+<script src="shared/fu-shell.js" defer></script>
+<script id="tank-career">
 'use strict';
-const $=id=>document.getElementById(id),canvas=$('board'),ctx=canvas.getContext('2d'),game=new TankArena.Game();let selected=null,last=null,acc=0,signature='',dialogPhase='';const colors=['#267477','#a85e43'];
-function draw(){ctx.clearRect(0,0,800,460);const sky=ctx.createLinearGradient(0,0,0,460);sky.addColorStop(0,'#edf5f6');sky.addColorStop(1,'#faf3e5');ctx.fillStyle=sky;ctx.fillRect(0,0,800,460);ctx.fillStyle='#dbe7e5';ctx.beginPath();ctx.moveTo(0,300);for(let x=0;x<=800;x+=20)ctx.lineTo(x,250+35*Math.sin(x/85));ctx.lineTo(800,460);ctx.lineTo(0,460);ctx.fill();ctx.fillStyle='#d2bb94';ctx.strokeStyle='#71856b';ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(0,460);for(let x=0;x<=800;x+=2)ctx.lineTo(x,game.terrain[x]);ctx.lineTo(800,460);ctx.closePath();ctx.fill();ctx.stroke();
-for(const b of game.buildings){const y=TankArena.ground(game,b.x);ctx.fillStyle=b.team?'#e4b7a4':'#aacdcc';ctx.strokeStyle=colors[b.team];ctx.lineWidth=3;ctx.fillRect(b.x-b.w/2,y-b.h,b.w,b.h);ctx.strokeRect(b.x-b.w/2,y-b.h,b.w,b.h);if(b.type==='bunker'){ctx.beginPath();ctx.arc(b.x,y-b.h,11,Math.PI,0);ctx.stroke();}ctx.fillStyle=colors[b.team];ctx.font='bold 12px sans-serif';ctx.textAlign='center';ctx.fillText(String(b.hp),b.x,y-b.h-9);}
-for(const a of game.actors){const p=TankArena.body(game,a);if(a.hp<=0){ctx.strokeStyle='#929ca1';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(p.x-6,p.y-5);ctx.lineTo(p.x+6,p.y+5);ctx.moveTo(p.x+6,p.y-5);ctx.lineTo(p.x-6,p.y+5);ctx.stroke();continue;}ctx.fillStyle=a.team?'#f4c4ac':'#b9dfd5';ctx.strokeStyle=colors[a.team];ctx.lineWidth=3;ctx.beginPath();ctx.roundRect(p.x-13,p.y-15,26,27,12);ctx.fill();ctx.stroke();ctx.fillStyle=colors[a.team];ctx.beginPath();ctx.roundRect(p.x-14,p.y-18,28,8,4);ctx.fill();ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(p.x-5,p.y-5,4,0,Math.PI*2);ctx.arc(p.x+5,p.y-5,4,0,Math.PI*2);ctx.fill();ctx.fillStyle='#243b45';ctx.fillRect(p.x-5,p.y-5,2,3);ctx.fillRect(p.x+5,p.y-5,2,3);ctx.font='bold '+Math.min(26,Math.max(14,11*800/Math.max(1,canvas.clientWidth)))+'px sans-serif';ctx.textAlign='center';ctx.fillStyle=colors[a.team];ctx.fillText((a.team?'AI':'你')+(a.id%2+1)+' · '+a.hp,p.x,p.y-33);if(a.id===game.active&&game.phase!=='over'){ctx.strokeStyle='#d49a42';ctx.lineWidth=3;ctx.beginPath();ctx.ellipse(p.x,p.y+14,20,5,0,0,Math.PI*2);ctx.stroke();}}
-if(game.phase==='aim'){const a=game.actors[game.active],trace=TankArena.trajectory(game,a,game.angle,game.power);ctx.strokeStyle='#26747788';ctx.lineWidth=2;ctx.setLineDash([4,7]);ctx.beginPath();trace.points.forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y));ctx.stroke();ctx.setLineDash([]);if(!trace.hit.miss){ctx.strokeStyle='#a85e43';ctx.beginPath();ctx.arc(trace.hit.x,trace.hit.y,8,0,Math.PI*2);ctx.stroke();}if(selected!==null){ctx.fillStyle='#26747712';ctx.fillRect(Math.max(0,a.x-100),0,200,460);}}
-if(game.projectile){ctx.fillStyle='#334e59';ctx.beginPath();ctx.arc(game.projectile.x,game.projectile.y,5,0,Math.PI*2);ctx.fill();}if(game.effect){ctx.strokeStyle='#e7ad49';ctx.lineWidth=4;ctx.globalAlpha=game.effect.left/20;ctx.beginPath();ctx.arc(game.effect.x,game.effect.y,game.effect.radius*(1-game.effect.left/30),0,Math.PI*2);ctx.stroke();ctx.globalAlpha=1;}}
-function hud(){const human=game.phase==='aim';$('turn').textContent=game.phase==='ready'?'準備登場':game.phase==='paused'?'已暫停':game.phase==='over'?'對戰結束':`${game.team?'AI':'你'} · 蟲 ${game.active%2+1} · 回合 ${game.turn+1}`;$('wind').textContent='風 '+(game.wind<0?'←':'→')+' '+Math.abs(game.wind);$('move').textContent='可移動 '+game.moveLeft;$('status').textContent=game.log;$('angleValue').textContent=game.angle+'° '+(game.angle<90?'向右':game.angle>90?'向左':'垂直');$('powerValue').textContent=game.power+'%';for(const id of ['angle','powerInput','moveLeft','moveRight','fire','pass'])$(id).disabled=!human;$('pause').disabled=['ready','over'].includes(game.phase);$('pause').textContent=game.phase==='paused'?'繼續':'暫停';$('angle').value=game.angle;$('powerInput').value=game.power;$('roster').innerHTML=game.actors.map(a=>`<span style="--team:${colors[a.team]}">${a.team?'AI':'你'} ${a.id%2+1}：${a.hp} / 70</span>`).join('');
-const sig=JSON.stringify([game.hands[0],game.phase,game.cardUsed,selected]);if(sig!==signature){signature=sig;$('hand').replaceChildren(...game.hands[0].map((type,index)=>{const b=document.createElement('button');b.className='btn';b.setAttribute('aria-pressed',String(index===selected));b.disabled=!human||game.cardUsed;b.textContent=TankArena.CARDS[type].name;const small=document.createElement('small');small.textContent=TankArena.CARDS[type].text;b.append(small);b.onclick=()=>{if(type==='wall'||type==='bunker'){selected=selected===index?null:index;$('cardHint').textContent=selected===null?'已取消放置。':'點選場地空地放置 '+TankArena.CARDS[type].name+'；同張再按可取消。';}else{game.playCard(index);selected=null;}hud();draw();};return b;}));}
-const overlay=['ready','paused','over'].includes(game.phase);$('overlay').hidden=!overlay;if(dialogPhase!==game.phase){dialogPhase=game.phase;if(game.phase==='paused'){$('dialog-title').textContent='戰場已暫停';$('dialog-copy').textContent='彈道與 AI 都已凍結；按繼續返回。';$('play').textContent='繼續';}if(game.phase==='over'){$('dialog-title').textContent=game.result.winner===null?'雙方平手':game.result.winner===0?'你的蟲隊獲勝！':'AI 蟲隊獲勝';$('dialog-copy').textContent=game.result.reason+'。你 '+game.result.hp[0]+' HP ／ AI '+game.result.hp[1]+' HP。';$('play').textContent='再戰一局';}}}
-function start(fresh=false){if(fresh||game.phase==='over')game.reset();game.start();selected=null;acc=0;last=null;hud();draw();}function pause(){game.pause();acc=0;hud();}
-$('play').onclick=()=>start();$('restart').onclick=()=>start(true);$('pause').onclick=()=>game.phase==='paused'?start():pause();$('moveLeft').onclick=()=>{game.move(-15);hud();draw();};$('moveRight').onclick=()=>{game.move(15);hud();draw();};for(const id of ['angle','powerInput'])$(id).oninput=()=>{game.aim(Number($('angle').value),Number($('powerInput').value));hud();draw();};$('fire').onclick=()=>{if(game.team===0){game.fire();selected=null;hud();}};$('pass').onclick=()=>{if(game.team===0){game.endTurn();selected=null;hud();}};
-canvas.addEventListener('click',e=>{if(game.phase!=='aim'||selected===null)return;const box=canvas.getBoundingClientRect(),x=(e.clientX-box.left)*800/box.width;if(game.playCard(selected,x)){selected=null;$('cardHint').textContent='建築已放置；還能移動或開砲。';}hud();draw();});document.addEventListener('keydown',e=>{if((e.key==='Escape'||e.key.toLowerCase()==='p')&&!e.repeat){if(game.phase==='paused')start();else pause();}});window.addEventListener('blur',pause);document.addEventListener('visibilitychange',()=>{if(document.hidden)pause();});
-function frame(t){if(last!==null){acc+=Math.min(.1,(t-last)/1000);while(acc>=TankArena.DT){game.step();acc-=TankArena.DT;}}last=t;hud();draw();requestAnimationFrame(frame);}hud();draw();requestAnimationFrame(frame);
-</script></body></html>
+// Career progression: pure functions over a small saved profile. XP comes from what happened
+// in a match, scaled by AI tier and harder conditions; levels unlock tiers, maps, weather, decks and hands.
+const TankCareer=(()=>{
+ const MAX_LEVEL=30,KEY='tank-arena-career',VERSION=1;
+ const need=level=>100+level*35;
+ function levelOf(xp){let level=1,rest=Math.max(0,Math.floor(Number(xp)||0));while(level<MAX_LEVEL&&rest>=need(level)){rest-=need(level);level++;}return{level,into:level<MAX_LEVEL?rest:0,need:level<MAX_LEVEL?need(level):0,max:level>=MAX_LEVEL};}
+ const RANKS=[{from:1,name:'見習砲手'},{from:4,name:'砲手'},{from:8,name:'砲長'},{from:12,name:'爆破官'},{from:18,name:'砲兵司令'},{from:25,name:'鋼芯元帥'}];
+ const rankOf=level=>RANKS.filter(r=>level>=r.from).pop().name;
+ const UNLOCKS=[
+  {level:1,kind:'tier',id:0},{level:1,kind:'tier',id:1},{level:1,kind:'tier',id:2},{level:1,kind:'map',id:'dunes'},{level:1,kind:'weather',id:'breeze'},{level:1,kind:'weather',id:'calm'},{level:1,kind:'deck',id:'classic'},{level:1,kind:'loadout',id:'standard'},
+  {level:2,kind:'map',id:'canyon'},{level:2,kind:'loadout',id:'engineer'},{level:3,kind:'weather',id:'gale'},{level:3,kind:'deck',id:'expanded'},{level:4,kind:'map',id:'isles'},
+  {level:5,kind:'tier',id:3},{level:5,kind:'loadout',id:'siege'},{level:6,kind:'weather',id:'shifting'},{level:7,kind:'map',id:'mesa'},{level:8,kind:'loadout',id:'scout'},{level:10,kind:'map',id:'fort'}
+ ];
+ const unlockLevel=(kind,id)=>{const u=UNLOCKS.find(u=>u.kind===kind&&u.id===id);return u?u.level:Infinity;};
+ const unlocked=(level,kind,id)=>level>=unlockLevel(kind,id);
+ const TIER_XP=[.6,.85,1,1.35];
+ function multiplier(s){return(TIER_XP[s.tier]??1)*(s.weather==='gale'||s.weather==='shifting'?1.1:1)*(s.assist==='short'?1.15:1);}
+ function matchXP(s){
+  const lines=[['完成對戰',30]];
+  const dmg=Math.min(80,Math.floor((s.dealt||0)/2));if(dmg)lines.push(['造成傷害',dmg]);
+  if(s.kills)lines.push([`擊倒 × ${s.kills}`,35*s.kills]);
+  if(s.razed)lines.push([`摧毀建築 × ${s.razed}`,10*s.razed]);
+  if(s.outcome==='win'){lines.push(['勝利',120]);if(s.turns<=14)lines.push(['速戰速決',40]);if(!s.lost)lines.push(['全員生還',40]);}
+  else if(s.outcome==='draw')lines.push(['平手',50]);
+  const base=lines.reduce((n,l)=>n+l[1],0),mult=multiplier(s),total=Math.round(base*mult);
+  return{lines,base,mult,total};
+ }
+ const blank=()=>({v:VERSION,xp:0,matches:0,wins:0,draws:0,kills:0,damage:0,razed:0,streak:0,bestStreak:0,bestTier:-1});
+ function sanitize(p){const b=blank();if(!p||typeof p!=='object')return b;for(const k of Object.keys(b))if(Number.isFinite(p[k])&&p[k]>=(k==='bestTier'?-1:0))b[k]=Math.floor(p[k]);return b;}
+ function record(profile,s){
+  const p=sanitize(profile),gain=matchXP(s),before=levelOf(p.xp),win=s.outcome==='win',streak=win?p.streak+1:0;
+  const next={...p,xp:p.xp+gain.total,matches:p.matches+1,wins:p.wins+(win?1:0),draws:p.draws+(s.outcome==='draw'?1:0),kills:p.kills+(s.kills||0),damage:p.damage+(s.dealt||0),razed:p.razed+(s.razed||0),streak,bestStreak:Math.max(p.bestStreak,streak),bestTier:win?Math.max(p.bestTier,s.tier):p.bestTier};
+  const after=levelOf(next.xp);
+  return{profile:next,gain,before,after,unlocked:UNLOCKS.filter(u=>u.level>before.level&&u.level<=after.level)};
+ }
+ function load(storage){try{return sanitize(JSON.parse(storage.getItem(KEY)||'null'));}catch(e){return blank();}}
+ function save(storage,p){try{storage.setItem(KEY,JSON.stringify(sanitize(p)));return true;}catch(e){return false;}}
+ return{MAX_LEVEL,KEY,need,levelOf,rankOf,RANKS,UNLOCKS,unlockLevel,unlocked,TIER_XP,multiplier,matchXP,blank,sanitize,record,load,save};
+})();
+</script>
+<script id="tank-ui">
+'use strict';
+const $=id=>document.getElementById(id);
+const E=TankArena,C=TankCareer;
+const SIDE=['#ff4b2b','#4fa3ff'],NEUTRAL='#d9d2c0',TEAM_NAMES=['朱印隊','青嵐隊'],UNIT_NAMES=['朱甲','朱鋒','青嵐','青岩'];
+const CARD_TONE={build:'#35d0a8',self:'#e9b949',any:'#4fa3ff'};
+const store=(()=>{try{const k='__tk';localStorage.setItem(k,'1');localStorage.removeItem(k);return localStorage;}catch(e){const m=new Map();return{getItem:k=>m.has(k)?m.get(k):null,setItem:(k,v)=>m.set(k,String(v)),removeItem:k=>m.delete(k)};}})();
+const SETUP_KEY='tank-arena-setup',PREF_KEY='tank-arena-prefs';
+function readJSON(key,fallback){try{const v=JSON.parse(store.getItem(key)||'null');return v&&typeof v==='object'?{...fallback,...v}:{...fallback};}catch(e){return{...fallback};}}
+function writeJSON(key,v){try{store.setItem(key,JSON.stringify(v));}catch(e){}}
+let profile=C.load(store);
+const setup=readJSON(SETUP_KEY,{tier:1,map:'dunes',weather:'breeze',deck:'classic',loadout:'standard',assist:'full'});
+const prefs=readJSON(PREF_KEY,{sound:true,shake:!matchMedia('(prefers-reduced-motion: reduce)').matches,follow:true,speed:1});
+let game=null,selected=null,placeX=null,recorded=false,last=null,acc=0,hpSeen=[],signature='',aimDrag=null,overlayMode='lobby';
+const app=window.TankApp={get game(){return game;},SIDE,NEUTRAL,UNIT_NAMES,prefs,events:[],floats:[],get selected(){return selected;},get placeX(){return placeX;},get placing(){return placingType();},get assist(){return setup.assist;},view:null};
+
+// ---------- Setup & career ----------
+const level=()=>C.levelOf(profile.xp).level;
+function clampSetup(){const lv=level();if(!C.unlocked(lv,'tier',setup.tier))setup.tier=1;for(const [kind,key,def] of [['map','map','dunes'],['weather','weather','breeze'],['deck','deck','classic'],['loadout','loadout','standard']])if(!C.unlocked(lv,kind,setup[key]))setup[key]=def;if(setup.assist!=='short')setup.assist='full';}
+function matchOptions(){clampSetup();return{tier:setup.tier,map:setup.map,weather:setup.weather,deck:setup.deck,loadout:setup.loadout};}
+function careerHTML(p){const l=C.levelOf(p.xp);return `<div class="lv"><small>LEVEL</small>${l.level}</div><div class="who">${C.rankOf(l.level)}<span>${l.max?'已達最高等級':`${l.into} / ${l.need} XP`}</span></div><span class="tk-bar"><i style="width:${l.max?100:Math.round(l.into/l.need*100)}%"></i></span>`;}
+function unlockLabel(u){return u.kind==='tier'?`對手「${E.TIERS[u.id].name}」`:u.kind==='map'?`戰場「${E.MAPS[u.id].name}」`:u.kind==='weather'?`天候「${E.WEATHER[u.id].name}」`:u.kind==='deck'?'擴充牌組':`起手「${E.LOADOUTS[u.id].name}」`;}
+function renderCareer(){
+ const l=C.levelOf(profile.xp);$('lv').textContent=l.level;$('rank').textContent=C.rankOf(l.level);$('lv-fill').style.width=(l.max?100:Math.round(l.into/l.need*100))+'%';
+ $('career-chip').setAttribute('aria-label',`生涯等級 ${l.level}，${C.rankOf(l.level)}。開啟生涯紀錄`);
+ for(const id of ['lobby-career','drawer-career'])$(id).innerHTML=careerHTML(profile);
+ $('stats').innerHTML=[['對戰',profile.matches],['勝場',profile.wins],['擊倒',profile.kills],['總傷害',profile.damage],['最長連勝',profile.bestStreak],['最高勝場對手',profile.bestTier>=0?E.TIERS[profile.bestTier].name:'—']].map(([k,v])=>`<div><b>${v}</b><span>${k}</span></div>`).join('');
+ $('unlocks').innerHTML=C.UNLOCKS.filter(u=>u.level>1).map(u=>`<li class="${l.level>=u.level?'got':''}">${unlockLabel(u)}<span>${l.level>=u.level?'已解鎖':'Lv '+u.level}</span></li>`).join('');
+}
+function chip(attr,id,name,text,ok,on,lockLv){return `<button class="tk-chip" type="button" data-${attr}="${id}" aria-pressed="${on}" ${ok?'':'disabled'}><b>${name}</b><span>${text}</span>${ok?'':`<i class="lock">Lv ${lockLv}</i>`}</button>`;}
+function seg(el,entries,current,kind){el.innerHTML=entries.map(([id,o])=>{const ok=C.unlocked(level(),kind,id);return `<button type="button" value="${id}" aria-pressed="${current===id}" ${ok?'':'disabled'} title="${ok?o.text:'Lv '+C.unlockLevel(kind,id)+' 解鎖'}">${o.name}${ok?'':' · Lv'+C.unlockLevel(kind,id)}</button>`;}).join('');}
+function renderSetup(){
+ clampSetup();const lv=level();
+ $('tier-chips').innerHTML=E.TIERS.map((t,i)=>chip('tier',i,t.name,t.text+` 經驗 ×${C.TIER_XP[i]}`,C.unlocked(lv,'tier',i),setup.tier===i,C.unlockLevel('tier',i))).join('');
+ $('map-chips').innerHTML=Object.entries(E.MAPS).map(([id,m])=>chip('map',id,m.name,m.text,C.unlocked(lv,'map',id),setup.map===id,C.unlockLevel('map',id))).join('');
+ seg($('seg-weather'),Object.entries(E.WEATHER),setup.weather,'weather');$('weather-note').textContent=E.WEATHER[setup.weather].text;
+ seg($('seg-loadout'),Object.entries(E.LOADOUTS),setup.loadout,'loadout');$('loadout-note').textContent=E.LOADOUTS[setup.loadout].text;
+ const deckOk=C.unlocked(lv,'deck','expanded');$('opt-deck').disabled=!deckOk;$('opt-deck').checked=setup.deck==='expanded';$('deck-note').textContent=deckOk?'加入重砲彈、集束彈、噴射背包、定風旗與空投標記。AI 也會用。':`Lv ${C.unlockLevel('deck','expanded')} 解鎖。`;
+ $('opt-assist').checked=setup.assist==='short';
+ const m=C.multiplier({tier:setup.tier,weather:setup.weather,assist:setup.assist});
+ $('lobby-summary').innerHTML=`<span class="fu-chip fu-chip--gold">${E.WEATHER[setup.weather].name}</span><span class="fu-chip fu-chip--jade">起手 ${E.LOADOUTS[setup.loadout].name}</span><span class="fu-chip fu-chip--azure">${setup.deck==='expanded'?'擴充牌組':'經典牌組'}</span>${setup.assist==='short'?'<span class="fu-chip">老兵瞄準</span>':''}<span class="fu-num" style="margin-left:auto">經驗 ×${m.toFixed(2)}</span>`;
+}
+function saveSetup(){writeJSON(SETUP_KEY,setup);renderSetup();}
+$('tier-chips').addEventListener('click',e=>{const b=e.target.closest('[data-tier]');if(!b||b.disabled)return;setup.tier=Number(b.dataset.tier);saveSetup();});
+$('map-chips').addEventListener('click',e=>{const b=e.target.closest('[data-map]');if(!b||b.disabled)return;setup.map=b.dataset.map;saveSetup();});
+$('seg-weather').addEventListener('click',e=>{const b=e.target.closest('button');if(!b||b.disabled)return;setup.weather=b.value;saveSetup();});
+$('seg-loadout').addEventListener('click',e=>{const b=e.target.closest('button');if(!b||b.disabled)return;setup.loadout=b.value;saveSetup();});
+$('opt-deck').onchange=()=>{setup.deck=$('opt-deck').checked?'expanded':'classic';saveSetup();};
+$('opt-assist').onchange=()=>{setup.assist=$('opt-assist').checked?'short':'full';saveSetup();};
+$('reset-career').onclick=()=>{if(!confirm('清除這台裝置上的等級與紀錄？'))return;profile=C.blank();C.save(store,profile);renderCareer();renderSetup();};
+
+// ---------- Prefs ----------
+function syncPrefs(){$('opt-sound').checked=prefs.sound;$('opt-shake').checked=prefs.shake;$('opt-follow').checked=prefs.follow;$('sound').setAttribute('aria-pressed',String(prefs.sound));for(const b of $('seg-speed').children)b.setAttribute('aria-pressed',String(Number(b.value)===prefs.speed));writeJSON(PREF_KEY,prefs);}
+$('opt-sound').onchange=()=>{prefs.sound=$('opt-sound').checked;syncPrefs();};
+$('opt-shake').onchange=()=>{prefs.shake=$('opt-shake').checked;syncPrefs();};
+$('opt-follow').onchange=()=>{prefs.follow=$('opt-follow').checked;syncPrefs();};
+$('seg-speed').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;prefs.speed=Number(b.value);syncPrefs();});
+$('sound').onclick=()=>{prefs.sound=!prefs.sound;syncPrefs();if(prefs.sound)Sound.ui();};
+
+// ---------- Drawer tabs ----------
+function openMenu(tab){if(tab)selectTab(tab);if(window.Fu)Fu.open('menu');}
+function selectTab(id){for(const t of document.querySelectorAll('.tk-tabs [role=tab]')){const on=t.id==='tab-'+id;t.setAttribute('aria-selected',String(on));$(t.getAttribute('aria-controls')).hidden=!on;}}
+document.querySelector('.tk-tabs').addEventListener('click',e=>{const t=e.target.closest('[role=tab]');if(t)selectTab(t.id.slice(4));});
+$('menu-btn').onclick=()=>openMenu();$('career-chip').onclick=()=>openMenu('career');$('more-rules').onclick=()=>openMenu('match');
+
+// ---------- Sound: tiny WebAudio synth, no assets ----------
+const Sound=(()=>{
+ let ac=null,out=null,noise=null;
+ function ensure(){if(!prefs.sound)return null;if(!ac){const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return null;try{ac=new AC();}catch(e){return null;}out=ac.createGain();out.gain.value=.55;const comp=ac.createDynamicsCompressor();out.connect(comp);comp.connect(ac.destination);noise=ac.createBuffer(1,ac.sampleRate,ac.sampleRate);const d=noise.getChannelData(0);let s=7;for(let i=0;i<d.length;i++){s=(Math.imul(s,1664525)+1013904223)>>>0;d[i]=s/2147483648-1;}}if(ac.state==='suspended')ac.resume().catch(()=>{});return ac;}
+ function tone(f,to,dur,o={}){const c=ensure();if(!c)return;const t=c.currentTime+(o.delay||0),osc=c.createOscillator(),g=c.createGain();osc.type=o.type||'sine';osc.frequency.setValueAtTime(f,t);if(to!==f)osc.frequency.exponentialRampToValueAtTime(Math.max(20,to),t+dur);g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(o.vol||.2,t+.008);g.gain.exponentialRampToValueAtTime(.0001,t+dur);osc.connect(g);g.connect(out);osc.start(t);osc.stop(t+dur+.05);}
+ function hiss(dur,o={}){const c=ensure();if(!c)return;const t=c.currentTime+(o.delay||0),src=c.createBufferSource(),f=c.createBiquadFilter(),g=c.createGain();src.buffer=noise;src.loop=true;f.type='lowpass';f.frequency.setValueAtTime(o.f||2400,t);f.frequency.exponentialRampToValueAtTime(o.to||120,t+dur);g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(o.vol||.3,t+.01);g.gain.exponentialRampToValueAtTime(.0001,t+dur);src.connect(f);f.connect(g);g.connect(out);src.start(t);src.stop(t+dur+.05);}
+ return{
+  fire(p){tone(120+p,40,.35,{vol:.45});hiss(.25,{f:3000,to:300,vol:.2});},
+  boom(big){tone(70,24,big?1.1:.7,{vol:.6});hiss(big?1.1:.7,{f:4200,to:60,vol:.38});},
+  splash(){hiss(.6,{f:1800,to:400,vol:.2});tone(300,90,.3,{vol:.08,type:'triangle'});},
+  card(){[660,990].forEach((f,i)=>tone(f,f,.1,{type:'triangle',vol:.08,delay:i*.06}));},
+  build(){tone(180,120,.18,{type:'square',vol:.07});tone(240,160,.18,{type:'square',vol:.06,delay:.09});},
+  ko(){tone(600,60,.8,{type:'sawtooth',vol:.12});tone(80,30,.7,{vol:.4});},
+  turn(mine){tone(mine?784:523,mine?784:523,.12,{type:'triangle',vol:.07});},
+  ui(){tone(880,880,.05,{type:'square',vol:.03});},
+  win(){[523,659,784,1047,1319].forEach((f,i)=>tone(f,f,.3,{type:'triangle',vol:.12,delay:i*.11}));},
+  lose(){[392,330,262].forEach((f,i)=>tone(f,f*.98,.4,{type:'triangle',vol:.1,delay:i*.18}));},
+  levelUp(){[523,659,784,1047,1319,1568].forEach((f,i)=>tone(f,f,.26,{type:'triangle',vol:.1,delay:.6+i*.08}));}
+ };
+})();
+
+// ---------- Match lifecycle ----------
+function newMatch(){game=new E.Game(Math.random,matchOptions());selected=null;placeX=null;recorded=false;acc=0;last=null;signature='';hpSeen=game.actors.map(a=>a.hp);app.events.length=0;app.floats.length=0;if(app.view)app.view.rebuild();updateSubtitle();}
+function startMatch(){newMatch();game.start();showOverlay(null);hud();$('board').focus({preventScroll:true});}
+function showOverlay(mode){overlayMode=mode;const o=$('overlay');if(!mode){o.hidden=true;return;}o.dataset.mode=mode;o.hidden=false;o.scrollTop=0;if(mode==='lobby'){renderSetup();renderCareer();}}
+function pause(){if(!game)return;game.pause();if(game.phase==='paused'){acc=0;showOverlay('pause');}}
+function resume(){if(game&&game.phase==='paused'){game.start();last=null;showOverlay(null);}}
+function updateSubtitle(){const o=game.options;$('subtitle').textContent=`${E.MAPS[o.map].name} · ${E.WEATHER[o.weather].name} · 對手${E.TIERS[o.tier].name}`;$('turn-max').textContent=game.maxTurns;}
+$('play').onclick=()=>{Sound.ui();startMatch();};
+$('again').onclick=()=>startMatch();
+$('resume').onclick=resume;
+$('to-lobby').onclick=()=>{newMatch();showOverlay('lobby');};
+$('result-lobby').onclick=()=>showOverlay('lobby');
+$('restart').onclick=()=>{if(window.Fu)Fu.close('menu');startMatch();};
+$('pause').onclick=()=>{if(!game)return;if(game.phase==='paused')resume();else pause();};
+
+// ---------- Input ----------
+const human=()=>game&&game.phase==='aim'&&game.team===0;
+const placingType=()=>{if(selected===null||!game)return null;const t=game.hands[0][selected];return t&&E.CARDS[t].target!=='self'?t:null;};
+function say(text){$('status').textContent=text;}
+function setAim(angle,power){if(!human())return;game.aim(Math.round(angle),Math.round(power));}
+function elevate(d){if(!human())return;const a=game.angle;if(a===90){setAim(a,game.power);return;}setAim(a<90?a+d:a-d,game.power);}
+function cancelSelect(){selected=null;placeX=null;signature='';}
+function useCard(index){
+ if(!human()||game.cardUsed)return;const type=game.hands[0][index];if(!type)return;
+ if(E.CARDS[type].target==='self'){if(game.playCard(index)){Sound.card();toast(game.log,'ok');}else toast(game.log,'warn');cancelSelect();return;}
+ if(selected===index){cancelSelect();say('已取消放置。');return;}
+ selected=index;placeX=null;signature='';say(type==='airstrike'?'點選戰場任一處標記空投；再按同張牌取消。':`點選地面放置${E.CARDS[type].name}（當前蟲 100 內）；再按同張牌取消。`);
+}
+function placeAt(x){const type=placingType();if(!type)return;const idx=selected;if(game.playCard(idx,x)){Sound[type==='airstrike'?'card':'build']();toast(type==='airstrike'?'空投已標記：你下回合開始時落下':'建築已放置；還能移動與開砲','ok');cancelSelect();}else toast(game.log,'warn');}
+function toast(text,tone){if(window.Fu)Fu.toast(text,{tone,ms:2200});else say(text);}
+$('hand').addEventListener('click',e=>{const b=e.target.closest('[data-card]');if(b)useCard(Number(b.dataset.card));});
+$('fire').onclick=()=>{if(human()){cancelSelect();game.fire();}};
+$('pass').onclick=()=>{if(human()){cancelSelect();game.endTurn();}};
+const stepMove=d=>{if(human()&&!game.move(d))toast(game.log||'不能再移動了','warn');};
+$('moveLeft').onclick=()=>stepMove(-15);$('moveRight').onclick=()=>stepMove(15);
+$('angle-down').onclick=()=>human()&&setAim(game.angle-1,game.power);$('angle-up').onclick=()=>human()&&setAim(game.angle+1,game.power);
+$('power-down').onclick=()=>human()&&setAim(game.angle,game.power-1);$('power-up').onclick=()=>human()&&setAim(game.angle,game.power+1);
+for(const id of ['angle','powerInput'])$(id).oninput=()=>setAim(Number($('angle').value),Number($('powerInput').value));
+const board=$('board');
+function pick(e){return app.view?app.view.pick(e.clientX,e.clientY):null;}
+board.addEventListener('pointerdown',e=>{
+ if(!human())return;const p=pick(e);if(!p)return;
+ if(placingType()){placeX=p.x;return;}
+ // Drag to aim: direction from the active unit sets the angle, distance sets the power.
+ aimDrag={id:e.pointerId};board.setPointerCapture(e.pointerId);dragAim(p);
+});
+board.addEventListener('pointermove',e=>{const p=pick(e);if(!p||!game)return;if(placingType()){placeX=p.x;return;}if(aimDrag&&aimDrag.id===e.pointerId)dragAim(p);});
+board.addEventListener('pointerup',e=>{
+ if(aimDrag&&aimDrag.id===e.pointerId){aimDrag=null;return;}
+ if(placingType()){const p=pick(e);if(p)placeAt(p.x);}
+});
+board.addEventListener('pointercancel',()=>{aimDrag=null;});
+function dragAim(p){const a=game.actors[game.active],b=E.body(game,a),dx=p.x-b.x,dy=b.y-p.y;if(Math.hypot(dx,dy)<14)return;let ang=Math.atan2(dy,dx)*180/Math.PI;if(ang<0)ang=dx>=0?10:170;setAim(Math.max(10,Math.min(170,ang)),Math.max(25,Math.min(100,25+Math.hypot(dx,dy)*.42)));}
+function onKey(e){
+ if(e.defaultPrevented||e.metaKey||e.ctrlKey||e.altKey)return;const tag=(e.target&&e.target.tagName)||'';const k=e.key.toLowerCase();
+ if(k==='escape'){if(placingType()){cancelSelect();say('已取消放置。');e.preventDefault();return;}if(game&&['aim','ai','flight'].includes(game.phase)&&!overlayMode){pause();e.preventDefault();}else if(overlayMode==='pause'){resume();e.preventDefault();}return;}
+ if(k==='p'){e.preventDefault();if(game&&game.phase==='paused')resume();else pause();return;}
+ if(k==='m'){e.preventDefault();if(window.Fu)Fu.toggle('menu');return;}
+ if(k==='v'){e.preventDefault();$('sound').click();return;}
+ if(overlayMode||(window.Fu&&Fu.isOpen('menu')))return;
+ if(/^(INPUT|SELECT|TEXTAREA)$/.test(tag)&&e.target.type!=='range'&&e.target.type!=='checkbox')return;
+ if(!human())return;const big=e.shiftKey?5:1;let used=true;
+ if(k==='arrowleft'||k==='a')stepMove(-5);else if(k==='arrowright'||k==='d')stepMove(5);
+ else if(k==='arrowup')elevate(big);else if(k==='arrowdown')elevate(-big);
+ else if(k==='w')setAim(game.angle,game.power+big);else if(k==='s')setAim(game.angle,game.power-big);
+ else if(k==='f')setAim(180-game.angle,game.power);
+ else if(k===' '||k==='enter'){if(!e.repeat){cancelSelect();game.fire();}}
+ else if(k==='e'){if(!e.repeat){cancelSelect();game.endTurn();}}
+ else if(['1','2','3'].includes(k))useCard(Number(k)-1);
+ else used=false;
+ if(used)e.preventDefault();
+}
+window.addEventListener('load',()=>document.addEventListener('keydown',onKey));
+window.addEventListener('blur',()=>{if(game&&['aim','ai','flight'].includes(game.phase))pause();});
+document.addEventListener('visibilitychange',()=>{if(document.hidden&&game&&['aim','ai','flight'].includes(game.phase))pause();});
+
+// ---------- HUD ----------
+function windText(w){return w===0?'0':(w<0?'← ':'→ ')+Math.abs(w);}
+function cardButton(type,index,enabled){const c=E.CARDS[type],on=selected===index;return `<button class="fu-btn tk-card" type="button" data-card="${index}" aria-pressed="${on}" ${enabled?'':'disabled'} style="--tone:${CARD_TONE[c.target]}"><b><span class="fu-side"></span>${c.name}</b><small>${c.text}</small><span class="fu-kbd">${index+1}</span></button>`;}
+function hud(){
+ if(!game)return;const g=game,h=human(),over=g.phase==='over';
+ $('turn-no').textContent=Math.min(g.turn+1,g.maxTurns);
+ const t=$('turn');t.textContent=g.phase==='ready'?'準備登場':g.phase==='paused'?'已暫停':over?'對戰結束':g.phase==='flight'?'砲彈飛行':g.team?'AI 思考中':'你的回合';
+ t.className='fu-chip '+(over||g.phase==='ready'?'':g.team?'fu-chip--azure fu-chip--live':'fu-chip--seal fu-chip--live');
+ $('wind').textContent=windText(g.wind);const wb=$('wind-bar'),w=Math.max(-45,Math.min(45,g.wind))/45;wb.style.left=(50+Math.min(0,w)*50)+'%';wb.style.width=Math.abs(w)*50+'%';
+ const teamSig=JSON.stringify([g.actors.map(a=>a.hp),g.active,g.phase==='over']);
+ if($('teams').dataset.sig!==teamSig){$('teams').dataset.sig=teamSig;$('teams').innerHTML=[0,1].map(team=>{const units=g.actors.filter(a=>a.team===team),sum=units.reduce((n,a)=>n+a.hp,0);return `<div class="tk-team" style="--tone:${SIDE[team]}"><span class="fu-side"></span><div><b>${TEAM_NAMES[team]}</b><div class="units">${units.map(a=>`<span class="${a.id===g.active&&!over?'on':''}" title="${UNIT_NAMES[a.id]} ${a.hp}/70"><i style="width:${a.hp/E.MAX_HP*100}%"></i></span>`).join('')}</div></div><span class="fu-num">${sum}</span></div>`;}).join('');}
+ say(g.log);
+ for(const id of ['angle','powerInput','moveLeft','moveRight','fire','pass','angle-down','angle-up','power-down','power-up'])$(id).disabled=!h;
+ $('angle').value=g.angle;$('powerInput').value=g.power;
+ $('aim-read').textContent=`${g.angle}°${g.angle<90?'→':g.angle>90?'←':'↑'} · ${g.power}%`;
+ $('moveLeft').textContent='← '+Math.min(15,Math.floor(g.moveLeft));$('moveRight').textContent=Math.min(15,Math.floor(g.moveLeft))+' →';
+ $('moveLeft').title=$('moveRight').title='本回合還能走 '+Math.floor(g.moveLeft);
+ const pz=$('pause');pz.disabled=!['aim','ai','flight','paused'].includes(g.phase);pz.classList.toggle('paused',g.phase==='paused');pz.setAttribute('aria-label',g.phase==='paused'?'繼續':'暫停');
+ const sig=JSON.stringify([g.hands[0],h,g.cardUsed,selected]);
+ if(sig!==signature){signature=sig;const hand=g.hands[0];$('hand').innerHTML=hand.length?hand.map((type,i)=>cardButton(type,i,h&&!g.cardUsed)).join(''):'<span class="tk-empty">手牌空了 · 下回合抽牌</span>';}
+ if(over&&!recorded)finish();
+}
+function finish(){
+ recorded=true;const g=game,r=g.result,outcome=r.winner===null?'draw':r.winner===0?'win':'loss';
+ const s={outcome,tier:g.options.tier,weather:g.options.weather,assist:setup.assist,dealt:g.stats.dealt[0],kills:g.stats.kills[0],razed:g.stats.razed[0],turns:r.turns,lost:g.actors.filter(a=>a.team===0&&a.hp===0).length};
+ const rec=C.record(profile,s);profile=rec.profile;C.save(store,profile);renderCareer();
+ $('result-kicker').textContent=`${E.MAPS[g.options.map].name} · ${E.WEATHER[g.options.weather].name} · 對手${E.TIERS[g.options.tier].name}`;
+ $('result-title').innerHTML=outcome==='win'?'朱印<em>得勝</em>':outcome==='draw'?'兩軍<em>平手</em>':'青嵐<em>得勝</em>';
+ $('result-copy').textContent=`${r.reason}。你 ${r.hp[0]} HP ／ AI ${r.hp[1]} HP，共 ${r.turns} 回合。`;
+ const acc=g.stats.shots[0]?Math.round(g.stats.hits[0]/g.stats.shots[0]*100):0;
+ $('result-board').innerHTML=[['造成傷害',g.stats.dealt[0]],['承受傷害',g.stats.dealt[1]],['擊倒',g.stats.kills[0]],['命中率',acc+'%']].map(([k,v])=>`<div><b>${v}</b><span>${k}</span></div>`).join('');
+ $('xp-mult').textContent=`倍率 ×${rec.gain.mult.toFixed(2)}`;
+ $('xp-lines').innerHTML=rec.gain.lines.map(([k,v])=>`<dt>${k}</dt><dd>+${v}</dd>`).join('')+`<dt class="total">本場經驗</dt><dd class="total">+${rec.gain.total}</dd>`;
+ const up=rec.after.level>rec.before.level;$('levelup-wrap').dataset.view=up?'result':'none';
+ if(up)$('levelup').innerHTML=`<b>升到 Lv ${rec.after.level}・${C.rankOf(rec.after.level)}</b>${rec.unlocked.length?'<br>解鎖：'+rec.unlocked.map(unlockLabel).join('、'):''}`;
+ $('result-career').innerHTML=careerHTML(profile);
+ setTimeout(()=>{if(game===g&&g.phase==='over')showOverlay('result');},1300);
+ if(outcome==='win')Sound.win();else Sound.lose();if(up)Sound.levelUp();
+}
+
+// ---------- Events to effects ----------
+function drain(){
+ if(!game)return;const evs=game.events.splice(0);
+ for(const e of evs){app.events.push(e);
+  if(e.type==='fire')Sound.fire(e.power);
+  else if(e.type==='blast')Sound.boom(e.radius>60);
+  else if(e.type==='miss'){if(e.splash)Sound.splash();}
+  else if(e.type==='ko'){Sound.ko();toast(`${UNIT_NAMES[e.id]} 倒下`,e.id<2?'warn':'ok');}
+  else if(e.type==='drown')toast(`${UNIT_NAMES[e.id]} 沉入海中`,'warn');
+  else if(e.type==='turn')Sound.turn(e.team===0);
+  else if(e.type==='card'&&e.team===1){Sound.card();toast('AI 使用 '+E.CARDS[e.card].name,'info');}
+ }
+ game.actors.forEach((a,i)=>{const d=a.hp-(hpSeen[i]??a.hp);if(d)app.floats.push({id:a.id,text:(d>0?'+':'')+d,color:d>0?'#35d0a8':SIDE[a.team],t:0});hpSeen[i]=a.hp;});
+}
+
+// ---------- Loop ----------
+function frame(t){
+ if(game&&last!==null&&!['ready','paused','over'].includes(game.phase)){acc+=Math.min(.1,(t-last)/1000)*prefs.speed;while(acc>=E.DT){game.step();acc-=E.DT;}}
+ else acc=0;
+ last=t;drain();hud();
+ requestAnimationFrame(frame);
+}
+// Keep the camera clear of the bottom HUD stack on phones.
+function measure(){const c=document.querySelector('#console');if(c){document.documentElement.style.setProperty('--console-h',c.offsetHeight+'px');document.documentElement.style.setProperty('--console-w',c.offsetWidth+'px');}}
+addEventListener('resize',measure);
+
+// ---------- Local agent bridge ----------
+window.TankAgent={
+ observe(){if(!game)return null;return{...E.observation(game,0),phase:game.phase,myTurn:human(),log:game.log,result:game.result,cards:game.hands[0].map(t=>({type:t,...E.CARDS[t]})),preview:human()?E.trajectory(game,game.actors[game.active],game.angle,game.power).hit:null};},
+ act(action){if(!game)return{ok:false};const ok=game.apply(action);return{ok,phase:game.phase,log:game.log};},
+ run(limit){if(!game)return null;return E.runUntilInput(game,limit);},
+ newMatch(options){if(options)Object.assign(setup,options);startMatch();return game.options;},
+ get engine(){return E;}
+};
+
+newMatch();renderSetup();renderCareer();syncPrefs();measure();hud();showOverlay('lobby');requestAnimationFrame(frame);
+</script>
+<script type="module" id="tank-view">
+// 3D diorama. It reads the deterministic game state (window.TankApp.game) and the event queue;
+// all rules live in tank-arena-engine.js.
+import { THREE, createStage, palette } from './shared/fu-three.js';
+const app=window.TankApp,E=TankArena,canvas=document.getElementById('board'),layer=document.getElementById('labels');
+const ZF=46,ZB=-96,BOTTOM=560,STEP=2,COLS=E.W/STEP+1;
+const X=x=>x-400,Y=y=>300-y;
+let stage=null;
+try{stage=createStage(canvas,{fov:28,near:10,far:9000,fog:[1700,4200],exposure:1.08});}catch(e){stage=null;}
+if(!stage){const d=document.createElement('div');d.className='tk-fail';d.innerHTML='<div><p>這台裝置或瀏覽器無法啟用 WebGL，鋼芯競技場的 3D 戰場無法顯示。</p><p><a href="index.html">回到 FuGames</a></p></div>';document.body.append(d);}
+else{
+const {scene,camera,renderer,lights}=stage;
+lights.key.position.set(-300,700,520);lights.key.intensity=2.1;lights.rim.position.set(260,140,-700);lights.rim.intensity=1.1;lights.hemi.intensity=.9;
+const col=c=>new THREE.Color(c);
+
+// ---------- Backdrop: ink sky, one vermilion sun, layered ridges ----------
+const sky=new THREE.Mesh(new THREE.PlaneGeometry(9000,4200),new THREE.ShaderMaterial({depthWrite:false,uniforms:{uTime:{value:0}},
+ vertexShader:'varying vec2 vU;void main(){vU=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',
+ fragmentShader:`varying vec2 vU;uniform float uTime;void main(){vec3 top=vec3(.027,.035,.047),hor=vec3(.10,.085,.075);float h=smoothstep(.12,.5,vU.y);vec3 c=mix(hor,top,h);
+ vec2 s=vec2(.556,.37);vec2 d=(vU-s)*vec2(2.15,1.);float r=length(d);c=mix(c,vec3(1.,.294,.169),1.-smoothstep(.034,.037,r));c+=vec3(.9,.25,.12)*exp(-r*9.)*.22;
+ float band=step(.5,fract(vU.y*90.))*.012*(1.-h);c+=band;gl_FragColor=vec4(c,1.);}`}));
+sky.position.set(0,700,-2400);scene.add(sky);
+function ridge(z,base,amp,seed,color){const s=new THREE.Shape();s.moveTo(-4200,-900);for(let x=-4200;x<=4200;x+=60){const y=base+amp*(Math.sin(x/310+seed)*.6+Math.sin(x/127+seed*2.3)*.25+Math.sin(x/53+seed*4.1)*.12);s.lineTo(x,y);}s.lineTo(4200,-900);s.closePath();const m=new THREE.Mesh(new THREE.ShapeGeometry(s),new THREE.MeshBasicMaterial({color}));m.position.z=z;scene.add(m);return m;}
+ridge(-1500,260,180,1.7,0x161c24);ridge(-1000,120,140,4.2,0x1b222c);ridge(-560,20,90,2.9,0x212a35);
+
+// ---------- Terrain slab ----------
+const nTop=new Float32Array(COLS*2*3),nFront=new Float32Array(COLS*2*3),dFront=new Float32Array(COLS*2);
+const idx=[];for(let i=0;i<COLS-1;i++){const a=i*2,b=a+1,c=a+2,d=a+3;idx.push(a,b,c,b,d,c);}
+const topGeo=new THREE.BufferGeometry();topGeo.setAttribute('position',new THREE.BufferAttribute(nTop,3));topGeo.setIndex(idx);
+const frontGeo=new THREE.BufferGeometry();frontGeo.setAttribute('position',new THREE.BufferAttribute(nFront,3));frontGeo.setAttribute('depth',new THREE.BufferAttribute(dFront,1));frontGeo.setIndex(idx);
+const topMat=new THREE.MeshStandardMaterial({color:0x6c6352,roughness:.95,metalness:0,flatShading:true,side:THREE.DoubleSide});
+const frontMat=new THREE.ShaderMaterial({uniforms:{uWater:{value:-9999}},vertexShader:'attribute float depth;varying float vD;varying vec2 vP;void main(){vD=depth;vec4 w=modelMatrix*vec4(position,1.);vP=w.xy;gl_Position=projectionMatrix*viewMatrix*w;}',
+ fragmentShader:`varying float vD;varying vec2 vP;uniform float uWater;
+ float n(float x){return fract(sin(x*12.9898)*43758.5453);}
+ void main(){float y=vP.y;float band=floor((y+400.)/22.+sin(vP.x/90.)*.6);float k=n(band);
+ vec3 a=vec3(.13,.115,.10),b=vec3(.075,.07,.068);vec3 c=mix(b,a,k*.8);
+ float line=1.-smoothstep(0.,1.4,abs(fract((y+400.)/22.+sin(vP.x/90.)*.6)-.02)*22.);c+=vec3(.93,.89,.82)*line*.06;
+ c=mix(c,vec3(.03,.035,.045),smoothstep(30.,260.,vD));
+ c+=vec3(.93,.89,.82)*(1.-smoothstep(0.,5.,vD))*.5;c+=vec3(.42,.37,.3)*(1.-smoothstep(5.,16.,vD))*.35;
+ if(y<uWater)c=mix(c,vec3(.03,.09,.14),.55);
+ gl_FragColor=vec4(c,1.);}`});
+const topMesh=new THREE.Mesh(topGeo,topMat),frontMesh=new THREE.Mesh(frontGeo,frontMat);scene.add(topMesh,frontMesh);
+const rimPos=new Float32Array(COLS*3),rimGeo=new THREE.BufferGeometry();rimGeo.setAttribute('position',new THREE.BufferAttribute(rimPos,3));
+const rim=new THREE.Line(rimGeo,new THREE.LineBasicMaterial({color:0xece4d0,transparent:true,opacity:.8,toneMapped:false}));scene.add(rim);
+const caps=[0,1].map(()=>{const m=new THREE.Mesh(new THREE.PlaneGeometry(1,1),new THREE.MeshBasicMaterial({color:0x0b0e12,side:THREE.DoubleSide}));m.rotation.y=Math.PI/2;scene.add(m);return m;});
+let terrainSig='';
+function buildTerrain(g){
+ for(let i=0;i<COLS;i++){const x=i*STEP,t=g.terrain[Math.min(E.W,x)],wx=X(x),wy=Y(t);
+  nTop.set([wx,wy,ZF,wx,wy+3,ZB],i*6);nFront.set([wx,wy,ZF,wx,Y(BOTTOM),ZF],i*6);dFront[i*2]=0;dFront[i*2+1]=BOTTOM-t;rimPos.set([wx,wy+.6,ZF+.6],i*3);}
+ topGeo.attributes.position.needsUpdate=true;topGeo.computeVertexNormals();topGeo.computeBoundingSphere();
+ frontGeo.attributes.position.needsUpdate=true;frontGeo.attributes.depth.needsUpdate=true;frontGeo.computeBoundingSphere();rimGeo.attributes.position.needsUpdate=true;rimGeo.computeBoundingSphere();
+ caps.forEach((m,k)=>{const x=k?E.W:0,t=g.terrain[x],h=BOTTOM-t;m.scale.set(ZF-ZB,h,1);m.position.set(X(x),Y(t)-h/2,(ZF+ZB)/2);});
+}
+// Water for the tide map.
+const water=new THREE.Group();
+const waterTop=new THREE.Mesh(new THREE.PlaneGeometry(4000,1400),new THREE.MeshStandardMaterial({color:0x0c2a3e,roughness:.9,metalness:0,transparent:true,opacity:.88}));waterTop.rotation.x=-Math.PI/2;waterTop.position.z=-500;
+const waterFront=new THREE.Mesh(new THREE.PlaneGeometry(4000,1),new THREE.MeshBasicMaterial({color:0x0a2232,transparent:true,opacity:.55,depthWrite:false}));
+const waterLine=new THREE.Mesh(new THREE.PlaneGeometry(4000,1.6),new THREE.MeshBasicMaterial({color:0x4fa3ff,transparent:true,opacity:.6,toneMapped:false}));
+water.add(waterTop,waterFront,waterLine);scene.add(water);
+
+// ---------- Units: beetle-backed steel-core tanks ----------
+const hullGeo=new THREE.SphereGeometry(14,10,6,0,Math.PI*2,0,Math.PI/2);hullGeo.scale(1.15,.82,1);
+const treadGeo=new THREE.BoxGeometry(32,8,26);const barrelGeo=new THREE.CylinderGeometry(2.3,2.8,22,8);barrelGeo.rotateZ(-Math.PI/2);barrelGeo.translate(11,0,0);
+const bandGeo=new THREE.TorusGeometry(15.4,1.3,4,24);bandGeo.rotateX(Math.PI/2);
+const markGeo=new THREE.OctahedronGeometry(5,0);
+const ringGeo=new THREE.RingGeometry(18,21,32);ringGeo.rotateX(-Math.PI/2);
+const units=new Map();
+function makeUnit(a){
+ const tone=app.SIDE[a.team],g=new THREE.Group();
+ const hullMat=new THREE.MeshStandardMaterial({color:0x2a313b,roughness:.6,metalness:.35,flatShading:true,emissive:col(tone),emissiveIntensity:.08});
+ const hull=new THREE.Mesh(hullGeo,hullMat);hull.position.y=7;
+ const tread=new THREE.Mesh(treadGeo,new THREE.MeshStandardMaterial({color:0x0d1015,roughness:.9,flatShading:true}));tread.position.y=4;
+ const band=new THREE.Mesh(bandGeo,new THREE.MeshBasicMaterial({color:tone,toneMapped:false}));band.position.y=8;
+ const turret=new THREE.Group();turret.position.y=13;
+ const barrel=new THREE.Mesh(barrelGeo,new THREE.MeshStandardMaterial({color:0xa8a08c,roughness:.5,metalness:.5,flatShading:true}));
+ const tip=new THREE.Mesh(new THREE.BoxGeometry(4,6.4,6.4),new THREE.MeshBasicMaterial({color:tone,toneMapped:false}));tip.position.x=21;turret.add(barrel,tip);
+ const eye=new THREE.Mesh(new THREE.BoxGeometry(3,3,3),new THREE.MeshBasicMaterial({color:0xece4d0,toneMapped:false}));eye.position.set(11,10,9);
+ const mark=new THREE.Mesh(markGeo,new THREE.MeshBasicMaterial({color:tone,toneMapped:false}));mark.position.y=64;mark.visible=false;
+ const ring=new THREE.Mesh(ringGeo,new THREE.MeshBasicMaterial({color:tone,transparent:true,opacity:.85,toneMapped:false,depthWrite:false}));ring.position.y=1.2;ring.visible=false;
+ g.add(tread,hull,band,turret,eye,mark,ring);scene.add(g);
+ const tag=document.createElement('div');tag.className='tk-tag';tag.style.setProperty('--tone',tone);layer.append(tag);
+ return{g,hull,hullMat,turret,eye,mark,ring,tag,x:a.x,y:null,recoil:0,tilt:0,smoke:0};
+}
+// ---------- Buildings ----------
+const blds=new Map();
+const stoneMat=new THREE.MeshStandardMaterial({color:0x4a463e,roughness:.95,flatShading:true});
+function makeBuilding(b){
+ const tone=b.team<0?app.NEUTRAL:app.SIDE[b.team],g=new THREE.Group(),depth=b.type==='tower'?58:b.type==='rampart'?74:b.type==='bunker'?52:44;
+ const mat=b.team<0?stoneMat.clone():new THREE.MeshStandardMaterial({color:0x232a33,roughness:.8,metalness:.2,flatShading:true});
+ const body=new THREE.Mesh(new THREE.BoxGeometry(b.w,b.type==='bunker'?b.h*.62:b.h,depth),mat);body.position.y=(b.type==='bunker'?b.h*.62:b.h)/2;g.add(body);
+ if(b.type==='bunker'){const d2=new THREE.Mesh(new THREE.CylinderGeometry(b.w*.42,b.w*.5,depth*.98,10),mat);d2.rotation.x=Math.PI/2;d2.scale.set(1,1,.5);d2.position.y=b.h*.62;g.add(d2);}
+ if(b.type==='tower'||b.type==='rampart')for(let k=-1;k<=1;k+=2){const c=new THREE.Mesh(new THREE.BoxGeometry(b.w*.32,8,depth),mat);c.position.set(k*b.w*.34,b.h+4,0);g.add(c);}
+ const cap=new THREE.Mesh(new THREE.BoxGeometry(b.w+1,2,depth+1),new THREE.MeshBasicMaterial({color:tone,toneMapped:false,transparent:true,opacity:b.team<0?.35:.95}));cap.position.y=(b.type==='bunker'?b.h*.62:b.h)+(b.type==='tower'||b.type==='rampart'?0:1);g.add(cap);
+ scene.add(g);const tag=document.createElement('div');tag.className='tk-tag bld';layer.append(tag);
+ return{g,mat,tag,max:b.hp,base:mat.color.clone()};
+}
+// ---------- Strike markers ----------
+const strikeObjs=new Map();
+function makeStrike(s){const tone=app.SIDE[s.team],g=new THREE.Group();const beam=new THREE.Mesh(new THREE.PlaneGeometry(2,520),new THREE.MeshBasicMaterial({color:tone,transparent:true,opacity:.45,depthWrite:false,toneMapped:false}));beam.position.y=260;g.add(beam);
+ for(const off of E.STRIKE_OFFSETS){const m=new THREE.Mesh(new THREE.ConeGeometry(5,10,4),new THREE.MeshBasicMaterial({color:tone,toneMapped:false}));m.rotation.x=Math.PI;m.position.set(off,22,0);m.userData.off=off;g.add(m);}
+ scene.add(g);const tag=document.createElement('div');tag.className='tk-tag strike';tag.style.setProperty('--tone',tone);tag.textContent=s.team?'敵方空投 · 他們下回合落下':'空投 · 你下回合落下';layer.append(tag);return{g,tag};}
+
+// ---------- Projectile, preview, ghosts ----------
+const shell=new THREE.Mesh(new THREE.SphereGeometry(4.2,10,8),new THREE.MeshBasicMaterial({color:0xece4d0,toneMapped:false}));shell.visible=false;scene.add(shell);
+const TRAIL=64,trailPos=new Float32Array(TRAIL*3),trailGeo=new THREE.BufferGeometry();trailGeo.setAttribute('position',new THREE.BufferAttribute(trailPos,3));
+const trailMat=new THREE.LineBasicMaterial({color:0xff4b2b,transparent:true,opacity:.7,toneMapped:false});const trail=new THREE.Line(trailGeo,trailMat);trail.frustumCulled=false;scene.add(trail);let trailN=0;
+const PREV=120,prevPos=new Float32Array(PREV*3),prevGeo=new THREE.BufferGeometry();prevGeo.setAttribute('position',new THREE.BufferAttribute(prevPos,3));
+const prevMat=new THREE.LineDashedMaterial({color:0xff4b2b,dashSize:7,gapSize:7,transparent:true,opacity:.85,toneMapped:false});const preview=new THREE.Line(prevGeo,prevMat);preview.frustumCulled=false;scene.add(preview);
+const target=new THREE.Mesh(new THREE.RingGeometry(7,9.5,28),new THREE.MeshBasicMaterial({color:0xff4b2b,transparent:true,toneMapped:false,depthTest:false}));target.renderOrder=5;scene.add(target);
+const blastRing=new THREE.Mesh(new THREE.RingGeometry(.96,1,48),new THREE.MeshBasicMaterial({color:0xff4b2b,transparent:true,opacity:.22,toneMapped:false,depthTest:false}));blastRing.renderOrder=4;scene.add(blastRing);
+const ghost=new THREE.Mesh(new THREE.BoxGeometry(1,1,46),new THREE.MeshBasicMaterial({color:0x35d0a8,transparent:true,opacity:.35,depthWrite:false,toneMapped:false}));ghost.visible=false;scene.add(ghost);
+const bandPos=new Float32Array(202*3),bandGeo2=new THREE.BufferGeometry();bandGeo2.setAttribute('position',new THREE.BufferAttribute(bandPos,3));
+const reach=new THREE.Line(bandGeo2,new THREE.LineBasicMaterial({color:0x35d0a8,toneMapped:false,transparent:true,opacity:.9}));reach.frustumCulled=false;scene.add(reach);
+
+// ---------- Particles: debris, sparks, ash ----------
+const MAXP=1600,pPos=new Float32Array(MAXP*3),pCol=new Float32Array(MAXP*3),pSize=new Float32Array(MAXP),pAlpha=new Float32Array(MAXP);
+const pGeo=new THREE.BufferGeometry();pGeo.setAttribute('position',new THREE.BufferAttribute(pPos,3));pGeo.setAttribute('pcolor',new THREE.BufferAttribute(pCol,3));pGeo.setAttribute('psize',new THREE.BufferAttribute(pSize,1));pGeo.setAttribute('palpha',new THREE.BufferAttribute(pAlpha,1));
+const pMat=new THREE.ShaderMaterial({uniforms:{uScale:{value:600}},transparent:true,depthWrite:false,
+ vertexShader:'attribute vec3 pcolor;attribute float psize,palpha;uniform float uScale;varying vec3 vC;varying float vA;void main(){vec4 mv=modelViewMatrix*vec4(position,1.);gl_PointSize=max(1.,psize*uScale/-mv.z);gl_Position=projectionMatrix*mv;vC=pcolor;vA=palpha;}',
+ fragmentShader:'varying vec3 vC;varying float vA;void main(){vec2 d=abs(gl_PointCoord-.5);if(max(d.x,d.y)>.5)discard;gl_FragColor=vec4(vC,vA);}'});
+const pts=new THREE.Points(pGeo,pMat);pts.frustumCulled=false;pts.renderOrder=3;scene.add(pts);
+const parts=[];const ash=[];for(let i=0;i<260;i++)ash.push({x:Math.random()*1800-900,y:Math.random()*560-140,z:Math.random()*420-340,v:.4+Math.random()*.8,s:1.2+Math.random()*1.8});
+const tmpC=new THREE.Color();
+function burst(x,y,color,n,speed,life,size,o={}){tmpC.set(color);for(let i=0;i<n&&parts.length<MAXP-ash.length;i++){const a=o.up?Math.PI*(.1+.8*Math.random()):Math.random()*Math.PI*2,s=speed*(.25+.75*Math.random());parts.push({x:X(x),y:Y(y),z:(Math.random()-.5)*(o.depth||40),vx:Math.cos(a)*s,vy:Math.sin(a)*s+(o.lift||0),vz:(Math.random()-.5)*s*.6,life:life*(.6+.5*Math.random()),max:life,size:size*(.6+.8*Math.random()),r:tmpC.r,g:tmpC.g,b:tmpC.b,grav:o.grav??520,drag:o.drag??.6});}}
+// Expanding blast shells and point flashes.
+const blasts=[];const shellGeo=new THREE.IcosahedronGeometry(1,2);
+const flash=new THREE.PointLight(0xffb070,0,900,1.6);flash.position.z=120;scene.add(flash);
+let shake=0;
+
+// ---------- Labels ----------
+const proj=new THREE.Vector3();let vw=1,vh=1;
+function screen(x,y,z=0){proj.set(X(x),Y(y),z).project(camera);return{sx:(proj.x*.5+.5)*vw,sy:(-proj.y*.5+.5)*vh,vis:proj.z<1};}
+function place(el,x,y,dy=0,z=0){const s=screen(x,y,z);el.style.transform=`translate(${s.sx.toFixed(1)}px,${(s.sy+dy).toFixed(1)}px) translate(-50%,-100%)`;el.style.display=s.vis?'':'none';}
+const floats=[];
+
+// ---------- Camera: fit the field into the area the HUD leaves free ----------
+const cam={cx:400,cy:300,w:840,yaw:-.1,elev:.17};
+function reserve(){const narrow=vw<=720,r={top:60,bottom:24,left:0,right:0};
+ const rect=id=>{const el=document.getElementById(id);if(!el||el.offsetParent===null)return null;const b=el.getBoundingClientRect();return b.width&&b.height?b:null;};
+ const m=rect('match'),c=rect('console'),d=rect('dock');
+ if(narrow){if(m)r.top=m.bottom+8;const tops=[c,d].filter(Boolean).map(b=>b.top);if(tops.length)r.bottom=vh-Math.min(...tops)+8;}
+ else{r.top=58;const tops=[d,vh<=560?c:null].filter(Boolean).map(b=>b.top);if(tops.length)r.bottom=Math.max(24,vh-Math.min(...tops)+6);}
+ return r;}
+function frameTarget(g,dt){
+ const r=reserve(),uw=Math.max(120,vw-r.left-r.right),uh=Math.max(120,vh-r.top-r.bottom),aspect=uw/uh;
+ let minT=E.H;for(let x=0;x<=E.W;x+=8)minT=Math.min(minT,g.terrain[x]);
+ let x0=-20,x1=E.W+20,y0=Math.max(-40,minT-150),y1=E.H+30;
+ const narrow=aspect<1.25&&app.prefs.follow;
+ if(narrow&&g.phase!=='ready'){const a=g.actors[g.active];let lo=a.x,hi=a.x;const add=x=>{lo=Math.min(lo,x);hi=Math.max(hi,x);};
+  if(g.projectile)add(g.projectile.x);else if(g.phase==='aim'&&g.team===0){const tr=E.trajectory(g,a,g.angle,g.power);add(Math.max(0,Math.min(E.W,tr.hit.x)));if(app.placeX!==null&&app.placing)add(app.placeX);}
+  const span=Math.max(300,hi-lo+160),mid=(lo+hi)/2;x0=Math.max(-20,Math.min(E.W+20-span,mid-span/2));x1=x0+span;y0=Math.max(-40,minT-170);y1=E.H+20;}
+ let w=x1-x0,h=y1-y0;if(w/h<aspect)w=h*aspect;else h=w/aspect;
+ // Portrait screens: keep the ground just above the controls and let the spare height be sky; tilt down a little more.
+ const portrait=aspect<1,cyGoal=portrait?y1-h/2:(y0+y1)/2;cam.elev+=((portrait?.3:.17)-cam.elev)*Math.min(1,dt*4);
+ const k=Math.min(1,dt*(narrow?3:5));cam.cx+=((x0+x1)/2-cam.cx)*k;cam.w+=(w-cam.w)*k;cam.cy+=(cyGoal-cam.cy)*k;
+ const tan=Math.tan(camera.fov*Math.PI/360),hFull=cam.w/aspect*vh/uh,dist=hFull/(2*tan)/Math.cos(cam.elev),wpp=hFull/vh;
+ const tx=X(cam.cx)-(r.left-r.right)/2*wpp,ty=Y(cam.cy)+(r.top-r.bottom)/2*wpp;
+ const sx=shake?(Math.random()*2-1)*shake:0,sy=shake?(Math.random()*2-1)*shake:0;
+ camera.position.set(tx+Math.sin(cam.yaw)*Math.cos(cam.elev)*dist+sx,ty+Math.sin(cam.elev)*dist+sy,Math.cos(cam.yaw)*Math.cos(cam.elev)*dist);
+ camera.lookAt(tx+sx,ty+sy,0);camera.far=dist+6000;camera.updateProjectionMatrix();
+ pMat.uniforms.uScale.value=vh*renderer.getPixelRatio()/(2*tan);
+}
+const ray=new THREE.Raycaster(),plane=new THREE.Plane(new THREE.Vector3(0,0,1),0),hitV=new THREE.Vector3(),ndc=new THREE.Vector2();
+app.view={
+ pick(cx,cy){const b=canvas.getBoundingClientRect();ndc.set((cx-b.left)/b.width*2-1,-(cy-b.top)/b.height*2+1);ray.setFromCamera(ndc,camera);if(!ray.ray.intersectPlane(plane,hitV))return null;return{x:Math.max(0,Math.min(E.W,hitV.x+400)),y:300-hitV.y};},
+ rebuild(){terrainSig='';for(const u of units.values()){scene.remove(u.g);u.tag.remove();}units.clear();for(const b of blds.values()){scene.remove(b.g);b.tag.remove();}blds.clear();for(const s of strikeObjs.values()){scene.remove(s.g);s.tag.remove();}strikeObjs.clear();parts.length=0;blasts.forEach(b=>scene.remove(b.m));blasts.length=0;trailN=0;floats.forEach(f=>f.el.remove());floats.length=0;}
+};
+
+// ---------- Effects from engine events ----------
+function onEvent(g,e){
+ if(e.type==='blast'){const big=e.radius>=60;const m=new THREE.Mesh(shellGeo,new THREE.MeshBasicMaterial({color:e.source==='strike'?0xff4b2b:0xe9b949,transparent:true,opacity:.5,blending:THREE.AdditiveBlending,depthWrite:false,toneMapped:false}));m.position.set(X(e.x),Y(e.y),0);scene.add(m);blasts.push({m,r:e.radius,t:0,life:.5});
+  burst(e.x,e.y,'#6c6352',Math.round(e.crater*1.3),340+e.crater*4,1.2,4.2,{up:true});burst(e.x,e.y,'#e9b949',30,420,.45,2.6);burst(e.x,e.y,'#ff4b2b',14,300,.5,2.2);burst(e.x,e.y,'#2a2f36',18,90,1.6,9,{grav:-40,drag:1.2,lift:40,up:true});
+  flash.position.set(X(e.x),Y(e.y)+20,120);flash.intensity=big?9e4:5e4;if(app.prefs.shake)shake=Math.max(shake,big?9:6);
+  if(e.source==='strike'){burst(e.x,e.y-260,'#ff4b2b',10,40,.3,3,{grav:-1400});}}
+ else if(e.type==='miss'&&e.splash){burst(e.x,g.water||e.y,'#4fa3ff',40,320,.9,3,{up:true});burst(e.x,g.water||e.y,'#ece4d0',14,240,.6,2,{up:true});}
+ else if(e.type==='fire'){const u=units.get(e.actor);if(u){u.recoil=1;const a=g.actors[e.actor],b=E.body(g,a),r=e.angle*Math.PI/180;burst(b.x+Math.cos(r)*24,b.y-Math.sin(r)*24,'#e9b949',12,160,.3,2.4);}trailN=0;trailMat.color.set(app.SIDE[e.team]);}
+ else if(e.type==='ko'){burst(e.x,E.ground(g,e.x)-10,'#ece4d0',30,260,1,3,{up:true});const u=units.get(e.id);if(u)u.smoke=1;if(app.prefs.shake)shake=Math.max(shake,8);}
+ else if(e.type==='card'){const a=g.actors[g.active];if(a)burst(a.x,E.ground(g,a.x)-14,'#35d0a8',16,120,.5,2.2,{up:true});}
+ else if(e.type==='razed'){burst(e.x,E.ground(g,e.x)-20,'#4a463e',30,240,1.1,4,{up:true});}
+}
+
+// ---------- Frame ----------
+let lastG=null;
+stage.loop((dt,t)=>{
+ const g=app.game;if(!g)return;
+ if(g!==lastG){lastG=g;app.view.rebuild();}
+ vw=canvas.clientWidth||innerWidth;vh=canvas.clientHeight||innerHeight;
+ for(const e of app.events.splice(0))onEvent(g,e);
+ const tsig=g.terrain.length+':'+g.terrain.reduce((n,v,i)=>n+v*(i%7+1),0);if(tsig!==terrainSig){terrainSig=tsig;buildTerrain(g);}
+ water.visible=!!g.water;if(g.water){const wy=Y(g.water);waterTop.position.y=wy;waterFront.scale.y=Math.max(1,BOTTOM-g.water);waterFront.position.set(0,wy-(BOTTOM-g.water)/2,ZF+2);waterLine.position.set(0,wy,ZF+2.5);frontMat.uniforms.uWater.value=wy;waterTop.position.y=wy+Math.sin(t*1.3)*.6;}else frontMat.uniforms.uWater.value=-9999;
+ frameTarget(g,dt);
+ // units
+ for(const a of g.actors){let u=units.get(a.id);if(!u){u=makeUnit(a);units.set(a.id,u);u.x=a.x;}
+  u.x+=(a.x-u.x)*Math.min(1,dt*10);const gy=E.ground(g,u.x),ty=Y(gy);u.y=u.y===null?ty:u.y+(ty-u.y)*Math.min(1,dt*(ty<u.y?6:12));
+  const slope=(E.ground(g,u.x-10)-E.ground(g,u.x+10))/20;u.tilt+=(Math.atan(slope)-u.tilt)*Math.min(1,dt*8);
+  u.g.position.set(X(u.x),u.y,0);u.g.rotation.z=a.hp>0?u.tilt*.7:u.tilt*.7+.5;
+  const active=a.id===g.active&&['aim','ai','flight'].includes(g.phase)&&a.hp>0;
+  const ang=a.id===g.active?g.angle:(a.team?135:45),r=ang*Math.PI/180;u.recoil=Math.max(0,u.recoil-dt*4);
+  u.turret.rotation.z=r-u.g.rotation.z;u.turret.position.x=-Math.cos(r)*u.recoil*4;u.eye.position.x=ang>90?-11:11;
+  u.hullMat.color.set(a.hp>0?0x2a313b:0x15181c);u.hullMat.emissiveIntensity=a.hp>0?(active?.22+.08*Math.sin(t*5):.08):0;
+  u.mark.visible=u.ring.visible=active;if(active){u.mark.rotation.y=t*2;u.mark.position.y=58+Math.sin(t*3)*4;}
+  if(a.hp<=0&&Math.random()<dt*14)burst(u.x,gy-18,'#3a3f46',1,30,1.6,7,{grav:-60,drag:.3,lift:30,up:true});
+  else if(a.hp>0&&a.hp<25&&Math.random()<dt*5)burst(u.x,gy-16,'#3a3f46',1,20,1.2,5,{grav:-50,drag:.3,lift:20,up:true});
+  u.tag.className='tk-tag'+(a.hp>0?'':' dead');
+  const html=`<em>${app.UNIT_NAMES[a.id]}</em> ${a.hp}<small><i style="width:${a.hp/E.MAX_HP*100}%"></i></small>`;if(u.tag._h!==html){u.tag._h=html;u.tag.innerHTML=html;}
+  place(u.tag,u.x,gy-30,-8);
+ }
+ // buildings
+ const seen=new Set();for(const b of g.buildings){seen.add(b.id);let o=blds.get(b.id);if(!o){o=makeBuilding(b);blds.set(b.id,o);}o.g.position.set(X(b.x),Y(E.ground(g,b.x)),0);const k=Math.max(.25,b.hp/o.max);o.mat.color.copy(o.base).multiplyScalar(.45+.55*k);const txt=String(b.hp);if(o.tag._h!==txt){o.tag._h=txt;o.tag.textContent=txt;}place(o.tag,b.x,E.ground(g,b.x)-b.h-6,-2);}
+ for(const [id,o] of blds)if(!seen.has(id)){scene.remove(o.g);o.tag.remove();blds.delete(id);}
+ // strikes
+ const sk=new Set();for(const s of g.strikes){const key=s.team+':'+s.x;sk.add(key);let o=strikeObjs.get(key);if(!o){o=makeStrike(s);strikeObjs.set(key,o);}o.g.position.set(X(s.x),Y(E.ground(g,s.x)),0);o.g.children.forEach((c,i)=>{if(i)c.position.y=Y(E.ground(g,s.x+c.userData.off))-Y(E.ground(g,s.x))+18+Math.sin(t*4+i)*3;});o.g.children[0].material.opacity=.25+.2*Math.sin(t*5);place(o.tag,s.x,E.ground(g,s.x)-90,0);}
+ for(const [k,o] of strikeObjs)if(!sk.has(k)){scene.remove(o.g);o.tag.remove();strikeObjs.delete(k);}
+ // projectile & trail
+ const p=g.projectile;shell.visible=!!p&&g.phase==='flight';
+ if(shell.visible){shell.position.set(X(p.x),Y(p.y),0);if(trailN<TRAIL){trailPos.set([X(p.x),Y(p.y),0],trailN*3);trailN++;}else{trailPos.copyWithin(0,3);trailPos.set([X(p.x),Y(p.y),0],(TRAIL-1)*3);}if(Math.random()<.6)burst(p.x,p.y,'#a8a08c',1,10,.5,3,{grav:-20,drag:1});}
+ trailGeo.setDrawRange(0,trailN);trailGeo.attributes.position.needsUpdate=true;trail.visible=trailN>1&&trailMat.opacity>.02;trailMat.opacity=g.phase==='flight'?.75:Math.max(0,trailMat.opacity-dt*.6);
+ // aim preview (human only)
+ const aiming=g.phase==='aim'&&g.team===0;preview.visible=target.visible=blastRing.visible=aiming;
+ if(aiming){const a=g.actors[g.active],tr=E.trajectory(g,a,g.angle,g.power);let ptsArr=tr.points;if(app.assist==='short')ptsArr=ptsArr.slice(0,Math.max(3,Math.ceil(ptsArr.length*.35)));const n=Math.min(PREV,ptsArr.length);for(let i=0;i<n;i++)prevPos.set([X(ptsArr[i].x),Y(ptsArr[i].y),0],i*3);prevGeo.setDrawRange(0,n);prevGeo.attributes.position.needsUpdate=true;preview.computeLineDistances();prevMat.opacity=.55+.3*Math.sin(t*4);
+  const showHit=app.assist!=='short'&&!tr.hit.miss;target.visible=blastRing.visible=showHit;if(showHit){target.position.set(X(tr.hit.x),Y(tr.hit.y),2);const spec=E.SHELLS[g.drill?'drill':g.shell];blastRing.position.copy(target.position);blastRing.scale.setScalar(spec.radius);}}
+ // placement ghost
+ const pt=app.placing,px=app.placeX;ghost.visible=reach.visible=!!pt&&g.phase==='aim';
+ if(ghost.visible){const a=g.actors[g.active],build=pt==='wall'||pt==='bunker';
+  if(build){const lo=Math.max(0,a.x-100),hi=Math.min(E.W,a.x+100);let n=0;for(let x=lo;x<=hi&&n<202;x+=2){bandPos.set([X(x),Y(E.ground(g,x))+1.5,ZF+1],n*3);n++;}bandGeo2.setDrawRange(0,n);bandGeo2.attributes.position.needsUpdate=true;}else reach.visible=false;
+  if(px!==null){const s=E.BUILDINGS[pt]||{w:150,h:6};const ok=build?(Math.abs(px-a.x)<=100&&!g.actors.some(b=>b.hp>0&&Math.abs(b.x-px)<30)&&!g.buildings.some(b=>Math.abs(b.x-px)<35)):(px>=20&&px<=E.W-20);
+   ghost.scale.set(s.w,build?s.h:520,1);ghost.position.set(X(px),Y(E.ground(g,px))+(build?s.h/2:260),0);ghost.material.color.set(ok?(build?0x35d0a8:0x4fa3ff):0xff4b2b);}else ghost.visible=false;}
+ // blasts
+ for(let i=blasts.length-1;i>=0;i--){const b=blasts[i];b.t+=dt;const k=b.t/b.life;b.m.scale.setScalar(b.r*(.35+.75*Math.sqrt(k)));b.m.material.opacity=.5*(1-k)*(1-k);if(k>=1){scene.remove(b.m);b.m.material.dispose();blasts.splice(i,1);}}
+ flash.intensity*=Math.exp(-dt*9);shake*=Math.exp(-dt*8);if(shake<.2)shake=0;
+ // particles + ash drifting on the wind
+ let n=0;for(let i=parts.length-1;i>=0;i--){const q=parts[i];q.life-=dt;if(q.life<=0){parts.splice(i,1);continue;}const d=Math.exp(-q.drag*dt);q.vx*=d;q.vy*=d;q.vz*=d;q.vy-=q.grav*dt;q.x+=q.vx*dt;q.y+=q.vy*dt;q.z+=q.vz*dt;const gy=Y(E.ground(g,q.x+400));if(q.grav>0&&q.y<gy&&q.z<ZF&&q.z>ZB){q.y=gy;q.vy*=-.25;q.vx*=.5;}
+  pPos[n*3]=q.x;pPos[n*3+1]=q.y;pPos[n*3+2]=q.z;pCol[n*3]=q.r;pCol[n*3+1]=q.g;pCol[n*3+2]=q.b;pSize[n]=q.size;pAlpha[n]=Math.min(1,q.life/q.max*1.6);n++;}
+ const wind=g.wind||0;for(const s of ash){s.x+=(wind*2.2+6)*s.v*dt;s.y-=6*s.v*dt;if(s.x>900)s.x-=1800;if(s.x<-900)s.x+=1800;if(s.y<-160)s.y+=560;if(n<MAXP){pPos[n*3]=s.x;pPos[n*3+1]=s.y;pPos[n*3+2]=s.z;pCol[n*3]=.66;pCol[n*3+1]=.62;pCol[n*3+2]=.55;pSize[n]=s.s;pAlpha[n]=.35;n++;}}
+ pGeo.setDrawRange(0,n);for(const k of ['position','pcolor','psize','palpha'])pGeo.attributes[k].needsUpdate=true;
+ // damage floaters
+ for(const f of app.floats.splice(0)){const el=document.createElement('div');el.className='tk-float';el.textContent=f.text;el.style.color=f.color;layer.append(el);const a=g.actors[f.id];floats.push({el,x:a.x,y:E.ground(g,a.x)-46,t:0});}
+ for(let i=floats.length-1;i>=0;i--){const f=floats[i];f.t+=dt;if(f.t>1.4){f.el.remove();floats.splice(i,1);continue;}place(f.el,f.x,f.y,-f.t*40);f.el.style.opacity=String(Math.min(1,(1.4-f.t)*2));}
+ sky.material.uniforms.uTime.value=t;
+});
+}
+</script>
+</body>
+</html>
