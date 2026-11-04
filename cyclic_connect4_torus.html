@@ -1,173 +1,1132 @@
 <!doctype html>
 <html lang="zh-Hant">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>環面直落四子 - FuGames</title>
-  <link rel="icon" href="favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="fulab-theme.css">
-  <style>
-
-    .board { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; width: min(100%, 480px); }
-    .colBtn { min-height: 44px; padding: 0; border: 1px solid var(--fulab-silver); border-radius: 10px; background: white; color: var(--fulab-ink-teal); display: grid; place-items: center; cursor: pointer; touch-action: manipulation; }
-    .colBtn:hover { border-color: var(--fulab-teal); }
-    .colBtn:disabled { color: var(--fulab-muted); background: var(--fulab-tint-slate); cursor: default; }
-    .grid { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
-    .cell { aspect-ratio: 1; border: 1px solid var(--fulab-silver); border-radius: 50%; background: white; display: grid; place-items: center; min-width: 0; }
-    .cell.win { background: var(--fulab-tint-emerald); border-color: var(--fulab-emerald); }
-    .cell .classic-stone { width: 72%; }
-    .cell.last::before { content: ''; position: absolute; right: -1px; bottom: -1px; width: 9px; height: 9px; border-radius: 2px; background: var(--fulab-ink-teal); border: 2px solid white; z-index: 1; }
-    .classic-page .cell.win::after { inset: 3px; border-radius: 50%; }
-    .last-key { display: inline-block; width: 8px; height: 8px; background: var(--fulab-ink-teal); border-radius: 1px; }
-    .grid { outline: 1px dashed var(--fulab-silver); outline-offset: 5px; border-radius: 12px; }
-    @media(max-width: 400px) { .board, .grid { gap: 4px; } .game-floor { padding: 8px; } .grid { outline-offset: 3px; } }
-
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="在環面上直落四子：棋子落到欄底，連線可以繞過上下左右的邊界。五級 AI、八種規則、殘局與生涯等級。">
+<meta name="theme-color" content="#07090c">
+<title>環面直落四子 - FuGames</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="shared/fu.css">
+<style>
+html,body{height:100%;overflow:hidden;overscroll-behavior:none}
+.fu-stage canvas{touch-action:none;outline:none;cursor:pointer}
+.fu-stage canvas.is-drag{cursor:grabbing}
+.fu-topbar__title .fu-label{overflow:hidden;text-overflow:ellipsis}
+/* career chip */
+.lv-chip{display:flex;flex-direction:column;justify-content:center;gap:5px;min-height:44px;min-width:112px;padding:6px 12px;border:1px solid var(--fu-line-strong);background:var(--fu-surface);cursor:pointer;text-align:left}
+.lv-chip:hover{border-color:var(--fu-text)}
+.lv-chip .row{display:flex;align-items:baseline;gap:6px;font:600 10.5px/1 var(--fu-font-mono);letter-spacing:.12em;color:var(--fu-text-dim)}
+.lv-chip .row b{font-size:15px;color:var(--fu-gold);letter-spacing:0}
+.lv-chip .fu-meter{height:4px}
+/* scoreboard */
+.score{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:14px;min-width:min(520px,calc(100vw - 32px));padding:10px 14px}
+.seat{display:flex;align-items:center;gap:10px;min-width:0;opacity:.55;transition:opacity var(--fu-dur-2) var(--fu-ease)}
+.seat.on{opacity:1}
+.seat--r{flex-direction:row-reverse;text-align:right}
+.seat .disc{flex:none;width:22px;height:22px;background:var(--side);clip-path:polygon(30% 0,70% 0,100% 30%,100% 70%,70% 100%,30% 100%,0 70%,0 30%)}
+.seat.on .disc{box-shadow:0 0 0 2px var(--fu-ink-0),0 0 0 3px var(--side)}
+.seat b{display:block;font-family:var(--fu-font-display);font-size:16px;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.seat .fu-label{display:block;margin-top:3px;letter-spacing:.12em}
+.seat .pts{margin-left:auto;font:700 24px/1 var(--fu-font-mono);color:var(--fu-text)}
+.seat--r .pts{margin-left:0;margin-right:auto}
+.mid{text-align:center;min-width:92px}
+.mid strong{display:block;font:700 12px/1.25 var(--fu-font-body);color:var(--fu-text);white-space:nowrap}
+.mid .fu-label{display:block;margin-top:4px}
+.mid .think{display:inline-block;width:6px;height:6px;margin-right:6px;background:var(--fu-azure);vertical-align:middle;animation:fu-blink .8s steps(2,jump-none) infinite}
+/* torus inset frame (WebGL draws inside it) */
+.inset{position:fixed;z-index:20;border:1px solid var(--fu-line);cursor:pointer;background:transparent;padding:0;display:block}
+.inset[hidden]{display:none}
+.inset::before,.inset::after{content:"";position:absolute;width:14px;height:14px;pointer-events:none}
+.inset::before{top:-1px;left:-1px;border-top:2px solid var(--fu-seal);border-left:2px solid var(--fu-seal)}
+.inset::after{right:-1px;bottom:-1px;border-right:2px solid var(--fu-line-strong);border-bottom:2px solid var(--fu-line-strong)}
+.inset span{position:absolute;left:8px;bottom:6px;font:600 10px/1 var(--fu-font-mono);letter-spacing:.16em;color:var(--fu-text-dim);text-transform:uppercase}
+.inset:hover{border-color:var(--fu-line-strong)}
+/* dock */
+.fu-dock .fu-btn{min-width:44px}
+.fu-dock .fu-btn .fu-kbd{margin-left:2px}
+.fu-dock .sep{width:1px;background:var(--fu-line-strong)}
+#btnUp[hidden]{display:none}
+/* layers: topbar and drawers stay usable above the curtain */
+.fu-topbar{z-index:82}
+.fu-drawer{z-index:88}
+.fu-scrim{z-index:87}
+.fu-toasts{z-index:89}
+/* curtains */
+.fu-curtain{overflow:auto;place-items:start center}
+.fu-curtain__inner{margin:auto 0;padding:calc(var(--fu-topbar-h) + 8px) 0 24px;width:min(760px,100%)}
+.fu-curtain__actions{position:sticky;bottom:0;width:100%;padding:12px 0;background:rgba(7,9,12,.97);border-top:1px solid var(--fu-line)}
+.lobby-head{display:flex;align-items:center;gap:18px;text-align:left}
+.lobby-head .fu-label{margin-bottom:6px}
+.fu-curtain .lobby-title{font-size:clamp(34px,5.6vw,72px);white-space:nowrap}
+.pick-note{margin:8px 0 0;min-height:1.5em;font-size:12.5px;color:var(--fu-text-dim)}
+.tiles.tiles--rules{grid-template-columns:repeat(4,minmax(0,1fr))}
+.tiles--rules .tile small{display:none}
+.curtain-lead{max-width:56ch;margin:0;color:var(--fu-text-dim);line-height:1.7}
+.pick{width:100%;text-align:left}
+.pick h3{display:flex;justify-content:space-between;gap:12px;margin:0 0 8px;font:700 10.5px/1.2 var(--fu-font-mono);letter-spacing:.18em;text-transform:uppercase;color:var(--fu-text-dim)}
+.pick h3 span{letter-spacing:.04em;text-transform:none;font-family:var(--fu-font-body);color:var(--fu-mute)}
+.tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:1px;padding:1px;background:var(--fu-line)}
+.tiles--opp{grid-template-columns:repeat(auto-fill,minmax(112px,1fr))}
+.tile{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:4px;min-height:52px;padding:10px 12px;border:0;background:var(--fu-surface-solid);text-align:left;cursor:pointer}
+.tile b{font-family:var(--fu-font-display);font-size:15px;color:var(--fu-text)}
+.tile small{font-size:11.5px;line-height:1.45;color:var(--fu-text-dim)}
+.tile:hover:not(:disabled){background:var(--fu-raised)}
+.tile[aria-pressed="true"]{background:var(--fu-raised);box-shadow:inset 0 0 0 1px var(--fu-seal)}
+.tile[aria-pressed="true"]::before{content:"";position:absolute;left:0;top:0;width:3px;height:100%;background:var(--fu-seal)}
+.tile:disabled{cursor:not-allowed;opacity:.42}
+.tile .lock{position:absolute;right:10px;top:10px;font:700 10px/1 var(--fu-font-mono);color:var(--fu-gold);letter-spacing:.1em}
+.career-line{display:flex;align-items:center;gap:16px;width:100%;padding:12px 14px;border:1px solid var(--fu-line);text-align:left}
+.career-line .lv{font:800 30px/1 var(--fu-font-mono);color:var(--fu-gold)}
+.career-line .lv small{display:block;font:600 10px/1 var(--fu-font-mono);letter-spacing:.16em;color:var(--fu-text-dim);margin-bottom:4px}
+.career-line .grow{flex:1;min-width:0}
+.career-line .who{display:flex;justify-content:space-between;gap:10px;margin-bottom:8px;font-size:13px}
+.career-line .who span{font:600 11px/1.3 var(--fu-font-mono);color:var(--fu-text-dim)}
+.verdict{font-size:clamp(56px,14vw,128px)}
+.verdict.win{color:var(--fu-seal)}
+.xp{display:grid;grid-template-columns:1fr auto;gap:6px 16px;width:100%;margin:0;padding:12px 14px;border:1px solid var(--fu-line);text-align:left;font-size:13px}
+.xp dd{margin:0;text-align:right;font-family:var(--fu-font-mono);color:var(--fu-gold)}
+.xp .total{border-top:1px solid var(--fu-line);padding-top:8px;font-weight:700;color:var(--fu-text)}
+.unlock-note{width:100%;padding:10px 14px;border:1px solid rgba(233,185,73,.45);background:rgba(233,185,73,.07);font-size:13px;text-align:left}
+.unlock-note b{color:var(--fu-gold)}
+/* drawers */
+.fu-drawer .fu-field small{display:block}
+.rules-list{margin:0;padding-left:18px;line-height:1.7}
+.rules-list li{margin-bottom:8px}
+.rules-list b{color:var(--fu-text)}
+.stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1px;background:var(--fu-line);padding:1px;margin-bottom:16px}
+.stats div{padding:10px 12px;background:var(--fu-surface-solid)}
+.stats b{display:block;font:700 20px/1.1 var(--fu-font-mono)}
+.stats span{font-size:11px;color:var(--fu-text-dim)}
+.unlocks li{justify-content:space-between;font-size:13px}
+.unlocks li span{font:600 11px/1 var(--fu-font-mono);color:var(--fu-text-dim)}
+.unlocks li:not(.got){color:var(--fu-mute)}
+.unlocks li.got::before{content:"";width:6px;height:6px;background:var(--fu-jade);flex:none}
+.puz{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1px;padding:1px;background:var(--fu-line);margin-bottom:18px}
+.puz .tile{min-height:64px}
+.puz .tile .ok{position:absolute;right:10px;top:10px;font:700 10px/1 var(--fu-font-mono);color:var(--fu-jade)}
+.custom-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0 10px}
+.hint-line{font-size:12px;color:var(--fu-mute);margin:6px 0 0}
+.webgl-fail{position:fixed;inset:0;z-index:95;display:grid;place-items:center;padding:24px;text-align:center;background:var(--fu-bg)}
+.webgl-fail[hidden]{display:none}
+@media (max-width:720px){
+ .lv-chip{min-width:0;padding:6px 9px}
+ .lv-chip .row span{display:none}
+ .fu-topbar{gap:8px}
+ .score{gap:8px;padding:8px 10px;min-width:calc(100vw - 32px)}
+ .seat b{font-size:14px}
+ .seat .disc{width:18px;height:18px}
+ .seat .pts{font-size:19px}
+ .mid{min-width:70px}
+ .fu-dock .fu-btn{padding:0 11px;letter-spacing:.08em}
+ .custom-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .curtain-lead{font-size:13px}
+ .fu-curtain .lobby-title{font-size:34px}
+ .fu-curtain .verdict{font-size:72px}
+ .lobby-head .fu-seal--lg{--s:48px;--f:18px}
+ .tiles.tiles--rules{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .tile{min-height:50px;padding:9px 11px}
+ .tile small{font-size:11px}
+}
+@media (max-width:400px){.seat .fu-label{display:none}.fu-dock .fu-btn{padding:0 9px}}
+</style>
 </head>
-<body>
-  <main class="game-page classic-page">
-    <nav class="site-nav" aria-label="遊戲導覽"><a class="site-brand" href="index.html"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>FuGames</a><a href="index.html" aria-label="所有遊戲 ↗">所有遊戲<svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#launch"></use></svg></a></nav>
-    <header class="page-header"><p class="eyebrow">棋盤 / 同機雙人</p><h1><svg class="page-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#cyclic_connect4_torus"></use></svg>環面直落四子</h1><p class="lead">輪流選一欄落子，連成四子就贏；連線也能繞過棋盤邊界。</p></header>
-    <section class="card play-panel" aria-label="直落四子棋盤">
-      <div class="game-toolbar"><p class="game-status" id="statusText" role="status" aria-live="polite"></p><div class="game-metrics"><span>回合 <strong id="turnKpi">0</strong></span><span>落子 <strong id="playerKpi">黑</strong></span></div></div>
-      <div class="boardWrap game-floor"><div class="board"><button class="colBtn" data-col="0" aria-label="第 1 欄落子"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#arrow-down"></use></svg></button><button class="colBtn" data-col="1" aria-label="第 2 欄落子"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#arrow-down"></use></svg></button><button class="colBtn" data-col="2" aria-label="第 3 欄落子"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#arrow-down"></use></svg></button><button class="colBtn" data-col="3" aria-label="第 4 欄落子"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#arrow-down"></use></svg></button><button class="colBtn" data-col="4" aria-label="第 5 欄落子"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#arrow-down"></use></svg></button><button class="colBtn" data-col="5" aria-label="第 6 欄落子"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#arrow-down"></use></svg></button><button class="colBtn" data-col="6" aria-label="第 7 欄落子"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#arrow-down"></use></svg></button><div class="grid" id="grid" role="group" aria-label="七欄六列棋盤"></div></div></div>
-      <div class="classic-legend"><span>虛線邊界：連線可繞回</span><span class="stone-key"><span class="last-key" aria-hidden="true"></span>最新落子</span></div>
-      <div class="game-actions"><p class="action-note">點上方箭頭，棋子會直落到底</p><button class="btn primary" id="newGame"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#restart"></use></svg>重新開始</button></div>
+<body class="fu-app fu-vignette">
+<header class="fu-topbar">
+  <a class="fu-brand" href="index.html" aria-label="FuGames 首頁"><span class="fu-seal" aria-hidden="true">福遊</span><span class="fu-hide-sm">FuGames</span></a>
+  <div class="fu-topbar__title"><h1 class="fu-heading">環面直落四子</h1><span class="fu-label fu-hide-sm" id="ruleLabel">Torus · 6×7 · 連四</span></div>
+  <div class="fu-topbar__actions">
+    <button class="lv-chip" id="lvChip" data-fu-open="career" aria-label="生涯與殘局"><span class="row"><b id="lvNum">1</b><span id="lvRank">入局</span></span><span class="fu-meter fu-meter--gold" id="lvMeter" style="--value:0"><i></i></span></button>
+    <button class="fu-btn fu-btn--icon" data-fu-open="rules" aria-label="規則" data-fu-tip="規則">?</button>
+    <button class="fu-btn fu-btn--icon" data-fu-open="settings" aria-label="設定" data-fu-tip="設定 S">⚙</button>
+  </div>
+</header>
+
+<main class="fu-stage"><canvas id="board" tabindex="0" aria-label="環面棋盤：左右鍵選欄，Enter 落子"></canvas></main>
+<button class="inset" id="inset" type="button" aria-label="切換環面視圖" hidden><span id="insetLabel">環面 · T</span></button>
+
+<div class="fu-hud fu-hud--top">
+  <section class="fu-panel fu-panel--tight score" aria-label="對局">
+    <div class="seat" id="seatA" style="--side:var(--fu-side-1)"><span class="disc" aria-hidden="true"></span><div><b id="nameA">你</b><span class="fu-label" id="tagA">先手</span></div><span class="pts fu-num" id="ptsA" hidden>0</span></div>
+    <div class="mid"><strong id="turnText" role="status" aria-live="polite">準備開局</strong><span class="fu-label fu-num" id="plyText">第 0 手</span></div>
+    <div class="seat seat--r" id="seatB" style="--side:var(--fu-side-2)"><span class="disc" aria-hidden="true"></span><div><b id="nameB">高手</b><span class="fu-label" id="tagB">後手</span></div><span class="pts fu-num" id="ptsB" hidden>0</span></div>
+  </section>
+</div>
+
+<nav class="fu-dock" aria-label="指令">
+  <button class="fu-btn fu-btn--icon" id="btnLeft" aria-label="左一欄">◀</button>
+  <button class="fu-btn" id="btnDrop" aria-label="落子">▼<span class="fu-hide-sm">落子</span></button>
+  <button class="fu-btn" id="btnUp" aria-label="從底部推上" hidden>▲<span class="fu-hide-sm">上推</span></button>
+  <button class="fu-btn fu-btn--icon" id="btnRight" aria-label="右一欄">▶</button>
+  <span class="sep" aria-hidden="true"></span>
+  <button class="fu-btn" id="btnHint">提示</button>
+  <button class="fu-btn" id="btnUndo">悔棋</button>
+  <button class="fu-btn" id="btnMenu">選單</button>
+</nav>
+
+<aside class="fu-drawer fu-drawer--left" id="rules" aria-label="規則">
+  <div class="fu-drawer__head"><span class="fu-label"><b>■</b> 規則與操作</span><button class="fu-btn fu-btn--ghost fu-btn--icon" data-fu-close aria-label="關閉">✕</button></div>
+  <div class="fu-drawer__body">
+    <section>
+      <h3>基本</h3>
+      <ul class="rules-list">
+        <li>兩方輪流選一欄落子，棋子落到該欄最低的空格。</li>
+        <li><b>環面：</b>棋盤左右相接、上下也相接。橫、直、斜線都能繞過邊界；最右欄的右邊就是最左欄。</li>
+        <li>先連成指定數目（預設四子）者勝；無棋可下則和局。</li>
+        <li>棋盤四周淡色的格子是繞界後的鄰居，金色虛線是接縫。右上（手機在下方）的小環面是同一盤棋包在甜甜圈上的樣子。</li>
+      </ul>
     </section>
-    <details class="card rules"><summary>玩法與操作</summary><div class="rules-body"><ul class="list"><li>兩位玩家輪流選欄落子，棋子落到該欄最底的空格。</li><li>橫、直、斜線都可繞過邊界；連成四子即勝。</li><li>棋盤填滿且無連線則平手。</li></ul></div></details>
-    <footer class="site-footer">FuGames · 隨時來一局</footer>
-  </main>
+    <section>
+      <h3>變體</h3>
+      <ul class="rules-list">
+        <li><b>圓筒：</b>只有左右相接；<b>平面：</b>傳統直落四子。</li>
+        <li><b>潮汐：</b>每 4 手重力反轉，棋子改從底部推上，停在最高的空格。</li>
+        <li><b>雙向：</b>每一手自選從上落或從下推。點欄的上半落下、下半推上；鍵盤 ↓ / ↑。</li>
+        <li><b>計分賽：</b>下到無處可下，每完成一個新的連線窗口得 1 分。</li>
+        <li><b>礁石：</b>盤中石塊擋住落子路線，也切斷連線。</li>
+      </ul>
+    </section>
+    <section>
+      <h3>熱鍵</h3>
+      <div class="fu-hotkeys" id="hotkeys"></div>
+      <p class="hint-line">拖曳棋盤可左右捲動（繞界規則下），把接縫轉到中間看清楚。</p>
+    </section>
+  </div>
+</aside>
 
-  <script>
-    const ROWS = 6, COLS = 7;
-    const gridEl = document.getElementById('grid');
-    const statusEl = document.getElementById('statusText');
-    const turnEl = document.getElementById('turnKpi');
-    const playerEl = document.getElementById('playerKpi');
-    const colBtns = Array.from(document.querySelectorAll('.colBtn'));
-    const newBtn = document.getElementById('newGame');
+<aside class="fu-drawer" id="settings" aria-label="設定">
+  <div class="fu-drawer__head"><span class="fu-label"><b>■</b> 設定</span><button class="fu-btn fu-btn--ghost fu-btn--icon" data-fu-close aria-label="關閉">✕</button></div>
+  <div class="fu-drawer__body" id="settingsForm">
+    <section>
+      <h3>對局</h3>
+      <label class="fu-field"><span>先手</span><select class="fu-select" name="first"><option value="alternate">輪流先手</option><option value="first">我先</option><option value="second">對手先</option></select></label>
+      <label class="fu-switch"><span>標出一步成線的威脅格</span><input type="checkbox" name="threats" checked></label>
+    </section>
+    <section>
+      <h3>自訂規則 <span class="fu-dim" id="customLock"></span></h3>
+      <div class="custom-grid">
+        <label class="fu-field"><span>列</span><select class="fu-select" id="cRows" data-need="size"></select></label>
+        <label class="fu-field"><span>欄</span><select class="fu-select" id="cCols" data-need="size"></select></label>
+        <label class="fu-field"><span>連線</span><select class="fu-select" id="cConnect" data-need="size"></select></label>
+      </div>
+      <label class="fu-field"><span>拓撲</span><select class="fu-select" id="cWrap"><option value="torus">環面（上下左右相接）</option><option value="cylinder" data-need="cylinder">圓筒（左右相接）</option><option value="flat">平面</option></select></label>
+      <label class="fu-field"><span>重力</span><select class="fu-select" id="cGravity"><option value="down">向下</option><option value="tide" data-need="tide">潮汐（每 4 手反轉）</option><option value="dual" data-need="dual">雙向（自選）</option></select></label>
+      <label class="fu-field"><span>勝負</span><select class="fu-select" id="cMode"><option value="first">先連成者勝</option><option value="tally" data-need="tally">計分賽</option></select></label>
+      <label class="fu-field"><span>礁石</span><select class="fu-select" id="cRocks" data-need="rocks"><option value="0">無</option><option value="3">3 塊</option><option value="5">5 塊</option><option value="8">8 塊</option></select></label>
+      <button class="fu-btn fu-btn--block" id="applyCustom">用自訂規則開新局</button>
+      <p class="hint-line" id="customNote">鎖住的選項會隨等級解鎖。</p>
+    </section>
+    <section>
+      <h3>畫面</h3>
+      <label class="fu-switch"><span>環面縮圖</span><input type="checkbox" name="inset" checked></label>
+      <label class="fu-switch"><span>鏡頭微動</span><input type="checkbox" name="motion" checked></label>
+    </section>
+  </div>
+</aside>
 
-    let board, player, turn, over, winCells, lastMove;
+<aside class="fu-drawer" id="career" aria-label="生涯">
+  <div class="fu-drawer__head"><span class="fu-label"><b>■</b> 生涯與殘局</span><button class="fu-btn fu-btn--ghost fu-btn--icon" data-fu-close aria-label="關閉">✕</button></div>
+  <div class="fu-drawer__body">
+    <section>
+      <h3>殘局</h3>
+      <p class="hint-line" style="margin:0 0 10px">輪到你下：在限定手數內必勝。每題首次解開給經驗。</p>
+      <div id="puzzleList"></div>
+    </section>
+    <section>
+      <h3>戰績</h3>
+      <div class="stats" id="statGrid"></div>
+      <h3>解鎖</h3>
+      <ul class="fu-list unlocks" id="unlockList"></ul>
+      <button class="fu-btn fu-btn--sm fu-btn--ghost" id="resetCareer" style="margin-top:14px">重設生涯</button>
+    </section>
+  </div>
+</aside>
 
-    function reset() {
-      board = Array.from({length: ROWS}, () => Array(COLS).fill(''));
-      player = 'B'; // B = 黑, W = 白
-      turn = 0;
-      over = false;
-      winCells = new Set();
-      lastMove = null;
-      render();
+<div class="fu-curtain" id="curtain" data-mode="lobby">
+  <div class="fu-curtain__inner" id="curtainBody"></div>
+</div>
+<div class="webgl-fail" id="webglFail" hidden><div><p class="fu-title">需要 WebGL</p><p class="fu-dim">這個瀏覽器無法建立 3D 舞台。請改用支援 WebGL 的瀏覽器。</p><a class="fu-btn" href="index.html">回到 FuGames</a></div></div>
+
+<script id="torus-engine">
+'use strict';
+// 環面直落四子 rules + AI. Pure and deterministic: no DOM, no clock, no Math.random (callers pass rng).
+// Board cells are indexed r*cols+c with row 0 at the top. 0 empty, 1/2 players, 3 rock.
+// Default options reproduce the original page: 6×7, connect four, both axes wrap, stones fall down, first line wins.
+// Variants: cylinder/flat topology, board size and connect length, tally scoring, seeded rocks, and two gravity rules:
+//  tide — every tideEvery plies gravity flips and every stone slides to the other end of its column (rocks stay);
+//  dual — each move enters from the top (falls down) or the bottom (rises up).
+const TorusC4=(()=>{
+ const WRAPS=Object.freeze({torus:[true,true],cylinder:[false,true],flat:[false,false]});
+ const GRAVITIES=Object.freeze(['down','tide','dual']);
+ const MODES=Object.freeze(['first','tally']);
+ const DEFAULTS=Object.freeze({rows:6,cols:7,connect:4,wrap:'torus',gravity:'down',tideEvery:4,mode:'first',rocks:0,seed:1});
+ const DIRS=Object.freeze([[0,1],[1,0],[1,1],[1,-1]]);
+ const EMPTY=0,ROCK=3,WIN=1e6;
+ const int=(v,lo,hi,d)=>{v=Math.floor(Number(v));return Number.isFinite(v)?Math.max(lo,Math.min(hi,v)):d;};
+ function normalize(o){
+  o=Object.assign({},DEFAULTS,o||{});
+  const rows=int(o.rows,4,10,6),cols=int(o.cols,4,11,7);
+  return Object.freeze({rows,cols,connect:int(o.connect,3,Math.max(rows,cols),4),
+   wrap:WRAPS[o.wrap]?o.wrap:'torus',gravity:GRAVITIES.includes(o.gravity)?o.gravity:'down',
+   tideEvery:int(o.tideEvery,1,12,4),mode:MODES.includes(o.mode)?o.mode:'first',
+   rocks:int(o.rocks,0,Math.floor(rows*cols/6),0),seed:int(o.seed,0,2**31-1,1)});
+ }
+ const mod=(a,n)=>((a%n)+n)%n;
+ // Geometry: neighbour stepping with wrap, every distinct winning window, and the windows through each cell.
+ const geoCache=new Map();
+ function geometry(opts){
+  const key=[opts.rows,opts.cols,opts.connect,opts.wrap].join('/');
+  if(geoCache.has(key))return geoCache.get(key);
+  const {rows,cols,connect}=opts,[wrapR,wrapC]=WRAPS[opts.wrap],n=rows*cols;
+  const step=(idx,dr,dc)=>{let r=(idx/cols|0)+dr,c=idx%cols+dc;if(wrapR)r=mod(r,rows);else if(r<0||r>=rows)return -1;if(wrapC)c=mod(c,cols);else if(c<0||c>=cols)return -1;return r*cols+c;};
+  const windows=[],seen=new Set();
+  for(let s=0;s<n;s++)for(let d=0;d<DIRS.length;d++){
+   const cells=[s];let ok=true;
+   for(let k=1;k<connect&&ok;k++){const nx=step(cells[k-1],DIRS[d][0],DIRS[d][1]);if(nx<0||cells.includes(nx))ok=false;else cells.push(nx);}
+   if(!ok)continue;
+   const id=d+':'+cells.slice().sort((a,b)=>a-b).join(',');
+   if(seen.has(id))continue;seen.add(id);windows.push(Object.freeze(cells));
+  }
+  const through=Array.from({length:n},()=>[]);
+  windows.forEach((w,i)=>w.forEach(c=>through[c].push(i)));
+  const g=Object.freeze({rows,cols,n,connect,wrapR,wrapC,step,windows:Object.freeze(windows),through:Object.freeze(through.map(Object.freeze))});
+  geoCache.set(key,g);return g;
+ }
+ function seeded(seed){let s=(seed>>>0)||1;return()=>((s=(Math.imul(s,1664525)+1013904223)>>>0)/4294967296);}
+ // Rocks never sit in row 0 or the last row, so every column always has an entry from either end.
+ function rockCells(opts){
+  if(!opts.rocks)return[];
+  const rnd=seeded(opts.seed*7919+opts.rows*31+opts.cols),pool=[];
+  for(let r=1;r<opts.rows-1;r++)for(let c=0;c<opts.cols;c++)pool.push(r*opts.cols+c);
+  const out=[];while(out.length<opts.rocks&&pool.length)out.push(pool.splice(Math.floor(rnd()*pool.length),1)[0]);
+  return out.sort((a,b)=>a-b);
+ }
+ function create(o){
+  const opts=normalize(o),board=Array(opts.rows*opts.cols).fill(EMPTY);
+  for(const c of rockCells(opts))board[c]=ROCK;
+  return{opts,board,toMove:1,ply:0,scores:[0,0,0],over:false,winner:0,line:[],last:-1,history:[]};
+ }
+ // Where a stone entering column col lands. dir 0: dropped in at the top and falls down; dir 1: pushed up from the bottom.
+ // A stone stops at the first obstacle, so an occupied entry cell closes that end of the column.
+ function landing(opts,board,col,dir){
+  const {rows,cols}=opts;
+  if(dir===0){let r=-1;while(r+1<rows&&board[(r+1)*cols+col]===EMPTY)r++;return r<0?-1:r*cols+col;}
+  let r=rows;while(r-1>=0&&board[(r-1)*cols+col]===EMPTY)r--;return r>=rows?-1:r*cols+col;
+ }
+ const tideDir=(opts,ply)=>Math.floor(ply/opts.tideEvery)%2;
+ const encode=(opts,col,dir)=>col+(dir?opts.cols:0);
+ const decode=(opts,m)=>({col:m%opts.cols,dir:m>=opts.cols?1:0});
+ function movesFor(opts,board,ply){
+  const dirs=opts.gravity==='dual'?[0,1]:opts.gravity==='tide'?[tideDir(opts,ply)]:[0];
+  let out=[];
+  for(const d of dirs)for(let c=0;c<opts.cols;c++)if(landing(opts,board,c,d)>=0)out.push(encode(opts,c,d));
+  // Tide: when the current direction is blocked everywhere, the other end opens.
+  if(!out.length&&opts.gravity==='tide'){const d=1-dirs[0];for(let c=0;c<opts.cols;c++)if(landing(opts,board,c,d)>=0)out.push(encode(opts,c,d));}
+  return out;
+ }
+ // Tide: slide every stone in each rock-bounded segment of each column toward the new gravity (dir 0 down, 1 up).
+ // Returns moved stones as [from,to] pairs. board is changed in place.
+ function settle(opts,board,dir){
+  const {rows,cols}=opts,moved=[];
+  for(let c=0;c<cols;c++){
+   let r0=0;
+   while(r0<rows){
+    if(board[r0*cols+c]===ROCK){r0++;continue;}
+    let r1=r0;while(r1<rows&&board[r1*cols+c]!==ROCK)r1++;
+    const stones=[];for(let r=r0;r<r1;r++){const v=board[r*cols+c];if(v){stones.push([r,v]);board[r*cols+c]=EMPTY;}}
+    const start=dir?r0:r1-stones.length;
+    stones.forEach(([r,v],k)=>{const to=(start+k)*cols+c;board[to]=v;if(to!==r*cols+c)moved.push([r*cols+c,to]);});
+    r0=r1;
+   }
+  }
+  return moved;
+ }
+ const flipsAfter=(opts,ply)=>opts.gravity==='tide'&&tideDir(opts,ply+1)!==tideDir(opts,ply);
+ const legalMoves=s=>s.over?[]:movesFor(s.opts,s.board,s.ply);
+ // Windows through idx that are fully owned by p.
+ function completed(g,board,idx,p){const out=[];for(const w of g.through[idx]){const cells=g.windows[w];if(cells.every(c=>board[c]===p))out.push(cells);}return out;}
+ const fullFor=(g,board,p)=>g.windows.map((w,i)=>w.every(c=>board[c]===p)?i:-1).filter(i=>i>=0);
+ function play(s,m){
+  if(s.over)throw new Error('game over');
+  if(!legalMoves(s).includes(m))throw new Error('illegal move '+m);
+  const o=s.opts,g=geometry(o),{col,dir}=decode(o,m),idx=landing(o,s.board,col,dir),p=s.toMove;
+  const board=s.board.slice();board[idx]=p;
+  const lines=completed(g,board,idx,p),scores=s.scores.slice();
+  const next={opts:o,board,toMove:3-p,ply:s.ply+1,scores,over:false,winner:0,line:[],last:idx,history:s.history.concat([m]),moved:[],tideWins:[]};
+  if(lines.length){
+   const cells=[...new Set(lines.flat())].sort((a,b)=>a-b);
+   if(o.mode==='first'){next.over=true;next.winner=p;next.line=cells;return next;}
+   scores[p]+=lines.length;next.line=cells;
+  }
+  if(flipsAfter(o,s.ply)){
+   // the tide turns after this move: stones slide, and any window the slide completes counts for its owner
+   const before=[0,new Set(fullFor(g,board,1)),new Set(fullFor(g,board,2))];
+   next.moved=settle(o,board,tideDir(o,next.ply));
+   const made=[0,1,2].map(q=>q?fullFor(g,board,q).filter(w=>!before[q].has(w)):[]);
+   const cells=[...new Set([...made[1],...made[2]].flatMap(w=>g.windows[w]))].sort((a,b)=>a-b);
+   const lastAt=next.moved.find(([f])=>f===idx);if(lastAt)next.last=lastAt[1];
+   if(cells.length){
+    next.line=cells;next.tideWins=[1,2].filter(q=>made[q].length);
+    if(o.mode==='first'){next.over=true;next.winner=next.tideWins.length===1?next.tideWins[0]:0;return next;}
+    scores[1]+=made[1].length;scores[2]+=made[2].length;
+   }
+  }
+  if(!movesFor(o,board,next.ply).length){next.over=true;next.winner=o.mode==='tally'&&scores[1]!==scores[2]?(scores[1]>scores[2]?1:2):0;}
+  return next;
+ }
+ const replay=(opts,moves)=>moves.reduce(play,create(opts));
+ const undo=(s,n=1)=>replay(s.opts,s.history.slice(0,Math.max(0,s.history.length-n)));
+
+ // ---------------------------------------------------------------- AI
+ // Incremental window counts make evaluation O(windows through a cell) per move.
+ const TIERS=Object.freeze([
+  {id:0,name:'見習',depth:2,nodes:2500,blunder:.3},
+  {id:1,name:'棋士',depth:3,nodes:12000,blunder:.08},
+  {id:2,name:'高手',depth:5,nodes:50000,blunder:0},
+  {id:3,name:'國手',depth:7,nodes:160000,blunder:0},
+  {id:4,name:'環宇',depth:12,nodes:300000,blunder:0}
+ ]);
+ function Searcher(s){
+  const o=s.opts,g=geometry(o),W=g.windows.length;
+  this.o=o;this.g=g;this.board=Int8Array.from(s.board);this.ply=s.ply;this.toMove=s.toMove;this.scores=s.scores.slice();
+  this.a=new Int8Array(W);this.b=new Int8Array(W);this.nodes=0;
+  const wt=[0];for(let k=1;k<o.connect;k++)wt.push(Math.pow(5,k-1)*(k===o.connect-1?2:1));this.wt=wt;
+  for(let w=0;w<W;w++)for(const c of g.windows[w]){if(this.board[c]===1)this.a[w]++;else if(this.board[c]===2)this.b[w]++;}
+  this.v=0;for(let w=0;w<W;w++)this.v+=this.val(w);
+ }
+ Searcher.prototype.val=function(w){const a=this.a[w],b=this.b[w],k=this.o.connect;if(a&&b)return 0;if(a===k||b===k)return 0;return a?this.wt[a]:b?-this.wt[b]:0;};
+ Searcher.prototype.evalP1=function(){return this.v+(this.scores[1]-this.scores[2])*2000;};
+ // Returns number of windows completed by this move.
+ Searcher.prototype.make=function(m){
+  const {col,dir}=decode(this.o,m),idx=landing(this.o,this.board,col,dir),p=this.toMove;let done=0;
+  this.board[idx]=p;
+  for(const w of this.g.through[idx]){this.v-=this.val(w);if(p===1){this.a[w]++;if(this.a[w]===this.o.connect)done++;}else{this.b[w]++;if(this.b[w]===this.o.connect)done++;}this.v+=this.val(w);}
+  this.scores[p]+=done;
+  let snap=null,sw=0;
+  if(!(done&&this.o.mode==='first')&&flipsAfter(this.o,this.ply)){
+   snap={board:this.board.slice(),a:this.a.slice(),b:this.b.slice(),v:this.v,scores:this.scores.slice()};
+   settle(this.o,this.board,tideDir(this.o,this.ply+1));
+   this.recount();
+   const k=this.o.connect;
+   for(let w=0;w<this.a.length;w++){if(this.a[w]===k&&snap.a[w]<k){sw|=1;this.scores[1]++;}if(this.b[w]===k&&snap.b[w]<k){sw|=2;this.scores[2]++;}}
+  }
+  this.toMove=3-p;this.ply++;
+  return{idx,done,snap,sw};
+ };
+ Searcher.prototype.recount=function(){
+  const g=this.g;this.a.fill(0);this.b.fill(0);
+  for(let w=0;w<g.windows.length;w++)for(const c of g.windows[w]){if(this.board[c]===1)this.a[w]++;else if(this.board[c]===2)this.b[w]++;}
+  this.v=0;for(let w=0;w<this.a.length;w++)this.v+=this.val(w);
+ };
+ // Terminal value for the player who just moved in 'first' mode, or null to keep searching.
+ Searcher.prototype.decided=function(u){
+  if(this.o.mode!=='first')return null;
+  if(u.done)return WIN-this.ply;
+  if(!u.sw)return null;
+  const mover=3-this.toMove;return u.sw===3?0:u.sw===mover?WIN-this.ply:-(WIN-this.ply);
+ };
+ Searcher.prototype.unmake=function(u){
+  if(u.snap){this.board.set(u.snap.board);this.a.set(u.snap.a);this.b.set(u.snap.b);this.v=u.snap.v;this.scores=u.snap.scores;}
+  this.ply--;this.toMove=3-this.toMove;const p=this.toMove;this.scores[p]-=u.done;this.board[u.idx]=EMPTY;
+  for(const w of this.g.through[u.idx]){this.v-=this.val(w);if(p===1)this.a[w]--;else this.b[w]--;this.v+=this.val(w);}
+ };
+ Searcher.prototype.moves=function(){return movesFor(this.o,this.board,this.ply);};
+ Searcher.prototype.terminal=function(){const d=this.scores[this.toMove]-this.scores[3-this.toMove];return d>0?WIN/2:d<0?-WIN/2:0;};
+ Searcher.prototype.negamax=function(depth,alpha,beta,budget){
+  if(++this.nodes>budget)throw Searcher.ABORT;
+  const moves=this.moves(),tally=this.o.mode==='tally';
+  if(!moves.length)return tally?this.terminal():0;
+  if(depth===0){const v=this.evalP1();return this.toMove===1?v:-v;}
+  // Order: immediate wins first, then by static gain.
+  const scored=depth>1?moves.map(m=>{const u=this.make(m);const d=this.decided(u);const v=d!=null?d:this.evalP1()*(this.toMove===1?-1:1);this.unmake(u);return[m,v];}).sort((x,y)=>y[1]-x[1]):moves.map(m=>[m,0]);
+  let best=-Infinity;
+  for(const [m] of scored){
+   const u=this.make(m),d=this.decided(u);let v;
+   if(d!=null)v=d;
+   else v=-this.negamax(depth-1,-beta,-alpha,budget);
+   this.unmake(u);
+   if(v>best)best=v;if(v>alpha)alpha=v;if(alpha>=beta)break;
+  }
+  return best;
+ };
+ Searcher.ABORT={abort:true};
+ // Iterative deepening under a node budget (deterministic, not time based). Returns {move, score, depth, nodes, ranked}.
+ function analyse(s,opt={}){
+  const tier=TIERS[opt.tier??2]||TIERS[2],rng=opt.rng||seeded(s.ply+17),maxDepth=opt.depth??tier.depth,budget=opt.nodes??tier.nodes;
+  const moves=legalMoves(s);if(!moves.length)return null;
+  const S=new Searcher(s),tally=s.opts.mode==='tally';
+  let ranked=moves.map(m=>[m,0]),done=0;
+  for(let d=1;d<=maxDepth;d++){
+   const res=[];
+   try{
+    for(const [m] of ranked){const u=S.make(m),dd=S.decided(u);let v=dd!=null?dd:-S.negamax(d-1,-Infinity,Infinity,budget);S.unmake(u);res.push([m,v]);}
+   }catch(e){if(e!==Searcher.ABORT)throw e;break;}
+   ranked=res.sort((x,y)=>y[1]-x[1]);done=d;
+   if(Math.abs(ranked[0][1])>WIN/4&&!tally)break;
+  }
+  const top=ranked[0][1],ties=ranked.filter(r=>r[1]>=top-(tier.id<2?3:0));
+  let move=ties[Math.floor(rng()*ties.length)][0];
+  if(tier.blunder&&rng()<tier.blunder&&!(top>WIN/4))move=moves[Math.floor(rng()*moves.length)];
+  return{move,score:top,depth:done,nodes:S.nodes,ranked};
+ }
+ const choose=(s,opt)=>{const a=analyse(s,opt);return a?a.move:-1;};
+ // Forced-win solver for puzzles: can the side to move win within k of its own moves against any defence?
+ function forcedWin(s,k,budget=2e6){
+  const S=new Searcher(s);
+  const rec=k=>{
+   if(++S.nodes>budget)throw Searcher.ABORT;
+   for(const m of S.moves()){
+    const u=S.make(m),d=S.decided(u);let ok=false;
+    if(d!=null)ok=d>0;
+    else if(k>1){
+     const replies=S.moves();ok=replies.length>0;
+     for(const r of replies){const v=S.make(r),dv=S.decided(v);const good=dv!=null?dv<0:rec(k-1)!==-1;S.unmake(v);if(!good){ok=false;break;}}
     }
+    S.unmake(u);if(ok)return m;
+   }
+   return -1;
+  };
+  if(s.opts.mode!=='first'||s.over)return -1;
+  return rec(k);
+ }
+ function threats(s,p=s.toMove){
+  // Cells where p would complete a window if a stone could land there now (for HUD hints and tests).
+  const g=geometry(s.opts),out=new Set();
+  for(const cells of g.windows){let mine=0,empty=-1,bad=false;for(const c of cells){if(s.board[c]===p)mine++;else if(s.board[c]===EMPTY&&empty<0)empty=c;else bad=true;}if(!bad&&mine===s.opts.connect-1&&empty>=0)out.add(empty);}
+  return[...out].sort((a,b)=>a-b);
+ }
+ return{DEFAULTS,WRAPS,GRAVITIES,MODES,TIERS,DIRS,EMPTY,ROCK,WIN,normalize,geometry,seeded,rockCells,create,landing,tideDir,settle,flipsAfter,encode,decode,legalMoves,play,replay,undo,analyse,choose,forcedWin,threats};
+})();
+</script>
+<script id="torus-career">
+'use strict';
+// Career progression: pure functions over a small saved profile (localStorage key below).
+// XP scales with AI tier and rule variant; levels unlock stronger opponents, rule variants and puzzle chapters.
+const TorusCareer=(()=>{
+ const MAX_LEVEL=30,KEY='torus-c4-career',VERSION=1;
+ const need=level=>100+level*35;
+ function levelOf(xp){let level=1,rest=Math.max(0,Math.floor(Number(xp)||0));while(level<MAX_LEVEL&&rest>=need(level)){rest-=need(level);level++;}return{level,into:level<MAX_LEVEL?rest:0,need:level<MAX_LEVEL?need(level):0,max:level>=MAX_LEVEL};}
+ const RANKS=Object.freeze([{from:1,name:'入局'},{from:4,name:'繞行者'},{from:8,name:'環面棋士'},{from:13,name:'拓撲師'},{from:19,name:'克萊因'},{from:25,name:'環宇宗師'}]);
+ const rankOf=level=>RANKS.filter(r=>level>=r.from).pop().name;
+ // kind: tier (AI id), rule (preset / option id), chapter (puzzle chapter)
+ const UNLOCKS=Object.freeze([
+  {level:1,kind:'tier',id:0,label:'對手・見習'},{level:1,kind:'tier',id:1,label:'對手・棋士'},{level:1,kind:'tier',id:2,label:'對手・高手'},
+  {level:1,kind:'rule',id:'torus',label:'環面'},{level:1,kind:'rule',id:'flat',label:'平面古典'},{level:1,kind:'chapter',id:1,label:'殘局・第一章'},
+  {level:2,kind:'rule',id:'cylinder',label:'圓筒'},{level:3,kind:'rule',id:'tide',label:'潮汐重力'},{level:3,kind:'chapter',id:2,label:'殘局・第二章'},
+  {level:4,kind:'tier',id:3,label:'對手・國手'},{level:5,kind:'rule',id:'dual',label:'雙向重力'},{level:6,kind:'rule',id:'size',label:'自訂盤面與連線數'},
+  {level:7,kind:'rule',id:'tally',label:'計分賽'},{level:7,kind:'chapter',id:3,label:'殘局・第三章'},{level:9,kind:'rule',id:'rocks',label:'礁石'},
+  {level:10,kind:'tier',id:4,label:'對手・環宇'}
+ ]);
+ const unlockLevel=(kind,id)=>{const u=UNLOCKS.find(u=>u.kind===kind&&u.id===id);return u?u.level:Infinity;};
+ const unlocked=(level,kind,id)=>level>=unlockLevel(kind,id);
+ // Which unlock ids a rule set needs (default rules need nothing beyond level 1).
+ function ruleNeeds(o){
+  const n=[];o=o||{};
+  if(o.wrap==='cylinder')n.push('cylinder');
+  if(o.gravity==='tide'||o.gravity==='dual')n.push(o.gravity);
+  if((o.rows&&o.rows!==6)||(o.cols&&o.cols!==7)||(o.connect&&o.connect!==4))n.push('size');
+  if(o.mode==='tally')n.push('tally');
+  if(o.rocks>0)n.push('rocks');
+  return n;
+ }
+ const rulesAllowed=(level,o)=>ruleNeeds(o).every(id=>unlocked(level,'rule',id));
+ const TIER_XP=Object.freeze([.5,.8,1,1.35,1.75]);
+ // Variant bonus: each non-default rule adds 8%, capped at +32%.
+ const variantMult=o=>1+Math.min(.32,.08*ruleNeeds(o).length);
+ function matchXP(s){
+  if(s.local)return{lines:[['同機對局',12]],base:12,mult:1,total:12};
+  const lines=[['完成對局',20]];
+  if(s.outcome==='win'){lines.push(['勝利',70]);if(s.myMoves&&s.myMoves<=8)lines.push([`速勝（${s.myMoves} 手）`,25]);if(s.wrapWin)lines.push(['繞界連線',15]);}
+  else if(s.outcome==='draw')lines.push(['和局',30]);
+  if(s.mode==='tally'&&s.points)lines.push([`連線 × ${s.points}`,8*s.points]);
+  if(!s.assisted&&s.outcome==='win')lines.push(['無提示無悔棋',20]);
+  const base=lines.reduce((n,l)=>n+l[1],0),mult=Math.round((TIER_XP[s.tier]??1)*variantMult(s.rules)*100)/100,total=Math.round(base*mult);
+  return{lines,base,mult,total};
+ }
+ const puzzleXP=p=>40+25*(p.k-1)+10*(p.chapter-1);
+ const blank=()=>({v:VERSION,xp:0,matches:0,wins:0,losses:0,draws:0,streak:0,bestStreak:0,bestTier:-1,solved:[]});
+ function sanitize(p){
+  const b=blank();if(!p||typeof p!=='object')return b;
+  for(const k of Object.keys(b)){if(k==='solved')continue;if(Number.isFinite(p[k])&&p[k]>=(k==='bestTier'?-1:0))b[k]=Math.floor(p[k]);}
+  if(Array.isArray(p.solved))b.solved=[...new Set(p.solved.filter(x=>typeof x==='string'&&x.length<24))].slice(0,200);
+  return b;
+ }
+ function finish(p,gain,before,patch){const next={...p,...patch,xp:p.xp+gain.total},after=levelOf(next.xp);return{profile:next,gain,before,after,unlocked:UNLOCKS.filter(u=>u.level>before.level&&u.level<=after.level)};}
+ function record(profile,s){
+  const p=sanitize(profile),gain=matchXP(s),before=levelOf(p.xp);
+  if(s.local)return finish(p,gain,before,{matches:p.matches+1});
+  const win=s.outcome==='win',loss=s.outcome==='loss',streak=win?p.streak+1:loss?0:p.streak;
+  return finish(p,gain,before,{matches:p.matches+1,wins:p.wins+(win?1:0),losses:p.losses+(loss?1:0),draws:p.draws+(s.outcome==='draw'?1:0),streak,bestStreak:Math.max(p.bestStreak,streak),bestTier:win?Math.max(p.bestTier,s.tier):p.bestTier});
+ }
+ // Solving a puzzle pays once.
+ function solve(profile,puzzle){
+  const p=sanitize(profile),before=levelOf(p.xp);
+  if(p.solved.includes(puzzle.id))return finish(p,{lines:[['已解過',0]],base:0,mult:1,total:0},before,{});
+  const xp=puzzleXP(puzzle);
+  return finish(p,{lines:[[`殘局「${puzzle.title}」`,xp]],base:xp,mult:1,total:xp},before,{solved:p.solved.concat([puzzle.id])});
+ }
+ function load(storage){try{return sanitize(JSON.parse(storage.getItem(KEY)||'null'));}catch(e){return blank();}}
+ function save(storage,p){try{storage.setItem(KEY,JSON.stringify(sanitize(p)));return true;}catch(e){return false;}}
+ return{MAX_LEVEL,KEY,need,levelOf,rankOf,RANKS,UNLOCKS,unlockLevel,unlocked,ruleNeeds,rulesAllowed,TIER_XP,variantMult,matchXP,puzzleXP,blank,sanitize,record,solve,load,save};
+})();
+</script>
+<script id="torus-puzzles">
+'use strict';
+// Rule presets for the lobby and hand-picked puzzles. Every puzzle is a legal move list from an empty board;
+// the side to move has a forced win within k of its own moves (and not in k-1). tests/connect4-torus.test.cjs proves each one.
+const TorusPresets=Object.freeze([
+ {id:'torus',name:'經典環面',note:'6×7、連四，上下左右都能繞過邊界。',rules:{}},
+ {id:'flat',name:'平面古典',note:'不繞界的傳統直落四子，用來對照。',rules:{wrap:'flat'}},
+ {id:'cylinder',name:'圓筒',note:'只有左右相連；上下是牆。',rules:{wrap:'cylinder'}},
+ {id:'tide',name:'潮汐',note:'每 4 手重力反轉，全盤棋子滑向另一端；滑動也能連線。',rules:{gravity:'tide'}},
+ {id:'dual',name:'雙向重力',note:'每一手自選從上落下或從下推上；入口被佔就封住。',rules:{gravity:'dual'}},
+ {id:'grand',name:'大環五連',note:'8×9 環面、連五才算。',rules:{rows:8,cols:9,connect:5}},
+ {id:'tally',name:'計分賽',note:'下到滿盤；每條新連線得 1 分，多者勝。',rules:{mode:'tally'}},
+ {id:'reef',name:'礁石',note:'盤中散落 5 塊礁石，擋住落子與連線。',rules:{rocks:5}}
+]);
+const TorusPuzzles=Object.freeze([
+ {id:'c1-1',chapter:1,title:'接縫',k:2,rules:{},moves:[4,4,5,3,0,6,0,0,6,3,5,5,2]},
+ {id:'c1-2',chapter:1,title:'雙頭蛇',k:2,rules:{},moves:[3,3,4,2,6,5,6,6,5,2,4,4,0,0,6]},
+ {id:'c1-3',chapter:1,title:'塔頂',k:2,rules:{},moves:[1,1,2,0,4,3,4,2,4,4,3,2,2,1,2,2,1,0]},
+ {id:'c1-4',chapter:1,title:'回環',k:2,rules:{},moves:[5,5,4,6,6,5,5,3,5,5,1,4,1,1,4,3,4,6,6]},
+ {id:'c2-1',chapter:2,title:'三步繞行',k:3,rules:{},moves:[5,5,4,6,6,5,5,3,5,5,1,4,1,1,4]},
+ {id:'c2-2',chapter:2,title:'邊界之外',k:3,rules:{},moves:[0,0,6,1,4,5,4,6,4,4,5,6,3,0,3]},
+ {id:'c2-3',chapter:2,title:'圓筒迴廊',k:3,rules:{wrap:'cylinder'},moves:[3,3,4,5,5,1,6,3,3,1,6,1,1,6,4,4]},
+ {id:'c2-4',chapter:2,title:'礁間',k:3,rules:{rocks:4,seed:5},moves:[2,1,2,1,1,2,2,3,0,0,6,1,3,0,0,2]},
+ {id:'c3-1',chapter:3,title:'退潮',k:2,rules:{gravity:'tide'},moves:[2,0,6,1,7,8,8,7,1,1,6,0,13,13]},
+ {id:'c3-2',chapter:3,title:'上下夾擊',k:2,rules:{gravity:'dual'},moves:[8,13,0,13,2,13,13,3,2,12,2,2]},
+ {id:'c3-3',chapter:3,title:'五連環',k:2,rules:{rows:7,cols:8,connect:5},moves:[3,3,7,7,2,0,3,0,2,6,2,7,2,2,1,5,1,0,0,5,5,6,6,3,6]},
+ {id:'c3-4',chapter:3,title:'逆流三手',k:3,rules:{gravity:'dual'},moves:[2,10,1,10,0,6,2,11,1,10,10,12]}
+]);
+</script>
+<script src="shared/fu-palette.js"></script>
+<script src="shared/fu-shell.js" defer></script>
+<script type="module" id="torus-view">
+import { THREE, createStage, inkMaterial, glowMaterial, palette } from './shared/fu-three.js';
+// ---------------------------------------------------------------- setup
+const E=TorusC4,C=TorusCareer,PUZ=TorusPuzzles,PRESETS=TorusPresets;
+const $=id=>document.getElementById(id);
+const memStore=(()=>{const m={};return{getItem:k=>k in m?m[k]:null,setItem:(k,v)=>{m[k]=String(v);}};})();
+const storage=(()=>{try{const s=window.localStorage;s.getItem('x');return s;}catch(e){return memStore;}})();
+const store=Fu.prefs('connect4-torus',{tier:1,opp:'ai',preset:'torus',first:'alternate',threats:true,inset:true,motion:true,custom:{}});
+let profile=C.load(storage);
+const level=()=>C.levelOf(profile.xp).level;
+const mod=(a,n)=>((a%n)+n)%n;
+const OPP=[...E.TIERS.map(t=>({id:'t'+t.id,tier:t.id,name:t.name,note:['會漏看威脅','看三步','看五步，不失誤','深算七步','全力搜尋'][t.id]})),{id:'local',tier:-1,name:'同機雙人',note:'兩人輪流用同一台裝置'}];
+const S={state:null,kind:'ai',tier:1,human:1,phase:'lobby',assisted:false,puzzle:null,myMoves:0,sel:0,dir:0,busy:false,matchNo:0,hint:-1,result:null,presetId:'torus'};
 
-    function drop(col) {
-      if (over) return;
-      for (let r = ROWS - 1; r >= 0; r--) {
-        if (board[r][col] === '') {
-          board[r][col] = player;
-          lastMove = `${r}-${col}`;
-          turn++;
-          const wl = checkWin(r, col);
-          if (wl) {
-            over = true;
-            wl.forEach(k => winCells.add(k));
-            render();
-            return;
-          }
-          if (turn >= ROWS * COLS) {
-            over = true;
-            render();
-            return;
-          }
-          player = (player === 'B') ? 'W' : 'B';
-          render();
-          return;
-        }
-      }
-    }
+// ---------------------------------------------------------------- three.js stage
+let stage;
+try{stage=createStage($('board'),{fog:false,fov:30,exposure:1.08});}
+catch(e){$('webglFail').hidden=false;throw e;}
+const {renderer,scene,camera}=stage;
+for(const l of Object.values(stage.lights))l.layers.enableAll();
+const insetCam=new THREE.PerspectiveCamera(30,1,.1,200);
+const boardG=new THREE.Group(),ringG=new THREE.Group();scene.add(boardG,ringG);
+const COL={p1:palette.sides[0],p2:palette.sides[1],rock:0x5d5a52,gold:palette.gold,paper:palette.paper};
+// colour by seat, not by move order: you (or player one at a shared device) are always seal
+const sideColor=p=>p!==1&&p!==2?COL.rock:(S.kind==='local'?p===1:p===S.human)?COL.p1:COL.p2;
+function disposeGroup(g){g.traverse(o=>{if(o.geometry)o.geometry.dispose();if(o.material)(Array.isArray(o.material)?o.material:[o.material]).forEach(m=>m.dispose());});g.clear();}
+function setLayer(o,layer){o.traverse(x=>x.layers.set(layer));}
+const octo=(r,h)=>{const g=new THREE.CylinderGeometry(r,r,h,8);g.rotateX(Math.PI/2);g.rotateZ(Math.PI/8);return g;};
+const M4=new THREE.Matrix4(),Q=new THREE.Quaternion(),V=new THREE.Vector3(),SC=new THREE.Vector3(),CLR=new THREE.Color();
+let B=null; // board view objects for the current rules
 
-    // Wrap-aware win detection
-    function checkWin(r, c) {
-      const directions = [
-        [1, 0], [0, 1], [1, 1], [1, -1]
-      ];
-      for (const [dr, dc] of directions) {
-        const cells = [];
-        for (let k = 0; k < 4; k++) {
-          const rr = (r + dr * k + ROWS) % ROWS;
-          const cc = (c + dc * k + COLS) % COLS;
-          cells.push(`${rr}-${cc}`);
-        }
-          const val = cells.map(keyToVal).every(v => v === player);
-        if (val) return cells;
-      }
-      // also need to scan backwards start to catch other sequences
-      for (const [dr, dc] of directions) {
-        for (let offset = -3; offset <= 0; offset++) {
-          const cells2 = [];
-          for (let k = 0; k < 4; k++) {
-            const rr = (r + dr * (offset + k) + ROWS) % ROWS;
-            const cc = (c + dc * (offset + k) + COLS) % COLS;
-            cells2.push(`${rr}-${cc}`);
-          }
-          const val2 = cells2.map(keyToVal).every(v => v === player);
-          if (val2) return cells2;
-        }
-      }
-      return null;
-    }
+function buildBoard(){
+ disposeGroup(boardG);disposeGroup(ringG);
+ const o=S.state.opts,{rows,cols}=o,[wR,wC]=E.WRAPS[o.wrap],n=rows*cols;
+ const gx=wC?1.6:0,gy=wR?1.2:0,cap=n*9;
+ const solidMat=inkMaterial(0xffffff),ghostMat=inkMaterial(0xffffff,{transparent:true,opacity:.2,depthWrite:false});
+ const mk=(geo,mat,count)=>{const m=new THREE.InstancedMesh(geo,mat,count);m.count=0;m.instanceMatrix.setUsage(THREE.DynamicDrawUsage);m.frustumCulled=false;boardG.add(m);return m;};
+ // slab + sockets
+ const slab=new THREE.Mesh(new THREE.BoxGeometry(cols+.24,rows+.24,.34),inkMaterial('ink1'));slab.position.z=-.24;boardG.add(slab);
+ const halo=new THREE.Mesh(new THREE.PlaneGeometry(cols+2*gx+.2,rows+2*gy+.2),new THREE.MeshBasicMaterial({color:palette.ink2,transparent:true,opacity:.35,depthWrite:false}));halo.position.z=-.42;boardG.add(halo);
+ const sockGeo=octo(.44,.06),sock=mk(sockGeo,inkMaterial(0x2b3542),n),sockGhost=mk(sockGeo,inkMaterial(0x2b3542,{transparent:true,opacity:.22,depthWrite:false}),cap);
+ const stoneGeo=octo(.39,.22),rockGeo=(()=>{const g=new THREE.CylinderGeometry(.42,.46,.3,6);g.rotateX(Math.PI/2);return g;})();
+ const stones=mk(stoneGeo,solidMat,cap),ghosts=mk(stoneGeo,ghostMat,cap),rocks=mk(rockGeo,inkMaterial(0xffffff),cap),rockGhosts=mk(rockGeo,inkMaterial(0xffffff,{transparent:true,opacity:.2,depthWrite:false}),cap);
+ const ringGeo=new THREE.RingGeometry(.43,.52,8,1,Math.PI/8);
+ const wins=mk(ringGeo,glowMaterial('gold',.95),cap);
+ const threatGeo=new THREE.PlaneGeometry(.2,.2);threatGeo.rotateZ(Math.PI/4);
+ const threats=mk(threatGeo,new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:.85,depthWrite:false,toneMapped:false}),cap);
+ const last=new THREE.Mesh(new THREE.RingGeometry(.2,.26,4,1,Math.PI/4),glowMaterial('paper',.9));last.visible=false;boardG.add(last);
+ const colHi=new THREE.Mesh(new THREE.PlaneGeometry(.96,rows+2*gy),new THREE.MeshBasicMaterial({color:palette.seal,transparent:true,opacity:.07,depthWrite:false}));colHi.position.z=-.05;boardG.add(colHi);
+ const preview=new THREE.Mesh(stoneGeo,new THREE.MeshStandardMaterial({color:COL.p1,transparent:true,opacity:.42,roughness:.8,flatShading:true,depthWrite:false}));boardG.add(preview);
+ const hint=new THREE.Mesh(new THREE.RingGeometry(.45,.55,8,1,Math.PI/8),glowMaterial('jade',.95));hint.visible=false;boardG.add(hint);
+ // seams: dashed where the board wraps, solid walls where it does not
+ const seamPts=[],wallPts=[],hx=cols/2,hy=rows/2;
+ (wC?seamPts:wallPts).push(-hx,-hy-gy,0,-hx,hy+gy,0,hx,-hy-gy,0,hx,hy+gy,0);
+ (wR?seamPts:wallPts).push(-hx-gx,-hy,0,hx+gx,-hy,0,-hx-gx,hy,0,hx+gx,hy,0);
+ const lines=(pts,mat)=>{if(!pts.length)return;const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(pts,3));const l=new THREE.LineSegments(g,mat);l.position.z=.02;if(mat.isLineDashedMaterial)l.computeLineDistances();boardG.add(l);};
+ lines(seamPts,new THREE.LineDashedMaterial({color:palette.gold,dashSize:.18,gapSize:.14,transparent:true,opacity:.75}));
+ lines(wallPts,new THREE.LineBasicMaterial({color:palette.paper,transparent:true,opacity:.45}));
+ // entry arrows above (dir 0) / below (dir 1)
+ const arrowGeo=new THREE.ConeGeometry(.16,.28,4);
+ const arrows=mk(arrowGeo,new THREE.MeshBasicMaterial({color:0xffffff,toneMapped:false}),cols*2);
+ B={o,rows,cols,wR,wC,gx,gy,n,sock,sockGhost,stones,ghosts,rocks,rockGhosts,wins,threats,last,colHi,preview,hint,arrows,offset:0,offsetTarget:0,anim:null,winT:0};
+ buildRing();
+ fit();
+}
+// Torus / cylinder model of the same position.
+function buildRing(){
+ const o=B.o,{rows,cols}=o;B.ring=null;
+ if(o.wrap==='flat')return;
+ const torus=o.wrap==='torus',R=2.3,r=1.0,CR=2.1,H=3.4;
+ const pos=(c,rr,lift=0)=>{
+  const u=(c+.5)/cols*Math.PI*2;
+  if(torus){const v=Math.PI/2-(rr+.5)/rows*Math.PI*2,rad=R+(r+lift)*Math.cos(v);return[new THREE.Vector3(rad*Math.cos(u),rad*Math.sin(u),(r+lift)*Math.sin(v)),new THREE.Vector3(Math.cos(v)*Math.cos(u),Math.cos(v)*Math.sin(u),Math.sin(v))];}
+  const y=H/2-(rr+.5)/rows*H;return[new THREE.Vector3((CR+lift)*Math.sin(u),y,(CR+lift)*Math.cos(u)),new THREE.Vector3(Math.sin(u),0,Math.cos(u))];
+ };
+ const body=torus?new THREE.TorusGeometry(R,r,rows*6,cols*8):new THREE.CylinderGeometry(CR,CR,H,cols*8,1,true);
+ const surf=new THREE.Mesh(body,inkMaterial(0x34404e,{side:THREE.DoubleSide}));ringG.add(surf);
+ // cell-border grid lines
+ const pts=[],seg=48;
+ for(let c=0;c<cols;c++)for(let k=0;k<seg;k++){
+  const a=torus?pos(c-.5,k/seg*rows-.5,.01)[0]:pos(c-.5,0,.01)[0],b=torus?pos(c-.5,(k+1)/seg*rows-.5,.01)[0]:null;
+  if(torus)pts.push(a.x,a.y,a.z,b.x,b.y,b.z);else if(k===0){const t=pos(c-.5,-.5,.01)[0],btm=pos(c-.5,rows-.5,.01)[0];pts.push(t.x,t.y,t.z,btm.x,btm.y,btm.z);}
+ }
+ for(let rr=0;rr<=(torus?rows-1:rows);rr++)for(let k=0;k<seg;k++){const a=pos(k/seg*cols-.5,rr-.5,.01)[0],b=pos((k+1)/seg*cols-.5,rr-.5,.01)[0];pts.push(a.x,a.y,a.z,b.x,b.y,b.z);}
+ const lg=new THREE.BufferGeometry();lg.setAttribute('position',new THREE.Float32BufferAttribute(pts,3));
+ ringG.add(new THREE.LineSegments(lg,new THREE.LineBasicMaterial({color:palette.paper,transparent:true,opacity:.34})));
+ const dot=new THREE.IcosahedronGeometry(torus?.2:.22,0);
+ const st=new THREE.InstancedMesh(dot,inkMaterial(0xffffff),rows*cols);st.count=0;st.frustumCulled=false;ringG.add(st);
+ const mark=new THREE.Mesh(new THREE.OctahedronGeometry(.13,0),glowMaterial('seal',.9));ringG.add(mark);
+ ringG.rotation.set(torus?-1.05:.32,0,0);
+ setLayer(ringG,1);
+ B.ring={torus,pos,st,mark,surf,radius:torus?R+r+.3:Math.hypot(CR,H/2)+.3,spin:0,drag:0};
+ B.ring.inverse=(local)=>{ // local point on the surface -> [col,row]
+  let u=Math.atan2(torus?local.y:local.x,torus?local.x:local.z);const c=Math.floor(mod(u/(Math.PI*2)*cols,cols));
+  let rr;
+  if(torus){const v=Math.atan2(local.z,Math.hypot(local.x,local.y)-R);rr=Math.floor(mod((Math.PI/2-v)/(Math.PI*2)*rows,rows));}
+  else{rr=Math.floor((H/2-local.y)/H*rows);if(rr<0||rr>=rows)return null;}
+  return[c,rr];
+ };
+}
 
-    function keyToVal(key) {
-      const [r, c] = key.split('-').map(Number);
-      return board[r][c];
-    }
+// ---------------------------------------------------------------- layout: board rect + inset rect (CSS px)
+const L={main:{x:0,y:0,w:1,h:1},inset:null,swap:false};
+function fit(){
+ if(!B)return;
+ stage.resize();
+ const W=stage.size.width,H=stage.size.height,phone=W<720;
+ const hud=document.querySelector('.score').getBoundingClientRect(),dock=document.querySelector('.fu-dock').getBoundingClientRect();
+ const top=Math.min(hud.bottom+10,H*.35),bottom=Math.max(dock.top-12,H*.6),pad=16;
+ const avail={x:pad,y:top,w:W-2*pad,h:bottom-top};
+ const showInset=store.get('inset')&&!!B.ring;let inset=null,main={...avail};
+ if(showInset){
+  if(avail.h>avail.w*1.1){
+   // portrait: board on top, torus centred underneath (or tucked top-right when there is no room)
+   const bw=B.cols+2*B.gx+.9,bh=B.rows+2*B.gy+1.1,need=bh*avail.w/bw*1.04,room=avail.h-need-10;
+   if(room>=120){const sz=Math.min(avail.w*.6,room,240),y0=avail.y+Math.max(0,(avail.h-need-10-sz)/2);main={x:avail.x,y:y0,w:avail.w,h:need};inset={x:(W-sz)/2,y:y0+need+10,w:sz,h:sz};}
+   else{const sz=96;inset={x:W-pad-sz,y:avail.y,w:sz,h:sz};}
+  }
+  else{const sz=Math.min(260,avail.w*.26,avail.h*.62);inset={x:W-pad-sz,y:avail.y,w:sz,h:sz};main={x:avail.x,y:avail.y,w:avail.w-sz-12,h:avail.h};}
+ }
+ L.main=main;L.inset=inset;L.phone=phone;
+ const el=$('inset');el.hidden=!inset;
+ if(inset)Object.assign(el.style,{left:inset.x+'px',top:inset.y+'px',width:inset.w+'px',height:inset.h+'px'});
+ $('insetLabel').textContent=L.swap?'棋盤 · T':(B.ring&&B.ring.torus?'環面 · T':'圓筒 · T');
+}
+// Fit a units box into a CSS-pixel rect of the full canvas: aim at a point offset so the box lands in the rect.
+function aimCamera(cam,rect,unitsW,unitsH,yaw,pitch){
+ const W=stage.size.width,H=stage.size.height,fov=cam.fov*Math.PI/180;
+ const u=Math.max(unitsW/rect.w,unitsH/rect.h)*1.04,D=H*u/(2*Math.tan(fov/2));
+ const tx=-(rect.x+rect.w/2-W/2)*u,ty=(rect.y+rect.h/2-H/2)*u;
+ cam.position.set(tx+Math.sin(yaw)*Math.cos(pitch)*D,ty+Math.sin(pitch)*D,Math.cos(yaw)*Math.cos(pitch)*D);
+ cam.lookAt(tx,ty,0);
+}
+function aimInset(cam,rect,radius){
+ cam.aspect=rect.w/rect.h;cam.fov=30;const D=radius/Math.sin(cam.fov*Math.PI/360)*1.02;cam.position.set(0,0,D);cam.lookAt(0,0,0);cam.updateProjectionMatrix();
+}
 
-    function render() {
-      gridEl.innerHTML = '';
-      turnEl.textContent = String(turn);
-      playerEl.textContent = (player === 'B') ? '黑' : '白';
+// ---------------------------------------------------------------- per-frame board update
+const parallax={x:0,y:0,tx:0,ty:0};
+function cellXY(idx,dispOff){const c=idx%B.cols,r=(idx/B.cols|0);return[mod(c+dispOff,B.cols)-B.cols/2+.5,B.rows/2-r-.5];}
+// All visible copies of a cell (main + wrapped ghosts) as [x,y,ghost].
+function copies(idx,off){
+ const [x0,y0]=cellXY(idx,off),out=[];
+ const ks=B.wC?[-1,0,1]:[0],ls=B.wR?[-1,0,1]:[0];
+ for(const k of ks)for(const l of ls){const x=x0+k*B.cols,y=y0+l*B.rows;
+  if(x<-B.cols/2-B.gx||x>B.cols/2+B.gx||y<-B.rows/2-B.gy||y>B.rows/2+B.gy)continue;
+  out.push([x,y,k!==0||l!==0||Math.abs(x)>B.cols/2]);}
+ return out;
+}
+function put(mesh,x,y,z,s=1,color=null,rotZ=0){const i=mesh.count++;Q.setFromAxisAngle(V.set(0,0,1),rotZ);M4.compose(SC.set(x,y,z),Q,new THREE.Vector3(s,s,s));mesh.setMatrixAt(i,M4);if(color!=null)mesh.setColorAt(i,CLR.set(color));}
+function flush(...ms){for(const m of ms){m.instanceMatrix.needsUpdate=true;if(m.instanceColor)m.instanceColor.needsUpdate=true;}}
+function updateBoard(dt,t){
+ if(!B||!S.state)return;
+ const s=S.state,o=s.opts,off=B.offset;
+ for(const m of [B.sock,B.sockGhost,B.stones,B.ghosts,B.rocks,B.rockGhosts,B.wins,B.threats,B.arrows])m.count=0;
+ const winSet=new Set(s.over||o.mode==='tally'?s.line:[]),pulse=1+.06*Math.sin(t*6);
+ for(let i=0;i<B.n;i++){
+  for(const [x,y,g] of copies(i,off))put(g?B.sockGhost:B.sock,x,y,-.06);
+  const v=s.board[i];if(!v)continue;
+  let yOff=0;
+  if(B.anim&&B.anim.idx===i){const a=B.anim,k=Math.min(1,(t-a.t0)/a.dur);yOff=(1-k*k)*a.dy;if(k>=1)B.anim=null;}
+  else if(B.slide&&B.slide.from.has(i)){const sl=B.slide,k=Math.max(0,Math.min(1,(t-sl.t0)/sl.dur)),e=k<.5?2*k*k:1-Math.pow(-2*k+2,2)/2;yOff=(1-e)*sl.from.get(i);if(t-sl.t0>sl.dur)B.slide=null;}
+  for(const [x,y,g] of copies(i,off)){
+   if(v===E.ROCK){put(g?B.rockGhosts:B.rocks,x,y,.08,1,COL.rock,.3);continue;}
+   const win=winSet.has(i)&&(s.over||B.winT>t);
+   put(g?B.ghosts:B.stones,x,y+(g?0:yOff),.1,win?pulse:1,sideColor(v));
+   if(win&&!g)put(B.wins,x,y,.24,pulse);
+  }
+ }
+ // threats: cells where a side would complete a line next move
+ if(store.get('threats')&&!s.over&&S.phase==='play'&&o.mode==='first'){
+  for(const p of [1,2])for(const idx of E.threats(s,p))for(const [x,y,g] of copies(idx,off))if(!g)put(B.threats,x,y,.05,1,sideColor(p));
+ }
+ // entry arrows
+ const dirs=o.gravity==='dual'?[0,1]:o.gravity==='tide'?[E.tideDir(o,s.ply)]:[0];
+ for(let c=0;c<B.cols;c++){const x=mod(c+off,B.cols)-B.cols/2+.5,on=c===S.sel&&S.phase==='play';for(const d of dirs){const y=d?-B.rows/2-B.gy-.32:B.rows/2+B.gy+.32;put(B.arrows,x,y,.1,on?1.25:.85,on?COL.p1:0x6d7380,d?0:Math.PI);}}
+ flush(B.sock,B.sockGhost,B.stones,B.ghosts,B.rocks,B.rockGhosts,B.wins,B.threats,B.arrows);
+ // last move + selection column + preview
+ if(s.last>=0){const [x,y]=cellXY(s.last,off);B.last.visible=true;B.last.position.set(x,y,.23);}else B.last.visible=false;
+ const myTurn=canHumanAct();
+ const sx=mod(S.sel+off,B.cols)-B.cols/2+.5;B.colHi.position.x=sx;B.colHi.visible=S.phase==='play';
+ const dir=effectiveDir(),land=myTurn?E.landing(o,s.board,S.sel,dir):-1;
+ B.preview.visible=land>=0;
+ if(land>=0){const [x,y]=cellXY(land,off);B.preview.position.set(x,y,.1);B.preview.material.color.set(sideColor(s.toMove));}
+ B.hint.visible=S.hint>=0&&!s.over;
+ if(B.hint.visible){const h=E.decode(o,S.hint),hl=E.landing(o,s.board,h.col,h.dir);if(hl>=0){const [x,y]=cellXY(hl,off);B.hint.position.set(x,y,.26);B.hint.scale.setScalar(pulse);}else B.hint.visible=false;}
+ // ring model
+ const R=B.ring;if(!R)return;
+ R.st.count=0;
+ for(let i=0;i<B.n;i++){const v=s.board[i];if(!v)continue;const [p]=R.pos(i%B.cols,i/B.cols|0,.06);M4.compose(p,Q.identity(),new THREE.Vector3(1,1,1).multiplyScalar(winSet.has(i)&&s.over?1.35:1));R.st.setMatrixAt(R.st.count,M4);R.st.setColorAt(R.st.count++,CLR.set(winSet.has(i)&&s.over?COL.gold:sideColor(v)));}
+ flush(R.st);
+ const mk=land>=0?land:s.last;R.mark.visible=mk>=0;if(mk>=0){const [p]=R.pos(mk%B.cols,mk/B.cols|0,.32);R.mark.position.copy(p);R.mark.material.color.set(land>=0?sideColor(s.toMove):COL.paper);}
+ if(store.get('motion')&&!R.dragging)R.spin+=dt*.12;
+ if(R.torus)ringG.rotation.z=R.spin;else ringG.rotation.y=R.spin;
+}
 
-      const fullCols = new Set();
-      for (let c = 0; c < COLS; c++) {
-        if (board[0][c] !== '') fullCols.add(c);
-      }
-      colBtns.forEach(btn => {
-        const col = Number(btn.dataset.col);
-        btn.disabled = over || fullCols.has(col);
-        btn.onclick = () => drop(col);
-      });
+// ---------------------------------------------------------------- render loop
+let lastT=0;
+function frame(now){
+ requestAnimationFrame(frame);
+ const t=now/1000,dt=lastT?Math.min(.05,t-lastT):0;lastT=t;
+ if(!B)return;
+ stage.resize();
+ // ease the roll offset toward its target
+ B.offset+=(B.offsetTarget-B.offset)*Math.min(1,dt*12);if(Math.abs(B.offsetTarget-B.offset)<.002)B.offset=B.offsetTarget;
+ parallax.x+=(parallax.tx-parallax.x)*Math.min(1,dt*4);parallax.y+=(parallax.ty-parallax.y)*Math.min(1,dt*4);
+ updateBoard(dt,t);
+ const motion=store.get('motion')&&!Fu.reducedMotion();
+ const W=stage.size.width,H=stage.size.height,bw=B.cols+2*B.gx+.9,bh=B.rows+2*B.gy+1.1;
+ renderer.setScissorTest(false);renderer.setViewport(0,0,W,H);
+ if(!L.swap||!B.ring){
+  camera.layers.set(0);
+  aimCamera(camera,L.main,bw,bh,motion?parallax.x*.05:0,.1+(motion?parallax.y*.04:0));
+ }else{
+  camera.layers.set(1);
+  const rect=L.main,u=Math.max(2*B.ring.radius/rect.w,2*B.ring.radius/rect.h)*1.04,fov=camera.fov*Math.PI/180,D=H*u/(2*Math.tan(fov/2));
+  const tx=-(rect.x+rect.w/2-W/2)*u,ty=(rect.y+rect.h/2-H/2)*u;camera.position.set(tx,ty,D);camera.lookAt(tx,ty,0);
+ }
+ camera.aspect=W/H;camera.updateProjectionMatrix();
+ renderer.render(scene,camera);
+ if(L.inset){
+  const r=L.inset,y=H-r.y-r.h;
+  renderer.setScissorTest(true);renderer.setScissor(r.x,y,r.w,r.h);renderer.setViewport(r.x,y,r.w,r.h);
+  if(!L.swap){insetCam.layers.set(1);aimInset(insetCam,r,B.ring.radius);}
+  else{insetCam.layers.set(0);insetCam.aspect=r.w/r.h;const fov=insetCam.fov*Math.PI/180,bwI=B.cols+2*B.gx+.6,bhI=B.rows+2*B.gy+.8,D=Math.max(bhI,bwI/insetCam.aspect)/(2*Math.tan(fov/2));insetCam.position.set(0,D*.1,D);insetCam.lookAt(0,0,0);insetCam.updateProjectionMatrix();}
+  renderer.render(scene,insetCam);
+  renderer.setScissorTest(false);renderer.setViewport(0,0,W,H);
+ }
+}
+requestAnimationFrame(frame);
+window.addEventListener('resize',()=>requestAnimationFrame(fit));
 
-      for (let r = 0; r < ROWS; r++) {
-        for (let c = 0; c < COLS; c++) {
-          const cell = document.createElement('div');
-          cell.className = 'cell';
-          const key = `${r}-${c}`;
-          const v = board[r][c];
-          if (v) {
-            const stone = document.createElement('span');
-            stone.className = 'classic-stone' + (v === 'W' ? ' white' : '');
-            stone.setAttribute('aria-hidden', 'true');
-            cell.appendChild(stone);
-          }
-          cell.setAttribute('aria-label', `${r + 1} 行 ${c + 1} 列，${v ? (v === 'B' ? '黑子' : '白子') : '空格'}${winCells.has(key) ? '，勝利連線' : ''}${lastMove === key ? '，最新落子' : ''}`);
-          if (winCells.has(key)) cell.classList.add('win');
-          if (lastMove === key) cell.classList.add('last');
-          gridEl.appendChild(cell);
-        }
-      }
+// ---------------------------------------------------------------- picking
+const ray=new THREE.Raycaster(),NDC=new THREE.Vector2(),PLANE=new THREE.Plane(new THREE.Vector3(0,0,1),0);
+function pick(clientX,clientY){
+ if(!B)return null;
+ const W=stage.size.width,H=stage.size.height,inInset=L.inset&&clientX>=L.inset.x&&clientX<=L.inset.x+L.inset.w&&clientY>=L.inset.y&&clientY<=L.inset.y+L.inset.h;
+ if(inInset)return null;
+ NDC.set(clientX/W*2-1,-(clientY/H)*2+1);ray.setFromCamera(NDC,camera);
+ if(L.swap&&B.ring){
+  ray.layers.set(1);const hit=ray.intersectObject(B.ring.surf,false)[0];if(!hit)return null;
+  const cr=B.ring.inverse(B.ring.surf.worldToLocal(hit.point.clone()));if(!cr)return null;return{col:cr[0],dir:cr[1]<B.rows/2?0:1};
+ }
+ const p=new THREE.Vector3();if(!ray.ray.intersectPlane(PLANE,p))return null;
+ const dc=Math.floor(p.x+B.cols/2),off=Math.round(B.offset);
+ if(p.y<-B.rows/2-B.gy-.7||p.y>B.rows/2+B.gy+.7)return null;
+ if(!B.wC&&(dc<0||dc>=B.cols))return null;
+ if(B.wC&&(p.x<-B.cols/2-B.gx-.2||p.x>B.cols/2+B.gx+.2))return null;
+ return{col:mod(dc-off,B.cols),dir:p.y>=0?0:1};
+}
 
-      if (over) {
-        if (winCells.size > 0) {
-        statusEl.textContent = `${playerEl.textContent} 連成四子！`;
-      } else {
-        statusEl.textContent = '平手，棋盤已滿。';
-      }
-    } else {
-      statusEl.textContent = `輪到 ${playerEl.textContent}`;
-    }
-    }
+// ---------------------------------------------------------------- game flow
+const canHumanAct=()=>S.phase==='play'&&S.state&&!S.state.over&&!S.busy&&(S.kind==='local'||S.state.toMove===S.human);
+function effectiveDir(){const o=S.state.opts;if(o.gravity==='dual')return S.dir;const ms=E.legalMoves(S.state);const m=ms.find(m=>E.decode(o,m).col===S.sel);return m!=null?E.decode(o,m).dir:(o.gravity==='tide'?E.tideDir(o,S.state.ply):0);}
+function presetRules(id){const p=PRESETS.find(p=>p.id===id);return p?{...p.rules}:{...store.get('custom',{})};}
+function ruleSummary(o){const w={torus:'環面',cylinder:'圓筒',flat:'平面'}[o.wrap],g={down:'',tide:' · 潮汐',dual:' · 雙向'}[o.gravity];return`${w} · ${o.rows}×${o.cols} · 連${'零一二三四五六'[o.connect]}${g}${o.mode==='tally'?' · 計分':''}${o.rocks?` · 礁${o.rocks}`:''}`;}
+function oppLabel(){return S.kind==='local'?'玩家二':S.kind==='puzzle'?'守方・環宇':E.TIERS[S.tier].name;}
+function newGame(rules,opts={}){
+ S.kind=opts.kind||'ai';S.puzzle=opts.puzzle||null;S.assisted=false;S.myMoves=0;S.hint=-1;S.busy=false;S.result=null;
+ if(S.kind==='puzzle'){S.state=E.replay(S.puzzle.rules,S.puzzle.moves);S.human=S.state.toMove;S.tier=4;}
+ else{
+  S.tier=opts.tier??S.tier;
+  S.state=E.create({...rules,seed:(Math.random()*1e6|0)+1});
+  const f=store.get('first');S.matchNo++;
+  S.human=S.kind==='local'?1:f==='first'?1:f==='second'?2:(S.matchNo%2?1:2);
+ }
+ S.sel=Math.floor(S.state.opts.cols/2);S.dir=0;S.phase='play';
+ buildBoard();B.offsetTarget=B.offset=0;
+ $('ruleLabel').textContent=ruleSummary(S.state.opts);
+ $('btnUp').hidden=S.state.opts.gravity!=='dual';
+ $('ptsA').hidden=$('ptsB').hidden=S.state.opts.mode!=='tally';
+ hideCurtain();updateHud();maybeAI();
+ $('board').focus({preventScroll:true});
+}
+// seat A = human (seal), seat B = AI (azure); local: A = player 1, B = player 2
+function seatOf(p){return S.kind==='local'?(p===1?'A':'B'):(p===S.human?'A':'B');}
+function updateHud(){
+ const s=S.state;if(!s)return;
+ const meP=S.kind==='local'?1:S.human,opP=3-meP;
+ $('nameA').textContent=S.kind==='local'?'玩家一':'你';$('nameB').textContent=oppLabel();
+ $('tagA').textContent=S.kind==='puzzle'?`${S.puzzle.k - S.myMoves} 手內取勝`:(meP===1?'先手':'後手');$('tagB').textContent=opP===1?'先手':'後手';
+ $('ptsA').textContent=s.scores[meP];$('ptsB').textContent=s.scores[opP];
+ $('seatA').classList.toggle('on',!s.over&&s.toMove===meP);$('seatB').classList.toggle('on',!s.over&&s.toMove===opP);
+ let t;
+ if(s.over)t=s.winner?`${seatOf(s.winner)==='A'?$('nameA').textContent:$('nameB').textContent} 連成！`:'和局';
+ else if(S.busy&&S.kind!=='local')t='<span class="think"></span>對手思考';
+ else if(S.kind==='local')t=`輪到${s.toMove===1?'玩家一':'玩家二'}`;
+ else t=s.toMove===S.human?'輪到你':'對手回合';
+ $('turnText').innerHTML=t;
+ const left=s.opts.gravity==='tide'?s.opts.tideEvery-(s.ply%s.opts.tideEvery):0;
+ $('plyText').textContent=`第 ${s.ply} 手`+(s.opts.gravity==='tide'&&!s.over?` · ${E.tideDir(s.opts,s.ply)?'▲':'▼'} ${left} 手後反轉`:'');
+ $('btnUndo').disabled=S.kind==='puzzle'?S.myMoves===0||s.over:s.history.length===0||s.over||S.busy;
+ $('btnHint').disabled=!canHumanAct();
+ for(const id of ['btnDrop','btnUp','btnLeft','btnRight'])$(id).disabled=!canHumanAct();
+ $('btnDrop').firstChild.textContent=s.opts.gravity==='tide'&&E.tideDir(s.opts,s.ply)?'▲':'▼';
+ updateCareerChip();
+}
+function updateCareerChip(){const lv=C.levelOf(profile.xp);$('lvNum').textContent='Lv '+lv.level;$('lvRank').textContent=C.rankOf(lv.level);$('lvMeter').style.setProperty('--value',lv.max?1:(lv.into/lv.need).toFixed(3));}
+function humanMove(col,dir){
+ if(!canHumanAct())return false;
+ const o=S.state.opts,ms=E.legalMoves(S.state);
+ let m=o.gravity==='dual'?E.encode(o,col,dir):ms.find(x=>E.decode(o,x).col===col);
+ if(m==null||!ms.includes(m)){Fu.toast('這一欄已經滿了',{tone:'warn',ms:1400});return false;}
+ S.sel=col;
+ if(S.kind!=='local')S.myMoves++;
+ applyMove(m);maybeAI();return true;
+}
+function applyMove(m){
+ const prev=S.state,o=prev.opts,{dir}=E.decode(o,m);
+ S.state=E.play(prev,m);S.hint=-1;
+ const idx=S.state.last;
+ const now=performance.now()/1000,fast=Fu.reducedMotion();
+ if(B&&S.state.moved&&S.state.moved.length){
+  // tide: the new stone lands, then every stone slides; animate from the pre-slide rows
+  const from=new Map();for(const [f,to] of S.state.moved)from.set(to,((to/o.cols|0)-(f/o.cols|0)));
+  B.anim=null;B.slide={from,t0:now+(fast?0:.15),dur:fast?.01:.55};
+  Fu.toast(S.state.tideWins.length?'潮汐成線！':(E.tideDir(o,S.state.ply)?'潮汐反轉：全盤棋子滑向上方':'潮汐反轉：全盤棋子落回下方'),{tone:S.state.tideWins.length?'warn':'info',ms:1800});
+ }else if(B){const [,y]=cellXY(idx,0);const from=dir?-B.rows/2-B.gy-.5:B.rows/2+B.gy+.5;B.anim={idx,dy:from-y,t0:now,dur:fast?.01:Math.min(.42,.12+Math.abs(from-y)*.045)};}
+ const gained=S.state.scores[prev.toMove]-prev.scores[prev.toMove];
+ if(gained>0&&o.mode==='tally'&&B){B.winT=performance.now()/1000+1.2;Fu.toast(`${seatOf(prev.toMove)==='A'?$('nameA').textContent:$('nameB').textContent} 連線 +${gained}`,{tone:seatOf(prev.toMove)==='A'?'seal':'info',ms:1500});}
+ updateHud();
+ if(S.state.over)setTimeout(finishMatch,900);
+ else if(S.kind==='puzzle'&&prev.toMove===S.human&&S.myMoves>=S.puzzle.k)setTimeout(finishMatch,700);
+}
+function maybeAI(){
+ const s=S.state;if(S.kind==='local'||S.phase!=='play'||s.over||s.toMove===S.human)return;
+ if(S.kind==='puzzle'&&S.myMoves>=S.puzzle.k)return;
+ S.busy=true;updateHud();
+ setTimeout(()=>{
+  if(S.state!==s||S.phase!=='play'){return;}
+  const m=E.choose(s,{tier:S.tier,rng:E.seeded((Math.random()*2**31)|0)});
+  S.busy=false;if(m>=0)applyMove(m);updateHud();
+ },380);
+}
+function wrapWin(s){const o=s.opts,cs=s.line.map(c=>c%o.cols),rs=s.line.map(c=>c/o.cols|0);return(E.WRAPS[o.wrap][1]&&cs.includes(0)&&cs.includes(o.cols-1))||(E.WRAPS[o.wrap][0]&&rs.includes(0)&&rs.includes(o.rows-1));}
+function finishMatch(){
+ if(S.phase!=='play')return;
+ const s=S.state;S.phase='over';S.busy=false;
+ let res;
+ if(S.kind==='puzzle'){
+  const won=s.over&&s.winner===S.human;
+  res=won?C.solve(profile,S.puzzle):null;
+  S.result={kind:'puzzle',won,res};
+ }else if(S.kind==='local'){
+  res=C.record(profile,{local:true});S.result={kind:'local',winner:s.winner,res};
+ }else{
+  const outcome=s.winner===0?'draw':s.winner===S.human?'win':'loss';
+  res=C.record(profile,{outcome,tier:S.tier,rules:s.opts,myMoves:S.myMoves,assisted:S.assisted,wrapWin:s.winner===S.human&&wrapWin(s),mode:s.opts.mode,points:s.scores[S.human]});
+  S.result={kind:'ai',outcome,res};
+ }
+ if(res){profile=res.profile;C.save(storage,profile);}
+ updateHud();showCurtain('result');renderCareer();
+}
+function undo(){
+ if(S.busy||S.phase!=='play')return;
+ const s=S.state;
+ if(S.kind==='puzzle'){if(!S.myMoves)return;const n=s.toMove===S.human?2:1;S.state=E.undo(s,n);S.myMoves--;}
+ else if(S.kind==='local'){if(!s.history.length)return;S.state=E.undo(s,1);}
+ else{if(!s.history.length)return;let n=s.toMove===S.human?2:1;n=Math.min(n,s.history.length);S.state=E.undo(s,n);if(S.state.toMove!==S.human&&S.state.history.length===0){/* AI opened */}S.myMoves=Math.max(0,S.myMoves-1);}
+ S.assisted=true;S.hint=-1;if(B){B.anim=null;B.slide=null;}updateHud();maybeAI();
+}
+function hint(){
+ if(!canHumanAct())return;
+ S.assisted=true;
+ let m=-1;if(S.kind==='puzzle')m=E.forcedWin(S.state,S.puzzle.k-S.myMoves);
+ if(m<0)m=E.choose(S.state,{tier:3,rng:E.seeded(7)});
+ S.hint=m;const d=E.decode(S.state.opts,m);S.sel=d.col;S.dir=d.dir;
+ Fu.toast(`提示：第 ${d.col+1} 欄${S.state.opts.gravity==='dual'?(d.dir?'・從下推':'・從上落'):''}`,{tone:'ok',ms:1600});updateHud();
+}
+function moveSel(d){if(S.state)S.sel=mod(S.sel+d,S.state.opts.cols);}
 
-    newBtn.addEventListener('click', reset);
-    reset();
+// ---------------------------------------------------------------- curtains
+const curtain=$('curtain'),cBody=$('curtainBody');
+function hideCurtain(){curtain.hidden=true;}
+function tilesHTML(list,sel,attr){return list.map(x=>`<button class="tile" ${attr}="${x.id}" aria-pressed="${x.id===sel}" ${x.locked?'disabled':''}><b>${x.name}</b><small>${x.note}</small>${x.locked?`<span class="lock">Lv ${x.locked}</span>`:''}</button>`).join('');}
+function careerLine(){const lv=C.levelOf(profile.xp);return`<div class="career-line"><div class="lv"><small>LEVEL</small>${lv.level}</div><div class="grow"><div class="who"><b>${C.rankOf(lv.level)}</b><span>${lv.max?'MAX':`${lv.into} / ${lv.need} XP`}</span></div><div class="fu-meter fu-meter--gold" style="--value:${lv.max?1:(lv.into/lv.need).toFixed(3)}"><i></i></div></div></div>`;}
+function oppTiles(){const lv=level();return OPP.map(x=>({...x,locked:x.tier>=0&&!C.unlocked(lv,'tier',x.tier)?C.unlockLevel('tier',x.tier):0}));}
+function presetTiles(){const lv=level();return PRESETS.map(p=>{const need=C.ruleNeeds(p.rules).map(id=>C.unlockLevel('rule',id)),l=Math.max(0,...need);return{...p,locked:l>lv?l:0};});}
+function presetList(){const c=store.get('custom');return presetTiles().concat(c&&Object.keys(c).length?[{id:'custom',name:'自訂',note:ruleSummary(E.normalize(c)),locked:0}]:[]);}
+function currentOppId(){return store.get('opp')==='local'?'local':'t'+store.get('tier');}
+function showCurtain(mode){
+ curtain.dataset.mode=mode;curtain.hidden=false;
+ if(mode==='lobby'){
+  S.phase=S.phase==='play'?'play':'lobby';
+  let pid=store.get('preset');if(!presetList().find(p=>p.id===pid&&!p.locked))pid='torus';
+  let oid=currentOppId();if(oppTiles().find(o=>o.id===oid&&o.locked))oid='t1';
+  cBody.innerHTML=`<div class="lobby-head"><span class="fu-seal fu-seal--lg fu-stamp" aria-hidden="true">福遊</span><div><p class="fu-label">FuGames / Torus Connect</p><h2 class="fu-display lobby-title">環面直落四子</h2></div></div>
+  <p class="curtain-lead">棋盤左右相接、上下也相接，像包在甜甜圈上：連線可以穿過接縫。</p>
+  ${careerLine()}
+  <div class="pick"><h3>對手 <span>等級解鎖更強的 AI</span></h3><div class="tiles tiles--opp" id="oppTiles">${tilesHTML(oppTiles(),oid,'data-opp')}</div></div>
+  <div class="pick"><h3>規則 <span>自訂規則在設定抽屜</span></h3><div class="tiles tiles--rules" id="presetTiles">${tilesHTML(presetList(),pid,'data-preset')}</div><p class="pick-note" id="presetNote"></p></div>
+  <div class="fu-curtain__actions"><button class="fu-btn fu-btn--seal fu-btn--lg" id="goPlay">開始對局</button><button class="fu-btn fu-btn--lg" data-fu-open="career">殘局</button><button class="fu-btn fu-btn--lg" data-fu-open="rules">規則</button></div>`;
+  cBody.querySelectorAll('[data-opp]').forEach(b=>b.onclick=()=>{cBody.querySelectorAll('[data-opp]').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));const o=OPP.find(o=>o.id===b.dataset.opp);store.set('opp',o.tier<0?'local':'ai');if(o.tier>=0)store.set('tier',o.tier);});
+  const note=id=>{const p=presetList().find(p=>p.id===id);$('presetNote').textContent=p?`${p.name}：${p.note}`:'';};
+  cBody.querySelectorAll('[data-preset]').forEach(b=>b.onclick=()=>{cBody.querySelectorAll('[data-preset]').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));store.set('preset',b.dataset.preset);note(b.dataset.preset);});
+  store.set('preset',pid);note(pid);
+  $('goPlay').onclick=startFromLobby;
+  setTimeout(()=>$('goPlay').focus({preventScroll:true}),40);
+ }else if(mode==='pause'){
+  cBody.innerHTML=`<p class="fu-label">暫停</p><h2 class="fu-title">${ruleSummary(S.state.opts)}</h2><p class="fu-dim">對手：${oppLabel()} · 第 ${S.state.ply} 手</p>${careerLine()}
+  <div class="fu-curtain__actions"><button class="fu-btn fu-btn--seal fu-btn--lg" id="goResume">繼續</button><button class="fu-btn fu-btn--lg" id="goRestart">重新開局</button><button class="fu-btn fu-btn--lg" id="goLobby">回大廳</button></div>`;
+  $('goResume').onclick=()=>{hideCurtain();$('board').focus();};$('goRestart').onclick=restart;$('goLobby').onclick=()=>{S.phase='lobby';showCurtain('lobby');};
+  setTimeout(()=>$('goResume').focus({preventScroll:true}),40);
+ }else if(mode==='result'){
+  const r=S.result,res=r.res;let title,cls='',sub='';
+  if(r.kind==='puzzle'){title=r.won?'解開':'未解';cls=r.won?'win':'';sub=r.won?`殘局「${S.puzzle.title}」`:`需在 ${S.puzzle.k} 手內連成`;}
+  else if(r.kind==='local'){title=r.winner?(r.winner===1?'玩家一勝':'玩家二勝'):'和局';cls=r.winner?'win':'';}
+  else{title={win:'勝',loss:'負',draw:'和'}[r.outcome];cls=r.outcome==='win'?'win':'';sub=`${ruleSummary(S.state.opts)} · 對手 ${oppLabel()}`;}
+  const xp=res?`<dl class="xp">${res.gain.lines.map(([k,v])=>`<dt>${k}</dt><dd>+${v}</dd>`).join('')}${res.gain.mult!==1?`<dt>倍率（對手 × 規則）</dt><dd>× ${res.gain.mult}</dd>`:''}<dt class="total">經驗</dt><dd class="total">+${res.gain.total}</dd></dl>`:'';
+  const up=res&&res.after.level>res.before.level?`<div class="unlock-note"><b>升到 Lv ${res.after.level}・${C.rankOf(res.after.level)}</b>${res.unlocked.length?'　解鎖：'+res.unlocked.map(u=>u.label).join('、'):''}</div>`:'';
+  const next=S.kind==='puzzle'?nextPuzzle():null;
+  cBody.innerHTML=`<p class="fu-label">${r.kind==='puzzle'?'殘局':'對局結束'} · 第 ${S.state.ply} 手</p><h2 class="fu-display verdict ${cls}">${title}</h2><p class="fu-dim">${sub}</p>${xp}${up}${careerLine()}
+  <div class="fu-curtain__actions">${S.kind==='puzzle'?`${next&&r.won?'<button class="fu-btn fu-btn--seal fu-btn--lg" id="goNext">下一題</button>':''}<button class="fu-btn ${r.won&&next?'':'fu-btn--seal '}fu-btn--lg" id="goRestart">${r.won?'再解一次':'重試'}</button>`:'<button class="fu-btn fu-btn--seal fu-btn--lg" id="goRestart">再來一局</button>'}<button class="fu-btn fu-btn--lg" id="goView">看盤面</button><button class="fu-btn fu-btn--lg" id="goLobby">回大廳</button></div>`;
+  $('goRestart').onclick=restart;$('goLobby').onclick=()=>showCurtain('lobby');$('goView').onclick=()=>{hideCurtain();Fu.toast('按「選單」回到結算',{tone:'info'});};
+  if($('goNext'))$('goNext').onclick=()=>startPuzzle(next);
+  setTimeout(()=>($('goNext')||$('goRestart')).focus({preventScroll:true}),40);
+ }
+}
+function startFromLobby(){
+ const opp=store.get('opp'),tier=store.get('tier'),pid=store.get('preset');
+ const rules=presetRules(pid);
+ if(!C.rulesAllowed(level(),rules)){Fu.toast('這組規則尚未解鎖',{tone:'warn'});return;}
+ newGame(rules,{kind:opp==='local'?'local':'ai',tier:Math.min(tier,maxTier())});
+}
+const maxTier=()=>Math.max(...E.TIERS.filter(t=>C.unlocked(level(),'tier',t.id)).map(t=>t.id));
+function restart(){if(S.kind==='puzzle')return startPuzzle(S.puzzle);const r={...S.state.opts};delete r.seed;newGame(r,{kind:S.kind,tier:S.tier});}
+function nextPuzzle(){const i=PUZ.indexOf(S.puzzle),n=PUZ[i+1];return n&&C.unlocked(level(),'chapter',n.chapter)?n:null;}
+function startPuzzle(p){Fu.close('career');newGame(null,{kind:'puzzle',puzzle:p});Fu.toast(`殘局「${p.title}」：${p.k} 手內取勝`,{tone:'info',ms:2200});}
 
-  </script>
+// ---------------------------------------------------------------- drawers: career, puzzles, custom rules
+function renderCareer(){
+ const lv=level();
+ const chapters=[1,2,3].map(ch=>{const open=C.unlocked(lv,'chapter',ch);return`<h3 style="margin-top:4px">第${'一二三'[ch-1]}章 ${open?'':`<span class="fu-dim">Lv ${C.unlockLevel('chapter',ch)} 解鎖</span>`}</h3><div class="puz">${PUZ.filter(p=>p.chapter===ch).map(p=>`<button class="tile" data-puz="${p.id}" ${open?'':'disabled'}><b>${p.title}</b><small>${ruleSummary(E.normalize(p.rules))}<br>${p.k} 手內取勝 · +${C.puzzleXP(p)} XP</small>${profile.solved.includes(p.id)?'<span class="ok">✓ 已解</span>':''}</button>`).join('')}</div>`;}).join('');
+ $('puzzleList').innerHTML=chapters;
+ $('puzzleList').querySelectorAll('[data-puz]').forEach(b=>b.onclick=()=>startPuzzle(PUZ.find(p=>p.id===b.dataset.puz)));
+ const p=profile;
+ $('statGrid').innerHTML=[['對局',p.matches],['勝',p.wins],['負',p.losses],['和',p.draws],['最長連勝',p.bestStreak],['殘局',`${p.solved.length}/${PUZ.length}`],['最強擊敗',p.bestTier>=0?E.TIERS[p.bestTier].name:'—'],['經驗',p.xp]].map(([k,v])=>`<div><b>${v}</b><span>${k}</span></div>`).join('');
+ $('unlockList').innerHTML=C.UNLOCKS.filter(u=>u.level>1).map(u=>`<li class="${lv>=u.level?'got':''}">${u.label}<span>Lv ${u.level}</span></li>`).join('');
+ // custom rule controls
+ const need=id=>C.unlocked(lv,'rule',id);
+ document.querySelectorAll('#settingsForm [data-need]').forEach(el=>{el.disabled=!need(el.dataset.need);});
+ $('customLock').textContent=need('size')?'':`盤面尺寸 Lv ${C.unlockLevel('rule','size')}`;
+ updateCareerChip();
+}
+function fillCustom(){
+ const c=E.normalize(store.get('custom',{}));
+ const opt=(el,from,to,v)=>{el.innerHTML='';for(let i=from;i<=to;i++)el.add(new Option(String(i),String(i),false,i===v));};
+ opt($('cRows'),4,10,c.rows);opt($('cCols'),4,11,c.cols);opt($('cConnect'),3,6,c.connect);
+ $('cWrap').value=c.wrap;$('cGravity').value=c.gravity;$('cMode').value=c.mode;$('cRocks').value=String([0,3,5,8].includes(c.rocks)?c.rocks:0);
+}
+$('applyCustom').onclick=()=>{
+ const rules={rows:+$('cRows').value,cols:+$('cCols').value,connect:+$('cConnect').value,wrap:$('cWrap').value,gravity:$('cGravity').value,mode:$('cMode').value,rocks:+$('cRocks').value};
+ if(rules.connect>Math.max(rules.rows,rules.cols)){Fu.toast('連線數不能超過盤面邊長',{tone:'warn'});return;}
+ if(!C.rulesAllowed(level(),rules)){Fu.toast('部分選項尚未解鎖',{tone:'warn'});return;}
+ store.set('custom',rules);store.set('preset','custom');Fu.close('settings');
+ const kind=store.get('opp')==='local'?'local':'ai';newGame(rules,{kind,tier:Math.min(store.get('tier'),maxTier())});
+};
+$('resetCareer').onclick=()=>{if(!confirm('清除所有等級、戰績與殘局紀錄？'))return;profile=C.blank();C.save(storage,profile);renderCareer();if(!curtain.hidden&&curtain.dataset.mode==='lobby')showCurtain('lobby');};
+
+// ---------------------------------------------------------------- input
+const canvas=$('board');let drag=null;
+canvas.addEventListener('pointerdown',e=>{drag={x:e.clientX,y:e.clientY,moved:false,off:B?B.offsetTarget:0,spin:B&&B.ring?B.ring.spin:0,id:e.pointerId};});
+canvas.addEventListener('pointermove',e=>{
+ if(!B)return;
+ const W=stage.size.width,H=stage.size.height;parallax.tx=(e.clientX/W-.5);parallax.ty=(e.clientY/H-.5);
+ if(drag&&drag.id===e.pointerId){
+  const dx=e.clientX-drag.x;if(Math.abs(dx)>10||Math.abs(e.clientY-drag.y)>10)drag.moved=true;
+  if(drag.moved){
+   if(L.swap&&B.ring){B.ring.dragging=true;B.ring.spin=drag.spin+dx*.01;}
+   else if(B.wC){const cellPx=L.main.w/(B.cols+2*B.gx+.9);B.offsetTarget=B.offset=drag.off+dx/cellPx;canvas.classList.add('is-drag');}
+  }
+  if(drag.moved)return;
+ }
+ if(e.pointerType==='mouse'&&canHumanAct()){const p=pick(e.clientX,e.clientY);if(p){S.sel=p.col;if(S.state.opts.gravity==='dual')S.dir=p.dir;}}
+});
+const endDrag=e=>{
+ if(!drag||drag.id!==e.pointerId)return;
+ const d=drag;drag=null;canvas.classList.remove('is-drag');if(B&&B.ring)B.ring.dragging=false;
+ if(d.moved){if(B)B.offsetTarget=Math.round(B.offsetTarget);return;}
+ if(e.type!=='pointerup')return;
+ const p=pick(e.clientX,e.clientY);if(!p)return;
+ if(!canHumanAct())return;
+ humanMove(p.col,S.state.opts.gravity==='dual'?p.dir:0);
+};
+canvas.addEventListener('pointerup',endDrag);canvas.addEventListener('pointercancel',endDrag);
+canvas.addEventListener('pointerleave',()=>{parallax.tx=parallax.ty=0;});
+$('inset').onclick=()=>{L.swap=!L.swap;fit();};
+$('btnLeft').onclick=()=>moveSel(-1);$('btnRight').onclick=()=>moveSel(1);
+$('btnDrop').onclick=()=>humanMove(S.sel,0);$('btnUp').onclick=()=>humanMove(S.sel,1);
+$('btnHint').onclick=hint;$('btnUndo').onclick=undo;
+$('btnMenu').onclick=()=>{if(S.phase==='over')showCurtain('result');else if(S.phase==='play')showCurtain('pause');else showCurtain('lobby');};
+const playing=()=>curtain.hidden&&!Fu.isOpen('settings')&&!Fu.isOpen('rules')&&!Fu.isOpen('career');
+const onBoard=()=>playing()&&(document.activeElement===canvas||document.activeElement===document.body);
+Fu.hotkey('arrowleft','左一欄',()=>moveSel(-1),{when:playing});
+Fu.hotkey('arrowright','右一欄',()=>moveSel(1),{when:playing});
+Fu.hotkey('arrowdown','落子（從上）',()=>humanMove(S.sel,0),{when:playing});
+Fu.hotkey('arrowup','從下推上（雙向）',()=>{if(S.state&&S.state.opts.gravity==='dual')humanMove(S.sel,1);},{when:playing});
+Fu.hotkey('enter','落子',()=>humanMove(S.sel,S.state&&S.state.opts.gravity==='dual'?S.dir:0),{when:onBoard});
+Fu.hotkey(' ','落子',()=>humanMove(S.sel,S.state&&S.state.opts.gravity==='dual'?S.dir:0),{when:onBoard,hidden:true});
+for(let i=1;i<=9;i++)Fu.hotkey(String(i),'',()=>{if(S.state&&i<=S.state.opts.cols)S.sel=i-1;},{when:playing,hidden:true});
+Fu.hotkey('q','捲動棋盤 ←',()=>{if(B&&B.wC)B.offsetTarget-=1;},{when:playing});
+Fu.hotkey('e','捲動棋盤 →',()=>{if(B&&B.wC)B.offsetTarget+=1;},{when:playing});
+Fu.hotkey('t','切換環面／棋盤主視圖',()=>{if(B&&B.ring){L.swap=!L.swap;fit();}},{when:playing});
+Fu.hotkey('h','提示',hint,{when:playing});
+Fu.hotkey('u','悔棋',undo,{when:playing});
+Fu.hotkey('p','選單／暫停',()=>$('btnMenu').click(),{when:()=>curtain.hidden});
+Fu.hotkey('s','設定',()=>Fu.toggle('settings'));
+Fu.hotkey('c','生涯與殘局',()=>Fu.toggle('career'));
+Fu.hotkey('?','規則',()=>Fu.toggle('rules'));
+$('hotkeys').innerHTML=Fu.hotkeyList().map(h=>`<span class="fu-kbd">${{arrowleft:'←',arrowright:'→',arrowdown:'↓',arrowup:'↑',enter:'Enter'}[h.key]||h.key.toUpperCase()}</span><span>${h.label}</span>`).join('')+'<span class="fu-kbd">1–9</span><span>選欄</span>';
+Fu.bindSettings('settingsForm',store,name=>{if(name==='inset')fit();});
+document.addEventListener('fu:close',()=>requestAnimationFrame(fit));
+
+// ---------------------------------------------------------------- local agent interface (same rules engine, no UI needed)
+window.TorusAPI=Object.freeze({
+ rules:()=>S.state&&S.state.opts,
+ state:()=>S.state&&{board:S.state.board.slice(),rows:S.state.opts.rows,cols:S.state.opts.cols,toMove:S.state.toMove,human:S.human,ply:S.state.ply,over:S.state.over,winner:S.state.winner,scores:S.state.scores.slice(),legal:E.legalMoves(S.state).map(m=>E.decode(S.state.opts,m)),history:S.state.history.slice(),kind:S.kind,phase:S.phase},
+ play:(col,dir=0)=>humanMove(col,dir),
+ newGame:(rules={},opp={kind:'ai',tier:1})=>newGame(rules,opp),
+ puzzle:id=>startPuzzle(PUZ.find(p=>p.id===id)),
+ waitIdle:()=>new Promise(r=>{const t=()=>(!S.busy?r(true):setTimeout(t,50));t();})
+});
+
+// ---------------------------------------------------------------- boot: a quiet demo board behind the lobby
+S.state=E.create({});S.phase='lobby';buildBoard();
+fillCustom();renderCareer();updateHud();showCurtain('lobby');
+</script>
 </body>
 </html>
