@@ -1,0 +1,221 @@
+/* FuGames 入口網站（index.html、archive.html），建立在 shared/fu.css 之上。 */
+
+.portal { --accent: var(--fu-seal); }
+
+/* 3D 背景舞台上的遮罩：讓左側文字永遠可讀 */
+.portal-veil {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background:
+    linear-gradient(90deg, rgba(7, 9, 12, .96) 0%, rgba(7, 9, 12, .82) 30%, rgba(7, 9, 12, .1) 58%, transparent 70%),
+    linear-gradient(0deg, rgba(7, 9, 12, .9) 0%, transparent 22%);
+}
+
+.portal-nav { gap: var(--fu-space-5); }
+.portal-nav .fu-topbar__title { justify-content: flex-start; }
+.portal-nav a.fu-label { text-decoration: none; transition: color var(--fu-dur-1) var(--fu-ease); }
+.portal-nav a.fu-label:hover { color: var(--fu-text); }
+
+/* 左欄：標題 + 遊戲索引 */
+.portal-main {
+  position: relative;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  width: min(600px, 50vw);
+  height: 100vh;
+  height: 100dvh;
+  padding: calc(var(--fu-topbar-h) + 2vh) 0 var(--fu-space-4) var(--fu-gutter);
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+.portal-main::-webkit-scrollbar { display: none; }
+
+.portal-hero { padding-bottom: clamp(16px, 3vh, 32px); }
+.portal-hero .fu-label { margin-bottom: 14px; }
+.portal-hero h1 {
+  font-family: var(--fu-font-display);
+  font-weight: 900;
+  font-size: clamp(40px, 5.4vw, 76px);
+  line-height: 1.02;
+  letter-spacing: -.02em;
+  margin: 0 0 14px;
+}
+.portal-hero h1 em { font-style: normal; color: var(--fu-seal); }
+.portal-hero p.lead { margin: 0; max-width: 34em; color: var(--fu-text-dim); }
+
+.portal-index-head {
+  display: flex;
+  justify-content: space-between;
+  padding: 0 var(--fu-space-4) 8px 0;
+  border-bottom: 1px solid var(--fu-line-strong);
+}
+
+/* 遊戲索引列（每列是一個 article.game-card，整列就是開始遊玩的連結） */
+.game-list { list-style: none; margin: 0; padding: 0; counter-reset: game; }
+.game-card { position: relative; border-bottom: 1px solid var(--fu-line); }
+.game-link {
+  position: relative;
+  display: grid;
+  grid-template-columns: 34px 40px 1fr auto;
+  align-items: center;
+  gap: 14px;
+  min-height: 62px;
+  padding: 8px var(--fu-space-4) 8px 0;
+  color: var(--fu-text);
+  text-decoration: none;
+  outline: none;
+}
+.game-link::before {
+  /* 選取時從左側刷入的墨條 */
+  content: "";
+  position: absolute;
+  inset: 0 0 0 -12px;
+  z-index: -1;
+  background: linear-gradient(90deg, color-mix(in srgb, var(--accent) 22%, transparent), transparent 85%);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform var(--fu-dur-3) var(--fu-ease);
+}
+.game-link::after {
+  content: "";
+  position: absolute;
+  left: -12px;
+  top: 10px;
+  bottom: 10px;
+  width: 3px;
+  background: var(--accent);
+  transform: scaleY(0);
+  transition: transform var(--fu-dur-2) var(--fu-ease);
+}
+.game-no { font: 600 11px/1 var(--fu-font-mono); letter-spacing: .12em; color: var(--fu-mute); transition: color var(--fu-dur-1); }
+.game-icon {
+  width: 40px;
+  height: 40px;
+  padding: 7px;
+  color: var(--fu-text-dim);
+  fill: none;
+  border: 1px solid var(--fu-line);
+  transition: color var(--fu-dur-1), border-color var(--fu-dur-1), background var(--fu-dur-1);
+}
+.game-copy { display: flex; flex-direction: column; min-width: 0; }
+.game-name {
+  font-family: var(--fu-font-display);
+  font-weight: 800;
+  font-size: clamp(19px, 1.7vw, 24px);
+  line-height: 1.15;
+  letter-spacing: -.01em;
+  transition: transform var(--fu-dur-2) var(--fu-ease);
+}
+.game-kind { font: 600 10.5px/1.5 var(--fu-font-mono); letter-spacing: .12em; text-transform: uppercase; color: var(--fu-text-dim); }
+.game-blurb { display: none; margin-top: 4px; font-size: 13px; color: var(--fu-text-dim); }
+.game-go {
+  width: 22px;
+  height: 22px;
+  color: var(--accent);
+  opacity: 0;
+  transform: translateX(-8px);
+  transition: opacity var(--fu-dur-2) var(--fu-ease), transform var(--fu-dur-2) var(--fu-ease);
+}
+
+.game-card.is-active .game-link::before,
+.game-link:focus-visible::before { transform: none; }
+.game-card.is-active .game-link::after,
+.game-link:focus-visible::after { transform: none; }
+.game-card.is-active .game-no { color: var(--accent); }
+.game-card.is-active .game-icon { color: var(--fu-ink-0); background: var(--accent); border-color: var(--accent); }
+.game-card.is-active .game-name { transform: translateX(4px); }
+.game-card.is-active .game-go { opacity: 1; transform: none; }
+
+/* 右下：選取遊戲的說明面板 */
+.portal-detail {
+  position: fixed;
+  z-index: 6;
+  right: var(--fu-gutter);
+  bottom: calc(var(--fu-gutter) + 28px);
+  width: min(400px, 34vw);
+  --fu-corner: var(--accent);
+  padding: var(--fu-space-5);
+}
+.portal-detail .fu-panel__head .fu-label:first-child b { color: var(--accent); }
+.portal-detail h2 { font-family: var(--fu-font-display); font-weight: 900; font-size: 34px; line-height: 1.05; margin: 0 0 4px; }
+.portal-detail .detail-en { font: 600 11px/1.4 var(--fu-font-mono); letter-spacing: .16em; text-transform: uppercase; color: var(--accent); margin: 0 0 14px; }
+.portal-detail .detail-blurb { margin: 0 0 16px; color: var(--fu-text); font-size: 14px; }
+.portal-detail .detail-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 18px; }
+.portal-detail .detail-tags .fu-chip { --chip: var(--accent); }
+.portal-detail .fu-btn--seal { background: var(--accent); border-color: var(--accent); }
+.portal-detail .fu-btn--seal:hover { background: var(--fu-text); border-color: var(--fu-text); }
+.portal-detail.is-swapping .detail-swap { animation: fu-rise var(--fu-dur-2) var(--fu-ease) both; }
+
+/* 右上：大號序號（裝飾） */
+.portal-numeral {
+  position: fixed;
+  z-index: 2;
+  right: var(--fu-gutter);
+  top: calc(var(--fu-topbar-h) + 4px);
+  font: 800 clamp(80px, 13vw, 200px)/.8 var(--fu-font-mono);
+  letter-spacing: -.06em;
+  color: transparent;
+  -webkit-text-stroke: 1px var(--fu-line-strong);
+  pointer-events: none;
+  user-select: none;
+}
+
+.portal-foot {
+  margin-top: auto;
+  padding-top: var(--fu-space-5);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--fu-space-3) var(--fu-space-5);
+}
+.portal-foot a.fu-btn { text-decoration: none; }
+
+.portal-status {
+  position: fixed;
+  z-index: 6;
+  right: var(--fu-gutter);
+  bottom: 12px;
+  display: flex;
+  gap: var(--fu-space-4);
+}
+
+/* 手機與窄螢幕：捲動版面，3D 退到背景 */
+@media (max-width: 900px) {
+  .portal-veil { background: linear-gradient(180deg, rgba(7, 9, 12, .35) 0%, rgba(7, 9, 12, .82) 34%, rgba(7, 9, 12, .94) 100%); }
+  .portal-main { width: 100%; height: auto; min-height: 100dvh; overflow: visible; padding: calc(var(--fu-topbar-h) + 28vh) var(--fu-gutter) var(--fu-space-6); }
+  .portal-detail, .portal-numeral, .portal-status { display: none; }
+  .game-blurb { display: block; }
+  .game-link { grid-template-columns: 26px 40px 1fr; min-height: 76px; align-items: start; padding: 14px 0; gap: 12px; }
+  .game-no { padding-top: 12px; }
+  .game-go { display: none; }
+  .game-card.is-active .game-name { transform: none; }
+}
+
+/* ============ 封存頁 ============ */
+.archive-head { padding: var(--fu-space-5) 0 var(--fu-space-6); border-bottom: 1px solid var(--fu-line-strong); margin-bottom: var(--fu-space-5); }
+.archive-head h1 { font-family: var(--fu-font-display); font-weight: 900; font-size: clamp(40px, 6vw, 72px); line-height: 1; margin: 12px 0 14px; }
+.archive-head p { color: var(--fu-text-dim); margin: 0 0 18px; max-width: 40em; }
+.archive-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr)); gap: 1px; background: var(--fu-line); border: 1px solid var(--fu-line); }
+.archive-grid .game-card { border: 0; background: var(--fu-bg); }
+.archive-grid .game-link { grid-template-columns: 40px 1fr auto; padding: 18px 18px; min-height: 100%; align-items: start; }
+.archive-grid .game-link::before { inset: 0; }
+.archive-grid .game-link::after { left: 0; }
+.archive-grid .game-blurb { display: block; }
+.archive-grid .game-name { font-size: 20px; }
+.archive-grid .game-card:hover .game-link::before, .archive-grid .game-link:focus-visible::before { transform: none; }
+.archive-grid .game-card:hover .game-icon { color: var(--fu-text); border-color: var(--fu-line-strong); }
+.archive-grid .game-card:hover .game-go, .archive-grid .game-link:focus-visible .game-go { opacity: 1; transform: none; }
+.archive-glow {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(60% 50% at 85% 0%, rgba(255, 75, 43, .12), transparent 70%),
+    repeating-linear-gradient(0deg, transparent 0 47px, rgba(236, 228, 208, .035) 47px 48px),
+    repeating-linear-gradient(90deg, transparent 0 47px, rgba(236, 228, 208, .035) 47px 48px);
+}
+.archive-foot { margin-top: var(--fu-space-6); display: flex; justify-content: space-between; flex-wrap: wrap; gap: var(--fu-space-3); }
