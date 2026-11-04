@@ -1,54 +1,358 @@
 <!doctype html>
 <html lang="zh-Hant"><head>
-  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="先落子、再八向夾翻、最後判五連。挑戰具有攻守搜尋的本機 AI。"><title>翻轉五子棋 - FuGames</title><link rel="icon" href="favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="fulab-theme.css">
-  <style>
-    .flip-page { max-width:820px; }.flip-settings { display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin-bottom:12px; }.flip-settings select { min-width:130px; }.flip-note { font-size:12px; color:var(--fulab-muted); }
-    .flip-board { display:grid; grid-template-columns:repeat(9,minmax(0,1fr)); gap:2px; background:#d8dee9; border:8px solid #e9edf1; border-radius:12px; width:min(100%,530px); margin:16px auto; touch-action:manipulation; }.flip-cell { appearance:none; display:flex; align-items:center; justify-content:center; position:relative; aspect-ratio:1; min-width:0; border:0; border-radius:2px; padding:0; background:#f8f9fb; cursor:pointer; color:var(--fulab-muted); font:inherit; font-size:9px; }.flip-cell::before { content:""; position:absolute; inset:12%; border-radius:50%; }.flip-cell[data-owner="1"]::before { background:#cbeaea; border:2px solid #267477; }.flip-cell[data-owner="2"]::before { background:#efdad1; border:2px solid #99553f; }.flip-cell span { z-index:1; position:relative; }.flip-cell[data-owner="1"] span { width:24%; height:24%; border:2px solid #267477; border-radius:50%; }.flip-cell[data-owner="2"] span { width:21%; height:21%; background:#99553f; transform:rotate(45deg); border-radius:1px; }.flip-cell:disabled { cursor:default; }.flip-cell:not(:disabled):hover { background:#e8f2f0; }.flip-cell:focus-visible { outline:3px solid #267477; outline-offset:-3px; z-index:2; }.flip-cell.last::after { content:""; position:absolute; inset:3%; border:2px solid #708090; border-radius:6px; }.flip-cell.flipped::after { content:""; position:absolute; inset:3%; border:2px dashed #81a1c1; border-radius:6px; }.flip-cell.winning { background:#e1e9d9; box-shadow:inset 0 0 0 2px #59724a; }.flip-cell.winning::before { border-style:double; border-width:4px; }.flip-cell.preview::before { border:2px dashed #267477; background:#cbeaea88; }
-    .flip-token { display:inline-flex; align-items:center; justify-content:center; width:20px; height:20px; border:2px solid currentColor; border-radius:50%; flex:0 0 auto; }.flip-token::after { content:""; width:6px; height:6px; border:1.5px solid currentColor; border-radius:50%; }.flip-token.ai::after { border-radius:0; background:currentColor; transform:rotate(45deg); }.flip-legend > span { display:inline-flex; align-items:center; gap:6px; }
-    .flip-help { min-height:44px; font-size:13px; margin-bottom:8px; }.flip-legend { display:flex; flex-wrap:wrap; gap:12px; justify-content:center; font-size:12px; }.flip-legend span:first-child { color:#267477; }.flip-legend span:nth-child(2) { color:#99553f; }.flip-result { padding:12px; border-radius:12px; background:var(--fulab-tint-teal); margin:12px 0; }.flip-log { min-height:38px; margin:10px 0 0; font-size:12px; color:var(--fulab-muted); }
-    @media(max-width:480px) { .flip-page { padding:10px; gap:12px; }.flip-page .play-panel { padding:12px; }.flip-board { border-width:5px; gap:1px; }.flip-cell[data-owner="1"] span,.flip-cell[data-owner="2"] span { font-size:12px; }.flip-cell { font-size:8px; }.flip-settings label { width:100%; } }
-  </style>
-</head><body><main class="game-page flip-page">
-  <nav class="site-nav" aria-label="遊戲導覽"><a class="site-brand" href="index.html"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>FuGames</a><a href="index.html" aria-label="所有遊戲 ↗">所有遊戲 <svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#launch"></use></svg></a></nav><aside class="card" aria-label="封存狀態">這款遊戲已封存，仍可遊玩。<a href="archive.html">查看封存遊戲</a> · <a href="index.html">回首頁</a></aside>
-  <header class="page-header"><p class="eyebrow">棋盤 / 你 × 1 本機 AI</p><h1><svg class="page-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#flip_five"></use></svg>翻轉五子棋</h1><p class="lead">夾住就翻面，連五才定勝負。每一步都可能改寫整條線。</p></header>
-  <section class="card play-panel" aria-label="翻轉五子棋棋盤">
-    <div class="game-toolbar"><p class="game-status" id="phase-label">準備落子</p><div class="game-metrics"><span>你 <strong id="your-count">0</strong></span><span>AI <strong id="ai-count">0</strong></span><span>落子 <strong id="turn-count">0</strong> / 81</span></div></div>
-    <div class="flip-settings"><label for="personality">AI 個性</label><select id="personality"><option value="architect">連線派 · 留出雙重威脅</option><option value="flipper">翻轉派 · 爭奪翻面與空間</option></select><span class="flip-note" id="first-player">本局你先手 · 重開輪換先手</span></div>
-    <p class="flip-help" id="status" role="status" aria-live="polite">點任一空格落子，八方向夾住的對手棋子都翻成己方。全部翻完後，橫、直或斜線連五就贏。</p>
-    <div class="flip-board" id="board" role="group" aria-label="九乘九棋盤。方向鍵移動焦點，Enter 或空白鍵落子。"></div>
-    <div class="flip-legend"><span><i class="flip-token" aria-hidden="true"></i>你：圓環芯</span><span><i class="flip-token ai" aria-hidden="true"></i>AI：菱形芯</span><span>實框：最後落子 · 虛框：剛翻面 · 雙圈：五連</span></div>
-    <div class="flip-result" id="result" role="status" hidden></div>
-    <div class="game-actions"><span class="flip-note" id="preview">沒有夾住也能落子 · 無連五的滿盤比子數</span><div class="btnRow"><button class="btn primary" id="play">開始翻轉 →</button><button class="btn" id="pause" disabled>暫停</button><button class="btn" id="restart">重新開始</button></div></div>
-    <p class="flip-log" id="last-action">AI 看見與你相同的棋盤，會先找即勝與封堵，再比較連線與翻轉。</p>
-  </section>
-  <details class="card rules"><summary>翻轉、五連與平手規則</summary><div class="rules-body"><ul class="list">
-    <li>9 × 9 空棋盤，輪流在任一空格放一子；不要求這步一定能夾翻，也不能跳過。先手每次重開輪換。</li>
-    <li>從新落點沿八方向看：一串連續對手棋子，另一端若有己方棋子，整串就翻成己方。八方向依落子前的棋盤同時判定；不會因剛翻面的棋子產生連鎖翻轉。</li>
-    <li>落子與所有翻轉完成後才判勝負；自己因翻轉形成的橫、直、斜五連也能獲勝，超過五顆照算。若最終棋盤雙方都有五連，該局和局；不搶先判某一條方向。</li>
-    <li>沒有五連且已滿盤（也就是沒有合法空格）時，比較棋子數，多者勝，同數和局。只有未滿盤且無五連才進入下一回合；落子使空格單調減少，最多 81 步。</li>
-    <li>一位人類對一位本機 AI。連線派重視可發展的五連與雙重威脅，翻轉派額外重視夾翻和棋子數。兩者先檢查立即獲勝與對手下一步勝利，再搜尋後續攻守與夾翻。搜尋有步數上限，不代表已算出必勝。</li>
-    <li>手機點按即可；鍵盤方向鍵移動焦點，Enter／空白落子。滑鼠移到空格或鍵盤聚焦可預覽翻面數。P／Esc 暫停，切頁或視窗失焦自動暫停，需手動繼續。</li>
-  </ul></div></details><footer class="site-footer">FuGames · 隨時來一局</footer><noscript><p class="notice">請開啟 JavaScript，才能開始遊戲。</p></noscript>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="先落子、再八向夾翻、最後判五連。3D 翻面棋盤、五段 AI、石陣與散局變體、十道殘局與生涯等級。"><meta name="theme-color" content="#07090c">
+<title>翻轉五子棋 - FuGames</title><link rel="icon" href="favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="shared/fu.css">
+<style>
+/* Flip Five on the shared Vermilion Ink shell. You = seal (side 1), AI = azure (side 2), rocks = bone. */
+html,body{height:100%;overflow:hidden;overscroll-behavior:none}
+[hidden]{display:none!important}
+.fu-drawer{z-index:88}.fu-scrim{z-index:86}
+.fu-curtain{z-index:38;padding-top:calc(var(--fu-topbar-h) + 8px);overflow-y:auto}
+.fu-curtain__inner{width:min(720px,100%)}
+#stage{position:absolute;inset:0}
+.fu-topbar__actions .fu-btn{min-height:38px}
+/* Accessible board: real buttons laid over the 3D cells (positions come from the camera). */
+#board{position:fixed;inset:0;z-index:5;pointer-events:none}
+.flip-cell{position:absolute;left:0;top:0;width:0;height:0;pointer-events:auto;appearance:none;border:0;margin:0;padding:0;background:transparent;color:transparent;font-size:0;cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+.flip-cell:disabled{cursor:default}.flip-cell:focus{outline:none}
+/* Flat fallback when WebGL is unavailable: the same buttons become a 2D board. */
+body.flat #board{inset:auto;left:50%;top:calc(50% + 20px);transform:translate(-50%,-50%);width:min(94vw,calc(100svh - 300px),620px);aspect-ratio:1;display:grid;grid-template-columns:repeat(9,1fr);gap:2px;padding:6px;background:var(--fu-ink-3);pointer-events:auto}
+body.flat .flip-cell{position:relative;width:auto!important;height:auto!important;left:auto!important;top:auto!important;background:var(--fu-ink-1)}
+body.flat .flip-cell::before{content:"";position:absolute;inset:14%;border-radius:50%}
+body.flat .flip-cell[data-owner="1"]::before{background:var(--fu-seal)}
+body.flat .flip-cell[data-owner="2"]::before{background:var(--fu-azure)}
+body.flat .flip-cell[data-owner="3"]::before{background:var(--fu-bone);border-radius:2px;inset:20%}
+body.flat .flip-cell.last{box-shadow:inset 0 0 0 2px var(--fu-gold)}
+body.flat .flip-cell.winning{box-shadow:inset 0 0 0 3px var(--fu-paper)}
+body.flat .flip-cell.preview{box-shadow:inset 0 0 0 2px var(--fu-seal)}
+body.flat .flip-cell:focus-visible{outline:2px solid var(--fu-paper);outline-offset:-2px}
+/* HUD */
+.match{width:300px}
+.sides{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:10px;margin:2px 0 8px}
+.side{display:flex;align-items:center;gap:7px;font-size:13px}
+.side b{font:700 22px/1 var(--fu-font-mono);font-variant-numeric:tabular-nums}
+.tally{height:6px;background:var(--fu-azure);position:relative;overflow:hidden}
+.tally i{position:absolute;inset:0 auto 0 0;width:50%;background:var(--fu-seal);transition:width var(--fu-dur-2) var(--fu-ease)}
+.turn{margin:0;font:700 15px/1.3 var(--fu-font-display);display:flex;align-items:center;gap:8px}
+.turn .fu-side{width:9px;height:9px}
+.goal{margin:6px 0 0;padding:6px 8px;border-left:2px solid var(--fu-gold);background:rgba(233,185,73,.08);font-size:12px}
+.status{margin:6px 0 0;color:var(--fu-text-dim);min-height:2.6em}
+.preview{margin:4px 0 0;min-height:14px;color:var(--fu-paper-dim)}
+.log-panel{width:236px}
+.log{list-style:none;margin:0;padding:0;font:12px/1.75 var(--fu-font-mono);counter-reset:none;max-height:210px;overflow:hidden}
+.log li{display:grid;grid-template-columns:28px 14px 1fr auto;align-items:center;gap:6px;border-bottom:1px solid var(--fu-line)}
+.log li:last-child{border-bottom:0}.log .n{color:var(--fu-mute)}.log .fx{color:var(--fu-paper-dim)}
+.log li.empty{display:block;color:var(--fu-mute);font-family:var(--fu-font-body)}
+.reason{margin:8px 0 0;font-size:12px;color:var(--fu-text-dim)}
+.career-chip{display:inline-flex;flex-direction:column;align-items:stretch;gap:3px;min-height:38px;padding:5px 10px;border:1px solid var(--fu-line-strong);background:transparent;cursor:pointer;color:var(--fu-text);font:700 11px/1 var(--fu-font-mono);letter-spacing:.12em}
+.career-chip span{display:flex;gap:6px;align-items:baseline}.career-chip .bar{height:3px;background:var(--fu-ink-3);position:relative}.career-chip .bar i{position:absolute;inset:0 auto 0 0;background:var(--fu-seal)}
+.fu-dock .fu-kbd{margin-left:2px}
+/* Lobby */
+.lobby .lede{max-width:520px;margin:0}
+.tiers{display:grid;grid-template-columns:repeat(5,1fr);gap:1px;background:var(--fu-line-strong);padding:1px;width:100%}
+.tier{appearance:none;border:0;background:var(--fu-ink-1);color:var(--fu-text);padding:12px 8px;text-align:left;cursor:pointer;display:flex;flex-direction:column;gap:4px;min-height:96px;font:inherit}
+.tier b{font:700 17px/1.1 var(--fu-font-display)}.tier small{font-size:11px;line-height:1.35;color:var(--fu-paper-dim)}.tier em{font:700 10px/1 var(--fu-font-mono);letter-spacing:.12em;color:var(--fu-gold);font-style:normal;margin-top:auto}
+.tier[aria-pressed="true"]{background:var(--fu-seal);color:var(--fu-ink-0)}.tier[aria-pressed="true"] small,.tier[aria-pressed="true"] em{color:var(--fu-ink-0)}
+.tier:disabled{cursor:not-allowed;opacity:.45}
+.tier:focus-visible,.puzzle:focus-visible{outline:2px solid var(--fu-paper);outline-offset:-3px}
+.variant-line{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;align-items:center;margin-top:12px}
+.puzzles{display:grid;grid-template-columns:repeat(5,1fr);gap:1px;background:var(--fu-line-strong);padding:1px;width:100%}
+.puzzle{appearance:none;border:0;background:var(--fu-ink-1);color:var(--fu-text);padding:10px 8px;text-align:left;cursor:pointer;display:flex;flex-direction:column;gap:3px;min-height:92px;font:inherit;position:relative}
+.puzzle .no{font:700 10px/1 var(--fu-font-mono);letter-spacing:.14em;color:var(--fu-paper-dim)}.puzzle b{font:700 15px/1.15 var(--fu-font-display)}.puzzle small{font-size:11px;color:var(--fu-paper-dim)}
+.puzzle.solved::after{content:"解";position:absolute;top:8px;right:8px;width:20px;height:20px;display:grid;place-items:center;background:var(--fu-jade);color:var(--fu-ink-0);font:700 11px/1 var(--fu-font-display)}
+.puzzle:disabled{opacity:.4;cursor:not-allowed}.puzzle[aria-pressed="true"]{box-shadow:inset 0 0 0 2px var(--fu-seal)}
+.career-strip{display:flex;align-items:center;gap:14px;justify-content:center;flex-wrap:wrap;font-size:12px;color:var(--fu-paper-dim);width:100%}
+.career-strip .fu-meter{width:160px}
+/* Result */
+.result-mark{font:900 clamp(64px,14vw,150px)/1 var(--fu-font-display);margin:0;letter-spacing:.06em}
+.result-mark.win{color:var(--fu-seal)}.result-mark.loss{color:var(--fu-azure)}.result-mark.draw{color:var(--fu-bone)}
+.xp-lines{display:grid;grid-template-columns:1fr auto;gap:4px 18px;margin:0;font-size:13px;min-width:260px;text-align:left}
+.xp-lines dt{color:var(--fu-paper-dim)}.xp-lines dd{margin:0;font-family:var(--fu-font-mono);text-align:right}
+.xp-lines .total{color:var(--fu-text);font-weight:700;border-top:1px solid var(--fu-line-strong);padding-top:4px}
+.levelup{padding:8px 14px;border:1px solid var(--fu-gold);color:var(--fu-gold);font-size:13px}
+.result-stats{display:flex;gap:24px;justify-content:center}
+/* Drawers */
+.rules-list{margin:0;padding-left:18px;display:grid;gap:10px;font-size:13px;line-height:1.65}
+.legend{display:grid;grid-template-columns:auto 1fr;gap:8px 12px;align-items:center;font-size:13px}
+.swatch{width:22px;height:22px;border-radius:50%;display:grid;place-items:center}.swatch::after{content:"";width:8px;height:8px;border:2px solid var(--fu-ink-0);border-radius:50%}
+.swatch.ai::after{border-radius:0;transform:rotate(45deg);background:var(--fu-ink-0);width:6px;height:6px}.swatch.rock{border-radius:2px;background:var(--fu-bone)}.swatch.rock::after{display:none}
+.unlocks{list-style:none;margin:0;padding:0;display:grid;gap:6px;font-size:13px}
+.unlocks li{display:flex;gap:10px;align-items:center}.unlocks .lv{font:700 11px/1 var(--fu-font-mono);width:42px;color:var(--fu-paper-dim)}.unlocks li.on .lv{color:var(--fu-jade)}
+.fu-seg>button:disabled{opacity:.35;cursor:not-allowed}
+.field-note{display:block;font-size:11px;color:var(--fu-mute);margin-top:2px}
+@media (max-width:720px){
+  .fu-hud--tl{left:10px;right:10px;max-width:none}
+  .match{width:100%;padding:8px 12px}
+  .match .fu-panel__head{margin-bottom:6px;padding-bottom:4px}
+  .status{display:none}.preview:empty{display:none}.sides{margin:0 0 4px}.side b{font-size:18px}
+  .turn{font-size:14px}.goal{margin-top:4px;padding:4px 8px}
+  .fu-dock .fu-btn{padding:0 12px;min-width:56px}
+  .tiers{grid-template-columns:repeat(2,1fr)}.tiers .tier:last-child{grid-column:span 2}.tier{min-height:76px}
+  .puzzles{grid-template-columns:repeat(2,1fr)}.puzzle{min-height:72px}
+  .fu-curtain .fu-display{font-size:clamp(40px,13vw,64px)}
+  .lobby .fu-seal--lg{display:none}
+}
+@media (max-height:520px) and (min-width:721px){.status,.reason{display:none}.log{max-height:120px}}
+</style>
+</head><body class="fu-app fu-vignette">
+<header class="fu-topbar">
+  <a class="fu-brand" href="index.html" aria-label="回到 FuGames 所有遊戲"><span class="fu-seal" aria-hidden="true">福遊</span><span class="fu-hide-sm">FuGames</span></a>
+  <div class="fu-topbar__title"><h1 class="fu-heading">翻轉五子棋</h1><span class="fu-label fu-hide-sm">Flip Five · 9 × 9</span></div>
+  <div class="fu-topbar__actions">
+    <button class="career-chip" id="career-chip" type="button" data-fu-open="career" aria-label="生涯等級"><span><b id="chip-level">Lv 1</b><span id="chip-rank">入門</span></span><span class="bar"><i id="chip-fill" style="width:0"></i></span></button>
+    <button class="fu-btn fu-btn--ghost fu-btn--icon" type="button" data-fu-open="rules" aria-label="規則" data-fu-tip="規則">?</button>
+    <button class="fu-btn" type="button" id="settings-btn" data-fu-open="settings" aria-controls="settings"><span class="fu-hide-sm">設定</span><span class="fu-show-sm" aria-hidden="true">≡</span> <span class="fu-kbd fu-hide-sm">S</span></button>
+  </div>
+</header>
+
+<main class="fu-stage"><canvas id="stage" aria-hidden="true"></canvas>
+  <div id="board" role="group" aria-label="九乘九棋盤。方向鍵移動焦點，Enter 或空白鍵落子。"></div>
 </main>
+
+<div class="fu-hud fu-hud--tl">
+  <section class="fu-panel fu-panel--tight match" id="match-panel" aria-label="對局狀態">
+    <div class="fu-panel__head"><p class="fu-label"><b id="mode-label">對局</b> / <span id="tier-label">大師</span></p><span class="fu-label fu-num">落子 <b id="turn-count">0</b> · 空 <b id="empty-count">81</b></span></div>
+    <div class="sides">
+      <div class="side"><span class="fu-side" style="--side:var(--fu-side-1)"></span><span>你</span><b id="your-count">0</b></div>
+      <div class="tally" aria-hidden="true"><i id="tally"></i></div>
+      <div class="side"><b id="ai-count">0</b><span id="ai-name">AI</span><span class="fu-side" style="--side:var(--fu-side-2)"></span></div>
+    </div>
+    <p class="turn" id="phase-label">準備落子</p>
+    <p class="goal" id="goal" hidden></p>
+    <p class="status fu-small" id="status" role="status" aria-live="polite">點任一空格落子，八方向夾住的對手棋子都翻成己方。</p>
+    <p class="preview fu-label" id="preview">沒有夾住也能落子</p>
+  </section>
+</div>
+
+<div class="fu-hud fu-hud--tr fu-hide-sm">
+  <section class="fu-panel fu-panel--tight fu-panel--quiet log-panel" aria-label="棋譜">
+    <div class="fu-panel__head"><p class="fu-label"><b>棋譜</b> / 最近 8 手</p><span class="fu-label fu-num" id="first-player">你先手</span></div>
+    <ol class="log" id="log"><li class="empty">尚未落子。</li></ol>
+    <p class="reason" id="last-action">AI 看見與你相同的棋盤。</p>
+  </section>
+</div>
+
+<nav class="fu-dock" aria-label="指令">
+  <button class="fu-btn" id="pause" type="button" disabled>暫停 <span class="fu-kbd fu-hide-sm">P</span></button>
+  <button class="fu-btn" id="hint" type="button" disabled>提示 <span class="fu-kbd fu-hide-sm">H</span></button>
+  <button class="fu-btn" id="restart" type="button">重開 <span class="fu-kbd fu-hide-sm">R</span></button>
+  <button class="fu-btn" id="show-result" type="button" hidden>結算</button>
+  <button class="fu-btn" id="lobby-btn" type="button">大廳 <span class="fu-kbd fu-hide-sm">L</span></button>
+</nav>
+
+<aside class="fu-drawer" id="settings" aria-label="設定">
+  <div class="fu-drawer__head"><span class="fu-label"><b>■</b> 設定</span><button class="fu-btn fu-btn--ghost fu-btn--icon" type="button" data-fu-close aria-label="關閉">✕</button></div>
+  <div class="fu-drawer__body" id="settings-form">
+    <section>
+      <h3>對手</h3>
+      <label class="fu-field"><span>AI 個性</span><select class="fu-select" id="personality" name="profile"><option value="architect">連線派 · 留出雙重威脅</option><option value="flipper">翻轉派 · 爭奪翻面與空間</option></select></label>
+      <div class="fu-field"><span>先手</span><div class="fu-seg" id="starter-seg" role="group" aria-label="先手"><button type="button" value="alternate" aria-pressed="true">輪換</button><button type="button" value="you" aria-pressed="false">你先</button><button type="button" value="ai" aria-pressed="false">AI 先</button></div></div>
+      <p class="field-note">難度在大廳選擇。對局中變更個性與規則，下一局生效。</p>
+    </section>
+    <section>
+      <h3>規則變體</h3>
+      <label class="fu-switch"><span>石陣：六枚中立石<small class="field-note" id="rocks-note">擋住夾翻與連線 · 經驗 +15%</small></span><input type="checkbox" id="opt-rocks" name="rocks"></label>
+      <label class="fu-switch"><span>散局：雙方各兩子開局<small class="field-note" id="scatter-note">對稱預置，打破定式 · 經驗 +15%</small></span><input type="checkbox" id="opt-scatter" name="scatter"></label>
+    </section>
+    <section>
+      <h3>輔助</h3>
+      <label class="fu-switch"><span>翻面預覽<small class="field-note">游標停在空格時標出會翻的子</small></span><input type="checkbox" id="opt-preview" name="preview" checked></label>
+      <label class="fu-switch"><span>落子確認<small class="field-note">點一下預覽、再點同格才落子（觸控建議）</small></span><input type="checkbox" id="opt-confirm" name="confirm"></label>
+      <label class="fu-switch"><span>座標</span><input type="checkbox" id="opt-coords" name="coords" checked></label>
+    </section>
+    <section>
+      <h3>畫面</h3>
+      <div class="fu-field"><span>視角</span><div class="fu-seg" id="view-seg" role="group" aria-label="視角"><button type="button" value="tilt" aria-pressed="true">斜角</button><button type="button" value="top" aria-pressed="false">俯視</button></div></div>
+      <div class="fu-field"><span>棋盤</span><div class="fu-seg" id="skin-seg" role="group" aria-label="棋盤樣式"><button type="button" value="ink" aria-pressed="true">墨石</button><button type="button" value="gold" aria-pressed="false">金線</button><button type="button" value="paper" aria-pressed="false">米紙</button></div><small class="field-note" id="skin-note"></small></div>
+      <label class="fu-switch"><span>翻面動畫</span><input type="checkbox" id="opt-motion" name="motion" checked></label>
+    </section>
+  </div>
+  <div class="fu-drawer__foot"><button class="fu-btn fu-btn--seal fu-btn--block" type="button" id="apply-restart">以新設定重開</button></div>
+</aside>
+
+<aside class="fu-drawer fu-drawer--left" id="rules" aria-label="規則">
+  <div class="fu-drawer__head"><span class="fu-label"><b>■</b> 規則</span><button class="fu-btn fu-btn--ghost fu-btn--icon" type="button" data-fu-close aria-label="關閉">✕</button></div>
+  <div class="fu-drawer__body">
+    <section><h3>翻轉、五連與平手</h3><ul class="rules-list">
+      <li>9 × 9 棋盤，輪流在任一空格放一子；不要求這步一定能夾翻，也不能跳過。對局中先手預設每局輪換。</li>
+      <li>從新落點沿八方向看：一串連續對手棋子，另一端若有己方棋子，整串就翻成己方。八方向依落子前的棋盤同時判定；剛翻面的棋子不會連鎖翻轉。</li>
+      <li>落子與所有翻轉完成後才判勝負；因翻轉形成的橫、直、斜五連也算，超過五顆照算。若雙方同時都有五連，該局和局。</li>
+      <li>沒有五連而滿盤時，比較棋子數，多者勝，同數和局。空格每手減少一格，最多 81 手。</li>
+    </ul></section>
+    <section><h3>圖例</h3><div class="legend">
+      <span class="swatch" style="background:var(--fu-seal)"></span><span>你：朱子，圓環芯</span>
+      <span class="swatch ai" style="background:var(--fu-azure)"></span><span>AI：青子，菱形芯</span>
+      <span class="swatch rock"></span><span>中立石（石陣）：不能翻、不屬於任何一方，會切斷夾翻與連線</span>
+    </div><p class="fu-small fu-dim">金框：最後一手 · 朱環：這手會翻的子 · 玉框：提示 · 光帶：五連。</p></section>
+    <section><h3>變體與殘局</h3><ul class="rules-list">
+      <li><b>石陣</b>：開局隨機放六枚點對稱的中立石。被石頭擋住的射線不會夾翻，含石頭的五格不可能成線。滿盤比子時不計石頭。</li>
+      <li><b>散局</b>：開局雙方各有兩子，你的每一子都對應 AI 一子（中心對稱），打破已知的開局殺著。</li>
+      <li><b>殘局</b>：十道題，分四章。夾翻成五、唯一解圍、兩手必勝，以及研究證明過的定式殺局。目標寫在左上角，步數用盡即失敗；AI 以大師級防守。</li>
+    </ul></section>
+    <section><h3>對手</h3><ul class="rules-list">
+      <li><b>入門</b>只看一步，常漏看你的威脅。<b>中階</b>是舊版棋手，會檢查一手內的攻守。<b>高階</b>三層搜尋。<b>大師</b>是原本最強的有界搜尋（3.6 萬步預算、四層、完整根部防守篩選），預設難度。<b>宗師</b>在 Lv 4 解鎖，以 12 萬步預算搜到五層。</li>
+      <li>所有 AI 只看公開棋盤；搜尋有固定的步數上限，不代表已算出必勝。</li>
+    </ul></section>
+    <section><h3>操作</h3><ul class="rules-list">
+      <li>點或觸碰空格落子；滑鼠停留可預覽翻面數。鍵盤：方向鍵移動、Enter／空白落子、P 或 Esc 暫停、H 提示、R 重開、L 大廳、S 設定。</li>
+      <li>切換分頁或視窗失焦會自動暫停，需手動繼續。使用提示會降低本局經驗。</li>
+    </ul></section>
+  </div>
+</aside>
+
+<aside class="fu-drawer fu-drawer--left" id="career" aria-label="生涯">
+  <div class="fu-drawer__head"><span class="fu-label"><b>■</b> 生涯</span><button class="fu-btn fu-btn--ghost fu-btn--icon" type="button" data-fu-close aria-label="關閉">✕</button></div>
+  <div class="fu-drawer__body">
+    <section><h3>等級</h3><div id="career-summary"></div></section>
+    <section><h3>紀錄</h3><table class="fu-table" id="career-stats"></table></section>
+    <section><h3>解鎖</h3><ul class="unlocks" id="unlocks"></ul></section>
+    <section><h3>重置</h3><p class="fu-small fu-dim">生涯只存在這台裝置。</p><button class="fu-btn fu-btn--sm" type="button" id="reset-career">重置生涯</button></section>
+  </div>
+</aside>
+
+<div class="fu-curtain" id="lobby" aria-label="大廳">
+  <div class="fu-curtain__inner lobby">
+    <span class="fu-seal fu-seal--lg fu-stamp" aria-hidden="true">福遊</span>
+    <p class="fu-label">FuGames / Flip Five</p>
+    <h2 class="fu-display">翻轉五子棋</h2>
+    <p class="fu-dim lede">夾住就翻面，連五才定勝負。每一步都可能改寫整條線。</p>
+    <div class="fu-seg" id="mode-seg" role="group" aria-label="模式"><button type="button" value="match" aria-pressed="true">對局</button><button type="button" value="puzzle" aria-pressed="false">殘局</button></div>
+    <div data-pane="match" style="width:100%">
+      <div class="tiers" id="tier-list" role="group" aria-label="對手難度"></div>
+      <div class="variant-line" id="variant-line"></div>
+    </div>
+    <div data-pane="puzzle" style="width:100%" hidden><div class="puzzles" id="puzzle-list" role="group" aria-label="殘局"></div><p class="fu-small fu-dim" id="puzzle-brief" style="margin:10px 0 0"></p></div>
+    <div class="fu-curtain__actions"><button class="fu-btn fu-btn--seal fu-btn--lg" type="button" id="play">開始對局</button><button class="fu-btn fu-btn--lg" type="button" data-fu-open="rules">規則</button></div>
+    <div class="career-strip" id="lobby-career"></div>
+  </div>
+</div>
+
+<div class="fu-curtain" id="pause-curtain" aria-label="暫停" hidden>
+  <div class="fu-curtain__inner">
+    <p class="fu-label">已暫停</p><h2 class="fu-display">停一手</h2>
+    <p class="fu-dim">棋盤與 AI 都已凍結。準備好再繼續。</p>
+    <div class="fu-curtain__actions"><button class="fu-btn fu-btn--seal fu-btn--lg" type="button" id="resume">繼續 <span class="fu-kbd">P</span></button><button class="fu-btn fu-btn--lg" type="button" id="pause-lobby">放棄本局，回大廳</button></div>
+  </div>
+</div>
+
+<div class="fu-curtain" id="result-curtain" aria-label="結算" hidden>
+  <div class="fu-curtain__inner">
+    <p class="fu-label" id="result-kicker">本局結束</p>
+    <p class="result-mark" id="result-mark">勝</p>
+    <p id="result" role="status"></p>
+    <div class="result-stats" id="result-stats"></div>
+    <dl class="xp-lines" id="xp-lines"></dl>
+    <div class="levelup" id="levelup" hidden></div>
+    <div class="fu-curtain__actions"><button class="fu-btn fu-btn--seal fu-btn--lg" type="button" id="again">再來一局</button><button class="fu-btn fu-btn--lg" type="button" id="next-puzzle" hidden>下一題</button><button class="fu-btn fu-btn--lg" type="button" id="review">檢視棋盤</button><button class="fu-btn fu-btn--lg" type="button" id="result-lobby">大廳</button></div>
+  </div>
+</div>
+<noscript><p class="fu-curtain">請開啟 JavaScript，才能開始遊戲。</p></noscript>
+
+<script src="shared/fu-palette.js"></script>
+<script src="shared/fu-shell.js" defer></script>
 <script src="flip-five-engine.js"></script>
 <script src="flip-five-ai.js"></script>
+<script id="flip-career">
+'use strict';
+// Career progression: pure functions over a small saved profile (no DOM). XP from matches and puzzles,
+// scaled by opponent tier and variants; levels unlock the grand tier, the two variants and board finishes.
+const FlipCareer=(()=>{
+  const MAX_LEVEL=30,KEY='fugames:flip-five:career',VERSION=1;
+  const TIERS=['novice','adept','expert','master','grand'];
+  const TIER_XP={novice:.4,adept:.7,expert:1,master:1.4,grand:1.9};
+  const need=level=>100+level*40;
+  function levelOf(xp){let level=1,rest=Math.max(0,Math.floor(Number(xp)||0));while(level<MAX_LEVEL&&rest>=need(level)){rest-=need(level);level++;}return {level,into:level<MAX_LEVEL?rest:0,need:level<MAX_LEVEL?need(level):0,max:level>=MAX_LEVEL};}
+  const RANKS=[{from:1,name:'入門'},{from:3,name:'九級'},{from:5,name:'五級'},{from:7,name:'一級'},{from:9,name:'初段'},{from:12,name:'三段'},{from:15,name:'五段'},{from:19,name:'七段'},{from:24,name:'九段'}];
+  const rankOf=level=>RANKS.filter(r=>level>=r.from).pop().name;
+  const UNLOCKS=[
+    {level:2,kind:'variant',id:'rocks',label:'石陣變體'},
+    {level:3,kind:'variant',id:'scatter',label:'散局變體'},
+    {level:4,kind:'tier',id:'grand',label:'宗師難度'},
+    {level:5,kind:'skin',id:'gold',label:'金線棋盤'},
+    {level:8,kind:'skin',id:'paper',label:'米紙棋盤'}
+  ];
+  const unlockLevel=(kind,id)=>{const u=UNLOCKS.find(u=>u.kind===kind&&u.id===id);return u?u.level:1;};
+  const unlocked=(level,kind,id)=>level>=unlockLevel(kind,id);
+  const hintFactor=hints=>Math.max(.4,1-.2*Math.max(0,hints|0));
+  // s: {outcome:'win'|'loss'|'draw', tier, rocks, scatter, hints, flips (by you), moves (your placements)}
+  function matchXP(s){
+    const lines=[['完成對局',10]];
+    if(s.outcome==='win')lines.push(['勝局',60]);else if(s.outcome==='draw')lines.push(['和局',25]);
+    const flips=Math.min(30,2*Math.max(0,s.flips|0));if(flips)lines.push([`翻轉 ${s.flips|0} 子`,flips]);
+    if(s.outcome==='win'&&s.moves>0&&s.moves<=12)lines.push(['速勝（12 手內）',20]);
+    const base=lines.reduce((n,l)=>n+l[1],0);
+    const mult=(TIER_XP[s.tier]??1)*(1+(s.rocks?.15:0)+(s.scatter?.15:0))*hintFactor(s.hints);
+    return {lines,base,mult:Math.round(mult*100)/100,total:Math.round(base*mult)};
+  }
+  // First solve pays by chapter; a repeat solve pays a token amount. Hints halve the first-solve reward.
+  function puzzleXP(chapter,first,hints){
+    if(!first)return {lines:[['重解殘局',5]],base:5,mult:1,total:5};
+    const base=50+40*(Math.max(1,chapter|0)-1),mult=hints?.5:1;
+    return {lines:[[`首次解開 · 第 ${chapter|0} 章`,base]],base,mult,total:Math.round(base*mult)};
+  }
+  const blank=()=>({v:VERSION,xp:0,games:0,wins:0,losses:0,draws:0,streak:0,bestStreak:0,flips:0,bestTier:-1,puzzles:{}});
+  function sanitize(p){
+    const b=blank();if(!p||typeof p!=='object')return b;
+    for(const k of Object.keys(b))if(k!=='puzzles'&&k!=='v'&&Number.isFinite(p[k])&&p[k]>=(k==='bestTier'?-1:0))b[k]=Math.floor(p[k]);
+    if(p.puzzles&&typeof p.puzzles==='object')for(const [id,v] of Object.entries(p.puzzles))if(/^[a-z0-9-]{1,24}$/.test(id)&&v)b.puzzles[id]=1;
+    return b;
+  }
+  function finish(p,gain){const before=levelOf(p.xp-gain.total),after=levelOf(p.xp);return {profile:p,gain,before,after,unlocked:UNLOCKS.filter(u=>u.level>before.level&&u.level<=after.level)};}
+  function record(profile,s){
+    const p=sanitize(profile),gain=matchXP(s),win=s.outcome==='win',tier=TIERS.indexOf(s.tier);
+    p.xp+=gain.total;p.games++;p.flips+=Math.max(0,s.flips|0);
+    if(win){p.wins++;p.streak++;p.bestStreak=Math.max(p.bestStreak,p.streak);p.bestTier=Math.max(p.bestTier,tier);}
+    else{if(s.outcome==='draw')p.draws++;else p.losses++;p.streak=0;}
+    return finish(p,gain);
+  }
+  function recordPuzzle(profile,s){
+    const p=sanitize(profile),first=!!s.solved&&!p.puzzles[s.id];
+    const gain=s.solved?puzzleXP(s.chapter,first,s.hints):{lines:[['殘局未解',0]],base:0,mult:1,total:0};
+    p.xp+=gain.total;if(s.solved)p.puzzles[s.id]=1;
+    return {...finish(p,gain),first};
+  }
+  // Puzzles open one by one: the first is free, each later one needs the previous solved.
+  const puzzleOpen=(profile,ids,index)=>index<=0||!!sanitize(profile).puzzles[ids[index-1]];
+  function load(storage){try{return sanitize(JSON.parse(storage.getItem(KEY)||'null'));}catch(e){return blank();}}
+  function save(storage,p){try{storage.setItem(KEY,JSON.stringify(sanitize(p)));return true;}catch(e){return false;}}
+  return {MAX_LEVEL,KEY,TIERS,TIER_XP,need,levelOf,rankOf,RANKS,UNLOCKS,unlockLevel,unlocked,hintFactor,matchXP,puzzleXP,blank,sanitize,record,recordPuzzle,puzzleOpen,load,save};
+})();
+</script>
 <script id="flip-ui">
 'use strict';
 (() => {
   const $=id=>document.getElementById(id);
-  if(!window.FlipFive || !window.FlipFiveAI){$('status').textContent='棋盤載入失敗，請重新整理再試。';$('play').disabled=true;return;}
-  const game=new FlipFive.Game(),buttons=[],board=$('board'),coords=i=>`${String.fromCharCode(65+i%9)}${Math.floor(i/9)+1}`;
-  const SEARCH=Object.freeze({seed:0,nodeBudget:36000,maxDepth:4,width:12});
-  const icon=name=>`<svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#${name}"></use></svg>`;
-  function buttonIcon(id,name){const button=$(id);button.innerHTML=icon(name)+button.textContent.replace(/\s*→/g,'');}
-  let focusCell=40,first=1,timer=null,generation=0,worker=null,pending=null,serial=0,workerFailed=false,notice='';
+  if(!window.FlipFive||!window.FlipFiveAI||typeof FlipCareer==='undefined'){$('status').textContent='棋盤載入失敗，請重新整理再試。';$('play').disabled=true;return;}
+  const F=FlipFive,AI=FlipFiveAI,C=FlipCareer,coords=F.coord,buttons=[],board=$('board');
+  const TIER_INFO={novice:{name:'入門',desc:'只看一步，常漏看威脅'},adept:{name:'中階',desc:'舊版棋手，一手內攻守'},expert:{name:'高階',desc:'三層搜尋，懂得反夾'},master:{name:'大師',desc:'原版最強，四層有界搜尋'},grand:{name:'宗師',desc:'十二萬步預算，深至五層'}};
+  const SKINS={ink:'墨石',gold:'金線',paper:'米紙'};
+  const game=new F.Game();
+  // ---- persistent settings (per device) ----
+  const PREF_KEY='fugames:flip-five';
+  const DEFAULTS={tier:'master',profile:'architect',starter:'alternate',rocks:false,scatter:false,preview:true,confirm:false,coords:true,view:'tilt',skin:'ink',motion:true,mode:'match',puzzle:0};
+  let settings={...DEFAULTS};
+  try{const saved=JSON.parse(localStorage.getItem(PREF_KEY)||'{}');for(const k of Object.keys(DEFAULTS))if(typeof saved[k]===typeof DEFAULTS[k])settings[k]=saved[k];}catch(_){}
+  const saveSettings=()=>{try{localStorage.setItem(PREF_KEY,JSON.stringify(settings));}catch(_){}};
+  let career=(()=>{try{return C.load(localStorage);}catch(_){return C.blank();}})();
+  const saveCareer=()=>{try{C.save(localStorage,career);}catch(_){}};
+  const level=()=>C.levelOf(career.xp).level;
+  const tierOpen=t=>C.unlocked(level(),'tier',t),variantOpen=v=>C.unlocked(level(),'variant',v),skinOpen=s=>C.unlocked(level(),'skin',s);
+  if(!AI.TIERS[settings.tier]||!tierOpen(settings.tier))settings.tier='master';
+  if(!SKINS[settings.skin]||!skinOpen(settings.skin))settings.skin='ink';
+  if(!variantOpen('rocks'))settings.rocks=false;if(!variantOpen('scatter'))settings.scatter=false;
+  // ---- match state ----
+  let mode='match',puzzle=null,first=2,matchSeed=1,serial=0,focusCell=40,hoverCell=-1,pendingCell=-1,hintCell=-1,hints=0,yourFlips=0,recorded=null,resultTimer=null,notice='';
+  let timer=null,generation=0,worker=null,pending=null,jobSerial=0,workerFailed=false;
+  let rules={tier:'master',rocks:false,scatter:false};
   const diagnostics={decisions:0,workerCount:0,fallbackCount:0,lastMode:null,lastComputeMs:0,lastWaitMs:0,lastSearch:null,recent:[]};
-  function record(move,computeMs,waitMs,mode){
-    diagnostics.decisions++;diagnostics[mode==='worker'?'workerCount':'fallbackCount']++;diagnostics.lastMode=mode;diagnostics.lastComputeMs=computeMs;diagnostics.lastWaitMs=waitMs;
-    const s=move?.stats;diagnostics.lastSearch=s?{nodes:s.nodes,nodeBudget:s.nodeBudget,completedDepth:s.completedDepth,requestedDepth:s.requestedDepth,budgetExhausted:s.budgetExhausted,rootCandidates:s.rootCandidates,safeCandidates:s.safeCandidates,quietBeamWidth:s.quietBeamWidth,seed:s.seed,proof:false}:null;
-    diagnostics.recent.push({computeMs,waitMs,mode});if(diagnostics.recent.length>128)diagnostics.recent.shift();
+  const searchOptions=()=>AI.searchOptions(rules.tier,rules.tier==='novice'?matchSeed:0);
+  function record(move,computeMs,waitMs,how){
+    diagnostics.decisions++;diagnostics[how==='worker'?'workerCount':'fallbackCount']++;diagnostics.lastMode=how;diagnostics.lastComputeMs=computeMs;diagnostics.lastWaitMs=waitMs;
+    const s=move?.stats;diagnostics.lastSearch=s?{nodes:s.nodes,nodeBudget:s.nodeBudget,completedDepth:s.completedDepth,requestedDepth:s.requestedDepth,budgetExhausted:s.budgetExhausted,rootCandidates:s.rootCandidates,safeCandidates:s.safeCandidates,quietBeamWidth:s.quietBeamWidth,seed:s.seed,tier:s.tier,proof:false}:null;
+    diagnostics.recent.push({computeMs,waitMs,mode:how});if(diagnostics.recent.length>128)diagnostics.recent.shift();
   }
+  const filled=()=>game.board.filter(Boolean).length;
   function current(job){return job.generation===generation&&job.ply===game.ply&&job.turn===game.turn&&game.phase==='running'&&game.turn===2&&!document.hidden;}
   function stopTimer(){
     generation++;if(timer!==null)clearTimeout(timer);timer=null;
@@ -70,12 +374,12 @@
     }catch(_){workerFailed=true;worker=null;}
     return worker;
   }
-  function synchronous(observation){const start=performance.now(),move=FlipFiveAI.chooseMove(observation,SEARCH),elapsed=performance.now()-start;return {move,computeMs:elapsed,waitMs:elapsed,mode:'fallback'};}
+  function synchronous(observation){const start=performance.now(),move=AI.chooseTier(observation,rules.tier,searchOptions()),elapsed=performance.now()-start;return {move,computeMs:elapsed,waitMs:elapsed,mode:'fallback'};}
   function requestDecision(observation,token){
     const available=ensureWorker();if(!available)return Promise.resolve(synchronous(observation));
     return new Promise((resolve,reject)=>{
-      const identity={id:++serial,generation:token,ply:game.ply,turn:game.turn};pending={...identity,started:performance.now(),resolve,reject};
-      try{available.postMessage({type:'choose',...identity,observation,options:SEARCH});}
+      const identity={id:++jobSerial,generation:token,ply:game.ply,turn:game.turn};pending={...identity,started:performance.now(),resolve,reject};
+      try{available.postMessage({type:'choose',...identity,filled:filled(),tier:rules.tier,observation,options:searchOptions()});}
       catch(error){pending=null;available.terminate();worker=null;workerFailed=true;reject(error);}
     });
   }
@@ -93,41 +397,365 @@
       if(!move||!Number.isInteger(move.cell)||move.cell<0||move.cell>=81||game.board[move.cell]||!game.act(move.cell,typeof move.reason==='string'?move.reason:'')){
         game.pause();notice='AI 暫時無法完成這一步，按「繼續」重試。';render();return;
       }
-      record(move,result.computeMs,result.waitMs,result.mode);notice='';render();
+      record(move,result.computeMs,result.waitMs,result.mode);notice='';afterMove();
     },450);
   }
+  // ---- board buttons ----
   for(let i=0;i<81;i++){
-    const b=document.createElement('button');b.type='button';b.className='flip-cell';b.dataset.cell=i;b.innerHTML='<span></span>';
-    b.addEventListener('click',()=>{if(game.turn===1&&game.act(i)){focusCell=i;notice='';render();schedule();}});
-    b.addEventListener('mouseenter',()=>preview(i));b.addEventListener('mouseleave',clearPreview);b.addEventListener('focus',()=>{focusCell=i;buttons.forEach((x,j)=>x.tabIndex=i===j?0:-1);preview(i);});b.addEventListener('blur',clearPreview);board.append(b);buttons.push(b);
+    const b=document.createElement('button');b.type='button';b.className='flip-cell';b.dataset.cell=i;b.dataset.owner=0;b.tabIndex=i===focusCell?0:-1;
+    b.addEventListener('click',()=>place(i));
+    b.addEventListener('mouseenter',()=>{hoverCell=i;preview(i);});b.addEventListener('mouseleave',()=>{if(hoverCell===i){hoverCell=-1;clearPreview();}});
+    b.addEventListener('focus',()=>{focusCell=i;buttons.forEach((x,j)=>x.tabIndex=i===j?0:-1);preview(i);sync();});b.addEventListener('blur',()=>{clearPreview();sync();});
+    board.append(b);buttons.push(b);
   }
-  function clearPreview(){for(const b of buttons)b.classList.remove('preview');$('preview').textContent='沒有夾住也能落子 · 無連五的滿盤比子數';}
-  function preview(i){clearPreview();if(game.phase!=='running'||game.turn!==1||game.board[i])return;const changes=FlipFive.flips(game.board,i,1);for(const j of changes)buttons[j].classList.add('preview');$('preview').textContent=`${coords(i)}：落子後翻轉 ${changes.length} 枚 AI 棋子`;}
-  function render(){
-    clearPreview();const active=game.phase==='running'&&game.turn===1;
-    $('phase-label').textContent=game.phase==='ready'?'準備落子':game.phase==='paused'?'已暫停':game.phase==='over'?'本局結束':game.turn===1?'你的回合 · 圓環芯':'AI 思考中 · 菱形芯';
-    $('your-count').textContent=game.board.filter(p=>p===1).length;$('ai-count').textContent=game.board.filter(p=>p===2).length;$('turn-count').textContent=game.ply;
-    const winning=new Set(game.result?game.result.lines.flat(2):[]);
-    buttons.forEach((b,i)=>{const owner=game.board[i];b.dataset.owner=owner;b.disabled=!active;b.tabIndex=i===focusCell?0:-1;b.querySelector('span').textContent=owner?'':coords(i);b.classList.toggle('last',!!game.last&&game.last.cell===i);b.classList.toggle('flipped',!!game.last&&game.last.flipped.includes(i));b.classList.toggle('winning',winning.has(i));b.setAttribute('aria-label',`${coords(i)}，${owner===1?'你的棋子':owner===2?'AI 棋子':'空格'}`);});
-    $('play').hidden=game.phase==='running'||game.phase==='paused';$('play').textContent=game.phase==='over'?'再來一局 →':'開始翻轉 →';$('pause').disabled=game.phase==='ready'||game.phase==='over';$('pause').textContent=game.phase==='paused'?'繼續':'暫停';$('personality').disabled=game.phase!=='ready'&&game.phase!=='over';
-    $('result').hidden=game.phase!=='over';if(game.result)$('result').textContent=`${game.result.winner===1?'你贏了！':game.result.winner===2?'AI 獲勝。':'本局和局。'}${game.result.reason}`;
-    $('status').textContent=notice||(game.phase==='ready'?'點任一空格落子，八方向夾住的對手棋子都翻成己方。全部翻完後，橫、直或斜線連五就贏。':game.phase==='paused'?'已暫停，棋盤與 AI 都已凍結。按「繼續」恢復。':game.phase==='over'?'本局結束。按「再來一局」交換先手重新挑戰。':game.turn===1?'點空格落子。夾住的棋子一起翻面，最後才判五連。':'AI 正在比較後續攻守與夾翻。');
-    if(game.last)$('last-action').textContent=`${game.last.player===1?'你':'AI'}落在 ${coords(game.last.cell)} · 翻轉 ${game.last.flipped.length} 子${game.last.reason?' · '+game.last.reason:''}`;
-    for(const[id,name]of[['play','play'],['pause',game.phase==='paused'?'play':'pause'],['restart','restart']])buttonIcon(id,name);
-    if(active&&document.activeElement===document.body)buttons[focusCell].focus({preventScroll:true});
+  let previewCells=[];
+  function clearPreview(){previewCells=[];for(const b of buttons)b.classList.remove('preview');$('preview').textContent=game.phase==='running'&&game.turn===1?'沒有夾住也能落子':'';sync();}
+  function preview(i){
+    previewCells=[];for(const b of buttons)b.classList.remove('preview');
+    if(game.phase!=='running'||game.turn!==1||game.board[i]){$('preview').textContent='';sync();return;}
+    const changes=F.flips(game.board,i,1);if(settings.preview){previewCells=changes;for(const j of changes)buttons[j].classList.add('preview');}
+    const win=F.outcome(F.apply(game.board,i,1).board)?.winner===1;
+    $('preview').textContent=`${coords(i)}：翻轉 ${changes.length} 枚${win?' · 連五！':''}${pendingCell===i?' · 再點一次落子':''}`;sync();
   }
+  function place(i){
+    if(game.phase!=='running'||game.turn!==1||game.board[i])return;
+    if(settings.confirm&&pendingCell!==i){pendingCell=i;preview(i);return;}
+    pendingCell=-1;const before=game.board.slice();
+    if(game.act(i)){focusCell=i;hintCell=-1;notice='';yourFlips+=game.last.flipped.length;afterMove();}
+    else game.board=before;
+  }
+  function afterMove(){previewCells=[];render();if(game.phase==='over')finish();else schedule();}
+  // ---- end of game, XP ----
+  function finish(){
+    stopTimer();if(recorded)return;
+    const r=game.result,outcome=r.winner===1?'win':r.winner===2?'loss':'draw';
+    let gain;
+    if(mode==='puzzle'){gain=C.recordPuzzle(career,{id:puzzle.id,chapter:puzzle.chapter,solved:r.puzzle==='solved',hints});}
+    else gain=C.record(career,{outcome,tier:rules.tier,rocks:rules.rocks,scatter:rules.scatter,hints,flips:yourFlips,moves:countMoves(1)});
+    career=gain.profile;saveCareer();recorded={outcome,gain,puzzle:mode==='puzzle'?puzzle:null,solved:r.puzzle==='solved'};
+    renderCareer();clearTimeout(resultTimer);resultTimer=setTimeout(showResult,settings.motion?1100:250);
+  }
+  let moveLog=[];
+  const countMoves=p=>moveLog.filter(m=>m.player===p).length;
+  function showResult(){
+    resultTimer=null;if(!recorded||game.phase!=='over')return;
+    const {outcome,gain,puzzle:pz,solved}=recorded,r=game.result;
+    const mark=$('result-mark');mark.className='result-mark '+(pz?(solved?'win':'loss'):outcome);
+    mark.textContent=pz?(solved?'解':'未解'):outcome==='win'?'勝':outcome==='loss'?'負':'和';
+    $('result-kicker').textContent=pz?`殘局 ${PUZZLE_IDS.indexOf(pz.id)+1} · ${pz.title}`:`${TIER_INFO[rules.tier].name} · ${game.profile==='flipper'?'翻轉派':'連線派'}${rules.rocks?' · 石陣':''}${rules.scatter?' · 散局':''}`;
+    $('result').textContent=`${pz?(solved?'殘局解開！':'這題還沒解開。'):outcome==='win'?'你贏了！':outcome==='loss'?'AI 獲勝。':'本局和局。'}${r.reason}`;
+    const you=game.board.filter(p=>p===1).length,ai=game.board.filter(p=>p===2).length;
+    $('result-stats').innerHTML=`<div class="fu-stat"><span class="fu-label">手數</span><span class="fu-stat__value">${game.ply}</span></div><div class="fu-stat"><span class="fu-label">你的翻轉</span><span class="fu-stat__value">${yourFlips}</span></div><div class="fu-stat"><span class="fu-label">子數</span><span class="fu-stat__value">${you}<small>:${ai}</small></span></div>`;
+    $('xp-lines').innerHTML=gain.gain.lines.map(([k,v])=>`<dt>${k}</dt><dd>+${v}</dd>`).join('')+(gain.gain.mult!==1?`<dt>倍率</dt><dd>× ${gain.gain.mult}</dd>`:'')+`<dt class="total">經驗</dt><dd class="total">+${gain.gain.total}</dd>`;
+    const up=gain.after.level>gain.before.level;$('levelup').hidden=!up;
+    if(up)$('levelup').textContent=`升級！Lv ${gain.after.level} · ${C.rankOf(gain.after.level)}${gain.unlocked.length?' · 解鎖：'+gain.unlocked.map(u=>u.label).join('、'):''}`;
+    const next=pz&&solved&&PUZZLE_IDS.indexOf(pz.id)<PUZZLE_IDS.length-1;$('next-puzzle').hidden=!next;
+    $('again').textContent=pz?(solved?'再解一次':'重試'):'再來一局';
+    showCurtain('result-curtain');$('show-result').hidden=false;
+    if(up)window.Fu?.toast(`升級到 Lv ${gain.after.level}`,{tone:'ok'});
+  }
+  // ---- curtains ----
+  const CURTAINS=['lobby','pause-curtain','result-curtain'];
+  function showCurtain(id){for(const c of CURTAINS)$(c).hidden=c!==id;const target=$(id)?.querySelector('.fu-btn--seal');if(target)setTimeout(()=>target.focus({preventScroll:true}),30);}
+  function hideCurtains(){for(const c of CURTAINS)$(c).hidden=true;}
+  const curtainOpen=()=>CURTAINS.some(c=>!$(c).hidden);
+  // ---- new games ----
+  const PUZZLE_IDS=F.PUZZLES.map(p=>p.id);
+  function startMatch(){
+    clearTimeout(resultTimer);stopTimer();mode='match';puzzle=null;
+    rules={tier:tierOpen(settings.tier)?settings.tier:'master',rocks:settings.rocks&&variantOpen('rocks'),scatter:settings.scatter&&variantOpen('scatter')};
+    matchSeed=(Math.floor(Math.random()*0x7fffffff)>>>0)||1;
+    if(rules.rocks||rules.scatter)game.configure({board:F.setupBoard({seed:matchSeed,rocks:rules.rocks,scatter:rules.scatter})});else game.configure(null);
+    first=settings.starter==='you'?1:settings.starter==='ai'?2:3-first;
+    begin(first);
+  }
+  function startPuzzle(index){
+    clearTimeout(resultTimer);stopTimer();mode='puzzle';puzzle=F.PUZZLES[index];settings.puzzle=index;saveSettings();
+    rules={tier:'master',rocks:false,scatter:false};
+    const pos=F.puzzlePosition(puzzle);game.configure({board:pos.board,goal:puzzle.goal});begin(pos.toMove);
+  }
+  function begin(starter){
+    game.profile=settings.profile;game.reset(starter);serial++;focusCell=40;hoverCell=pendingCell=hintCell=-1;hints=0;yourFlips=0;recorded=null;notice='';moveLog=[];resetDiagnostics();
+    $('show-result').hidden=true;$('first-player').textContent=starter===1?'你先手':'AI 先手';$('last-action').textContent=mode==='puzzle'?puzzle.brief:'新的一局，空格都能落子。';
+    hideCurtains();game.start();render();schedule();if(game.turn===1)focusBoard();
+  }
+  function focusBoard(){if(!window.Fu||!Fu.isOpen('settings'))buttons[focusCell]?.focus({preventScroll:true});}
   function resetDiagnostics(){diagnostics.decisions=diagnostics.workerCount=diagnostics.fallbackCount=0;diagnostics.lastMode=null;diagnostics.lastComputeMs=diagnostics.lastWaitMs=0;diagnostics.lastSearch=null;diagnostics.recent.length=0;}
-  function restart(){stopTimer();first=3-first;game.profile=$('personality').value;game.reset(first);focusCell=40;notice='';resetDiagnostics();$('first-player').textContent=`本局${first===1?'你':'AI'}先手 · 重開輪換先手`;$('last-action').textContent='新的一局，空棋盤上的每個位置都能落子。';game.start();render();schedule();}
-  $('play').addEventListener('click',()=>{if(game.phase==='over'){restart();return;}game.profile=$('personality').value;game.start();notice='';render();schedule();if(game.turn===1)buttons[focusCell].focus({preventScroll:true});});$('restart').addEventListener('click',restart);
-  function pause(){if(game.phase==='running'){game.pause();stopTimer();}else if(game.phase==='paused')game.start();notice='';render();schedule();if(game.phase==='running'&&game.turn===1)buttons[focusCell].focus({preventScroll:true});}
-  $('pause').addEventListener('click',pause);
+  function restart(){if(mode==='puzzle')startPuzzle(PUZZLE_IDS.indexOf(puzzle.id));else startMatch();}
+  function toLobby(){clearTimeout(resultTimer);stopTimer();if(game.phase==='running')game.pause();renderLobby();showCurtain('lobby');render();}
+  function pause(){
+    if(game.phase==='running'){game.pause();stopTimer();notice='';render();showCurtain('pause-curtain');}
+    else if(game.phase==='paused'){game.start();notice='';hideCurtains();render();schedule();if(game.turn===1)focusBoard();}
+  }
+  function autoPause(){if(game.phase==='running'){game.pause();stopTimer();notice='';render();showCurtain('pause-curtain');}}
+  function hint(){
+    if(game.phase!=='running'||game.turn!==1)return;
+    const move=AI.chooseTier({board:game.board.slice(),player:1,profile:'architect'},'expert',{seed:0});if(!move)return;
+    hints++;hintCell=move.cell;focusCell=move.cell;render();
+    window.Fu?.toast(`提示：${coords(move.cell)} · ${move.reason}${puzzle?' — '+puzzle.hint:''}`,{tone:'info',ms:3600});
+  }
+  // ---- rendering ----
+  function phaseText(){
+    if(game.phase==='ready')return '準備落子';if(game.phase==='paused')return '已暫停';
+    if(game.phase==='over'){const r=game.result;return mode==='puzzle'?(r.puzzle==='solved'?'殘局解開':'殘局失敗'):r.winner===1?'你贏了':r.winner===2?'AI 獲勝':'和局';}
+    return game.turn===1?'你的回合':'AI 思考中…';
+  }
+  function render(){
+    const active=game.phase==='running'&&game.turn===1,you=game.board.filter(p=>p===1).length,ai=game.board.filter(p=>p===2).length,winning=new Set(game.result?game.result.lines.flat(2):[]);
+    $('phase-label').innerHTML=`<span class="fu-side" style="--side:var(${game.turn===1?'--fu-side-1':'--fu-side-2'})"></span>${phaseText()}`;
+    $('your-count').textContent=you;$('ai-count').textContent=ai;$('turn-count').textContent=game.ply;$('empty-count').textContent=game.board.filter(p=>!p).length;
+    $('tally').style.width=(you+ai?you/(you+ai)*100:50)+'%';
+    $('mode-label').textContent=mode==='puzzle'?`殘局 ${PUZZLE_IDS.indexOf(puzzle.id)+1}`:'對局';
+    $('tier-label').textContent=mode==='puzzle'?puzzle.title:`${TIER_INFO[rules.tier].name}${rules.rocks?' · 石陣':''}${rules.scatter?' · 散局':''}`;
+    $('ai-name').textContent=`AI·${mode==='puzzle'?'大師':TIER_INFO[rules.tier].name}`;
+    const goal=game.goal;$('goal').hidden=!goal;
+    if(goal)$('goal').textContent=goal.type==='win'?`目標：${goal.moves} 手內連五 · 已用 ${goal.used}/${goal.moves}`:`目標：撐過 ${goal.moves} 次 AI 應手 · ${goal.used}/${goal.moves}`;
+    buttons.forEach((b,i)=>{const owner=game.board[i];b.dataset.owner=owner;b.disabled=!active;b.tabIndex=i===focusCell?0:-1;b.classList.toggle('last',!!game.last&&game.last.cell===i);b.classList.toggle('flipped',!!game.last&&game.last.flipped.includes(i));b.classList.toggle('winning',winning.has(i));b.setAttribute('aria-label',`${coords(i)}，${owner===1?'你的棋子':owner===2?'AI 棋子':owner===3?'中立石':'空格'}`);});
+    $('pause').disabled=game.phase!=='running'&&game.phase!=='paused';$('pause').firstChild.textContent=game.phase==='paused'?'繼續 ':'暫停 ';
+    $('hint').disabled=!active;
+    $('status').textContent=notice||(game.phase==='paused'?'已暫停，棋盤與 AI 都已凍結。':game.phase==='over'?game.result.reason:mode==='puzzle'&&game.ply===0&&game.turn===1?puzzle.brief:game.turn===1?'點空格落子。夾住的棋子一起翻面，最後才判五連。':'AI 正在比較後續攻守與夾翻。');
+    if(game.last)$('last-action').textContent=`${game.last.player===1?'你':'AI'}落在 ${coords(game.last.cell)} · 翻轉 ${game.last.flipped.length} 子${game.last.reason?' · '+game.last.reason:''}`;
+    if(game.last&&(!moveLog.length||moveLog[moveLog.length-1].ply!==game.ply))moveLog.push({ply:game.ply,player:game.last.player,cell:game.last.cell,flips:game.last.flipped.length});
+    $('log').innerHTML=moveLog.length?moveLog.slice(-8).map(m=>`<li><span class="n">${m.ply}</span><span class="fu-side" style="--side:var(${m.player===1?'--fu-side-1':'--fu-side-2'})"></span><span>${coords(m.cell)}</span><span class="fx">${m.flips?'翻 '+m.flips:''}</span></li>`).join(''):'<li class="empty">尚未落子。</li>';
+    if(!active)$('preview').textContent='';
+    if(active&&document.activeElement===document.body&&!curtainOpen())buttons[focusCell].focus({preventScroll:true});
+    sync();
+  }
+  function snapshot(){
+    const focusVisible=document.activeElement&&document.activeElement.classList.contains('flip-cell')&&document.activeElement.matches(':focus-visible');
+    return {serial,board:game.board,ply:game.ply,last:game.last,turn:game.turn,phase:game.phase,result:game.result,active:game.phase==='running'&&game.turn===1,
+      hover:hoverCell,preview:previewCells,focus:focusVisible?focusCell:-1,hint:hintCell,pending:pendingCell,skin:settings.skin,coords:settings.coords,view:settings.view,motion:settings.motion};
+  }
+  function sync(){window.FlipView?.sync(snapshot());}
+  // ---- lobby / career / settings UI ----
+  function renderLobby(){
+    const lv=level();
+    $('tier-list').innerHTML=AI.TIER_ORDER.map(t=>{const open=tierOpen(t),info=TIER_INFO[t];return `<button type="button" class="tier" data-tier="${t}" aria-pressed="${settings.tier===t}" ${open?'':'disabled'}><b>${info.name}</b><small>${info.desc}</small><em>${open?'經驗 × '+C.TIER_XP[t]:'Lv '+C.unlockLevel('tier',t)+' 解鎖'}</em></button>`;}).join('');
+    const v=[];v.push(`<span class="fu-chip fu-chip--seal">${settings.profile==='flipper'?'翻轉派':'連線派'}</span>`);
+    v.push(`<span class="fu-chip">${{alternate:'先手輪換',you:'你先手',ai:'AI 先手'}[settings.starter]}</span>`);
+    if(settings.rocks&&variantOpen('rocks'))v.push('<span class="fu-chip fu-chip--gold">石陣</span>');if(settings.scatter&&variantOpen('scatter'))v.push('<span class="fu-chip fu-chip--gold">散局</span>');
+    if(!(settings.rocks||settings.scatter))v.push('<span class="fu-chip">經典規則</span>');
+    v.push('<button class="fu-btn fu-btn--sm fu-btn--ghost" type="button" data-fu-open="settings">變體與個性 →</button>');
+    $('variant-line').innerHTML=v.join('');
+    $('puzzle-list').innerHTML=F.PUZZLES.map((p,i)=>{const open=C.puzzleOpen(career,PUZZLE_IDS,i),solved=!!career.puzzles[p.id];return `<button type="button" class="puzzle${solved?' solved':''}" data-puzzle="${i}" aria-pressed="${settings.puzzle===i}" ${open?'':'disabled'} aria-label="殘局 ${i+1} ${p.title}${solved?'，已解':''}${open?'':'，未解鎖'}"><span class="no">${String(i+1).padStart(2,'0')} · 第 ${p.chapter} 章</span><b>${p.title}</b><small>${p.goal.type==='win'?p.goal.moves+' 手內連五':'撐過 '+p.goal.moves+' 手'}</small></button>`;}).join('');
+    if(!C.puzzleOpen(career,PUZZLE_IDS,settings.puzzle))settings.puzzle=0;
+    $('puzzle-brief').textContent=F.PUZZLES[settings.puzzle].brief;
+    for(const pane of document.querySelectorAll('[data-pane]'))pane.hidden=pane.dataset.pane!==settings.mode;
+    for(const b of $('mode-seg').querySelectorAll('button'))b.setAttribute('aria-pressed',String(b.value===settings.mode));
+    $('play').textContent=settings.mode==='puzzle'?`挑戰殘局 ${settings.puzzle+1}`:game.phase==='paused'||game.phase==='running'?'放棄本局，開新局':'開始對局';
+    if(settings.mode==='match'&&(game.phase==='paused'))$('play').textContent='開新局';
+    const info=C.levelOf(career.xp);
+    $('lobby-career').innerHTML=`<span class="fu-label">Lv ${info.level} · ${C.rankOf(info.level)}</span><div class="fu-meter" style="--value:${info.max?1:info.into/info.need}"><i></i></div><span class="fu-num">${info.max?'MAX':info.into+' / '+info.need+' XP'}</span><span>勝 ${career.wins} · 殘局 ${Object.keys(career.puzzles).length}/${F.PUZZLES.length}</span>${game.phase==='paused'?'<button class="fu-btn fu-btn--sm" type="button" id="lobby-resume">繼續本局</button>':''}`;
+    $('lobby-resume')?.addEventListener('click',pause);
+  }
+  function renderCareer(){
+    const info=C.levelOf(career.xp),rank=C.rankOf(info.level);
+    $('chip-level').textContent=`Lv ${info.level}`;$('chip-rank').textContent=rank;$('chip-fill').style.width=(info.max?100:info.into/info.need*100)+'%';
+    $('career-summary').innerHTML=`<p class="fu-title" style="margin:0 0 6px">Lv ${info.level} · ${rank}</p><div class="fu-meter" style="--value:${info.max?1:info.into/info.need}"><i></i></div><p class="fu-small fu-dim fu-num">${info.max?'已達最高等級':`${info.into} / ${info.need} XP · 總經驗 ${career.xp}`}</p>`;
+    const best=career.bestTier>=0?TIER_INFO[C.TIERS[career.bestTier]].name:'—';
+    $('career-stats').innerHTML=`<tbody><tr><th>對局</th><td class="fu-num">${career.games}</td></tr><tr><th>勝 / 和 / 負</th><td class="fu-num">${career.wins} / ${career.draws} / ${career.losses}</td></tr><tr><th>目前 / 最佳連勝</th><td class="fu-num">${career.streak} / ${career.bestStreak}</td></tr><tr><th>累計翻轉</th><td class="fu-num">${career.flips}</td></tr><tr><th>擊敗最高難度</th><td>${best}</td></tr><tr><th>殘局</th><td class="fu-num">${Object.keys(career.puzzles).length} / ${F.PUZZLES.length}</td></tr></tbody>`;
+    $('unlocks').innerHTML=C.UNLOCKS.map(u=>`<li class="${info.level>=u.level?'on':''}"><span class="lv">Lv ${u.level}</span><span>${u.label}${info.level>=u.level?'':' · 未解鎖'}</span></li>`).join('');
+    syncSettingsForm();
+  }
+  function syncSettingsForm(){
+    $('personality').value=settings.profile;
+    for(const [id,key] of [['opt-rocks','rocks'],['opt-scatter','scatter'],['opt-preview','preview'],['opt-confirm','confirm'],['opt-coords','coords'],['opt-motion','motion']])$(id).checked=!!settings[key];
+    $('opt-rocks').disabled=!variantOpen('rocks');$('opt-scatter').disabled=!variantOpen('scatter');
+    $('rocks-note').textContent=variantOpen('rocks')?'擋住夾翻與連線 · 經驗 +15%':`Lv ${C.unlockLevel('variant','rocks')} 解鎖`;
+    $('scatter-note').textContent=variantOpen('scatter')?'對稱預置，打破定式 · 經驗 +15%':`Lv ${C.unlockLevel('variant','scatter')} 解鎖`;
+    for(const [seg,key] of [['starter-seg','starter'],['view-seg','view'],['skin-seg','skin']])for(const b of $(seg).querySelectorAll('button')){b.setAttribute('aria-pressed',String(b.value===settings[key]));if(seg==='skin-seg')b.disabled=!skinOpen(b.value);}
+    $('skin-note').textContent=['gold','paper'].filter(s=>!skinOpen(s)).map(s=>`${SKINS[s]} Lv ${C.unlockLevel('skin',s)}`).join(' · ');
+  }
+  const setSetting=(key,value)=>{settings[key]=value;saveSettings();syncSettingsForm();renderLobby();sync();if(key==='view')window.FlipView?.fit();};
+  $('personality').addEventListener('change',e=>setSetting('profile',e.target.value));
+  for(const [id,key] of [['opt-rocks','rocks'],['opt-scatter','scatter'],['opt-preview','preview'],['opt-confirm','confirm'],['opt-coords','coords'],['opt-motion','motion']])$(id).addEventListener('change',e=>{setSetting(key,e.target.checked);if(key==='confirm')pendingCell=-1;});
+  for(const [seg,key] of [['starter-seg','starter'],['view-seg','view'],['skin-seg','skin']])$(seg).addEventListener('click',e=>{const b=e.target.closest('button');if(b&&!b.disabled)setSetting(key,b.value);});
+  $('apply-restart').addEventListener('click',()=>{window.Fu?.close('settings');if(mode==='puzzle'&&settings.mode==='puzzle')restart();else{settings.mode='match';saveSettings();startMatch();}});
+  $('mode-seg').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;settings.mode=b.value;saveSettings();renderLobby();});
+  $('tier-list').addEventListener('click',e=>{const b=e.target.closest('.tier');if(!b||b.disabled)return;setSetting('tier',b.dataset.tier);});
+  $('tier-list').addEventListener('dblclick',e=>{if(e.target.closest('.tier:not(:disabled)'))startMatch();});
+  $('puzzle-list').addEventListener('click',e=>{const b=e.target.closest('.puzzle');if(!b||b.disabled)return;settings.puzzle=Number(b.dataset.puzzle);saveSettings();renderLobby();});
+  $('play').addEventListener('click',()=>{if(settings.mode==='puzzle')startPuzzle(settings.puzzle);else startMatch();});
+  $('pause').addEventListener('click',pause);$('resume').addEventListener('click',pause);
+  $('restart').addEventListener('click',restart);$('again').addEventListener('click',restart);
+  $('hint').addEventListener('click',hint);
+  $('lobby-btn').addEventListener('click',toLobby);$('pause-lobby').addEventListener('click',()=>{game.phase==='paused'&&game.reset(game.first);serial++;toLobby();});$('result-lobby').addEventListener('click',toLobby);
+  $('review').addEventListener('click',()=>{hideCurtains();render();});$('show-result').addEventListener('click',()=>{if(recorded)showResult();});
+  $('next-puzzle').addEventListener('click',()=>startPuzzle(Math.min(PUZZLE_IDS.length-1,PUZZLE_IDS.indexOf(puzzle.id)+1)));
+  $('reset-career').addEventListener('click',()=>{if(!confirm('確定要清除這台裝置上的等級與紀錄？'))return;career=C.blank();saveCareer();if(!tierOpen(settings.tier))settings.tier='master';if(!skinOpen(settings.skin))settings.skin='ink';settings.rocks=settings.rocks&&variantOpen('rocks');settings.scatter=settings.scatter&&variantOpen('scatter');saveSettings();renderCareer();renderLobby();sync();});
+  // ---- keyboard ----
   board.addEventListener('keydown',e=>{const delta={ArrowLeft:-1,ArrowRight:1,ArrowUp:-9,ArrowDown:9}[e.key];if(!delta)return;e.preventDefault();const next=focusCell+delta;if(next>=0&&next<81&&(Math.abs(delta)!==1||Math.floor(next/9)===Math.floor(focusCell/9)))buttons[next].focus();});
-  document.addEventListener('keydown',e=>{if((e.key.toLowerCase()==='p'||e.key==='Escape')&&!['SELECT','INPUT','TEXTAREA'].includes(e.target.tagName)){e.preventDefault();pause();}});
-  function autoPause(){if(game.phase==='running'){game.pause();stopTimer();notice='';render();}}
+  document.addEventListener('keydown',e=>{
+    if(e.metaKey||e.ctrlKey||e.altKey||['SELECT','INPUT','TEXTAREA'].includes(e.target.tagName))return;
+    const drawer=window.Fu&&['settings','rules','career'].some(id=>Fu.isOpen(id)),k=e.key.toLowerCase();
+    if(drawer){if(k==='s'&&Fu.isOpen('settings')){e.preventDefault();Fu.close('settings');}return;}
+    if(k==='p'||e.key==='Escape'){if(!$('lobby').hidden||!$('result-curtain').hidden)return;e.preventDefault();e.stopPropagation();pause();return;}
+    if(curtainOpen()&&!$('pause-curtain').hidden)return;
+    if(k==='h'){e.preventDefault();hint();}
+    else if(k==='r'&&$('lobby').hidden){e.preventDefault();restart();}
+    else if(k==='l'&&$('lobby').hidden){e.preventDefault();toLobby();}
+    else if(k==='s'){e.preventDefault();window.Fu?.open('settings');}
+    else if(k==='?'){e.preventDefault();window.Fu?.open('rules');}
+    else if(e.key.startsWith('Arrow')&&!curtainOpen()&&game.phase==='running'&&!e.target.classList?.contains('flip-cell')){e.preventDefault();focusBoard();}
+  },true);
   window.addEventListener('blur',autoPause);document.addEventListener('visibilitychange',()=>{if(document.hidden)autoPause();});window.addEventListener('pagehide',()=>{autoPause();stopTimer();worker?.terminate();worker=null;});
-  window.flipGame=game;window.flipRender=render;window.flipSchedule=schedule;
-  window.flipUI=()=>({first,focusCell,generation,scheduled:timer!==null||pending!==null,pending:pending?{id:pending.id,generation:pending.generation,ply:pending.ply,turn:pending.turn}:null,workerReady:!!worker,workerFallback:workerFailed||typeof Worker!=='function',searchOptions:{...SEARCH}});
+  // ---- hooks for the 3D view, tests and agents ----
+  window.flipGame=game;window.flipRender=render;window.flipSchedule=schedule;window.flipSnapshot=snapshot;
+  window.flipStart=(opts={})=>{if(opts.puzzle!=null)startPuzzle(opts.puzzle);else{for(const k of ['tier','profile','starter','rocks','scatter'])if(k in opts)settings[k]=opts[k];startMatch();}};
+  window.flipUI=()=>({first,focusCell,generation,mode,rules:{...rules},matchSeed,hints,scheduled:timer!==null||pending!==null,pending:pending?{id:pending.id,generation:pending.generation,ply:pending.ply,turn:pending.turn}:null,workerReady:!!worker,workerFallback:workerFailed||typeof Worker!=='function',searchOptions:searchOptions(),tier:rules.tier,career:{...career,puzzles:{...career.puzzles}}});
   window.flipAIStats=()=>({...diagnostics,lastSearch:diagnostics.lastSearch?{...diagnostics.lastSearch}:null,recent:diagnostics.recent.map(x=>({...x}))});
-  render();
+  // No WebGL module after a while: show the flat 2D board so the game stays playable.
+  setTimeout(()=>{if(!window.FlipView)document.body.classList.add('flat');},2500);
+  renderCareer();renderLobby();render();
 })();
-</script></body></html>
+</script>
+<script type="module" id="flip-view">
+import { THREE, createStage, inkMaterial, glowMaterial, palette } from './shared/fu-three.js';
+// 3D board: an ink slab with engraved cells; two-faced stones (seal over azure) that really flip.
+const S=1.1,TILE_TOP=.06,HALF=.07,REST=TILE_TOP+HALF,EDGE=9*S/2+.75;
+const canvas=document.getElementById('stage'),buttons=[...document.querySelectorAll('.flip-cell')];
+let stage;
+try{stage=createStage(canvas,{fog:[34,95],fov:32,exposure:1.08});}
+catch(error){document.body.classList.add('flat');throw error;}
+document.body.classList.remove('flat');
+const {scene,camera}=stage;
+const pos=i=>new THREE.Vector3(((i%9)-4)*S,0,(Math.floor(i/9)-4)*S);
+// ---- static board ----
+const slab=new THREE.Mesh(new THREE.BoxGeometry(EDGE*2,.6,EDGE*2),inkMaterial('ink1'));slab.position.y=-.3;scene.add(slab);
+const tileGeo=new THREE.BoxGeometry(S*.93,.12,S*.93);tileGeo.translate(0,0,0);
+const tileMat=inkMaterial(0xffffff,{roughness:.92});
+const tiles=new THREE.InstancedMesh(tileGeo,tileMat,81);
+{const m=new THREE.Matrix4();for(let i=0;i<81;i++){const p=pos(i);m.makeTranslation(p.x,0,p.z);tiles.setMatrixAt(i,m);}}
+scene.add(tiles);
+const starGeo=new THREE.CircleGeometry(.07,4);starGeo.rotateX(-Math.PI/2);starGeo.rotateY(Math.PI/4);
+const starMat=new THREE.MeshBasicMaterial({color:palette.paperDim,transparent:true,opacity:.5});
+for(const i of [20,24,40,56,60]){const d=new THREE.Mesh(starGeo,starMat);const p=pos(i);d.position.set(p.x,TILE_TOP+.002,p.z);scene.add(d);}
+// frame: straight engraved lines just outside the playing field + one seal corner mark
+const frameMat=new THREE.LineBasicMaterial({color:palette.paperDim,transparent:true,opacity:.35});
+{const h=9*S/2+.12,pts=[[-h,-h],[h,-h],[h,h],[-h,h],[-h,-h]].map(([x,z])=>new THREE.Vector3(x,.005,z));scene.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts),frameMat));}
+const sealMark=new THREE.Mesh(new THREE.BoxGeometry(.42,.05,.42),inkMaterial('seal',{flatShading:true}));sealMark.position.set(-EDGE+.36,.02,-EDGE+.36);scene.add(sealMark);
+const ground=new THREE.GridHelper(120,60,palette.ink3,palette.ink2);ground.position.y=-.62;scene.add(ground);
+// coordinates engraved on the margin
+function labelTexture(text,color){const c=document.createElement('canvas');c.width=c.height=64;const g=c.getContext('2d');g.fillStyle=color;g.font='600 38px ui-monospace, Menlo, Consolas, monospace';g.textAlign='center';g.textBaseline='middle';g.fillText(text,32,34);const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;t.anisotropy=4;return t;}
+const labelGroup=new THREE.Group();scene.add(labelGroup);const labelGeo=new THREE.PlaneGeometry(.42,.42);labelGeo.rotateX(-Math.PI/2);
+const labelMats=[];
+function buildLabels(color){labelGroup.clear();labelMats.forEach(m=>{m.map.dispose();m.dispose();});labelMats.length=0;
+  for(let k=0;k<9;k++)for(const [text,x,z] of [[String.fromCharCode(65+k),(k-4)*S,-9*S/2-.42],[String(k+1),-9*S/2-.42,(k-4)*S]]){const mat=new THREE.MeshBasicMaterial({map:labelTexture(text,color),transparent:true,depthWrite:false});labelMats.push(mat);const mesh=new THREE.Mesh(labelGeo,mat);mesh.position.set(x,.004,z);labelGroup.add(mesh);}}
+// ---- stones ----
+const discGeo=new THREE.CylinderGeometry(.42,.42,HALF,40);
+const bandGeo=new THREE.CylinderGeometry(.428,.428,.014,40);
+const ringGeo=new THREE.TorusGeometry(.16,.032,8,36);ringGeo.rotateX(Math.PI/2);
+const diamondGeo=new THREE.BoxGeometry(.2,.012,.2);diamondGeo.rotateY(Math.PI/4);
+const sealMat=new THREE.MeshStandardMaterial({color:palette.seal,roughness:.5,metalness:.05});
+const azureMat=new THREE.MeshStandardMaterial({color:palette.azure,roughness:.5,metalness:.05});
+const inkGlyph=new THREE.MeshStandardMaterial({color:palette.ink0,roughness:.7});
+const bandMat=new THREE.MeshStandardMaterial({color:palette.ink1,roughness:.8});
+function makeStone(){
+  const g=new THREE.Group(),top=new THREE.Mesh(discGeo,sealMat),bottom=new THREE.Mesh(discGeo,azureMat),band=new THREE.Mesh(bandGeo,bandMat),ring=new THREE.Mesh(ringGeo,inkGlyph),dia=new THREE.Mesh(diamondGeo,inkGlyph);
+  top.position.y=HALF/2;bottom.position.y=-HALF/2;ring.position.y=HALF+.004;dia.position.y=-HALF-.007;dia.rotation.x=Math.PI;
+  g.add(top,bottom,band,ring,dia);return g;
+}
+const rockGeo=new THREE.CylinderGeometry(.34,.42,.5,8);rockGeo.translate(0,.25,0);
+const rockMat=inkMaterial('bone',{roughness:1});const rockCap=new THREE.Mesh(new THREE.CylinderGeometry(.2,.2,.02,8),inkMaterial('ink3'));
+const cells=Array.from({length:81},(_,i)=>({owner:0,obj:null,anim:null,base:pos(i)}));
+const fxGroup=new THREE.Group();scene.add(fxGroup);
+// markers: square frames made of four thin bars (straight lines, no rounded rings)
+function frame(color,size=S*.96,thick=.05){const g=new THREE.Group(),mat=glowMaterial(color,.95),bar=new THREE.BoxGeometry(size,.02,thick),side=new THREE.BoxGeometry(thick,.02,size);for(const [geo,x,z] of [[bar,0,-size/2],[bar,0,size/2],[side,-size/2,0],[side,size/2,0]]){const m=new THREE.Mesh(geo,mat);m.position.set(x,0,z);g.add(m);}g.visible=false;scene.add(g);return g;}
+const lastMark=frame('gold'),focusMark=frame('paper'),hintMark=frame('jade'),pendingMark=frame('seal');
+const ghost=makeStone();ghost.traverse(o=>{if(o.material){o.material=o.material.clone();o.material.transparent=true;o.material.opacity=.38;o.material.depthWrite=false;}});ghost.visible=false;scene.add(ghost);
+const previewGeo=new THREE.RingGeometry(.47,.53,48);previewGeo.rotateX(-Math.PI/2);
+const previewMat=glowMaterial('seal',.95);const previewMarks=Array.from({length:24},()=>{const m=new THREE.Mesh(previewGeo,previewMat);m.visible=false;scene.add(m);return m;});
+const winGroup=new THREE.Group();scene.add(winGroup);
+let snap=null,lastSerial=-1,lastPly=-1,skin=null,coordsOn=null,viewMode=null,motion=true,clock=0;
+const css=n=>'#'+n.toString(16).padStart(6,'0');
+const SKIN={ink:{tile:palette.ink2,slab:palette.ink1,label:css(palette.paperDim),star:palette.paperDim},gold:{tile:palette.ink2,slab:palette.ink1,label:css(palette.gold),star:palette.gold},paper:{tile:palette.bone,slab:palette.ink1,label:css(palette.paper),star:palette.ink3}};
+function applySkin(name){
+  skin=name;const s=SKIN[name]||SKIN.ink,c=new THREE.Color();
+  for(let i=0;i<81;i++){c.set(s.tile);const r=Math.floor(i/9),k=i%9;if(name!=='paper'&&(r+k)%2)c.offsetHSL(0,0,.012);tiles.setColorAt(i,c);}tiles.instanceColor.needsUpdate=true;
+  slab.material.color.set(s.slab);starMat.color.set(s.star);frameMat.color.set(name==='gold'?palette.gold:palette.paperDim);buildLabels(s.label);labelGroup.visible=coordsOn!==false;
+}
+function setStone(i,owner){
+  const cell=cells[i];if(cell.obj){scene.remove(cell.obj);cell.obj=null;}cell.anim=null;cell.owner=owner;if(!owner)return;
+  if(owner===3){const g=new THREE.Group(),m=new THREE.Mesh(rockGeo,rockMat),cap=rockCap.clone();cap.position.y=.51;g.add(m,cap);g.position.set(cell.base.x,TILE_TOP,cell.base.z);g.rotation.y=(i*37%8)*.2;scene.add(g);cell.obj=g;return;}
+  const g=makeStone();g.position.set(cell.base.x,REST,cell.base.z);g.rotation.x=owner===2?Math.PI:0;scene.add(g);cell.obj=g;
+}
+const ease=t=>1-Math.pow(1-t,3);
+function ripple(i,color){const m=new THREE.Mesh(previewGeo,glowMaterial(color,.8));const p=cells[i].base;m.position.set(p.x,TILE_TOP+.01,p.z);m.userData={start:performance.now()/1000,life:.7};fxGroup.add(m);}
+function syncBoard(s){
+  const reset=s.serial!==lastSerial||s.ply<lastPly||!motion;
+  if(reset){for(let i=0;i<81;i++)if(cells[i].owner!==s.board[i]||s.serial!==lastSerial)setStone(i,s.board[i]);lastSerial=s.serial;lastPly=s.ply;return;}
+  if(s.ply===lastPly)return;
+  const last=s.last,origin=last?last.cell:40;
+  for(let i=0;i<81;i++){
+    const want=s.board[i],cell=cells[i];if(cell.owner===want)continue;
+    if(!cell.owner){setStone(i,want);const placed=last&&i===last.cell;cell.anim={kind:'drop',start:performance.now()/1000,delay:0,dur:placed?.3:.2,y0:REST+(placed?2.4:.6)};cell.obj.position.y=cell.anim.y0;if(placed)ripple(i,want===1?'seal':'azure');}
+    else if(want&&cell.owner!==3&&want!==3&&cell.obj){const d=Math.max(Math.abs(i%9-origin%9),Math.abs(Math.floor(i/9)-Math.floor(origin/9)));cell.anim={kind:'flip',start:performance.now()/1000,delay:.16+d*.075,dur:.46,from:cell.obj.rotation.x,to:want===2?Math.PI:0};cell.owner=want;}
+    else setStone(i,want);
+  }
+  lastPly=s.ply;
+}
+function syncWin(s){
+  winGroup.clear();if(!s.result||!s.result.lines)return;
+  s.result.lines.forEach((lines,p)=>{for(const line of lines){const a=cells[line[0]].base,b=cells[line[line.length-1]].base,len=a.distanceTo(b)+S*.7;const bar=new THREE.Mesh(new THREE.BoxGeometry(len,.05,.12),glowMaterial(p===1?'seal':'azure',.95));bar.position.set((a.x+b.x)/2,REST+HALF+.05,(a.z+b.z)/2);bar.rotation.y=-Math.atan2(b.z-a.z,b.x-a.x);bar.userData.win=true;winGroup.add(bar);}});
+}
+function place(mark,i,y=TILE_TOP+.02){if(i<0||i==null){mark.visible=false;return;}const p=cells[i].base;mark.position.set(p.x,y,p.z);mark.visible=true;}
+function sync(s){
+  snap=s;motion=s.motion&&!matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(s.skin!==skin)applySkin(s.skin);if(s.coords!==coordsOn){coordsOn=s.coords;labelGroup.visible=coordsOn;}
+  if(s.view!==viewMode){viewMode=s.view;fit();}
+  syncBoard(s);syncWin(s);
+  place(lastMark,s.last?s.last.cell:-1);place(hintMark,s.active?s.hint:-1,TILE_TOP+.03);place(focusMark,s.active&&s.focus!==s.hint?s.focus:-1,TILE_TOP+.04);place(pendingMark,s.active?s.pending:-1,TILE_TOP+.05);
+  const ghostCell=s.active?(s.pending>=0?s.pending:s.hover>=0?s.hover:s.focus):-1;
+  if(ghostCell>=0&&!s.board[ghostCell]){const p=cells[ghostCell].base;ghost.position.set(p.x,REST+.18,p.z);ghost.visible=true;}else ghost.visible=false;
+  previewMarks.forEach((m,k)=>{const i=s.active?s.preview[k]:undefined;if(i==null){m.visible=false;return;}const p=cells[i].base;m.position.set(p.x,REST+HALF+.02,p.z);m.visible=true;});
+}
+// ---- camera fit: frame the board inside the area the HUD leaves free, and lay the buttons over the cells ----
+const corners=[];for(const y of [-.6,.6])for(const x of [-EDGE,EDGE])for(const z of [-EDGE,EDGE])corners.push(new THREE.Vector3(x,y,z));
+function rects(w){
+  const top=document.querySelector('.fu-topbar').getBoundingClientRect().bottom,dock=document.querySelector('.fu-dock').getBoundingClientRect(),panel=document.getElementById('match-panel').getBoundingClientRect(),log=document.querySelector('.log-panel').getBoundingClientRect();
+  const phone=w<=720,ins={l:phone?8:16,r:phone?8:16,t:(phone?Math.max(top,panel.bottom):top)+8,b:innerHeight-dock.top+10};
+  const grow=r=>({x0:r.left-10,y0:r.top-10,x1:r.right+10,y1:r.bottom+10});
+  return {ins,obstacles:phone?[]:[panel,log].filter(r=>r.width>0).map(grow)};
+}
+function project(v,w,h){const p=v.clone().project(camera);return [(p.x+1)/2*w,(1-p.y)/2*h];}
+// Board top-surface outline, sampled along its edges, must stay clear of HUD panels.
+const outline=[];{const e=EDGE;for(let k=0;k<=24;k++){const t=-e+2*e*k/24;outline.push(new THREE.Vector3(t,0,-e),new THREE.Vector3(t,0,e),new THREE.Vector3(-e,0,t),new THREE.Vector3(e,0,t));}for(let i=0;i<81;i++)outline.push(pos(i));}
+function fit(){
+  stage.resize();const w=stage.size.width,h=stage.size.height;if(w<2||h<2)return;
+  const {ins,obstacles}=rects(w),aw=Math.max(80,w-ins.l-ins.r),ah=Math.max(80,h-ins.t-ins.b),ax=ins.l+aw/2,ay=ins.t+ah/2;
+  const elev=(viewMode==='top'?84:w<=720?68:56)*Math.PI/180,dir=new THREE.Vector3(0,Math.sin(elev),Math.cos(elev));
+  camera.clearViewOffset();camera.updateProjectionMatrix();
+  const measure=d=>{camera.position.copy(dir).multiplyScalar(d);camera.lookAt(0,0,0);camera.updateMatrixWorld();let x0=1e9,y0=1e9,x1=-1e9,y1=-1e9;for(const c of corners){const [x,y]=project(c,w,h);x0=Math.min(x0,x);x1=Math.max(x1,x);y0=Math.min(y0,y);y1=Math.max(y1,y);}return {x0,y0,x1,y1,dx:ax-(x0+x1)/2,dy:ay-(y0+y1)/2};};
+  const fits=d=>{const b=measure(d);if(b.x1-b.x0>aw||b.y1-b.y0>ah)return false;
+    for(const v of outline){const [x,y]=project(v,w,h),px=x+b.dx,py=y+b.dy;for(const o of obstacles)if(px>o.x0&&px<o.x1&&py>o.y0&&py<o.y1)return false;}return true;};
+  let lo=4,hi=300;for(let k=0;k<36;k++){const mid=(lo+hi)/2;if(fits(mid))hi=mid;else lo=mid;}
+  const b=measure(hi);camera.setViewOffset(w,h,-b.dx,-b.dy,w,h);camera.updateProjectionMatrix();layoutButtons(w,h);
+}
+const tileCorner=[[-.5,-.5],[.5,-.5],[-.5,.5],[.5,.5]];
+function layoutButtons(w,h){
+  camera.updateMatrixWorld();
+  buttons.forEach((btn,i)=>{const p=cells[i].base;let x0=1e9,y0=1e9,x1=-1e9,y1=-1e9;for(const [dx,dz] of tileCorner){const [x,y]=project(new THREE.Vector3(p.x+dx*S,TILE_TOP,p.z+dz*S),w,h);x0=Math.min(x0,x);x1=Math.max(x1,x);y0=Math.min(y0,y);y1=Math.max(y1,y);}
+    btn.style.left=x0.toFixed(1)+'px';btn.style.top=y0.toFixed(1)+'px';btn.style.width=(x1-x0).toFixed(1)+'px';btn.style.height=(y1-y0).toFixed(1)+'px';});
+}
+let fitQueued=false;const queueFit=()=>{if(fitQueued)return;fitQueued=true;requestAnimationFrame(()=>{fitQueued=false;fit();});};
+window.addEventListener('resize',queueFit);if(window.visualViewport)visualViewport.addEventListener('resize',queueFit);
+if(typeof ResizeObserver!=='undefined'){const ro=new ResizeObserver(queueFit);ro.observe(document.getElementById('match-panel'));ro.observe(document.querySelector('.fu-dock'));}
+// ---- animation loop ----
+stage.loop((dt,t)=>{
+  clock+=dt;const now=performance.now()/1000;
+  // Animations run on wall-clock time so a slow renderer skips frames instead of slowing the game down.
+  for(const cell of cells){const a=cell.anim;if(!a||!cell.obj)continue;const k=Math.min(1,Math.max(0,(now-a.start-a.delay)/a.dur));
+    if(a.kind==='drop'){cell.obj.position.y=a.y0+(REST-a.y0)*k*k;if(k>=1){cell.obj.position.y=REST;cell.anim=null;}}
+    else{cell.obj.rotation.x=a.from+(a.to-a.from)*ease(k);cell.obj.position.y=REST+Math.sin(Math.PI*k)*.75;if(k>=1){cell.obj.rotation.x=a.to;cell.obj.position.y=REST;cell.anim=null;}}}
+  for(const m of [...fxGroup.children]){const k=Math.min(1,(now-m.userData.start)/m.userData.life);m.scale.setScalar(1+k*1.8);m.material.opacity=.8*(1-k);if(k>=1){fxGroup.remove(m);m.material.dispose();}}
+  const pulse=.55+.45*Math.sin(clock*5);
+  hintMark.scale.setScalar(1+.04*pulse);previewMat.opacity=.5+.45*pulse;
+  ghost.position.y+=((snap&&snap.active?REST+.18+.04*Math.sin(clock*3):REST)-ghost.position.y)*.2;
+  for(const bar of winGroup.children)bar.material.opacity=.6+.4*pulse;
+  // winning stones rise a little
+  if(snap&&snap.result)for(const line of snap.result.lines.flat())for(const i of line){const o=cells[i].obj;if(o&&!cells[i].anim)o.position.y=REST+.08+.04*pulse;}
+});
+window.FlipView={sync,fit,ready:true,cellCenter:i=>{const r=buttons[i].getBoundingClientRect();return {x:r.left+r.width/2,y:r.top+r.height/2,w:r.width,h:r.height};}};
+applySkin('ink');fit();window.flipRender?.();
+</script>
+</body></html>
