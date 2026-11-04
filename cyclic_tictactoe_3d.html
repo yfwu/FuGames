@@ -404,7 +404,7 @@ const CyclicCareer=(()=>{
 <script src="shared/fu-shell.js" defer></script>
 <script src="cyclic3d-engine.js"></script>
 <script type="module" id="cyclic-app">
-import { THREE, createStage, palette } from './shared/fu-three.js';
+import { THREE, createStage, palette, fonts } from './shared/fu-three.js';
 // Page controller + three.js view. Rules live in cyclic3d-engine.js; this file only reads them.
 const C=window.CyclicCube,K=CyclicCareer,{BLACK,WHITE}=C;
 const $=id=>document.getElementById(id);
@@ -800,9 +800,12 @@ if(!stage){
   const root=new THREE.Group();scene.add(root);
   const col=hex=>new THREE.Color(hex);
   // text sprite
-  function textSprite(text,{size=.62,color='#a8a08c',font='700 64px "Noto Serif TC","Songti TC",serif'}={}){
-    const c=document.createElement('canvas');c.width=256;c.height=128;const g=c.getContext('2d');g.font=font;g.fillStyle=color;g.textAlign='center';g.textBaseline='middle';g.fillText(text,128,66);
+  function textSprite(text,{size=.62,color='#a8a08c',font='700 64px '+fonts.display}={}){
+    const c=document.createElement('canvas');c.width=256;c.height=128;const g=c.getContext('2d');
+    const draw=()=>{g.clearRect(0,0,256,128);g.font=font;g.fillStyle=color;g.textAlign='center';g.textBaseline='middle';g.fillText(text,128,66);};draw();
     const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;
+    // 宋體按需下載：載入完成後重畫一次
+    if(document.fonts&&document.fonts.load)document.fonts.load(font,text).then(()=>{draw();t.needsUpdate=true;},()=>{});
     const s=new THREE.Sprite(new THREE.SpriteMaterial({map:t,transparent:true,depthWrite:false,fog:false}));s.scale.set(size*2,size,1);return s;
   }
   function badgeTex(n){

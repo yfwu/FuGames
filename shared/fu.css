@@ -4,6 +4,9 @@
    說明文件：shared/README.md。色票同步：shared/fu-palette.js。
    ========================================================================== */
 
+/* 標題宋體（思源宋體，本地內嵌、按需下載）。必須在所有規則之前。 */
+@import url("fu-fonts.css");
+
 :root {
   /* ---- 色票（與 fu-palette.js 一致） ---- */
   --fu-ink-0: #07090c;
@@ -45,7 +48,8 @@
   --fu-info: var(--fu-azure);
 
   /* ---- 字體：宋體標題 × 等寬標籤 × 黑體內文 ---- */
-  --fu-font-display: "Noto Serif TC", "Source Han Serif TC", "Songti TC", "STSong", "PMingLiU", "MingLiU", serif;
+  /* 標題一律用內嵌的思源宋體；缺字時退回黑體，絕不退回新細明體或系統預設襯線字 */
+  --fu-font-display: "Fu Serif", "Noto Serif TC", "Source Han Serif TC", "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
   --fu-font-body: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", "Heiti TC", system-ui, sans-serif;
   --fu-font-mono: "Iosevka YFWU", ui-monospace, "SFMono-Regular", "JetBrains Mono", Menlo, Consolas, monospace;
 

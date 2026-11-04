@@ -12,6 +12,24 @@ const HEX = {
   seal: 0xff4b2b, sealDeep: 0xb92d17, jade: 0x35d0a8, gold: 0xe9b949,
   azure: 0x4fa3ff, orchid: 0xb98cff, bone: 0xd9d2c0
 };
+/** canvas 文字用的字體堆疊（與 fu.css 的 --fu-font-* 相同）。 */
+export const fonts = Object.freeze({
+  display: '"Fu Serif","Noto Serif TC","Source Han Serif TC","Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif',
+  body: '"Noto Sans TC","PingFang TC","Microsoft JhengHei","Heiti TC",system-ui,sans-serif',
+  mono: '"Iosevka YFWU",ui-monospace,"SFMono-Regular","JetBrains Mono",Menlo,Consolas,monospace'
+});
+
+/**
+ * 在 canvas 畫字之前先載入宋體。字型按 unicode-range 切片，canvas 不會自動觸發下載，
+ * 所以要把會畫到的字傳進來。最多等 timeout 毫秒，逾時就用退回字體繼續。
+ */
+export function loadFonts(text = '', { weights = [700, 900], timeout = 3000 } = {}) {
+  if (typeof document === 'undefined' || !document.fonts || !document.fonts.load) return Promise.resolve(false);
+  const sample = text || 'FuGames 福遊';
+  const all = Promise.all(weights.map(w => document.fonts.load(`${w} 32px "Fu Serif"`, sample))).then(() => true, () => false);
+  return Promise.race([all, new Promise(r => setTimeout(() => r(false), timeout))]);
+}
+
 export const palette = Object.freeze({
   ...HEX,
   sides: Object.freeze([HEX.seal, HEX.azure, HEX.jade, HEX.gold, HEX.orchid, HEX.bone]),
