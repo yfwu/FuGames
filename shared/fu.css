@@ -1,0 +1,709 @@
+/* ==========================================================================
+   FuGames「朱墨」Vermilion Ink — 跨遊戲共用設計語言
+   墨色底、米紙字、一方朱印。滿版舞台優先，設定收進抽屜。
+   說明文件：shared/README.md。色票同步：shared/fu-palette.js。
+   ========================================================================== */
+
+:root {
+  /* ---- 色票（與 fu-palette.js 一致） ---- */
+  --fu-ink-0: #07090c;
+  --fu-ink-1: #0d1116;
+  --fu-ink-2: #151b23;
+  --fu-ink-3: #212a35;
+  --fu-paper: #ece4d0;
+  --fu-paper-dim: #a8a08c;
+  --fu-mute: #6d7380;
+  --fu-seal: #ff4b2b;
+  --fu-seal-deep: #b92d17;
+  --fu-jade: #35d0a8;
+  --fu-gold: #e9b949;
+  --fu-azure: #4fa3ff;
+  --fu-orchid: #b98cff;
+  --fu-bone: #d9d2c0;
+
+  /* 陣營色：多方遊戲一律依此順序 */
+  --fu-side-1: var(--fu-seal);
+  --fu-side-2: var(--fu-azure);
+  --fu-side-3: var(--fu-jade);
+  --fu-side-4: var(--fu-gold);
+  --fu-side-5: var(--fu-orchid);
+  --fu-side-6: var(--fu-bone);
+
+  /* 語意色 */
+  --fu-bg: var(--fu-ink-0);
+  --fu-surface: rgba(13, 17, 22, .84);
+  --fu-surface-solid: var(--fu-ink-1);
+  --fu-raised: var(--fu-ink-2);
+  --fu-text: var(--fu-paper);
+  --fu-text-dim: var(--fu-paper-dim);
+  --fu-line: rgba(236, 228, 208, .11);
+  --fu-line-strong: rgba(236, 228, 208, .26);
+  --fu-accent: var(--fu-seal);
+  --fu-ok: var(--fu-jade);
+  --fu-warn: var(--fu-gold);
+  --fu-danger: var(--fu-seal);
+  --fu-info: var(--fu-azure);
+
+  /* ---- 字體：宋體標題 × 等寬標籤 × 黑體內文 ---- */
+  --fu-font-display: "Noto Serif TC", "Source Han Serif TC", "Songti TC", "STSong", "PMingLiU", "MingLiU", serif;
+  --fu-font-body: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", "Heiti TC", system-ui, sans-serif;
+  --fu-font-mono: "Iosevka YFWU", ui-monospace, "SFMono-Regular", "JetBrains Mono", Menlo, Consolas, monospace;
+
+  /* ---- 尺度 ---- */
+  --fu-space-1: 4px;
+  --fu-space-2: 8px;
+  --fu-space-3: 12px;
+  --fu-space-4: 16px;
+  --fu-space-5: 24px;
+  --fu-space-6: 32px;
+  --fu-space-7: 48px;
+  --fu-gutter: clamp(16px, 2.6vw, 32px);
+  --fu-radius: 2px;          /* 朱墨幾乎不用圓角：切角與直線才是辨識點 */
+  --fu-cut: 10px;            /* 面板切角大小 */
+  --fu-touch: 44px;
+  --fu-topbar-h: 56px;
+
+  /* ---- 動態 ---- */
+  --fu-ease: cubic-bezier(.2, .7, .1, 1);
+  --fu-ease-in: cubic-bezier(.6, 0, .8, .3);
+  --fu-dur-1: 120ms;
+  --fu-dur-2: 240ms;
+  --fu-dur-3: 520ms;
+
+  /* ---- 紋理 ---- */
+  --fu-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .93 0 0 0 0 .89 0 0 0 0 .82 0 0 0 .55 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+
+  color-scheme: dark;
+}
+
+/* 米紙主題：同一套元件反轉為紙底墨字（說明頁、列印、白天模式） */
+[data-fu-theme="paper"] {
+  --fu-bg: #ece4d0;
+  --fu-surface: rgba(246, 241, 229, .9);
+  --fu-surface-solid: #f6f1e5;
+  --fu-raised: #e3dac4;
+  --fu-text: #12161c;
+  --fu-text-dim: #5b5649;
+  --fu-line: rgba(18, 22, 28, .13);
+  --fu-line-strong: rgba(18, 22, 28, .32);
+  --fu-seal: #e23a1c;
+  color-scheme: light;
+}
+
+/* ==========================================================================
+   基底
+   ========================================================================== */
+.fu-app {
+  margin: 0;
+  min-height: 100vh;
+  min-height: 100dvh;
+  background: var(--fu-bg);
+  color: var(--fu-text);
+  font: 400 14px/1.6 var(--fu-font-body);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow-x: hidden;
+}
+.fu-app *, .fu-app *::before, .fu-app *::after { box-sizing: border-box; }
+.fu-app a { color: inherit; }
+.fu-app button, .fu-app input, .fu-app select, .fu-app textarea { font: inherit; color: inherit; }
+.fu-app ::selection { background: var(--fu-seal); color: var(--fu-ink-0); }
+
+/* 紙紋顆粒 + 暗角：所有朱墨頁面的「空氣」 */
+.fu-app::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 90;
+  background: var(--fu-grain);
+  opacity: .07;
+  mix-blend-mode: overlay;
+}
+.fu-vignette::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  background: radial-gradient(120% 90% at 50% 40%, transparent 55%, rgba(0, 0, 0, .55) 100%);
+}
+
+.fu-app :focus-visible {
+  outline: 2px solid var(--fu-seal);
+  outline-offset: 2px;
+}
+
+/* ==========================================================================
+   字級
+   ========================================================================== */
+.fu-display {
+  font-family: var(--fu-font-display);
+  font-weight: 900;
+  letter-spacing: -.02em;
+  line-height: .98;
+  font-size: clamp(44px, 8vw, 120px);
+  margin: 0;
+}
+.fu-title {
+  font-family: var(--fu-font-display);
+  font-weight: 800;
+  letter-spacing: -.01em;
+  line-height: 1.1;
+  font-size: clamp(24px, 3.2vw, 40px);
+  margin: 0;
+}
+.fu-heading {
+  font-family: var(--fu-font-display);
+  font-weight: 700;
+  font-size: 19px;
+  line-height: 1.25;
+  margin: 0;
+}
+/* 等寬標籤：所有 HUD 文字、欄位名、按鈕 */
+.fu-label {
+  font-family: var(--fu-font-mono);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--fu-text-dim);
+  margin: 0;
+}
+.fu-label b, .fu-label strong { color: var(--fu-seal); font-weight: 700; }
+.fu-num {
+  font-family: var(--fu-font-mono);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -.02em;
+}
+.fu-dim { color: var(--fu-text-dim); }
+.fu-small { font-size: 12px; }
+
+/* ==========================================================================
+   朱印：品牌記號（任何頁面左上角）
+   <a class="fu-brand" href="index.html"><span class="fu-seal" aria-hidden="true">福遊</span>FuGames</a>
+   ========================================================================== */
+.fu-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  font-family: var(--fu-font-mono);
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--fu-text);
+}
+.fu-seal {
+  --s: 30px;
+  --f: 11px;
+  display: inline-block;
+  width: var(--s);
+  height: var(--s);
+  padding: calc((var(--s) - 2 * var(--f)) / 2) calc((var(--s) - var(--f)) / 2);
+  font-family: var(--fu-font-display);
+  font-weight: 900;
+  font-size: var(--f);
+  line-height: 1;
+  text-align: center;
+  word-break: break-all;
+  overflow: hidden;
+  color: var(--fu-ink-0);
+  background: var(--fu-seal);
+  border-radius: 3px;
+  box-shadow: inset 0 0 0 2px var(--fu-seal), inset 0 0 0 3px rgba(7, 9, 12, .55);
+  transform: rotate(-4deg);
+  flex: none;
+}
+.fu-seal--lg { --s: 64px; --f: 24px; box-shadow: inset 0 0 0 4px var(--fu-seal), inset 0 0 0 6px rgba(7, 9, 12, .55); }
+
+/* ==========================================================================
+   版面骨架：滿版舞台 + 疊加 HUD
+   <body class="fu-app">
+     <header class="fu-topbar">…</header>
+     <main class="fu-stage"><canvas class="fu-canvas"></canvas></main>
+     <div class="fu-hud fu-hud--tl">…</div>
+     <nav class="fu-dock">…</nav>
+     <aside class="fu-drawer" id="settings">…</aside>
+   ========================================================================== */
+.fu-topbar {
+  position: fixed;
+  inset: 0 0 auto;
+  z-index: 40;
+  height: var(--fu-topbar-h);
+  display: flex;
+  align-items: center;
+  gap: var(--fu-space-4);
+  padding: 0 var(--fu-gutter);
+  background: linear-gradient(var(--fu-bg), transparent);
+}
+.fu-topbar__title {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: baseline;
+  gap: var(--fu-space-3);
+  overflow: hidden;
+  white-space: nowrap;
+}
+.fu-topbar__title .fu-heading { overflow: hidden; text-overflow: ellipsis; }
+.fu-topbar__actions { display: flex; align-items: center; gap: var(--fu-space-2); }
+
+.fu-stage {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  background: var(--fu-bg);
+  touch-action: none;
+}
+.fu-stage > canvas, .fu-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* 疊加 HUD：四角 + 上下置中 */
+.fu-hud {
+  position: fixed;
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  gap: var(--fu-space-2);
+  pointer-events: none;
+  max-width: min(420px, calc(100vw - 2 * var(--fu-gutter)));
+}
+.fu-hud > * { pointer-events: auto; }
+.fu-hud--tl { top: calc(var(--fu-topbar-h) + 4px); left: var(--fu-gutter); }
+.fu-hud--tr { top: calc(var(--fu-topbar-h) + 4px); right: var(--fu-gutter); align-items: flex-end; }
+.fu-hud--bl { bottom: var(--fu-gutter); left: var(--fu-gutter); }
+.fu-hud--br { bottom: var(--fu-gutter); right: var(--fu-gutter); align-items: flex-end; }
+.fu-hud--top { top: calc(var(--fu-topbar-h) + 4px); left: 50%; transform: translateX(-50%); align-items: center; }
+
+/* 底部指令列 */
+.fu-dock {
+  position: fixed;
+  z-index: 35;
+  left: 50%;
+  bottom: max(var(--fu-gutter), env(safe-area-inset-bottom));
+  transform: translateX(-50%);
+  display: flex;
+  align-items: stretch;
+  gap: 1px;
+  padding: 1px;
+  background: var(--fu-line-strong);
+  max-width: calc(100vw - 2 * var(--fu-gutter));
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.fu-dock > * { flex: none; }
+.fu-dock .fu-btn { border: 0; background: var(--fu-surface-solid); }
+.fu-dock .fu-btn:hover:not(:disabled) { background: var(--fu-raised); }
+.fu-dock .fu-btn[aria-pressed="true"] { background: var(--fu-seal); color: var(--fu-ink-0); }
+
+/* 不需滿版舞台的頁面（說明、封存）用的捲動版面 */
+.fu-page {
+  position: relative;
+  z-index: 2;
+  width: min(1200px, 100%);
+  margin: 0 auto;
+  padding: calc(var(--fu-topbar-h) + var(--fu-space-6)) var(--fu-gutter) var(--fu-space-7);
+}
+
+/* ==========================================================================
+   面板：切角 + 朱色定位角（朱墨的主要辨識元素）
+   ========================================================================== */
+.fu-panel {
+  --fu-corner: var(--fu-seal);
+  position: relative;
+  background: var(--fu-surface);
+  border: 1px solid var(--fu-line);
+  padding: var(--fu-space-4);
+  clip-path: polygon(0 0, calc(100% - var(--fu-cut)) 0, 100% var(--fu-cut), 100% 100%, var(--fu-cut) 100%, 0 calc(100% - var(--fu-cut)));
+  -webkit-backdrop-filter: blur(14px) saturate(1.1);
+  backdrop-filter: blur(14px) saturate(1.1);
+}
+.fu-panel::before {
+  content: "";
+  position: absolute;
+  top: -1px;
+  left: -1px;
+  width: 14px;
+  height: 14px;
+  border-top: 2px solid var(--fu-corner);
+  border-left: 2px solid var(--fu-corner);
+  pointer-events: none;
+}
+.fu-panel::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 14px;
+  height: 14px;
+  border-right: 2px solid var(--fu-corner);
+  border-bottom: 2px solid var(--fu-corner);
+  opacity: .5;
+  pointer-events: none;
+}
+.fu-panel--flat { -webkit-backdrop-filter: none; backdrop-filter: none; background: var(--fu-surface-solid); }
+.fu-panel--tight { padding: var(--fu-space-3); }
+.fu-panel--quiet { --fu-corner: var(--fu-line-strong); }
+.fu-panel__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--fu-space-3);
+  margin-bottom: var(--fu-space-3);
+  padding-bottom: var(--fu-space-2);
+  border-bottom: 1px solid var(--fu-line);
+}
+
+/* 刻度線：區隔用，像尺規 */
+.fu-rule {
+  height: 9px;
+  border: 0;
+  margin: var(--fu-space-4) 0;
+  background:
+    linear-gradient(var(--fu-line-strong), var(--fu-line-strong)) 0 100% / 100% 1px no-repeat,
+    repeating-linear-gradient(90deg, var(--fu-line-strong) 0 1px, transparent 1px 12px) 0 100% / 100% 5px no-repeat,
+    repeating-linear-gradient(90deg, var(--fu-line-strong) 0 1px, transparent 1px 60px) 0 100% / 100% 9px no-repeat;
+}
+
+/* ==========================================================================
+   按鈕
+   ========================================================================== */
+.fu-btn {
+  appearance: none;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: var(--fu-touch);
+  padding: 0 18px;
+  border: 1px solid var(--fu-line-strong);
+  border-radius: var(--fu-radius);
+  background: transparent;
+  color: var(--fu-text);
+  font-family: var(--fu-font-mono);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
+  touch-action: manipulation;
+  transition: background var(--fu-dur-1) var(--fu-ease), color var(--fu-dur-1) var(--fu-ease), border-color var(--fu-dur-1) var(--fu-ease), transform var(--fu-dur-1) var(--fu-ease);
+}
+.fu-btn:hover:not(:disabled) { border-color: var(--fu-text); background: rgba(236, 228, 208, .06); }
+.fu-btn:active:not(:disabled) { transform: translateY(1px); }
+.fu-btn:disabled { opacity: .38; cursor: not-allowed; }
+.fu-btn svg { width: 18px; height: 18px; flex: none; }
+.fu-btn--seal { background: var(--fu-seal); border-color: var(--fu-seal); color: var(--fu-ink-0); }
+.fu-btn--seal:hover:not(:disabled) { background: var(--fu-text); border-color: var(--fu-text); color: var(--fu-ink-0); }
+.fu-btn--ghost { border-color: transparent; }
+.fu-btn--icon { width: var(--fu-touch); padding: 0; }
+.fu-btn--sm { min-height: 32px; padding: 0 12px; font-size: 11px; }
+.fu-btn--lg { min-height: 56px; padding: 0 28px; font-size: 13px; }
+.fu-btn--block { width: 100%; }
+
+/* 鍵帽提示 */
+.fu-kbd {
+  display: inline-grid;
+  place-items: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 5px;
+  border: 1px solid var(--fu-line-strong);
+  border-bottom-width: 2px;
+  border-radius: 3px;
+  font: 600 10px/1 var(--fu-font-mono);
+  color: var(--fu-text-dim);
+}
+
+/* ==========================================================================
+   資料呈現：數值、計量條、標籤
+   ========================================================================== */
+.fu-stat { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.fu-stat__value {
+  font-family: var(--fu-font-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -.03em;
+}
+.fu-stat__value small { font-size: 12px; color: var(--fu-text-dim); letter-spacing: 0; margin-left: 3px; }
+.fu-stats { display: flex; flex-wrap: wrap; gap: var(--fu-space-5); }
+
+/* 計量條：<div class="fu-meter" style="--value:.62"><i></i></div> */
+.fu-meter {
+  --value: .5;
+  --tone: var(--fu-seal);
+  position: relative;
+  height: 6px;
+  background:
+    repeating-linear-gradient(90deg, transparent 0 calc(10% - 1px), var(--fu-bg) calc(10% - 1px) 10%),
+    var(--fu-ink-3);
+}
+.fu-meter > i {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: calc(var(--value) * 100%);
+  background: var(--tone);
+  transition: width var(--fu-dur-2) var(--fu-ease);
+}
+.fu-meter--jade { --tone: var(--fu-jade); }
+.fu-meter--gold { --tone: var(--fu-gold); }
+.fu-meter--azure { --tone: var(--fu-azure); }
+
+.fu-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 24px;
+  padding: 0 9px;
+  border: 1px solid var(--fu-line-strong);
+  font: 600 10.5px/1 var(--fu-font-mono);
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--fu-text-dim);
+  white-space: nowrap;
+}
+.fu-chip::before { content: ""; width: 6px; height: 6px; background: var(--chip, var(--fu-text-dim)); }
+.fu-chip--seal { --chip: var(--fu-seal); color: var(--fu-text); }
+.fu-chip--jade { --chip: var(--fu-jade); }
+.fu-chip--gold { --chip: var(--fu-gold); }
+.fu-chip--azure { --chip: var(--fu-azure); }
+.fu-chip--live::before { animation: fu-blink 1.2s steps(2, jump-none) infinite; }
+
+/* 陣營色塊：<span class="fu-side" style="--side:var(--fu-side-2)"></span> */
+.fu-side { display: inline-block; width: 10px; height: 10px; background: var(--side, var(--fu-seal)); transform: rotate(45deg); flex: none; }
+
+/* 清單 / 表格 */
+.fu-list { list-style: none; margin: 0; padding: 0; }
+.fu-list > li { display: flex; align-items: center; gap: var(--fu-space-3); padding: 9px 0; border-bottom: 1px solid var(--fu-line); }
+.fu-list > li:last-child { border-bottom: 0; }
+.fu-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.fu-table th { text-align: left; font: 600 10.5px/1.2 var(--fu-font-mono); letter-spacing: .14em; text-transform: uppercase; color: var(--fu-text-dim); padding: 8px 10px 8px 0; border-bottom: 1px solid var(--fu-line-strong); }
+.fu-table td { padding: 8px 10px 8px 0; border-bottom: 1px solid var(--fu-line); font-variant-numeric: tabular-nums; }
+
+/* ==========================================================================
+   表單：設定一律放進 .fu-drawer
+   ========================================================================== */
+.fu-field { display: flex; flex-direction: column; gap: 6px; margin: 0 0 var(--fu-space-4); }
+.fu-field > span:first-child, .fu-field > label { font: 600 10.5px/1.2 var(--fu-font-mono); letter-spacing: .16em; text-transform: uppercase; color: var(--fu-text-dim); }
+.fu-field small { color: var(--fu-mute); font-size: 12px; }
+.fu-input, .fu-select {
+  appearance: none;
+  width: 100%;
+  min-height: 40px;
+  padding: 0 12px;
+  border: 1px solid var(--fu-line-strong);
+  border-radius: var(--fu-radius);
+  background: var(--fu-raised);
+  color: var(--fu-text);
+  font-size: 14px;
+}
+.fu-select {
+  padding-right: 34px;
+  background-image: linear-gradient(45deg, transparent 50%, var(--fu-text-dim) 50%), linear-gradient(135deg, var(--fu-text-dim) 50%, transparent 50%);
+  background-position: calc(100% - 17px) 50%, calc(100% - 12px) 50%;
+  background-size: 5px 5px;
+  background-repeat: no-repeat;
+}
+.fu-input:focus, .fu-select:focus { border-color: var(--fu-seal); outline: none; }
+.fu-range { width: 100%; accent-color: var(--fu-seal); }
+
+/* 分段選擇：<div class="fu-seg" role="radiogroup"><button aria-pressed="true">…</button>…</div> */
+.fu-seg { display: flex; gap: 1px; padding: 1px; background: var(--fu-line-strong); }
+.fu-seg > button, .fu-seg > label {
+  flex: 1;
+  min-height: 36px;
+  padding: 0 10px;
+  border: 0;
+  background: var(--fu-surface-solid);
+  font: 700 11px/1 var(--fu-font-mono);
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--fu-text-dim);
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+}
+.fu-seg > [aria-pressed="true"], .fu-seg > label:has(input:checked) { background: var(--fu-text); color: var(--fu-ink-0); }
+.fu-seg input { position: absolute; opacity: 0; pointer-events: none; }
+
+/* 開關：<label class="fu-switch"><input type="checkbox"><span>迷霧</span></label> */
+.fu-switch { display: flex; align-items: center; justify-content: space-between; gap: var(--fu-space-3); min-height: 40px; cursor: pointer; }
+.fu-switch input { appearance: none; position: relative; width: 38px; height: 20px; margin: 0; flex: none; order: 2; border: 1px solid var(--fu-line-strong); background: var(--fu-raised); cursor: pointer; transition: background var(--fu-dur-1) var(--fu-ease); }
+.fu-switch input::after { content: ""; position: absolute; top: 3px; left: 3px; width: 12px; height: 12px; background: var(--fu-text-dim); transition: transform var(--fu-dur-2) var(--fu-ease), background var(--fu-dur-1); }
+.fu-switch input:checked { background: var(--fu-seal-deep); border-color: var(--fu-seal); }
+.fu-switch input:checked::after { transform: translateX(18px); background: var(--fu-paper); }
+
+/* ==========================================================================
+   抽屜（設定、規則、紀錄）與遮罩
+   <aside class="fu-drawer" id="settings" aria-label="設定" hidden>…</aside>
+   開啟：<button data-fu-open="settings">；關閉：data-fu-close 或 Esc
+   ========================================================================== */
+.fu-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  background: rgba(3, 4, 6, .55);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--fu-dur-2) var(--fu-ease);
+}
+.fu-scrim.is-on { opacity: 1; pointer-events: auto; }
+
+.fu-drawer {
+  position: fixed;
+  z-index: 70;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: min(400px, 100vw);
+  display: flex;
+  flex-direction: column;
+  background: var(--fu-surface-solid);
+  border-left: 1px solid var(--fu-line-strong);
+  box-shadow: -30px 0 80px rgba(0, 0, 0, .45);
+  transform: translateX(104%);
+  transition: transform var(--fu-dur-3) var(--fu-ease);
+  visibility: hidden;
+}
+.fu-drawer--left { right: auto; left: 0; border-left: 0; border-right: 1px solid var(--fu-line-strong); transform: translateX(-104%); }
+.fu-drawer.is-open { transform: none; visibility: visible; }
+.fu-drawer[hidden] { display: flex; }
+.fu-drawer__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--fu-space-3);
+  min-height: var(--fu-topbar-h);
+  padding: 0 var(--fu-space-3) 0 var(--fu-space-5);
+  border-bottom: 1px solid var(--fu-line);
+}
+.fu-drawer__head::before { content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 2px; background: var(--fu-seal); }
+.fu-drawer__body { flex: 1; overflow-y: auto; padding: var(--fu-space-5); overscroll-behavior: contain; }
+.fu-drawer__foot { padding: var(--fu-space-4) var(--fu-space-5); border-top: 1px solid var(--fu-line); display: flex; gap: var(--fu-space-2); }
+.fu-drawer section + section { margin-top: var(--fu-space-6); }
+.fu-drawer h3 { font: 700 11px/1.2 var(--fu-font-mono); letter-spacing: .2em; text-transform: uppercase; color: var(--fu-seal); margin: 0 0 var(--fu-space-3); }
+
+/* 幕：開場、暫停、結算 — 大字宋體置中 */
+.fu-curtain {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: grid;
+  place-items: center;
+  padding: var(--fu-gutter);
+  background: radial-gradient(80% 70% at 50% 50%, rgba(7, 9, 12, .7), rgba(7, 9, 12, .94));
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  text-align: center;
+  animation: fu-fade var(--fu-dur-3) var(--fu-ease) both;
+}
+.fu-curtain[hidden] { display: none; }
+.fu-curtain__inner { width: min(560px, 100%); display: flex; flex-direction: column; align-items: center; gap: var(--fu-space-4); }
+.fu-curtain .fu-display { font-size: clamp(48px, 11vw, 132px); }
+.fu-curtain__actions { display: flex; flex-wrap: wrap; justify-content: center; gap: var(--fu-space-2); margin-top: var(--fu-space-3); }
+
+/* 吐司訊息：Fu.toast('補給線切斷', {tone:'warn'}) */
+.fu-toasts {
+  position: fixed;
+  z-index: 85;
+  left: 50%;
+  top: calc(var(--fu-topbar-h) + 8px);
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  pointer-events: none;
+  width: min(480px, calc(100vw - 32px));
+}
+.fu-toast {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px 10px 14px;
+  background: var(--fu-surface-solid);
+  border: 1px solid var(--fu-line-strong);
+  border-left: 3px solid var(--tone, var(--fu-seal));
+  font-size: 13px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, .4);
+  animation: fu-toast-in var(--fu-dur-2) var(--fu-ease) both;
+}
+.fu-toast.is-leaving { animation: fu-toast-out var(--fu-dur-2) var(--fu-ease-in) both; }
+.fu-toast--ok { --tone: var(--fu-jade); }
+.fu-toast--warn { --tone: var(--fu-gold); }
+.fu-toast--info { --tone: var(--fu-azure); }
+
+/* 提示泡泡：data-fu-tip="說明文字" */
+[data-fu-tip] { position: relative; }
+[data-fu-tip]:hover::after, [data-fu-tip]:focus-visible::after {
+  content: attr(data-fu-tip);
+  position: absolute;
+  z-index: 95;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 6px 9px;
+  background: var(--fu-text);
+  color: var(--fu-ink-0);
+  font: 600 11px/1.3 var(--fu-font-body);
+  letter-spacing: 0;
+  text-transform: none;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+/* 熱鍵說明（Fu.showHotkeys 產生） */
+.fu-hotkeys { display: grid; grid-template-columns: auto 1fr; gap: 8px 14px; align-items: center; text-align: left; font-size: 13px; }
+
+/* ==========================================================================
+   動畫
+   ========================================================================== */
+@keyframes fu-fade { from { opacity: 0; } }
+@keyframes fu-rise { from { opacity: 0; transform: translateY(14px); } }
+@keyframes fu-blink { 50% { opacity: .2; } }
+@keyframes fu-toast-in { from { opacity: 0; transform: translateY(-10px); } }
+@keyframes fu-toast-out { to { opacity: 0; transform: translateY(-6px); } }
+@keyframes fu-stamp { 0% { opacity: 0; transform: scale(1.6) rotate(-14deg); } 60% { opacity: 1; transform: scale(.94) rotate(-3deg); } 100% { transform: scale(1) rotate(-4deg); } }
+.fu-rise { animation: fu-rise var(--fu-dur-3) var(--fu-ease) both; animation-delay: calc(var(--i, 0) * 60ms); }
+.fu-stamp { animation: fu-stamp 620ms var(--fu-ease) both; }
+
+/* ==========================================================================
+   響應式與無障礙
+   ========================================================================== */
+@media (max-width: 720px) {
+  :root { --fu-topbar-h: 52px; }
+  .fu-hud { max-width: calc(100vw - 2 * var(--fu-gutter)); }
+  .fu-hud--tr { top: auto; bottom: calc(var(--fu-gutter) + 64px); }
+  .fu-btn { padding: 0 14px; }
+  .fu-hide-sm { display: none !important; }
+}
+@media (min-width: 721px) { .fu-show-sm { display: none !important; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .fu-app *, .fu-app *::before, .fu-app *::after {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
+  }
+}
+
+.fu-sr-only {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}

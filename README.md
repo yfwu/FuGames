@@ -2,6 +2,8 @@
 
 FuLab 風格的靜態網頁遊戲集。遊戲與 AI 都在瀏覽器 JavaScript 內執行，不需要遊戲伺服器、帳號、外部資源或 npm 套件。各遊戲共用 `fulab-theme.css` 及本地 `icons.svg`。
 
+**共用設計語言「朱墨」**：改版中的遊戲與入口網站改用 `shared/`（`fu.css`、`fu-shell.js`、`fu-palette.js`、`fu-three.js`）與本地 three.js（`vendor/three/`，r170）：滿版舞台、HUD 疊加、設定收進抽屜。規則與元件見 [shared/README.md](shared/README.md)，範例頁 `shared/demo.html`。尚未改版的頁面繼續用 `fulab-theme.css`。
+
 ## 本機預覽
 
 在 repository 目錄執行：

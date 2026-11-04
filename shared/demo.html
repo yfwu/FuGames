@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>朱墨樣板 - FuGames</title>
+<link rel="icon" href="../favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="fu.css">
+<script src="fu-palette.js"></script>
+<script src="fu-shell.js" defer></script>
+</head>
+<body class="fu-app fu-vignette">
+<!-- 這是遊戲頁的參考骨架：滿版舞台、四角 HUD、底部指令列、設定抽屜、開場幕。複製後替換內容即可。 -->
+<header class="fu-topbar">
+  <a class="fu-brand" href="../index.html"><span class="fu-seal" aria-hidden="true">福遊</span><span class="fu-hide-sm">FuGames</span></a>
+  <div class="fu-topbar__title"><h1 class="fu-heading">朱墨樣板</h1><span class="fu-label fu-hide-sm">Design system / 示範</span></div>
+  <div class="fu-topbar__actions">
+    <span class="fu-chip fu-chip--seal fu-chip--live fu-hide-sm">Live</span>
+    <button class="fu-btn fu-btn--ghost fu-btn--icon" data-fu-open="rules" aria-label="規則" data-fu-tip="規則">?</button>
+    <button class="fu-btn" data-fu-open="settings" aria-controls="settings">設定 <span class="fu-kbd">S</span></button>
+  </div>
+</header>
+
+<main class="fu-stage"><canvas id="stage" aria-label="示範 3D 舞台"></canvas></main>
+
+<div class="fu-hud fu-hud--tl">
+  <section class="fu-panel">
+    <div class="fu-panel__head"><p class="fu-label"><b>01</b> / 戰況</p><span class="fu-label fu-num">T+04:12</span></div>
+    <div class="fu-stats">
+      <div class="fu-stat"><span class="fu-label">補給</span><span class="fu-stat__value">128<small>/200</small></span></div>
+      <div class="fu-stat"><span class="fu-label">領地</span><span class="fu-stat__value">37<small>格</small></span></div>
+    </div>
+    <hr class="fu-rule">
+    <ul class="fu-list fu-small">
+      <li><span class="fu-side" style="--side:var(--fu-side-1)"></span>朱印軍<span class="fu-num fu-dim" style="margin-left:auto">412</span></li>
+      <li><span class="fu-side" style="--side:var(--fu-side-2)"></span>青嵐<span class="fu-num fu-dim" style="margin-left:auto">388</span></li>
+      <li><span class="fu-side" style="--side:var(--fu-side-3)"></span>玉衡<span class="fu-num fu-dim" style="margin-left:auto">301</span></li>
+    </ul>
+  </section>
+</div>
+
+<div class="fu-hud fu-hud--tr">
+  <section class="fu-panel fu-panel--tight fu-panel--quiet" style="width:220px">
+    <p class="fu-label" style="margin-bottom:8px">士氣</p>
+    <div class="fu-meter" style="--value:.72"><i></i></div>
+    <p class="fu-label" style="margin:12px 0 8px">資源</p>
+    <div class="fu-meter fu-meter--gold" style="--value:.4"><i></i></div>
+  </section>
+</div>
+
+<nav class="fu-dock" aria-label="指令">
+  <button class="fu-btn" aria-pressed="true">部署</button>
+  <button class="fu-btn" aria-pressed="false">建造</button>
+  <button class="fu-btn" aria-pressed="false">偵查</button>
+  <button class="fu-btn" id="toastBtn">通報</button>
+</nav>
+
+<aside class="fu-drawer" id="settings" aria-label="設定">
+  <div class="fu-drawer__head"><span class="fu-label"><b>■</b> 設定</span><button class="fu-btn fu-btn--ghost fu-btn--icon" data-fu-close aria-label="關閉">✕</button></div>
+  <div class="fu-drawer__body" id="settingsForm">
+    <section>
+      <h3>對局</h3>
+      <div class="fu-field"><span>難度</span><div class="fu-seg"><button aria-pressed="false" value="easy">新手</button><button aria-pressed="true" value="normal">標準</button><button aria-pressed="false" value="hard">老練</button></div></div>
+      <label class="fu-field"><span>地圖</span><select class="fu-select" name="map"><option>群島</option><option>山脈</option><option>平原</option></select></label>
+      <label class="fu-field"><span>速度</span><input class="fu-range" type="range" name="speed" min="1" max="4" value="2"></label>
+    </section>
+    <section>
+      <h3>畫面</h3>
+      <label class="fu-switch"><span>戰爭迷霧</span><input type="checkbox" name="fog" checked></label>
+      <label class="fu-switch"><span>粒子特效</span><input type="checkbox" name="fx" checked></label>
+    </section>
+  </div>
+  <div class="fu-drawer__foot"><button class="fu-btn fu-btn--seal fu-btn--block" data-fu-close>套用</button></div>
+</aside>
+
+<aside class="fu-drawer fu-drawer--left" id="rules" aria-label="規則">
+  <div class="fu-drawer__head"><span class="fu-label"><b>■</b> 規則</span><button class="fu-btn fu-btn--ghost fu-btn--icon" data-fu-close aria-label="關閉">✕</button></div>
+  <div class="fu-drawer__body"><p>規則、圖例、熱鍵都放在抽屜，不佔舞台。</p></div>
+</aside>
+
+<div class="fu-curtain" id="intro">
+  <div class="fu-curtain__inner">
+    <span class="fu-seal fu-seal--lg fu-stamp" aria-hidden="true">福遊</span>
+    <p class="fu-label">FuGames / Vermilion Ink</p>
+    <h2 class="fu-display">朱墨</h2>
+    <p class="fu-dim">墨色為底、米紙為字、一方朱印。</p>
+    <div class="fu-curtain__actions"><button class="fu-btn fu-btn--seal fu-btn--lg" data-fu-close>開始</button><button class="fu-btn fu-btn--lg" data-fu-open="settings">設定</button></div>
+  </div>
+</div>
+
+<script type="module">
+import { THREE, createStage, inkMaterial, palette } from './fu-three.js';
+const stage = createStage(document.getElementById('stage'), { fog: [26, 80] });
+const { scene, camera } = stage;
+camera.position.set(0, 20, 26); camera.lookAt(0, 0, 0);
+const geo = new THREE.CylinderGeometry(1, 1, 1, 6); geo.translate(0, .5, 0);
+const R = 9, cells = [];
+for (let q = -R; q <= R; q++) for (let r = Math.max(-R, -q - R); r <= Math.min(R, -q + R); r++) cells.push([q, r]);
+const mesh = new THREE.InstancedMesh(geo, inkMaterial(0xffffff), cells.length);
+const m = new THREE.Matrix4(), c = new THREE.Color();
+cells.forEach(([q, r], i) => {
+  const x = 1.78 * (q + r / 2), z = 1.54 * r, h = .4 + Math.max(0, Math.sin(q * .7) + Math.cos(r * .5)) * .9;
+  m.compose(new THREE.Vector3(x, 0, z), new THREE.Quaternion(), new THREE.Vector3(.96, h, .96)); mesh.setMatrixAt(i, m);
+  const s = (q * 7 + r * 3 + 99) % 11; c.set(s === 0 ? palette.seal : s === 4 ? palette.azure : s === 7 ? palette.jade : palette.ink3); mesh.setColorAt(i, c);
+});
+scene.add(mesh);
+stage.loop((dt, t, { reducedMotion }) => { if (!reducedMotion) mesh.rotation.y = t * .05; });
+window.addEventListener('load', () => {
+  Fu.hotkey('s', '開關設定', () => Fu.toggle('settings'));
+  Fu.hotkey('?', '規則', () => Fu.toggle('rules'));
+  document.getElementById('toastBtn').onclick = () => Fu.toast('補給線被切斷：東側三格', { tone: 'warn' });
+  const store = Fu.prefs('demo');
+  Fu.bindSettings('settingsForm', store);
+});
+</script>
+</body>
+</html>
