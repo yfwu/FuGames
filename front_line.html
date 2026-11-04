@@ -2,84 +2,306 @@
 <html lang="zh-Hant">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="雙方大本營對角而立，上中下三路、迷霧與物資補給。蓋無人機工廠、防空砲塔與偵查站，找出敵方工廠並轟炸它。FuGames 單人對 AI 前線塔防。">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="description" content="雙方大本營對角而立，上中下三路、迷霧與物資補給。蓋無人機工廠、防空砲塔與偵查站，升級建築、選擇指揮學說，打下八場作戰。FuGames 單人對 AI 前線塔防。">
+  <meta name="theme-color" content="#07090c">
   <title>三路前線 - FuGames</title>
-  <link rel="icon" href="favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="fulab-theme.css">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="shared/fu.css">
   <style>
-    .site-nav > a:last-child { display:inline-flex; align-items:center; gap:5px; }
-    .site-nav > a:last-child .ui-icon { width:16px; height:16px; }
-    .front-stage canvas { cursor: crosshair; }
-    .front-tools { display:grid; gap:10px; margin-top:12px; }
-    .front-row { display:flex; flex-wrap:wrap; align-items:center; gap:8px; }
-    .front-row .row-label { min-width:44px; color:var(--fulab-muted); font-size:11px; }
-    .front-row .btn { gap:6px; padding-inline:12px; }
-    .front-row .btn small { color:var(--fulab-muted); font-size:11px; }
-    .front-row .btn[aria-pressed="true"] { border-color:var(--fulab-teal); color:var(--fulab-ink-teal); background:var(--fulab-tint-teal); }
-    .front-row .card-btn { border-color:#d9c08a; background:var(--fulab-tint-amber); }
-    .front-row .card-btn[aria-pressed="true"] { border-color:#b48935; color:#6b5221; background:#f6e7c4; }
-    .front-row .empty-note { color:var(--fulab-muted); font-size:11px; margin:0; }
-    .front-hq { display:inline-flex; gap:4px; }
-    .front-hq .ai { color:#99553f; }
-    .front-settings { display:grid; gap:8px; margin:0 0 12px; text-align:left; font-size:12px; }
-    .front-settings select { width:100%; }
-    .front-settings label.check { display:flex; gap:8px; align-items:center; }
-    @media(max-width:600px) { .front-row .row-label { min-width:100%; } .front-row .btn { flex:1 1 30%; padding-inline:8px; } }
-    @media(max-height:600px) and (min-width:600px) {
-      .io-page .play-panel { grid-template-columns:minmax(0,1fr) 270px; }
-      .io-page .play-panel > .io-stage { grid-column:1; grid-row:2; }
-      .front-support { grid-column:2; grid-row:2; display:flex; flex-direction:column; gap:10px; max-height:calc(100svh - 106px); overflow:auto; }
-      .front-support .front-tools { margin:0; }
-      .front-row .row-label { min-width:100%; }
+    /* Vermilion Ink front: you are seal (side 1), the AI is azure (side 2) in FuPalette order. */
+    :root { --gutter: max(16px, env(safe-area-inset-left)); --me: var(--fu-seal); --foe: var(--fu-azure); --cutp: polygon(0 0, calc(100% - var(--fu-cut)) 0, 100% var(--fu-cut), 100% 100%, var(--fu-cut) 100%, 0 calc(100% - var(--fu-cut))); }
+    html, body { height: 100%; overflow: hidden; overscroll-behavior: none; }
+    body.fu-app { min-height: 0; }
+    .fu-stage { background: var(--fu-ink-0); }
+    #board { outline: none; cursor: crosshair; touch-action: none; }
+    #board:focus-visible { box-shadow: inset 0 0 0 2px var(--fu-line-strong); }
+    .fu-topbar__title .fu-heading { font-family: var(--fu-font-display); font-size: 18px; font-weight: 900; letter-spacing: .04em; margin: 0; }
+    .fu-btn--icon svg { width: 18px; height: 18px; }
+    #pause .i-play { display: none; } #pause.paused .i-play { display: block; } #pause.paused .i-pause { display: none; }
+    .fl-lv { display: flex; flex-direction: column; justify-content: center; gap: 5px; min-width: 112px; min-height: 40px; padding: 4px 11px; background: var(--fu-surface); border: 1px solid var(--fu-line); color: inherit; cursor: pointer; text-align: left; clip-path: var(--cutp); }
+    .fl-lv span { display: flex; align-items: baseline; gap: 7px; font-size: 12px; color: var(--fu-text-dim); }
+    .fl-lv b { font: 800 15px/1 var(--fu-font-mono); color: var(--fu-gold); }
+    .fl-lv em { font-style: normal; }
+    .bar { display: block; height: 3px; background: rgba(236, 228, 208, .12); overflow: hidden; }
+    .bar i { display: block; height: 100%; width: 0; background: var(--fu-seal); transition: width .6s var(--fu-ease); }
+
+    /* HUD: war status (left) and operation card (right) */
+    .fl-war { width: 228px; }
+    .fl-war__row { display: flex; justify-content: space-between; gap: 12px; }
+    .fl-stat { display: flex; flex-direction: column; gap: 3px; }
+    .fl-stat b { font: 800 26px/1 var(--fu-font-mono); color: var(--fu-paper); font-variant-numeric: tabular-nums; }
+    .fl-stat em { font: 600 11px/1 var(--fu-font-mono); font-style: normal; color: var(--fu-jade); }
+    .fl-stat.clock b { font-size: 18px; color: var(--fu-text-dim); }
+    .fl-stat.clock.low b { color: var(--fu-gold); }
+    .fl-hqs { display: grid; gap: 6px; margin-top: 10px; padding-top: 8px; border-top: 1px solid var(--fu-line); }
+    .fl-hq { display: grid; grid-template-columns: 28px 1fr 34px; align-items: center; gap: 8px; }
+    .fl-hq .fu-label { color: var(--side); }
+    .fl-hq b { font: 700 13px/1 var(--fu-font-mono); text-align: right; font-variant-numeric: tabular-nums; }
+    .fl-hqbar { height: 6px; background: rgba(236, 228, 208, .08); }
+    .fl-hqbar i { display: block; height: 100%; width: 100%; background: var(--side); transition: width .25s var(--fu-ease); }
+    .fl-hq.hit .fl-hqbar { box-shadow: 0 0 0 1px var(--fu-paper); }
+    .fl-op { width: 236px; }
+    .fl-op .fu-panel__head { display: flex; justify-content: space-between; gap: 8px; margin-bottom: 6px; }
+    .fl-op > b { display: block; font: 900 20px/1.2 var(--fu-font-display); letter-spacing: .04em; }
+    .fl-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 8px; }
+    .fl-tags span { padding: 2px 6px; border: 1px solid var(--fu-line); font: 600 10px/1.4 var(--fu-font-mono); letter-spacing: .06em; color: var(--fu-text-dim); }
+    .fl-tags span.doc { border-color: rgba(255, 75, 43, .45); color: var(--fu-paper); }
+    .fl-tags span.foe { border-color: rgba(79, 163, 255, .45); }
+    .fl-feed { list-style: none; margin: 10px 0 0; padding: 8px 0 0; border-top: 1px solid var(--fu-line); font-size: 12px; line-height: 1.45; color: var(--fu-text-dim); }
+    .fl-feed li { display: flex; gap: 8px; padding: 2px 0; }
+    .fl-feed li i { flex: none; width: 6px; height: 6px; margin-top: 6px; background: var(--side, var(--fu-bone)); transform: rotate(45deg); }
+    .fl-feed li:first-child { color: var(--fu-paper); }
+    .fl-feed:empty { display: none; }
+
+    /* Dock: message line + one command bar */
+    .fl-dock { position: fixed; z-index: 35; left: 50%; bottom: max(12px, env(safe-area-inset-bottom)); transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 8px; width: min(1080px, calc(100vw - 2 * var(--gutter))); pointer-events: none; }
+    .fl-dock > * { pointer-events: auto; }
+    .fl-msg { max-width: 100%; margin: 0; padding: 6px 12px; background: var(--fu-surface); border: 1px solid var(--fu-line); font-size: 13px; line-height: 1.4; text-align: center; color: var(--fu-paper); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); }
+    .fl-bar { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; max-width: 100%; }
+    .fl-group { display: flex; gap: 1px; padding: 1px; background: var(--fu-line-strong); }
+    .fl-group .fu-btn { flex-direction: column; gap: 2px; min-height: 54px; min-width: 76px; padding: 4px 10px; border: 0; background: var(--fu-surface-solid); letter-spacing: .04em; }
+    .fl-group .fu-btn:hover:not(:disabled) { background: var(--fu-raised); }
+    .fl-group .fu-btn[aria-pressed="true"]:not(:disabled) { background: var(--fu-seal); color: var(--fu-ink-0); }
+    .fl-group .fu-btn[aria-pressed="true"] small { color: var(--fu-ink-0); }
+    .fl-group .fu-btn .top { display: flex; align-items: center; gap: 6px; }
+    .fl-group .fu-btn small { font: 600 10px/1 var(--fu-font-mono); color: var(--fu-text-dim); letter-spacing: .06em; }
+    .fl-group .fu-btn .fu-kbd { position: absolute; top: 2px; right: 2px; min-width: 0; padding: 0 2px; font-size: 8px; line-height: 11px; height: auto; opacity: .55; }
+    .fl-group .fu-btn { position: relative; }
+    .fl-group .ui-icon { width: 16px; height: 16px; }
+    .fl-cards .fu-btn { border-top: 2px solid var(--fu-gold); }
+    .fl-cards .fl-empty { display: flex; align-items: center; min-height: 54px; padding: 0 12px; background: var(--fu-surface-solid); font-size: 11px; color: var(--fu-mute); }
+    .fl-cards .fl-empty[hidden] { display: none; }
+
+    /* Curtain sheet: lobby / pause / result */
+    .fu-curtain { overflow: auto; align-items: start; padding-top: max(18px, env(safe-area-inset-top)); }
+    .fl-sheet { width: min(900px, 100%); margin: auto; text-align: left; padding: 26px 28px 22px; background: linear-gradient(180deg, rgba(15, 20, 27, .96), rgba(9, 12, 16, .98)); border: 1px solid var(--fu-line-strong); clip-path: polygon(0 0, calc(100% - 18px) 0, 100% 18px, 100% 100%, 18px 100%, 0 calc(100% - 18px)); }
+    .fl-sheet .head { align-items: center; gap: 18px; }
+    .fu-curtain[data-mode="lobby"] .fl-sheet .head { display: flex; }
+    .fl-sheet h2 { margin: 0; font: 900 clamp(32px, 6vw, 58px)/1.04 var(--fu-font-display); letter-spacing: .03em; }
+    .fl-sheet h2 em { font-style: normal; color: var(--fu-seal); }
+    .fl-sheet .lede { margin: 12px 0 0; max-width: 66ch; font-size: 14px; line-height: 1.65; color: var(--fu-text-dim); }
+    .fl-sheet section { margin-top: 20px; }
+    .fl-sheet h3 { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; margin: 0 0 10px; font: 700 11px/1.2 var(--fu-font-mono); letter-spacing: .18em; color: var(--fu-seal); }
+    .fl-sheet h3 span { font: 400 12px/1.2 var(--fu-font-body); letter-spacing: 0; color: var(--fu-mute); }
+    [data-view] { display: none; }
+    .fu-curtain[data-mode="lobby"] [data-view~="lobby"], .fu-curtain[data-mode="pause"] [data-view~="pause"], .fu-curtain[data-mode="result"] [data-view~="result"] { display: block; }
+    .fu-curtain[data-mode="lobby"] .fl-actions[data-view~="lobby"], .fu-curtain[data-mode="pause"] .fl-actions[data-view~="pause"], .fu-curtain[data-mode="result"] .fl-actions[data-view~="result"] { display: flex; }
+    .fl-sheet [data-pane][hidden] { display: none !important; }
+    .fl-career { display: grid; grid-template-columns: auto 1fr; gap: 6px 16px; align-items: center; padding: 12px 14px; border: 1px solid var(--fu-line); background: rgba(236, 228, 208, .03); }
+    .fl-career .lv { grid-row: span 2; font: 900 34px/1 var(--fu-font-mono); color: var(--fu-gold); }
+    .fl-career .lv small { display: block; margin-bottom: 4px; font: 700 10px/1 var(--fu-font-mono); letter-spacing: .14em; color: var(--fu-text-dim); }
+    .fl-career .who { display: flex; justify-content: space-between; gap: 10px; font-size: 14px; font-weight: 700; }
+    .fl-career .who span { font: 500 11px/1.4 var(--fu-font-mono); color: var(--fu-text-dim); text-align: right; }
+    .fl-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+    .fl-grid.five { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+    .fl-grid.six { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .fl-pick { position: relative; display: flex; flex-direction: column; align-items: flex-start; gap: 5px; min-height: 44px; padding: 11px 12px; text-align: left; color: inherit; cursor: pointer; background: rgba(236, 228, 208, .03); border: 1px solid var(--fu-line); border-top: 3px solid var(--tone, var(--fu-line-strong)); font: inherit; }
+    .fl-pick b { font: 900 17px/1.15 var(--fu-font-display); letter-spacing: .03em; }
+    .fl-pick small { font: 600 10px/1.35 var(--fu-font-mono); letter-spacing: .1em; color: var(--fu-text-dim); }
+    .fl-pick span { font-size: 12px; line-height: 1.5; color: var(--fu-text-dim); }
+    .fl-pick:hover:not(:disabled) { border-color: var(--fu-line-strong); }
+    .fl-pick[aria-pressed="true"] { background: rgba(255, 75, 43, .08); box-shadow: inset 0 0 0 1px var(--fu-seal); }
+    .fl-pick:disabled { opacity: .42; cursor: not-allowed; }
+    .fl-pick .lock { position: absolute; top: 10px; right: 10px; font: 700 10px/1 var(--fu-font-mono); font-style: normal; color: var(--fu-gold); }
+    .fl-pick .stars { position: absolute; top: 9px; right: 10px; font: 700 12px/1 var(--fu-font-mono); letter-spacing: .1em; color: var(--fu-gold); }
+    .fl-pick .stars i { font-style: normal; color: var(--fu-ink-3); }
+    .fl-pick.mod b { font-size: 15px; }
+    .fl-actions { position: sticky; bottom: -22px; display: none; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: flex-end; margin: 22px -28px -22px; padding: 14px 28px 20px; background: linear-gradient(180deg, rgba(9, 12, 16, 0), rgba(9, 12, 16, 1) 30%); }
+    .fl-actions .note { margin-right: auto; font-size: 12px; color: var(--fu-mute); }
+    .fl-stars { display: flex; gap: 8px; }
+    .fl-stars div { flex: 1; padding: 10px 12px; border: 1px solid var(--fu-line); font-size: 12px; color: var(--fu-mute); }
+    .fl-stars div b { display: block; margin-bottom: 3px; font: 900 20px/1 var(--fu-font-mono); color: var(--fu-ink-3); }
+    .fl-stars div.on { border-color: rgba(233, 185, 73, .5); color: var(--fu-text-dim); }
+    .fl-stars div.on b { color: var(--fu-gold); }
+    .fl-stats { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; }
+    .fl-stats div { padding: 9px 11px; border: 1px solid var(--fu-line); font-size: 11px; color: var(--fu-text-dim); }
+    .fl-stats b { display: block; font: 800 18px/1.2 var(--fu-font-mono); color: var(--fu-paper); }
+    .fl-stats b i { font-style: normal; color: var(--fu-azure); }
+    .fl-stats b em { font-style: normal; color: var(--fu-mute); font-weight: 400; }
+    .fl-xp { display: grid; grid-template-columns: 1fr auto; gap: 6px 16px; margin: 0; padding: 12px 14px; border: 1px solid var(--fu-line); font-size: 13px; }
+    .fl-xp dt { color: var(--fu-text-dim); } .fl-xp dd { margin: 0; text-align: right; font-family: var(--fu-font-mono); color: var(--fu-gold); }
+    .fl-xp .total { padding-top: 8px; border-top: 1px solid var(--fu-line); font-weight: 800; color: var(--fu-paper); }
+    .fl-levelup { padding: 12px 14px; border: 1px solid rgba(233, 185, 73, .5); background: rgba(233, 185, 73, .07); font-size: 13px; line-height: 1.6; }
+    .fl-levelup b { color: var(--fu-gold); }
+    .fl-levelup[hidden], section[hidden], .fl-actions .fu-btn[hidden] { display: none !important; }
+
+    /* Drawer (above the curtain, so rules and settings open from the lobby too) */
+    .fu-drawer { z-index: 92; }
+    .fu-scrim { z-index: 90; }
+    .fl-tabs { display: flex; gap: 2px; padding: 0 var(--fu-space-5); border-bottom: 1px solid var(--fu-line); }
+    .fl-tabs button { min-height: 44px; padding: 10px 12px; background: none; border: 0; border-bottom: 2px solid transparent; cursor: pointer; color: var(--fu-text-dim); font: inherit; font-weight: 700; }
+    .fl-tabs button[aria-selected="true"] { color: var(--fu-paper); border-color: var(--fu-seal); }
+    .fl-tab[hidden] { display: none; }
+    .fl-tab ul { margin: 0; padding-left: 18px; font-size: 13px; line-height: 1.7; color: var(--fu-text-dim); }
+    .fl-tab li { margin-bottom: 7px; } .fl-tab li strong { color: var(--fu-paper); }
+    .fl-tab .fu-switch small, .fl-field small { display: block; font-size: 12px; color: var(--fu-mute); }
+    .fl-field { margin-bottom: var(--fu-space-4); }
+    .fl-field > span { display: block; margin-bottom: 6px; font: 600 10.5px/1.2 var(--fu-font-mono); letter-spacing: .16em; color: var(--fu-text-dim); }
+    .fl-dstats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-top: 12px; }
+    .fl-dstats div { padding: 9px 11px; border: 1px solid var(--fu-line); }
+    .fl-dstats b { display: block; font: 800 19px/1.15 var(--fu-font-mono); }
+    .fl-dstats span { font-size: 11px; color: var(--fu-text-dim); }
+    .fl-list { list-style: none; padding: 0 !important; }
+    .fl-list li { display: flex; justify-content: space-between; gap: 10px; margin: 0 !important; padding: 6px 0; border-bottom: 1px solid var(--fu-line); color: var(--fu-mute); }
+    .fl-list li.got { color: var(--fu-paper); }
+    .fl-list li span { font: 600 11px/1.6 var(--fu-font-mono); color: var(--fu-gold); }
+    .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+    @media (max-width: 900px) {
+      .fl-hide-md { display: none !important; }
+      .fu-hud--tl { left: var(--gutter); right: var(--gutter); max-width: none; }
+      .fl-war { width: auto; display: grid; grid-template-columns: auto 1fr; gap: 6px 14px; align-items: center; padding: 7px 10px; }
+      .fl-war__row { gap: 12px; }
+      .fl-stat b { font-size: 20px; }
+      .fl-stat.clock b { font-size: 15px; }
+      .fl-hqs { margin: 0; padding: 0 0 0 12px; border-top: 0; border-left: 1px solid var(--fu-line); gap: 5px; }
+      .fl-hq { grid-template-columns: 22px 1fr 30px; gap: 6px; }
+    }
+    @media (max-width: 720px) {
+      .fu-topbar__title .fu-heading { font-size: 16px; }
+      .fl-lv { min-width: 52px; padding: 4px 8px; }
+      .fl-lv span em { display: none; }
+      .fl-dock { bottom: max(10px, env(safe-area-inset-bottom)); gap: 6px; width: calc(100vw - 16px); }
+      .fl-msg { font-size: 12px; padding: 5px 10px; }
+      .fl-bar { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 1px; padding: 1px; width: 100%; background: var(--fu-line-strong); }
+      .fl-group { display: contents; }
+      .fl-group .fu-btn { min-width: 0; min-height: 50px; padding: 4px 2px; font-size: 12px; }
+      .fl-group .fu-btn .fu-kbd { display: none; }
+      .fl-group .ui-icon { display: none; }
+      .fl-build .fu-btn { grid-column: span 3; }
+      .fl-acts .fu-btn, .fl-cards .fu-btn { grid-column: span 2; }
+      .fl-cards .fl-empty { grid-column: span 6; min-height: 50px; justify-content: center; text-align: center; padding: 0 6px; }
+      .fl-sheet { padding: 20px 16px 18px; }
+      .fl-sheet .head .fu-seal--lg { --s: 48px; --f: 18px; }
+      .fl-grid, .fl-grid.five { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .fl-grid.six { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .fl-stats { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .fl-stats div { padding: 8px; }
+      .fl-stats b { font-size: 14px; white-space: nowrap; }
+      .fl-actions { margin: 18px -16px -18px; padding: 12px 16px 16px; bottom: -18px; }
+      .fl-actions .note { display: none; }
+      .fl-actions .fu-btn { flex: 1; }
     }
   </style>
 </head>
-<body>
-  <main class="game-page io-page">
-    <nav class="site-nav" aria-label="遊戲導覽"><a class="site-brand" href="index.html"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>FuGames</a><a href="index.html" aria-label="所有遊戲 ↗"><span>所有遊戲</span><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#launch"></use></svg></a></nav>
-    <header class="page-header"><p class="eyebrow">前線塔防 / 單人 × AI</p><h1><svg class="page-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#front_line"></use></svg>三路前線</h1><p class="lead">兩座大本營對角而立，上、中、下三路連接雙方。看不見的敵人最危險：先偵查，再轟炸。</p></header>
-    <section class="card play-panel" aria-label="三路前線戰場">
-      <div class="game-toolbar"><p class="game-status" id="phase-label">準備開戰</p><div class="game-metrics"><span>物資 <strong id="supply">150</strong></span><span>每秒 <strong id="income">+4</strong></span><span class="front-hq">大本營 <strong id="hq">200</strong> : <strong class="ai" id="ai-hq">200</strong></span><span>剩餘 <strong id="clock">10:00</strong></span></div></div>
-      <div class="io-stage front-stage"><canvas id="board" width="720" height="720" tabindex="0" aria-label="三路前線。左下角是你的大本營，右上角是 AI 大本營，對角線以上是敵方陣地，被迷霧遮住的地方看不到。點自己的空位建造，點自己的建築可出售。" aria-describedby="status">需要支援 Canvas 的瀏覽器。</canvas>
-        <div class="board-overlay" id="overlay"><div class="game-dialog" role="dialog" aria-labelledby="dialog-title" aria-describedby="dialog-copy">
-          <svg class="dialog-art" id="dialog-art" viewBox="0 0 96 72" aria-hidden="true"><path d="M18 6H78V66Z" fill="#faf5f2"/><path d="M18 6V66H78Z" fill="#f4f8f7"/><path d="M24 60V12H72M24 60L72 12M24 60H72V12" fill="none" stroke="#c4cad6" stroke-width="5" stroke-linejoin="round"/><path d="M18 6L78 66" stroke="#aab3c2" stroke-width="1" stroke-dasharray="3 3"/><rect x="16" y="52" width="16" height="16" rx="3" fill="#cbeaea" stroke="#267477" stroke-width="2"/><rect x="64" y="4" width="16" height="16" rx="3" fill="#efdad1" stroke="#99553f" stroke-width="2"/><path d="M45 35L50 29L52 37Z" fill="#5ebcbf" stroke="#267477" stroke-width="1.5"/><circle cx="72" cy="40" r="7" fill="none" stroke="#99553f" stroke-width="2" stroke-dasharray="3 2"/></svg>
-          <p class="eyebrow" id="dialog-kicker">你在左下角，AI 在右上角</p><h2 id="dialog-title">三條路，一場迷霧</h2><p id="dialog-copy">在上、中、下三路蓋無人機工廠進攻，用防空砲擋下來襲無人機。敵方陣地被迷霧遮住，偵查之後再轟炸。先打爆對方大本營的一方獲勝。</p>
-          <div class="front-settings" id="settings"><label for="difficulty">AI 難度</label><select id="difficulty"><option value="easy">簡單</option><option value="normal" selected>普通</option><option value="hard">困難</option></select><label class="check"><input type="checkbox" id="spectate">觀戰：讓 AI 代你指揮，並顯示全圖</label></div>
-          <button class="btn primary" id="play" aria-label="開始對戰 →"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#play"></use></svg><span>開始對戰</span></button><button class="btn" id="dialog-secondary" hidden>保留本局，繼續</button>
-        </div></div>
-      </div>
-      <div class="front-support">
-        <p class="game-status io-status" id="status" role="status" aria-live="polite">選一種建築，點自己三路上的空位建造。</p>
-        <div class="front-tools">
-          <div class="front-row" role="group" aria-label="建造"><span class="row-label">建造</span>
-            <button class="btn build-btn" data-build="factory" aria-pressed="true" aria-label="無人機工廠，60 物資（按 1）"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#arrow-up"></use></svg><span>工廠</span><small>60</small></button>
-            <button class="btn build-btn" data-build="turret" aria-pressed="false" aria-label="防空砲塔，40 物資（按 2）"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#turret"></use></svg><span>砲塔</span><small>40</small></button>
-            <button class="btn build-btn" data-build="radar" aria-pressed="false" aria-label="偵查站，35 物資（按 3）"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#hint"></use></svg><span>偵查</span><small>35</small></button>
-            <button class="btn build-btn" data-build="depot" aria-pressed="false" aria-label="補給站，50 物資（按 4）"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#double"></use></svg><span>補給</span><small>50</small></button>
-          </div>
-          <div class="front-row" role="group" aria-label="行動"><span class="row-label">行動</span>
-            <button class="btn" id="engineer" aria-pressed="false" aria-label="派工程師維修，25 物資（按 E，再點一路）"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#shield"></use></svg><span>工程師</span><small>25</small></button>
-            <button class="btn" id="sell" disabled aria-label="出售選取的建築（按 Delete）"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#remove"></use></svg><span>出售</span><small id="sell-value">—</small></button>
-          </div>
-          <div class="front-row" role="group" aria-label="手牌" id="cards"><span class="row-label">手牌</span><p class="empty-note" id="cards-empty">每 20 秒抽一張，最多 3 張。</p></div>
-          <div class="game-actions"><p class="action-note">1–4 建造 · E 工程師 · Z / X / C 出牌 · Delete 出售 · P / Esc 暫停</p><div class="btnRow"><button class="btn" id="pause" disabled aria-label="暫停"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#pause"></use></svg><span>暫停</span></button><button class="btn primary" id="restart" aria-label="重新開始"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#restart"></use></svg><span>重新開始</span></button></div></div>
-        </div>
-      </div>
-    </section>
-    <details class="card rules"><summary>玩法與操作</summary><div class="rules-body"><ul class="list">
-      <li>你的大本營在左下角，AI 的在右上角，對角虛線是前線。上路沿左邊與上緣、中路走對角線、下路沿下緣與右邊，三路都連接雙方大本營。每一路靠近自己大本營的地方有 6 個建築空位。大本營 200 點，被打到 0 就輸；10 分鐘到時大本營剩較多者勝。</li>
-      <li><strong>無人機工廠</strong>每 8 秒連續放出 3 架無人機（每架 3 物資），沿著所在的路飛向敵方大本營。兩邊無人機在同一路迎面相遇會停下纏鬥；碰到敵方建築就停下攻擊，飛到底就撞擊大本營扣 4 點。中路最短，上下路較長。</li>
-      <li><strong>防空砲塔</strong>打射程內的敵方無人機（靠近大本營時三路很近，可以互相支援），每發砲彈消耗 0.5 物資。<strong>補給站</strong>每秒多 2 物資，<strong>偵查站</strong>視野最大，還能看清它所在那一路從頭到尾的動靜。</li>
-      <li><strong>迷霧</strong>：只看得到自己單位視野內的地方。大本營、每座建築、無人機與工程師各有一圈視野（偵查站最大），沒有視野的地方就算在自己陣地也會蒙上淡霧，敵方陣地則是濃霧。全圖偵察卡可以暫時照亮全部；看過的敵方建築會留下「最後目擊」殘影，但可能已經不在了。AI 也只知道它看得到的東西。</li>
-      <li><strong>物資</strong>：每秒基本 +4。工廠出機、砲塔開火都要物資，存量見底時工廠停工、砲塔啞火。出售建築取回一半。</li>
-      <li><strong>工程師</strong>（25）從大本營走到指定的一路，15 秒內持續修理那一路受損最重的建築；每一路同時只能有一隊。</li>
-      <li><strong>手牌</strong>每 20 秒抽一張：全圖偵察（8 秒看見全部）、轟炸（點任意位置，1.5 秒後落下，摧毀範圍內敵方無人機並重創建築）、電子干擾（點一路，擊落那一路的敵方無人機並讓敵方在那一路的工廠停工 8 秒）、物資空投（+100）。</li>
-      <li>滑鼠或觸控：先選建築再點空位，點自己的建築可選取後出售。鍵盤：1–4 選建築、E 工程師、Z／X／C 使用第 1–3 張牌、Delete 出售選取的建築、Esc 取消瞄準、P 暫停。</li>
-      <li>AI 用相同規則，也只看得到它偵查到的東西。難度只改變 AI 的物資收入：簡單 ×0.7、普通 ×1、困難 ×1.3；簡單 AI 另外反應較慢、不派工程師。</li>
-    </ul></div></details>
-    <footer class="site-footer">FuGames · 隨時來一局</footer>
-    <noscript><p class="notice">請開啟 JavaScript，才能開始遊戲。</p></noscript>
-  </main>
+<body class="fu-app fu-vignette">
+<header class="fu-topbar">
+  <a class="fu-brand" href="index.html" aria-label="回到 FuGames 所有遊戲"><span class="fu-seal" aria-hidden="true">福遊</span><span class="fu-hide-sm">FuGames</span></a>
+  <div class="fu-topbar__title"><h1 class="fu-heading">三路前線</h1><span class="fu-label fu-hide-sm" id="match-label">前線塔防 · 單人對 AI</span></div>
+  <div class="fu-topbar__actions">
+    <button class="fl-lv" id="career-chip" type="button" aria-label="生涯等級"><span><b class="fu-num" id="lv">1</b><em id="rank">列兵</em></span><span class="bar"><i id="lv-fill"></i></span></button>
+    <button class="fu-btn fu-btn--icon" id="pause" type="button" disabled aria-label="暫停" data-fu-tip="暫停 P"><svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><g class="i-pause"><rect x="6" y="5" width="4" height="14"/><rect x="14" y="5" width="4" height="14"/></g><path class="i-play" d="M7 5l12 7-12 7z"/></svg></button>
+    <button class="fu-btn fu-btn--icon" id="menu-btn" type="button" aria-label="選單：玩法、設定與生涯" aria-controls="drawer" data-fu-tip="選單 M"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h16M4 17h10"/></svg></button>
+  </div>
+</header>
+<main class="fu-stage" id="stage"><canvas id="board" tabindex="0" aria-label="三路前線戰場。左下角是你的大本營，右上角是 AI 大本營，對角線以上是敵方陣地，被迷霧遮住的地方看不到。點自己的空位建造，點自己的建築可選取後升級或出售。" aria-describedby="status">需要支援 Canvas 的瀏覽器。</canvas></main>
+<div class="fu-hud fu-hud--tl">
+  <section class="fu-panel fu-panel--tight fl-war" id="war" aria-label="戰況">
+    <div class="fl-war__row">
+      <div class="fl-stat"><span class="fu-label">物資</span><b id="supply">150</b><em id="income">+4/s</em></div>
+      <div class="fl-stat clock" id="clock-box"><span class="fu-label">剩餘</span><b id="clock">10:00</b></div>
+    </div>
+    <div class="fl-hqs">
+      <div class="fl-hq" id="hq-row" style="--side:var(--me)"><span class="fu-label">你</span><div class="fl-hqbar"><i id="hq-bar"></i></div><b id="hq">200</b></div>
+      <div class="fl-hq" id="ai-hq-row" style="--side:var(--foe)"><span class="fu-label">AI</span><div class="fl-hqbar"><i id="ai-hq-bar"></i></div><b id="ai-hq">200</b></div>
+    </div>
+  </section>
+</div>
+<div class="fu-hud fu-hud--tr fl-hide-md">
+  <section class="fu-panel fu-panel--tight fu-panel--quiet fl-op" id="op-panel" aria-label="作戰">
+    <div class="fu-panel__head"><span class="fu-label" id="phase-label">準備開戰</span><span class="fu-label" id="op-diff">普通</span></div>
+    <b id="op-name">遭遇戰</b>
+    <div class="fl-tags" id="op-tags"></div>
+    <ul class="fl-feed" id="feed" aria-label="戰報"></ul>
+  </section>
+</div>
+<div class="fl-dock" id="dock">
+  <p class="fl-msg" id="status" role="status" aria-live="polite">選一種建築，點自己三路上的空位建造。</p>
+  <div class="fl-bar">
+    <div class="fl-group fl-build" role="group" aria-label="建造">
+      <button class="fu-btn build-btn" type="button" data-build="factory" aria-pressed="true" aria-label="無人機工廠，60 物資（按 1）"><span class="top"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#arrow-up"></use></svg>工廠</span><small data-cost="factory">60</small><span class="fu-kbd">1</span></button>
+      <button class="fu-btn build-btn" type="button" data-build="turret" aria-pressed="false" aria-label="防空砲塔，40 物資（按 2）"><span class="top"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#turret"></use></svg>砲塔</span><small data-cost="turret">40</small><span class="fu-kbd">2</span></button>
+      <button class="fu-btn build-btn" type="button" data-build="radar" aria-pressed="false" aria-label="偵查站，35 物資（按 3）"><span class="top"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#hint"></use></svg>偵查</span><small data-cost="radar">35</small><span class="fu-kbd">3</span></button>
+      <button class="fu-btn build-btn" type="button" data-build="depot" aria-pressed="false" aria-label="補給站，50 物資（按 4）"><span class="top"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#double"></use></svg>補給</span><small data-cost="depot">50</small><span class="fu-kbd">4</span></button>
+    </div>
+    <div class="fl-group fl-acts" role="group" aria-label="行動">
+      <button class="fu-btn" type="button" id="engineer" aria-pressed="false" aria-label="派工程師維修，25 物資（按 E，再點一路）"><span class="top"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#shield"></use></svg>工程師</span><small id="engineer-cost">25</small><span class="fu-kbd">E</span></button>
+      <button class="fu-btn" type="button" id="upgrade" disabled aria-label="升級選取的建築（按 U）"><span class="top"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#star"></use></svg>升級</span><small id="upgrade-cost">—</small><span class="fu-kbd">U</span></button>
+      <button class="fu-btn" type="button" id="sell" disabled aria-label="出售選取的建築（按 Delete）"><span class="top"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#remove"></use></svg>出售</span><small id="sell-value">—</small><span class="fu-kbd">Del</span></button>
+    </div>
+    <div class="fl-group fl-cards" id="cards" role="group" aria-label="手牌"><span class="fl-empty" id="cards-empty">手牌：10 秒後開始抽牌</span></div>
+  </div>
+</div>
+
+<div class="fu-curtain" id="curtain" data-mode="lobby" role="dialog" aria-modal="true" aria-labelledby="curtain-title">
+  <div class="fl-sheet">
+    <div class="head" data-view="lobby"><span class="fu-seal fu-seal--lg fu-stamp" aria-hidden="true">前線</span><div><p class="fu-label">FuGames · 前線塔防 · 單人對 AI</p><h2 id="curtain-title">三路<em>前線</em></h2></div></div>
+    <p class="lede" data-view="lobby">兩座大本營對角而立，上、中、下三路連接雙方。蓋工廠放出無人機，用砲塔擋下來襲，偵查之後再轟炸。看不見的敵人最危險。打下八場作戰取得星章，升級解鎖指揮學說、戰場變數與精銳 AI。</p>
+    <section data-view="lobby"><div class="fl-career" id="lobby-career"></div></section>
+    <section data-view="lobby"><h3>模式 <span id="mode-note"></span></h3><div class="fu-seg" id="mode-seg" role="group" aria-label="模式"><button type="button" value="campaign" aria-pressed="true">戰役</button><button type="button" value="skirmish" aria-pressed="false">遭遇戰</button></div></section>
+    <section data-view="lobby" data-pane="campaign"><h3>作戰 <span id="stars-note"></span></h3><div class="fl-grid" id="op-picks" role="group" aria-label="作戰"></div></section>
+    <section data-view="lobby" data-pane="skirmish" hidden><h3>AI 難度 <span>難度越高，經驗倍率越高</span></h3><div class="fl-grid" id="diff-picks" role="group" aria-label="AI 難度"></div></section>
+    <section data-view="lobby" data-pane="skirmish" hidden><h3>戰場變數 <span id="mod-note">可複選，影響雙方</span></h3><div class="fl-grid six" id="mod-picks" role="group" aria-label="戰場變數"></div></section>
+    <section data-view="lobby"><h3>指揮學說 <span>只作用在你這一方</span></h3><div class="fl-grid five" id="doc-picks" role="group" aria-label="指揮學說"></div></section>
+    <p class="fu-label" data-view="pause">已暫停</p>
+    <h2 data-view="pause">前線暫停中</h2>
+    <p class="lede" data-view="pause">無人機、物資與 AI 都已停下。切換視窗會自動暫停，回來後由你繼續。</p>
+    <p class="fu-label" data-view="result" id="result-kicker">本局結束</p>
+    <h2 data-view="result" id="result-title">本局結束</h2>
+    <p class="lede" data-view="result" id="result-copy"></p>
+    <section data-view="result" id="stars-section"><h3>星章</h3><div class="fl-stars" id="result-stars"></div></section>
+    <section data-view="result"><h3>戰報 <span>你 : <i>AI</i></span></h3><div class="fl-stats" id="result-stats"></div></section>
+    <section data-view="result" id="xp-section"><h3>經驗 <span id="xp-mult"></span></h3><dl class="fl-xp" id="xp-lines"></dl></section>
+    <section data-view="result"><div class="fl-levelup" id="levelup" hidden></div></section>
+    <section data-view="result"><div class="fl-career" id="result-career"></div></section>
+    <div class="fl-actions" data-view="lobby"><span class="note">1–4 建造 · E 工程師 · U 升級 · Z/X/C 出牌 · Del 出售 · P 暫停 · M 選單</span><button class="fu-btn" type="button" data-fu-open="drawer">玩法與設定</button><button class="fu-btn fu-btn--seal fu-btn--lg" id="play" type="button">開始作戰</button></div>
+    <div class="fl-actions" data-view="pause"><button class="fu-btn" id="retreat" type="button">撤退回大廳</button><button class="fu-btn" id="restart" type="button">重新開始</button><button class="fu-btn fu-btn--seal fu-btn--lg" id="resume" type="button">繼續作戰</button></div>
+    <div class="fl-actions" data-view="result"><button class="fu-btn" id="to-lobby" type="button">回大廳</button><button class="fu-btn" id="again" type="button">再戰一次</button><button class="fu-btn fu-btn--seal fu-btn--lg" id="next" type="button">下一場作戰</button></div>
+  </div>
+</div>
+
+<aside class="fu-drawer" id="drawer" aria-label="選單" hidden>
+  <div class="fu-drawer__head"><span class="fu-heading">三路前線</span><button class="fu-btn fu-btn--ghost fu-btn--icon" type="button" data-fu-close aria-label="關閉選單">✕</button></div>
+  <div class="fl-tabs" role="tablist"><button role="tab" id="tab-rules" type="button" aria-selected="true" aria-controls="panel-rules">玩法</button><button role="tab" id="tab-settings" type="button" aria-selected="false" aria-controls="panel-settings">設定</button><button role="tab" id="tab-career" type="button" aria-selected="false" aria-controls="panel-career">生涯</button></div>
+  <div class="fu-drawer__body">
+    <div class="fl-tab" id="panel-rules" role="tabpanel" aria-labelledby="tab-rules">
+      <section><h3>戰場</h3><ul>
+        <li>你的大本營在左下角（朱），AI 的在右上角（青），對角虛線是前線。上路沿左邊與上緣、中路走對角線、下路沿下緣與右邊，三路都連接雙方大本營。每一路靠近自己大本營的地方有 6 個建築空位。大本營標準 200 點，被打到 0 就輸；時間到時大本營剩較多者勝。</li>
+        <li><strong>無人機工廠</strong>每 8 秒連續放出 3 架無人機（每架 3 物資），沿著所在的路飛向敵方大本營。兩邊無人機在同一路迎面相遇會停下纏鬥；碰到敵方建築就停下攻擊，飛到底就撞擊大本營扣 4 點。中路最短，上下路較長。</li>
+        <li><strong>防空砲塔</strong>打射程內的敵方無人機（靠近大本營時三路很近，可以互相支援），每發砲彈消耗 0.5 物資。<strong>補給站</strong>每秒多 2 物資，<strong>偵查站</strong>視野最大，還能看清它所在那一路從頭到尾的動靜。</li>
+        <li><strong>升級</strong>：選取自己的建築按「升級」，每座建築可升一級，耐久上限 ×1.3 並立即補上多出的耐久。工廠每輪 5 架（50）、砲塔傷害 14 與射程 +20（45）、偵查站視野 250（30）、補給站再每秒 +2（45）。出售取回投入的一半，包含升級費。</li>
+        <li><strong>迷霧</strong>：只看得到自己單位視野內的地方。看過的敵方建築會留下「最後目擊」殘影，但可能已經不在了。AI 也只知道它看得到的東西。</li>
+        <li><strong>物資</strong>：每秒基本 +4。工廠出機、砲塔開火都要物資，存量見底時工廠停工、砲塔啞火。</li>
+        <li><strong>工程師</strong>（25）從大本營走到指定的一路，15 秒內持續修理那一路受損最重的建築；每一路同時只能有一隊。</li>
+        <li><strong>手牌</strong>每 20 秒抽一張，最多 3 張：全圖偵察（8 秒看見全部）、轟炸（點任意位置，1.5 秒後落下，摧毀範圍內敵方無人機並重創建築）、電子干擾（點一路，擊落那一路的敵方無人機並讓敵方在那一路的工廠停工 8 秒）、物資空投（+100）。</li>
+      </ul></section>
+      <section><h3>作戰、學說與變數</h3><ul id="variant-rules"></ul></section>
+      <section><h3>操作</h3><ul>
+        <li>滑鼠或觸控：先選建築再點空位；點自己的建築可選取，再按升級或出售。</li>
+        <li>鍵盤：1–4 選建築、E 工程師、U 升級、Z／X／C 使用第 1–3 張牌、Delete 出售、Esc 取消瞄準、P 暫停、M 選單。切換視窗或打開選單會暫停。</li>
+        <li>AI 用相同規則，也只看得到它偵查到的東西。難度改變 AI 的物資收入（簡單 ×0.7、普通 ×1、困難 ×1.3、精銳 ×1.55）與反應；簡單 AI 不派工程師，只有精銳 AI 會升級建築。</li>
+      </ul></section>
+    </div>
+    <div class="fl-tab" id="panel-settings" role="tabpanel" aria-labelledby="tab-settings" hidden>
+      <section><h3>戰場</h3>
+        <div class="fl-field"><span>遊戲速度</span><div class="fu-seg" id="speed-seg"><button type="button" value="1" aria-pressed="true">1×</button><button type="button" value="1.5" aria-pressed="false">1.5×</button><button type="button" value="2" aria-pressed="false">2×</button></div></div>
+        <label class="fu-switch"><span>畫面震動與閃光<small>轟炸與大本營受擊時的回饋。</small></span><input type="checkbox" id="set-fx" checked></label>
+        <label class="fu-switch"><span>音效<small>合成音，不載入音檔。</small></span><input type="checkbox" id="set-sound" checked></label>
+      </section>
+      <section><h3>觀戰</h3>
+        <label class="fu-switch"><span>讓 AI 代你指揮<small>下一局起由困難 AI 代打並顯示全圖；觀戰不計經驗。</small></span><input type="checkbox" id="set-spectate"></label>
+      </section>
+    </div>
+    <div class="fl-tab" id="panel-career" role="tabpanel" aria-labelledby="tab-career" hidden>
+      <div class="fl-career" id="drawer-career"></div>
+      <div class="fl-dstats" id="dstats"></div>
+      <section><h3>作戰進度</h3><ul class="fl-list" id="op-progress"></ul></section>
+      <section><h3>解鎖</h3><ul class="fl-list" id="unlocks"></ul></section>
+      <section><label class="fu-switch"><span>重置生涯<small>清除這台裝置上的等級、星章與紀錄。</small></span><button class="fu-btn fu-btn--sm" id="reset-career" type="button">重置</button></label></section>
+    </div>
+  </div>
+</aside>
+<noscript><p class="fl-msg" style="position:fixed;inset:auto 16px 16px">請開啟 JavaScript，才能開始遊戲。</p></noscript>
 
   <script id="front-engine">
   'use strict';
@@ -129,6 +351,49 @@
       airdrop: { name: '物資空投', weight: 2, supply: 100 },
     };
     const SELL_RATE = .5, MAX_DRONES = 120;
+    // Upgrades (level 2) are an extra action; nothing changes unless a side buys one.
+    const UPGRADES = {
+      factory: { name: '連發產線', cost: 50, desc: '每輪 3 → 5 架。', wave: 5 },
+      turret: { name: '重砲', cost: 45, desc: '傷害 9 → 14，射程 +20。', damage: 14, range: 20 },
+      radar: { name: '長程雷達', cost: 30, desc: '視野 170 → 250。', vision: 250 },
+      depot: { name: '擴建倉庫', cost: 45, desc: '每秒再 +2 物資。', income: 2 },
+    };
+    const UPGRADE_HP = 1.3;
+    // Match modifiers change the shared rules for both sides. None are on by default.
+    const MODIFIERS = {
+      armored: { name: '裝甲無人機', desc: '雙方無人機耐久 36 → 54。' },
+      scarcity: { name: '物資匱乏', desc: '每秒基本收入 4 → 3。' },
+      blitz: { name: '閃電戰', desc: '時限 10 → 5 分鐘，大本營耐久 ×0.75。' },
+      fortress: { name: '堅城', desc: '大本營耐久 ×1.6。' },
+      storm: { name: '電磁風暴', desc: '每 45 秒雷暴掃過一路：雙方在那一路的工廠停工 6 秒，路上無人機受 15 傷害。' },
+      clear: { name: '晴空', desc: '沒有迷霧，雙方都看得見全圖。' },
+    };
+    const STORM = { every: 45 * TPS, ticks: 6 * TPS, damage: 15 };
+    // A doctrine is one side's commander perk; null keeps the standard rules.
+    const DOCTRINES = {
+      logistics: { name: '後勤學說', desc: '開局物資 +30，工程師只要 15，補給站每秒 +3。', supply: 30, depotIncome: 3, engineerCost: 15 },
+      intel: { name: '情報學說', desc: '偵查站 20 物資，每 15 秒抽一張牌，全圖偵察持續 12 秒。', radarCost: 20, cardTicks: 15 * TPS, reconTicks: 12 * TPS },
+      bulwark: { name: '鐵壁學說', desc: '砲塔射程 +25，所有建築耐久 +20%。', turretRange: 25, hpMult: 1.2 },
+      siege: { name: '攻城學說', desc: '無人機對建築傷害 +30%，撞擊大本營 4 → 6。', structDamage: 1.3, hqDamage: 6 },
+    };
+    function doctrineRules(id) {
+      const d = DOCTRINES[id] || {};
+      return {
+        id: DOCTRINES[id] ? id : null, supply: START_SUPPLY + (d.supply || 0), depotIncome: d.depotIncome || STRUCTS.depot.income,
+        engineerCost: d.engineerCost || ENGINEER.cost, radarCost: d.radarCost || STRUCTS.radar.cost, cardTicks: d.cardTicks || CARD_TICKS,
+        reconTicks: d.reconTicks || CARDS.recon.ticks, turretRange: d.turretRange || 0, hpMult: d.hpMult || 1,
+        structDamage: d.structDamage || 1, hqDamage: d.hqDamage || DRONE.hqDamage,
+      };
+    }
+    function matchRules(modifiers = []) {
+      const on = id => modifiers.includes(id);
+      return {
+        modifiers: Object.keys(MODIFIERS).filter(on),
+        hqHp: Math.round(HQ_HP * (on('fortress') ? 1.6 : 1) * (on('blitz') ? .75 : 1)),
+        baseIncome: on('scarcity') ? 3 : BASE_INCOME, droneHp: on('armored') ? 54 : DRONE.hp,
+        timeLimit: on('blitz') ? 5 * 60 * TPS : TIME_LIMIT, storm: on('storm'), clear: on('clear'),
+      };
+    }
 
     function seededRandom(seed) {
       let h = 2166136261;
@@ -143,7 +408,7 @@
 
     class Game {
       constructor(options = {}) {
-        this.options = { seed: 'front', ai: [false, true], difficulty: ['normal', 'normal'], ...options };
+        this.options = { seed: 'front', ai: [false, true], difficulty: ['normal', 'normal'], modifiers: [], doctrine: [null, null], ...options };
         this.reset();
       }
       reset() {
@@ -151,30 +416,53 @@
         // Separate streams keep one side's card luck independent of the other side's AI choices.
         this.rng = [seededRandom(o.seed + ':0'), seededRandom(o.seed + ':1')];
         this.aiRandom = [seededRandom(o.seed + ':ai0'), seededRandom(o.seed + ':ai1')];
+        this.stormRandom = seededRandom(o.seed + ':storm');
         this.phase = 'ready'; this.tick = 0; this.serial = 0; this.result = null; this.events = [];
         this.ai = o.ai.slice(); this.difficulty = o.difficulty.slice();
-        this.sides = [0, 1].map(() => ({ supply: START_SUPPLY, hq: HQ_HP, structures: [], hand: [], revealUntil: 0, jammed: [0, 0, 0], built: 0, launched: 0, kills: 0, destroyed: 0, bombs: 0, cardsUsed: 0 }));
-        this.drones = []; this.engineers = []; this.strikes = [];
+        this.rules = matchRules(o.modifiers || []);
+        this.doctrine = [0, 1].map(side => doctrineRules((o.doctrine || [])[side]));
+        this.sides = [0, 1].map(side => ({ supply: this.doctrine[side].supply, hq: this.rules.hqHp, structures: [], hand: [], revealUntil: 0, jammed: [0, 0, 0], built: 0, launched: 0, kills: 0, destroyed: 0, bombs: 0, cardsUsed: 0, upgrades: 0, hqLost: 0 }));
+        this.drones = []; this.engineers = []; this.strikes = []; this.storm = null;
         this.intel = [new Map(), new Map()];
       }
       start() { if (this.phase === 'ready' || this.phase === 'paused') this.phase = 'running'; }
       pause() { if (this.phase === 'running') this.phase = 'paused'; }
       // AI difficulty scales only the AI's supply income; a human seat always earns the listed rate.
       incomeRate(side) { return this.ai[side] ? (PROFILES[this.difficulty[side]] || PROFILES.normal).income : 1; }
-      income(side) { return (BASE_INCOME + this.sides[side].structures.filter(s => s.type === 'depot').length * STRUCTS.depot.income) * this.incomeRate(side); }
+      income(side) {
+        const per = this.doctrine[side].depotIncome;
+        const depots = this.sides[side].structures.reduce((n, s) => s.type === 'depot' ? n + per + (s.level > 1 ? UPGRADES.depot.income : 0) : n, 0);
+        return (this.rules.baseIncome + depots) * this.incomeRate(side);
+      }
+      cost(side, type) { return type === 'radar' ? this.doctrine[side].radarCost : STRUCTS[type] ? STRUCTS[type].cost : Infinity; }
+      engineerCost(side) { return this.doctrine[side].engineerCost; }
+      visionOf(s) { return s.type === 'radar' && s.level > 1 ? UPGRADES.radar.vision : VISION[s.type]; }
+      turretRange(side, s) { return STRUCTS.turret.range + this.doctrine[side].turretRange + (s && s.level > 1 ? UPGRADES.turret.range : 0); }
       structureAt(side, lane, slot) { return this.sides[side].structures.find(s => s.lane === lane && s.slot === slot) || null; }
       structure(side, id) { return this.sides[side].structures.find(s => s.id === id) || null; }
       canBuild(side, lane, slot, type) {
         return this.phase === 'running' && !!STRUCTS[type] && Number.isInteger(lane) && lane >= 0 && lane < LANES && Number.isInteger(slot) && slot >= 0 && slot < 6
-          && !this.structureAt(side, lane, slot) && this.sides[side].supply >= STRUCTS[type].cost;
+          && !this.structureAt(side, lane, slot) && this.sides[side].supply >= this.cost(side, type);
       }
       build(side, lane, slot, type) {
         if (!this.canBuild(side, lane, slot, type)) return null;
-        const spec = STRUCTS[type], p = slotPos(side, lane, slot);
-        const s = { id: ++this.serial, side, type, lane, slot, x: p.x, y: p.y, pos: p.pos, hp: spec.hp, maxHp: spec.hp, invested: spec.cost, timer: type === 'factory' ? 3 * TPS : 0, cooldown: 0 };
-        this.sides[side].supply -= spec.cost; this.sides[side].structures.push(s); this.sides[side].built++;
+        const cost = this.cost(side, type), p = slotPos(side, lane, slot), hp = Math.round(STRUCTS[type].hp * this.doctrine[side].hpMult);
+        const s = { id: ++this.serial, side, type, lane, slot, x: p.x, y: p.y, pos: p.pos, hp, maxHp: hp, invested: cost, timer: type === 'factory' ? 3 * TPS : 0, cooldown: 0, level: 1 };
+        this.sides[side].supply -= cost; this.sides[side].structures.push(s); this.sides[side].built++;
         this.events.push({ type: 'build', side, id: s.id, kind: type, lane });
         return s;
+      }
+      canUpgrade(side, id) {
+        const s = this.structure(side, id);
+        return this.phase === 'running' && !!s && s.level < 2 && this.sides[side].supply >= UPGRADES[s.type].cost;
+      }
+      // Level 2: the upgrade's effect, 30% more max HP, and the added HP is healed at once.
+      upgrade(side, id) {
+        if (!this.canUpgrade(side, id)) return false;
+        const s = this.structure(side, id), cost = UPGRADES[s.type].cost, maxHp = Math.round(s.maxHp * UPGRADE_HP);
+        this.sides[side].supply -= cost; s.invested += cost; s.level = 2; s.hp += maxHp - s.maxHp; s.maxHp = maxHp; this.sides[side].upgrades++;
+        this.events.push({ type: 'upgrade', side, id: s.id, kind: s.type, lane: s.lane });
+        return true;
       }
       sell(side, id) {
         const s = this.structure(side, id);
@@ -187,11 +475,11 @@
         if (destroyed) { this.sides[1 - s.side].destroyed++; this.events.push({ type: 'destroyed', side: s.side, kind: s.type, lane: s.lane, x: s.x, y: s.y }); }
       }
       canSendEngineer(side, lane) {
-        return this.phase === 'running' && Number.isInteger(lane) && lane >= 0 && lane < LANES && this.sides[side].supply >= ENGINEER.cost && !this.engineers.some(e => e.side === side && e.lane === lane);
+        return this.phase === 'running' && Number.isInteger(lane) && lane >= 0 && lane < LANES && this.sides[side].supply >= this.engineerCost(side) && !this.engineers.some(e => e.side === side && e.lane === lane);
       }
       sendEngineer(side, lane) {
         if (!this.canSendEngineer(side, lane)) return false;
-        this.sides[side].supply -= ENGINEER.cost;
+        this.sides[side].supply -= this.engineerCost(side);
         const start = side ? laneLength(lane) : 0, target = side ? laneLength(lane) - ROWS[1] : ROWS[1], p = lanePoint(lane, start);
         this.engineers.push({ id: ++this.serial, side, lane, pos: start, x: p.x, y: p.y, target, ticks: ENGINEER.duration, repaired: 0 });
         this.events.push({ type: 'engineer', side, lane });
@@ -213,7 +501,7 @@
           this.sides[foe].jammed[lane] = this.tick + CARDS.jam.ticks;
           this.events.push({ type: 'jam', side, lane, downed: downed.length });
         } else if (card === 'recon') {
-          this.sides[side].revealUntil = this.tick + CARDS.recon.ticks;
+          this.sides[side].revealUntil = this.tick + this.doctrine[side].reconTicks;
           this.events.push({ type: 'recon', side });
         } else if (card === 'airdrop') {
           this.sides[side].supply += CARDS.airdrop.supply;
@@ -233,10 +521,10 @@
       // What `side` can see of the enemy half at a point in a lane.
       sees(side, x, y, lane) {
         const me = this.sides[side], near = (o, r) => Math.hypot(o.x - x, o.y - y) <= r;
-        if (me.revealUntil > this.tick) return true;
+        if (this.rules.clear || me.revealUntil > this.tick) return true;
         if (near(BASE[side], VISION.base)) return true;
         // A radar watches its whole lane, all the way to the enemy base.
-        if (me.structures.some(s => (s.type === 'radar' && s.lane === lane) || near(s, VISION[s.type]))) return true;
+        if (me.structures.some(s => (s.type === 'radar' && s.lane === lane) || near(s, this.visionOf(s)))) return true;
         return this.drones.some(d => d.side === side && near(d, VISION.drone)) || this.engineers.some(e => e.side === side && near(e, VISION.engineer));
       }
       updateIntel(side) {
@@ -249,6 +537,7 @@
         const copy = s => ({ ...s });
         return {
           side, tick: this.tick, supply: me.supply, income: this.income(side), hq: me.hq, enemyHq: foe.hq, hand: me.hand.slice(),
+          costs: Object.fromEntries(Object.keys(STRUCTS).map(type => [type, this.cost(side, type)])), engineerCost: this.engineerCost(side),
           revealUntil: me.revealUntil, jammed: me.jammed.slice(), structures: me.structures.map(copy),
           engineers: this.engineers.filter(e => e.side === side).map(copy), strikes: this.strikes.filter(s => s.side === side).map(copy),
           drones: this.drones.filter(d => d.side === side).map(copy),
@@ -264,20 +553,22 @@
           if ((this.tick + side * 7) % profile.interval === 0) for (const a of planAI(this.observation(side), profile, this.aiRandom[side])) this.apply(side, a);
         }
         if (this.tick % PAY_TICKS === 0) for (const side of [0, 1]) this.sides[side].supply += this.income(side);
-        if (this.tick >= FIRST_CARD && (this.tick - FIRST_CARD) % CARD_TICKS === 0) { this.drawCard(0); this.drawCard(1); }
+        for (const side of [0, 1]) if (this.tick >= FIRST_CARD && (this.tick - FIRST_CARD) % this.doctrine[side].cardTicks === 0) this.drawCard(side);
+        if (this.rules.storm && this.tick % STORM.every === 0) this.sweepStorm();
         // Factories launch drones when supplied and not jammed.
         for (const side of [0, 1]) for (const s of this.sides[side].structures) {
           if (s.type !== 'factory' || this.sides[side].jammed[s.lane] > this.tick) continue;
           if (s.timer > 0) { s.timer--; continue; }
           if (this.sides[side].supply < STRUCTS.factory.droneCost || this.drones.length >= MAX_DRONES) continue;
           // Each cycle launches a short burst of drones, then the factory reloads.
+          const wave = s.level > 1 ? UPGRADES.factory.wave : STRUCTS.factory.wave;
           s.burst = (s.burst || 0) + 1;
-          s.timer = s.burst < STRUCTS.factory.wave ? STRUCTS.factory.gap : STRUCTS.factory.period;
-          if (s.burst >= STRUCTS.factory.wave) s.burst = 0;
+          s.timer = s.burst < wave ? STRUCTS.factory.gap : STRUCTS.factory.period;
+          if (s.burst >= wave) s.burst = 0;
           this.sides[side].supply -= STRUCTS.factory.droneCost; this.sides[side].launched++;
           this.events.push({ type: 'launch', side, id: s.id, x: s.x, y: s.y });
           const p = lanePoint(s.lane, s.pos);
-          this.drones.push({ id: ++this.serial, side, lane: s.lane, pos: s.pos, x: p.x, y: p.y, hp: DRONE.hp, attacking: null });
+          this.drones.push({ id: ++this.serial, side, lane: s.lane, pos: s.pos, x: p.x, y: p.y, hp: this.rules.droneHp, attacking: null });
         }
         this.moveDrones();
         this.fireTurrets();
@@ -291,7 +582,18 @@
         if (a.type === 'sell') return this.sell(side, a.id);
         if (a.type === 'engineer') return this.sendEngineer(side, a.lane);
         if (a.type === 'card') return this.useCard(side, a.index, a.target);
+        if (a.type === 'upgrade') return this.upgrade(side, a.id);
         return false;
+      }
+      // Storm: one lane, picked from its own seeded stream, stalls both sides' factories and scorches drones there.
+      sweepStorm() {
+        const lane = Math.floor(this.stormRandom() * LANES);
+        for (const side of [0, 1]) this.sides[side].jammed[lane] = Math.max(this.sides[side].jammed[lane], this.tick + STORM.ticks);
+        let downed = 0;
+        for (const d of this.drones) if (d.lane === lane) { d.hp -= STORM.damage; if (d.hp <= 0) downed++; }
+        this.drones = this.drones.filter(d => d.hp > 0);
+        this.storm = { lane, until: this.tick + STORM.ticks };
+        this.events.push({ type: 'storm', lane, downed });
       }
       moveDrones() {
         // Drones that meet head-on in a lane stop and fight; damage lands simultaneously.
@@ -315,14 +617,15 @@
           const row = foe.structures.filter(s => s.lane === d.lane && Math.abs(s.pos - d.pos) <= DRONE.engage);
           if (row.length) {
             const target = row.reduce((a, b) => b.hp < a.hp ? b : a);
-            d.attacking = target.id; target.hp -= DRONE.damage * DT;
+            d.attacking = target.id; target.hp -= DRONE.damage * DT * this.doctrine[d.side].structDamage;
             if (target.hp <= 0) this.removeStructure(target, true);
             survivors.push(d); continue;
           }
           d.attacking = null; d.pos += DIR[d.side] * DRONE.speed * DT;
           const p = lanePoint(d.lane, d.pos); d.x = p.x; d.y = p.y;
           if ((d.side === 0 && d.pos >= laneLength(d.lane) - BASE_REACH) || (d.side === 1 && d.pos <= BASE_REACH)) {
-            foe.hq = Math.max(0, foe.hq - DRONE.hqDamage);
+            const hit = this.doctrine[d.side].hqDamage;
+            foe.hqLost += Math.min(foe.hq, hit); foe.hq = Math.max(0, foe.hq - hit);
             this.events.push({ type: 'hq', side: 1 - d.side, lane: d.lane });
             continue;
           }
@@ -337,16 +640,17 @@
           // Every shell comes out of the supply stockpile.
           if (this.sides[side].supply < STRUCTS.turret.ammo) continue;
           let target = null, best = Infinity;
+          const range = this.turretRange(side, t), damage = t.level > 1 ? UPGRADES.turret.damage : STRUCTS.turret.damage;
           for (const d of this.drones) {
             if (d.side === side || d.hp <= 0) continue;
             const r = Math.hypot(d.x - t.x, d.y - t.y);
-            if (r > STRUCTS.turret.range) continue;
+            if (r > range) continue;
             // Prefer the drone closest to our HQ.
             const danger = Math.hypot(d.x - BASE[side].x, d.y - BASE[side].y);
             if (danger < best) { best = danger; target = d; }
           }
           if (!target) continue;
-          target.hp -= STRUCTS.turret.damage; t.cooldown = STRUCTS.turret.cooldown; this.sides[side].supply -= STRUCTS.turret.ammo;
+          target.hp -= damage; t.cooldown = STRUCTS.turret.cooldown; this.sides[side].supply -= STRUCTS.turret.ammo;
           this.events.push({ type: 'shot', side, id: t.id, x: target.x, y: target.y });
           if (target.hp <= 0) this.sides[side].kills++;
         }
@@ -386,7 +690,7 @@
         if (a.hq <= 0 || b.hq <= 0) {
           if (a.hq <= 0 && b.hq <= 0) this.finish(null, '雙方大本營同時失守，平手。');
           else this.finish(a.hq <= 0 ? 1 : 0, a.hq <= 0 ? '你的大本營被摧毀了。' : 'AI 的大本營被摧毀了！');
-        } else if (this.tick >= TIME_LIMIT) {
+        } else if (this.tick >= this.rules.timeLimit) {
           if (a.hq === b.hq) this.finish(null, '時間到，雙方大本營耐久相同，平手。');
           else this.finish(a.hq > b.hq ? 0 : 1, '時間到，以大本營剩餘耐久決定勝負。');
         }
@@ -394,7 +698,7 @@
       finish(winner, reason) {
         if (this.phase === 'over') return;
         this.phase = 'over';
-        this.result = { winner, reason, tick: this.tick, hq: this.sides.map(s => s.hq), destroyed: this.sides.map(s => s.destroyed), kills: this.sides.map(s => s.kills), launched: this.sides.map(s => s.launched), bombs: this.sides.map(s => s.bombs) };
+        this.result = { winner, reason, tick: this.tick, timeout: this.sides.every(s => s.hq > 0), hqMax: this.rules.hqHp, hq: this.sides.map(s => s.hq), destroyed: this.sides.map(s => s.destroyed), kills: this.sides.map(s => s.kills), launched: this.sides.map(s => s.launched), bombs: this.sides.map(s => s.bombs), built: this.sides.map(s => s.built), upgrades: this.sides.map(s => s.upgrades) };
       }
     }
 
@@ -402,11 +706,14 @@
       easy: { interval: 60, factories: .6, turretPerThreat: .22, useCards: .3, guess: false, radarAt: 120 * TPS, noise: 1.2, engineers: false, reserve: 0, income: .7 },
       normal: { interval: 20, factories: 1, turretPerThreat: .34, useCards: .8, guess: true, radarAt: 40 * TPS, noise: .4, engineers: true, reserve: 1, income: 1 },
       hard: { interval: 8, factories: 1.15, turretPerThreat: .42, useCards: 1, guess: true, radarAt: 20 * TPS, noise: .15, engineers: true, reserve: 1, income: 1.3 },
+      // Elite also buys upgrades; the other profiles never do, so their play is unchanged.
+      elite: { interval: 8, factories: 1.15, turretPerThreat: .42, useCards: 1, guess: true, radarAt: 20 * TPS, noise: .15, engineers: true, reserve: 1, income: 1.55, upgrades: true },
     };
 
     // Decisions read only the observation: own state plus enemy intel the side has actually seen.
     function planAI(obs, profile, rand) {
       const actions = [], side = obs.side, mine = obs.structures;
+      const costOf = kind => (obs.costs && obs.costs[kind]) || STRUCTS[kind].cost, engineerCost = obs.engineerCost || ENGINEER.cost;
       let supply = obs.supply;
       const count = (type, lane) => mine.filter(s => s.type === type && (lane === undefined || s.lane === lane)).length;
       const fresh = obs.enemyKnown.filter(k => k.age < 25 * TPS);
@@ -418,8 +725,8 @@
       const reserve = profile.reserve * (6 + 4 * count('turret') + 3 * count('factory'));
       const build = (kind, lane, front, urgent) => {
         const slot = freeSlot(lane, front);
-        if (slot === undefined || supply - STRUCTS[kind].cost < (urgent ? 0 : reserve)) return false;
-        actions.push({ type: 'build', kind, lane, slot }); supply -= STRUCTS[kind].cost;
+        if (slot === undefined || supply - costOf(kind) < (urgent ? 0 : reserve)) return false;
+        actions.push({ type: 'build', kind, lane, slot }); supply -= costOf(kind);
         mine.push({ type: kind, lane, slot, hp: STRUCTS[kind].hp, maxHp: STRUCTS[kind].hp });
         return true;
       };
@@ -444,7 +751,7 @@
       // Engineers for damaged lanes.
       for (let lane = 0; lane < LANES; lane++) {
         const hurt = mine.some(s => s.lane === lane && s.hp < s.maxHp * .6);
-        if (hurt && profile.engineers && supply >= ENGINEER.cost + 20 && !obs.engineers.some(e => e.lane === lane)) { actions.push({ type: 'engineer', lane }); supply -= ENGINEER.cost; }
+        if (hurt && profile.engineers && supply >= engineerCost + 20 && !obs.engineers.some(e => e.lane === lane)) { actions.push({ type: 'engineer', lane }); supply -= engineerCost; }
       }
       // Threat per lane: visible incoming drones plus remembered enemy factories.
       const threat = [0, 1, 2].map(lane => obs.enemyDrones.filter(d => d.lane === lane).length + fresh.filter(k => k.lane === lane && k.type === 'factory').length * 2.5 + .6);
@@ -467,6 +774,14 @@
       }
       plans.sort((a, b) => b[3] - a[3] + (rand() - .5) * profile.noise);
       for (const [kind, lane, front, , urgent] of plans) if (lane !== undefined) build(kind, lane, front, urgent);
+      // Elite: one upgrade per round, for the turret line under the most pressure or else the oldest factory.
+      if (profile.upgrades) {
+        const ready = mine.filter(s => s.id && (s.level || 1) < 2 && supply - UPGRADES[s.type].cost >= reserve);
+        const hot = [0, 1, 2].sort((a, b) => threat[b] - threat[a]).find(lane => threat[lane] >= 2.5);
+        const pick = ready.find(s => s.type === 'turret' && s.lane === hot) || (count('factory') >= 2 && ready.find(s => s.type === 'factory'))
+          || (count('depot') >= 2 && ready.find(s => s.type === 'depot'));
+        if (pick) { actions.push({ type: 'upgrade', id: pick.id }); supply -= UPGRADES[pick.type].cost; }
+      }
       return actions;
     }
     function strikeTarget(obs, profile, rand) {
@@ -487,32 +802,129 @@
     }
 
     return { Game, SIZE, LANES, TPS, DT, TIME_LIMIT, PAY_TICKS, CARD_TICKS, FIRST_CARD, HAND, START_SUPPLY, BASE_INCOME, HQ_HP, BASE, BASE_REACH, VISION, PATHS, LANE_NAMES, ROWS, SELL_RATE, MAX_DRONES,
-      STRUCTS, DRONE, ENGINEER, CARDS, PROFILES, laneLength, lanePoint, slotPos, ownHalf, planAI, strikeTarget, seededRandom };
+      STRUCTS, DRONE, ENGINEER, CARDS, PROFILES, UPGRADES, UPGRADE_HP, MODIFIERS, STORM, DOCTRINES, doctrineRules, matchRules, laneLength, lanePoint, slotPos, ownHalf, planAI, strikeTarget, seededRandom };
   })();
   </script>
-  <script id="front-ui">
+  <script id="front-career">
   'use strict';
-  // SVG controls share the same native geometry as the catalogue icons.
-  function setButton(button, label, icon) {
-    const signature = icon + '|' + label; if (button.dataset.visualLabel === signature) return;
-    button.dataset.visualLabel = signature; button.setAttribute('aria-label', label);
-    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg'); svg.setAttribute('class', 'ui-icon'); svg.setAttribute('viewBox', '0 0 48 48'); svg.setAttribute('aria-hidden', 'true');
-    const use = document.createElementNS(svg.namespaceURI, 'use'); use.setAttribute('href', 'icons.svg#' + icon); svg.append(use);
-    const text = document.createElement('span'); text.textContent = label.replace(/\s*[→↗]\s*$/, ''); button.replaceChildren(svg, text);
-  }
-  const $ = id => document.getElementById(id), canvas = $('board'), ctx = canvas.getContext('2d');
-  const F = FrontLine;
-  const frontGame = new F.Game({ seed: 'front-' + Date.now() });
-  const ink = ['#267477', '#99553f'], tint = ['#cbeaea', '#efdad1'], stroke = ['#5ebcbf', '#d08770'];
-  const cardIcon = { recon: 'hint', strike: 'turret', jam: 'remove', airdrop: 'double' };
-  let mode = { kind: 'build', type: 'factory' }, selected = null, hover = null;
-  let restartPrompt = false, frameId = 0, lastTime = null, accumulator = 0, messageTick = 0, handSignature = '';
-  const spectating = () => frontGame.ai[0];
-  function announce(text, hold = 50) { if ($('status').textContent !== text) $('status').textContent = text; messageTick = frontGame.tick + hold; }
-  function boardPoint(event) {
-    const rect = canvas.getBoundingClientRect();
-    return { x: (event.clientX - rect.left) * 720 / rect.width, y: (event.clientY - rect.top) * 720 / rect.height };
-  }
+  // Career: pure functions over a small saved profile. XP comes from finished matches, scaled by AI difficulty and
+  // modifiers; levels unlock doctrines, modifiers and the elite AI; the campaign is eight operations with three stars each.
+  const FrontCareer = (() => {
+    const KEY = 'front-line-career', VERSION = 1, MAX_LEVEL = 30;
+    const need = level => 120 + level * 40;
+    function levelOf(xp) {
+      let level = 1, rest = Math.max(0, Math.floor(Number(xp) || 0));
+      while (level < MAX_LEVEL && rest >= need(level)) { rest -= need(level); level++; }
+      return { level, into: level < MAX_LEVEL ? rest : 0, need: level < MAX_LEVEL ? need(level) : 0, max: level >= MAX_LEVEL };
+    }
+    const RANKS = [{ from: 1, name: '列兵' }, { from: 3, name: '下士' }, { from: 5, name: '中士' }, { from: 8, name: '少尉' }, { from: 12, name: '上尉' }, { from: 16, name: '少校' }, { from: 21, name: '上校' }, { from: 26, name: '將軍' }];
+    const rankOf = level => RANKS.filter(r => level >= r.from).pop().name;
+    const UNLOCKS = [
+      { level: 2, kind: 'doctrine', id: 'logistics' }, { level: 3, kind: 'modifier', id: 'blitz' }, { level: 4, kind: 'doctrine', id: 'intel' },
+      { level: 5, kind: 'difficulty', id: 'elite' }, { level: 5, kind: 'modifier', id: 'fortress' }, { level: 6, kind: 'doctrine', id: 'bulwark' },
+      { level: 7, kind: 'modifier', id: 'storm' }, { level: 8, kind: 'doctrine', id: 'siege' },
+    ];
+    // Anything not listed is open from level 1 (easy/normal/hard, armored, scarcity, clear).
+    const unlockLevel = (kind, id) => { const u = UNLOCKS.find(x => x.kind === kind && x.id === id); return u ? u.level : 1; };
+    const unlocked = (level, kind, id) => level >= unlockLevel(kind, id);
+    const DIFF_XP = { easy: .7, normal: 1, hard: 1.35, elite: 1.7 };
+    const MOD_XP = { armored: .15, scarcity: .15, blitz: 0, fortress: 0, storm: .2, clear: -.25 };
+    const OPERATIONS = [
+      { id: 'outpost', name: '前哨', difficulty: 'easy', modifiers: [], ai: null, brief: '熟悉三路：蓋工廠、擋無人機、找出敵方工廠。' },
+      { id: 'valley', name: '迷霧谷', difficulty: 'normal', modifiers: [], ai: null, brief: '標準對手。偵查站與全圖偵察決定你看得到什麼。' },
+      { id: 'armor', name: '鋼鐵潮', difficulty: 'normal', modifiers: ['armored'], ai: 'siege', brief: '無人機更耐打，敵方走攻城學說，砲塔要多也要重。' },
+      { id: 'supply', name: '斷糧', difficulty: 'normal', modifiers: ['scarcity'], ai: 'logistics', brief: '收入只剩 3，每發砲彈都要算。' },
+      { id: 'blitz', name: '閃電戰', difficulty: 'hard', modifiers: ['blitz'], ai: null, brief: '五分鐘、較脆的大本營。慢熱的打法來不及。' },
+      { id: 'storm', name: '雷暴', difficulty: 'hard', modifiers: ['storm'], ai: 'intel', brief: '雷暴輪流癱瘓一路，敵方情報學說抽牌更快。' },
+      { id: 'citadel', name: '堅城', difficulty: 'hard', modifiers: ['fortress', 'armored'], ai: 'bulwark', brief: '兩座加固的大本營，敵方砲塔射程更遠。' },
+      { id: 'iron', name: '鐵幕', difficulty: 'elite', modifiers: ['storm', 'scarcity'], ai: 'siege', brief: '精銳 AI 會升級建築。最後一戰。' },
+    ];
+    const opIndex = id => OPERATIONS.findIndex(o => o.id === id);
+    const COUNTERS = ['xp', 'matches', 'wins', 'losses', 'draws', 'destroyed', 'kills', 'streak', 'bestStreak', 'eliteWins'];
+    const blank = () => ({ v: VERSION, ...Object.fromEntries(COUNTERS.map(k => [k, 0])), ops: {} });
+    function sanitize(p) {
+      const b = blank();
+      if (!p || typeof p !== 'object') return b;
+      for (const k of COUNTERS) if (Number.isFinite(p[k]) && p[k] >= 0) b[k] = Math.floor(p[k]);
+      if (p.ops && typeof p.ops === 'object') for (const o of OPERATIONS) { const n = Math.floor(Number(p.ops[o.id]) || 0); if (n > 0) b.ops[o.id] = Math.min(3, n); }
+      return b;
+    }
+    const totalStars = p => Object.values(sanitize(p).ops).reduce((n, v) => n + v, 0);
+    // An operation opens once the previous one has been won (one star).
+    const opUnlocked = (p, index) => index <= 0 || (sanitize(p).ops[OPERATIONS[index - 1] && OPERATIONS[index - 1].id] || 0) >= 1;
+    const modMult = mods => Math.max(.5, Math.min(2, 1 + (mods || []).reduce((n, m) => n + (MOD_XP[m] || 0), 0)));
+    // s: { winner: 0|1|null, timeout, difficulty, modifiers, destroyed, kills, hq, hqMax }
+    function stars(s) { const won = s.winner === 0; return [won, won && s.hq >= s.hqMax * .6, won && !s.timeout]; }
+    function matchXP(s) {
+      const lines = [['完成一局', 20]];
+      if (s.winner === 0) lines.push(['勝利', 60]); else if (s.winner === null) lines.push(['平手', 25]);
+      if (s.destroyed) lines.push([`摧毀建築 × ${s.destroyed}`, 4 * s.destroyed]);
+      const downed = Math.min(40, 2 * Math.floor((s.kills || 0) / 5));
+      if (downed) lines.push(['擊落無人機', downed]);
+      if (s.winner === 0 && s.hqMax) lines.push(['守住大本營', Math.round(20 * Math.max(0, s.hq) / s.hqMax)]);
+      const base = lines.reduce((n, l) => n + l[1], 0), mult = +((DIFF_XP[s.difficulty] || 1) * modMult(s.modifiers)).toFixed(2);
+      return { lines, base, mult, total: Math.round(base * mult) };
+    }
+    function recordMatch(profile, s) {
+      const p = sanitize(profile), gain = matchXP(s), before = levelOf(p.xp), next = { ...p, ops: { ...p.ops } };
+      next.matches++;
+      if (s.winner === 0) { next.wins++; next.streak++; next.bestStreak = Math.max(next.bestStreak, next.streak); if (s.difficulty === 'elite') next.eliteWins++; }
+      else { if (s.winner === null) next.draws++; else next.losses++; next.streak = 0; }
+      next.destroyed += s.destroyed || 0; next.kills += s.kills || 0;
+      const got = stars(s), earned = got.filter(Boolean).length;
+      let firstClear = false, newStars = 0;
+      if (s.operation && opIndex(s.operation) >= 0) {
+        const had = p.ops[s.operation] || 0;
+        newStars = Math.max(0, earned - had); firstClear = had === 0 && earned > 0;
+        if (earned > had) next.ops[s.operation] = earned;
+        // Campaign bonuses are flat: they are not scaled by difficulty.
+        if (firstClear) gain.lines.push(['首次攻下作戰', 80]);
+        if (newStars) gain.lines.push([`新星章 × ${newStars}`, 30 * newStars]);
+        gain.total += (firstClear ? 80 : 0) + 30 * newStars;
+      }
+      next.xp += gain.total;
+      const after = levelOf(next.xp);
+      return { profile: next, gain, before, after, stars: got, newStars, firstClear, unlocked: UNLOCKS.filter(u => u.level > before.level && u.level <= after.level) };
+    }
+    function load(storage) { try { return sanitize(JSON.parse(storage.getItem(KEY) || 'null')); } catch (e) { return blank(); } }
+    function save(storage, p) { try { storage.setItem(KEY, JSON.stringify(sanitize(p))); return true; } catch (e) { return false; } }
+    return { KEY, MAX_LEVEL, need, levelOf, RANKS, rankOf, UNLOCKS, unlockLevel, unlocked, DIFF_XP, MOD_XP, OPERATIONS, opIndex, opUnlocked, totalStars, modMult, stars, matchXP, recordMatch, blank, sanitize, load, save };
+  })();
+  </script>
+  <script src="shared/fu-shell.js"></script>
+  <script type="module" id="front-ui">
+  // Page controller and 2D renderer. The engine above stays DOM-free; this module only drives and draws it.
+  import { fonts, loadFonts } from './shared/fu-three.js';
+  const $ = id => document.getElementById(id), F = FrontLine, C = FrontCareer;
+  const canvas = $('board'), ctx = canvas.getContext('2d');
+  const store = (() => { try { const k = '__fl'; localStorage.setItem(k, '1'); localStorage.removeItem(k); return localStorage; } catch (e) { const m = new Map(); return { getItem: k => m.has(k) ? m.get(k) : null, setItem: (k, v) => m.set(k, String(v)), removeItem: k => m.delete(k) }; } })();
+  const readJSON = (key, fallback) => { try { const v = JSON.parse(store.getItem(key) || 'null'); return v && typeof v === 'object' ? { ...fallback, ...v } : { ...fallback }; } catch (e) { return { ...fallback }; } };
+  const writeJSON = (key, v) => { try { store.setItem(key, JSON.stringify(v)); } catch (e) { /* private mode */ } };
+  const SETUP_KEY = 'front-line-setup', PREF_KEY = 'front-line-prefs';
+  const DIFF = { easy: { name: '簡單', tone: 'var(--fu-jade)', blurb: '收入 ×0.7，反應慢，不派工程師。' }, normal: { name: '普通', tone: 'var(--fu-azure)', blurb: '標準對手，收入 ×1。' }, hard: { name: '困難', tone: 'var(--fu-gold)', blurb: '收入 ×1.3，出手快，會盲猜轟炸。' }, elite: { name: '精銳', tone: 'var(--fu-seal)', blurb: '收入 ×1.55，而且會升級建築。' } };
+  const CARD_ICON = { recon: 'hint', strike: 'turret', jam: 'remove', airdrop: 'double' }, CARD_SHORT = { recon: '偵察', strike: '轟炸', jam: '干擾', airdrop: '空投' };
+  let profile = C.load(store);
+  const setup = readJSON(SETUP_KEY, { mode: 'campaign', op: 'outpost', difficulty: 'normal', modifiers: [], doctrine: null });
+  const prefs = readJSON(PREF_KEY, { speed: 1, fx: true, sound: true, spectate: false });
+  let game = new F.Game({ seed: 'front-' + Date.now() }), match = null;
+  let mode = { kind: 'build', type: 'factory' }, selected = null, hover = null, drawerHold = false;
+  let frameId = 0, lastTime = null, accumulator = 0, messageTick = 0, handSignature = '', shake = 0, feed = [];
+  const level = () => C.levelOf(profile.xp).level;
+  const spectating = () => game.ai[0];
+  // Hooks for automated checks: read-only access to the running match.
+  window.FrontApp = { get game() { return game; }, get match() { return match; }, prefs, toScreen: (x, y) => ({ x: view.x + x * view.s, y: view.y + y * view.s }), redraw: () => draw() };
+
+  // ---------- Sound (synthesised, optional) ----------
+  const sound = (() => {
+    let ac = null;
+    const ensure = () => { if (!prefs.sound) return null; try { ac = ac || new (window.AudioContext || window.webkitAudioContext)(); if (ac.state === 'suspended') ac.resume(); } catch (e) { ac = null; } return ac; };
+    function tone(freq, dur, type = 'sine', gain = .04, delay = 0, slide = 0) { const c = ensure(); if (!c) return; const t = c.currentTime + delay, o = c.createOscillator(), g = c.createGain(); o.type = type; o.frequency.setValueAtTime(freq, t); if (slide) o.frequency.exponentialRampToValueAtTime(slide, t + dur); g.gain.setValueAtTime(gain, t); g.gain.exponentialRampToValueAtTime(.0001, t + dur); o.connect(g).connect(c.destination); o.start(t); o.stop(t + dur + .02); }
+    return { build: () => tone(520, .08, 'square', .025), up: () => { tone(520, .1, 'triangle', .04); tone(780, .14, 'triangle', .035, .08); }, boom: () => tone(140, .4, 'sawtooth', .05, 0, 40), hit: () => tone(90, .2, 'square', .04), card: () => tone(880, .08, 'triangle', .03), win: () => { tone(523, .2); tone(659, .2, 'sine', .04, .12); tone(784, .4, 'sine', .04, .24); }, lose: () => tone(220, .5, 'sine', .05, 0, 110), unlock: ensure };
+  })();
+
+  // ---------- Board geometry ----------
+  function boardPoint(event) { return { x: (event.clientX - view.x) / view.s, y: (event.clientY - view.y) / view.s }; }
+  const inBoard = p => p.x >= 0 && p.y >= 0 && p.x <= F.SIZE && p.y <= F.SIZE;
   function ownSlotAt(p) {
     let best = null;
     for (let lane = 0; lane < F.LANES; lane++) for (let slot = 0; slot < 6; slot++) {
@@ -541,11 +953,29 @@
     return best;
   }
 
-  // Pixel renderer: everything is drawn on a 240 × 240 buffer (one pixel = 3 board units) and scaled up without smoothing.
-  const PX = 3, BW = 720 / PX, CELL = 4, CELLS = BW / CELL;
+  // ---------- Layout: the square map fits between the top HUD, side panels and the dock ----------
+  let view = { x: 0, y: 0, s: 1, W: 0, H: 0, ratio: 1 };
+  function layout() {
+    const W = innerWidth, H = innerHeight, ratio = Math.min(devicePixelRatio || 1, 2);
+    const top = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--fu-topbar-h')) || 56;
+    const war = $('war').getBoundingClientRect(), dock = $('dock').getBoundingClientRect(), wide = W > 900;
+    let y0 = wide ? top + 6 : war.bottom + 8, y1 = dock.top - 8, x0 = 10, x1 = W - 10;
+    if (wide) {
+      const op = $('op-panel').getBoundingClientRect(), side = Math.max(war.right, W - op.left) + 14;
+      if (Math.min(W - 2 * side, y1 - y0) >= 420) { x0 = side; x1 = W - side; }
+    }
+    const size = Math.max(200, Math.floor(Math.min(x1 - x0, y1 - y0)));
+    view = { x: Math.round((x0 + x1 - size) / 2), y: Math.round(y0 + Math.max(0, y1 - y0 - size) / 2), s: size / F.SIZE, W, H, ratio };
+    if (canvas.width !== Math.round(W * ratio) || canvas.height !== Math.round(H * ratio)) { canvas.width = Math.round(W * ratio); canvas.height = Math.round(H * ratio); }
+  }
+
+  // ---------- Pixel renderer: a 240 × 240 buffer (one pixel = 3 board units) scaled up without smoothing ----------
+  const PX = 3, BW = F.SIZE / PX, CELL = 4, CELLS = BW / CELL;
   const buffer = document.createElement('canvas'); buffer.width = buffer.height = BW;
   const b = buffer.getContext('2d');
-  const team = [{ d: '#14514b', m: '#2a9d8f', l: '#c9f2ea', h: '#7fd8c9' }, { d: '#6e2614', m: '#d1603d', l: '#fde0d0', h: '#f29e78' }];
+  // You are seal, the AI is azure (FuPalette side order).
+  const team = [{ d: '#5c1a0c', m: '#ff4b2b', l: '#ffd9cc', h: '#ff8f70' }, { d: '#123659', m: '#4fa3ff', l: '#d8eaff', h: '#93c7ff' }];
+  const PAPER = '#ece4d0', GOLD = '#e9b949', INK = '#07090c';
   const hash = (x, y) => { let h = Math.imul(x * 374761393 + y * 668265263, 1274126177); h ^= h >>> 13; return ((Math.imul(h, 1103515245) >>> 0) % 1000) / 1000; };
   const bp = v => Math.round(v / PX);
   function dot(x, y, color) { b.fillStyle = color; b.fillRect(x, y, 1, 1); }
@@ -554,7 +984,7 @@
   function sprite(rows, cx, cy, pal, alpha = 1) {
     const ox = Math.round(cx - rows[0].length / 2), oy = Math.round(cy - rows.length / 2);
     b.globalAlpha = alpha;
-    rows.forEach((row, y) => { for (let x = 0; x < row.length; x++) { const c = row[x]; if (c !== '.') dot(ox + x, oy + y, c === 'w' ? '#ffffff' : c === 'k' ? 'rgba(20,24,32,.35)' : pal[c]); } });
+    rows.forEach((row, y) => { for (let x = 0; x < row.length; x++) { const c = row[x]; if (c !== '.') dot(ox + x, oy + y, c === 'w' ? PAPER : c === 'k' ? 'rgba(0,0,0,.45)' : pal[c]); } });
     b.globalAlpha = 1;
   }
   const GLYPH = {
@@ -566,18 +996,18 @@
   const BUILDINGS = Object.fromEntries(Object.entries(GLYPH).map(([type, glyph]) => [type, [
     '.ddddddddd..', 'dllllllllld.', ...glyph.map(r => 'dl' + r.replace(/\./g, 'l') + 'ldk'), 'dllllllllldk', '.dddddddddkk', '..kkkkkkkkk.',
   ]]));
-  // Static terrain: grass on your side, scorched earth on the AI side, sandy roads, trees and rocks off the lanes.
+  // Static terrain: warm ink on your half, cool ink on the AI half, paper roads and brush-mark scrub off the lanes.
   const terrain = document.createElement('canvas'); terrain.width = terrain.height = BW;
   (() => {
     const t = terrain.getContext('2d'), img = t.createImageData(BW, BW);
-    const own = [[124, 178, 110], [116, 170, 103], [132, 186, 116]], foe = [[154, 134, 112], [146, 126, 105], [161, 141, 118]];
+    const own = [[27, 24, 23], [31, 27, 25], [23, 21, 20]], foe = [[18, 23, 31], [21, 27, 36], [16, 20, 27]];
     for (let y = 0; y < BW; y++) for (let x = 0; x < BW; x++) {
       const lx = x * PX + 1.5, ly = y * PX + 1.5, n = hash(x, y), mine = lx < ly;
       let c = (mine ? own : foe)[n < .7 ? 0 : n < .85 ? 1 : 2];
       const road = Math.min(...[0, 1, 2].map(lane => laneDistance(lx, ly, lane)));
-      if (road < 14) c = n < .08 ? [214, 196, 146] : [233, 216, 166];
-      else if (road < 17) c = [196, 176, 120];
-      if (Math.abs(lx - ly) < 2.5 && x % 3 === 0 && road >= 17) c = [245, 240, 225];
+      if (road < 14) c = n < .1 ? [70, 66, 57] : [82, 78, 67];
+      else if (road < 17) c = [52, 49, 43];
+      if (Math.abs(lx - ly) < 2.5 && x % 3 === 0 && road >= 17) c = [120, 114, 100];
       const i = (y * BW + x) * 4; img.data[i] = c[0]; img.data[i + 1] = c[1]; img.data[i + 2] = c[2]; img.data[i + 3] = 255;
     }
     t.putImageData(img, 0, 0);
@@ -585,15 +1015,14 @@
     for (let gy = 4; gy < BW - 6; gy += 9) for (let gx = 4; gx < BW - 6; gx += 9) {
       const jx = gx + Math.floor(hash(gx, gy) * 5), jy = gy + Math.floor(hash(gy, gx) * 5), lx = jx * PX, ly = jy * PX;
       if (hash(jx * 3, jy * 7) > .55 || near(lx, ly)) continue;
-      if (lx < ly) { // pine tree
-        t.fillStyle = 'rgba(20,40,20,.3)'; t.fillRect(jx - 1, jy + 3, 5, 2);
-        t.fillStyle = '#2f6b3a'; t.fillRect(jx, jy - 2, 3, 1); t.fillRect(jx - 1, jy - 1, 5, 2); t.fillRect(jx - 2, jy + 1, 7, 2);
-        t.fillStyle = '#4c8c4f'; t.fillRect(jx, jy - 1, 1, 1); t.fillRect(jx - 1, jy + 1, 2, 1);
-        t.fillStyle = '#6b4a2b'; t.fillRect(jx + 1, jy + 3, 1, 2);
+      if (lx < ly) { // brush pine
+        t.fillStyle = '#0c0d0e'; t.fillRect(jx, jy - 2, 3, 1); t.fillRect(jx - 1, jy - 1, 5, 2); t.fillRect(jx - 2, jy + 1, 7, 2);
+        t.fillStyle = '#3a3430'; t.fillRect(jx, jy - 1, 1, 1); t.fillRect(jx - 1, jy + 1, 2, 1);
+        t.fillStyle = '#0c0d0e'; t.fillRect(jx + 1, jy + 3, 1, 2);
       } else { // rocks and craters
-        t.fillStyle = 'rgba(30,20,10,.3)'; t.fillRect(jx - 1, jy + 2, 5, 1);
-        t.fillStyle = '#7d7468'; t.fillRect(jx - 1, jy, 4, 2); t.fillRect(jx, jy - 1, 2, 1);
-        t.fillStyle = '#a49b8d'; t.fillRect(jx, jy - 1, 1, 1); t.fillRect(jx - 1, jy, 1, 1);
+        t.fillStyle = '#0b0e13'; t.fillRect(jx - 1, jy + 2, 5, 1);
+        t.fillStyle = '#2a3340'; t.fillRect(jx - 1, jy, 4, 2); t.fillRect(jx, jy - 1, 2, 1);
+        t.fillStyle = '#3d4858'; t.fillRect(jx, jy - 1, 1, 1); t.fillRect(jx - 1, jy, 1, 1);
       }
     }
   })();
@@ -604,45 +1033,48 @@
     enemyCell[i] = F.ownHalf(1, x, y) ? 1 : 0;
     for (let lane = 0; lane < F.LANES; lane++) if (laneDistance(x, y, lane) <= 40) fogLanes[i] |= 1 << lane;
   }
+  const fogCanvas = document.createElement('canvas'); fogCanvas.width = fogCanvas.height = BW;
+  const fogCtx = fogCanvas.getContext('2d'), fogImg = fogCtx.createImageData(BW, BW);
+  const FOG_DEEP = [[26, 32, 41, 255], [10, 13, 17, 255], [14, 18, 23, 255]], FOG_LIGHT = [[7, 9, 12, 179], [14, 18, 23, 179]];
   let prevPos = new Map(), fx = [], hqFlash = [0, 0];
   const lerpPos = (o, t) => { const p = prevPos.get(o.id); return p ? { x: p.x + (o.x - p.x) * t, y: p.y + (o.y - p.y) * t } : { x: o.x, y: o.y }; };
   function drawBuilding(s, side, alpha = 1) {
     const x = bp(s.x), y = bp(s.y);
     sprite(BUILDINGS[s.type], x + .5, y + .5, team[side], alpha);
+    if (s.level > 1 && alpha === 1) { box(x - 6, y - 8, 3, 1, GOLD); box(x - 6, y - 7, 1, 2, GOLD); box(x + 4, y - 8, 3, 1, GOLD); box(x + 6, y - 7, 1, 2, GOLD); }
     if (alpha === 1 && s.hp < s.maxHp) {
-      box(x - 5, y + 7, 11, 2, '#1d222b');
-      box(x - 5, y + 7, Math.max(1, Math.round(11 * s.hp / s.maxHp)), 2, s.hp / s.maxHp < .35 ? '#ff5d5d' : team[side].h);
+      box(x - 5, y + 7, 11, 2, INK);
+      box(x - 5, y + 7, Math.max(1, Math.round(11 * s.hp / s.maxHp)), 2, s.hp / s.maxHp < .35 ? GOLD : team[side].h);
     }
   }
   function drawBase(side, tick) {
     const q = F.BASE[side], x = bp(q.x), y = bp(q.y), pal = team[side], flash = hqFlash[side] > tick;
-    box(x - 10, y - 9, 23, 22, 'rgba(20,24,32,.3)');
-    box(x - 11, y - 11, 22, 22, flash ? '#ffffff' : pal.d);
+    box(x - 10, y - 9, 23, 22, 'rgba(0,0,0,.45)');
+    box(x - 11, y - 11, 22, 22, flash ? PAPER : pal.d);
     box(x - 9, y - 9, 18, 18, pal.m);
     for (let i = 0; i < 22; i += 4) { box(x - 11 + i, y - 13, 2, 2, pal.d); box(x - 11 + i, y + 11, 2, 2, pal.d); box(x - 13, y - 11 + i, 2, 2, pal.d); box(x + 11, y - 11 + i, 2, 2, pal.d); }
     box(x - 5, y - 5, 10, 10, pal.l); box(x - 3, y - 3, 6, 6, pal.d); box(x - 1, y - 1, 2, 2, pal.h);
-    box(x, y - 18, 1, 8, '#3b3b3b');
+    box(x, y - 18, 1, 8, '#6d7380');
     const wave = Math.floor(tick / 6) % 2;
     box(x + 1, y - 18, 5, 3, pal.m); box(x + 6, y - 18 + wave, 1, 2, pal.m);
-    const hp = frontGame.sides[side].hq / F.HQ_HP;
-    box(x - 11, y + 15, 22, 3, '#1d222b'); box(x - 11, y + 15, Math.max(0, Math.round(22 * hp)), 3, hp < .35 ? '#ff5d5d' : pal.h);
+    const hp = game.sides[side].hq / game.rules.hqHp;
+    box(x - 11, y + 15, 22, 3, INK); box(x - 11, y + 15, Math.max(0, Math.round(22 * hp)), 3, hp < .35 ? GOLD : pal.h);
   }
   function drawDrone(d, t, tick) {
     const p = lerpPos(d, t), x = bp(p.x), y = bp(p.y), pal = team[d.side];
     const q = F.lanePoint(d.lane, d.pos), dir = d.side ? -1 : 1, fx2 = q.dx * dir, fy2 = q.dy * dir;
-    // Exhaust trail behind the drone.
     for (let k = 1; k <= 4; k++) { b.globalAlpha = .7 - k * .15; dot(Math.round(x - fx2 * (k * 2 + 3)), Math.round(y - fy2 * (k * 2 + 3)), pal.h); }
     b.globalAlpha = 1;
-    box(x - 2, y + 5, 5, 2, 'rgba(20,24,32,.28)');
+    box(x - 2, y + 5, 5, 2, 'rgba(0,0,0,.4)');
     const spin = (tick + d.id) % 4 < 2;
     const r = spin ? ['ll.....ll', 'll.....ll'] : ['.l.....l.', 'l.l...l.l'];
-    sprite([r[0], r[1], '..dd.dd..', '...mmm...', '..dmhmd..', '...mmm...', '..dd.dd..', r[1], r[0]], x + .5, y + .5, { d: pal.d, m: pal.m, h: '#ffffff', l: spin ? pal.l : pal.h });
-    box(Math.round(x + fx2 * 4), Math.round(y + fy2 * 4), 1, 1, '#ffffff');
+    sprite([r[0], r[1], '..dd.dd..', '...mmm...', '..dmhmd..', '...mmm...', '..dd.dd..', r[1], r[0]], x + .5, y + .5, { d: pal.d, m: pal.m, h: PAPER, l: spin ? pal.l : pal.h });
+    box(Math.round(x + fx2 * 4), Math.round(y + fy2 * 4), 1, 1, PAPER);
   }
   function drawEngineer(e, t, tick) {
     const p = lerpPos(e, t), x = bp(p.x), y = bp(p.y), pal = team[e.side], walking = Math.abs(e.pos - e.target) > 1, step = Math.floor(tick / 4) % 2;
-    sprite(['.yyy.', 'yyyyy', '..s..', '.mmm.', 'm.m.m', walking && step ? '.d..d' : 'd...d'], x + .5, y + .5, { y: '#f2c14e', s: '#f1c8a0', m: pal.m, d: pal.d });
-    if (!walking && tick % 10 < 5) { dot(x + 3, y - 5, '#fff3a0'); dot(x + 4, y - 4, '#fff3a0'); }
+    sprite(['.yyy.', 'yyyyy', '..s..', '.mmm.', 'm.m.m', walking && step ? '.d..d' : 'd...d'], x + .5, y + .5, { y: GOLD, s: '#d9d2c0', m: pal.m, d: pal.d });
+    if (!walking && tick % 10 < 5) { dot(x + 3, y - 5, PAPER); dot(x + 4, y - 4, PAPER); }
   }
   function ring(cx, cy, r, color, dashed = 0) {
     const steps = Math.ceil(r * 7);
@@ -652,27 +1084,48 @@
     const n = Math.max(Math.abs(x1 - x0), Math.abs(y1 - y0)) || 1;
     for (let i = 0; i <= n; i += every) dot(Math.round(x0 + (x1 - x0) * i / n), Math.round(y0 + (y1 - y0) * i / n), color);
   }
-  function pixelText(text, x, y, color, size = 13) {
-    ctx.font = `bold ${size}px ui-monospace, "Courier New", monospace`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-    ctx.lineWidth = 3; ctx.strokeStyle = '#1d222bcc'; ctx.strokeText(text, x, y); ctx.fillStyle = color; ctx.fillText(text, x, y);
+  function label(text, x, y, color, size = 13, face = fonts.mono) {
+    const px = Math.max(10, Math.round(size * Math.min(1.15, Math.max(.8, view.s * 1.1))));
+    ctx.font = `700 ${px}px ${face}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    const sx = view.x + x * view.s, sy = view.y + y * view.s;
+    ctx.lineWidth = 3; ctx.strokeStyle = 'rgba(7,9,12,.85)'; ctx.strokeText(text, sx, sy); ctx.fillStyle = color; ctx.fillText(text, sx, sy);
+  }
+  // The ink table around the map: a faint survey grid and a cut-corner frame with seal corner ticks.
+  function drawBackdrop() {
+    const { W, H } = view;
+    ctx.fillStyle = INK; ctx.fillRect(0, 0, W, H);
+    ctx.strokeStyle = 'rgba(236,228,208,.035)'; ctx.lineWidth = 1; ctx.beginPath();
+    const step = Math.max(18, Math.round(48 * view.s));
+    for (let x = (view.x % step) + .5; x < W; x += step) { ctx.moveTo(x, 0); ctx.lineTo(x, H); }
+    for (let y = (view.y % step) + .5; y < H; y += step) { ctx.moveTo(0, y); ctx.lineTo(W, y); }
+    ctx.stroke();
+    const S = F.SIZE * view.s, x = view.x - 6.5, y = view.y - 6.5, w = S + 13, h = S + 13, cut = 14;
+    ctx.strokeStyle = 'rgba(236,228,208,.22)'; ctx.beginPath();
+    ctx.moveTo(x, y); ctx.lineTo(x + w - cut, y); ctx.lineTo(x + w, y + cut); ctx.lineTo(x + w, y + h); ctx.lineTo(x + cut, y + h); ctx.lineTo(x, y + h - cut); ctx.closePath(); ctx.stroke();
+    ctx.strokeStyle = '#ff4b2b'; ctx.lineWidth = 2; ctx.beginPath();
+    ctx.moveTo(x, y + 18); ctx.lineTo(x, y); ctx.lineTo(x + 18, y); ctx.moveTo(x + w - 18, y + h); ctx.lineTo(x + w, y + h); ctx.lineTo(x + w, y + h - 18); ctx.stroke();
   }
   function draw(t = 0) {
-    const g = frontGame, ratio = Math.min(devicePixelRatio || 1, 2), all = spectating(), tick = g.tick;
-    if (canvas.width !== 720 * ratio) canvas.width = canvas.height = 720 * ratio;
+    layout();
+    const g = game, all = spectating(), tick = g.tick;
     b.drawImage(terrain, 0, 0);
-    // Jammed lane stretches crackle with static.
+    // Storm sweep and jammed lane stretches crackle with static.
+    if (g.storm && g.storm.until > tick) for (let pos = 0; pos < F.laneLength(g.storm.lane); pos += 7) {
+      const q = F.lanePoint(g.storm.lane, pos), n = hash(Math.floor(pos), tick);
+      if (n < .45) box(bp(q.x) + Math.round((n - .22) * 50), bp(q.y) + Math.round((hash(tick, Math.floor(pos)) - .5) * 26), 1, 2, n < .2 ? PAPER : '#b98cff');
+    }
     for (let lane = 0; lane < F.LANES; lane++) for (const side of [0, 1]) if (g.sides[side].jammed[lane] > tick) {
       const half = side ? [F.laneLength(lane) / 2, F.laneLength(lane)] : [0, F.laneLength(lane) / 2];
       for (let pos = half[0]; pos < half[1]; pos += 9) {
         const q = F.lanePoint(lane, pos), n = hash(Math.floor(pos), tick);
-        if (n < .5) dot(bp(q.x) + Math.round((n - .25) * 40), bp(q.y) + Math.round((hash(tick, Math.floor(pos)) - .5) * 20), n < .25 ? '#ffffff' : team[side].h);
+        if (n < .5) dot(bp(q.x) + Math.round((n - .25) * 40), bp(q.y) + Math.round((hash(tick, Math.floor(pos)) - .5) * 20), n < .25 ? PAPER : team[side].h);
       }
     }
-    // Fog: everything outside your sight is covered by dithered cells; ground you hold is only lightly shrouded.
-    if (!all && g.sides[0].revealUntil <= tick) {
+    // Fog: everything outside your sight is covered by dithered ink; ground you hold is only lightly shrouded.
+    if (!all && !g.rules.clear && g.sides[0].revealUntil <= tick) {
       let lit = 0;
       const eyes = [{ x: F.BASE[0].x, y: F.BASE[0].y, r: F.VISION.base }];
-      for (const s of g.sides[0].structures) { eyes.push({ x: s.x, y: s.y, r: F.VISION[s.type] }); if (s.type === 'radar') lit |= 1 << s.lane; }
+      for (const s of g.sides[0].structures) { eyes.push({ x: s.x, y: s.y, r: g.visionOf(s) }); if (s.type === 'radar') lit |= 1 << s.lane; }
       for (const d of g.drones) if (d.side === 0) eyes.push({ x: d.x, y: d.y, r: F.VISION.drone });
       for (const e of g.engineers) if (e.side === 0) eyes.push({ x: e.x, y: e.y, r: F.VISION.engineer });
       const seen = new Uint8Array(CELLS * CELLS);
@@ -681,7 +1134,9 @@
         const x = (i % CELLS + .5) * CELL * PX, y = (Math.floor(i / CELLS) + .5) * CELL * PX;
         seen[i] = eyes.some(o => Math.hypot(o.x - x, o.y - y) <= o.r) ? 1 : 0;
       }
-      const drift = Math.floor(tick / 10);
+      // Written straight into an ImageData layer: thousands of fillRect calls are far too slow on software canvases.
+      const drift = Math.floor(tick / 10), px4 = fogImg.data;
+      px4.fill(0);
       for (let cy = 0; cy < CELLS; cy++) for (let cx = 0; cx < CELLS; cx++) {
         const i = cy * CELLS + cx;
         if (seen[i]) continue;
@@ -690,16 +1145,17 @@
         for (let y = 0; y < CELL; y++) for (let x = 0; x < CELL; x++) {
           const px = x0 + x, py = y0 + y;
           if ((edge || !deep) && (px + py) % 2) continue;
-          const n = hash(px + drift, py);
-          dot(px, py, deep ? (n < .12 ? '#4a5266' : n < .5 ? '#2c3242' : '#323a4c') : (n < .5 ? '#2c3242cc' : '#323a4ccc'));
+          const n = hash(px + drift, py), c = deep ? FOG_DEEP[n < .1 ? 0 : n < .5 ? 1 : 2] : FOG_LIGHT[n < .5 ? 0 : 1], o = (py * BW + px) * 4;
+          px4[o] = c[0]; px4[o + 1] = c[1]; px4[o + 2] = c[2]; px4[o + 3] = c[3];
         }
       }
+      fogCtx.putImageData(fogImg, 0, 0); b.drawImage(fogCanvas, 0, 0);
     }
     // Empty own slots.
     for (let lane = 0; lane < F.LANES; lane++) for (let slot = 0; slot < 6; slot++) {
       if (g.structureAt(0, lane, slot)) continue;
       const p = F.slotPos(0, lane, slot), x = bp(p.x) - 5, y = bp(p.y) - 5;
-      for (let i = 0; i < 11; i += 2) { dot(x + i, y, '#ffffff99'); dot(x + i, y + 10, '#ffffff99'); dot(x, y + i, '#ffffff99'); dot(x + 10, y + i, '#ffffff99'); }
+      for (let i = 0; i < 11; i += 2) { dot(x + i, y, 'rgba(236,228,208,.45)'); dot(x + i, y + 10, 'rgba(236,228,208,.45)'); dot(x, y + i, 'rgba(236,228,208,.45)'); dot(x + 10, y + i, 'rgba(236,228,208,.45)'); }
     }
     drawBase(0, tick); drawBase(1, tick);
     for (const s of g.sides[0].structures) drawBuilding(s, 0);
@@ -708,158 +1164,298 @@
     for (const d of g.drones) if (d.side === 0 || all || g.sees(0, d.x, d.y, d.lane)) drawDrone(d, t, tick);
     // Last sightings of enemy buildings.
     const ghosts = [];
-    if (!all) for (const k of g.intel[0].values()) if (!g.sees(0, k.x, k.y, k.lane)) { drawBuilding(k, 1, tick % 30 < 20 ? .55 : .35); ghosts.push(k); }
+    if (!all) for (const k of g.intel[0].values()) if (!g.sees(0, k.x, k.y, k.lane)) { drawBuilding(k, 1, tick % 30 < 20 ? .5 : .3); ghosts.push(k); }
     // Turret tracers, factory launches, strikes and explosions.
     for (const f of fx) {
       const age = tick - f.tick;
-      if (f.type === 'shot') { if (age < 3) { line(bp(f.fromX), bp(f.fromY), bp(f.x), bp(f.y), '#fff3a0', 2); box(bp(f.fromX) - 1, bp(f.fromY) - 1, 2, 2, '#ffffff'); dot(bp(f.x), bp(f.y), '#ffffff'); } }
-      else if (f.type === 'puff') { const r = 1 + age / 3; b.globalAlpha = Math.max(0, 1 - age / 12); box(Math.round(bp(f.x) + 3 - r / 2), Math.round(bp(f.y) - 7 - age / 2), Math.round(r), Math.round(r), '#e5e9f0'); b.globalAlpha = 1; }
+      if (f.type === 'shot') { if (age < 3) { line(bp(f.fromX), bp(f.fromY), bp(f.x), bp(f.y), GOLD, 2); box(bp(f.fromX) - 1, bp(f.fromY) - 1, 2, 2, PAPER); dot(bp(f.x), bp(f.y), PAPER); } }
+      else if (f.type === 'puff') { const r = 1 + age / 3; b.globalAlpha = Math.max(0, 1 - age / 12); box(Math.round(bp(f.x) + 3 - r / 2), Math.round(bp(f.y) - 7 - age / 2), Math.round(r), Math.round(r), '#a8a08c'); b.globalAlpha = 1; }
       else if (f.type === 'pop') {
         const x = bp(f.x), y = bp(f.y), k = f.big ? 2 : 1;
-        if (age < 2) { box(x - k, y - 3 * k, 2 * k + 1, 6 * k + 1, '#ffffff'); box(x - 3 * k, y - k, 6 * k + 1, 2 * k + 1, '#ffffff'); }
-        else if (age < 5 + k * 2) { ring(x, y, age * k * .8, '#ffb347'); ring(x, y, Math.max(1, age * k * .5), '#ff6b3d'); }
-        else { b.globalAlpha = Math.max(0, 1 - (age - 5 - k * 2) / 6); for (let j = -k; j <= k; j++) { dot(x + j * 2, y - age + 4 + Math.abs(j), '#9aa1ad'); dot(x + j * 2 + 1, y - age + 2, '#c0c5ce'); } b.globalAlpha = 1; }
+        if (age < 2) { box(x - k, y - 3 * k, 2 * k + 1, 6 * k + 1, PAPER); box(x - 3 * k, y - k, 6 * k + 1, 2 * k + 1, PAPER); }
+        else if (age < 5 + k * 2) { ring(x, y, age * k * .8, GOLD); ring(x, y, Math.max(1, age * k * .5), '#ff7a4d'); }
+        else { b.globalAlpha = Math.max(0, 1 - (age - 5 - k * 2) / 6); for (let j = -k; j <= k; j++) { dot(x + j * 2, y - age + 4 + Math.abs(j), '#6d7380'); dot(x + j * 2 + 1, y - age + 2, '#a8a08c'); } b.globalAlpha = 1; }
       } else if (f.type === 'blast') {
         const x = bp(f.x), y = bp(f.y), r = F.CARDS.strike.radius / PX;
-        if (age < 4) { b.globalAlpha = .55; for (let k = 0; k < 40; k++) { const a = hash(k, f.tick) * Math.PI * 2, d = hash(f.tick, k) * r; box(Math.round(x + Math.cos(a) * d), Math.round(y + Math.sin(a) * d), 2, 2, k % 3 ? '#ff9f43' : '#ffd166'); } b.globalAlpha = 1; }
-        ring(x, y, r * Math.min(1, .4 + age / 10), age < 6 ? '#ffd166' : '#ff6b3d');
-        if (age > 3) { b.globalAlpha = Math.max(0, 1 - age / 18); for (let k = 0; k < 12; k++) { const a = k / 12 * Math.PI * 2; box(Math.round(x + Math.cos(a) * r * .5), Math.round(y + Math.sin(a) * r * .5 - age / 3), 2, 2, '#6b6f78'); } b.globalAlpha = 1; }
+        if (age < 4) { b.globalAlpha = .55; for (let k = 0; k < 40; k++) { const a = hash(k, f.tick) * Math.PI * 2, d = hash(f.tick, k) * r; box(Math.round(x + Math.cos(a) * d), Math.round(y + Math.sin(a) * d), 2, 2, k % 3 ? '#ff7a4d' : GOLD); } b.globalAlpha = 1; }
+        ring(x, y, r * Math.min(1, .4 + age / 10), age < 6 ? GOLD : '#ff7a4d');
+        if (age > 3) { b.globalAlpha = Math.max(0, 1 - age / 18); for (let k = 0; k < 12; k++) { const a = k / 12 * Math.PI * 2; box(Math.round(x + Math.cos(a) * r * .5), Math.round(y + Math.sin(a) * r * .5 - age / 3), 2, 2, '#6d7380'); } b.globalAlpha = 1; }
       }
     }
     for (const s of g.strikes) if (s.side === 0 || all) {
-      const x = bp(s.x), y = bp(s.y), on = tick % 6 < 3, col = on ? '#ff5d5d' : '#ffffff';
+      const x = bp(s.x), y = bp(s.y), on = tick % 6 < 3, col = on ? team[s.side].m : PAPER;
       ring(x, y, F.CARDS.strike.radius / PX, col, 3); line(x - 4, y, x + 4, y, col); line(x, y - 4, x, y + 4, col);
     }
     // Selection, hover and targeting previews.
     const sel = selected && g.structure(0, selected);
     if (sel) {
-      const x = bp(sel.x), y = bp(sel.y), c = tick % 10 < 6 ? '#ffffff' : '#fff3a0';
-      for (const [sx, sy] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) { box(x + sx * 8 - (sx > 0 ? 2 : 0), y + sy * 8 - (sy > 0 ? 0 : 0), 3, 1, c); box(x + sx * 8 - (sx > 0 ? 0 : 0), y + sy * 8 - (sy > 0 ? 2 : 0), 1, 3, c); }
-      if (sel.type === 'turret') ring(x, y, F.STRUCTS.turret.range / PX, '#ffffffaa', 2);
+      const x = bp(sel.x), y = bp(sel.y), c = tick % 10 < 6 ? PAPER : GOLD;
+      for (const [sx, sy] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) { box(x + sx * 8 - (sx > 0 ? 2 : 0), y + sy * 8, 3, 1, c); box(x + sx * 8, y + sy * 8 - (sy > 0 ? 2 : 0), 1, 3, c); }
+      if (sel.type === 'turret') ring(x, y, g.turretRange(0, sel) / PX, 'rgba(236,228,208,.6)', 2);
     }
     if (hover && g.phase !== 'over' && !all) {
-      if (mode.kind === 'card' && g.sides[0].hand[mode.index] === 'strike') { ring(bp(hover.x), bp(hover.y), F.CARDS.strike.radius / PX, '#ff5d5d', 3); }
+      if (mode.kind === 'card' && g.sides[0].hand[mode.index] === 'strike') { ring(bp(hover.x), bp(hover.y), F.CARDS.strike.radius / PX, team[0].m, 3); }
       else if (mode.kind === 'engineer' || (mode.kind === 'card' && g.sides[0].hand[mode.index] === 'jam')) {
         const lane = laneAt(hover), half = mode.kind === 'engineer' ? [0, F.laneLength(lane) / 2] : [F.laneLength(lane) / 2, F.laneLength(lane)];
-        for (let pos = half[0]; pos < half[1]; pos += 6) { const q = F.lanePoint(lane, pos); box(bp(q.x) - 1, bp(q.y) - 1, 3, 3, (pos / 6 + tick) % 4 < 2 ? '#f2c14e' : '#fff3a0'); }
+        for (let pos = half[0]; pos < half[1]; pos += 6) { const q = F.lanePoint(lane, pos); box(bp(q.x) - 1, bp(q.y) - 1, 3, 3, (pos / 6 + tick) % 4 < 2 ? GOLD : PAPER); }
       } else if (mode.kind === 'build') {
         const slot = ownSlotAt(hover);
-        if (slot && !g.structureAt(0, slot.lane, slot.slot)) { const p = F.slotPos(0, slot.lane, slot.slot); drawBuilding({ type: mode.type, x: p.x, y: p.y }, 0, .55); if (mode.type === 'turret') ring(bp(p.x), bp(p.y), F.STRUCTS.turret.range / PX, '#ffffffaa', 2); }
+        if (slot && !g.structureAt(0, slot.lane, slot.slot)) { const p = F.slotPos(0, slot.lane, slot.slot); drawBuilding({ type: mode.type, x: p.x, y: p.y }, 0, .55); if (mode.type === 'turret') ring(bp(p.x), bp(p.y), g.turretRange(0) / PX, 'rgba(236,228,208,.6)', 2); }
       }
     }
-    ctx.setTransform(ratio, 0, 0, ratio, 0, 0); ctx.imageSmoothingEnabled = false;
-    ctx.drawImage(buffer, 0, 0, 720, 720);
+    ctx.setTransform(view.ratio, 0, 0, view.ratio, 0, 0); ctx.imageSmoothingEnabled = false;
+    const jolt = shake > 0 && prefs.fx ? { x: (hash(tick, 1) - .5) * shake, y: (hash(1, tick) - .5) * shake } : { x: 0, y: 0 };
+    drawBackdrop();
+    ctx.drawImage(buffer, view.x + jolt.x, view.y + jolt.y, F.SIZE * view.s, F.SIZE * view.s);
+    if (prefs.fx && hqFlash[0] > tick) { ctx.fillStyle = 'rgba(255,75,43,.08)'; ctx.fillRect(view.x, view.y, F.SIZE * view.s, F.SIZE * view.s); }
     // Crisp labels on top of the pixel layer.
-    pixelText(F.LANE_NAMES[0], 120, 250, '#f5f0e1'); pixelText(F.LANE_NAMES[1], 330, 330, '#f5f0e1'); pixelText(F.LANE_NAMES[2], 470, 604, '#f5f0e1');
-    pixelText('你 ' + g.sides[0].hq, F.BASE[0].x, F.BASE[0].y - 62, team[0].l, 14);
-    pixelText('AI ' + g.sides[1].hq, F.BASE[1].x - 10, F.BASE[1].y + 70, team[1].l, 14);
-    for (const k of ghosts) pixelText(Math.floor((tick - k.seen) / F.TPS) + 's', k.x, k.y - 24, '#fde0d0', 11);
-    if (!all && g.sides[0].revealUntil > tick) pixelText('全圖偵察 ' + Math.ceil((g.sides[0].revealUntil - tick) / F.TPS) + 's', 540, 300, '#fff3a0', 14);
+    label(F.LANE_NAMES[0], 120, 250, PAPER, 14, fonts.display); label(F.LANE_NAMES[1], 330, 330, PAPER, 14, fonts.display); label(F.LANE_NAMES[2], 470, 604, PAPER, 14, fonts.display);
+    label((all ? 'AI ' : '你 ') + g.sides[0].hq, F.BASE[0].x, F.BASE[0].y - 62, team[0].l, 14);
+    label('AI ' + g.sides[1].hq, F.BASE[1].x - 10, F.BASE[1].y + 70, team[1].l, 14);
+    for (const k of ghosts) label(Math.floor((tick - k.seen) / F.TPS) + 's', k.x, k.y - 24, team[1].l, 11);
+    if (!all && !g.rules.clear && g.sides[0].revealUntil > tick) label('全圖偵察 ' + Math.ceil((g.sides[0].revealUntil - tick) / F.TPS) + 's', 540, 300, GOLD, 14, fonts.display);
+    if (g.storm && g.storm.until > tick) label('雷暴 · ' + F.LANE_NAMES[g.storm.lane], 360, 22, '#b98cff', 13, fonts.display);
+  }
+
+  // ---------- HUD and dock ----------
+  function cardButton(card, index) {
+    const btn = document.createElement('button'); btn.type = 'button'; btn.className = 'fu-btn card-btn'; btn.dataset.index = index;
+    btn.setAttribute('aria-label', `${F.CARDS[card].name}（按 ${'ZXC'[index]}）`);
+    btn.innerHTML = `<span class="top"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#${CARD_ICON[card]}"></use></svg>${CARD_SHORT[card]}</span><small>手牌</small><span class="fu-kbd">${'ZXC'[index]}</span>`;
+    btn.addEventListener('click', () => playCard(index));
+    return btn;
   }
   function renderHand() {
-    const g = frontGame, hand = g.sides[0].hand, sig = hand.join(',') + '|' + (mode.kind === 'card' ? mode.index : '') + '|' + g.phase + spectating();
+    const g = game, hand = g.sides[0].hand, sig = hand.join(',') + '|' + (mode.kind === 'card' ? mode.index : '') + '|' + g.phase + spectating() + (g.tick < F.FIRST_CARD);
     if (sig === handSignature) return; handSignature = sig;
-    for (const b of document.querySelectorAll('.card-btn')) b.remove();
+    for (const el of document.querySelectorAll('.card-btn')) el.remove();
     $('cards-empty').hidden = hand.length > 0;
+    $('cards-empty').textContent = g.tick < F.FIRST_CARD ? '手牌：10 秒後開始抽牌' : `手牌：每 ${g.doctrine[0].cardTicks / F.TPS} 秒抽一張`;
     hand.forEach((card, index) => {
-      const b = document.createElement('button'); b.className = 'btn card-btn'; b.dataset.index = index;
-      setButton(b, `${F.CARDS[card].name}（按 ${'ZXC'[index]}）`, cardIcon[card]);
-      b.setAttribute('aria-pressed', String(mode.kind === 'card' && mode.index === index)); b.disabled = g.phase !== 'running' || spectating();
-      b.addEventListener('click', () => playCard(index)); $('cards').append(b);
+      const btn = cardButton(card, index);
+      btn.setAttribute('aria-pressed', String(mode.kind === 'card' && mode.index === index)); btn.disabled = g.phase !== 'running' || spectating();
+      $('cards').append(btn);
     });
   }
+  const clockText = ticks => { const s = Math.max(0, Math.ceil(ticks / F.TPS)); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`; };
   function updateHUD() {
-    const g = frontGame, me = g.sides[0], running = g.phase === 'running', human = running && !spectating();
-    $('supply').textContent = Math.floor(me.supply); $('income').textContent = '+' + Number(g.income(0).toFixed(1)); $('hq').textContent = me.hq; $('ai-hq').textContent = g.sides[1].hq;
-    const seconds = Math.max(0, Math.ceil((F.TIME_LIMIT - g.tick) / F.TPS));
-    $('clock').textContent = `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`;
+    const g = game, me = g.sides[0], foe = g.sides[1], running = g.phase === 'running', human = running && !spectating();
+    $('supply').textContent = Math.floor(me.supply); $('income').textContent = '+' + Number(g.income(0).toFixed(1)) + '/s';
+    $('hq').textContent = me.hq; $('ai-hq').textContent = foe.hq;
+    $('hq-bar').style.width = (100 * me.hq / g.rules.hqHp) + '%'; $('ai-hq-bar').style.width = (100 * foe.hq / g.rules.hqHp) + '%';
+    $('hq-row').classList.toggle('hit', hqFlash[0] > g.tick); $('ai-hq-row').classList.toggle('hit', hqFlash[1] > g.tick);
+    const left = g.rules.timeLimit - g.tick;
+    $('clock').textContent = clockText(left); $('clock-box').classList.toggle('low', left < 60 * F.TPS);
     $('phase-label').textContent = { ready: '準備開戰', running: spectating() ? 'AI 對戰觀戰中' : '交戰中', paused: '已暫停', over: '本局結束' }[g.phase];
-    $('pause').disabled = g.phase === 'ready' || g.phase === 'over' || restartPrompt;
-    setButton($('pause'), g.phase === 'paused' ? '繼續' : '暫停', g.phase === 'paused' ? 'play' : 'pause');
-    for (const b of document.querySelectorAll('.build-btn')) { b.setAttribute('aria-pressed', String(mode.kind === 'build' && mode.type === b.dataset.build)); b.disabled = spectating(); }
-    $('engineer').setAttribute('aria-pressed', String(mode.kind === 'engineer')); $('engineer').disabled = !human || me.supply < F.ENGINEER.cost;
+    $('pause').disabled = g.phase === 'ready' || g.phase === 'over';
+    $('pause').classList.toggle('paused', g.phase === 'paused');
+    for (const btn of document.querySelectorAll('.build-btn')) {
+      const type = btn.dataset.build;
+      btn.setAttribute('aria-pressed', String(mode.kind === 'build' && mode.type === type)); btn.disabled = spectating();
+      btn.querySelector('small').textContent = g.cost(0, type);
+    }
+    $('engineer-cost').textContent = g.engineerCost(0);
+    $('engineer').setAttribute('aria-pressed', String(mode.kind === 'engineer')); $('engineer').disabled = !human || me.supply < g.engineerCost(0);
     const s = selected && g.structure(0, selected); if (selected && !s) selected = null;
     $('sell').disabled = !human || !s; $('sell-value').textContent = s ? '+' + Math.floor(s.invested * F.SELL_RATE) : '—';
+    $('upgrade').disabled = !human || !s || !g.canUpgrade(0, s.id);
+    $('upgrade-cost').textContent = s ? (s.level > 1 ? '已滿級' : F.UPGRADES[s.type].cost) : '—';
     renderHand();
+  }
+  function announce(text, hold = 50) { if ($('status').textContent !== text) $('status').textContent = text; messageTick = game.tick + hold; }
+  function report(text, side) {
+    feed.unshift({ text: `${clockText(game.tick)} ${text}`, side }); feed = feed.slice(0, 5);
+    $('feed').innerHTML = feed.map(f => `<li style="--side:${f.side === 0 ? 'var(--me)' : f.side === 1 ? 'var(--foe)' : 'var(--fu-orchid)'}"><i></i><span>${f.text}</span></li>`).join('');
+  }
+  function describe(s) {
+    const up = F.UPGRADES[s.type];
+    return `${F.STRUCTS[s.type].name} Lv${s.level} · ${Math.ceil(s.hp)}/${s.maxHp}` + (s.level < 2 ? ` · 升級「${up.name}」${up.cost}：${up.desc}` : ' · 已滿級') + ` · 出售 +${Math.floor(s.invested * F.SELL_RATE)}`;
   }
   function setMode(next) { mode = next; selected = null; updateHUD(); draw(); }
   function playCard(index) {
-    const g = frontGame, card = g.sides[0].hand[index];
+    const g = game, card = g.sides[0].hand[index];
     if (!card || g.phase !== 'running' || spectating()) return;
     if (card === 'strike') { setMode({ kind: 'card', index }); announce('點選轟炸位置，可以打在迷霧裡。', 200); }
     else if (card === 'jam') { setMode({ kind: 'card', index }); announce('點一路，干擾那一路的敵方無人機與工廠。', 200); }
-    else { g.useCard(0, index); announce(card === 'recon' ? '全圖偵察！8 秒內看得見整個敵方陣地。' : '物資空投 +100。'); setMode({ kind: 'build', type: 'factory' }); }
+    else { g.useCard(0, index); sound.card(); announce(card === 'recon' ? `全圖偵察！${g.doctrine[0].reconTicks / F.TPS} 秒內看得見整個敵方陣地。` : '物資空投 +100。'); setMode({ kind: 'build', type: 'factory' }); }
   }
   function onBoard(p) {
-    const g = frontGame;
+    const g = game;
     if (g.phase !== 'running' || spectating()) return;
     if (mode.kind === 'card') {
+      if (!inBoard(p)) { setMode({ kind: 'build', type: 'factory' }); announce('已取消。'); return; }
       const card = g.sides[0].hand[mode.index];
-      if (card === 'strike' && g.useCard(0, mode.index, p)) announce('轟炸座標已送出，1.5 秒後落下。');
-      else if (card === 'jam' && g.useCard(0, mode.index, { lane: laneAt(p) })) announce(`干擾${F.LANE_NAMES[laneAt(p)]}！`);
+      if (card === 'strike' && g.useCard(0, mode.index, p)) { announce('轟炸座標已送出，1.5 秒後落下。'); sound.card(); }
+      else if (card === 'jam' && g.useCard(0, mode.index, { lane: laneAt(p) })) { announce(`干擾${F.LANE_NAMES[laneAt(p)]}！`); sound.card(); report(`你干擾${F.LANE_NAMES[laneAt(p)]}`, 0); }
       setMode({ kind: 'build', type: 'factory' }); return;
     }
     if (mode.kind === 'engineer') {
+      if (!inBoard(p)) { setMode({ kind: 'build', type: 'factory' }); return; }
       const lane = laneAt(p);
       announce(g.sendEngineer(0, lane) ? `工程師前往${F.LANE_NAMES[lane]}維修。` : '這一路已有工程師，或物資不足。');
       setMode({ kind: 'build', type: 'factory' }); return;
     }
-    const slot = ownSlotAt(p);
+    const slot = inBoard(p) && ownSlotAt(p);
     if (!slot) { selected = null; updateHUD(); draw(); return; }
     const own = g.structureAt(0, slot.lane, slot.slot);
-    if (own) { selected = selected === own.id ? null : own.id; updateHUD(); draw(); return; }
-    const spec = F.STRUCTS[mode.type];
-    announce(g.build(0, slot.lane, slot.slot, mode.type) ? `${spec.name}完成。` : `物資不足，${spec.name}需要 ${spec.cost}。`);
+    if (own) { selected = selected === own.id ? null : own.id; if (selected) announce(describe(own), 120); updateHUD(); draw(); return; }
+    const name = F.STRUCTS[mode.type].name, built = g.build(0, slot.lane, slot.slot, mode.type);
+    announce(built ? `${name}完成。` : `物資不足，${name}需要 ${g.cost(0, mode.type)}。`);
+    if (built) sound.build();
     selected = null; updateHUD(); draw();
   }
   function sellSelected() {
-    const g = frontGame, s = selected && g.structure(0, selected);
+    const g = game, s = selected && g.structure(0, selected);
     if (!s || spectating()) return;
     const value = Math.floor(s.invested * F.SELL_RATE);
     if (g.sell(0, s.id)) { selected = null; announce(`已出售，取回 ${value} 物資。`); }
     updateHUD(); draw();
   }
-  function showDialog(kicker, title, copy, action, secondary = false) {
-    $('dialog-kicker').textContent = kicker; $('dialog-title').textContent = title; $('dialog-copy').textContent = copy;
-    setButton($('play'), action, frontGame.phase === 'over' || restartPrompt ? 'restart' : 'play');
-    $('dialog-secondary').hidden = !secondary; $('dialog-art').hidden = frontGame.phase !== 'ready';
-    $('settings').hidden = !(frontGame.phase === 'ready' || frontGame.phase === 'over' || restartPrompt);
-    $('overlay').hidden = false; $('play').focus({ preventScroll: true });
+  function upgradeSelected() {
+    const g = game, s = selected && g.structure(0, selected);
+    if (!s || spectating()) return;
+    if (g.upgrade(0, s.id)) { announce(`${F.STRUCTS[s.type].name}升級：${F.UPGRADES[s.type].name}。`); sound.up(); }
+    else announce(s.level > 1 ? '這座建築已經滿級。' : `物資不足，升級需要 ${F.UPGRADES[s.type].cost}。`);
+    updateHUD(); draw();
   }
+
+  // ---------- Lobby, career and match setup ----------
+  function clampSetup() {
+    const lv = level();
+    if (!DIFF[setup.difficulty] || !C.unlocked(lv, 'difficulty', setup.difficulty)) setup.difficulty = 'normal';
+    setup.modifiers = (Array.isArray(setup.modifiers) ? setup.modifiers : []).filter(m => F.MODIFIERS[m] && C.unlocked(lv, 'modifier', m));
+    if (setup.doctrine && (!F.DOCTRINES[setup.doctrine] || !C.unlocked(lv, 'doctrine', setup.doctrine))) setup.doctrine = null;
+    let i = C.opIndex(setup.op); if (i < 0 || !C.opUnlocked(profile, i)) setup.op = C.OPERATIONS[0].id;
+    if (setup.mode !== 'skirmish') setup.mode = 'campaign';
+  }
+  function matchConfig() {
+    clampSetup();
+    if (setup.mode === 'campaign') { const op = C.OPERATIONS[C.opIndex(setup.op)]; return { operation: op.id, name: '作戰 ' + (C.opIndex(op.id) + 1) + '・' + op.name, difficulty: op.difficulty, modifiers: op.modifiers.slice(), aiDoctrine: op.ai, doctrine: setup.doctrine }; }
+    return { operation: null, name: '遭遇戰', difficulty: setup.difficulty, modifiers: setup.modifiers.slice(), aiDoctrine: null, doctrine: setup.doctrine };
+  }
+  const starText = n => '★'.repeat(n) + `<i>${'★'.repeat(3 - n)}</i>`;
+  function careerHTML(p) {
+    const l = C.levelOf(p.xp);
+    return `<div class="lv"><small>LEVEL</small>${l.level}</div><div class="who">${C.rankOf(l.level)}<span>${l.max ? '已達最高等級' : `${l.into} / ${l.need} XP`} · 星章 ${C.totalStars(p)}/${C.OPERATIONS.length * 3}</span></div><span class="bar"><i style="width:${l.max ? 100 : Math.round(l.into / l.need * 100)}%"></i></span>`;
+  }
+  function unlockLabel(u) { return u.kind === 'doctrine' ? F.DOCTRINES[u.id].name : u.kind === 'modifier' ? '戰場變數「' + F.MODIFIERS[u.id].name + '」' : DIFF[u.id].name + ' AI'; }
+  function renderCareer() {
+    const l = C.levelOf(profile.xp);
+    $('lv').textContent = l.level; $('rank').textContent = C.rankOf(l.level); $('lv-fill').style.width = (l.max ? 100 : Math.round(l.into / l.need * 100)) + '%';
+    $('career-chip').setAttribute('aria-label', `生涯等級 ${l.level}，${C.rankOf(l.level)}。開啟生涯紀錄`);
+    for (const id of ['lobby-career', 'drawer-career', 'result-career']) $(id).innerHTML = careerHTML(profile);
+    $('dstats').innerHTML = [['對戰', profile.matches], ['勝場', profile.wins], ['平手', profile.draws], ['最長連勝', profile.bestStreak], ['摧毀建築', profile.destroyed], ['擊落無人機', profile.kills], ['精銳勝場', profile.eliteWins], ['星章', C.totalStars(profile)]].map(([k, v]) => `<div><b>${v}</b><span>${k}</span></div>`).join('');
+    $('op-progress').innerHTML = C.OPERATIONS.map((o, i) => `<li class="${profile.ops[o.id] ? 'got' : ''}">${i + 1}. ${o.name}<span>${C.opUnlocked(profile, i) ? '★'.repeat(profile.ops[o.id] || 0) + '☆'.repeat(3 - (profile.ops[o.id] || 0)) : '未開放'}</span></li>`).join('');
+    $('unlocks').innerHTML = C.UNLOCKS.map(u => `<li class="${l.level >= u.level ? 'got' : ''}">${unlockLabel(u)}<span>${l.level >= u.level ? '已解鎖' : 'Lv ' + u.level}</span></li>`).join('');
+  }
+  function renderLobby() {
+    clampSetup(); const lv = level();
+    for (const btn of $('mode-seg').querySelectorAll('button')) btn.setAttribute('aria-pressed', String(btn.value === setup.mode));
+    for (const el of document.querySelectorAll('[data-pane]')) el.hidden = el.dataset.pane !== setup.mode;
+    $('mode-note').textContent = setup.mode === 'campaign' ? '八場作戰，攻下一場才開放下一場' : '自選難度與戰場變數';
+    $('stars-note').textContent = `勝利 · 大本營 ≥ 60% · 摧毀敵方大本營，各一顆星`;
+    $('op-picks').innerHTML = C.OPERATIONS.map((o, i) => {
+      const open = C.opUnlocked(profile, i), got = profile.ops[o.id] || 0;
+      const tags = [DIFF[o.difficulty].name, ...o.modifiers.map(m => F.MODIFIERS[m].name), o.ai ? '敵：' + F.DOCTRINES[o.ai].name : null].filter(Boolean).join(' · ');
+      return `<button class="fl-pick" type="button" data-op="${o.id}" style="--tone:${DIFF[o.difficulty].tone}" aria-pressed="${setup.op === o.id}"${open ? '' : ' disabled'}><b>${i + 1}. ${o.name}</b><small>${tags}</small><span>${o.brief}</span>${open ? `<em class="stars">${starText(got)}</em>` : '<em class="lock">未開放</em>'}</button>`;
+    }).join('');
+    $('diff-picks').innerHTML = Object.entries(DIFF).map(([id, d]) => {
+      const ok = C.unlocked(lv, 'difficulty', id);
+      return `<button class="fl-pick" type="button" data-diff="${id}" style="--tone:${d.tone}" aria-pressed="${setup.difficulty === id}"${ok ? '' : ' disabled'}><b>${d.name}</b><small>${C.DIFF_XP[id]}× XP</small><span>${d.blurb}</span>${ok ? '' : `<em class="lock">Lv ${C.unlockLevel('difficulty', id)}</em>`}</button>`;
+    }).join('');
+    $('mod-picks').innerHTML = Object.entries(F.MODIFIERS).map(([id, m]) => {
+      const ok = C.unlocked(lv, 'modifier', id), xp = C.MOD_XP[id];
+      return `<button class="fl-pick mod" type="button" data-mod="${id}" aria-pressed="${setup.modifiers.includes(id)}"${ok ? '' : ' disabled'}><b>${m.name}</b><small>${xp ? (xp > 0 ? '+' : '') + Math.round(xp * 100) + '% XP' : '± XP'}</small><span>${m.desc}</span>${ok ? '' : `<em class="lock">Lv ${C.unlockLevel('modifier', id)}</em>`}</button>`;
+    }).join('');
+    $('mod-note').textContent = `可複選，影響雙方 · 目前經驗 ×${(C.DIFF_XP[setup.difficulty] * C.modMult(setup.modifiers)).toFixed(2)}`;
+    $('doc-picks').innerHTML = [['', { name: '標準', desc: '不帶學說，照標準規則作戰。' }], ...Object.entries(F.DOCTRINES)].map(([id, d]) => {
+      const ok = !id || C.unlocked(lv, 'doctrine', id);
+      return `<button class="fl-pick" type="button" data-doc="${id}" style="--tone:${id ? 'var(--fu-seal)' : 'var(--fu-line-strong)'}" aria-pressed="${(setup.doctrine || '') === id}"${ok ? '' : ' disabled'}><b>${d.name}</b><span>${d.desc}</span>${ok ? '' : `<em class="lock">Lv ${C.unlockLevel('doctrine', id)}</em>`}</button>`;
+    }).join('');
+    $('variant-rules').innerHTML = [
+      `<strong>戰役</strong>：八場作戰各有固定的 AI 難度、戰場變數與敵方學說。每場三顆星：勝利、勝利時大本營至少 60%、在時限內摧毀敵方大本營。攻下一場才開放下一場。`,
+      `<strong>遭遇戰</strong>：自選 AI 難度（精銳 Lv ${C.unlockLevel('difficulty', 'elite')}）與任意組合的戰場變數。`,
+      ...Object.values(F.MODIFIERS).map(m => `<strong>${m.name}</strong>：${m.desc}`),
+      ...Object.values(F.DOCTRINES).map(d => `<strong>${d.name}</strong>：${d.desc}`),
+      `<strong>經驗</strong>：完成一局 20、勝利 60（平手 25）、每摧毀一座建築 4、每擊落 5 架無人機 2（最多 40）、勝利時依大本營剩餘最多 20，再乘難度（簡單 0.7、普通 1、困難 1.35、精銳 1.7）與變數倍率。戰役首次攻下 +80、每顆新星章 +30。觀戰不計經驗。`,
+    ].map(x => `<li>${x}</li>`).join('');
+  }
+  function curtain(view) { const c = $('curtain'); c.dataset.mode = view; c.hidden = false; c.scrollTop = 0; const f = c.querySelector(`.fl-actions[data-view~="${view}"] .fu-btn--seal`); if (f) setTimeout(() => f.focus({ preventScroll: true }), 30); }
+  function closeCurtain() { $('curtain').hidden = true; }
+  function toLobby() { stopFrames(); if (game.phase === 'running') game.pause(); renderLobby(); renderCareer(); curtain('lobby'); }
+  function opTags(cfg) {
+    const tags = [`<span>${DIFF[cfg.difficulty].name} AI</span>`];
+    if (cfg.doctrine) tags.push(`<span class="doc">${F.DOCTRINES[cfg.doctrine].name}</span>`);
+    if (cfg.aiDoctrine) tags.push(`<span class="foe">敵：${F.DOCTRINES[cfg.aiDoctrine].name}</span>`);
+    for (const m of cfg.modifiers) tags.push(`<span>${F.MODIFIERS[m].name}</span>`);
+    return tags.join('');
+  }
+
+  // ---------- Match lifecycle ----------
   function stopFrames() { cancelAnimationFrame(frameId); frameId = 0; lastTime = null; accumulator = 0; }
-  function applySettings() {
-    frontGame.options = { ...frontGame.options, seed: 'front-' + Date.now(), ai: [$('spectate').checked, true], difficulty: ['hard', $('difficulty').value] };
+  function startMatch() {
+    stopFrames(); writeJSON(SETUP_KEY, setup);
+    match = { ...matchConfig(), spectate: !!prefs.spectate };
+    game = new F.Game({ seed: 'front-' + Date.now(), ai: [match.spectate, true], difficulty: ['hard', match.difficulty], modifiers: match.modifiers, doctrine: [match.spectate ? null : match.doctrine, match.aiDoctrine] });
+    selected = null; fx = []; prevPos = new Map(); handSignature = ''; feed = []; hqFlash = [0, 0]; shake = 0; mode = { kind: 'build', type: 'factory' };
+    $('feed').innerHTML = ''; $('op-name').textContent = match.name; $('op-diff').textContent = DIFF[match.difficulty].name; $('op-tags').innerHTML = opTags(match);
+    $('match-label').textContent = `${match.name} · ${DIFF[match.difficulty].name} AI`;
+    closeCurtain(); sound.unlock(); resume();
+    announce(match.spectate ? '觀戰中：顯示全圖，雙方都由 AI 指揮。' : '先蓋工廠與砲塔，再用偵查找出敵方工廠。', 120);
   }
   function resume() {
-    if (frontGame.phase === 'ready') { applySettings(); frontGame.reset(); }
-    restartPrompt = false; frontGame.start(); $('overlay').hidden = true; updateHUD(); canvas.focus({ preventScroll: true });
+    if (game.phase !== 'ready' && game.phase !== 'paused') return;
+    drawerHold = false; game.start(); closeCurtain(); updateHUD(); canvas.focus({ preventScroll: true });
     stopFrames(); frameId = requestAnimationFrame(frame);
-    announce(spectating() ? '觀戰中：顯示全圖，雙方都由 AI 指揮。' : '先蓋工廠與砲塔，再用偵查找出敵方工廠。', 120);
   }
-  function pause() {
-    if (frontGame.phase !== 'running') return;
-    frontGame.pause(); stopFrames(); hover = null; updateHUD(); draw(); announce('已暫停，前線靜止。');
-    showDialog('休息一下', '前線暫停中', '無人機、物資與 AI 都已停下。準備好再繼續。', '繼續作戰 →');
+  function pause(show = true) {
+    if (game.phase !== 'running') return;
+    game.pause(); stopFrames(); hover = null; updateHUD(); draw();
+    if (show) { announce('已暫停，前線靜止。'); curtain('pause'); }
   }
-  function newRound() { stopFrames(); applySettings(); frontGame.reset(); selected = null; fx = []; prevPos = new Map(); handSignature = ''; mode = { kind: 'build', type: 'factory' }; resume(); draw(); }
   function endRound() {
     stopFrames(); updateHUD(); draw();
-    const r = frontGame.result;
-    const title = r.winner === null ? '僵持不下，平手' : spectating() ? (r.winner === 0 ? '左下 AI 獲勝' : '右上 AI 獲勝') : r.winner === 0 ? '前線突破，你贏了！' : '大本營失守，再來一局';
+    const g = game, r = g.result, spect = match && match.spectate;
+    const title = r.winner === null ? '僵持不下，平手' : spect ? (r.winner === 0 ? '左下 AI 獲勝' : '右上 AI 獲勝') : r.winner === 0 ? '前線突破，你贏了！' : '大本營失守';
     announce(r.reason, 1e9);
-    showDialog('本局結束', title, `${r.reason} 大本營 ${r.hq[0]} : ${r.hq[1]}，摧毀敵方建築 ${r.destroyed[0]} 座，擊落 ${r.kills[0]} 架無人機。`, '再玩一局 →');
+    $('result-kicker').textContent = `${match ? match.name : '遭遇戰'} · ${clockText(r.tick)}`;
+    $('result-title').textContent = title;
+    $('result-copy').textContent = `${r.reason} 大本營 ${r.hq[0]} : ${r.hq[1]}。`;
+    $('result-stats').innerHTML = [['大本營', r.hq[0], r.hq[1]], ['摧毀建築', r.destroyed[0], r.destroyed[1]], ['擊落無人機', r.kills[0], r.kills[1]], ['放出無人機', r.launched[0], r.launched[1]], ['轟炸', r.bombs[0], r.bombs[1]]].map(([k, a, c]) => `<div><b>${a}<em> : </em><i>${c}</i></b>${k}</div>`).join('');
+    const summary = { winner: r.winner, timeout: r.timeout, difficulty: match.difficulty, modifiers: match.modifiers, destroyed: r.destroyed[0], kills: r.kills[0], hq: r.hq[0], hqMax: r.hqMax, operation: match.operation };
+    $('xp-section').hidden = spect; $('stars-section').hidden = spect || !match.operation; $('levelup').hidden = true;
+    const opIdx = match.operation ? C.opIndex(match.operation) : -1;
+    if (!spect) {
+      const rec = C.recordMatch(profile, summary); profile = rec.profile; C.save(store, profile);
+      $('xp-mult').textContent = `${DIFF[match.difficulty].name} × 變數 = ×${rec.gain.mult}`;
+      $('xp-lines').innerHTML = rec.gain.lines.map(([k, v]) => `<dt>${k}</dt><dd>+${v}</dd>`).join('') + `<dt class="total">本局經驗</dt><dd class="total">+${rec.gain.total}</dd>`;
+      const names = ['勝利', '大本營 ≥ 60%', '摧毀敵方大本營'];
+      $('result-stars').innerHTML = rec.stars.map((on, i) => `<div class="${on ? 'on' : ''}"><b>★</b>${names[i]}</div>`).join('');
+      // Level-ups and newly opened operations are listed on the result sheet itself.
+      const news = [];
+      if (rec.after.level > rec.before.level) news.push(`<b>升到 Lv ${rec.after.level}・${C.rankOf(rec.after.level)}</b>${rec.unlocked.length ? '<br>解鎖：' + rec.unlocked.map(unlockLabel).join('、') : ''}`);
+      if (rec.firstClear && opIdx + 1 < C.OPERATIONS.length) news.push(`<b>開放作戰 ${opIdx + 2}・${C.OPERATIONS[opIdx + 1].name}</b>`);
+      $('levelup').hidden = !news.length; $('levelup').innerHTML = news.join('<br>');
+    }
+    if (r.winner === 0 && !spect) sound.win(); else if (r.winner === 1 && !spect) sound.lose();
+    const nextOpen = opIdx >= 0 && opIdx + 1 < C.OPERATIONS.length && C.opUnlocked(profile, opIdx + 1);
+    $('next').hidden = !nextOpen; $('again').classList.toggle('fu-btn--seal', !nextOpen); $('again').classList.toggle('fu-btn--lg', !nextOpen);
+    renderCareer(); curtain('result');
+    if (!nextOpen) setTimeout(() => $('again').focus({ preventScroll: true }), 40);
   }
   function frame(time) {
-    const g = frontGame;
+    const g = game;
+    if (g.phase === 'over') { endRound(); return; }
     if (g.phase !== 'running') return;
     if (lastTime === null) lastTime = time;
-    accumulator += Math.min(time - lastTime, 250); lastTime = time;
+    accumulator += Math.min(time - lastTime, 250) * (Number(prefs.speed) || 1); lastTime = time;
     while (accumulator >= 50 && g.phase === 'running') {
       accumulator -= 50;
       // Remember where everything was so frames can glide between simulation steps.
       prevPos = new Map([...g.drones, ...g.engineers].map(o => [o.id, { x: o.x, y: o.y }]));
       const before = g.drones.map(d => ({ id: d.id, side: d.side, lane: d.lane, x: d.x, y: d.y, pos: d.pos }));
       g.step();
+      if (shake > 0) shake = Math.max(0, shake - .6);
       const alive = new Set(g.drones.map(d => d.id)), visible = (side, x, y, lane) => side === 0 || spectating() || g.sees(0, x, y, lane);
       for (const d of before) {
         const spent = d.side === 0 ? d.pos >= F.laneLength(d.lane) - F.BASE_REACH - 4 : d.pos <= F.BASE_REACH + 4;
@@ -868,15 +1464,22 @@
       for (const e of g.events) {
         if (e.type === 'shot') { const t = g.structure(e.side, e.id); if (t && visible(e.side, t.x, t.y, t.lane)) fx.push({ type: 'shot', fromX: t.x, fromY: t.y, x: e.x, y: e.y, tick: g.tick }); }
         else if (e.type === 'launch') { if (visible(e.side, e.x, e.y, -1)) fx.push({ type: 'puff', x: e.x, y: e.y, tick: g.tick }); }
-        else if (e.type === 'destroyed') { if (visible(e.side, e.x, e.y, e.lane)) fx.push({ type: 'pop', x: e.x, y: e.y, tick: g.tick, big: true }); }
-        else if (e.type === 'hq') hqFlash[e.side] = g.tick + 4;
-        if (e.type === 'strike') { if (e.side === 0 || spectating() || e.hits || e.downed) fx.push({ type: 'blast', x: e.x, y: e.y, tick: g.tick }); if (e.side === 0) announce(e.hits ? `轟炸命中 ${e.hits} 座建築！` : e.downed ? `轟炸擊落 ${e.downed} 架無人機。` : '轟炸沒有命中任何目標。'); else if (e.hits) announce(`敵方轟炸命中你 ${e.hits} 座建築！`); }
-        else if (g.tick > messageTick) {
+        else if (e.type === 'destroyed') {
+          if (visible(e.side, e.x, e.y, e.lane)) fx.push({ type: 'pop', x: e.x, y: e.y, tick: g.tick, big: true });
+          report(e.side === 0 ? `失去${F.STRUCTS[e.kind].name}（${F.LANE_NAMES[e.lane]}）` : `摧毀敵方${F.STRUCTS[e.kind].name}（${F.LANE_NAMES[e.lane]}）`, e.side === 0 ? 1 : 0);
+        } else if (e.type === 'hq') { hqFlash[e.side] = g.tick + 4; if (e.side === 0) { shake = Math.max(shake, 3); sound.hit(); } }
+        else if (e.type === 'storm') { report(`雷暴掃過${F.LANE_NAMES[e.lane]}`, -1); announce(`雷暴掃過${F.LANE_NAMES[e.lane]}：雙方工廠停工 6 秒。`, 60); }
+        else if (e.type === 'upgrade' && e.side === 1 && (spectating() || g.sees(0, g.structure(1, e.id).x, g.structure(1, e.id).y, e.lane))) report(`敵方升級${F.STRUCTS[e.kind].name}`, 1);
+        if (e.type === 'strike') {
+          if (e.side === 0 || spectating() || e.hits || e.downed) { fx.push({ type: 'blast', x: e.x, y: e.y, tick: g.tick }); shake = Math.max(shake, 7); sound.boom(); }
+          if (e.side === 0) announce(e.hits ? `轟炸命中 ${e.hits} 座建築！` : e.downed ? `轟炸擊落 ${e.downed} 架無人機。` : '轟炸沒有命中任何目標。');
+          else if (e.hits) { announce(`敵方轟炸命中你 ${e.hits} 座建築！`); report(`敵方轟炸命中 ${e.hits} 座`, 1); }
+        } else if (g.tick > messageTick) {
           if (e.type === 'hq' && e.side === 0) announce(`敵方無人機從${F.LANE_NAMES[e.lane]}撞進大本營！`, 40);
           else if (e.type === 'destroyed' && e.side === 0) announce(`你的${F.STRUCTS[e.kind].name}被摧毀了。`, 40);
           else if (e.type === 'destroyed' && e.side === 1) announce(`摧毀敵方${F.STRUCTS[e.kind].name}！`, 40);
           else if (e.type === 'card' && e.side === 0) announce(`抽到「${F.CARDS[e.card].name}」。`, 40);
-          else if (e.type === 'jam' && e.side === 1) announce(`${F.LANE_NAMES[e.lane]}遭電子干擾！`, 40);
+          else if (e.type === 'jam' && e.side === 1) { announce(`${F.LANE_NAMES[e.lane]}遭電子干擾！`, 40); report(`${F.LANE_NAMES[e.lane]}遭敵方干擾`, 1); }
         }
       }
       if (g.tick % 4 === 0) updateHUD();
@@ -885,21 +1488,46 @@
     if (g.phase === 'over') { endRound(); return; }
     draw(accumulator / 50); frameId = requestAnimationFrame(frame);
   }
-  $('play').addEventListener('click', () => { if (restartPrompt || frontGame.phase === 'over') newRound(); else resume(); });
-  $('dialog-secondary').addEventListener('click', resume);
-  $('pause').addEventListener('click', () => frontGame.phase === 'running' ? pause() : resume());
-  $('restart').addEventListener('click', () => {
-    if (frontGame.phase === 'ready' || frontGame.phase === 'over') { newRound(); return; }
-    pause(); restartPrompt = true; updateHUD(); showDialog('重新部署', '重新開始這一局？', '建築、物資、手牌與大本營都會重置。', '確定重開', true);
-  });
-  for (const b of document.querySelectorAll('.build-btn')) b.addEventListener('click', () => setMode({ kind: 'build', type: b.dataset.build }));
+
+  // ---------- Wiring ----------
+  $('play').addEventListener('click', startMatch);
+  $('resume').addEventListener('click', resume);
+  $('restart').addEventListener('click', startMatch);
+  $('retreat').addEventListener('click', toLobby);
+  $('to-lobby').addEventListener('click', toLobby);
+  $('again').addEventListener('click', startMatch);
+  $('next').addEventListener('click', () => { const i = C.opIndex(match.operation); if (C.OPERATIONS[i + 1]) { setup.mode = 'campaign'; setup.op = C.OPERATIONS[i + 1].id; } startMatch(); });
+  $('pause').addEventListener('click', () => game.phase === 'running' ? pause() : resume());
+  $('menu-btn').addEventListener('click', () => Fu.toggle('drawer'));
+  $('career-chip').addEventListener('click', () => { selectTab('career'); Fu.open('drawer'); });
+  $('mode-seg').addEventListener('fu:select', e => { setup.mode = e.detail.value; renderLobby(); });
+  $('op-picks').addEventListener('click', e => { const t = e.target.closest('[data-op]'); if (t && !t.disabled) { setup.op = t.dataset.op; renderLobby(); } });
+  $('diff-picks').addEventListener('click', e => { const t = e.target.closest('[data-diff]'); if (t && !t.disabled) { setup.difficulty = t.dataset.diff; renderLobby(); } });
+  $('mod-picks').addEventListener('click', e => { const t = e.target.closest('[data-mod]'); if (!t || t.disabled) return; const id = t.dataset.mod; setup.modifiers = setup.modifiers.includes(id) ? setup.modifiers.filter(m => m !== id) : [...setup.modifiers, id]; renderLobby(); });
+  $('doc-picks').addEventListener('click', e => { const t = e.target.closest('[data-doc]'); if (t && !t.disabled) { setup.doctrine = t.dataset.doc || null; renderLobby(); } });
+  function selectTab(id) { for (const t of ['rules', 'settings', 'career']) { $('tab-' + t).setAttribute('aria-selected', String(t === id)); $('panel-' + t).hidden = t !== id; } }
+  for (const t of ['rules', 'settings', 'career']) $('tab-' + t).addEventListener('click', () => selectTab(t));
+  for (const btn of $('speed-seg').querySelectorAll('button')) btn.setAttribute('aria-pressed', String(Number(btn.value) === Number(prefs.speed)));
+  $('speed-seg').addEventListener('fu:select', e => { prefs.speed = Number(e.detail.value) || 1; writeJSON(PREF_KEY, prefs); });
+  for (const [id, key] of [['set-fx', 'fx'], ['set-sound', 'sound'], ['set-spectate', 'spectate']]) {
+    $(id).checked = !!prefs[key];
+    $(id).addEventListener('change', () => { prefs[key] = $(id).checked; writeJSON(PREF_KEY, prefs); if (key === 'spectate') Fu.toast(prefs.spectate ? '下一局起由 AI 代你指揮' : '下一局起恢復由你指揮', { tone: 'info' }); });
+  }
+  $('reset-career').addEventListener('click', () => { if (!confirm('確定清除這台裝置上的三路前線生涯紀錄？')) return; profile = C.blank(); C.save(store, profile); renderCareer(); renderLobby(); Fu.toast('生涯已重置'); });
+  // The drawer freezes a running match without the pause curtain, and lets it go again on close.
+  $('drawer').addEventListener('fu:open', () => { if (game.phase === 'running') { pause(false); drawerHold = true; } });
+  $('drawer').addEventListener('fu:close', () => { if (drawerHold && game.phase === 'paused' && $('curtain').hidden) resume(); drawerHold = false; });
+  for (const btn of document.querySelectorAll('.build-btn')) btn.addEventListener('click', () => setMode({ kind: 'build', type: btn.dataset.build }));
   $('engineer').addEventListener('click', () => { if (mode.kind === 'engineer') setMode({ kind: 'build', type: 'factory' }); else { setMode({ kind: 'engineer' }); announce('點一路派工程師過去。', 200); } });
   $('sell').addEventListener('click', sellSelected);
+  $('upgrade').addEventListener('click', upgradeSelected);
   const buildKeys = { '1': 'factory', '2': 'turret', '3': 'radar', '4': 'depot' };
   document.addEventListener('keydown', event => {
-    if (event.altKey || event.ctrlKey || event.metaKey || /^(INPUT|TEXTAREA|SELECT)$/.test(event.target.tagName)) return;
-    const key = event.key.length === 1 ? event.key.toLowerCase() : event.key, g = frontGame;
-    if ((key === 'p' || key === 'Escape') && !event.repeat && !restartPrompt) {
+    if (event.defaultPrevented || event.altKey || event.ctrlKey || event.metaKey || /^(INPUT|TEXTAREA|SELECT)$/.test(event.target.tagName)) return;
+    const key = event.key.length === 1 ? event.key.toLowerCase() : event.key, g = game;
+    if (Fu.isOpen('drawer')) return;
+    if (key === 'm' && !event.repeat) { event.preventDefault(); Fu.open('drawer'); return; }
+    if ((key === 'p' || key === 'Escape') && !event.repeat) {
       if (key === 'Escape' && mode.kind !== 'build' && g.phase === 'running') { setMode({ kind: 'build', type: 'factory' }); announce('已取消。'); return; }
       if (g.phase === 'running') { event.preventDefault(); pause(); } else if (g.phase === 'paused') { event.preventDefault(); resume(); }
       return;
@@ -907,16 +1535,19 @@
     if (g.phase !== 'running' || spectating() || event.repeat) return;
     if (buildKeys[key]) setMode({ kind: 'build', type: buildKeys[key] });
     else if (key === 'e') $('engineer').click();
+    else if (key === 'u' && selected) upgradeSelected();
     else if ((key === 'Delete' || key === 'Backspace') && selected) { event.preventDefault(); sellSelected(); }
     else if ('zxc'.includes(key) && key.length === 1) playCard('zxc'.indexOf(key));
   });
   canvas.addEventListener('pointerdown', event => onBoard(boardPoint(event)));
-  canvas.addEventListener('pointermove', event => { if (event.pointerType !== 'mouse') return; hover = boardPoint(event); if (frontGame.phase !== 'running') draw(); });
+  canvas.addEventListener('pointermove', event => { if (event.pointerType !== 'mouse') return; hover = boardPoint(event); if (!inBoard(hover)) hover = null; if (game.phase !== 'running') draw(); });
   canvas.addEventListener('pointerleave', () => { hover = null; });
-  window.addEventListener('blur', pause);
+  window.addEventListener('blur', () => pause());
   document.addEventListener('visibilitychange', () => { if (document.hidden) pause(); });
-  window.addEventListener('resize', () => { if (frontGame.phase !== 'running') draw(); });
-  updateHUD(); draw();
+  window.addEventListener('resize', () => { if (game.phase !== 'running') draw(); });
+  renderCareer(); renderLobby(); updateHUD(); draw(); curtain('lobby');
+  // Lane names and labels use the embedded display serif; redraw once its glyphs are in.
+  loadFonts('上路中路下路全圖偵察雷暴你AI0123456789s· ').then(() => draw());
   </script>
 </body>
 </html>

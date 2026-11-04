@@ -7,6 +7,7 @@ const vm = require('node:vm');
 const root = path.join(__dirname, '..');
 const html = fs.readFileSync(path.join(root, 'front_line.html'), 'utf8');
 const F = vm.runInNewContext(html.match(/<script id="front-engine">([\s\S]*?)<\/script>/)[1] + '; FrontLine;');
+const C = vm.runInNewContext(html.match(/<script id="front-career">([\s\S]*?)<\/script>/)[1] + '; FrontCareer;');
 // Engine objects come from another realm; compare their plain data.
 const plain = value => JSON.parse(JSON.stringify(value));
 
@@ -388,4 +389,217 @@ test('harder AI beats easier AI across swapped seats', () => {
   const hard = series('hard', 'normal', 6), normal = series('normal', 'easy', 6);
   assert.ok(hard >= .6, `hard beats normal ${hard}`);
   assert.ok(normal >= .7, `normal beats easy ${normal}`);
+});
+
+// ---------- Options added with the full-screen version: every one defaults to the original rules. ----------
+test('new options default to the original rules', () => {
+  const g = new F.Game();
+  assert.deepEqual(plain(g.rules), { modifiers: [], hqHp: F.HQ_HP, baseIncome: F.BASE_INCOME, droneHp: F.DRONE.hp, timeLimit: F.TIME_LIMIT, storm: false, clear: false });
+  assert.deepEqual(plain(g.doctrine[0]), plain(F.doctrineRules(null)));
+  assert.equal(g.sides[0].supply, F.START_SUPPLY);
+  assert.equal(g.cost(0, 'radar'), F.STRUCTS.radar.cost); assert.equal(g.engineerCost(0), F.ENGINEER.cost);
+  const a = play({ seed: 'defaults', difficulty: ['normal', 'hard'] }).g;
+  const b = play({ seed: 'defaults', difficulty: ['normal', 'hard'], modifiers: [], doctrine: [null, null] }).g;
+  assert.deepEqual(plain(a.result), plain(b.result));
+  assert.deepEqual(plain(a.result.upgrades), [0, 0], 'only the elite AI upgrades');
+});
+
+test('upgrades cost supply, add 30% max HP once and strengthen each building', () => {
+  const g = fixture();
+  const f = g.build(0, 1, 2, 'factory'), t = g.build(0, 1, 4, 'turret'), r = g.build(0, 0, 0, 'radar'), d = g.build(0, 2, 0, 'depot');
+  f.hp = 100;
+  const before = g.sides[0].supply;
+  assert.ok(g.upgrade(0, f.id));
+  assert.equal(g.sides[0].supply, before - F.UPGRADES.factory.cost);
+  assert.equal(f.level, 2); assert.equal(f.maxHp, 156); assert.equal(f.hp, 136, 'the added max HP is healed at once');
+  assert.equal(f.invested, F.STRUCTS.factory.cost + F.UPGRADES.factory.cost);
+  assert.equal(g.upgrade(0, f.id), false, 'one level only');
+  assert.equal(g.turretRange(0, t), 140); assert.ok(g.upgrade(0, t.id)); assert.equal(g.turretRange(0, t), 160);
+  assert.equal(g.visionOf(r), 170); assert.ok(g.upgrade(0, r.id)); assert.equal(g.visionOf(r), 250);
+  const income = g.income(0); assert.ok(g.upgrade(0, d.id)); assert.equal(g.income(0), income + F.UPGRADES.depot.income);
+  assert.equal(g.sides[0].upgrades, 4);
+  const supply = g.sides[0].supply; g.sell(0, f.id);
+  assert.equal(g.sides[0].supply, supply + 55, 'selling refunds half of the build and the upgrade');
+  const poor = g.build(0, 0, 1, 'turret'); g.sides[0].supply = F.UPGRADES.turret.cost - 1;
+  assert.equal(g.upgrade(0, poor.id), false, 'needs the supply');
+  assert.equal(g.upgrade(1, poor.id), false, 'only your own buildings');
+  g.sides[0].supply = 100; g.pause();
+  assert.equal(g.upgrade(0, poor.id), false, 'not while paused');
+});
+
+test('an upgraded turret hits harder and farther; a level-2 factory launches five per burst', () => {
+  const g = fixture();
+  const t = g.build(0, 1, 4, 'turret'); g.upgrade(0, t.id);
+  const drone = addDrone(g, 1, 1, t.pos + 150, { hp: 999 });
+  g.step();
+  assert.ok(Math.hypot(drone.x - t.x, drone.y - t.y) > F.STRUCTS.turret.range, 'out of the base range');
+  assert.equal(drone.hp, 999 - F.UPGRADES.turret.damage);
+  const h = fixture();
+  const f = h.build(0, 1, 2, 'factory'); h.upgrade(0, f.id);
+  run(h, 3 * F.TPS + 1 + 4 * (F.STRUCTS.factory.gap + 1));
+  assert.equal(h.sides[0].launched, F.UPGRADES.factory.wave);
+  run(h, F.STRUCTS.factory.period - 2);
+  assert.equal(h.sides[0].launched, F.UPGRADES.factory.wave, 'then reloads');
+});
+
+test('match modifiers change the shared rules for both sides', () => {
+  const g = new F.Game({ ai: [false, false], modifiers: ['armored', 'scarcity', 'blitz', 'fortress'] });
+  assert.equal(g.rules.hqHp, 240); assert.deepEqual(plain(g.sides.map(s => s.hq)), [240, 240]);
+  assert.equal(g.rules.timeLimit, 5 * 60 * F.TPS);
+  assert.equal(g.income(0), 3); assert.equal(g.income(1), 3);
+  g.start(); g.build(0, 1, 2, 'factory'); g.build(1, 1, 2, 'factory');
+  run(g, 3 * F.TPS + 1);
+  assert.deepEqual(plain(g.drones.map(d => d.hp)), [54, 54]);
+  assert.equal(new F.Game({ modifiers: ['blitz'] }).rules.hqHp, 150);
+  assert.equal(new F.Game({ modifiers: ['fortress'] }).rules.hqHp, 320);
+  assert.deepEqual(plain(new F.Game({ modifiers: ['nope', 'clear'] }).rules.modifiers), ['clear'], 'unknown ids are ignored');
+  const blitz = fixture({ modifiers: ['blitz'] });
+  blitz.tick = 5 * 60 * F.TPS - 1; blitz.sides[0].hq = 100; blitz.step();
+  assert.equal(blitz.phase, 'over'); assert.equal(blitz.result.winner, 1); assert.equal(blitz.result.timeout, true); assert.equal(blitz.result.hqMax, 150);
+  const clear = fixture({ modifiers: ['clear'] }), p = F.slotPos(1, 2, 0);
+  assert.equal(clear.sees(0, p.x, p.y, 2), true); assert.equal(clear.sees(1, 40, 380, -1), true, 'both sides see everything');
+});
+
+test('storms sweep one seeded lane every 45 s, jamming both sides there and scorching drones', () => {
+  const g = fixture({ seed: 'storm', modifiers: ['storm'] });
+  run(g, F.STORM.every - 1);
+  assert.equal(g.storm, null);
+  const mine = [0, 1, 2].map(lane => addDrone(g, 0, lane, 300, { hp: 20 }));
+  const theirs = [0, 1, 2].map(lane => addDrone(g, 1, lane, 700, { hp: 10 }));
+  g.step();
+  const lane = g.storm.lane;
+  for (const side of [0, 1]) assert.equal(g.sides[side].jammed[lane], g.tick + F.STORM.ticks);
+  for (const l of [0, 1, 2]) {
+    assert.equal(mine[l].hp, l === lane ? 20 - F.STORM.damage : 20);
+    assert.equal(g.drones.includes(theirs[l]), l !== lane);
+  }
+  assert.ok(g.events.some(e => e.type === 'storm' && e.lane === lane && e.downed === 1));
+  assert.equal(g.sides[0].kills + g.sides[1].kills, 0, 'storm kills count for nobody');
+  const again = fixture({ seed: 'storm', modifiers: ['storm'] }); run(again, F.STORM.every);
+  assert.equal(again.storm.lane, lane, 'the storm lane comes from the seed');
+  const calm = fixture({ seed: 'storm' }); run(calm, F.STORM.every);
+  assert.equal(calm.storm, null);
+});
+
+test('doctrines change only their own side', () => {
+  assert.deepEqual(plain(new F.Game({ doctrine: ['logistics', null] }).sides.map(s => s.supply)), [F.START_SUPPLY + 30, F.START_SUPPLY]);
+  const g = fixture({ doctrine: ['logistics', 'intel'] });
+  assert.equal(g.engineerCost(0), 15); assert.equal(g.engineerCost(1), F.ENGINEER.cost);
+  const s0 = g.sides[0].supply; g.sendEngineer(0, 1); assert.equal(g.sides[0].supply, s0 - 15);
+  g.build(0, 0, 0, 'depot'); assert.equal(g.income(0), F.BASE_INCOME + 3);
+  g.build(1, 0, 0, 'depot'); assert.equal(g.income(1), F.BASE_INCOME + F.STRUCTS.depot.income);
+  assert.equal(g.cost(1, 'radar'), 20); assert.equal(g.cost(0, 'radar'), F.STRUCTS.radar.cost);
+  const s1 = g.sides[1].supply; g.build(1, 1, 0, 'radar'); assert.equal(g.sides[1].supply, s1 - 20);
+  assert.equal(g.observation(1).costs.radar, 20, 'the AI plans with its own prices');
+  run(g, F.FIRST_CARD + 15 * F.TPS - g.tick);
+  assert.equal(g.sides[1].hand.length, 2, 'intel draws every 15 s'); assert.equal(g.sides[0].hand.length, 1);
+  g.sides[1].hand = ['recon']; g.useCard(1, 0);
+  assert.equal(g.sides[1].revealUntil, g.tick + 12 * F.TPS);
+  const w = fixture({ doctrine: ['bulwark', 'siege'] });
+  const t = w.build(0, 2, 5, 'turret'), s = w.build(0, 0, 4, 'factory');
+  assert.equal(t.maxHp, 192); assert.equal(s.maxHp, 144); assert.equal(w.turretRange(0, t), 165); assert.equal(w.turretRange(1), 140);
+  addDrone(w, 1, 0, s.pos + 5);
+  w.step();
+  assert.ok(Math.abs(s.hp - (144 - F.DRONE.damage * F.DT * 1.3)) < 1e-9, 'siege drones hit buildings 30% harder');
+  const hq = w.sides[0].hq;
+  addDrone(w, 1, 1, F.BASE_REACH + 1); w.step();
+  assert.equal(w.sides[0].hq, hq - 6); assert.equal(w.sides[0].hqLost, 6);
+});
+
+test('elite AI buys upgrades and beats hard across swapped seats', () => {
+  let won = 0, games = 0, upgrades = 0;
+  for (let i = 0; i < 5; i++) for (const swap of [false, true]) {
+    const { g } = play({ seed: 'elite' + i, difficulty: swap ? ['hard', 'elite'] : ['elite', 'hard'] });
+    games++; if (g.result.winner === (swap ? 1 : 0)) won++;
+    upgrades += g.result.upgrades[swap ? 1 : 0];
+    assert.equal(g.result.upgrades[swap ? 0 : 1], 0, 'hard never upgrades');
+  }
+  assert.ok(upgrades > games, `elite upgrades ${upgrades}`);
+  assert.ok(won / games >= .6, `elite beats hard ${won}/${games}`);
+});
+
+// ---------- Career progression ----------
+test('career levels, ranks and unlocks', () => {
+  assert.deepEqual(plain(C.levelOf(0)), { level: 1, into: 0, need: 160, max: false });
+  assert.equal(C.levelOf(159).level, 1); assert.equal(C.levelOf(160).level, 2);
+  assert.deepEqual(plain(C.levelOf(160 + 200 + 5)), { level: 3, into: 5, need: 240, max: false });
+  assert.equal(C.levelOf(-50).level, 1); assert.equal(C.levelOf('junk').level, 1);
+  assert.deepEqual(plain(C.levelOf(1e9)), { level: C.MAX_LEVEL, into: 0, need: 0, max: true });
+  assert.equal(C.rankOf(1), '列兵'); assert.equal(C.rankOf(5), '中士'); assert.equal(C.rankOf(C.MAX_LEVEL), '將軍');
+  assert.equal(C.unlocked(1, 'difficulty', 'hard'), true, 'the original three difficulties are open from the start');
+  assert.equal(C.unlocked(4, 'difficulty', 'elite'), false); assert.equal(C.unlocked(5, 'difficulty', 'elite'), true);
+  assert.equal(C.unlocked(1, 'modifier', 'armored'), true); assert.equal(C.unlocked(6, 'modifier', 'storm'), false);
+  for (const u of C.UNLOCKS) assert.ok(u.kind === 'doctrine' ? F.DOCTRINES[u.id] : u.kind === 'modifier' ? F.MODIFIERS[u.id] : F.PROFILES[u.id], u.id);
+  for (const o of C.OPERATIONS) {
+    assert.ok(F.PROFILES[o.difficulty], o.id);
+    for (const m of o.modifiers) assert.ok(F.MODIFIERS[m], o.id + ' ' + m);
+    assert.ok(o.ai === null || F.DOCTRINES[o.ai], o.id);
+  }
+  assert.equal(C.OPERATIONS.length, 8);
+});
+
+test('match XP scales with AI difficulty and modifiers', () => {
+  const win = { winner: 0, timeout: false, difficulty: 'normal', modifiers: [], destroyed: 5, kills: 23, hq: 150, hqMax: 200 };
+  const x = C.matchXP(win);
+  assert.deepEqual(plain(x.lines), [['完成一局', 20], ['勝利', 60], ['摧毀建築 × 5', 20], ['擊落無人機', 8], ['守住大本營', 15]]);
+  assert.equal(x.total, 123); assert.equal(x.mult, 1);
+  assert.equal(C.matchXP({ ...win, difficulty: 'hard', modifiers: ['storm'] }).total, Math.round(123 * 1.62));
+  assert.equal(C.matchXP({ ...win, difficulty: 'easy' }).total, Math.round(123 * .7));
+  assert.equal(C.matchXP({ ...win, winner: 1 }).total, 48, 'a loss still pays for the fight');
+  assert.equal(C.matchXP({ ...win, winner: null }).total, 73);
+  assert.equal(C.matchXP({ ...win, kills: 1000 }).lines.find(l => l[0] === '擊落無人機')[1], 40, 'drone XP is capped');
+  assert.equal(C.modMult(['clear']), .75); assert.equal(C.modMult([]), 1);
+  assert.ok(C.DIFF_XP.easy < C.DIFF_XP.normal && C.DIFF_XP.normal < C.DIFF_XP.hard && C.DIFF_XP.hard < C.DIFF_XP.elite);
+});
+
+test('operations award stars, unlock in order and pay campaign bonuses once', () => {
+  const base = { difficulty: 'easy', modifiers: [], destroyed: 0, kills: 0, hqMax: 200, operation: 'outpost' };
+  assert.deepEqual(plain(C.stars({ ...base, winner: 0, timeout: false, hq: 120 })), [true, true, true]);
+  assert.deepEqual(plain(C.stars({ ...base, winner: 0, timeout: true, hq: 100 })), [true, false, false]);
+  assert.deepEqual(plain(C.stars({ ...base, winner: 1, timeout: false, hq: 0 })), [false, false, false]);
+  let p = C.blank();
+  assert.equal(C.opUnlocked(p, 0), true); assert.equal(C.opUnlocked(p, 1), false);
+  const first = C.recordMatch(p, { ...base, winner: 0, timeout: true, hq: 100 });
+  assert.equal(first.firstClear, true); assert.equal(first.newStars, 1);
+  assert.equal(first.gain.total, Math.round(90 * .7) + 80 + 30);
+  p = first.profile;
+  assert.equal(p.ops.outpost, 1); assert.equal(C.opUnlocked(p, 1), true); assert.equal(C.opUnlocked(p, 2), false);
+  const better = C.recordMatch(p, { ...base, winner: 0, timeout: false, hq: 200 });
+  assert.equal(better.firstClear, false); assert.equal(better.newStars, 2);
+  assert.ok(better.gain.lines.some(l => l[0] === '新星章 × 2' && l[1] === 60));
+  p = better.profile; assert.equal(p.ops.outpost, 3); assert.equal(C.totalStars(p), 3);
+  assert.equal(p.wins, 2); assert.equal(p.streak, 2); assert.equal(p.bestStreak, 2);
+  const lost = C.recordMatch(p, { ...base, winner: 1, timeout: false, hq: 0 });
+  assert.equal(lost.profile.ops.outpost, 3, 'stars are never lost'); assert.equal(lost.profile.streak, 0); assert.equal(lost.profile.losses, 1);
+  assert.equal(lost.gain.lines.some(l => /首次|新星章/.test(l[0])), false);
+  const skirmish = C.recordMatch(C.blank(), { ...base, operation: null, winner: null, timeout: true, hq: 200 });
+  assert.equal(skirmish.profile.draws, 1); assert.deepEqual(plain(skirmish.profile.ops), {});
+  const up = C.recordMatch({ ...C.blank(), xp: 150 }, { ...base, operation: null, difficulty: 'elite', winner: 0, timeout: false, hq: 200 });
+  assert.equal(up.after.level, 2); assert.deepEqual(plain(up.unlocked.map(u => u.id)), ['logistics']); assert.equal(up.profile.eliteWins, 1);
+});
+
+test('the saved career survives bad or missing storage', () => {
+  assert.deepEqual(plain(C.sanitize({ xp: -5, wins: 'x', matches: 3.7, ops: { outpost: 9, valley: 0, nope: 2 } })), { ...plain(C.blank()), matches: 3, ops: { outpost: 3 } });
+  const mem = new Map(), storage = { getItem: k => mem.has(k) ? mem.get(k) : null, setItem: (k, v) => mem.set(k, String(v)) };
+  assert.deepEqual(plain(C.load(storage)), plain(C.blank()));
+  const p = { ...C.blank(), xp: 420, wins: 3, ops: { outpost: 2 } };
+  assert.ok(C.save(storage, p)); assert.deepEqual(plain(C.load(storage)), plain(p));
+  mem.set(C.KEY, '{broken'); assert.deepEqual(plain(C.load(storage)), plain(C.blank()));
+  const broken = { getItem() { throw new Error('denied'); }, setItem() { throw new Error('denied'); } };
+  assert.deepEqual(plain(C.load(broken)), plain(C.blank())); assert.equal(C.save(broken, p), false);
+});
+
+test('the page uses the full-screen Vermilion Ink shell, local fonts and no network', () => {
+  assert.match(html, /<link rel="stylesheet" href="shared\/fu\.css">/);
+  assert.match(html, /<body class="fu-app[^"]*">/);
+  assert.match(html, /<header class="fu-topbar">/);
+  assert.match(html, /<a class="fu-brand" href="index\.html"[^>]*><span class="fu-seal" aria-hidden="true">福遊<\/span>/);
+  assert.match(html, /<main class="fu-stage"[^>]*><canvas id="board"/);
+  for (const id of ['war', 'dock', 'curtain', 'drawer', 'status', 'op-picks', 'doc-picks', 'mod-picks', 'xp-lines']) assert.match(html, new RegExp(`id="${id}"`), id);
+  assert.match(html, /<aside class="fu-drawer" id="drawer"/); assert.match(html, /<div class="fu-curtain" id="curtain"/);
+  assert.doesNotMatch(html, /fulab-theme\.css|play-panel|<details|site-nav|page-header/);
+  assert.doesNotMatch(html, /PMingLiU|MingLiU/);
+  assert.match(html, /import \{ fonts, loadFonts \} from '\.\/shared\/fu-three\.js';/);
+  assert.match(html, /loadFonts\('/); assert.match(html, /fonts\.display/); assert.match(html, /fonts\.mono/);
+  assert.doesNotMatch(html, /https?:\/\/|fetch\(|XMLHttpRequest|WebSocket/);
 });
