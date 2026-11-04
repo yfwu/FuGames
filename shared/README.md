@@ -49,11 +49,13 @@
 
 ## 字體
 
-- 標題 `--fu-font-display`：宋體／明體（Noto Serif TC、Songti TC、PMingLiU）。大、重、緊。類別 `.fu-display`、`.fu-title`、`.fu-heading`。
+- 標題 `--fu-font-display`：**內嵌的思源宋體**（Noto Serif TC 700／900，SIL OFL，放在 `vendor/fonts/noto-serif-tc/`，字族名 `"Fu Serif"`）。`shared/fu-fonts.css` 依 unicode-range 切成約 100 片，瀏覽器只下載畫面用到的字，所以不必擔心 9 MB 的總量。缺字時退回黑體，**絕不退回新細明體（PMingLiU）或系統預設的襯線字**，測試會檢查。類別 `.fu-display`、`.fu-title`、`.fu-heading`。
 - 標籤 `--fu-font-mono`：等寬（Iosevka YFWU 優先）。全大寫、字距 .18em。類別 `.fu-label`，數字用 `.fu-num`。
 - 內文 `--fu-font-body`：黑體（Noto Sans TC、PingFang TC）。
 
-全部是系統字體，不下載字型；沒有宋體的裝置會退回系統襯線字。
+等寬字與黑體用系統字體。
+
+**canvas／three.js 裡畫字**：不要自己寫字體堆疊，改用 `fu-three.js` 匯出的 `fonts.display`／`fonts.mono`／`fonts.body`。宋體是按需下載的，canvas 不會自動觸發下載，所以畫字前先 `await loadFonts('要畫的字')`（最多等 3 秒），或像立體三子棋的 `textSprite` 那樣，在 `document.fonts.load(font, text)` 完成後重畫貼圖。
 
 ## 版面骨架（遊戲頁）
 

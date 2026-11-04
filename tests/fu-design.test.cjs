@@ -43,7 +43,8 @@ test('shared files are local, parse, and the vendored three.js is self-contained
   for (const f of ['shared/fu.css', 'shared/fu-shell.js', 'shared/fu-palette.js', 'shared/fu-three.js', 'shared/demo.html']) {
     const s = read(f);
     assert.doesNotMatch(s, /https?:\/\/(?!www\.w3\.org\/2000\/svg)/, f + ' must not fetch remote resources');
-    assert.doesNotMatch(s, /@import|@font-face/, f);
+    for (const m of s.matchAll(/@import\s+url\(["']?([^"')]+)/g)) assert.match(m[1], /^[\w.-]+\.css$/, f + ' may only import a local sibling stylesheet');
+    assert.doesNotMatch(s, /@font-face/, f + ': font faces belong in shared/fu-fonts.css');
   }
   assert.doesNotThrow(() => new vm.Script(read('shared/fu-shell.js')));
   assert.doesNotThrow(() => new vm.Script(read('shared/fu-palette.js')));
@@ -51,4 +52,23 @@ test('shared files are local, parse, and the vendored three.js is self-contained
   assert.ok(three.length > 500000);
   assert.doesNotMatch(three.slice(0, 4000), /\bfrom\s*["']/, 'three.module.min.js must not import other files');
   assert.ok(fs.existsSync(path.join(root, 'vendor/three/LICENSE')));
+});
+
+test('display font is the embedded Noto Serif TC and never falls back to PMingLiU or a generic serif', () => {
+  const css = read('shared/fu.css');
+  assert.match(css, /^@import url\("fu-fonts\.css"\);/m);
+  const stack = css.match(/--fu-font-display:\s*([^;]+);/)[1];
+  assert.match(stack, /^"Fu Serif"/);
+  assert.doesNotMatch(stack, /MingLiU|PMingLiU|新細明體|(?:^|,)\s*serif\s*$/i);
+  const three = read('shared/fu-three.js');
+  assert.doesNotMatch(three, /MingLiU/);
+  const faces = read('shared/fu-fonts.css');
+  const urls = [...faces.matchAll(/url\(([^)]+)\)/g)].map(m => m[1]);
+  assert.ok(urls.length > 100, 'unicode-range slices');
+  for (const u of urls) {
+    assert.match(u, /^\.\.\/vendor\/fonts\/noto-serif-tc\/[\w-]+\.woff2$/);
+    assert.ok(fs.existsSync(path.join(root, 'shared', u)), u);
+  }
+  assert.ok(fs.existsSync(path.join(root, 'vendor/fonts/noto-serif-tc/LICENSE')));
+  for (const f of fs.readdirSync(root).filter(n => n.endsWith('.html'))) assert.doesNotMatch(read(f), /PMingLiU|MingLiU/, f);
 });
