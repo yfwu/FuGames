@@ -55,6 +55,15 @@ test('active and archive catalogues together have nineteen valid game links and 
 const FULLSCREEN=new Set(['pulse_arena']);
 for(const name of GAMES.filter(n=>!FULLSCREEN.has(n)))test(`${name}: shared shell, accessible native header icon and local symbol references`,()=>{
   const source=read(name+'.html');
+  if(/<body\b[^>]*class=["'][^"']*\bfu-app\b/.test(source)){
+    // pages rebuilt on the shared 朱墨 shell (shared/fu.css) instead of fulab-theme
+    assert.match(source,/<link\b[^>]*href=["']shared\/fu\.css["']/);
+    assert.match(source,/<header\b[^>]*class=["'][^"']*\bfu-topbar\b/);
+    assert.match(source,/href=["']index\.html["']/,`${name} links back to the portal`);
+    assert.match(source,/<h1\b[^>]*>[\s\S]*?<\/h1>/,'missing heading');
+    assert.match(source,/<link\b[^>]*rel=["']icon["']/);
+    return;
+  }
   assert.match(source,/<link\b[^>]*href=["']fulab-theme\.css["']/);
   assert.match(source,/<nav\b[^>]*class=["'][^"']*\bsite-nav\b/);
   assert.match(source,/<details\b[^>]*class=["'][^"']*\brules\b/);

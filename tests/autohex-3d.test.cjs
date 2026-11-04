@@ -19,7 +19,7 @@ function play(seed, actions, options = {}) {
 }
 
 test('3D page loads exactly the AutoHex rules stack, in the same order, and the same AI worker', () => {
-  const flat = scripts(read('autohex.html')), deep = scripts(read('autohex_3d.html'));
+  const flat = scripts(read('autohex.html')), deep = scripts(read('autohex_3d_classic.html'));
   const core = ['hex-strategies.js', 'autohex-planner.js', 'hex-core.js', 'autohex-engine.js', 'autohex-visuals.js'];
   assert.deepEqual(core.filter(f => flat.includes(f)), core);
   assert.deepEqual(deep.slice(0, core.length), core, 'rules scripts load first and unchanged');
@@ -27,7 +27,7 @@ test('3D page loads exactly the AutoHex rules stack, in the same order, and the 
   const ui = read('autohex3d-ui.js');
   assert.match(ui, /new Worker\('autohex-ai-worker\.js'\)/);
   assert.match(ui, /window\.AutoHex\b/);
-  for (const html of ['autohex_3d.html']) for (const [, href] of read(html).matchAll(/\b(?:href|src)="([^"#]+)/g)) if (!/^https:/.test(href)) assert.ok(fs.existsSync(path.join(root, href)), href);
+  for (const html of ['autohex_3d_classic.html']) for (const [, href] of read(html).matchAll(/\b(?:href|src)="([^"#]+)/g)) if (!/^https:/.test(href)) assert.ok(fs.existsSync(path.join(root, href)), href);
 });
 
 test('3D presentation never writes game state: every change goes through game.act / start / pause / continueSandbox', () => {
@@ -43,7 +43,7 @@ test('3D presentation never writes game state: every change goes through game.ac
 });
 
 test('3D page offers the optional Front Line expansion, on by default, and passes it to the shared core', () => {
-  const html = read('autohex_3d.html'), ui = read('autohex3d-ui.js');
+  const html = read('autohex_3d_classic.html'), ui = read('autohex3d-ui.js');
   assert.match(html, /<select id="expansion"><option value="on" selected>/);
   for (const type of ['arsenal', 'flak', 'workshop']) assert.match(html, new RegExp(`data-action="${type}"`));
   assert.match(ui, /expansion: \$\('expansion'\)\.value !== 'off'/);
@@ -144,9 +144,9 @@ test('engineered terrain is the difference from the opening map', () => {
 
 test('renderer and UI scripts parse; the page keeps the shared shell, rules and local assets', () => {
   for (const file of ['autohex3d-render.js', 'autohex3d-scene.js', 'autohex3d-ui.js', 'autohex3d-logic.js']) assert.doesNotThrow(() => new vm.Script(read(file), { filename: file }));
-  const html = read('autohex_3d.html');
+  const html = read('autohex_3d_classic.html');
   assert.match(html, /<details class="card rules ah3-rules">/); assert.match(html, /class="card play-panel ah3-stage"/);
   assert.match(html, /<use href="icons\.svg#autohex_3d">/);
   assert.doesNotMatch(html + read('autohex3d-ui.js') + read('autohex3d-render.js'), /https?:\/\/(?!www\.w3\.org)/, 'no remote runtime dependency');
-  assert.match(read('index.html'), /href="autohex_3d.html"/);
+  assert.match(read('archive.html'), /href="autohex_3d_classic.html"/, 'the classic 3D page stays reachable from the archive');
 });

@@ -24,7 +24,7 @@ python -m http.server 8000 --bind 0.0.0.0
 
 首頁（7 款）：
 
-- AutoHex-3D：`autohex_3d.html`（與 AutoHex 同一規則核心與 AI 的 3D 即時指揮版；補給線／陣地圖層、指揮時限與指令佇列；可關閉的三路前線擴充：兵工廠與無人機、防空砲、補給工坊）
+- AutoHex-3D：`autohex_3d.html`（六角地圖上的牌組構築戰爭：抽牌布局建築、經營糧材金與糧食維護、共用市場、遺跡計分，每輪結束全場自動交戰；2–6 方、五種 AI 打法、迷霧。引擎 `autohex3d/engine.js` 可在 Node 無頭執行，提供存檔式 CLI `tools/autohex3d.cjs`、JSON Lines 對戰場 `tools/autohex3d-arena.cjs` 給本機 agent，說明見 `docs/autohex3d/agent-api.md`。舊版即時指揮版保留在 `autohex_3d_classic.html`）
 - 立體三子循環棋：`cyclic_tictactoe_3d.html`（3×3×3、49 條連線、每人三顆 FIFO；交換規則、三次重複與 120 手和局；可旋轉立體圖加三層平面輸入；規則核心 `cyclic3d-engine.js`，AI 在 `cyclic3d-ai-worker.js` 執行）
 - 效果貪食蛇：`effect_snake.html`（90 秒質量競賽；花質量加速、同格爭食、蛇身反制）
 - 複式橋牌：`duplicate_bridge.html`（2/1 成局迫叫自然制 AI：Stayman、轉換、Jacoby 2NT、Splinter、RKCB、負加倍、Michaels 等，每個叫品可點看說明與各家推論；出牌用依叫牌推論抽樣暗手的蒙地卡羅雙明手求解。核心 `bridge-engine.js`、求解器 `bridge-dds.js`、叫牌 `bridge-bidding.js`、出牌 `bridge-play.js`，AI 在 `bridge-ai-worker.js` 執行；agent 可用 `node tools/bridge-agent.cjs` 以 JSON 逐行接入南家）

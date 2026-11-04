@@ -80,7 +80,7 @@ async function click(page, cell, touch = false) {
     {
       const page = await browser.newPage({ viewport: { width: 1440, height: 1000 } }); const errors = [];
       page.on('pageerror', e => errors.push(String(e))); page.on('console', m => { if (m.type() === 'error') errors.push(m.text()); });
-      await page.goto(base + '/autohex_3d.html');
+      await page.goto(base + '/autohex_3d_classic.html');
       assert.equal(await page.evaluate(() => autoHex3D.webgl), true, 'WebGL2 unavailable');
       await page.screenshot({ path: path.join(out, 'desktop-ready.png') });
       await page.selectOption('#step-seconds', '0.1');
@@ -126,7 +126,7 @@ async function click(page, cell, touch = false) {
     {
       const page = await browser.newPage({ viewport: { width: 1280, height: 900 } }); const errors = [];
       page.on('pageerror', e => errors.push(String(e)));
-      await page.goto(base + '/autohex_3d.html');
+      await page.goto(base + '/autohex_3d_classic.html');
       await page.selectOption('#match-mode', 'spectator'); await page.selectOption('#step-seconds', '0.1'); await page.fill('#seed', 'autohex3d-spectate'); await page.locator('#seed').dispatchEvent('change');
       await page.click('#play');
       await page.waitForFunction(() => autoHex3D.game.ply >= 300, null, { timeout: 240000 });
@@ -143,7 +143,7 @@ async function click(page, cell, touch = false) {
     for (const [width, height] of [[390, 844], [320, 640]]) {
       const ctx = await browser.newContext({ viewport: { width, height }, deviceScaleFactor: 2, hasTouch: true, isMobile: true });
       const page = await ctx.newPage(); const errors = []; page.on('pageerror', e => errors.push(String(e)));
-      await page.goto(base + '/autohex_3d.html');
+      await page.goto(base + '/autohex_3d_classic.html');
       await page.selectOption('#step-seconds', '0.1'); await page.click('#play');
       let taps = 0;
       for (let k = 0; k < 4; k++) {
@@ -166,7 +166,7 @@ async function click(page, cell, touch = false) {
     if (process.env.AUTOHEX3D_FULL) {
       const page = await browser.newPage({ viewport: { width: 1440, height: 1000 } }); const errors = [];
       page.on('pageerror', e => errors.push(String(e)));
-      await page.goto(base + '/autohex_3d.html');
+      await page.goto(base + '/autohex_3d_classic.html');
       await page.selectOption('#match-mode', 'spectator'); await page.selectOption('#step-seconds', '0.25'); await page.fill('#seed', 'autohex3d-full'); await page.locator('#seed').dispatchEvent('change');
       await page.click('#play');
       await page.waitForFunction(() => autoHex3D.game.phase === 'over', null, { timeout: 700000, polling: 1000 });
