@@ -1,148 +1,593 @@
 <!doctype html>
 <html lang="zh-Hant">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="收集光點長大，吞噬小對手，避開大對手。FuGames 單人 AI 吞噬遊戲。">
-  <title>星點吞噬 - FuGames</title>
-  <link rel="icon" href="favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="fulab-theme.css">
-  <style>
-    .io-key { display:inline-flex; align-items:center; gap:6px; }
-    .io-key .ui-icon { width:20px; height:20px; }
-    .io-hint-row { display:flex; flex-wrap:wrap; gap:8px 14px; align-items:center; }
-    .ring-key { display:inline-block; width:16px; height:16px; flex:none; border:2px solid currentColor; border-radius:50%; }
-    .ring-key.dashed { border-style:dashed; }
-    .game-dialog .dialog-art { flex:none; }
-    @media(max-width:600px) { .io-hint-row { gap:8px 12px; } }
-
-    .boost-button { min-width: 96px; }
-    .boost-button:not(:disabled) { border-color: var(--fulab-teal); color: var(--fulab-ink-teal); background: var(--fulab-tint-teal); }
-    .growth-legend { display: flex; gap: 12px; color: var(--fulab-muted); font-size: 11px; }
-    .growth-legend span:first-child { color: var(--fulab-ink-teal); }
-    .growth-legend span:last-child { color: #99553f; }
-    .growth-controls { display: flex; align-items: center; gap: 12px; justify-content: space-between; margin-top: 12px; }
-    .growth-controls .action-note { color: var(--fulab-muted); font-size: 11px; margin: 0; }
-    @media (max-height: 600px) and (min-width: 600px) {
-      .growth-controls { grid-column: 2; margin: 0; justify-content: center; }
-      .growth-legend { display: none; }
-    }
-
-    .site-nav > a:last-child { display:inline-flex;align-items:center;gap:5px; }
-    .site-nav > a:last-child .ui-icon { width:16px;height:16px; }
-    .io-support { display:contents; }
-    @media(max-height:600px) and (min-width:600px) {
-      .io-page .play-panel { grid-template-columns:minmax(0,1fr) 220px; }
-      .io-page .play-panel > .io-stage { grid-column:1;grid-row:2; }
-      .io-support { display:flex;flex-direction:column;grid-column:2;grid-row:2;gap:10px;max-height:calc(100svh - 106px);overflow:auto;scrollbar-width:thin;padding:2px; }
-      .io-support .io-controls,.io-support .growth-controls,.io-support .upgrade-row { order:0; }
-      .io-support .game-actions { order:1; }
-      .io-support .io-status { order:2; }
-      .io-support .snake-effects,.io-support .charge-track { order:3; }
-      .io-support .snake-roster,.io-support .arena-roster,.io-support .pulse-roster { order:4; }
-      .io-support .food-legend,.io-support .arena-hint,.io-support .pulse-hint { order:5; }
-      .io-support > * { flex-shrink:0; }
-      .io-support .btnRow { flex-wrap:nowrap; }
-      .io-support .game-actions { justify-content:center; }
-      .io-support .upgrade-row .btn { flex-direction:column;gap:2px; }
-    }
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="吃光點長大，分裂撲殺、噴射餵裂星、閃避流星。四個 AI 等級、三種模式與生涯等級，FuGames 原創 3D 星海吞噬遊戲。">
+<meta name="theme-color" content="#07090c">
+<title>星點吞噬 - FuGames</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="shared/fu.css">
+<style>
+/* Vermilion Ink (shared/fu.css). You are the seal; rivals follow FuPalette side order azure, jade, gold, orchid, bone. */
+html,body{height:100%;overflow:hidden;overscroll-behavior:none}
+#board{display:block;width:100%;height:100%;outline:none;touch-action:none;cursor:crosshair}
+#board:focus-visible{box-shadow:inset 0 0 0 2px var(--fu-seal)}
+.sf-layer{position:fixed;inset:0;z-index:10;pointer-events:none;overflow:hidden}
+.sf-tag{position:absolute;left:0;top:0;white-space:nowrap;text-align:center;will-change:transform;font-family:var(--fu-font-mono);text-shadow:0 1px 3px #000,0 0 10px #000a}
+.sf-tag b{display:block;font-weight:700;font-variant-numeric:tabular-nums;color:var(--fu-paper);letter-spacing:-.02em}
+.sf-tag span{display:flex;align-items:center;justify-content:center;gap:5px;font:600 11px/1 var(--fu-font-body);letter-spacing:.08em;color:var(--fu-paper);margin-bottom:3px}
+.sf-tag span::before{content:"";width:6px;height:6px;background:var(--tone);transform:rotate(45deg)}
+.sf-tag.is-danger span::after{content:" ▲";color:var(--fu-gold)}
+.sf-tag.is-prey span::after{content:" ●";color:var(--fu-jade)}
+.sf-float{position:absolute;left:0;top:0;font:800 15px/1 var(--fu-font-mono);white-space:nowrap;text-shadow:0 1px 3px #000;will-change:transform,opacity}
+.sf-warn{position:absolute;left:0;top:0;font:700 12px/1 var(--fu-font-mono);letter-spacing:.14em;color:var(--fu-gold);padding:4px 7px;border:1px solid var(--fu-gold);background:#07090ccc}
+#stick{position:fixed;z-index:12;left:0;top:0;width:84px;height:84px;margin:-42px 0 0 -42px;border:1px solid var(--fu-line-strong);background:#ece4d00d;pointer-events:none;display:none;clip-path:polygon(0 0,calc(100% - 12px) 0,100% 12px,100% 100%,12px 100%,0 calc(100% - 12px))}
+#stick i{position:absolute;left:50%;top:50%;width:26px;height:26px;margin:-13px 0 0 -13px;background:var(--fu-seal);opacity:.8;transform:rotate(45deg)}
+/* HUD */
+.sf-status{width:248px}
+.sf-mass{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:8px}
+.sf-mass .fu-stat__value{font-size:30px;color:var(--fu-paper)}
+.sf-mass .fu-label{white-space:nowrap}
+.sf-row{display:flex;justify-content:space-between;gap:10px;margin-top:10px;font:600 11px/1.3 var(--fu-font-mono);letter-spacing:.08em;color:var(--fu-paper-dim)}
+.sf-row b{color:var(--fu-paper);font-variant-numeric:tabular-nums;margin-left:4px}
+#phase-label{color:var(--fu-seal)}
+.sf-board{width:212px}
+.sf-board .fu-list>li{padding:6px 0;font-size:12px;gap:9px}
+.sf-board .fu-list>li em{margin-left:auto;font:700 12px/1 var(--fu-font-mono);font-style:normal;font-variant-numeric:tabular-nums;color:var(--fu-paper)}
+.sf-board .fu-list>li.me{color:var(--fu-paper)}
+.sf-board .fu-list>li.me em{color:var(--fu-seal)}
+.sf-board .fu-list>li.out{opacity:.38}
+.sf-board .fu-list>li.out em{font-size:10px}
+.sf-feed{position:fixed;z-index:28;left:50%;top:calc(var(--fu-topbar-h) + 8px);transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:4px;pointer-events:none;width:min(420px,calc(100vw - 32px))}
+.sf-feed div{padding:5px 12px;font:600 12px/1.3 var(--fu-font-body);background:#07090cd9;border-left:2px solid var(--tone,var(--fu-paper-dim));animation:fu-rise .24s var(--fu-ease) both;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.sf-dock .fu-btn{position:relative;min-width:104px;min-height:52px;flex-direction:column;gap:3px;padding:0 16px}
+.sf-dock .fu-btn[hidden],#cells-wrap[hidden]{display:none}
+.sf-dock .fu-btn small{font:600 9.5px/1 var(--fu-font-mono);letter-spacing:.14em;color:var(--fu-mute)}
+.sf-dock #boost::after{content:"";position:absolute;left:0;bottom:0;height:2px;width:calc(var(--ready,1) * 100%);background:var(--fu-seal)}
+.sf-dock #boost:disabled::after{display:none}
+.sf-dock .fu-btn.is-hot{background:var(--fu-seal-deep)}
+.sf-lv{display:flex;align-items:center;gap:8px;min-height:40px;padding:0 12px;border:1px solid var(--fu-line-strong);background:var(--fu-surface);cursor:pointer;font:600 11px/1 var(--fu-font-mono);letter-spacing:.12em}
+.sf-lv b{font-size:16px;color:var(--fu-gold)}
+.sf-lv .fu-meter{width:56px;height:4px}
+/* Curtain sheets: lobby, pause, result */
+.fu-curtain{overflow-y:auto;place-items:safe center}
+/* Menus open over the lobby / pause curtain. */
+#drawer{z-index:95}#scrim{z-index:90}
+.sf-sheet{width:min(640px,100%);gap:14px;padding:8px 0}
+.sf-sheet .fu-display{font-size:clamp(46px,9vw,104px)}
+.sf-sheet[data-mode="pause"] .fu-display,.sf-sheet[data-mode="result"] .fu-display{font-size:clamp(36px,7vw,72px)}
+.sf-lede{max-width:52ch;margin:0;line-height:1.65;font-size:14px}
+[data-view]{display:none!important}
+.sf-sheet[data-mode="lobby"] [data-view~="lobby"],.sf-sheet[data-mode="pause"] [data-view~="pause"],.sf-sheet[data-mode="result"] [data-view~="result"]{display:flex!important}
+.sf-career{width:100%;align-items:center;gap:14px;padding:12px 14px;border:1px solid var(--fu-line);background:#ece4d006;text-align:left}
+.sf-career .lv{font:700 30px/1 var(--fu-font-mono);color:var(--fu-gold);min-width:52px}
+.sf-career .lv small{display:block;font-size:9px;letter-spacing:.2em;color:var(--fu-mute);margin-bottom:4px}
+.sf-career .who{flex:1;display:flex;flex-direction:column;gap:8px}
+.sf-career .who span{display:flex;justify-content:space-between;font-size:13px;font-weight:700}
+.sf-career .who span i{font:600 11px/1.2 var(--fu-font-mono);font-style:normal;color:var(--fu-paper-dim)}
+.sf-pick{width:100%;flex-direction:column;text-align:left}
+.sf-pick .fu-field{margin-bottom:12px}
+.sf-pick .fu-seg>button{min-height:44px;flex-direction:column;gap:3px}
+.fu-seg>button:disabled{cursor:not-allowed;opacity:.45}
+.fu-seg>button small{font-size:9px;letter-spacing:.08em;color:var(--fu-gold)}
+.sf-summary{margin:0;font-size:12px;color:var(--fu-paper-dim)}
+.sf-summary button{background:none;border:0;padding:0 0 0 6px;color:var(--fu-paper);text-decoration:underline;cursor:pointer;font:inherit}
+.sf-result{width:100%;flex-direction:column;gap:12px;text-align:left}
+.sf-result .fu-stats{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px 16px;padding:12px 14px;border:1px solid var(--fu-line)}
+.sf-xp{display:grid;grid-template-columns:1fr auto;gap:6px 16px;margin:0;padding:12px 14px;border:1px solid var(--fu-line);font-size:13px}
+.sf-xp dt{color:var(--fu-paper-dim)}.sf-xp dd{margin:0;text-align:right;font-family:var(--fu-font-mono);color:var(--fu-gold)}
+.sf-xp .total{border-top:1px solid var(--fu-line);padding-top:8px;font-weight:800;color:var(--fu-paper)}
+.sf-levelup{padding:10px 14px;border:1px solid #e9b94977;background:#e9b94912;font-size:13px;line-height:1.6}
+.sf-levelup b{color:var(--fu-gold)}
+.sf-keys{margin:0;font:600 10.5px/1.6 var(--fu-font-mono);letter-spacing:.1em;color:var(--fu-mute)}
+/* Drawer */
+.sf-tabs{display:flex;gap:1px;padding:0 var(--fu-space-5);border-bottom:1px solid var(--fu-line)}
+.sf-tabs button{flex:1;min-height:44px;background:none;border:0;border-bottom:2px solid transparent;color:var(--fu-paper-dim);font:700 11px/1 var(--fu-font-mono);letter-spacing:.14em;cursor:pointer}
+.sf-tabs button[aria-selected="true"]{color:var(--fu-paper);border-color:var(--fu-seal)}
+.fu-drawer__body[hidden]{display:none}
+.fu-drawer__body ul.rules{margin:0;padding-left:18px;font-size:13px;line-height:1.7;color:var(--fu-paper-dim)}
+.fu-drawer__body ul.rules li{margin-bottom:8px}
+.fu-drawer__body ul.rules strong{color:var(--fu-paper)}
+.sf-note{font-size:12px;color:var(--fu-mute);margin:4px 0 0;line-height:1.5}
+.sf-lock{font:600 10px/1 var(--fu-font-mono);color:var(--fu-gold);letter-spacing:.1em}
+.fu-switch.is-locked{opacity:.5}
+.sf-stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:14px 0}
+.sf-stats div{padding:10px 12px;border:1px solid var(--fu-line)}
+.sf-stats b{display:block;font:700 20px/1.1 var(--fu-font-mono)}
+.sf-stats span{font-size:11px;color:var(--fu-paper-dim)}
+.sf-unlocks li{justify-content:space-between;font-size:13px}
+.sf-unlocks li:not(.got){color:var(--fu-mute)}
+.sf-unlocks li span{font:600 11px/1 var(--fu-font-mono)}
+.sf-legend{display:grid;gap:8px;margin:0 0 14px;padding:12px;border:1px solid var(--fu-line);font-size:12px;color:var(--fu-paper-dim)}
+.sf-legend span{display:flex;align-items:center;gap:10px}
+.sf-legend i{width:16px;height:16px;flex:none;border:2px solid currentColor;border-radius:50%}
+.sf-legend .prey{color:var(--fu-jade)}.sf-legend .danger{color:var(--fu-gold)}.sf-legend .danger i{border-style:dashed}.sf-legend .even{color:var(--fu-mute)}
+.webgl-fail{position:fixed;inset:0;z-index:90;display:grid;place-items:center;padding:24px;text-align:center;background:var(--fu-ink-0)}
+@media (max-width:720px){
+ .sf-status{width:auto;min-width:0}
+ .fu-hud--tl{right:var(--fu-gutter)}
+ .fu-hud--tl .fu-panel{padding:8px 10px}
+ .sf-mass{margin-bottom:6px}.sf-mass .fu-stat__value{font-size:22px}
+ .sf-row{margin-top:6px}
+ .fu-hud--tr{bottom:calc(max(var(--fu-gutter),env(safe-area-inset-bottom)) + 62px);left:var(--fu-gutter);right:var(--fu-gutter)}
+ .fu-hud--tr{align-items:stretch}
+ .sf-board{width:auto;padding:6px 8px}
+ .sf-result .fu-stats{grid-template-columns:repeat(3,minmax(0,1fr))}
+ .sf-result .fu-stat__value{font-size:22px}
+ .sf-board .fu-label{display:none}
+ .sf-board .fu-list{display:grid;grid-template-columns:repeat(var(--n,5),minmax(0,1fr));gap:4px}
+ .sf-board .fu-list>li{flex-direction:column;align-items:flex-start;gap:3px;padding:2px 0;border:0;font-size:10.5px}
+ .sf-board .fu-list>li em{margin:0;font-size:11px}
+ .sf-dock{left:var(--fu-gutter);right:var(--fu-gutter);transform:none;display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr)}
+ .sf-dock .fu-btn{min-width:0;padding:0 6px;letter-spacing:.06em}
+ .sf-feed{top:calc(var(--fu-topbar-h) + 84px)}
+ .sf-lv .fu-meter,.sf-lv span{display:none}
+ .sf-pick .fu-seg>button{padding:0 4px;letter-spacing:.02em}
+ .sf-keys{display:none}
+}
 </style>
+<script type="importmap">{"imports":{"three":"./vendor/three/three.module.min.js"}}</script>
 </head>
-<body>
-  <main class="game-page io-page">
-    <nav class="site-nav" aria-label="遊戲導覽"><a class="site-brand" href="index.html"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>FuGames</a><a href="index.html" aria-label="所有遊戲 ↗"><span>所有遊戲</span><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#launch"></use></svg></a></nav>
-    <header class="page-header"><p class="eyebrow">IO / 單人 × 4 AI</p><h1><svg class="page-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#star_feast"></use></svg>星點吞噬</h1><p class="lead">吃光點，慢慢長大。追逐小對手，也別忘了身後的大傢伙。</p></header>
-    <section class="card play-panel" aria-label="星點吞噬競技場">
-      <div class="game-toolbar"><p class="game-status" id="phase-label">準備出發</p><div class="game-metrics"><span>質量 <strong id="mass">20</strong> / 160</span><span>排名 <strong id="rank">3 / 5</strong></span><span>剩餘 <strong id="clock">1:30</strong></span></div></div>
-      <div class="io-stage"><canvas id="board" width="720" height="720" tabindex="0" aria-label="星點吞噬。你是青綠色圓球，使用方向鍵、WASD、滑鼠或觸控拖曳移動。" aria-describedby="status">需要支援 Canvas 的瀏覽器。</canvas>
-        <div class="board-overlay" id="overlay"><div class="game-dialog" role="dialog" aria-labelledby="dialog-title" aria-describedby="dialog-copy">
-          <svg class="dialog-art" id="dialog-art" viewBox="0 0 96 72" aria-hidden="true"><circle cx="36" cy="39" r="21" fill="#cbeaea" stroke="#267477" stroke-width="2"/><circle cx="36" cy="39" r="26" fill="none" stroke="#5ebcbf" stroke-width="2" stroke-dasharray="3 5"/><circle cx="40" cy="35" r="3" fill="#267477"/><path d="M71 13l2.5 5 5.5.8-4 3.8 1 5.4-5-2.6-5 2.6 1-5.4-4-3.8 5.5-.8z" fill="#ebcb8b" stroke="#85662a" stroke-width="1.5"/><circle cx="76" cy="48" r="7" fill="#efdad1" stroke="#99553f" stroke-width="2"/></svg>
-          <p class="eyebrow" id="dialog-kicker">你是青綠色圓球</p><h2 id="dialog-title">小小一顆，也能稱霸</h2><p id="dialog-copy">移動吃光點，長大後吞噬小對手。先達 160 質量，或 90 秒後最大即勝。</p><button class="btn primary" id="play" aria-label="開始吞噬 →"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#play"></use></svg><span>開始吞噬</span></button><button class="btn" id="dialog-secondary" hidden>保留本局，繼續</button>
-        </div></div>
-      </div>
-      <div class="io-support">
-<p class="game-status io-status" id="status" role="status" aria-live="polite">方向鍵／WASD、移動滑鼠，或拖曳棋盤來移動。</p>
-      <div class="game-actions"><div class="growth-legend"><span class="io-key"><i class="ring-key" aria-hidden="true"></i>實框：可吞噬</span><span class="io-key"><i class="ring-key dashed" aria-hidden="true"></i>虛框：危險</span></div><div class="btnRow"><button class="btn" id="pause" disabled aria-label="暫停"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#pause"></use></svg><span>暫停</span></button><button class="btn primary" id="restart" aria-label="重新開始"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#restart"></use></svg><span>重新開始</span></button></div></div>
-      <div class="growth-controls"><p class="action-note">空白鍵或按鈕衝刺 · P / Esc 暫停<br>觸控：按住並拖曳，放開就停</p><button class="btn boost-button" id="boost" disabled aria-label="衝刺 ↗"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#arrow-right"></use></svg><span>衝刺</span></button></div>
-    </div>
-</section>
-    <details class="card rules"><summary>玩法與操作</summary><div class="rules-body"><ul class="list">
-      <li>你是青綠色圓球，其他四顆是本機 AI。吃小光點增加 2 質量，大光點增加 5；光點會慢慢補充。</li>
-      <li>質量比對手高至少 20%，並包住對手中心時才能吞噬，獲得對手 80% 的質量。數字是質量；青綠框表示可吞噬，珊瑚框表示對方能吃你，灰框則大小相近。</li>
-      <li>大小相近的對手可互相穿過。撞牆不會出局；角色變大後，速度會稍微下降。</li>
-      <li>任何一方先達 160 質量即勝；吃掉所有對手也會獲勝。90 秒到時，存活者質量最多者勝，並列最高為平手。被吞噬就結束本局。</li>
-      <li>方向鍵或 WASD 按住移動；滑鼠在棋盤內指向目的地。手機按住並拖曳，用手指偏移方向移動，放開就停。</li>
-      <li>空白鍵／衝刺鈕可加速 0.6 秒，冷卻 4 秒，不扣質量。P 或 Esc 暫停，切換視窗自動暫停。</li>
-    </ul></div></details>
-    <footer class="site-footer">FuGames · 隨時來一局</footer>
-    <noscript><p class="notice">請開啟 JavaScript，才能開始遊戲。</p></noscript>
-  </main>
+<body class="fu-app fu-vignette">
+<header class="fu-topbar">
+  <a class="fu-brand" href="index.html" aria-label="回到 FuGames 所有遊戲"><span class="fu-seal" aria-hidden="true">福遊</span><span class="fu-hide-sm">FuGames</span></a>
+  <div class="fu-topbar__title"><h1 class="fu-heading">星點吞噬</h1><span class="fu-label fu-hide-sm" id="mode-label">Star Feast</span></div>
+  <div class="fu-topbar__actions">
+    <button class="sf-lv" id="career-chip" type="button" aria-label="生涯等級"><span>LV</span><b id="lv">1</b><span id="career-rank">星塵</span><span class="fu-meter fu-meter--gold" id="lv-meter" style="--value:0"><i></i></span></button>
+    <button class="fu-btn fu-btn--icon" id="pause" type="button" disabled aria-label="暫停"><svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><rect x="6" y="5" width="4" height="14"/><rect x="14" y="5" width="4" height="14"/></svg></button>
+    <button class="fu-btn" id="menu-btn" type="button" aria-controls="drawer" aria-expanded="false">選單 <span class="fu-kbd fu-hide-sm">M</span></button>
+  </div>
+</header>
+<main class="fu-stage"><canvas id="board" tabindex="0" aria-label="星點吞噬 3D 星海。你是朱紅色星球；方向鍵或 WASD、滑鼠指向或手指拖曳移動，空白鍵衝刺，Q 分裂，E 噴射。" aria-describedby="status"></canvas></main>
+<div class="sf-layer" id="labels" aria-hidden="true"></div>
+<div id="stick" aria-hidden="true"><i></i></div>
+<div class="fu-hud fu-hud--tl">
+  <section class="fu-panel fu-panel--tight sf-status" aria-label="戰況">
+    <div class="sf-mass"><span class="fu-stat__value"><span id="mass">20</span><small id="target">/ 160</small></span><span class="fu-label" id="phase-label">準備出發</span></div>
+    <div class="fu-meter" id="mass-meter" style="--value:.125"><i></i></div>
+    <div class="sf-row"><span>排名<b id="rank">3 / 5</b></span><span>剩餘<b id="clock">1:30</b></span><span id="cells-wrap">星體<b id="cells">1</b></span></div>
+  </section>
+</div>
+<div class="fu-hud fu-hud--tr">
+  <section class="fu-panel fu-panel--tight fu-panel--quiet sf-board" aria-label="質量排行">
+    <p class="fu-label" style="margin:0 0 4px">質量排行</p>
+    <ol class="fu-list" id="leaderboard"></ol>
+  </section>
+</div>
+<div class="sf-feed" id="feed" aria-hidden="true"></div>
+<p class="fu-sr-only" id="status" role="status" aria-live="polite">選好模式與對手，按開始吞噬。</p>
+<nav class="fu-dock sf-dock" aria-label="指令">
+  <button class="fu-btn" id="boost" type="button" disabled>衝刺<small>SPACE</small></button>
+  <button class="fu-btn" id="split" type="button" disabled>分裂<small>Q</small></button>
+  <button class="fu-btn" id="eject" type="button" disabled>噴射<small>E · 按住</small></button>
+  <button class="fu-btn" id="restart" type="button">重開<small>R</small></button>
+</nav>
 
+<div class="fu-scrim" id="scrim"></div>
+<aside class="fu-drawer" id="drawer" aria-label="選單" aria-hidden="true">
+  <div class="fu-drawer__head"><span class="fu-label"><b>■</b> 星點吞噬 / 選單</span><button class="fu-btn fu-btn--ghost fu-btn--icon" id="drawer-close" type="button" aria-label="關閉選單">✕</button></div>
+  <div class="sf-tabs" role="tablist">
+    <button role="tab" id="tab-match" aria-selected="true" aria-controls="panel-match">對局</button>
+    <button role="tab" id="tab-view" aria-selected="false" aria-controls="panel-view">畫面</button>
+    <button role="tab" id="tab-career" aria-selected="false" aria-controls="panel-career">生涯</button>
+    <button role="tab" id="tab-rules" aria-selected="false" aria-controls="panel-rules">規則</button>
+  </div>
+  <div class="fu-drawer__body" id="panel-match" role="tabpanel" aria-labelledby="tab-match">
+    <section>
+      <h3>場地修正</h3>
+      <label class="fu-switch" id="sw-meteors"><span>流星雨 <span class="sf-lock" id="lock-meteors"></span></span><input type="checkbox" id="opt-meteors"></label>
+      <p class="sf-note">每 12–16 秒一顆流星，偏向砸在質量最大者附近；1.5 秒預警圈內的星體失去 30% 質量。經驗 +10%。</p>
+      <label class="fu-switch" id="sw-wells"><span>引力井 <span class="sf-lock" id="lock-wells"></span></span><input type="checkbox" id="opt-wells"></label>
+      <p class="sf-note">兩口引力井把附近星體往中心拉，核心會持續吸走質量。經驗 +10%。</p>
+    </section>
+    <section>
+      <h3>天賦</h3>
+      <div class="fu-seg" id="perk-seg" role="group" aria-label="天賦"></div>
+      <p class="sf-note" id="perk-note"></p>
+    </section>
+    <section>
+      <h3>本局</h3>
+      <p class="sf-note">修正與天賦在下一局生效。</p>
+      <div style="display:flex;gap:8px;margin-top:10px"><button class="fu-btn" id="drawer-restart" type="button">以目前設定重開</button><button class="fu-btn fu-btn--ghost" id="drawer-lobby" type="button">回大廳</button></div>
+    </section>
+  </div>
+  <div class="fu-drawer__body" id="panel-view" role="tabpanel" aria-labelledby="tab-view" hidden>
+    <section>
+      <h3>鏡頭</h3>
+      <div class="fu-seg" id="camera-seg" role="group" aria-label="鏡頭"><button type="button" value="auto" aria-pressed="true">自動</button><button type="button" value="follow" aria-pressed="false">跟隨</button><button type="button" value="overview" aria-pressed="false">全景</button></div>
+      <p class="sf-note">自動：經典模式看全場，大地圖跟著你走並隨體型拉遠。</p>
+      <label class="fu-switch"><span>俯視角</span><input type="checkbox" id="opt-top"></label>
+    </section>
+    <section>
+      <h3>標示</h3>
+      <label class="fu-switch"><span>名字與質量標籤</span><input type="checkbox" id="opt-labels" checked></label>
+      <label class="fu-switch"><span>畫面震動</span><input type="checkbox" id="opt-shake" checked></label>
+    </section>
+  </div>
+  <div class="fu-drawer__body" id="panel-career" role="tabpanel" aria-labelledby="tab-career" hidden>
+    <div class="sf-career" id="drawer-career" style="display:flex"></div>
+    <div class="sf-stats" id="stats"></div>
+    <h3>解鎖進度</h3>
+    <ul class="fu-list sf-unlocks" id="unlocks"></ul>
+    <div style="margin-top:20px"><button class="fu-btn fu-btn--ghost" id="reset-career" type="button">重置生涯紀錄</button></div>
+  </div>
+  <div class="fu-drawer__body" id="panel-rules" role="tabpanel" aria-labelledby="tab-rules" hidden>
+    <div class="sf-legend"><span class="prey"><i></i>玉色實線：你吞得下</span><span class="danger"><i></i>金色虛線：它吞得下你</span><span class="even"><i></i>灰線：大小相近，可互相穿過</span></div>
+    <ul class="rules">
+      <li>你是<strong>朱紅色</strong>星球，其他是本機 AI。小光點 +2、金星 +5，光點會慢慢補充。</li>
+      <li><strong>吞噬：</strong>質量至少是對方的 1.2 倍，並蓋住對方中心，就吞下它並獲得 80% 質量。質量越大越慢。</li>
+      <li><strong>勝負：</strong>先達目標質量者勝（經典 160、星海 320、群星亂鬥 480）；吞光所有對手也算贏。時間到以存活者的總質量決勝；你被吞就結束。</li>
+      <li><strong>衝刺（空白鍵）：</strong>0.6 秒 1.9 倍速，冷卻 4 秒，不扣質量。</li>
+      <li><strong>分裂（Q）：</strong>質量 36 以上，把最大的星體對半分，新的一半朝前方射出約 90 距離，用來撲殺比一半還小的對手。最多 4 塊，8 秒後自動回收合併；主體被吞時，最大的一塊接手。</li>
+      <li><strong>噴射（E，可按住）：</strong>質量 30 以上，花 4 質量射出一顆 3 質量的光點。自己 0.3 秒內吃不回來，誰都能撿。</li>
+      <li><strong>裂星：</strong>帶刺的白色晶體。質量 60 以上的星體碰到中心就會炸開，失去 35% 質量並噴成光點；小星體可躲在旁邊。對它噴射 5 次，它就沿最後一發的方向飛出去，砸向大對手。</li>
+      <li><strong>模式：</strong>經典是原版 90 秒小場地，沒有分裂、噴射與裂星。星海是大地圖 2:30；群星亂鬥有五個對手、3 分鐘（Lv 5 解鎖）。</li>
+      <li><strong>對手：</strong>新星反應慢；標準是原版 AI；獵手（Lv 3）綜合判斷威脅並會分裂撲殺；星王（Lv 6）避開流星與裂星，還會餵裂星射向大目標。</li>
+      <li><strong>生涯：</strong>依最大質量、吞噬、光點、裂星命中、名次與勝負累積經驗，再乘難度、模式與修正倍率。等級解鎖對手、模式、修正與天賦，紀錄只存在這台裝置。</li>
+      <li><strong>操作：</strong>方向鍵／WASD；滑鼠指向即前往；手機在場地上按住拖曳，放開就停。P／Esc 暫停，M 選單，R 重開。切換視窗會自動暫停。</li>
+    </ul>
+  </div>
+</aside>
+
+<div class="fu-curtain" id="overlay">
+  <div class="fu-curtain__inner sf-sheet" id="sheet" data-mode="lobby" role="dialog" aria-modal="true" aria-labelledby="dialog-title">
+    <span class="fu-seal fu-seal--lg fu-stamp" data-view="lobby" aria-hidden="true">福遊</span>
+    <p class="fu-label" id="dialog-kicker">FuGames / Star Feast</p>
+    <h2 class="fu-display" id="dialog-title">星點吞噬</h2>
+    <p class="fu-dim sf-lede" id="dialog-copy">吃光點長大，分裂撲殺比你小的星球，把裂星餵飽射向巨星，躲開預警圈裡的流星。</p>
+    <div class="sf-career" data-view="lobby result" id="lobby-career"></div>
+    <div class="sf-pick" data-view="lobby">
+      <div class="fu-field"><span>模式</span><div class="fu-seg" id="mode-seg" role="group" aria-label="模式"></div><small id="mode-note"></small></div>
+      <div class="fu-field"><span>對手</span><div class="fu-seg" id="tier-seg" role="group" aria-label="對手"></div><small id="tier-note"></small></div>
+      <p class="sf-summary" id="setup-summary"></p>
+    </div>
+    <div class="sf-result" data-view="result">
+      <div class="fu-stats" id="result-stats"></div>
+      <dl class="sf-xp" id="xp-lines"></dl>
+      <div class="sf-levelup" id="levelup" hidden></div>
+    </div>
+    <div class="fu-curtain__actions" data-view="lobby"><button class="fu-btn fu-btn--seal fu-btn--lg" id="play" type="button">開始吞噬</button><button class="fu-btn fu-btn--lg" id="lobby-menu" type="button">修正與天賦</button></div>
+    <div class="fu-curtain__actions" data-view="pause"><button class="fu-btn fu-btn--seal fu-btn--lg" id="resume" type="button">繼續</button><button class="fu-btn fu-btn--lg" id="pause-restart" type="button">重新開始</button><button class="fu-btn fu-btn--lg fu-btn--ghost" id="to-lobby" type="button">回大廳</button></div>
+    <div class="fu-curtain__actions" data-view="result"><button class="fu-btn fu-btn--seal fu-btn--lg" id="again" type="button">再來一局</button><button class="fu-btn fu-btn--lg" id="result-lobby" type="button">換模式</button></div>
+    <p class="sf-keys" data-view="lobby pause">方向鍵／WASD 或滑鼠 · SPACE 衝刺 · Q 分裂 · E 噴射 · P 暫停 · M 選單</p>
+  </div>
+</div>
+<noscript><div class="webgl-fail"><p>請開啟 JavaScript，才能開始遊戲。</p></div></noscript>
   <script id="growth-engine">
   'use strict';
+  // Deterministic fixed-step (20 ms) simulation. Defaults reproduce the original classic round exactly;
+  // modes, AI tiers, perks and hazards are options layered on top.
   const StarFeast = (() => {
-    const SIZE = 720, DT = .02, ROUND_TICKS = 4500, TARGET = 160;
+    const SIZE = 720, DT = .02, ROUND_TICKS = 4500, TARGET = 160, FOOD = 96;
+    const SPLIT_MIN = 36, SPLIT_SPEED = 520, SPLIT_COOLDOWN = 1, MERGE_TIME = 8, MAX_PIECES = 3;
+    const EJECT_MIN = 30, EJECT_COST = 4, EJECT_VALUE = 3, EJECT_SPEED = 460, EJECT_COOLDOWN = .12, OWNER_GRACE = 15;
+    const THORN_R = 24, THORN_MASS = 60, THORN_FEED = 5, THORN_SPEED = 600, THORN_RESPAWN = 500, BURST_SHARE = .35;
+    const METEOR_EVERY = 600, METEOR_WARN = 75, METEOR_R = 90, METEOR_SHARE = .3, METEOR_MIN = 24;
+    const WELL_R = 170, WELL_CORE = 30, WELL_PULL = 80, WELL_DRAIN = .03;
+    const NAMES = ['你', '青嵐', '玉衡', '金烏', '紫微', '骨白'];
+    const TIERS = [
+      { name: '新星', speed: .78, think: 12, threat: 120, prey: 110, smart: false, split: false, eject: false, note: '反應慢，常錯過獵物' },
+      { name: '標準', speed: .86, think: 8, threat: 160, prey: 140, smart: false, split: false, eject: false, note: '原版 AI：會逃、會追、會找光點' },
+      { name: '獵手', speed: .9, think: 5, threat: 200, prey: 210, smart: true, split: true, eject: false, note: '綜合判斷威脅，會分裂撲殺' },
+      { name: '星王', speed: .94, think: 3, threat: 240, prey: 260, smart: true, split: true, eject: true, note: '避開流星與裂星，還會餵裂星射你' }
+    ];
+    const MODES = {
+      classic: { name: '經典', size: 720, food: 96, target: 160, ticks: 4500, rivals: 4, abilities: false, thorns: 0, note: '原版規則：90 秒、先到 160' },
+      standard: { name: '星海', size: 1080, food: 200, target: 320, ticks: 7500, rivals: 4, abilities: true, thorns: 8, note: '大地圖、分裂、噴射與裂星' },
+      melee: { name: '群星亂鬥', size: 1320, food: 300, target: 480, ticks: 9000, rivals: 5, abilities: true, thorns: 12, note: '五個對手，三分鐘爭霸' }
+    };
+    const PERKS = {
+      none: { name: '無', note: '不帶天賦' },
+      magnet: { name: '引力', note: '吃光點的距離 +10', reach: 13 },
+      swift: { name: '疾行', note: '衝刺 0.8 秒、冷卻 3 秒', boost: .8, cooldown: 3 },
+      dense: { name: '厚核', note: '開局質量 26', start: 26 }
+    };
     const radius = mass => 12 + Math.sqrt(mass) * 2;
     const distance = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
     const edible = (hunter, prey) => hunter.mass >= prey.mass * 1.2;
     const clamp = (n, low, high) => Math.max(low, Math.min(high, n));
     function vector(x, y) { const length = Math.hypot(x, y); return length ? { x: x / length, y: y / length } : { x: 0, y: 0 }; }
+    // Mode first, then explicit overrides; every field is validated so a saved setup can never break a round.
+    function config(input = {}) {
+      const o = input && typeof input === 'object' ? input : {};
+      const mode = MODES[o.mode] ? o.mode : 'classic', base = MODES[mode];
+      const num = (key, low, high) => Number.isFinite(o[key]) ? clamp(Math.round(o[key]), low, high) : base[key];
+      return {
+        mode, tier: Number.isInteger(o.tier) && TIERS[o.tier] ? o.tier : 1, perk: PERKS[o.perk] ? o.perk : 'none',
+        size: num('size', 480, 2000), food: num('food', 10, 600), target: num('target', 40, 5000), ticks: num('ticks', 500, 30000),
+        rivals: num('rivals', 1, 5), thorns: num('thorns', 0, 30),
+        abilities: typeof o.abilities === 'boolean' ? o.abilities : base.abilities,
+        meteors: o.meteors === true, wells: o.wells === true
+      };
+    }
+    const modifierCount = o => Number(!!o.meteors) + Number(!!o.wells);
     class Game {
-      constructor(random = Math.random) { this.random = random; this.reset(); }
+      constructor(random = Math.random, options = {}) { this.random = random; this.options = config(options); this.reset(); }
+      get size() { return this.options.size; }
+      get tierInfo() { return TIERS[this.options.tier]; }
       reset() {
+        const o = this.options, S = o.size;
         this.phase = 'ready'; this.tick = 0; this.result = null; this.events = []; this.foodSerial = 0;
         this.boostTime = 0; this.cooldown = 0; this.collected = 0; this.eaten = 0;
-        this.actors = [[180, 360, 20], [530, 150, 14], [530, 560, 18], [570, 350, 26], [170, 120, 34]].map(([x, y, mass], id) => ({ id, x, y, mass, alive: true, steering: { x: 0, y: 0 } }));
-        this.food = [220, 255, 290, 325].map(x => ({ x, y: 360, value: 2 }));
-        while (this.food.length < 96) this.addFood();
+        this.splits = 0; this.ejects = 0; this.thornHits = 0; this.maxMass = 0;
+        const classic = S === SIZE && o.rivals === 4;
+        const spawn = classic ? [[180, 360, 20], [530, 150, 14], [530, 560, 18], [570, 350, 26], [170, 120, 34]]
+          : [[S * .25, S * .5, 20], ...Array.from({ length: o.rivals }, (_, i) => {
+            const angle = -Math.PI * .62 + i * (Math.PI * 1.24 / Math.max(1, o.rivals - 1));
+            return [S * .5 + Math.cos(angle) * S * .34, S * .5 + Math.sin(angle) * S * .36, [14, 18, 26, 34, 22][i]];
+          })];
+        if (PERKS[o.perk].start) spawn[0][2] = PERKS[o.perk].start;
+        this.actors = spawn.map(([x, y, mass], id) => ({ id, x, y, mass, alive: true, steering: { x: 0, y: 0 }, facing: { x: 1, y: 0 }, pieces: [], splitCd: 0, ejectCd: 0 }));
+        this.maxMass = this.actors[0].mass;
+        const [px, py] = spawn[0];
+        this.food = [40, 75, 110, 145].map(dx => ({ x: px + dx, y: py, value: 2 }));
+        while (this.food.length < o.food) this.addFood();
+        this.thorns = []; this.thornQueue = [];
+        for (let i = 0; i < o.thorns; i++) this.addThorn();
+        this.wells = o.wells ? [{ x: S * .5, y: S * .27 }, { x: S * .5, y: S * .73 }] : [];
+        this.meteor = null; this.nextMeteor = METEOR_EVERY;
       }
       start() { if (this.phase === 'ready' || this.phase === 'paused') this.phase = 'running'; }
       pause() { if (this.phase === 'running') this.phase = 'paused'; }
       boost() {
         if (this.phase !== 'running' || this.cooldown > 0) return false;
-        this.boostTime = .6; this.cooldown = 4; return true;
+        const perk = PERKS[this.options.perk];
+        this.boostTime = perk.boost || .6; this.cooldown = perk.cooldown || 4; return true;
       }
+      cells(a) { return a.pieces.length ? [a, ...a.pieces] : [a]; }
+      total(a) { let n = a.mass; for (const p of a.pieces) n += p.mass; return n; }
       addFood() {
-        let candidate;
+        let candidate; const S = this.options.size;
         for (let attempt = 0; attempt < 24; attempt++) {
-          candidate = { x: 20 + this.random() * (SIZE - 40), y: 20 + this.random() * (SIZE - 40), value: this.foodSerial % 12 === 0 ? 5 : 2 };
+          candidate = { x: 20 + this.random() * (S - 40), y: 20 + this.random() * (S - 40), value: this.foodSerial % 12 === 0 ? 5 : 2 };
           if (this.actors.every(a => !a.alive || distance(a, candidate) > radius(a.mass) + 20)) break;
         }
         this.foodSerial++; this.food.push(candidate);
       }
-      keepInside(a) { const r = radius(a.mass); a.x = clamp(a.x, r, SIZE - r); a.y = clamp(a.y, r, SIZE - r); }
+      addThorn() {
+        let spot; const S = this.options.size;
+        for (let attempt = 0; attempt < 30; attempt++) {
+          spot = { x: 60 + this.random() * (S - 120), y: 60 + this.random() * (S - 120), vx: 0, vy: 0, feed: 0, owner: -1 };
+          if (this.actors.every(a => !a.alive || distance(a, spot) > radius(a.mass) + 90) && this.thorns.every(t => distance(t, spot) > 110)) break;
+        }
+        this.thorns.push(spot); return spot;
+      }
+      keepInside(a) { const r = radius(a.mass), S = this.options.size; a.x = clamp(a.x, r, S - r); a.y = clamp(a.y, r, S - r); }
       aiDirection(a) {
+        const tier = this.tierInfo;
+        if (tier.smart) return this.smartDirection(a);
+        const S = this.options.size;
         const others = this.actors.filter(b => b.id !== a.id && b.alive);
-        const threats = others.filter(b => edible(b, a) && distance(a, b) < 160).sort((b, c) => distance(a, b) - distance(a, c));
+        const threats = others.filter(b => edible(b, a) && distance(a, b) < tier.threat).sort((b, c) => distance(a, b) - distance(a, c));
         let goal;
         if (threats.length) {
           const threat = threats[0]; goal = vector(a.x - threat.x, a.y - threat.y);
           if (!goal.x && !goal.y) goal = { x: 1, y: 0 };
           // Keep an escape direction along the wall instead of getting pinned to it.
           const margin = radius(a.mass) + 42;
-          goal.x += a.x < margin ? .9 : a.x > SIZE - margin ? -.9 : 0;
-          goal.y += a.y < margin ? .9 : a.y > SIZE - margin ? -.9 : 0;
+          goal.x += a.x < margin ? .9 : a.x > S - margin ? -.9 : 0;
+          goal.y += a.y < margin ? .9 : a.y > S - margin ? -.9 : 0;
         } else {
-          const prey = others.filter(b => edible(a, b) && distance(a, b) < 140).sort((b, c) => distance(a, b) - distance(a, c))[0];
-          const food = this.food.reduce((best, p) => !best || distance(a, p) / Math.sqrt(p.value) < distance(a, best) / Math.sqrt(best.value) ? p : best, null);
-          const target = prey || food || { x: SIZE / 2, y: SIZE / 2 };
+          const prey = others.filter(b => edible(a, b) && distance(a, b) < tier.prey).sort((b, c) => distance(a, b) - distance(a, c))[0];
+          // From the standard tier up, a body big enough to burst steers its food search clear of thorns.
+          const wary = this.options.tier >= 1 && a.mass >= THORN_MASS && this.thorns.length ? this.thorns : null, r = radius(a.mass);
+          const food = this.food.reduce((best, p) => wary && wary.some(t => distance(t, p) < THORN_R + r) ? best : !best || distance(a, p) / Math.sqrt(p.value) < distance(a, best) / Math.sqrt(best.value) ? p : best, null);
+          const target = prey || food || { x: S / 2, y: S / 2 };
           goal = vector(target.x - a.x, target.y - a.y);
+          if (wary) for (const t of wary) { const d = distance(a, t); if (d < r + THORN_R + 24 && d > 0) { goal.x += (a.x - t.x) / d * 1.5; goal.y += (a.y - t.y) / d * 1.5; } }
         }
         return vector(goal.x, goal.y);
       }
+      // Higher tiers weigh every threat, every hazard and every chance at once instead of reacting to the nearest one.
+      smartDirection(a) {
+        const tier = this.tierInfo, S = this.options.size, r = radius(a.mass);
+        let fx = 0, fy = 0, danger = 0, best = null, bestScore = 0;
+        for (const b of this.actors) {
+          if (b.id === a.id || !b.alive) continue;
+          for (const c of this.cells(b)) {
+            const d = Math.max(1, distance(a, c)), rc = radius(c.mass);
+            if (edible(c, a) && d < tier.threat + rc) {
+              const w = 1.4 * (1 - d / (tier.threat + rc)) + .35; fx += (a.x - c.x) / d * w; fy += (a.y - c.y) / d * w; danger += w;
+            } else if (edible(a, c) && d < tier.prey + r) {
+              const score = c.mass / (d + 40);
+              if (score > bestScore) { bestScore = score; best = c; }
+            }
+          }
+        }
+        if (a.mass >= THORN_MASS) for (const t of this.thorns) {
+          const d = Math.max(1, distance(a, t)); if (d < r + THORN_R + 60) { const w = 1.6 * (1 - d / (r + THORN_R + 60)) + .3; fx += (a.x - t.x) / d * w; fy += (a.y - t.y) / d * w; danger += w; }
+        }
+        if (this.meteor) { const d = Math.max(1, distance(a, this.meteor)); if (d < METEOR_R + r + 30) { fx += (a.x - this.meteor.x) / d * 2.5; fy += (a.y - this.meteor.y) / d * 2.5; danger += 2.5; } }
+        for (const w of this.wells) { const d = Math.max(1, distance(a, w)); if (d < WELL_CORE * 3 + r) { fx += (a.x - w.x) / d * 1.4; fy += (a.y - w.y) / d * 1.4; danger += 1.4; } }
+        if (danger > .2) {
+          const margin = r + 50;
+          fx += a.x < margin ? 1.1 : a.x > S - margin ? -1.1 : 0;
+          fy += a.y < margin ? 1.1 : a.y > S - margin ? -1.1 : 0;
+          const v = vector(fx, fy); return v.x || v.y ? v : { x: 1, y: 0 };
+        }
+        if (best) return vector(best.x - a.x, best.y - a.y);
+        const food = this.food.reduce((pick, p) => {
+          if (a.mass >= THORN_MASS && this.thorns.some(t => distance(t, p) < THORN_R + r)) return pick;
+          const score = distance(a, p) / Math.sqrt(p.value); return !pick || score < pick.score ? { p, score } : pick;
+        }, null);
+        const target = food ? food.p : { x: S / 2, y: S / 2 };
+        return vector(target.x - a.x, target.y - a.y);
+      }
+      // Tactical abilities for the upper tiers: split to snipe a reachable prey, or feed a thorn toward a large rival.
+      aiAct(a) {
+        const tier = this.tierInfo;
+        if (!this.options.abilities || !tier.split) return;
+        const half = Math.floor(a.mass / 2);
+        if (!a.pieces.length && a.splitCd <= 0 && a.mass >= SPLIT_MIN) {
+          for (const b of this.actors) {
+            if (b.id === a.id || !b.alive) continue;
+            for (const c of this.cells(b)) {
+              const d = distance(a, c);
+              if (half < c.mass * 1.3 || d > radius(half) + 120 || d < radius(a.mass) * .8) continue;
+              const risky = this.actors.some(e => e.id !== a.id && e.alive && this.cells(e).some(x => edible(x, { mass: half }) && distance(x, c) < 220));
+              if (risky) continue;
+              a.steering = vector(c.x - a.x, c.y - a.y); this.split(a.id); return;
+            }
+          }
+        }
+        if (tier.eject && a.mass >= 50 && a.ejectCd <= 0) {
+          for (const t of this.thorns) {
+            const dt = distance(a, t); if (dt > 170 || dt < radius(a.mass) + THORN_R + 30) continue;
+            const aim = vector(t.x - a.x, t.y - a.y);
+            const victim = this.actors.find(b => b.id !== a.id && b.alive && b.mass >= THORN_MASS && distance(t, b) < 260 && (aim.x * (b.x - t.x) + aim.y * (b.y - t.y)) / Math.max(1, distance(t, b)) > .88);
+            if (victim) { a.facing = aim; this.eject(a.id, aim); return; }
+          }
+        }
+      }
+      split(id = 0) {
+        if (this.phase !== 'running' || !this.options.abilities) return false;
+        const a = this.actors[id];
+        if (!a || !a.alive || a.splitCd > 0 || a.pieces.length >= MAX_PIECES) return false;
+        const source = this.cells(a).filter(c => c.mass >= SPLIT_MIN).sort((b, c) => c.mass - b.mass)[0];
+        if (!source) return false;
+        let dir = id ? a.steering : a.facing; if (!dir.x && !dir.y) dir = a.facing.x || a.facing.y ? a.facing : { x: 1, y: 0 };
+        const half = Math.floor(source.mass / 2); source.mass -= half;
+        const r = radius(source.mass);
+        const piece = { x: source.x + dir.x * r * .5, y: source.y + dir.y * r * .5, mass: half, vx: dir.x * SPLIT_SPEED, vy: dir.y * SPLIT_SPEED, merge: MERGE_TIME };
+        if (source !== a) source.merge = MERGE_TIME;
+        this.keepInside(piece); a.pieces.push(piece); a.splitCd = SPLIT_COOLDOWN;
+        if (!id) this.splits++;
+        this.events.push({ type: 'split', id, x: piece.x, y: piece.y });
+        return true;
+      }
+      eject(id = 0, aim) {
+        if (this.phase !== 'running' || !this.options.abilities) return false;
+        const a = this.actors[id];
+        if (!a || !a.alive || a.ejectCd > 0 || a.mass < EJECT_MIN) return false;
+        let dir = aim || a.facing; if (!dir.x && !dir.y) dir = { x: 1, y: 0 };
+        a.mass -= EJECT_COST; a.ejectCd = EJECT_COOLDOWN;
+        const r = radius(a.mass) + 6, S = this.options.size;
+        this.food.push({ x: clamp(a.x + dir.x * r, 6, S - 6), y: clamp(a.y + dir.y * r, 6, S - 6), value: EJECT_VALUE, vx: dir.x * EJECT_SPEED, vy: dir.y * EJECT_SPEED, owner: id, age: 0, shot: true });
+        if (!id) this.ejects++;
+        this.events.push({ type: 'eject', id });
+        return true;
+      }
+      // Lost mass sprays out as pellets just outside the body, so the owner cannot instantly re-absorb it.
+      scatter(cell, lost, owner) {
+        const n = Math.min(12, Math.floor(lost / EJECT_VALUE)), r = radius(cell.mass) + 10, S = this.options.size, turn = this.tick * .37;
+        for (let i = 0; i < n; i++) {
+          const angle = turn + i * Math.PI * 2 / n, dx = Math.cos(angle), dy = Math.sin(angle);
+          this.food.push({ x: clamp(cell.x + dx * r, 6, S - 6), y: clamp(cell.y + dy * r, 6, S - 6), value: EJECT_VALUE, vx: dx * 300, vy: dy * 300, owner, age: 0 });
+        }
+      }
       finish(outcome, reason) {
         if (this.phase === 'over') return;
-        this.phase = 'over'; this.result = { outcome, reason, mass: this.actors[0].mass, tick: this.tick, collected: this.collected, eaten: this.eaten };
+        const player = this.actors[0], alive = this.actors.filter(a => a.alive && a.id), mass = this.total(player);
+        const place = player.alive ? 1 + alive.filter(a => this.total(a) > mass).length : alive.length + 1;
+        this.phase = 'over';
+        this.result = { outcome, reason, mass, tick: this.tick, collected: this.collected, eaten: this.eaten, maxMass: Math.max(this.maxMass, mass), place, thornHits: this.thornHits, splits: this.splits, ejects: this.ejects };
       }
       checkResult() {
         if (this.phase !== 'running') return;
-        const alive = this.actors.filter(a => a.alive), player = this.actors[0];
+        const alive = this.actors.filter(a => a.alive), player = this.actors[0], target = this.options.target;
         if (!player.alive) { this.finish('loss', '你被更大的對手吞噬了。'); return; }
-        const reached = alive.find(a => a.mass >= TARGET);
-        if (reached) this.finish(reached.id === 0 ? 'win' : 'loss', reached.id === 0 ? '你率先長到 160 質量！' : '對手率先長到 160 質量。');
+        const reached = alive.find(a => this.total(a) >= target);
+        if (reached) this.finish(reached.id === 0 ? 'win' : 'loss', reached.id === 0 ? `你率先長到 ${target} 質量！` : `對手率先長到 ${target} 質量。`);
         else if (alive.length === 1) this.finish('win', '你吞噬了所有對手！');
-        else if (this.tick >= ROUND_TICKS) {
-          const most = Math.max(...alive.map(a => a.mass)), leaders = alive.filter(a => a.mass === most);
-          this.finish(player.mass === most ? (leaders.length > 1 ? 'draw' : 'win') : 'loss', '時間到！以存活者的質量決定勝負。');
+        else if (this.tick >= this.options.ticks) {
+          const totals = alive.map(a => this.total(a)), most = Math.max(...totals), leaders = totals.filter(t => t === most);
+          this.finish(this.total(player) === most ? (leaders.length > 1 ? 'draw' : 'win') : 'loss', '時間到！以存活者的質量決定勝負。');
+        }
+      }
+      moveCell(cell, d, speed) {
+        cell.x += d.x * speed * DT; cell.y += d.y * speed * DT;
+        if (cell.vx || cell.vy) {
+          cell.x += cell.vx * DT; cell.y += cell.vy * DT; cell.vx *= .88; cell.vy *= .88;
+          if (Math.hypot(cell.vx, cell.vy) < 8) { cell.vx = 0; cell.vy = 0; }
+        }
+        for (const w of this.wells) {
+          const dd = distance(cell, w);
+          if (dd < WELL_R && dd > 1) { const pull = WELL_PULL * (1 - dd / WELL_R) * DT; cell.x += (w.x - cell.x) / dd * pull; cell.y += (w.y - cell.y) / dd * pull; }
+        }
+        this.keepInside(cell);
+      }
+      // Pieces of one actor keep apart until their merge timer runs out, then drift home and fuse.
+      regroup(a) {
+        if (!a.pieces.length) return;
+        for (const p of a.pieces) {
+          if (p.merge > 0) p.merge = Math.max(0, p.merge - DT);
+          const d = distance(a, p), min = radius(a.mass) + radius(p.mass);
+          if (p.merge > 0 && d < min && d > .001) {
+            const push = (min - d) / 2; const ux = (p.x - a.x) / d, uy = (p.y - a.y) / d;
+            p.x += ux * push; p.y += uy * push; a.x -= ux * push * .5; a.y -= uy * push * .5;
+          } else if (p.merge <= 0 && d > 1) {
+            const step = Math.min(d, 70 * DT); p.x += (a.x - p.x) / d * step; p.y += (a.y - p.y) / d * step;
+          }
+          this.keepInside(p);
+        }
+        this.keepInside(a);
+        const keep = [];
+        for (const p of a.pieces) {
+          if (p.merge <= 0 && distance(a, p) < radius(a.mass)) { a.mass += p.mass; this.events.push({ type: 'merge', id: a.id }); }
+          else keep.push(p);
+        }
+        a.pieces = keep;
+      }
+      updateThorns() {
+        const S = this.options.size;
+        for (const t of this.thorns) {
+          if (!t.vx && !t.vy) continue;
+          t.x += t.vx * DT; t.y += t.vy * DT; t.vx *= .94; t.vy *= .94;
+          if (t.x < THORN_R || t.x > S - THORN_R) { t.vx = -t.vx; t.x = clamp(t.x, THORN_R, S - THORN_R); }
+          if (t.y < THORN_R || t.y > S - THORN_R) { t.vy = -t.vy; t.y = clamp(t.y, THORN_R, S - THORN_R); }
+          if (Math.hypot(t.vx, t.vy) < 10) { t.vx = 0; t.vy = 0; t.owner = -1; }
+        }
+        // Pellets fired into a thorn feed it; a fed thorn shoots off along the last shot.
+        this.food = this.food.filter(p => {
+          if (!p.shot || p.age > 40) return true;
+          const t = this.thorns.find(t => distance(t, p) < THORN_R + 4);
+          if (!t) return true;
+          t.feed++;
+          if (t.feed >= THORN_FEED) {
+            const dir = vector(p.vx || t.x - p.x, p.vy || t.y - p.y);
+            t.feed = 0; t.vx = dir.x * THORN_SPEED; t.vy = dir.y * THORN_SPEED; t.owner = p.owner;
+            this.events.push({ type: 'thorn', owner: p.owner, x: t.x, y: t.y });
+          }
+          return false;
+        });
+        // Any cell heavy enough that swallows a thorn's centre bursts.
+        const hit = new Set();
+        for (const t of this.thorns) {
+          for (const a of this.actors) {
+            if (!a.alive || hit.has(t)) continue;
+            for (const c of this.cells(a)) {
+              if (c.mass < THORN_MASS || distance(c, t) >= radius(c.mass)) continue;
+              const lost = Math.floor(c.mass * BURST_SHARE); c.mass -= lost; this.scatter(c, lost, a.id);
+              if (t.owner === 0 && a.id !== 0) this.thornHits++;
+              this.events.push({ type: 'burst', id: a.id, x: t.x, y: t.y, lost, by: t.owner });
+              hit.add(t); break;
+            }
+          }
+        }
+        if (hit.size) { this.thorns = this.thorns.filter(t => !hit.has(t)); for (let i = 0; i < hit.size; i++) this.thornQueue.push(this.tick + THORN_RESPAWN); }
+        while (this.thornQueue.length && this.thornQueue[0] <= this.tick) { this.thornQueue.shift(); if (this.thorns.length < this.options.thorns) this.addThorn(); }
+      }
+      updateMeteor() {
+        if (!this.options.meteors) return;
+        const S = this.options.size;
+        if (!this.meteor && this.tick >= this.nextMeteor) {
+          // Meteors lean toward the leader, which keeps a runaway giant honest.
+          const alive = this.actors.filter(a => a.alive), leader = alive.reduce((b, a) => this.total(a) > this.total(b) ? a : b, alive[0]);
+          const aimLeader = this.random() < .6, angle = this.random() * Math.PI * 2, spread = this.random();
+          const x = aimLeader ? leader.x + Math.cos(angle) * spread * 70 : 80 + spread * (S - 160);
+          const y = aimLeader ? leader.y + Math.sin(angle) * spread * 70 : 80 + this.random() * (S - 160);
+          this.meteor = { x: clamp(x, 40, S - 40), y: clamp(y, 40, S - 40), r: METEOR_R, at: this.tick + METEOR_WARN };
+          this.events.push({ type: 'meteor-warn', x: this.meteor.x, y: this.meteor.y });
+        } else if (this.meteor && this.tick >= this.meteor.at) {
+          const m = this.meteor;
+          for (const a of this.actors) if (a.alive) for (const c of this.cells(a)) {
+            if (c.mass < METEOR_MIN || distance(c, m) >= m.r) continue;
+            const lost = Math.floor(c.mass * METEOR_SHARE); c.mass -= lost; this.scatter(c, lost, a.id);
+            this.events.push({ type: 'scorch', id: a.id, lost });
+          }
+          for (let i = 0; i < 5; i++) { const angle = i * Math.PI * 2 / 5; this.food.push({ x: clamp(m.x + Math.cos(angle) * 30, 6, S - 6), y: clamp(m.y + Math.sin(angle) * 30, 6, S - 6), value: 5 }); }
+          this.events.push({ type: 'meteor', x: m.x, y: m.y });
+          this.meteor = null; this.nextMeteor = this.tick + METEOR_EVERY + Math.floor(this.random() * 200);
         }
       }
       step(input = { x: 0, y: 0 }) {
@@ -150,188 +595,721 @@
         this.events = []; this.tick++;
         const inputX = Number.isFinite(input.x) ? input.x : 0, inputY = Number.isFinite(input.y) ? input.y : 0;
         const strength = Math.min(1, Math.hypot(inputX, inputY)), direction = vector(inputX, inputY);
+        const tier = this.tierInfo, perk = PERKS[this.options.perk], S = this.options.size;
+        const player = this.actors[0];
+        if (direction.x || direction.y) player.facing = direction;
+        if (input.split) this.split(0);
+        if (input.eject) this.eject(0);
         for (const a of this.actors) {
           if (!a.alive) continue;
-          if (a.id && (this.tick % 8 === 1)) a.steering = this.aiDirection(a);
+          if (a.id && (this.tick % tier.think === 1 % tier.think)) {
+            a.steering = this.aiDirection(a);
+            if (a.steering.x || a.steering.y) a.facing = a.steering;
+            this.aiAct(a);
+          }
           const d = a.id ? a.steering : direction;
-          const speed = 108 / (1 + a.mass / 260) * (a.id ? .86 : strength) * (!a.id && this.boostTime > 0 ? 1.9 : 1);
-          a.x += d.x * speed * DT; a.y += d.y * speed * DT; this.keepInside(a);
+          const factor = a.id ? tier.speed : strength, rush = !a.id && this.boostTime > 0 ? 1.9 : 1;
+          for (const c of this.cells(a)) this.moveCell(c, d, 108 / (1 + c.mass / 260) * factor * rush);
+          this.regroup(a);
+          if (a.splitCd > 0) a.splitCd = Math.max(0, a.splitCd - DT);
+          if (a.ejectCd > 0) a.ejectCd = Math.max(0, a.ejectCd - DT);
         }
         this.boostTime = Math.max(0, this.boostTime - DT); this.cooldown = Math.max(0, this.cooldown - DT);
-        // Rotate food priority so a standing player does not always win overlaps.
-        const order = this.actors.slice(this.tick % 5).concat(this.actors.slice(0, this.tick % 5));
-        for (const a of order) if (a.alive) {
-          this.food = this.food.filter(p => {
-            if (distance(a, p) > radius(a.mass) + 3) return true;
-            a.mass += p.value;
-            if (!a.id) { this.collected++; this.events.push({ type: 'food', value: p.value }); }
-            return false;
-          });
-        }
-        // Largest first gives a consistent result when multiple circles overlap.
-        for (const hunter of [...this.actors].sort((a, b) => b.mass - a.mass || a.id - b.id)) {
-          if (!hunter.alive) continue;
-          for (const prey of this.actors) {
-            if (prey === hunter || !prey.alive || !edible(hunter, prey)) continue;
-            if (distance(hunter, prey) >= radius(hunter.mass) - radius(prey.mass) * .25) continue;
-            prey.alive = false; hunter.mass += Math.floor(prey.mass * .8);
-            if (!hunter.id) this.eaten++;
-            this.events.push({ type: 'eat', hunter: hunter.id, prey: prey.id });
+        for (const p of this.food) if (p.owner !== undefined) {
+          p.age++;
+          if (p.vx || p.vy) {
+            p.x = clamp(p.x + p.vx * DT, 6, S - 6); p.y = clamp(p.y + p.vy * DT, 6, S - 6); p.vx *= .9; p.vy *= .9;
+            if (Math.hypot(p.vx, p.vy) < 6) { p.vx = 0; p.vy = 0; }
           }
         }
-        for (const a of this.actors) if (a.alive) this.keepInside(a);
+        if (this.thorns.length || this.thornQueue.length) this.updateThorns();
+        // Rotate food priority so a standing player does not always win overlaps.
+        const order = this.actors.slice(this.tick % this.actors.length).concat(this.actors.slice(0, this.tick % this.actors.length));
+        for (const a of order) if (a.alive) {
+          const reach = !a.id && perk.reach ? perk.reach : 3;
+          for (const c of this.cells(a)) {
+            this.food = this.food.filter(p => {
+              if (distance(c, p) > radius(c.mass) + reach) return true;
+              if (p.owner === a.id && p.age < OWNER_GRACE) return true;
+              c.mass += p.value;
+              if (!a.id) { this.collected++; this.events.push({ type: 'food', value: p.value }); }
+              return false;
+            });
+          }
+        }
+        this.devour();
+        for (const w of this.wells) if (this.tick % 10 === 0) for (const a of this.actors) if (a.alive) for (const c of this.cells(a)) {
+          if (distance(c, w) < WELL_CORE && c.mass > 10) { c.mass = Math.max(10, c.mass - Math.max(1, Math.floor(c.mass * WELL_DRAIN))); if (!a.id) this.events.push({ type: 'drain' }); }
+        }
+        this.updateMeteor();
+        for (const a of this.actors) if (a.alive) for (const c of this.cells(a)) this.keepInside(c);
+        if (player.alive) this.maxMass = Math.max(this.maxMass, this.total(player));
         this.checkResult();
-        if (this.phase === 'running' && this.tick % 25 === 0 && this.food.length < 96) this.addFood();
+        const refill = Math.ceil(this.options.food / FOOD);
+        if (this.phase === 'running' && this.tick % 25 === 0) for (let i = 0; i < refill && this.food.length < this.options.food; i++) this.addFood();
+      }
+      devour() {
+        // Largest first gives a consistent result when multiple circles overlap.
+        const bodies = [];
+        for (const a of this.actors) if (a.alive) this.cells(a).forEach((cell, index) => bodies.push({ a, cell, index, dead: false }));
+        const hunters = [...bodies].sort((b, c) => c.cell.mass - b.cell.mass || b.a.id - c.a.id || b.index - c.index);
+        for (const h of hunters) {
+          if (h.dead || !h.a.alive) continue;
+          for (const p of bodies) {
+            if (p.a === h.a || p.dead || !p.a.alive || !edible(h.cell, p.cell)) continue;
+            if (distance(h.cell, p.cell) >= radius(h.cell.mass) - radius(p.cell.mass) * .25) continue;
+            p.dead = true; h.cell.mass += Math.floor(p.cell.mass * .8);
+            const prey = p.a, x = p.cell.x, y = p.cell.y;
+            if (p.cell === prey) {
+              if (prey.pieces.length) {
+                // The largest surviving piece becomes the new core.
+                const heir = prey.pieces.reduce((b, c) => c.mass > b.mass ? c : b);
+                prey.pieces = prey.pieces.filter(c => c !== heir);
+                Object.assign(prey, { x: heir.x, y: heir.y, mass: heir.mass });
+                for (const b of bodies) if (b.cell === heir) b.cell = prey;
+              } else prey.alive = false;
+            } else prey.pieces = prey.pieces.filter(c => c !== p.cell);
+            if (!h.a.id && !prey.alive) this.eaten++;
+            this.events.push({ type: 'eat', hunter: h.a.id, prey: prey.id, out: !prey.alive, x, y });
+          }
+        }
       }
     }
-    return { Game, SIZE, DT, ROUND_TICKS, TARGET, radius, distance, edible, vector };
+    return {
+      Game, SIZE, DT, ROUND_TICKS, TARGET, FOOD, NAMES, TIERS, MODES, PERKS, config, modifierCount, radius, distance, edible, vector,
+      SPLIT_MIN, SPLIT_SPEED, SPLIT_COOLDOWN, MERGE_TIME, MAX_PIECES, EJECT_MIN, EJECT_COST, EJECT_VALUE, OWNER_GRACE,
+      THORN_R, THORN_MASS, THORN_FEED, THORN_RESPAWN, BURST_SHARE, METEOR_EVERY, METEOR_WARN, METEOR_R, METEOR_SHARE, METEOR_MIN, WELL_R, WELL_CORE
+    };
+  })();
+  </script>
+  <script id="growth-career">
+  'use strict';
+  // Career progression: pure functions over a small saved profile. XP is earned from what you did in a round,
+  // scaled by AI tier, mode and modifiers; levels unlock harder AI, modes, modifiers and starting perks.
+  const StarCareer = (() => {
+    const MAX_LEVEL = 30, KEY = 'star-feast-career', VERSION = 1;
+    const need = level => 100 + level * 40;
+    function levelOf(xp) {
+      let level = 1, rest = Math.max(0, Math.floor(Number(xp) || 0));
+      while (level < MAX_LEVEL && rest >= need(level)) { rest -= need(level); level++; }
+      return { level, into: level < MAX_LEVEL ? rest : 0, need: level < MAX_LEVEL ? need(level) : 0, max: level >= MAX_LEVEL };
+    }
+    const RANKS = [{ from: 1, name: '星塵' }, { from: 4, name: '流星' }, { from: 8, name: '行星' }, { from: 13, name: '恆星' }, { from: 19, name: '巨星' }, { from: 25, name: '星系' }];
+    const rankOf = level => RANKS.filter(r => level >= r.from).pop().name;
+    const UNLOCKS = [
+      { level: 1, kind: 'mode', id: 'classic' }, { level: 1, kind: 'mode', id: 'standard' }, { level: 1, kind: 'tier', id: 0 }, { level: 1, kind: 'tier', id: 1 }, { level: 1, kind: 'perk', id: 'none' },
+      { level: 2, kind: 'modifier', id: 'meteors' }, { level: 2, kind: 'perk', id: 'magnet' }, { level: 3, kind: 'tier', id: 2 },
+      { level: 4, kind: 'modifier', id: 'wells' }, { level: 4, kind: 'perk', id: 'swift' }, { level: 5, kind: 'mode', id: 'melee' },
+      { level: 6, kind: 'tier', id: 3 }, { level: 7, kind: 'perk', id: 'dense' }
+    ];
+    const unlockLevel = (kind, id) => { const u = UNLOCKS.find(u => u.kind === kind && u.id === id); return u ? u.level : Infinity; };
+    const unlocked = (level, kind, id) => level >= unlockLevel(kind, id);
+    const TIER_XP = [.6, .85, 1, 1.3], MODE_XP = { classic: 1, standard: 1.1, melee: 1.25 };
+    function matchXP(s) {
+      const lines = [['完成一局', 20]];
+      const grow = Math.min(60, Math.floor((s.maxMass || 0) / 10)); if (grow) lines.push([`最大質量 ${s.maxMass}`, grow]);
+      if (s.eaten) lines.push([`吞噬 × ${s.eaten}`, 25 * s.eaten]);
+      const food = Math.min(30, Math.floor((s.collected || 0) / 5)); if (food) lines.push(['收集光點', food]);
+      if (s.thornHits) lines.push([`裂星命中 × ${s.thornHits}`, 15 * s.thornHits]);
+      if (s.place === 2) lines.push(['第二名', 20]);
+      if (s.outcome === 'win') lines.push(['稱霸星海', 120]); else if (s.outcome === 'draw') lines.push(['並列最大', 50]);
+      const base = lines.reduce((n, l) => n + l[1], 0);
+      const mult = (TIER_XP[s.tier] ?? 1) * (MODE_XP[s.mode] ?? 1) * (1 + .1 * (s.modifiers || 0));
+      return { lines, base, mult, total: Math.round(base * mult) };
+    }
+    const blank = () => ({ v: VERSION, xp: 0, matches: 0, wins: 0, eaten: 0, bestMass: 0, bestTier: -1 });
+    function sanitize(p) {
+      const b = blank(); if (!p || typeof p !== 'object') return b;
+      for (const k of Object.keys(b)) if (Number.isFinite(p[k]) && p[k] >= (k === 'bestTier' ? -1 : 0)) b[k] = Math.floor(p[k]);
+      return b;
+    }
+    function record(profile, s) {
+      const p = sanitize(profile), gain = matchXP(s), before = levelOf(p.xp);
+      const next = { ...p, xp: p.xp + gain.total, matches: p.matches + 1, wins: p.wins + (s.outcome === 'win' ? 1 : 0), eaten: p.eaten + (s.eaten || 0),
+        bestMass: Math.max(p.bestMass, s.maxMass || 0), bestTier: s.outcome === 'win' ? Math.max(p.bestTier, s.tier) : p.bestTier };
+      const after = levelOf(next.xp);
+      return { profile: next, gain, before, after, unlocked: UNLOCKS.filter(u => u.level > before.level && u.level <= after.level) };
+    }
+    function load(storage) { try { return sanitize(JSON.parse(storage.getItem(KEY) || 'null')); } catch (e) { return blank(); } }
+    function save(storage, p) { try { storage.setItem(KEY, JSON.stringify(sanitize(p))); return true; } catch (e) { return false; } }
+    return { MAX_LEVEL, KEY, need, levelOf, rankOf, RANKS, UNLOCKS, unlockLevel, unlocked, TIER_XP, MODE_XP, matchXP, blank, sanitize, record, load, save };
   })();
   </script>
   <script id="growth-ui">
-'use strict';
-  // SVG controls share the same native geometry as the catalogue icons.
-  function setButton(button,label,icon) {
-    const signature=icon+'|'+label;if(button.dataset.visualLabel===signature)return;
-    button.dataset.visualLabel=signature;button.setAttribute('aria-label',label);
-    const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');svg.setAttribute('class','ui-icon');svg.setAttribute('viewBox','0 0 48 48');svg.setAttribute('aria-hidden','true');
-    const use=document.createElementNS(svg.namespaceURI,'use');use.setAttribute('href','icons.svg#'+icon);svg.append(use);
-    const text=document.createElement('span');text.textContent=label.replace(/\s*[→↗]\s*$/,'').replace(/\s*→\s*/g,' / ');button.replaceChildren(svg,text);
-  }
-
   'use strict';
-  const $ = id => document.getElementById(id), canvas = $('board'), ctx = canvas.getContext('2d');
-  const game = new StarFeast.Game();
-  const colors = ['#5ebcbf', '#d08770', '#b48ead', '#81a1c1', '#a3be8c'];
-  const tints = ['#cbeaea', '#efdad1', '#e8dce5', '#dce5ef', '#e1e9d9'];
+  // Input, HUD, menus and the fixed-step loop. Rendering lives in the three.js module below (window.StarApp.draw).
+  const $ = id => document.getElementById(id);
+  const S = StarFeast, C = StarCareer;
+  const SIDES = ['#ff4b2b', '#4fa3ff', '#35d0a8', '#e9b949', '#b98cff', '#d9d2c0'];
+  const store = (() => { try { const k = '__sf'; localStorage.setItem(k, '1'); localStorage.removeItem(k); return localStorage; } catch (e) { const m = new Map(); return { getItem: k => m.has(k) ? m.get(k) : null, setItem: (k, v) => m.set(k, String(v)), removeItem: k => m.delete(k) }; } })();
+  const SETUP_KEY = 'star-feast-setup', PREF_KEY = 'star-feast-prefs';
+  function readJSON(key, fallback) { try { const v = JSON.parse(store.getItem(key) || 'null'); return v && typeof v === 'object' ? { ...fallback, ...v } : { ...fallback }; } catch (e) { return { ...fallback }; } }
+  function writeJSON(key, v) { try { store.setItem(key, JSON.stringify(v)); } catch (e) { /* storage full or blocked */ } }
+  let profile = C.load(store);
+  const setup = readJSON(SETUP_KEY, { mode: 'standard', tier: 1, perk: 'none', meteors: false, wells: false });
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const prefs = readJSON(PREF_KEY, { camera: 'auto', top: false, labels: true, shake: !reduced });
+  const level = () => C.levelOf(profile.xp).level;
+  function clampSetup() {
+    const lv = level();
+    if (!S.MODES[setup.mode] || !C.unlocked(lv, 'mode', setup.mode)) setup.mode = 'standard';
+    if (!S.TIERS[setup.tier] || !C.unlocked(lv, 'tier', setup.tier)) setup.tier = 1;
+    if (!S.PERKS[setup.perk] || !C.unlocked(lv, 'perk', setup.perk)) setup.perk = 'none';
+    for (const m of ['meteors', 'wells']) if (!C.unlocked(lv, 'modifier', m)) setup[m] = false;
+  }
+  function matchOptions() { clampSetup(); return { mode: setup.mode, tier: setup.tier, perk: setup.perk, meteors: !!setup.meteors, wells: !!setup.wells }; }
+  let game = new S.Game(Math.random, matchOptions());
+  const app = window.StarApp = { get game() { return game; }, prefs, colors: SIDES, effects: [], shake: 0, draw: null, pick: null, reset: null };
   const keys = new Set();
-  let target = null, touch = null, restartPrompt = false, frameId = 0, lastTime = null, accumulator = 0, messageTick = 0;
-  function announce(text) { if ($('status').textContent !== text) $('status').textContent = text; }
-  function clearInput() { keys.clear(); target = null; touch = null; }
+  let mouse = null, touch = null, splitQueued = false, ejectHeld = false, recorded = false, raf = 0, last = 0, acc = 0, statusTick = 0;
+  const names = id => S.NAMES[id];
+
+  // ---------- Input ----------
+  function clearInput() { keys.clear(); touch = null; ejectHeld = false; splitQueued = false; $('stick').style.display = 'none'; $('eject').classList.remove('is-hot'); }
   function movement() {
     if (keys.size) return { x: Number(keys.has('right')) - Number(keys.has('left')), y: Number(keys.has('down')) - Number(keys.has('up')) };
-    if (touch) return { x: (touch.x - touch.originX) / 34, y: (touch.y - touch.originY) / 34 };
-    if (target) { const a = game.actors[0], d = StarFeast.vector(target.x - a.x, target.y - a.y); return StarFeast.distance(a, target) > 4 ? d : { x: 0, y: 0 }; }
+    if (touch) return { x: (touch.x - touch.ox) / 34, y: (touch.y - touch.oy) / 34 };
+    if (mouse && app.pick) {
+      const p = app.pick(mouse.x, mouse.y), a = game.actors[0];
+      if (p && a.alive) return S.distance(a, p) > 4 ? S.vector(p.x - a.x, p.y - a.y) : { x: 0, y: 0 };
+    }
     return { x: 0, y: 0 };
   }
-  function draw() {
-    const ratio = Math.min(devicePixelRatio || 1, 2);
-    if (canvas.width !== 720 * ratio) { canvas.width = canvas.height = 720 * ratio; }
-    ctx.setTransform(ratio, 0, 0, ratio, 0, 0); ctx.fillStyle = '#f8f9fb'; ctx.fillRect(0, 0, 720, 720);
-    ctx.fillStyle = '#d8dee988';
-    for (let y = 18; y < 720; y += 24) for (let x = 18; x < 720; x += 24) { ctx.beginPath(); ctx.arc(x, y, 1, 0, Math.PI * 2); ctx.fill(); }
-    for (const p of game.food) {
-      ctx.beginPath();
-      if(p.value===5){for(let i=0;i<10;i++){const theta=-Math.PI/2+i*Math.PI/5,r=i%2?3:7,x=p.x+Math.cos(theta)*r,y=p.y+Math.sin(theta)*r;if(i)ctx.lineTo(x,y);else ctx.moveTo(x,y);}ctx.closePath();}
-      else ctx.arc(p.x,p.y,4,0,Math.PI*2);
-      ctx.fillStyle=p.value===5?'#b48935':'#658e80';ctx.fill();
+  const keyMap = { ArrowUp: 'up', ArrowDown: 'down', ArrowLeft: 'left', ArrowRight: 'right', w: 'up', s: 'down', a: 'left', d: 'right' };
+  document.addEventListener('keydown', e => {
+    if (e.altKey || e.ctrlKey || e.metaKey || /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)) return;
+    const key = e.key.length === 1 ? e.key.toLowerCase() : e.key, running = game.phase === 'running';
+    if (key === 'Escape' && drawerOpen()) { e.preventDefault(); toggleDrawer(false); return; }
+    if (key === 'm' && !e.repeat) { e.preventDefault(); toggleDrawer(); return; }
+    if (drawerOpen()) return;
+    if (keyMap[key] && running) { e.preventDefault(); keys.add(keyMap[key]); }
+    else if (key === ' ' && running && !e.target.closest('button, a')) { e.preventDefault(); if (!e.repeat) doBoost(); }
+    else if (key === 'q' && running && !e.repeat) { e.preventDefault(); splitQueued = true; }
+    else if (key === 'e' && running) { e.preventDefault(); ejectHeld = true; $('eject').classList.add('is-hot'); }
+    else if (key === 'r' && !e.repeat && (running || game.phase === 'paused')) { e.preventDefault(); restartMatch(); }
+    else if ((key === 'p' || key === 'Escape') && !e.repeat) {
+      if (running) { e.preventDefault(); pause(); } else if (game.phase === 'paused') { e.preventDefault(); resume(); }
     }
-    const player = game.actors[0];
-    for (const a of [...game.actors].sort((a, b) => a.mass - b.mass)) {
-      if (!a.alive) continue;
-      const r = StarFeast.radius(a.mass);
-      const ink = !a.id || StarFeast.edible(player, a) ? '#267477' : StarFeast.edible(a, player) ? '#99553f' : '#657283';
-      ctx.beginPath(); ctx.arc(a.x, a.y, r + 4, 0, Math.PI * 2); ctx.fillStyle = '#ffffffbb'; ctx.fill();
-      ctx.beginPath(); ctx.arc(a.x, a.y, r, 0, Math.PI * 2); ctx.fillStyle = tints[a.id]; ctx.fill(); ctx.strokeStyle = colors[a.id]; ctx.lineWidth = 3; ctx.stroke();
-      if (a.id) { ctx.beginPath(); ctx.arc(a.x, a.y, r + 7, 0, Math.PI * 2); ctx.strokeStyle = ink; ctx.lineWidth = 2; ctx.setLineDash(StarFeast.edible(a, player) ? [4, 4] : []); ctx.stroke(); ctx.setLineDash([]); }
-      if (!a.id && game.boostTime > 0) { ctx.beginPath(); ctx.arc(a.x, a.y, r + 9, 0, Math.PI * 2); ctx.strokeStyle = '#5ebcbf88'; ctx.lineWidth = 5; ctx.stroke(); }
-      ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillStyle = ink; ctx.font = 'bold 20px monospace'; ctx.fillText(String(a.mass), a.x, a.y + 1);
-      ctx.font='bold '+Math.min(23,Math.max(15,Math.round(10*720/Math.max(canvas.clientWidth,1))))+'px monospace';
-      ctx.fillText(a.id?'AI '+a.id:'YOU',a.x,Math.max(14,a.y-r-17));
-      if(a.id&&StarFeast.edible(a,player)){const x=a.x,y=a.y+r+18;ctx.strokeStyle=ink;ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(x,y-7);ctx.lineTo(x+8,y+7);ctx.lineTo(x-8,y+7);ctx.closePath();ctx.stroke();ctx.beginPath();ctx.moveTo(x,y-2);ctx.lineTo(x,y+2);ctx.stroke();ctx.beginPath();ctx.arc(x,y+5,1,0,Math.PI*2);ctx.fill();}
-    }
-    if (touch) {
-      const rect = canvas.getBoundingClientRect(), scale = 720 / rect.width;
-      const x = (touch.originX - rect.left) * scale, y = (touch.originY - rect.top) * scale;
-      const v = StarFeast.vector(touch.x - touch.originX, touch.y - touch.originY), size = Math.min(34, Math.hypot(touch.x - touch.originX, touch.y - touch.originY));
-      ctx.beginPath(); ctx.arc(x, y, 38 * scale, 0, Math.PI * 2); ctx.fillStyle = '#ffffff70'; ctx.fill(); ctx.strokeStyle = '#26747766'; ctx.lineWidth = 2; ctx.stroke();
-      ctx.beginPath(); ctx.arc(x + v.x * size * scale, y + v.y * size * scale, 12 * scale, 0, Math.PI * 2); ctx.fillStyle = '#26747788'; ctx.fill();
+  });
+  document.addEventListener('keyup', e => {
+    const key = e.key.length === 1 ? e.key.toLowerCase() : e.key;
+    if (keyMap[key]) keys.delete(keyMap[key]);
+    if (key === 'e') { ejectHeld = false; $('eject').classList.remove('is-hot'); }
+  });
+  const board = $('board');
+  board.addEventListener('pointerdown', e => {
+    if (game.phase !== 'running') return;
+    if (e.pointerType === 'mouse') { mouse = { x: e.clientX, y: e.clientY }; if (e.button === 2) splitQueued = true; return; }
+    if (touch) return;
+    touch = { id: e.pointerId, ox: e.clientX, oy: e.clientY, x: e.clientX, y: e.clientY }; try { board.setPointerCapture(e.pointerId); } catch (err) { /* pointer already released */ }
+    const st = $('stick'); st.style.display = 'block'; st.style.transform = `translate(${e.clientX}px,${e.clientY}px)`; st.firstElementChild.style.transform = 'rotate(45deg)';
+  });
+  board.addEventListener('pointermove', e => {
+    if (touch && touch.id === e.pointerId) {
+      touch.x = e.clientX; touch.y = e.clientY;
+      const dx = touch.x - touch.ox, dy = touch.y - touch.oy, k = Math.min(1, 34 / Math.max(1, Math.hypot(dx, dy)));
+      $('stick').firstElementChild.style.transform = `translate(${dx * k}px,${dy * k}px) rotate(45deg)`;
+    } else if (e.pointerType === 'mouse') mouse = { x: e.clientX, y: e.clientY };
+  });
+  board.addEventListener('contextmenu', e => e.preventDefault());
+  board.addEventListener('pointerleave', e => { if (e.pointerType === 'mouse') mouse = null; });
+  for (const name of ['pointerup', 'pointercancel', 'lostpointercapture']) board.addEventListener(name, e => { if (touch && touch.id === e.pointerId) { touch = null; $('stick').style.display = 'none'; } });
+  function doBoost() { if (game.boost()) { flash('衝刺！', 'seal'); app.effects.push({ type: 'boost' }); } }
+  $('boost').addEventListener('click', () => { doBoost(); board.focus({ preventScroll: true }); });
+  $('split').addEventListener('click', () => { if (game.phase === 'running') splitQueued = true; });
+  const ejectOn = e => { if (game.phase !== 'running') return; e.preventDefault(); ejectHeld = true; $('eject').classList.add('is-hot'); };
+  const ejectOff = () => { ejectHeld = false; $('eject').classList.remove('is-hot'); };
+  $('eject').addEventListener('pointerdown', ejectOn);
+  for (const n of ['pointerup', 'pointerleave', 'pointercancel']) $('eject').addEventListener(n, ejectOff);
+  $('eject').addEventListener('keydown', e => { if (e.key === 'Enter') { ejectHeld = true; setTimeout(ejectOff, 120); } });
+
+  // ---------- Feed, status ----------
+  function announce(text) { if ($('status').textContent !== text) $('status').textContent = text; }
+  function feed(text, tone = 'var(--fu-paper-dim)') {
+    const box = $('feed'), el = document.createElement('div'); el.textContent = text; el.style.setProperty('--tone', tone); box.prepend(el);
+    while (box.children.length > 3) box.lastElementChild.remove();
+    setTimeout(() => el.remove(), 2600);
+  }
+  function flash(text, tone) { app.effects.push({ type: 'float', text, tone }); }
+  function handleEvents(events) {
+    for (const e of events) {
+      app.effects.push(e);
+      if (e.type === 'eat') {
+        const hunter = names(e.hunter), prey = names(e.prey);
+        if (e.hunter === 0) { feed(e.out ? `你吞噬了 ${prey}！` : `你咬下 ${prey} 的一塊`, 'var(--fu-seal)'); announce(e.out ? `吞噬 ${prey}！` : `咬下 ${prey} 的一塊。`); if (prefs.shake) app.shake = Math.max(app.shake, 4); }
+        else if (e.prey === 0) { feed(e.out ? `${hunter} 吞噬了你` : `${hunter} 咬走你的一塊`, 'var(--fu-gold)'); if (prefs.shake) app.shake = Math.max(app.shake, 7); }
+        else if (e.out) feed(`${hunter} 吞噬了 ${prey}`, SIDES[e.hunter]);
+      } else if (e.type === 'burst') {
+        feed(e.id === 0 ? `你撞上裂星，炸掉 ${e.lost} 質量` : e.by === 0 ? `裂星命中 ${names(e.id)}！−${e.lost}` : `${names(e.id)} 撞上裂星 −${e.lost}`, e.id === 0 ? 'var(--fu-gold)' : e.by === 0 ? 'var(--fu-seal)' : SIDES[e.id]);
+        if (prefs.shake) app.shake = Math.max(app.shake, e.id === 0 ? 8 : 3);
+      } else if (e.type === 'thorn' && e.owner === 0) feed('裂星餵飽，射出！', 'var(--fu-seal)');
+      else if (e.type === 'thorn') feed(`${names(e.owner)} 射出了裂星`, SIDES[e.owner]);
+      else if (e.type === 'meteor-warn') { feed('流星預警：離開金色圈！', 'var(--fu-gold)'); announce('流星預警，離開金色圈。'); }
+      else if (e.type === 'meteor' && prefs.shake) app.shake = Math.max(app.shake, 9);
+      else if (e.type === 'scorch' && e.id === 0) feed(`流星砸中你 −${e.lost}`, 'var(--fu-gold)');
+      else if (e.type === 'split' && e.id === 0) flash('分裂', 'seal');
     }
   }
+
+  // ---------- HUD ----------
+  function setText(id, text) { const el = $(id); if (el.textContent !== text) el.textContent = text; }
+  const time = ticks => { const s = Math.max(0, Math.ceil(ticks * S.DT)); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`; };
+  let boardSig = '';
   function updateHUD() {
-    const player = game.actors[0], alive = game.actors.filter(a => a.alive);
-    $('mass').textContent = player.mass;
-    $('rank').textContent = player.alive ? `${1 + alive.filter(a => a.mass > player.mass).length} / ${alive.length}` : '出局';
-    const seconds = Math.max(0, Math.ceil((StarFeast.ROUND_TICKS - game.tick) * StarFeast.DT));
-    $('clock').textContent = `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`;
-    $('phase-label').textContent = { ready: '準備出發', running: '吞噬中', paused: '已暫停', over: '本局結束' }[game.phase];
-    $('pause').disabled = game.phase === 'ready' || game.phase === 'over' || restartPrompt;
-    setButton($('pause'),game.phase === 'paused' ? '繼續' : '暫停',game.phase==='paused'?'play':'pause');
-    $('boost').disabled = game.phase !== 'running' || game.cooldown > 0;
-    setButton($('boost'),game.cooldown > 0 ? `衝刺 ${Math.ceil(game.cooldown)}s` : '衝刺 ↗','arrow-right');
+    const o = game.options, player = game.actors[0], alive = game.actors.filter(a => a.alive), total = game.total(player);
+    setText('mass', String(total)); setText('target', `/ ${o.target}`);
+    $('mass-meter').style.setProperty('--value', Math.min(1, total / o.target).toFixed(3));
+    setText('rank', player.alive ? `${1 + alive.filter(a => game.total(a) > total).length} / ${alive.length}` : '出局');
+    setText('clock', time(o.ticks - game.tick));
+    setText('cells', String(player.alive ? game.cells(player).length : 0));
+    $('cells-wrap').hidden = !o.abilities;
+    setText('phase-label', { ready: '準備出發', running: game.boostTime > 0 ? '衝刺中' : '吞噬中', paused: '已暫停', over: '本局結束' }[game.phase]);
+    const rows = game.actors.map(a => ({ a, t: game.total(a) })).sort((x, y) => (y.a.alive - x.a.alive) || y.t - x.t || x.a.id - y.a.id);
+    const sig = rows.map(r => r.a.id + ':' + r.t + ':' + r.a.alive).join('|');
+    if (sig !== boardSig) {
+      boardSig = sig; $('leaderboard').style.setProperty('--n', rows.length);
+      $('leaderboard').innerHTML = rows.map(({ a, t }) => `<li class="${a.id ? '' : 'me'} ${a.alive ? '' : 'out'}"><span class="fu-side" style="--side:${SIDES[a.id]}"></span>${names(a.id)}<em>${a.alive ? t : '出局'}</em></li>`).join('');
+    }
+    const running = game.phase === 'running', ab = o.abilities;
+    $('pause').disabled = !(running || game.phase === 'paused');
+    $('boost').disabled = !running || game.cooldown > 0;
+    $('boost').style.setProperty('--ready', game.cooldown > 0 ? (1 - game.cooldown / (S.PERKS[o.perk].cooldown || 4)).toFixed(3) : 1);
+    const canSplit = ab && running && player.alive && player.splitCd <= 0 && player.pieces.length < S.MAX_PIECES && game.cells(player).some(c => c.mass >= S.SPLIT_MIN);
+    $('split').disabled = !canSplit; $('split').hidden = !ab;
+    $('eject').disabled = !(ab && running && player.alive && player.mass >= S.EJECT_MIN); $('eject').hidden = !ab;
+    $('restart').disabled = !(running || game.phase === 'paused');
   }
-  function showDialog(kicker, title, copy, action, secondary = false) {
-    $('dialog-kicker').textContent = kicker; $('dialog-title').textContent = title; $('dialog-copy').textContent = copy; setButton($('play'),action,game.phase==='over'?'restart':'play');
-    $('dialog-secondary').hidden = !secondary; $('dialog-art').hidden = game.phase !== 'ready'; $('overlay').hidden = false; $('play').focus({ preventScroll: true });
+
+  // ---------- Career & setup ----------
+  function careerHTML(p) {
+    const l = C.levelOf(p.xp);
+    return `<div class="lv"><small>LEVEL</small>${l.level}</div><div class="who"><span>${C.rankOf(l.level)}<i>${l.max ? '最高等級' : `${l.into} / ${l.need} XP`}</i></span><div class="fu-meter fu-meter--gold" style="--value:${l.max ? 1 : (l.into / l.need).toFixed(3)}"><i></i></div></div>`;
   }
-  function stopFrames() { cancelAnimationFrame(frameId); frameId = 0; lastTime = null; accumulator = 0; }
-  function resume() {
-    restartPrompt = false; clearInput(); game.start(); $('overlay').hidden = true; updateHUD(); canvas.focus({ preventScroll: true }); stopFrames(); frameId = requestAnimationFrame(frame);
-    announce('吃光點長大，留意珊瑚框的大對手；需要時按空白鍵衝刺。');
+  function unlockLabel(u) { return u.kind === 'tier' ? `對手「${S.TIERS[u.id].name}」` : u.kind === 'mode' ? `模式「${S.MODES[u.id].name}」` : u.kind === 'perk' ? `天賦「${S.PERKS[u.id].name}」` : `修正「${u.id === 'meteors' ? '流星雨' : '引力井'}」`; }
+  function renderCareer() {
+    const l = C.levelOf(profile.xp);
+    setText('lv', String(l.level)); setText('career-rank', C.rankOf(l.level));
+    $('lv-meter').style.setProperty('--value', l.max ? 1 : (l.into / l.need).toFixed(3));
+    $('career-chip').setAttribute('aria-label', `生涯等級 ${l.level}，${C.rankOf(l.level)}。開啟生涯紀錄`);
+    $('lobby-career').innerHTML = careerHTML(profile); $('drawer-career').innerHTML = careerHTML(profile);
+    $('stats').innerHTML = [['對局', profile.matches], ['勝場', profile.wins], ['吞噬', profile.eaten], ['最大質量', profile.bestMass], ['最高勝場難度', profile.bestTier >= 0 ? S.TIERS[profile.bestTier].name : '—'], ['經驗', profile.xp]].map(([k, v]) => `<div><b>${v}</b><span>${k}</span></div>`).join('');
+    $('unlocks').innerHTML = C.UNLOCKS.filter(u => u.level > 1).map(u => `<li class="${l.level >= u.level ? 'got' : ''}">${unlockLabel(u)}<span>${l.level >= u.level ? '已解鎖' : 'LV ' + u.level}</span></li>`).join('');
   }
+  function seg(el, items, current, onPick) {
+    el.innerHTML = items.map(it => `<button type="button" value="${it.id}" aria-pressed="${String(it.id) === String(current)}" ${it.locked ? 'disabled' : ''}>${it.name}${it.locked ? `<small>LV ${it.locked}</small>` : ''}</button>`).join('');
+    el.onclick = e => { const b = e.target.closest('button'); if (!b || b.disabled) return; onPick(b.value); };
+  }
+  function renderSetup() {
+    clampSetup(); const lv = level();
+    const lock = (kind, id) => C.unlocked(lv, kind, id) ? 0 : C.unlockLevel(kind, id);
+    seg($('mode-seg'), Object.keys(S.MODES).map(id => ({ id, name: S.MODES[id].name, locked: lock('mode', id) })), setup.mode, v => { setup.mode = v; saveSetup(); });
+    seg($('tier-seg'), S.TIERS.map((t, id) => ({ id, name: t.name, locked: lock('tier', id) })), setup.tier, v => { setup.tier = Number(v); saveSetup(); });
+    seg($('perk-seg'), Object.keys(S.PERKS).map(id => ({ id, name: S.PERKS[id].name, locked: lock('perk', id) })), setup.perk, v => { setup.perk = v; saveSetup(); });
+    const m = S.MODES[setup.mode];
+    setText('mode-note', `${m.note} · 目標 ${m.target} · ${time(m.ticks)}`);
+    setText('tier-note', `${S.TIERS[setup.tier].note} · 經驗 ×${C.TIER_XP[setup.tier]}`);
+    setText('perk-note', S.PERKS[setup.perk].note);
+    for (const k of ['meteors', 'wells']) {
+      const open = C.unlocked(lv, 'modifier', k), box = $('opt-' + k);
+      box.checked = !!setup[k]; box.disabled = !open; $('sw-' + k).classList.toggle('is-locked', !open);
+      setText('lock-' + k, open ? '' : `LV ${C.unlockLevel('modifier', k)}`);
+    }
+    const mods = [setup.meteors && '流星雨', setup.wells && '引力井'].filter(Boolean);
+    $('setup-summary').innerHTML = `修正：${mods.length ? mods.join('、') : '無'} · 天賦：${S.PERKS[setup.perk].name}<button type="button" id="summary-edit">調整</button>`;
+    $('summary-edit').onclick = () => toggleDrawer(true, 'match');
+  }
+  function saveSetup() { clampSetup(); writeJSON(SETUP_KEY, setup); renderSetup(); }
+  for (const k of ['meteors', 'wells']) $('opt-' + k).addEventListener('change', e => { setup[k] = e.target.checked; saveSetup(); });
+
+  // ---------- Prefs ----------
+  function renderPrefs() {
+    for (const b of $('camera-seg').children) b.setAttribute('aria-pressed', String(b.value === prefs.camera));
+    $('opt-top').checked = !!prefs.top; $('opt-labels').checked = !!prefs.labels; $('opt-shake').checked = !!prefs.shake;
+    $('labels').style.display = prefs.labels ? '' : 'none';
+  }
+  $('camera-seg').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; prefs.camera = b.value; writeJSON(PREF_KEY, prefs); renderPrefs(); });
+  for (const [id, k] of [['opt-top', 'top'], ['opt-labels', 'labels'], ['opt-shake', 'shake']]) $(id).addEventListener('change', e => { prefs[k] = e.target.checked; writeJSON(PREF_KEY, prefs); renderPrefs(); });
+
+  // ---------- Drawer ----------
+  const drawerOpen = () => $('drawer').classList.contains('is-open');
+  function toggleDrawer(open = !drawerOpen(), tab) {
+    if (open && game.phase === 'running') pause();
+    $('drawer').classList.toggle('is-open', open); $('scrim').classList.toggle('is-on', open);
+    $('drawer').setAttribute('aria-hidden', String(!open)); $('menu-btn').setAttribute('aria-expanded', String(open));
+    if (tab) selectTab(tab);
+    if (open) $('drawer-close').focus({ preventScroll: true });
+  }
+  function selectTab(name) {
+    for (const t of ['match', 'view', 'career', 'rules']) { $('tab-' + t).setAttribute('aria-selected', String(t === name)); $('panel-' + t).hidden = t !== name; }
+  }
+  for (const t of ['match', 'view', 'career', 'rules']) $('tab-' + t).addEventListener('click', () => selectTab(t));
+  $('menu-btn').addEventListener('click', () => toggleDrawer());
+  $('drawer-close').addEventListener('click', () => toggleDrawer(false));
+  $('scrim').addEventListener('click', () => toggleDrawer(false));
+  $('career-chip').addEventListener('click', () => toggleDrawer(true, 'career'));
+  $('lobby-menu').addEventListener('click', () => toggleDrawer(true, 'match'));
+  $('drawer-restart').addEventListener('click', () => { toggleDrawer(false); restartMatch(); });
+  $('drawer-lobby').addEventListener('click', () => { toggleDrawer(false); toLobby(); });
+  $('reset-career').addEventListener('click', () => {
+    if (!confirm('確定清除這台裝置上的等級與紀錄？')) return;
+    profile = C.blank(); C.save(store, profile); renderCareer(); renderSetup();
+  });
+
+  // ---------- Overlay & flow ----------
+  function showOverlay(mode) {
+    $('sheet').dataset.mode = mode; $('overlay').hidden = false;
+    const focus = { lobby: 'play', pause: 'resume', result: 'again' }[mode];
+    requestAnimationFrame(() => $(focus).focus({ preventScroll: true }));
+  }
+  function hideOverlay() { $('overlay').hidden = true; board.focus({ preventScroll: true }); }
+  function setTitle(kicker, title, copy) { setText('dialog-kicker', kicker); setText('dialog-title', title); setText('dialog-copy', copy); }
+  function toLobby() {
+    game = new S.Game(Math.random, matchOptions()); recorded = false; clearInput(); app.reset && app.reset();
+    setTitle('FuGames / Star Feast', '星點吞噬', '吃光點長大，分裂撲殺比你小的星球，把裂星餵飽射向巨星，躲開預警圈裡的流星。');
+    renderCareer(); renderSetup(); updateHUD(); showOverlay('lobby'); setText('mode-label', 'Star Feast');
+  }
+  function newMatch() {
+    game = new S.Game(Math.random, matchOptions()); recorded = false; clearInput(); app.reset && app.reset();
+    const o = game.options; setText('mode-label', `${S.MODES[o.mode].name} · ${S.TIERS[o.tier].name}`);
+    game.start(); hideOverlay(); updateHUD();
+    announce(o.abilities ? '吃光點長大。Q 分裂撲殺，E 噴射餵裂星。' : '吃光點長大，留意金色虛線的大對手。');
+  }
+  function restartMatch() { if (game.phase === 'running' || game.phase === 'paused') newMatch(); }
   function pause() {
     if (game.phase !== 'running') return;
-    game.pause(); clearInput(); stopFrames(); updateHUD(); draw(); announce('已暫停，時間與 AI 都停下了。');
-    showDialog('休息一下', '暫停一下也沒關係', '時間與 AI 已停下。準備好再繼續。', '繼續吞噬 →');
+    game.pause(); clearInput(); updateHUD();
+    setTitle('休息一下', '已暫停', '時間與 AI 都停下了。準備好再繼續。'); showOverlay('pause'); announce('已暫停。');
   }
-  function newRound() { stopFrames(); game.reset(); messageTick = 0; resume(); draw(); }
+  function resume() { if (game.phase !== 'paused') return; toggleDrawer(false); game.start(); hideOverlay(); updateHUD(); }
   function endRound() {
-    clearInput(); stopFrames(); updateHUD(); draw(); const result = game.result;
-    announce(result.reason);
-    showDialog('本局結束', { win: '小星點，長成大贏家', loss: '再吃一局，慢慢長大', draw: '一樣大，平手！' }[result.outcome], `${result.reason} 本局質量 ${result.mass}，吞噬 ${result.eaten} 位對手。`, '再玩一局 →');
-  }
-  function frame(time) {
-    if (game.phase !== 'running') return;
-    if (lastTime === null) lastTime = time;
-    accumulator += Math.min(time - lastTime, 100); lastTime = time;
-    while (accumulator >= 20 && game.phase === 'running') {
-      accumulator -= 20; game.step(movement());
-      for (const event of game.events) if (event.type === 'eat' && event.hunter === 0) { announce('吞噬成功！你又長大了一點。'); messageTick = game.tick + 100; }
-      if (game.tick % 10 === 0) updateHUD();
-      if (game.tick > messageTick && game.tick % 25 === 0) {
-        const player = game.actors[0], threat = game.actors.some(a => a.id && a.alive && StarFeast.edible(a, player) && StarFeast.distance(a, player) < 140);
-        announce(threat ? '大對手靠近了！換個方向，或用衝刺脫身。' : '吃光點長大，青綠框的小對手也能吞噬。');
-      }
+    clearInput(); updateHUD();
+    const r = game.result, o = game.options;
+    const title = { win: '稱霸星海', loss: '再吃一局', draw: '旗鼓相當' }[r.outcome];
+    setTitle(r.outcome === 'win' ? '勝利' : r.outcome === 'draw' ? '平手' : '本局結束', title, r.reason);
+    $('result-stats').innerHTML = [['質量', r.mass], ['最大', r.maxMass], ['吞噬', r.eaten], ['名次', `${r.place} / ${game.actors.length}`], ['時間', time(r.tick)]]
+      .map(([k, v]) => `<div class="fu-stat"><span class="fu-label">${k}</span><span class="fu-stat__value">${v}</span></div>`).join('');
+    if (!recorded) {
+      recorded = true;
+      const rec = C.record(profile, { ...r, tier: o.tier, mode: o.mode, modifiers: S.modifierCount(o) });
+      profile = rec.profile; C.save(store, profile);
+      $('xp-lines').innerHTML = rec.gain.lines.map(([k, v]) => `<dt>${k}</dt><dd>+${v}</dd>`).join('') + `<dt class="total">合計 ×${rec.gain.mult.toFixed(2)}</dt><dd class="total">+${rec.gain.total} XP</dd>`;
+      const up = rec.after.level > rec.before.level;
+      $('levelup').hidden = !up;
+      if (up) $('levelup').innerHTML = `<b>升到 LV ${rec.after.level}・${C.rankOf(rec.after.level)}</b>${rec.unlocked.length ? '<br>解鎖：' + rec.unlocked.map(unlockLabel).join('、') : ''}`;
+      renderCareer(); renderSetup();
     }
-    if (game.phase === 'over') { endRound(); return; }
-    draw(); frameId = requestAnimationFrame(frame);
+    showOverlay('result'); announce(r.reason);
   }
-  $('play').addEventListener('click', () => { if (restartPrompt || game.phase === 'over') newRound(); else resume(); });
-  $('dialog-secondary').addEventListener('click', resume);
+  $('play').addEventListener('click', newMatch);
+  $('again').addEventListener('click', newMatch);
+  $('resume').addEventListener('click', resume);
+  $('pause-restart').addEventListener('click', newMatch);
+  $('to-lobby').addEventListener('click', toLobby);
+  $('result-lobby').addEventListener('click', toLobby);
+  $('restart').addEventListener('click', restartMatch);
   $('pause').addEventListener('click', () => game.phase === 'running' ? pause() : resume());
-  $('restart').addEventListener('click', () => {
-    if (game.phase === 'ready' || game.phase === 'over') { newRound(); return; }
-    pause(); restartPrompt = true; updateHUD(); showDialog('重新出發', '重新開始這一局？', '質量、對手與倒數會重置。', '確定重開', true);
-  });
-  $('boost').addEventListener('click', () => { game.boost(); updateHUD(); });
-  const keyMap = { ArrowUp: 'up', ArrowDown: 'down', ArrowLeft: 'left', ArrowRight: 'right', w: 'up', s: 'down', a: 'left', d: 'right' };
-  document.addEventListener('keydown', event => {
-    if (event.altKey || event.ctrlKey || event.metaKey || /^(INPUT|TEXTAREA|SELECT)$/.test(event.target.tagName)) return;
-    const key = event.key.length === 1 ? event.key.toLowerCase() : event.key;
-    if (keyMap[key] && game.phase === 'running') { event.preventDefault(); keys.add(keyMap[key]); target = null; }
-    else if (key === ' ' && game.phase === 'running' && !event.target.closest('button, a, summary')) { event.preventDefault(); if (!event.repeat) { game.boost(); updateHUD(); } }
-    else if ((key === 'p' || key === 'Escape') && !event.repeat && !restartPrompt) {
-      if (game.phase === 'running') { event.preventDefault(); pause(); }
-      else if (game.phase === 'paused') { event.preventDefault(); resume(); }
-    }
-  });
-  document.addEventListener('keyup', event => { const key = event.key.length === 1 ? event.key.toLowerCase() : event.key; if (keyMap[key]) keys.delete(keyMap[key]); });
-  function mouseTarget(event) { const rect = canvas.getBoundingClientRect(); target = { x: (event.clientX - rect.left) * 720 / rect.width, y: (event.clientY - rect.top) * 720 / rect.height }; }
-  canvas.addEventListener('pointerdown', event => {
-    if (game.phase !== 'running' || touch) return;
-    if (event.pointerType === 'mouse') { mouseTarget(event); return; }
-    target = null; touch = { id: event.pointerId, originX: event.clientX, originY: event.clientY, x: event.clientX, y: event.clientY }; canvas.setPointerCapture(event.pointerId);
-  });
-  canvas.addEventListener('pointermove', event => {
-    if (game.phase !== 'running') return;
-    if (touch && touch.id === event.pointerId) { touch.x = event.clientX; touch.y = event.clientY; }
-    else if (event.pointerType === 'mouse') mouseTarget(event);
-  });
-  canvas.addEventListener('pointerleave', event => { if (event.pointerType === 'mouse') target = null; });
-  for (const name of ['pointerup', 'pointercancel', 'lostpointercapture']) canvas.addEventListener(name, event => { if (touch && touch.id === event.pointerId) touch = null; });
   window.addEventListener('blur', pause);
   document.addEventListener('visibilitychange', () => { if (document.hidden) pause(); });
-  window.addEventListener('resize', () => { touch = null; target = null; if (game.phase !== 'running') draw(); });
-  updateHUD(); draw();
+  window.addEventListener('resize', () => { touch = null; $('stick').style.display = 'none'; });
+
+  // ---------- Loop ----------
+  function frame(t) {
+    raf = requestAnimationFrame(frame);
+    const dt = last ? Math.min(.1, (t - last) / 1000) : 0; last = t;
+    if (game.phase === 'running') {
+      acc += dt * 1000;
+      while (acc >= 20 && game.phase === 'running') {
+        acc -= 20;
+        const input = movement(); input.split = splitQueued; input.eject = ejectHeld; splitQueued = false;
+        game.step(input); handleEvents(game.events);
+        if (game.tick > statusTick && game.tick % 50 === 0) {
+          const p = game.actors[0], near = game.actors.some(a => a.id && a.alive && game.cells(a).some(c => game.cells(p).some(m => S.edible(c, m) && S.distance(c, m) < 150)));
+          if (near) announce('大對手靠近！換方向或衝刺脫身。');
+        }
+      }
+    } else acc = 0;
+    if (game.phase === 'over' && !recorded) endRound();
+    updateHUD();
+    if (app.draw) app.draw(dt, t / 1000);
+  }
+  renderCareer(); renderSetup(); renderPrefs(); updateHUD(); showOverlay('lobby');
+  raf = requestAnimationFrame(frame);
+  </script>
+  <script type="module" id="growth-view">
+  // 3D presentation: it only reads window.StarApp.game and the effect queue; all rules stay in the engine above.
+  import * as THREE from 'three';
+  const app = window.StarApp, S = StarFeast, canvas = document.getElementById('board'), labelLayer = document.getElementById('labels');
+  const TAU = Math.PI * 2;
+  function fail() { const d = document.createElement('div'); d.className = 'webgl-fail'; d.innerHTML = '<div><p>這台裝置或瀏覽器無法啟用 WebGL，星海無法顯示。</p><p><a href="index.html">回到 FuGames</a></p></div>'; document.body.append(d); }
+  let renderer = null;
+  try { renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' }); } catch (e) { fail(); }
+  if (renderer) {
+    renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 2));
+    renderer.outputColorSpace = THREE.SRGBColorSpace; renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.1;
+    const scene = new THREE.Scene(); scene.background = new THREE.Color(0x07090c);
+    const camera = new THREE.PerspectiveCamera(40, 1, 1, 6000);
+    const col = c => new THREE.Color(c);
+    // Vermilion Ink light rig: paper sky, warm key, seal rim light.
+    scene.add(new THREE.HemisphereLight(0xece4d0, 0x07090c, 1.0));
+    const key = new THREE.DirectionalLight(0xfff1dc, 2.2); key.position.set(-300, 600, 260); scene.add(key);
+    const rim = new THREE.DirectionalLight(0xff4b2b, 1.2); rim.position.set(260, 160, -520); scene.add(rim);
+
+    let size = 720, half = 360;
+    const W = (x, y, h = 0) => new THREE.Vector3(x - half, h, y - half);
+
+    // ---------- Textures ----------
+    function radialTexture(stops) { const c = document.createElement('canvas'); c.width = c.height = 128; const g = c.getContext('2d'), gr = g.createRadialGradient(64, 64, 0, 64, 64, 64); for (const [o, v] of stops) gr.addColorStop(o, v); g.fillStyle = gr; g.fillRect(0, 0, 128, 128); const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t; }
+    const glowTex = radialTexture([[0, 'rgba(255,255,255,1)'], [.3, 'rgba(255,255,255,.35)'], [1, 'rgba(255,255,255,0)']]);
+    const shadowTex = radialTexture([[0, 'rgba(0,0,0,.7)'], [.6, 'rgba(0,0,0,.35)'], [1, 'rgba(0,0,0,0)']]);
+    const glowSprite = (color, s, opacity = .5) => { const m = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowTex, color, transparent: true, opacity, blending: THREE.AdditiveBlending, depthWrite: false, toneMapped: false })); m.scale.set(s, s, 1); return m; };
+
+    // ---------- Star sea floor: one shader for void, parallax stars, grid, ruler marks and the boundary ----------
+    const floorU = { uHalf: { value: 360 }, uTime: { value: 0 }, uCam: { value: new THREE.Vector2() } };
+    const floor = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), new THREE.ShaderMaterial({
+      uniforms: floorU,
+      vertexShader: 'varying vec2 vP;void main(){vec4 w=modelMatrix*vec4(position,1.);vP=w.xz;gl_Position=projectionMatrix*viewMatrix*w;}',
+      fragmentShader: `uniform float uHalf,uTime;uniform vec2 uCam;varying vec2 vP;
+float hash(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
+float stars(vec2 p,float cell,float th,float tw){vec2 g=floor(p/cell),f=fract(p/cell)-.5;float h=hash(g);vec2 o=vec2(hash(g+3.1),hash(g+7.7))-.5;float d=length(f-o*.7)*cell;float s=step(th,h)*(1.-smoothstep(.0,1.4+h*1.2,d));return s*(.55+.45*sin(uTime*tw+h*40.));}
+float ln(float d,float w){float f=fwidth(d)*1.2;return 1.-smoothstep(w-f,w+f,abs(d));}
+void main(){
+ vec2 q=abs(vP)-uHalf;float out_=max(q.x,q.y);
+ vec3 c=vec3(.028,.034,.046);
+ float neb=sin(vP.x*.0042+1.3)*sin(vP.y*.0051-.7)+sin((vP.x+vP.y)*.0023)*.6;
+ c+=vec3(.09,.05,.12)*smoothstep(.2,1.4,neb)*.55+vec3(.03,.07,.11)*smoothstep(.3,1.5,-neb)*.5;
+ c+=vec3(.93,.89,.82)*stars(vP+uCam*.35,34.,.86,1.7)*.75;
+ c+=vec3(.70,.78,.95)*stars(vP*1.7+uCam*.9,26.,.9,2.6)*.45;
+ vec2 g=abs(fract(vP/60.+.5)-.5)*60.;float grid=1.-smoothstep(0.,fwidth(vP.x)*1.3+.35,min(g.x,g.y));
+ float inside=step(out_,0.);
+ c+=vec3(.93,.89,.82)*grid*.05*inside;
+ float tick=step(abs(fract(vP.x/60.+.5)-.5)*60.,1.)*step(-14.,q.y)+step(abs(fract(vP.y/60.+.5)-.5)*60.,1.)*step(-14.,q.x);
+ c+=vec3(.93,.89,.82)*min(tick,1.)*.35*inside;
+ c=mix(c*.42,c,inside);
+ c+=vec3(.93,.89,.82)*ln(out_,1.4)*.8+vec3(1.,.3,.17)*exp(-abs(out_)/18.)*.12;
+ gl_FragColor=vec4(c,1.);
+}`
+    }));
+    floor.rotation.x = -Math.PI / 2; scene.add(floor);
+    // Distant dust below the arena for depth when the camera tilts.
+    const dust = (() => { const n = 600, pos = new Float32Array(n * 3); for (let i = 0; i < n; i++) { pos[i * 3] = (Math.random() - .5) * 5000; pos[i * 3 + 1] = -300 - Math.random() * 900; pos[i * 3 + 2] = (Math.random() - .5) * 5000; } const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.BufferAttribute(pos, 3)); const p = new THREE.Points(g, new THREE.PointsMaterial({ color: 0xa8a08c, size: 2, transparent: true, opacity: .35, depthWrite: false, blending: THREE.AdditiveBlending })); scene.add(p); return p; })();
+
+    // ---------- Flat ring primitive (status rings, warnings, wells) ----------
+    const planeGeo = new THREE.PlaneGeometry(1, 1);
+    const ringFS = `uniform float uRadius,uWidth,uTime,uDash,uSpeed,uArc,uFill,uAlpha;uniform vec3 uColor;varying vec2 vL;
+void main(){float r=length(vL),f=fwidth(r);float a=1.-smoothstep(uWidth*.5-f,uWidth*.5+f,abs(r-uRadius));
+ float t=atan(vL.x,vL.y)/6.28318;t=t<0.?t+1.:t;
+ if(uDash>0.)a*=step(.45,fract(t*uDash-uTime*uSpeed));
+ if(t>uArc)a=0.;
+ float fill=uFill*(1.-smoothstep(uRadius-f,uRadius+f,r))*(.25+.75*r/max(uRadius,1.));
+ float A=(a+fill)*uAlpha;if(A<.004)discard;gl_FragColor=vec4(uColor,A);}`;
+    function makeRing(y = 1) {
+      const m = new THREE.ShaderMaterial({ uniforms: { uRadius: { value: 10 }, uWidth: { value: 2 }, uExtent: { value: 14 }, uTime: floorU.uTime, uDash: { value: 0 }, uSpeed: { value: 0 }, uArc: { value: 1 }, uFill: { value: 0 }, uAlpha: { value: 1 }, uColor: { value: new THREE.Color() } },
+        vertexShader: 'uniform float uExtent;varying vec2 vL;void main(){vL=position.xy*2.*uExtent;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}', fragmentShader: ringFS, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending });
+      const mesh = new THREE.Mesh(planeGeo, m); mesh.rotation.x = -Math.PI / 2; mesh.position.y = y; mesh.visible = false; mesh.renderOrder = 2;
+      mesh.set = (x, yy, radius, width, o = {}) => { const u = m.uniforms, E = radius + width + 2; u.uRadius.value = radius; u.uWidth.value = width; u.uExtent.value = E; u.uDash.value = o.dash || 0; u.uSpeed.value = o.speed || 0; u.uArc.value = o.arc ?? 1; u.uFill.value = o.fill || 0; u.uAlpha.value = o.alpha ?? 1; u.uColor.value.set(o.color || '#ffffff'); mesh.scale.set(E * 2, E * 2, 1); mesh.position.x = x - half; mesh.position.z = yy - half; mesh.visible = true; return mesh; };
+      scene.add(mesh); return mesh;
+    }
+    function pool(make, hide = o => { o.visible = false; }) { const items = []; let used = 0; return { items, next() { if (used >= items.length) items.push(make()); return items[used++]; }, begin() { used = 0; }, end() { for (let i = used; i < items.length; i++) hide(items[i]); } }; }
+
+    // ---------- Bodies: faceted orbs, one look per side ----------
+    const orbGeo = new THREE.IcosahedronGeometry(1, 2);
+    const coreGeo = new THREE.IcosahedronGeometry(1, 0);
+    const bodyPool = pool(() => {
+      const g = new THREE.Group();
+      const shadow = new THREE.Mesh(planeGeo, new THREE.MeshBasicMaterial({ map: shadowTex, transparent: true, depthWrite: false })); shadow.rotation.x = -Math.PI / 2; shadow.position.y = .3;
+      const orb = new THREE.Mesh(orbGeo, new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: .38, metalness: .15, flatShading: true, emissive: 0xffffff, emissiveIntensity: .3, transparent: true, opacity: .93 }));
+      const core = new THREE.Mesh(coreGeo, new THREE.MeshBasicMaterial({ color: 0xffffff, toneMapped: false }));
+      const glow = glowSprite(0xffffff, 10, .4);
+      g.add(shadow, orb, core, glow); scene.add(g);
+      g.userData = { shadow, orb, core, glow, ring: makeRing(1.1), aura: makeRing(1.3), spin: Math.random() * TAU };
+      return g;
+    }, g => { g.visible = false; g.userData.ring.visible = false; g.userData.aura.visible = false; });
+
+    // ---------- Food: one instanced mesh ----------
+    const MAXF = 900, foodMesh = new THREE.InstancedMesh(new THREE.OctahedronGeometry(1, 0), new THREE.MeshStandardMaterial({ color: 0xffffff, emissive: 0xffffff, emissiveIntensity: .55, roughness: .4, flatShading: true }), MAXF);
+    foodMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage); foodMesh.frustumCulled = false; scene.add(foodMesh);
+    const tmpM = new THREE.Matrix4(), tmpQ = new THREE.Quaternion(), tmpE = new THREE.Euler(), tmpV = new THREE.Vector3(), tmpS = new THREE.Vector3(), tmpC = new THREE.Color();
+    const FOOD_COLORS = { 2: col(0xd9d2c0), 5: col(0xe9b949) };
+    foodMesh.setColorAt(0, FOOD_COLORS[2]);
+
+    // ---------- Thorns: spiked crystals ----------
+    const thornGeo = (() => {
+      const g = new THREE.IcosahedronGeometry(1, 1), p = g.attributes.position, v = new THREE.Vector3();
+      const tips = new THREE.IcosahedronGeometry(1, 0).attributes.position, dirs = [];
+      for (let i = 0; i < tips.count; i++) { const d = new THREE.Vector3().fromBufferAttribute(tips, i).normalize(); if (!dirs.some(x => x.distanceTo(d) < .01)) dirs.push(d); }
+      for (let i = 0; i < p.count; i++) { v.fromBufferAttribute(p, i).normalize(); const s = Math.max(...dirs.map(d => d.dot(v))); v.multiplyScalar(.72 + .62 * Math.pow(Math.max(0, (s - .85) / .15), 1.6)); p.setXYZ(i, v.x, v.y, v.z); }
+      g.computeVertexNormals(); return g;
+    })();
+    const thornPool = pool(() => {
+      const m = new THREE.Mesh(thornGeo, new THREE.MeshStandardMaterial({ color: 0xd9d2c0, emissive: 0xe9b949, emissiveIntensity: .08, roughness: .3, metalness: .35, flatShading: true }));
+      scene.add(m); m.userData = { ring: makeRing(1.2), feed: makeRing(1.4) }; return m;
+    }, m => { m.visible = false; m.userData.ring.visible = false; m.userData.feed.visible = false; });
+
+    // ---------- Wells and meteor ----------
+    const wellMat = () => new THREE.ShaderMaterial({ uniforms: { uTime: floorU.uTime }, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
+      vertexShader: 'varying vec2 vL;void main(){vL=position.xy*2.;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',
+      fragmentShader: 'uniform float uTime;varying vec2 vL;void main(){float r=length(vL);if(r>1.)discard;float th=atan(vL.y,vL.x);float arm=.5+.5*sin(th*3.-r*14.+uTime*2.6);float a=pow(1.-r,1.4)*(.18+.5*arm*(1.-r));vec3 c=mix(vec3(.72,.55,1.),vec3(.93,.89,.82),r);gl_FragColor=vec4(c,a*.75);}' });
+    const wellPool = pool(() => { const g = new THREE.Group(); const disc = new THREE.Mesh(planeGeo, wellMat()); disc.rotation.x = -Math.PI / 2; disc.position.y = .6; disc.scale.set(S.WELL_R * 2, S.WELL_R * 2, 1);
+      const core = new THREE.Mesh(new THREE.SphereGeometry(S.WELL_CORE * .8, 24, 16), new THREE.MeshBasicMaterial({ color: 0x050308 })); core.position.y = 2;
+      const halo = new THREE.Mesh(new THREE.TorusGeometry(S.WELL_CORE, 1.2, 6, 48), new THREE.MeshBasicMaterial({ color: 0xb98cff, toneMapped: false })); halo.rotation.x = Math.PI / 2; halo.position.y = 3;
+      g.add(disc, core, halo); scene.add(g); g.userData = { halo }; return g; });
+    const meteorRing = makeRing(1.6), meteorArc = makeRing(1.7);
+    const rock = new THREE.Mesh(new THREE.DodecahedronGeometry(16, 0), new THREE.MeshStandardMaterial({ color: 0x3a2a1a, emissive: 0xe9b949, emissiveIntensity: .9, flatShading: true }));
+    const rockGlow = glowSprite(0xe9b949, 90, .8); rock.add(rockGlow); rock.visible = false; scene.add(rock);
+
+    // ---------- Particles ----------
+    const MAXP = 1600, pPos = new Float32Array(MAXP * 3), pCol = new Float32Array(MAXP * 3), pSize = new Float32Array(MAXP), pAlpha = new Float32Array(MAXP);
+    const pGeo = new THREE.BufferGeometry(); pGeo.setAttribute('position', new THREE.BufferAttribute(pPos, 3)); pGeo.setAttribute('pcolor', new THREE.BufferAttribute(pCol, 3)); pGeo.setAttribute('psize', new THREE.BufferAttribute(pSize, 1)); pGeo.setAttribute('palpha', new THREE.BufferAttribute(pAlpha, 1));
+    const pMat = new THREE.ShaderMaterial({ uniforms: { uScale: { value: 600 } }, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
+      vertexShader: 'attribute vec3 pcolor;attribute float psize,palpha;uniform float uScale;varying vec3 vC;varying float vA;void main(){vec4 mv=modelViewMatrix*vec4(position,1.);gl_PointSize=max(1.,psize*uScale/-mv.z);gl_Position=projectionMatrix*mv;vC=pcolor;vA=palpha;}',
+      fragmentShader: 'varying vec3 vC;varying float vA;void main(){vec2 d=abs(gl_PointCoord-.5);if(d.x+d.y>.5)discard;float a=1.-(d.x+d.y)*2.;gl_FragColor=vec4(vC*1.3,a*vA);}' });
+    const points = new THREE.Points(pGeo, pMat); points.frustumCulled = false; points.renderOrder = 3; scene.add(points);
+    const parts = [];
+    function burst(x, y, color, n, speed = 160, h = 10, sizeP = 6) {
+      const c = col(color);
+      for (let i = 0; i < n && parts.length < MAXP; i++) { const a = Math.random() * TAU, s = speed * (.3 + Math.random() * .8); parts.push({ x: x - half, y: h, z: y - half, vx: Math.cos(a) * s, vy: 30 + Math.random() * 90, vz: Math.sin(a) * s, life: .5 + Math.random() * .5, max: 1, r: c.r, g: c.g, b: c.b, size: sizeP * (.6 + Math.random() * .8) }); }
+    }
+
+    // ---------- DOM labels ----------
+    const labels = new Map();
+    function label(keyName, cls) { let el = labels.get(keyName); if (!el) { el = document.createElement('div'); el.className = cls; labelLayer.append(el); labels.set(keyName, el); } el._used = true; return el; }
+    const proj = new THREE.Vector3();
+    function screen(x, y, h) { proj.copy(W(x, y, h)).project(camera); return { x: (proj.x * .5 + .5) * vw, y: (-proj.y * .5 + .5) * vh, behind: proj.z > 1 }; }
+    function place(el, x, y, h, anchorY = -50) { const p = screen(x, y, h); el.style.transform = `translate(${p.x.toFixed(1)}px,${p.y.toFixed(1)}px) translate(-50%,${anchorY}%)`; el.style.display = p.behind ? 'none' : ''; }
+    function setHTML(el, html) { if (el._html !== html) { el._html = html; el.innerHTML = html; } }
+    const floats = [];
+
+    // ---------- Camera ----------
+    let vw = 1, vh = 1, fit = 380, tilt = .5, focus = new THREE.Vector3(), shake = 0, follow = false;
+    function resize() { const w = canvas.clientWidth || innerWidth, h = canvas.clientHeight || innerHeight; if (w === vw && h === vh) return; vw = w; vh = h; renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix(); pMat.uniforms.uScale.value = h * renderer.getPixelRatio() / (2 * Math.tan(camera.fov * Math.PI / 360)); }
+    // Screen space the HUD occupies, so the arena centre sits in the clear area.
+    function reserve() { const phone = vw <= 720; return phone ? { top: 150, bottom: 140, left: 0, right: 0 } : { top: 70, bottom: 86, left: 0, right: 0 }; }
+    function cameraTarget(g, dt) {
+      const p = g.actors[0], cells = p.alive ? g.cells(p) : g.actors.filter(a => a.alive).flatMap(a => g.cells(a));
+      let mx = 0, my = 0, mm = 0; for (const c of cells) { mx += c.x * c.mass; my += c.y * c.mass; mm += c.mass; }
+      const cx = mm ? mx / mm : size / 2, cy = mm ? my / mm : size / 2;
+      let spread = 0; for (const c of cells) spread = Math.max(spread, S.distance(c, { x: cx, y: cy }) + S.radius(c.mass));
+      const mode = app.prefs.camera, overview = mode === 'overview' || (mode === 'auto' && size <= 760) || g.phase === 'ready';
+      follow = !overview;
+      const want = overview ? { x: size / 2, y: size / 2, fit: size / 2 + 30 } : { x: cx, y: cy, fit: Math.min(size / 2 + 30, Math.max(250, 170 + spread * 2.6 + Math.sqrt(g.total(p)) * 6)) };
+      if (!overview) { const m = Math.min(size / 2, want.fit * .55); want.x = Math.max(m, Math.min(size - m, want.x)); want.y = Math.max(m, Math.min(size - m, want.y)); }
+      const k = Math.min(1, dt * 3.2);
+      focus.x += (want.x - half - focus.x) * k; focus.z += (want.y - half - focus.z) * k; fit += (want.fit - fit) * Math.min(1, dt * 1.6);
+    }
+    function placeCamera(g, dt, t) {
+      cameraTarget(g, dt);
+      tilt += ((app.prefs.top ? .08 : vw / vh < .8 ? .36 : .52) - tilt) * Math.min(1, dt * 4);
+      const r = reserve(), fw = Math.max(.3, (vw - r.left - r.right) / vw), fh = Math.max(.3, (vh - r.top - r.bottom) / vh);
+      const tanV = Math.tan(camera.fov * Math.PI / 360), tanH = tanV * camera.aspect;
+      const across = follow ? Math.min(1, .55 + camera.aspect * .45) : 1;
+      const dist = Math.max(fit * Math.cos(tilt) / (tanV * fh), fit * across / (tanH * fw)) * 1.02 + fit * Math.sin(tilt) * .3;
+      camera.setViewOffset(vw, vh, 0, -(r.top - r.bottom) / 2, vw, vh);
+      shake = Math.max(shake * Math.exp(-dt * 9), app.shake); app.shake = 0;
+      const sx = shake > .2 ? (Math.random() * 2 - 1) * shake : 0, sz = shake > .2 ? (Math.random() * 2 - 1) * shake : 0;
+      const idle = g.phase === 'ready', az = idle ? Math.sin(t * .12) * .18 : 0;
+      camera.position.set(focus.x + Math.sin(az) * Math.sin(tilt) * dist + sx, Math.cos(tilt) * dist, focus.z + Math.cos(az) * Math.sin(tilt) * dist + sz);
+      camera.lookAt(focus.x, 0, focus.z);
+      floorU.uCam.value.set(focus.x, focus.z);
+    }
+    const ray = new THREE.Raycaster(), ndc = new THREE.Vector2(), ground = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0), hit = new THREE.Vector3();
+    app.pick = (cx, cy) => { const rect = canvas.getBoundingClientRect(); ndc.set((cx - rect.left) / rect.width * 2 - 1, -((cy - rect.top) / rect.height) * 2 + 1); ray.setFromCamera(ndc, camera); return ray.ray.intersectPlane(ground, hit) ? { x: hit.x + half, y: hit.z + half } : null; };
+    app.reset = () => { size = app.game.size; half = size / 2; floorU.uHalf.value = half; floor.scale.set(size * 6, size * 6, 1); parts.length = 0; for (const f of floats) f.el.remove(); floats.length = 0; };
+    app.reset();
+
+    // ---------- Effects from engine events ----------
+    function effects(g) {
+      for (const e of app.effects.splice(0)) {
+        if (e.type === 'eat') burst(e.x, e.y, app.colors[e.prey], e.out ? 46 : 22, e.out ? 220 : 140);
+        else if (e.type === 'burst') { burst(e.x, e.y, 0xd9d2c0, 40, 260); burst(e.x, e.y, app.colors[e.id], 26, 200); }
+        else if (e.type === 'meteor') { burst(e.x, e.y, 0xe9b949, 90, 340, 6, 8); burst(e.x, e.y, 0xff4b2b, 40, 220, 6, 7); }
+        else if (e.type === 'split') burst(e.x, e.y, app.colors[e.id], 10, 90);
+        else if (e.type === 'thorn') burst(e.x, e.y, 0xe9b949, 20, 160);
+        else if (e.type === 'float') { const p = g.actors[0]; const el = document.createElement('div'); el.className = 'sf-float'; el.textContent = e.text; el.style.color = 'var(--fu-' + (e.tone || 'paper') + ')'; labelLayer.append(el); floats.push({ el, x: p.x, y: p.y, h: S.radius(p.mass) * 1.4 + 30, t: 0 }); }
+        else if (e.type === 'food' && Math.random() < .5) { const p = g.actors[0]; burst(p.x, p.y, e.value === 5 ? 0xe9b949 : 0xd9d2c0, 3, 60, 8, 4); }
+      }
+    }
+
+    // ---------- Frame ----------
+    app.draw = (dt, t) => {
+      const g = app.game; resize(); floorU.uTime.value = t;
+      placeCamera(g, dt, t);
+      effects(g);
+      const player = g.actors[0], playerCells = player.alive ? g.cells(player) : [];
+      const biggestMine = playerCells.reduce((m, c) => Math.max(m, c.mass), 0);
+      for (const el of labels.values()) el._used = false;
+      // Bodies
+      bodyPool.begin();
+      for (const a of g.actors) if (a.alive) g.cells(a).forEach((c, i) => {
+        const b = bodyPool.next(), u = b.userData, r = S.radius(c.mass), color = app.colors[a.id];
+        b.visible = true; b.position.copy(W(c.x, c.y, 0));
+        u.orb.material.color.set(color).multiplyScalar(.42); u.orb.material.emissive.set(color); u.orb.material.emissiveIntensity = a.id ? .28 : .42;
+        u.spin += dt * (.4 + 24 / r); u.orb.rotation.set(.3, u.spin, 0);
+        u.orb.scale.set(r, r * .62, r); u.orb.position.y = r * .62 + 1;
+        u.core.material.color.set(color); u.core.scale.setScalar(Math.max(2.5, r * .2)); u.core.position.y = r * 1.24 + 2; u.core.rotation.y = -u.spin * 2;
+        u.glow.material.color.set(color); u.glow.scale.setScalar(r * 3.4); u.glow.position.y = r * .6;
+        u.shadow.scale.set(r * 2.6, r * 2.6, 1);
+        // Status ring: what this body means to your biggest cell.
+        let ring = { color: '#ff4b2b', width: 2.4, alpha: .95 }, kind = '';
+        if (a.id) {
+          const prey = biggestMine && biggestMine >= c.mass * 1.2, danger = playerCells.some(m => S.edible(c, m));
+          ring = prey ? { color: '#35d0a8', width: 2.2, alpha: .9 } : danger ? { color: '#e9b949', width: 2.6, alpha: 1, dash: 24, speed: .35 } : { color: '#6d7380', width: 1.4, alpha: .7 };
+          kind = prey ? 'is-prey' : danger ? 'is-danger' : '';
+        }
+        u.ring.set(c.x, c.y, r + 6, ring.width, ring);
+        if (!a.id && g.boostTime > 0) u.aura.set(c.x, c.y, r + 12, 4, { color: '#ff4b2b', alpha: .5, dash: 18, speed: 2 }); else u.aura.visible = false;
+        if (c.merge > 0 && !a.id) u.aura.set(c.x, c.y, r + 10, 1.4, { color: '#ece4d0', alpha: .5, arc: c.merge / S.MERGE_TIME });
+        if (app.prefs.labels) {
+          const el = label('b' + a.id + ':' + i, 'sf-tag'); el.className = 'sf-tag ' + kind; el.style.setProperty('--tone', color);
+          const fs = Math.round(Math.max(11, Math.min(22, r * .55 * 380 / fit)));
+          setHTML(el, (i === 0 ? `<span>${S.NAMES[a.id]}</span>` : '') + `<b style="font-size:${fs}px">${c.mass}</b>`);
+          place(el, c.x, c.y, r * 1.3 + 4, -60);
+        }
+      });
+      bodyPool.end();
+      // Food
+      let n = 0;
+      for (const p of g.food) {
+        if (n >= MAXF) break;
+        const s = p.value === 5 ? 5.2 : p.owner !== undefined ? 3.8 : 3, bob = Math.sin(t * 2.4 + p.x * .05 + p.y * .03) * 1.2;
+        tmpE.set(t * .8 + p.x, t * 1.1 + p.y, 0); tmpQ.setFromEuler(tmpE); tmpV.set(p.x - half, 5 + s + bob, p.y - half); tmpS.set(s, s * 1.3, s);
+        tmpM.compose(tmpV, tmpQ, tmpS); foodMesh.setMatrixAt(n, tmpM);
+        foodMesh.setColorAt(n, p.owner !== undefined ? tmpC.set(app.colors[p.owner]) : FOOD_COLORS[p.value] || FOOD_COLORS[2]); n++;
+      }
+      foodMesh.count = n; foodMesh.instanceMatrix.needsUpdate = true; if (foodMesh.instanceColor) foodMesh.instanceColor.needsUpdate = true;
+      // Thorns
+      thornPool.begin();
+      for (const th of g.thorns) {
+        const m = thornPool.next(); m.visible = true; m.position.copy(W(th.x, th.y, S.THORN_R * .95)); m.scale.setScalar(S.THORN_R * .9);
+        m.rotation.set(t * .3, t * .45 + th.x, 0); m.material.emissiveIntensity = .08 + th.feed * .12;
+        const danger = playerCells.some(c => c.mass >= S.THORN_MASS);
+        m.userData.ring.set(th.x, th.y, S.THORN_R + 4, 1.4, { color: danger ? '#e9b949' : '#a8a08c', dash: 16, speed: .2, alpha: danger ? .9 : .5 });
+        if (th.feed) m.userData.feed.set(th.x, th.y, S.THORN_R + 9, 2.4, { color: '#ece4d0', arc: th.feed / S.THORN_FEED, alpha: .9 }); else m.userData.feed.visible = false;
+      }
+      thornPool.end();
+      // Wells
+      wellPool.begin();
+      for (const w of g.wells) { const m = wellPool.next(); m.visible = true; m.position.copy(W(w.x, w.y, 0)); m.rotation.y = -t * .4; m.userData.halo.scale.setScalar(1 + Math.sin(t * 3) * .06); }
+      wellPool.end();
+      // Meteor: a golden telegraph ring that fills, then the rock drops in.
+      if (g.meteor) {
+        const left = Math.max(0, (g.meteor.at - g.tick) / S.METEOR_WARN), m = g.meteor;
+        meteorRing.set(m.x, m.y, m.r, 3, { color: '#e9b949', dash: 40, speed: .8, fill: .14 + (1 - left) * .2, alpha: .9 });
+        meteorArc.set(m.x, m.y, m.r + 9, 3, { color: '#ff4b2b', arc: 1 - left, alpha: .9 });
+        rock.visible = left < .5; const fall = left / .5; rock.position.copy(W(m.x - fall * 160, m.y - fall * 60, 20 + fall * 520)); rock.rotation.set(t * 3, t * 2, 0);
+        const el = label('meteor', 'sf-warn'); el.textContent = `流星 ${(left * S.METEOR_WARN * S.DT).toFixed(1)}s`; place(el, m.x, m.y, 4, -50);
+      } else { meteorRing.visible = meteorArc.visible = rock.visible = false; }
+      // Floating text
+      for (let i = floats.length - 1; i >= 0; i--) { const f = floats[i]; f.t += dt; if (f.t > 1) { f.el.remove(); floats.splice(i, 1); continue; } const p = screen(f.x, f.y, f.h + f.t * 40); f.el.style.transform = `translate(${p.x}px,${p.y}px) translate(-50%,-50%)`; f.el.style.opacity = String(1 - f.t); }
+      for (const [k, el] of labels) if (!el._used) { el.remove(); labels.delete(k); }
+      // Particles
+      let pc = 0;
+      for (let i = parts.length - 1; i >= 0; i--) { const p = parts[i]; p.life -= dt; if (p.life <= 0) { parts.splice(i, 1); continue; } p.vy -= 260 * dt; p.x += p.vx * dt; p.y = Math.max(1, p.y + p.vy * dt); p.z += p.vz * dt; p.vx *= .97; p.vz *= .97; }
+      for (const p of parts) { pPos[pc * 3] = p.x; pPos[pc * 3 + 1] = p.y; pPos[pc * 3 + 2] = p.z; pCol[pc * 3] = p.r; pCol[pc * 3 + 1] = p.g; pCol[pc * 3 + 2] = p.b; pSize[pc] = p.size; pAlpha[pc] = Math.min(1, p.life * 2); pc++; }
+      pGeo.setDrawRange(0, pc); for (const k of ['position', 'pcolor', 'psize', 'palpha']) pGeo.attributes[k].needsUpdate = true;
+      dust.rotation.y = t * .004;
+      renderer.render(scene, camera);
+    };
+  }
   </script>
 </body>
 </html>
