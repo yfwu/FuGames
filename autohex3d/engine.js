@@ -150,7 +150,7 @@
   const RADIUS = { 2: 8, 3: 10, 4: 10, 5: 12, 6: 12 };
   const VP_TARGET = { 2: 30, 3: 40, 4: 40, 5: 40, 6: 40 };
   const SEATS = { 2: [0, 3], 3: [0, 2, 4], 4: [0, 1, 3, 4], 5: [0, 1, 2, 3, 4], 6: [0, 1, 2, 3, 4, 5] };
-  const NAMES = ['青嵐', '赤焰', '紫宸', '金穗', '碧濤', '玄岩'];
+  const NAMES = ['赤焰', '青嵐', '碧濤', '金穗', '紫宸', '素霜']; // matches FuPalette.sides: 朱 青 玉 金 紫 骨白
   const ROTATE = (q, r) => [-r, q + r];
 
   // -------------------------------------------------------------- geometry
@@ -865,7 +865,7 @@
       }
       for (const h of hits) {
         h.t.hp -= h.dmg;
-        fe.push({ e: 'hit', src: h.src.id, srcKind: h.kind, from: h.src.cell, dst: h.t.id, dstKind: h.tKind, to: h.t.cell, dmg: h.dmg, ranged: g.dist(h.src.cell, h.t.cell) > 1 });
+        fe.push({ e: 'hit', src: h.src.id, srcKind: h.kind, owner: h.src.owner, srcType: h.src.type, from: h.src.cell, dst: h.t.id, dstKind: h.tKind, to: h.t.cell, dmg: h.dmg, ranged: g.dist(h.src.cell, h.t.cell) > 1 });
       }
       for (const h of hits) {
         if (h.t.hp > 0) continue;
@@ -894,7 +894,7 @@
         const cost = moveCost(st, best);
         if (cost > budget && !(k === SUBTICKS && u.spent === 0)) continue;
         u.spent += cost; u.blocked = false;
-        fe.push({ e: 'move', unit: u.id, owner: u.owner, from: u.cell, to: best });
+        fe.push({ e: 'move', unit: u.id, type: u.type, owner: u.owner, from: u.cell, to: best });
         u.cell = best;
         if (u.stance === 'advance' && u.cell === u.goal) u.goal = -1, u.stance = 'guard', u.anchor = u.cell;
         const trap = st.traps.findIndex(t => t.cell === best && hostile(t.owner, u.owner));

@@ -1,0 +1,148 @@
+/* AutoHex 3D page styles on top of shared/fu.css (朱墨). Only game-specific
+   pieces live here: resources HUD, faction list, cell panel, hand of cards,
+   market cards, floating combat numbers. Colours come from --fu-* tokens. */
+
+.ah-app { --ah-hand-h: 148px; --ah-dock-h: 46px; }
+.ah-app [hidden] { display: none !important; }
+.ah-app[data-phase="intro"] .fu-hud, .ah-app[data-phase="intro"] .ah-handbar, .ah-app[data-phase="intro"] .ah-dock { visibility: hidden; }
+
+/* ---------- resources ---------- */
+.ah-res { width: 280px; }
+.ah-res__grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--fu-space-3); }
+.ah-res__item { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.ah-res__item .fu-stat__value { font-size: 22px; }
+.ah-res__net { font-size: 11px; color: var(--fu-jade); }
+.ah-res__net.is-neg { color: var(--fu-seal); }
+.ah-res__item.is-full .fu-stat__value { color: var(--fu-gold); }
+.ah-res__row { display: flex; align-items: center; gap: var(--fu-space-2); margin-top: var(--fu-space-3); }
+.ah-res__trade { margin-left: auto; }
+.ah-pips { display: inline-flex; gap: 4px; }
+.ah-pips i { width: 10px; height: 10px; border: 1px solid var(--fu-line-strong); transform: rotate(45deg); }
+.ah-pips i.on { background: var(--fu-seal); border-color: var(--fu-seal); }
+.ah-trade { display: grid; grid-template-columns: auto 1fr; gap: 6px 10px; align-items: center; margin-top: var(--fu-space-3); }
+.ah-trade .fu-seg > button { min-height: 30px; padding: 0 10px; }
+.ah-trade #trade-do { grid-column: 1 / -1; }
+.ah-res__warn { margin: var(--fu-space-2) 0 0; color: var(--fu-gold); }
+
+/* ---------- factions ---------- */
+.ah-factions { width: 250px; }
+.ah-factions li { cursor: pointer; padding: 7px 0; }
+.ah-factions li.is-turn { box-shadow: inset 2px 0 0 var(--side); padding-left: 8px; }
+.ah-factions li.is-out { opacity: .4; text-decoration: line-through; }
+.ah-factions .ah-f__name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ah-factions .ah-f__vp { font-family: var(--fu-font-mono); font-size: 15px; color: var(--fu-text); }
+.ah-factions .ah-f__meta { font-family: var(--fu-font-mono); font-size: 10.5px; color: var(--fu-text-dim); min-width: 52px; text-align: right; }
+.ah-vpbar { height: 2px; background: var(--fu-ink-3); margin-top: 3px; }
+.ah-vpbar > i { display: block; height: 100%; width: calc(var(--v, 0) * 100%); background: var(--side); }
+
+/* ---------- selected cell ---------- */
+.ah-cell-hud { bottom: calc(var(--fu-gutter) + var(--ah-hand-h) + var(--ah-dock-h) + 12px); }
+.ah-cell { width: 300px; }
+.ah-cell h4 { font-family: var(--fu-font-display); font-size: 18px; margin: 0 0 4px; color: var(--fu-text); }
+.ah-cell p { margin: 4px 0; font-size: 12.5px; color: var(--fu-text-dim); }
+.ah-cell .ah-cell__row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: var(--fu-space-2); }
+.ah-cell .fu-select { min-height: 32px; padding: 0 28px 0 10px; font-size: 12px; }
+.ah-hp { display: inline-block; width: 64px; height: 4px; background: var(--fu-ink-3); vertical-align: middle; margin-left: 6px; }
+.ah-hp > i { display: block; height: 100%; background: var(--fu-jade); width: calc(var(--v) * 100%); }
+
+/* ---------- hand ---------- */
+.ah-handbar {
+  position: fixed; z-index: 34; left: 50%; transform: translateX(-50%);
+  bottom: calc(max(var(--fu-gutter), env(safe-area-inset-bottom)) + var(--ah-dock-h) + 8px);
+  max-width: calc(100vw - 2 * var(--fu-gutter)); pointer-events: none;
+}
+.ah-hand { display: flex; gap: 8px; align-items: flex-end; overflow-x: auto; scrollbar-width: none; padding: 14px 4px 2px; pointer-events: auto; }
+.ah-card {
+  --kind: var(--fu-bone);
+  position: relative; flex: none; width: 104px; height: 140px; padding: 8px 8px 7px;
+  display: flex; flex-direction: column; gap: 3px; text-align: left; cursor: pointer;
+  color: var(--fu-text); background: var(--fu-surface-solid); border: 1px solid var(--fu-line-strong);
+  clip-path: polygon(0 0, calc(100% - 9px) 0, 100% 9px, 100% 100%, 9px 100%, 0 calc(100% - 9px));
+  transition: transform var(--fu-dur-2) var(--fu-ease), border-color var(--fu-dur-1);
+  font: inherit;
+}
+.ah-card::before { content: ""; position: absolute; inset: 0 0 auto; height: 3px; background: var(--kind); }
+.ah-card:hover { transform: translateY(-6px); border-color: var(--fu-text-dim); }
+.ah-card[aria-pressed="true"] { transform: translateY(-12px); border-color: var(--fu-seal); box-shadow: inset 0 0 0 1px var(--fu-seal); }
+.ah-card.is-dead { opacity: .55; }
+.ah-card.is-new { animation: ah-deal var(--fu-dur-3) var(--fu-ease) both; animation-delay: calc(var(--i, 0) * 70ms); }
+.ah-card__kind { font: 600 9.5px/1 var(--fu-font-mono); letter-spacing: .16em; color: var(--kind); text-transform: uppercase; }
+.ah-card__name { font-family: var(--fu-font-display); font-weight: 900; font-size: 19px; line-height: 1.05; }
+.ah-card__text { font-size: 10.5px; line-height: 1.35; color: var(--fu-text-dim); overflow: hidden; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; }
+.ah-card__cost { margin-top: auto; display: flex; gap: 6px; align-items: center; font: 600 11px/1 var(--fu-font-mono); }
+.ah-card__cost .is-short { color: var(--fu-seal); }
+.ah-card__ap { margin-left: auto; display: inline-flex; gap: 3px; }
+.ah-card__ap i { width: 7px; height: 7px; background: var(--fu-seal); transform: rotate(45deg); }
+.ah-card__acts { position: absolute; top: 6px; right: 6px; display: flex; gap: 2px; opacity: 0; transition: opacity var(--fu-dur-1); }
+.ah-card:hover .ah-card__acts, .ah-card:focus-within .ah-card__acts, .ah-card.is-kept .ah-card__acts { opacity: 1; }
+.ah-card__acts span { font: 700 9.5px/1 var(--fu-font-mono); padding: 3px 4px; background: var(--fu-ink-0); border: 1px solid var(--fu-line-strong); color: var(--fu-text-dim); }
+.ah-card__acts span:hover { color: var(--fu-text); border-color: var(--fu-text); }
+.ah-card.is-kept .ah-card__acts [data-keep] { color: var(--fu-ink-0); background: var(--fu-gold); border-color: var(--fu-gold); }
+.ah-card[data-kind="build"] { --kind: var(--fu-bone); }
+.ah-card[data-kind="unit"] { --kind: var(--fu-seal); }
+.ah-card[data-kind="tactic"] { --kind: var(--fu-azure); }
+.ah-card[data-kind="econ"] { --kind: var(--fu-gold); }
+.ah-card[data-kind="vp"] { --kind: var(--fu-orchid); }
+@keyframes ah-deal { from { opacity: 0; transform: translateY(40px) rotate(-4deg); } to { opacity: 1; transform: none; } }
+
+/* ---------- market & deck ---------- */
+.ah-market { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: var(--fu-space-4); }
+.ah-market .ah-card { width: auto; height: 156px; cursor: default; }
+.ah-market .ah-card:hover { transform: none; }
+.ah-market .ah-card .fu-btn { margin-top: 4px; min-height: 30px; }
+.ah-market .ah-card.is-leaving { opacity: .55; }
+.ah-market .ah-card.is-leaving::after { content: "下輪移除"; position: absolute; top: 8px; right: 8px; font: 600 9px/1 var(--fu-font-mono); color: var(--fu-gold); letter-spacing: .1em; }
+.ah-decklist { columns: 2; column-gap: 18px; font-size: 13px; }
+.ah-decklist li { break-inside: avoid; display: flex; gap: 8px; padding: 4px 0; border-bottom: 1px solid var(--fu-line); }
+.ah-decklist li b { font-family: var(--fu-font-mono); margin-left: auto; }
+
+/* ---------- log, rules, standings ---------- */
+.ah-log li { align-items: baseline; }
+.ah-log .fu-side { transform: rotate(45deg) translateY(1px); }
+.ah-rules p { font-size: 13.5px; line-height: 1.7; color: var(--fu-text-dim); margin: 0; }
+.ah-rules code, .fu-drawer code { font-family: var(--fu-font-mono); font-size: 11.5px; color: var(--fu-text); background: var(--fu-ink-2); padding: 1px 4px; }
+.ah-standings { width: min(420px, 100%); }
+.ah-standings li { gap: 12px; }
+.ah-standings b { font-family: var(--fu-font-mono); margin-left: auto; }
+.ah-intro-lead { text-align: center; line-height: 1.8; }
+
+/* ---------- stage overlays ---------- */
+.ah-floaters { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+.ah-float { position: absolute; transform: translate(-50%, -50%); font: 700 13px/1 var(--fu-font-mono); color: var(--fu-paper); text-shadow: 0 1px 0 var(--fu-ink-0), 0 0 6px var(--fu-ink-0); animation: ah-float 900ms var(--fu-ease) both; white-space: nowrap; }
+.ah-float.is-bad { color: var(--fu-seal); }
+.ah-float.is-good { color: var(--fu-jade); }
+.ah-float.is-gold { color: var(--fu-gold); font-size: 15px; }
+@keyframes ah-float { from { opacity: 0; transform: translate(-50%, -20%); } 15% { opacity: 1; } to { opacity: 0; transform: translate(-50%, -190%); } }
+.ah-tip { position: absolute; z-index: 5; pointer-events: none; transform: translate(14px, 14px); padding: 6px 9px; background: var(--fu-ink-1); border: 1px solid var(--fu-line-strong); font: 600 11.5px/1.4 var(--fu-font-mono); color: var(--fu-text); white-space: nowrap; }
+.ah-tip .is-bad { color: var(--fu-seal); }
+.ah-tip .is-good { color: var(--fu-jade); }
+.ah-busy { position: fixed; z-index: 36; top: calc(var(--fu-topbar-h) + 8px); left: 50%; transform: translateX(-50%); }
+.ah-busy .fu-chip { background: var(--fu-ink-1); }
+.ah-fallback { position: fixed; inset: 40% 10% auto; z-index: 50; text-align: center; color: var(--fu-text); }
+body[data-phase="watch"] .ah-handbar, body[data-phase="watch"] #btn-end, body[data-phase="watch"] #btn-army, body[data-phase="watch"] #btn-guard, body[data-phase="watch"] #btn-deck, body[data-phase="watch"] .ah-res { display: none; }
+body[data-busy="1"] .ah-hand { opacity: .55; }
+
+@media (max-width: 720px) {
+  .ah-app { --ah-hand-h: 118px; }
+  .ah-card { width: 86px; height: 112px; padding: 7px 6px 6px; }
+  .ah-card__name { font-size: 16px; }
+  .ah-card__text { -webkit-line-clamp: 2; font-size: 10px; }
+  .ah-res { width: auto; }
+  .ah-res__item .fu-stat__value { font-size: 18px; }
+  .ah-factions { width: auto; }
+  .fu-hud--tr { top: calc(var(--fu-topbar-h) + 4px); bottom: auto; right: var(--fu-gutter); }
+  .ah-factions .fu-panel__head, .ah-factions .ah-f__meta { display: none; }
+  .ah-factions li { padding: 3px 0; }
+  .fu-hud--tl { max-width: 54vw; }
+  .ah-cell { width: calc(100vw - 2 * var(--fu-gutter)); }
+  .ah-res .fu-panel__head { display: none; }
+  .ah-res__row { margin-top: 6px; }
+  .ah-res__row > .fu-label { display: none; }
+  .ah-dock .fu-btn { padding: 0 10px; font-size: 12.5px; letter-spacing: .02em; }
+  .ah-dock #btn-guard { display: none; }
+  .ah-handbar { bottom: calc(max(var(--fu-gutter), env(safe-area-inset-bottom)) + var(--ah-dock-h) + 4px); }
+  .ah-market { grid-template-columns: 1fr 1fr; }
+}
+.ah-dock #btn-end { background: var(--fu-seal); color: var(--fu-ink-0); }
+.ah-dock #btn-end:hover:not(:disabled) { background: var(--fu-text); }
+.ah-dock #btn-end:disabled { background: var(--fu-surface-solid); color: var(--fu-text-dim); }
