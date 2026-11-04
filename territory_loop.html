@@ -1,578 +1,1308 @@
 <!doctype html>
 <html lang="zh-Hant">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="畫線圈地、切斷補給、招降助手。四陣營持續角逐的 FuGames 瀏覽器遊戲。">
-  <title>圈地漫遊 - FuGames</title>
-  <link rel="icon" href="favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="fulab-theme.css">
-
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="畫線圈地、切斷補給、招降助手。四陣營在立體版圖上持續角逐：無盡版圖、限時征服、烽火據點與霸權模式，四級 AI 與生涯等級。">
+<meta name="theme-color" content="#07090c">
+<title>圈地漫遊 - FuGames</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="shared/fu.css">
 <style>
-    .io-key { display:inline-flex; align-items:center; gap:6px; }
-    .io-key .ui-icon { width:20px; height:20px; }
-    .io-hint-row { display:flex; flex-wrap:wrap; gap:8px 14px; align-items:center; }
-    .ring-key { display:inline-block; width:16px; height:16px; flex:none; border:2px solid currentColor; border-radius:50%; }
-    .ring-key.dashed { border-style:dashed; }
-    .game-dialog .dialog-art { flex:none; }
-    @media(max-width:600px) { .io-hint-row { gap:8px 12px; } }
-@media(max-width:600px) { .play-panel { display:flex;flex-direction:column; } .game-toolbar { order:0; } .io-stage { order:1; } .io-controls { order:2; } .io-status { order:3; } .game-actions { order:4; } .game-actions .io-hint-row { width:100%; } }
-
-    .site-nav > a:last-child { display:inline-flex;align-items:center;gap:5px; }
-    .site-nav > a:last-child .ui-icon { width:16px;height:16px; }
-    .io-support { display:contents; }
-    @media(max-height:600px) and (min-width:600px) {
-      .io-page .play-panel { grid-template-columns:minmax(0,1fr) 220px; }
-      .io-page .play-panel > .io-stage { grid-column:1;grid-row:2; }
-      .io-support { display:flex;flex-direction:column;grid-column:2;grid-row:2;gap:10px;max-height:calc(100svh - 106px);overflow:auto;scrollbar-width:thin;padding:2px; }
-      .io-support .io-controls,.io-support .growth-controls,.io-support .upgrade-row { order:0; }
-      .io-support .game-actions { order:1; }
-      .io-support .io-status { order:2; }
-      .io-support .snake-effects,.io-support .charge-track { order:3; }
-      .io-support .snake-roster,.io-support .arena-roster,.io-support .pulse-roster { order:4; }
-      .io-support .food-legend,.io-support .arena-hint,.io-support .pulse-hint { order:5; }
-      .io-support > * { flex-shrink:0; }
-      .io-support .btnRow { flex-wrap:nowrap; }
-      .io-support .game-actions { justify-content:center; }
-      .io-support .upgrade-row .btn { flex-direction:column;gap:2px; }
-    }
+/* 圈地漫遊 on the shared Vermilion Ink system. Player = seal; enemies follow FuPalette side order. */
+html,body{height:100%;overflow:hidden;overscroll-behavior:none}
+.fu-app{--pad:52px}
+#board{touch-action:none;outline:none;cursor:crosshair}
+#board:focus-visible{box-shadow:inset 0 0 0 2px var(--fu-seal)}
+.tl-labels{position:fixed;inset:0;z-index:5;pointer-events:none;overflow:hidden}
+.tl-tag{position:absolute;left:0;top:0;padding:3px 6px 2px;white-space:nowrap;font:700 11px/1.1 var(--fu-font-mono);letter-spacing:.08em;color:var(--fu-paper);background:rgba(7,9,12,.78);border-left:2px solid var(--tag,var(--fu-paper));will-change:transform}
+.tl-tag.me{color:var(--fu-ink-0);background:var(--fu-seal);border-color:var(--fu-paper)}
+.tl-tag[hidden]{display:none}
+/* top bar extras */
+.tl-level{display:flex;flex-direction:column;justify-content:center;gap:4px;min-width:104px;min-height:var(--fu-touch);padding:5px 10px;border:1px solid var(--fu-line-strong);background:var(--fu-surface);color:var(--fu-text);cursor:pointer;font:inherit;text-align:left}
+.tl-level:hover{border-color:var(--fu-text)}
+.tl-level .row{display:flex;align-items:baseline;gap:6px;font-size:11px;color:var(--fu-text-dim)}
+.tl-level b{font:700 15px/1 var(--fu-font-mono);color:var(--fu-gold)}
+.tl-bar{display:block;height:3px;background:var(--fu-ink-3);overflow:hidden}
+.tl-bar i{display:block;height:100%;width:0;background:var(--fu-gold);transition:width .5s var(--fu-ease)}
+#pause .i-play{display:none}#pause.is-paused .i-play{display:block}#pause.is-paused .i-pause{display:none}
+/* standings HUD */
+.tl-board-hud{width:268px}
+.tl-board-hud .fu-panel__head{margin-bottom:8px}
+#objective{color:var(--fu-text)}
+.tl-rows{display:flex;flex-direction:column;gap:7px;margin:0;padding:0;list-style:none}
+.tl-row{display:grid;grid-template-columns:auto 1fr auto;gap:2px 8px;align-items:center;font-size:12px}
+.tl-row .fu-side{--side:var(--c)}
+.tl-row b{font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tl-row b small{margin-left:6px;font:600 10px/1 var(--fu-font-mono);color:var(--fu-text-dim);letter-spacing:.06em}
+.tl-row .v{font:700 12px/1 var(--fu-font-mono);color:var(--fu-text);text-align:right}
+.tl-row .m{grid-column:2 / 4;height:4px;background:var(--fu-ink-3);position:relative;overflow:hidden}
+.tl-row .m i{position:absolute;left:0;top:0;bottom:0;width:0;background:var(--c);transition:width .3s linear}
+.tl-row .m em{position:absolute;top:0;bottom:0;width:2px;background:var(--fu-paper);opacity:.75}
+.tl-row.out{opacity:.4}
+.tl-row.me b{color:var(--fu-seal)}
+.tl-goal{margin:10px 0 0;font-size:11px;color:var(--fu-text-dim);line-height:1.5}
+.tl-status{max-width:min(420px,calc(100vw - 2 * var(--fu-gutter)))}
+.tl-status p{margin:0;font-size:12.5px;line-height:1.5;color:var(--fu-text)}
+.tl-status .fu-label{display:block;margin-bottom:4px}
+.tl-keys{display:flex;flex-wrap:wrap;gap:6px 12px;margin-top:8px;font-size:11px;color:var(--fu-text-dim)}
+/* touch pad */
+.tl-pad{position:fixed;z-index:12;right:var(--fu-gutter);bottom:max(var(--fu-gutter),env(safe-area-inset-bottom));display:none;grid-template-columns:repeat(3,var(--pad));grid-template-rows:repeat(3,var(--pad));gap:3px}
+.tl-pad button{display:grid;place-items:center;padding:0;border:1px solid var(--fu-line-strong);background:var(--fu-surface);color:var(--fu-text);cursor:pointer;touch-action:none;user-select:none;-webkit-user-select:none}
+.tl-pad button:active,.tl-pad button.hit{background:var(--fu-seal);color:var(--fu-ink-0);border-color:var(--fu-seal)}
+.tl-pad button:disabled{opacity:.35}
+.tl-pad svg{width:20px;height:20px}
+.tl-pad [data-direction=up]{grid-area:1/2}.tl-pad [data-direction=left]{grid-area:2/1}.tl-pad [data-direction=right]{grid-area:2/3}.tl-pad [data-direction=down]{grid-area:3/2}
+.tl-pad .hub{grid-area:2/2;display:grid;place-items:center;font:700 9px/1 var(--fu-font-mono);letter-spacing:.14em;color:var(--fu-text-dim);border:1px dashed var(--fu-line)}
+/* overlay sheet */
+.tl-overlay{z-index:80;overflow:auto;place-items:start center;padding:calc(var(--fu-topbar-h) + 12px) var(--fu-gutter) 24px;text-align:left}
+.tl-sheet{width:min(860px,100%);margin:auto 0;padding:26px 28px 0}
+.tl-sheet .head{display:flex;align-items:center;gap:18px;margin-bottom:6px}
+.tl-sheet h2{margin:0;font-family:var(--fu-font-display);font-size:clamp(38px,6vw,64px);line-height:1;letter-spacing:.02em}
+.tl-sheet h2 em{font-style:normal;color:var(--fu-seal)}
+.tl-sheet .lede{margin:10px 0 0;max-width:64ch;color:var(--fu-text-dim);line-height:1.65;font-size:14px}
+.tl-sheet section{margin-top:20px}
+.tl-sheet h3{display:flex;justify-content:space-between;gap:10px;margin:0 0 10px;font:700 11px/1.2 var(--fu-font-mono);letter-spacing:.18em;text-transform:uppercase;color:var(--fu-seal)}
+.tl-sheet h3 span{letter-spacing:0;text-transform:none;font-family:var(--fu-font-body);font-weight:400;color:var(--fu-mute)}
+.tl-chips{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+.tl-chip{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:5px;min-height:44px;padding:11px 12px;border:1px solid var(--fu-line-strong);background:var(--fu-ink-1);color:var(--fu-text);font:inherit;text-align:left;cursor:pointer}
+.tl-chip b{font-size:14px}
+.tl-chip span{font-size:11.5px;line-height:1.45;color:var(--fu-text-dim)}
+.tl-chip:hover:not(:disabled){border-color:var(--fu-text)}
+.tl-chip[aria-pressed="true"]{border-color:var(--fu-seal);box-shadow:inset 0 0 0 1px var(--fu-seal);background:rgba(255,75,43,.08)}
+.tl-chip[aria-pressed="true"] b{color:var(--fu-seal)}
+.tl-chip:disabled{opacity:.45;cursor:not-allowed}
+.tl-chip .lock{position:absolute;top:10px;right:10px;font:700 10px/1 var(--fu-font-mono);color:var(--fu-gold)}
+.tl-career{display:grid;grid-template-columns:auto 1fr;gap:6px 16px;align-items:center;padding:12px 14px;border:1px solid var(--fu-line);background:rgba(236,228,208,.03)}
+.tl-career .lv{grid-row:span 2;font:800 32px/1 var(--fu-font-mono);color:var(--fu-gold)}
+.tl-career .lv small{display:block;margin-bottom:4px;font:700 10px/1 var(--fu-font-mono);letter-spacing:.16em;color:var(--fu-text-dim)}
+.tl-career .who{display:flex;justify-content:space-between;gap:10px;font-weight:700;font-size:13px}
+.tl-career .who span{font:500 11px/1.3 var(--fu-font-mono);color:var(--fu-text-dim)}
+.tl-variants{margin:10px 0 0;font-size:12px;color:var(--fu-text-dim)}
+.tl-variants b{color:var(--fu-text);font-weight:600}
+.tl-actions{position:sticky;bottom:0;display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:flex-end;margin:22px -28px 0;padding:14px 28px 18px;background:linear-gradient(180deg,rgba(13,17,22,0),var(--fu-ink-1) 36%)}
+.tl-actions .note{margin-right:auto;font-size:11px;color:var(--fu-mute)}
+.tl-standings{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+.tl-standings div{padding:10px 12px;border:1px solid var(--fu-line);border-top:3px solid var(--c);font-size:12px;line-height:1.55;color:var(--fu-text-dim)}
+.tl-standings b{display:block;margin-bottom:2px;font-size:14px;color:var(--fu-text)}
+.tl-standings .place{float:right;font:700 11px/1.6 var(--fu-font-mono);color:var(--fu-text-dim)}
+.tl-standings .win{color:var(--fu-gold)}
+.tl-xp{display:grid;grid-template-columns:1fr auto;gap:6px 16px;margin:0;padding:12px 14px;border:1px solid var(--fu-line);font-size:13px}
+.tl-xp dt{color:var(--fu-text-dim)}.tl-xp dd{margin:0;text-align:right;font-family:var(--fu-font-mono);color:var(--fu-gold)}
+.tl-xp .total{padding-top:8px;border-top:1px solid var(--fu-line);font-weight:700;color:var(--fu-text)}
+.tl-levelup{padding:12px 14px;border:1px solid rgba(233,185,73,.5);background:rgba(233,185,73,.08);font-size:13px;line-height:1.6}
+.tl-levelup b{color:var(--fu-gold)}
+.tl-levelup[hidden]{display:none}
+.fu-topbar{z-index:86}
+.fu-scrim{z-index:91}
+#drawer{z-index:92}
+[data-view]{display:none!important}
+.tl-overlay[data-mode="lobby"] [data-view~="lobby"],.tl-overlay[data-mode="pause"] [data-view~="pause"],.tl-overlay[data-mode="result"] [data-view~="result"]{display:block!important}
+.tl-overlay[data-mode="lobby"] :is(.head,.tl-actions)[data-view~="lobby"],.tl-overlay[data-mode="pause"] :is(.head,.tl-actions)[data-view~="pause"],.tl-overlay[data-mode="result"] :is(.head,.tl-actions)[data-view~="result"]{display:flex!important}
+/* drawer */
+.tl-tabs{display:flex;gap:2px;padding:0 var(--fu-space-5);border-bottom:1px solid var(--fu-line)}
+.tl-tabs button{min-height:44px;padding:0 12px;border:0;border-bottom:2px solid transparent;background:none;color:var(--fu-text-dim);font:700 12px/1 var(--fu-font-mono);letter-spacing:.12em;cursor:pointer}
+.tl-tabs button[aria-selected="true"]{color:var(--fu-text);border-color:var(--fu-seal)}
+.tl-panel[hidden]{display:none}
+.tl-panel ul{margin:0;padding-left:18px;font-size:13px;line-height:1.7;color:var(--fu-text-dim)}
+.tl-panel li{margin-bottom:8px}
+.tl-panel li strong{color:var(--fu-text)}
+.tl-panel .fu-switch{font-size:13px}
+.tl-panel .fu-field small{display:block;margin-top:2px}
+.tl-stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;margin-top:12px}
+.tl-stats div{padding:10px 12px;border:1px solid var(--fu-line)}
+.tl-stats b{display:block;font:700 20px/1.1 var(--fu-font-mono)}
+.tl-stats span{font-size:11px;color:var(--fu-text-dim)}
+.tl-unlocks{list-style:none;padding:0!important}
+.tl-unlocks li{display:flex;justify-content:space-between;gap:10px;margin:0!important;padding:7px 0;border-bottom:1px solid var(--fu-line)}
+.tl-unlocks li.got{color:var(--fu-text)}
+.tl-unlocks li span{font:600 11px/1.6 var(--fu-font-mono)}
+.tl-row-btn{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:10px;font-size:13px}
+.tl-row-btn p{margin:0;color:var(--fu-text-dim);font-size:12px}
+.fu-toasts{z-index:88}
+.tl-webgl{position:fixed;inset:0;z-index:90;display:grid;place-items:center;padding:24px;text-align:center;background:var(--fu-ink-0)}
+@media (pointer:coarse),(max-width:720px){.tl-pad{display:grid}.tl-keys{display:none}}
+@media (max-width:720px){
+  .fu-app{--pad:50px}
+  .tl-board-hud{width:auto;left:var(--fu-gutter);right:var(--fu-gutter);max-width:none}
+  .tl-board-hud .fu-panel{padding:8px 10px}
+  .tl-board-hud .fu-panel__head{margin-bottom:6px;padding-bottom:5px}
+  .tl-rows{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px 8px}
+  .tl-row{grid-template-columns:auto 1fr;gap:3px 5px;font-size:11px}
+  .tl-row b small{display:none}
+  .tl-row .v{grid-column:2;text-align:left;font-size:11px}
+  .tl-row .m{grid-column:1 / 3}
+  .tl-goal{display:none}
+  .tl-status{right:calc(var(--fu-gutter) + 3 * var(--pad) + 18px)}
+  .tl-status .fu-panel{padding:8px 10px}
+  .tl-status p{font-size:11.5px;line-height:1.45;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
+  .tl-level{min-width:0;padding:4px 8px}.tl-level .row span{display:none}
+  #menu-btn .lbl{display:none}
+  .tl-sheet{padding:20px 16px 0}
+  .tl-actions{margin:18px -16px 0;padding:12px 16px 16px}
+  .tl-actions .note{display:none}
+  .tl-actions .fu-btn{flex:1}
+  .tl-chips,.tl-standings{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .tl-sheet .head .fu-seal--lg{display:none}
+  .fu-toasts{top:auto;bottom:calc(var(--fu-gutter) + 3 * var(--pad) + 24px)}
+}
+@media (max-height:560px) and (min-width:600px){
+  .tl-board-hud{left:var(--fu-gutter);right:auto;width:220px;top:calc(var(--fu-topbar-h) + 2px)}
+  .tl-rows{display:flex}
+  .tl-row{grid-template-columns:auto 1fr auto}
+  .tl-row .v{grid-column:auto;text-align:right}
+  .tl-row .m{grid-column:2 / 4}
+  .tl-status{display:none}
+}
+@media (prefers-reduced-motion:reduce){.tl-row .m i,.tl-bar i{transition:none}}
 </style>
 </head>
-<body>
-  <main class="game-page io-page">
-    <nav class="site-nav" aria-label="遊戲導覽"><a class="site-brand" href="index.html"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>FuGames</a><a href="index.html" aria-label="所有遊戲 ↗"><span>所有遊戲</span><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#launch"></use></svg></a></nav>
-    <header class="page-header"><p class="eyebrow">IO / 持續陣營戰</p><h1><svg class="page-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#territory_loop"></use></svg>圈地漫遊</h1><p class="lead">畫線回家，把土地連成一片。帶著助手，搶下下一塊版圖。</p></header>
-    <section class="card play-panel" aria-label="圈地競技場">
-      <div class="game-toolbar"><p class="game-status" id="phase-label">準備出發</p><div class="game-metrics"><span>領地 <strong id="score">2.8</strong>%</span><span>助手 <strong id="helpers">0</strong></span><span>已玩 <strong id="clock">0:00</strong></span></div></div>
-      <div class="io-stage board-wrap"><canvas id="board" width="720" height="720" tabindex="0" aria-label="圈地棋盤。你是青綠圓形，用方向鍵或 WASD 轉向。" aria-describedby="status">需要支援 Canvas 的瀏覽器。</canvas>
-        <div class="board-overlay" id="overlay"><div class="game-dialog dialog" role="dialog" aria-labelledby="dialog-title" aria-describedby="dialog-copy">
-          <svg class="dialog-art" id="loop-demo" viewBox="0 0 96 72" aria-hidden="true"><rect x="14" y="25" width="34" height="33" rx="6" fill="#cbeaea"/><path d="M30 42V15H79V47H47" fill="none" stroke="#267477" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="4 4"/><path d="M25 43l7-6 7 6v11H25z" fill="#fff" stroke="#267477" stroke-width="2" stroke-linejoin="round"/><circle cx="30" cy="27" r="5" fill="#267477"/><circle cx="66" cy="47" r="3" fill="#b48ead"/></svg>
-          <p class="eyebrow" id="dialog-kicker">你是青綠圓形</p><h2 id="dialog-title">繞一圈，再回家</h2><p id="dialog-copy">離開色塊畫線，回家就能圈地。土地越大，助手越多；碰到敵方小圓點可招降。失守會重生，版圖戰持續進行。</p><button class="btn primary" id="play" aria-label="開始圈地 →"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#play"></use></svg><span>開始圈地</span></button><button class="btn" id="dialog-secondary" hidden>繼續遊戲</button>
-        </div></div>
-      </div>
-      <div class="io-support">
-<p class="game-status io-status" id="status" role="status" aria-live="polite">方向鍵／WASD 或滑動轉向。虛線要保護，小圓點可招降。</p>
-      <div class="game-actions"><p class="action-note io-hint-row"><span class="io-key"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="13" fill="currentColor"/></svg>大角色：首領</span> <span class="io-key"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="7" fill="currentColor"/></svg>小圓點：助手</span> <span class="io-key"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><path d="M10 23L24 11l14 12v15H10z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>屋形：基地</span></p><div class="btnRow"><button class="btn" id="pause" disabled aria-label="暫停"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#pause"></use></svg><span>暫停</span></button><button class="btn primary" id="restart" aria-label="重新開始"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#restart"></use></svg><span>重新開始</span></button></div></div>
-      <div class="io-controls touch-controls"><p class="action-note">滑動棋盤或點方向<br>角色會持續前進</p><div class="dpad" role="group" aria-label="觸控方向控制"><button class="btn" data-direction="up" aria-label="向上"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#arrow-up"></use></svg></button><button class="btn" data-direction="left" aria-label="向左"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#arrow-left"></use></svg></button><button class="btn" data-direction="down" aria-label="向下"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#arrow-down"></use></svg></button><button class="btn" data-direction="right" aria-label="向右"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#arrow-right"></use></svg></button></div></div>
-    </div>
-</section>
-    <details class="card rules"><summary>玩法與操作</summary><div class="rules-body"><ul class="list">
-      <li>方向鍵、WASD、棋盤滑動或方向鈕轉向，不能直接反向。角色持續前進；撞邊界或友方虛線會停住，轉向繼續。</li>
-      <li>離開己方色塊畫虛線，回到己方領地收下完整封閉區域，可搶敵方色塊。地圖邊界不算封閉線。</li>
-      <li>⌂ 是基地。領地必須與基地上下左右連通；切斷敵方土地，失去連通的部分就會變回空白。搶下基地可擊退整個陣營。</li>
-      <li>首領碰到自己的線或被切線，整個陣營撤退，約 4 秒後安全重生。敵人也會補入新一代首領；沒有倒數或終局，隨時暫停或重開。</li>
-      <li>60／120／200 格解鎖 1／2／3 名助手（約 7%／13%／22%）。助手自動圈地與攻擊；失去土地後現有助手仍保留，缺員會依領地量補充。</li>
-      <li>敵方碰到助手就會招降；助手碰到敵方首領也會倒戈。雙方規則相同，舊路徑清除，白色光環保護 1.8 秒，期間不能招降或被招降。助手被切線只損失自己。</li>
-      <li>全場最多 4 陣營、12 名助手；招降可超過自然解鎖數。首領文字顯示擴張／侵入／截地／斷線／招降／回防。出生保護約 2 秒，離開領地即解除。</li>
-      <li>空白鍵／P 暫停或繼續，Esc 暫停。切換視窗自動暫停，返回後手動繼續。全部對手都在本機運算。</li>
-    </ul></div></details>
-    <footer class="site-footer">FuGames · 隨時來一局</footer>
-    <noscript><p class="notice">請開啟 JavaScript，才能開始遊戲。</p></noscript>
-  </main>
+<body class="fu-app fu-vignette">
+<header class="fu-topbar">
+  <a class="fu-brand" href="index.html" aria-label="回到 FuGames 所有遊戲"><span class="fu-seal" aria-hidden="true">福遊</span><span class="fu-hide-sm">FuGames</span></a>
+  <div class="fu-topbar__title"><h1 class="fu-heading">圈地漫遊</h1><span class="fu-label fu-hide-sm">Territory Loop · 持續陣營戰</span></div>
+  <div class="fu-topbar__actions">
+    <button class="tl-level" id="career-chip" type="button" aria-label="生涯等級"><span class="row"><b class="fu-num" id="lv">1</b><span id="rank">拓荒者</span></span><span class="tl-bar"><i id="lv-fill"></i></span></button>
+    <button class="fu-btn fu-btn--icon" id="pause" type="button" disabled aria-label="暫停"><svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><g class="i-pause"><rect x="6" y="5" width="4" height="14"/><rect x="14" y="5" width="4" height="14"/></g><path class="i-play" d="M7 5l12 7-12 7z"/></svg></button>
+    <button class="fu-btn" id="menu-btn" type="button" aria-controls="drawer" aria-expanded="false"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h16M4 17h10"/></svg><span class="lbl">選單</span> <span class="fu-kbd fu-hide-sm">M</span></button>
+  </div>
+</header>
+<main class="fu-stage"><canvas id="board" tabindex="0" aria-label="圈地漫遊立體版圖。你是朱色陣營，方向鍵或 WASD 轉向，滑動或點擊版圖也能轉向。" aria-describedby="status"></canvas></main>
+<div class="tl-labels" id="labels" aria-hidden="true"></div>
+<div class="fu-hud fu-hud--tl tl-board-hud">
+  <section class="fu-panel fu-panel--tight" aria-label="版圖戰況">
+    <div class="fu-panel__head"><p class="fu-label"><b id="mode-mark">01</b> / <span id="mode-name">無盡版圖</span></p><span class="fu-label fu-num" id="objective">0:00</span></div>
+    <ul class="tl-rows" id="standings-hud"></ul>
+    <p class="tl-goal" id="goal">畫線回家就能圈地；切斷敵方補給，搶下基地擊退整個陣營。</p>
+  </section>
+</div>
+<div class="fu-hud fu-hud--bl tl-status">
+  <section class="fu-panel fu-panel--tight fu-panel--quiet">
+    <span class="fu-label" id="phase-label">準備出發</span>
+    <p id="status" role="status" aria-live="polite">選好模式與對手，開始圈地。</p>
+    <div class="tl-keys"><span><span class="fu-kbd">←↑↓→</span> / <span class="fu-kbd">WASD</span> 轉向</span><span><span class="fu-kbd">P</span> 暫停</span><span><span class="fu-kbd">C</span> 鏡頭</span><span><span class="fu-kbd">M</span> 選單</span></div>
+  </section>
+</div>
+<nav class="tl-pad" aria-label="觸控方向控制">
+  <button type="button" data-direction="up" aria-label="向上" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5l7 10H5z" fill="currentColor"/></svg></button>
+  <button type="button" data-direction="left" aria-label="向左" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12l10-7v14z" fill="currentColor"/></svg></button>
+  <span class="hub" aria-hidden="true">STEER</span>
+  <button type="button" data-direction="right" aria-label="向右" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12L9 19V5z" fill="currentColor"/></svg></button>
+  <button type="button" data-direction="down" aria-label="向下" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19L5 9h14z" fill="currentColor"/></svg></button>
+</nav>
 
-  <script id="game-engine">
-  'use strict';
-  // A bounded, deterministic simulation. Board owners are factions; trail owners are actor slots.
-  const Territory = (() => {
-    const SIZE = 30, STEP_MS = 150, FACTIONS = 4, MAX_HELPERS = 12;
-    const HELPER_THRESHOLDS = [60, 120, 200], RESPAWN_TICKS = 24, CONVERT_TICKS = 12;
-    const DIRECTIONS = { up: [0, -1], right: [1, 0], down: [0, 1], left: [-1, 0] };
-    const vectors = Object.values(DIRECTIONS), AREA = SIZE * SIZE;
-    const index = (x, y) => y * SIZE + x;
-    const inside = (x, y) => x >= 0 && y >= 0 && x < SIZE && y < SIZE;
-    const point = cell => [cell % SIZE, Math.floor(cell / SIZE)];
-    const distance = (a, b) => Math.abs(a % SIZE - b % SIZE) + Math.abs(Math.floor(a / SIZE) - Math.floor(b / SIZE));
-    class Game {
-      constructor(random = Math.random) { this.random = random; this.reset(); }
-      reset() {
-        this.board = new Uint8Array(AREA); this.trails = new Uint8Array(AREA);
-        this.tick = 0; this.phase = 'ready'; this.events = [];
-        this.stats = { captures: 0, cuts: 0, conversions: 0, severed: 0, spawns: 0, helpers: 0 };
-        this.actors = Array.from({ length: FACTIONS + MAX_HELPERS }, (_, n) => ({ id: n + 1, alive: false, faction: 0, trail: [], plan: [] }));
-        this.factions = [null, ...Array.from({ length: FACTIONS }, (_, n) => ({ id: n + 1, alive: false, core: -1, generation: 0, respawnAt: 0, shieldUntil: 0, nextChild: 0 }))];
-        [[5, 14], [23, 6], [23, 23], [6, 4]].forEach(([x, y], n) => this.spawnFaction(n + 1, index(x, y)));
-        this.events = []; this.stats.spawns = 0;
-      }
-      activate(a, faction, cell, role) {
-        const [x, y] = point(cell);
-        Object.assign(a, { faction, role, alive: true, x, y, previousX: x, previousY: y,
-          direction: [1, 0], pending: null, trail: [], anchor: cell, plan: [], captures: 0,
-          blocked: false, strategy: '擴張', protectedUntil: this.tick + CONVERT_TICKS, stuck: 0, born: this.tick });
-      }
-      spawnFaction(id, core) {
-        const f = this.factions[id], [x, y] = point(core);
-        Object.assign(f, { alive: true, core, generation: f.generation + 1, shieldUntil: this.tick + 16, nextChild: this.tick + 28 });
-        this.activate(this.actors[id - 1], id, core, 'leader');
-        for (let yy = y - 2; yy <= y + 2; yy++) for (let xx = x - 2; xx <= x + 2; xx++) this.board[index(xx, yy)] = id;
-        this.stats.spawns++; this.events.push({ type: 'spawn', faction: id, generation: f.generation });
-      }
-      start() { if (this.phase === 'ready' || this.phase === 'paused') this.phase = 'running'; }
-      pause() { if (this.phase === 'running') this.phase = 'paused'; }
-      steer(name) {
-        if (this.phase !== 'running' || !DIRECTIONS[name] || !this.actors[0].alive) return false;
-        const a = this.actors[0], d = DIRECTIONS[name];
-        if (d[0] === -a.direction[0] && d[1] === -a.direction[1]) return false;
-        a.pending = d; return true;
-      }
-      counts() { const counts = Array(FACTIONS + 1).fill(0); for (const cell of this.board) counts[cell]++; return counts; }
-      helpers(id) { return this.actors.filter(a => a.alive && a.role === 'helper' && a.faction === id); }
-      clearTrail(a) {
-        for (const cell of a.trail) if (this.trails[cell] === a.id) this.trails[cell] = 0;
-        a.trail = []; a.plan = [];
-      }
-      retire(a) { this.clearTrail(a); a.alive = false; a.pending = null; }
-      eliminate(a, reason) {
-        if (!a || !a.alive) return;
-        if (a.role === 'helper') {
-          this.retire(a); this.events.push({ type: 'helper-lost', faction: a.faction, reason }); return;
+<div class="fu-curtain tl-overlay" id="overlay" data-mode="lobby">
+  <div class="fu-panel tl-sheet" role="dialog" aria-modal="true" aria-labelledby="dialog-title">
+    <div class="head" data-view="lobby"><span class="fu-seal fu-seal--lg fu-stamp" aria-hidden="true">福遊</span><div><p class="fu-label">FuGames / IO · 持續陣營戰</p><h2 id="dialog-title">圈地<em>漫遊</em></h2></div></div>
+    <p class="lede" data-view="lobby">離開己方色塊畫線，回家就把圈住的土地收下。切斷敵方補給、搶下基地、招降對手的助手。你是<strong style="color:var(--fu-seal)">朱色</strong>陣營，三個 AI 陣營同時角逐。</p>
+    <section data-view="lobby"><div class="tl-career" id="lobby-career"></div></section>
+    <section data-view="lobby"><h3>對局模式 <span>無盡為預設；其餘模式有結算</span></h3><div class="tl-chips" id="mode-chips" role="group" aria-label="對局模式"></div></section>
+    <section data-view="lobby"><h3>對手 <span>越強，經驗倍率越高</span></h3><div class="tl-chips" id="tier-chips" role="group" aria-label="對手強度"></div>
+      <p class="tl-variants" id="variants"></p></section>
+    <div class="head" data-view="pause"><div><p class="fu-label">已暫停</p><h2>按兵<em>不動</em></h2></div></div>
+    <p class="lede" data-view="pause" id="pause-copy">時間與所有 AI 都停下了。</p>
+    <div class="head" data-view="result"><div><p class="fu-label" id="result-kicker">結算</p><h2 id="result-title">版圖結算</h2></div></div>
+    <p class="lede" data-view="result" id="result-copy"></p>
+    <section data-view="result"><div class="tl-standings" id="result-standings"></div></section>
+    <section data-view="result"><h3>經驗 <span id="xp-mult"></span></h3><dl class="tl-xp" id="xp-lines"></dl></section>
+    <section data-view="result" id="levelup-wrap"><div class="tl-levelup" id="levelup"></div></section>
+    <div class="tl-actions" data-view="lobby"><span class="note">方向鍵／WASD 轉向 · 滑動或點版圖轉向 · P 暫停 · C 鏡頭 · M 選單</span><button class="fu-btn" type="button" data-open-tab="settings">規則變體</button><button class="fu-btn fu-btn--seal fu-btn--lg" id="play" type="button">開始圈地</button></div>
+    <div class="tl-actions" data-view="pause"><button class="fu-btn" id="to-lobby" type="button">放棄本局</button><button class="fu-btn" id="concede" type="button">收兵結算</button><button class="fu-btn fu-btn--seal fu-btn--lg" id="resume" type="button">繼續圈地</button></div>
+    <div class="tl-actions" data-view="result"><button class="fu-btn" id="result-lobby" type="button">調整模式</button><button class="fu-btn fu-btn--seal fu-btn--lg" id="again" type="button">再來一局</button></div>
+  </div>
+</div>
+
+<aside class="fu-drawer" id="drawer" aria-label="選單">
+  <div class="fu-drawer__head"><span class="fu-label"><b>■</b> 圈地漫遊</span><button class="fu-btn fu-btn--ghost fu-btn--icon" type="button" data-fu-close aria-label="關閉選單">✕</button></div>
+  <div class="tl-tabs" role="tablist"><button role="tab" type="button" id="tab-rules" aria-selected="true" aria-controls="panel-rules">玩法</button><button role="tab" type="button" id="tab-settings" aria-selected="false" aria-controls="panel-settings">設定</button><button role="tab" type="button" id="tab-career" aria-selected="false" aria-controls="panel-career">生涯</button></div>
+  <div class="fu-drawer__body">
+    <div class="tl-panel" id="panel-rules" role="tabpanel" aria-labelledby="tab-rules"><ul>
+      <li><strong>轉向：</strong>方向鍵、WASD、滑動版圖、點擊版圖（朝點擊方向轉）或右下方向鈕，不能直接反向。角色持續前進；撞邊界、山脊或友方虛線會停住，轉向繼續。</li>
+      <li><strong>圈地：</strong>離開己方色塊畫出發光路徑，回到己方領地就收下完整封閉區域，可搶敵方色塊。地圖邊界不算封閉線。</li>
+      <li><strong>基地與補給：</strong>小塔是基地。領地必須與基地上下左右連通；切斷敵方土地，失去連通的部分會變回空白。搶下基地可擊退整個陣營。</li>
+      <li><strong>斷線：</strong>首領碰到自己的線或被切線，整個陣營撤退，約 4 秒後安全重生；敵人也會補入新一代首領。出生保護約 2 秒，離開領地即解除。</li>
+      <li><strong>助手：</strong>60／120／200 格解鎖 1／2／3 名助手，自動圈地與攻擊。敵方碰到助手就會招降；助手碰到敵方首領也會倒戈。白色光環保護 1.8 秒，期間不能招降或被招降。助手被切線只損失自己。全場最多 4 陣營、12 名助手。</li>
+      <li><strong>模式：</strong>無盡版圖沒有終局，隨時收兵結算；限時征服 3 分鐘後領地最多者勝；烽火據點每持有一座烽火台每步得 1 分，先到 1500 分（或 4.5 分鐘後最高分）勝；霸權模式要占下 40% 版圖並連續守住 15 秒，6 分鐘後比領地。</li>
+      <li><strong>對手：</strong>新兵慢、短視、不招降；老手是原版 AI；精英反應更快、更會找基地；霸主幾乎不停步、追線更遠。你的助手永遠以老手水準作戰。</li>
+      <li><strong>規則變體：</strong>群峰地形會升起數道山脊，成為所有人的牆與天然屏障；援軍潮把助手門檻降到 40／90／150 格。</li>
+      <li><strong>經驗：</strong>依圈地、斷線、招降、奪基地、巔峰領地與名次結算，乘上對手倍率（群峰再 ×1.1）。等級解鎖新模式、對手與變體，紀錄只存在這台裝置。</li>
+      <li><strong>Agent：</strong>頁面提供 <code>TerritoryApp.observe()</code> 與 <code>TerritoryApp.act('up')</code>，可在本機以腳本遊玩。</li>
+    </ul></div>
+    <div class="tl-panel" id="panel-settings" role="tabpanel" aria-labelledby="tab-settings" hidden>
+      <section><h3>規則變體 · 下一局生效</h3>
+        <div class="fu-field"><span>地形</span><div class="fu-seg" id="terrain-seg"><button type="button" value="plain" aria-pressed="true">平原</button><button type="button" value="highlands" aria-pressed="false">群峰</button></div><small id="terrain-note">群峰：數道山脊阻擋所有人。</small></div>
+        <label class="fu-switch"><span>援軍潮（助手 40／90／150 格解鎖）</span><input type="checkbox" id="set-swarm"></label>
+      </section>
+      <section><h3>畫面</h3>
+        <div class="fu-field"><span>鏡頭 <span class="fu-kbd">C</span></span><div class="fu-seg" id="camera-seg"><button type="button" value="auto" aria-pressed="true">自動</button><button type="button" value="overview" aria-pressed="false">全景</button><button type="button" value="follow" aria-pressed="false">跟隨</button></div><small>自動：手機跟隨你的首領，寬螢幕看全景。</small></div>
+        <label class="fu-switch"><span>首領意圖標籤</span><input type="checkbox" id="set-labels" checked></label>
+        <label class="fu-switch"><span>圈地起伏與波紋</span><input type="checkbox" id="set-fx" checked></label>
+      </section>
+      <section><h3>對局</h3>
+        <div class="tl-row-btn"><p>以目前設定立即重開，本局不計經驗。</p><button class="fu-btn fu-btn--sm" id="restart" type="button">重新開始</button></div>
+        <div class="tl-row-btn"><p>回到大廳選擇模式與對手。</p><button class="fu-btn fu-btn--sm" id="drawer-lobby" type="button">回大廳</button></div>
+      </section>
+    </div>
+    <div class="tl-panel" id="panel-career" role="tabpanel" aria-labelledby="tab-career" hidden>
+      <div class="tl-career" id="drawer-career"></div>
+      <div class="tl-stats" id="career-stats"></div>
+      <section><h3>解鎖進度</h3><ul class="tl-unlocks" id="unlocks"></ul></section>
+      <div class="tl-row-btn"><p>清除這台裝置上的等級與紀錄。</p><button class="fu-btn fu-btn--sm" id="reset-career" type="button">重置生涯</button></div>
+    </div>
+  </div>
+</aside>
+<noscript><div class="tl-webgl"><p>請開啟 JavaScript，才能開始遊戲。</p></div></noscript>
+<script src="shared/fu-palette.js"></script>
+<script src="shared/fu-shell.js"></script>
+<script id="game-engine">
+'use strict';
+// A bounded, deterministic simulation. Board owners are factions; trail owners are actor slots.
+// Options (match mode, AI tier, terrain, swarm) all default to the original endless rules.
+const Territory = (() => {
+  const SIZE = 30, STEP_MS = 150, FACTIONS = 4, MAX_HELPERS = 12;
+  const HELPER_THRESHOLDS = [60, 120, 200], SWARM_THRESHOLDS = [40, 90, 150], RESPAWN_TICKS = 24, CONVERT_TICKS = 12;
+  const DIRECTIONS = { up: [0, -1], right: [1, 0], down: [0, 1], left: [-1, 0] };
+  const vectors = Object.values(DIRECTIONS), AREA = SIZE * SIZE;
+  const index = (x, y) => y * SIZE + x;
+  const inside = (x, y) => x >= 0 && y >= 0 && x < SIZE && y < SIZE;
+  const point = cell => [cell % SIZE, Math.floor(cell / SIZE)];
+  const distance = (a, b) => Math.abs(a % SIZE - b % SIZE) + Math.abs(Math.floor(a / SIZE) - Math.floor(b / SIZE));
+  const SPAWNS = [[5, 14], [23, 6], [23, 23], [6, 4]];
+  // Opponent tiers. Tier 1 (veteran) is the original AI. Only enemy factions use the chosen tier;
+  // your own helpers always think like a veteran.
+  //   skip: an actor rests when (tick + id) % skip === 0, think: replan cadence, reach: attack search depth at home / afield,
+  //   threat: distance at which an enemy near the trail sends it home, maxTrail: longest line before returning.
+  const TIERS = Object.freeze([
+    Object.freeze({ id: 'recruit', name: '新兵', skip: 3, think: 4, reach: [5, 2], threat: 2, maxTrail: 22, recruit: false, coreWeight: 20, noise: .6 }),
+    Object.freeze({ id: 'veteran', name: '老手', skip: 4, think: 3, reach: [8, 3], threat: 3, maxTrail: 32, recruit: true, coreWeight: 35, noise: .18 }),
+    Object.freeze({ id: 'elite', name: '精英', skip: 6, think: 2, reach: [10, 4], threat: 3, maxTrail: 36, recruit: true, coreWeight: 50, noise: .1 }),
+    Object.freeze({ id: 'warlord', name: '霸主', skip: 10, think: 1, reach: [12, 5], threat: 4, maxTrail: 40, recruit: true, coreWeight: 70, noise: .05 })
+  ]);
+  // Match modes. Endless never ends; the others finish with a ranked result.
+  const MODES = Object.freeze({
+    endless: Object.freeze({ id: 'endless', name: '無盡版圖', limit: 0, target: 0 }),
+    conquest: Object.freeze({ id: 'conquest', name: '限時征服', limit: 1200, target: 0 }),
+    beacons: Object.freeze({ id: 'beacons', name: '烽火據點', limit: 1800, target: 1500 }),
+    domination: Object.freeze({ id: 'domination', name: '霸權', limit: 2400, target: 360, hold: 100 })
+  });
+  const BEACONS = Object.freeze([index(15, 15), index(11, 10), index(19, 10), index(11, 20), index(19, 20)]);
+  const BEACON_VALUE = 25;
+  function normalize(options = {}) {
+    const o = options || {};
+    return {
+      mode: Object.prototype.hasOwnProperty.call(MODES, o.mode) ? o.mode : 'endless',
+      tier: Number.isInteger(o.tier) && TIERS[o.tier] ? o.tier : 1,
+      terrain: o.terrain === 'highlands' ? 'highlands' : 'plain',
+      swarm: o.swarm === true
+    };
+  }
+  class Game {
+    constructor(random = Math.random, options) { this.random = random; this.options = normalize(options); this.reset(); }
+    reset(options) {
+      if (options) this.options = normalize(options);
+      this.mode = MODES[this.options.mode]; this.ai = TIERS[this.options.tier];
+      this.board = new Uint8Array(AREA); this.trails = new Uint8Array(AREA); this.rocks = new Uint8Array(AREA);
+      this.tick = 0; this.phase = 'ready'; this.events = []; this.result = null;
+      this.beacons = this.mode.id === 'beacons' ? BEACONS.slice() : [];
+      this.scores = Array(FACTIONS + 1).fill(0); this.hold = Array(FACTIONS + 1).fill(0);
+      this.stats = { captures: 0, cuts: 0, conversions: 0, severed: 0, spawns: 0, helpers: 0 };
+      this.tally = [null, ...Array.from({ length: FACTIONS }, () => ({ captures: 0, claimed: 0, cuts: 0, recruits: 0, bases: 0, falls: 0, peak: 25 }))];
+      this.actors = Array.from({ length: FACTIONS + MAX_HELPERS }, (_, n) => ({ id: n + 1, alive: false, faction: 0, trail: [], plan: [] }));
+      this.factions = [null, ...Array.from({ length: FACTIONS }, (_, n) => ({ id: n + 1, alive: false, core: -1, generation: 0, respawnAt: 0, shieldUntil: 0, nextChild: 0 }))];
+      if (this.options.terrain === 'highlands') this.raiseTerrain();
+      SPAWNS.forEach(([x, y], n) => this.spawnFaction(n + 1, index(x, y)));
+      this.events = []; this.stats.spawns = 0;
+    }
+    // Short rock ridges create chokepoints. They are generated away from the four homes and the beacons.
+    raiseTerrain() {
+      const homes = SPAWNS.map(([x, y]) => index(x, y));
+      let ridges = 0;
+      for (let attempt = 0; ridges < 8 && attempt < 200; attempt++) {
+        const x = 1 + Math.floor(this.random() * (SIZE - 2)), y = 1 + Math.floor(this.random() * (SIZE - 2));
+        const length = 2 + Math.floor(this.random() * 4), horizontal = this.random() < .5, cells = [];
+        for (let n = 0; n < length; n++) {
+          const cx = horizontal ? x + n : x, cy = horizontal ? y : y + n;
+          if (inside(cx, cy)) cells.push(index(cx, cy));
         }
-        const f = this.factions[a.faction]; f.alive = false; f.respawnAt = this.tick + RESPAWN_TICKS;
-        for (const other of this.actors) if (other.alive && other.faction === f.id) this.retire(other);
-        for (let cell = 0; cell < AREA; cell++) if (this.board[cell] === f.id) this.board[cell] = 0;
-        this.events.push({ type: 'eliminated', faction: f.id, reason });
+        if (cells.some(cell => homes.some(home => distance(home, cell) < 6) || BEACONS.some(b => distance(b, cell) < 2))) continue;
+        for (const cell of cells) this.rocks[cell] = 1;
+        ridges++;
       }
-      convert(a, faction) {
-        if (!a.alive || a.role !== 'helper' || a.faction === faction || a.protectedUntil > this.tick) return false;
-        const from = a.faction; this.clearTrail(a); a.faction = faction;
-        a.protectedUntil = this.tick + CONVERT_TICKS; a.anchor = index(a.x, a.y); a.strategy = '回防'; a.stuck = 0;
-        this.stats.conversions++; this.events.push({ type: 'convert', id: a.id, from, faction }); return true;
+    }
+    tierOf(a) { return a.faction === 1 ? TIERS[1] : this.ai; }
+    credit(faction, key, n = 1) { if (this.tally[faction]) this.tally[faction][key] += n; }
+    activate(a, faction, cell, role) {
+      const [x, y] = point(cell);
+      Object.assign(a, { faction, role, alive: true, x, y, previousX: x, previousY: y,
+        direction: [1, 0], pending: null, trail: [], anchor: cell, plan: [], captures: 0,
+        blocked: false, strategy: '擴張', protectedUntil: this.tick + CONVERT_TICKS, stuck: 0, born: this.tick });
+    }
+    spawnFaction(id, core) {
+      const f = this.factions[id], [x, y] = point(core);
+      Object.assign(f, { alive: true, core, generation: f.generation + 1, shieldUntil: this.tick + 16, nextChild: this.tick + 28 });
+      this.activate(this.actors[id - 1], id, core, 'leader');
+      for (let yy = y - 2; yy <= y + 2; yy++) for (let xx = x - 2; xx <= x + 2; xx++) this.board[index(xx, yy)] = id;
+      this.stats.spawns++; this.events.push({ type: 'spawn', faction: id, generation: f.generation });
+    }
+    start() { if (this.phase === 'ready' || this.phase === 'paused') this.phase = 'running'; }
+    pause() { if (this.phase === 'running') this.phase = 'paused'; }
+    steer(name) {
+      if (this.phase !== 'running' || !DIRECTIONS[name] || !this.actors[0].alive) return false;
+      const a = this.actors[0], d = DIRECTIONS[name];
+      if (d[0] === -a.direction[0] && d[1] === -a.direction[1]) return false;
+      a.pending = d; return true;
+    }
+    counts() { const counts = Array(FACTIONS + 1).fill(0); for (const cell of this.board) counts[cell]++; return counts; }
+    helpers(id) { return this.actors.filter(a => a.alive && a.role === 'helper' && a.faction === id); }
+    clearTrail(a) {
+      for (const cell of a.trail) if (this.trails[cell] === a.id) this.trails[cell] = 0;
+      a.trail = []; a.plan = [];
+    }
+    retire(a) { this.clearTrail(a); a.alive = false; a.pending = null; }
+    eliminate(a, reason) {
+      if (!a || !a.alive) return;
+      if (a.role === 'helper') {
+        this.retire(a); this.events.push({ type: 'helper-lost', faction: a.faction, reason }); return;
       }
-      contact(a) {
-        if (a.protectedUntil > this.tick) return;
-        for (const b of this.actors) {
-          if (!b.alive || b.id === a.id || b.faction === a.faction || b.x !== a.x || b.y !== a.y || b.protectedUntil > this.tick) continue;
-          // The mover recruits the touched helper. A helper touching a leader joins that leader.
-          if (b.role === 'helper') { this.convert(b, a.faction); return; }
-          if (a.role === 'helper') { this.convert(a, b.faction); return; }
+      const f = this.factions[a.faction]; f.alive = false; f.respawnAt = this.tick + RESPAWN_TICKS;
+      for (const other of this.actors) if (other.alive && other.faction === f.id) this.retire(other);
+      for (let cell = 0; cell < AREA; cell++) if (this.board[cell] === f.id) this.board[cell] = 0;
+      this.credit(f.id, 'falls');
+      this.events.push({ type: 'eliminated', faction: f.id, reason, x: a.x, y: a.y });
+    }
+    convert(a, faction) {
+      if (!a.alive || a.role !== 'helper' || a.faction === faction || a.protectedUntil > this.tick) return false;
+      const from = a.faction; this.clearTrail(a); a.faction = faction;
+      a.protectedUntil = this.tick + CONVERT_TICKS; a.anchor = index(a.x, a.y); a.strategy = '回防'; a.stuck = 0;
+      this.stats.conversions++; this.credit(faction, 'recruits');
+      this.events.push({ type: 'convert', id: a.id, from, faction }); return true;
+    }
+    contact(a) {
+      if (a.protectedUntil > this.tick) return;
+      for (const b of this.actors) {
+        if (!b.alive || b.id === a.id || b.faction === a.faction || b.x !== a.x || b.y !== a.y || b.protectedUntil > this.tick) continue;
+        // The mover recruits the touched helper. A helper touching a leader joins that leader.
+        if (b.role === 'helper') { this.convert(b, a.faction); return; }
+        if (a.role === 'helper') { this.convert(a, b.faction); return; }
+      }
+    }
+    reconcile() {
+      // Only land connected to its fixed home base survives an invasion.
+      for (const f of this.factions.slice(1)) {
+        if (!f.alive) continue;
+        if (this.board[f.core] !== f.id) {
+          if (this.board[f.core]) { this.credit(this.board[f.core], 'bases'); this.events.push({ type: 'base', faction: this.board[f.core], lost: f.id }); }
+          this.eliminate(this.actors[f.id - 1], '基地被奪走'); continue;
         }
-      }
-      reconcile() {
-        // Only land connected to its fixed home base survives an invasion.
-        for (const f of this.factions.slice(1)) {
-          if (!f.alive) continue;
-          if (this.board[f.core] !== f.id) { this.eliminate(this.actors[f.id - 1], '基地被奪走'); continue; }
-          const seen = new Uint8Array(AREA), queue = [f.core]; seen[f.core] = 1;
-          for (let head = 0; head < queue.length; head++) {
-            const [x, y] = point(queue[head]);
-            for (const [dx, dy] of vectors) if (inside(x + dx, y + dy)) {
-              const cell = index(x + dx, y + dy);
-              if (!seen[cell] && this.board[cell] === f.id) { seen[cell] = 1; queue.push(cell); }
-            }
-          }
-          let lost = 0;
-          for (let cell = 0; cell < AREA; cell++) if (this.board[cell] === f.id && !seen[cell]) { this.board[cell] = 0; lost++; }
-          if (lost) { this.stats.severed += lost; this.events.push({ type: 'sever', faction: f.id, lost }); }
-        }
-      }
-      capture(a) {
-        const faction = a.faction, before = this.counts()[faction], claimed = [];
-        const canClaim = cell => !this.board[cell] || this.board[cell] === faction || this.factions[this.board[cell]].shieldUntil <= this.tick;
-        for (const cell of a.trail) if (canClaim(cell)) { this.board[cell] = faction; claimed.push(cell); }
-        this.clearTrail(a);
-        const outside = new Uint8Array(AREA), queue = [];
-        const visit = cell => { if (!outside[cell] && this.board[cell] !== faction) { outside[cell] = 1; queue.push(cell); } };
-        for (let n = 0; n < SIZE; n++) { visit(index(n, 0)); visit(index(n, SIZE - 1)); visit(index(0, n)); visit(index(SIZE - 1, n)); }
+        const seen = new Uint8Array(AREA), queue = [f.core]; seen[f.core] = 1;
         for (let head = 0; head < queue.length; head++) {
           const [x, y] = point(queue[head]);
-          for (const [dx, dy] of vectors) if (inside(x + dx, y + dy)) visit(index(x + dx, y + dy));
-        }
-        for (let cell = 0; cell < AREA; cell++) if (!outside[cell] && this.board[cell] !== faction && canClaim(cell)) { this.board[cell] = faction; claimed.push(cell); }
-        const cut = new Set(claimed.map(cell => this.trails[cell]).filter(id => id && this.actors[id - 1].faction !== faction));
-        for (const id of cut) { this.stats.cuts++; this.eliminate(this.actors[id - 1], '路徑被圈入敵方領地'); }
-        this.reconcile(); a.captures++; this.stats.captures++;
-        this.events.push({ type: 'capture', id: a.id, faction, gain: Math.max(0, this.counts()[faction] - before) });
-      }
-      move(a, direction) {
-        if (!a.alive || this.phase !== 'running' || !direction || Math.abs(direction[0]) + Math.abs(direction[1]) !== 1) return;
-        a.previousX = a.x; a.previousY = a.y; a.direction = direction;
-        const x = a.x + direction[0], y = a.y + direction[1]; a.blocked = !inside(x, y);
-        if (a.blocked) return;
-        let cell = index(x, y), owner = this.trails[cell];
-        if (owner === a.id) { this.eliminate(a, '碰到了自己的路徑'); return; }
-        // Allied trails are solid to teammates; they never overwrite one another's ownership.
-        if (owner && this.actors[owner - 1].faction === a.faction) { a.blocked = true; a.plan = []; return; }
-        a.x = x; a.y = y; this.contact(a); owner = this.trails[cell];
-        // Contact can change the mover's faction before the trail collision is resolved.
-        if (owner && this.actors[owner - 1].faction === a.faction) {
-          a.x = a.previousX; a.y = a.previousY; a.blocked = true; a.plan = []; return;
-        }
-        if (owner && this.actors[owner - 1].faction !== a.faction) {
-          this.stats.cuts++; this.eliminate(this.actors[owner - 1], '路徑被敵方切斷');
-          this.events.push({ type: 'cut', faction: a.faction }); a.plan = [];
-        }
-        if (this.board[cell] === a.faction) {
-          if (a.trail.length) this.capture(a);
-          a.anchor = cell;
-        } else {
-          if (a.role === 'leader') this.factions[a.faction].shieldUntil = this.tick;
-          this.trails[cell] = a.id; a.trail.push(cell);
-        }
-      }
-      route(a, target, limit = AREA, homeOnly = false) {
-        const start = index(a.x, a.y), queue = [start], previous = new Int16Array(AREA).fill(-1), depths = new Uint16Array(AREA);
-        previous[start] = start;
-        for (let head = 0; head < queue.length; head++) {
-          const cell = queue[head];
-          if (cell !== start && target(cell)) {
-            const route = []; for (let at = cell; at !== start; at = previous[at]) route.push(at); return route.reverse();
-          }
-          if (depths[cell] >= limit) continue;
-          const [x, y] = point(cell);
           for (const [dx, dy] of vectors) if (inside(x + dx, y + dy)) {
-            const next = index(x + dx, y + dy), owner = this.trails[next];
-            if (previous[next] !== -1 || (owner && this.actors[owner - 1].faction === a.faction) || (homeOnly && this.board[next] !== a.faction)) continue;
-            previous[next] = cell; depths[next] = depths[cell] + 1; queue.push(next);
+            const cell = index(x + dx, y + dy);
+            if (!seen[cell] && this.board[cell] === f.id) { seen[cell] = 1; queue.push(cell); }
           }
         }
-        return [];
-      }
-      pathHome(a) { return this.route(a, cell => this.board[cell] === a.faction); }
-      expansionPlan(a) {
-        const faction = a.faction, start = index(a.x, a.y), frontier = [], queue = [start], previous = new Int16Array(AREA).fill(-1);
-        previous[start] = start;
-        for (let head = 0; head < queue.length; head++) {
-          const cell = queue[head], [x, y] = point(cell); let edge = false;
-          for (const [dx, dy] of vectors) if (inside(x + dx, y + dy)) {
-            const next = index(x + dx, y + dy);
-            if (this.board[next] !== faction) edge = true;
-            else if (previous[next] === -1 && !this.trails[next]) { previous[next] = cell; queue.push(next); }
-          }
-          if (edge) frontier.push(cell);
-        }
-        // Sample reachable fronts, including distant enemy-facing edges, instead of circling one location.
-        const fronts = frontier.sort((u, v) => distance(start, u) - distance(start, v)).slice(0, 5);
-        for (let n = 0; n < 6 && frontier.length; n++) { const cell = frontier[Math.floor(this.random() * frontier.length)]; if (!fronts.includes(cell)) fronts.push(cell); }
-        let best = [], bestScore = -Infinity, strategy = '擴張';
-        for (const base of fronts) {
-          const approach = []; for (let at = base; at !== start; at = previous[at]) approach.push(at); approach.reverse();
-          for (const [dx, dy] of vectors) for (const side of [-1, 1]) for (let attempt = 0; attempt < 2; attempt++) {
-            const width = 2 + Math.floor(this.random() * (a.role === 'helper' ? 4 : 7));
-            const height = 2 + Math.floor(this.random() * (a.role === 'helper' ? 4 : 7));
-            const sx = -dy * side, sy = dx * side, loop = [], used = new Set();
-            let [x, y] = point(base), left = false, closed = false, valid = true;
-            const corners = [[dx, dy, width], [sx, sy, height], [-dx, -dy, width], [-sx, -sy, height]];
-            for (const [vx, vy, steps] of corners) {
-              for (let n = 0; n < steps; n++) {
-                x += vx; y += vy;
-                if (!inside(x, y)) { valid = false; break; }
-                const cell = index(x, y), owner = this.trails[cell];
-                if (used.has(cell) || (owner && this.actors[owner - 1].faction === faction)) { valid = false; break; }
-                loop.push(cell); used.add(cell);
-                if (this.board[cell] !== faction) left = true;
-                else if (left) { closed = true; break; }
-              }
-              if (!valid || closed) break;
-            }
-            if (!valid || !closed) continue;
-            const xs = [base, ...loop].map(cell => cell % SIZE), ys = [base, ...loop].map(cell => Math.floor(cell / SIZE));
-            let gain = 0, stolen = 0, neck = 0, core = 0, danger = 0;
-            for (let yy = Math.min(...ys); yy <= Math.max(...ys); yy++) for (let xx = Math.min(...xs); xx <= Math.max(...xs); xx++) {
-              const cell = index(xx, yy), owner = this.board[cell];
-              if (owner === faction || (owner && this.factions[owner].shieldUntil > this.tick)) continue;
-              gain++;
-              if (owner) {
-                stolen++;
-                if (this.factions[owner].core === cell) core += 35;
-                const same = (dx, dy) => inside(xx + dx, yy + dy) && this.board[index(xx + dx, yy + dy)] === owner;
-                if ((same(-1, 0) && same(1, 0) && !same(0, -1) && !same(0, 1)) || (same(0, -1) && same(0, 1) && !same(-1, 0) && !same(1, 0))) neck += 5;
-              }
-            }
-            if (!gain) continue;
-            for (const b of this.actors) if (b.alive && b.faction !== faction) {
-              const cell = index(b.x, b.y);
-              for (const next of loop) if (this.board[next] !== faction && distance(next, cell) < 4) danger += .16;
-            }
-            const score = (gain + stolen * 1.8 + neck + core) / (loop.length + approach.length * .8) - danger + this.random() * .18;
-            if (score > bestScore) { best = [...approach, ...loop]; bestScore = score; strategy = neck ? '截地' : stolen ? '侵入' : '擴張'; }
-          }
-        }
-        a.strategy = strategy; return best;
-      }
-      aiDirection(a) {
-        const here = index(a.x, a.y), atHome = this.board[here] === a.faction;
-        const next = a.plan[0];
-        if (next !== undefined && (distance(here, next) !== 1 || (this.trails[next] && this.actors[this.trails[next] - 1].faction === a.faction))) a.plan = [];
-        if ((this.tick + a.id) % 3 === 0 || !a.plan.length) {
-          const attack = this.route(a, cell => {
-            const owner = this.trails[cell]; return owner && this.actors[owner - 1].faction !== a.faction;
-          }, atHome ? 8 : 3);
-          if (attack.length) { a.plan = attack; a.strategy = '斷線'; }
-          else {
-            const threatened = a.trail.length && this.actors.some(b => b.alive && b.faction !== a.faction && a.trail.some(cell => distance(cell, index(b.x, b.y)) <= 3));
-            if (threatened || a.trail.length > 32) { const home = this.pathHome(a); if (home.length) { a.plan = home; a.strategy = '回防'; } }
-            else if (atHome && a.protectedUntil <= this.tick) {
-              const recruits = new Set(this.actors.filter(b => b.alive && b.faction !== a.faction && b.role === 'helper' && b.protectedUntil <= this.tick).map(b => index(b.x, b.y)));
-              if (recruits.size) { const route = this.route(a, cell => recruits.has(cell), 4); if (route.length) { a.plan = route; a.strategy = '招降'; } }
-            }
-          }
-        }
-        if (!a.plan.length) { a.plan = atHome ? this.expansionPlan(a) : this.pathHome(a); if (!atHome) a.strategy = '回防'; }
-        if (!a.plan.length) {
-          a.stuck++;
-          // A completely enclosed actor cannot hold a path forever. Its faction gets another entry.
-          if (!atHome && a.stuck >= 8) this.eliminate(a, '退路被封鎖');
-          return null;
-        }
-        a.stuck = 0; const [x, y] = point(a.plan.shift()); return [x - a.x, y - a.y];
-      }
-      spawnSite() {
-        let best = -1, score = -Infinity;
-        const active = this.actors.filter(a => a.alive), cores = this.factions.slice(1).filter(f => f.alive);
-        for (let y = 2; y < SIZE - 2; y++) for (let x = 2; x < SIZE - 2; x++) {
-          const cell = index(x, y);
-          if (active.some(a => Math.max(Math.abs(x - a.x), Math.abs(y - a.y)) < 5) || cores.some(f => distance(cell, f.core) < 8)) continue;
-          let neutral = 0, safe = true;
-          for (let yy = y - 2; yy <= y + 2 && safe; yy++) for (let xx = x - 2; xx <= x + 2; xx++) {
-            const at = index(xx, yy), owner = this.board[at];
-            if (this.trails[at] || (owner && this.factions[owner].shieldUntil > this.tick)) { safe = false; break; }
-            if (!owner) neutral++;
-          }
-          if (!safe) continue;
-          const nearest = active.length ? Math.min(...active.map(a => distance(cell, index(a.x, a.y)))) : 30;
-          const value = neutral * 2 + nearest + this.random() * 3;
-          if (value > score) { best = cell; score = value; }
-        }
-        return best;
-      }
-      maintain() {
-        for (const f of this.factions.slice(1)) if (!f.alive && this.tick >= f.respawnAt) {
-          const site = this.spawnSite();
-          if (site >= 0) { this.spawnFaction(f.id, site); this.reconcile(); }
-          else f.respawnAt = this.tick + 8; // Retry without spawning on a body or an exposed path.
-        }
-        const counts = this.counts();
-        for (const f of this.factions.slice(1)) {
-          if (!f.alive || this.tick < f.nextChild) continue;
-          const wanted = HELPER_THRESHOLDS.filter(n => counts[f.id] >= n).length;
-          if (this.helpers(f.id).length >= wanted) continue;
-          const slot = this.actors.slice(FACTIONS).find(a => !a.alive); if (!slot) continue;
-          let site = -1, closest = Infinity;
-          for (let cell = 0; cell < AREA; cell++) if (this.board[cell] === f.id && !this.trails[cell] && !this.actors.some(a => a.alive && index(a.x, a.y) === cell)) {
-            const d = distance(cell, f.core); if (d < closest) { site = cell; closest = d; }
-          }
-          if (site >= 0) {
-            this.activate(slot, f.id, site, 'helper'); f.nextChild = this.tick + 36;
-            this.stats.helpers++; this.events.push({ type: 'helper', faction: f.id });
-          }
-        }
-      }
-      step() {
-        if (this.phase !== 'running') return;
-        this.events = []; this.tick++;
-        for (const a of this.actors) { a.previousX = a.x; a.previousY = a.y; }
-        // Rotate all actor slots for fair contact/cutting priority, independent of faction.
-        for (let n = 0; n < this.actors.length; n++) {
-          const a = this.actors[(n + this.tick) % this.actors.length]; if (!a.alive) continue;
-          if (a.id === 1) { const d = a.pending || a.direction; a.pending = null; this.move(a, d); }
-          else if ((this.tick + a.id) % 4 !== 0) { const d = this.aiDirection(a); if (d) this.move(a, d); }
-        }
-        if (this.tick % 4 === 0) this.maintain();
+        let lost = 0;
+        for (let cell = 0; cell < AREA; cell++) if (this.board[cell] === f.id && !seen[cell]) { this.board[cell] = 0; lost++; }
+        if (lost) { this.stats.severed += lost; this.events.push({ type: 'sever', faction: f.id, lost }); }
       }
     }
-    return { Game, SIZE, STEP_MS, FACTIONS, MAX_HELPERS, HELPER_THRESHOLDS, RESPAWN_TICKS, CONVERT_TICKS, DIRECTIONS, index };
-  })();
-  </script>
-
-  <script id="game-ui">
+    capture(a) {
+      const faction = a.faction, before = this.counts()[faction], claimed = [];
+      const canClaim = cell => !this.rocks[cell] && (!this.board[cell] || this.board[cell] === faction || this.factions[this.board[cell]].shieldUntil <= this.tick);
+      for (const cell of a.trail) if (canClaim(cell)) { this.board[cell] = faction; claimed.push(cell); }
+      this.clearTrail(a);
+      const outside = new Uint8Array(AREA), queue = [];
+      const visit = cell => { if (!outside[cell] && this.board[cell] !== faction) { outside[cell] = 1; queue.push(cell); } };
+      for (let n = 0; n < SIZE; n++) { visit(index(n, 0)); visit(index(n, SIZE - 1)); visit(index(0, n)); visit(index(SIZE - 1, n)); }
+      for (let head = 0; head < queue.length; head++) {
+        const [x, y] = point(queue[head]);
+        for (const [dx, dy] of vectors) if (inside(x + dx, y + dy)) visit(index(x + dx, y + dy));
+      }
+      for (let cell = 0; cell < AREA; cell++) if (!outside[cell] && this.board[cell] !== faction && canClaim(cell)) { this.board[cell] = faction; claimed.push(cell); }
+      const cut = new Set(claimed.map(cell => this.trails[cell]).filter(id => id && this.actors[id - 1].faction !== faction));
+      for (const id of cut) { this.stats.cuts++; this.credit(faction, 'cuts'); this.eliminate(this.actors[id - 1], '路徑被圈入敵方領地'); }
+      this.reconcile(); a.captures++; this.stats.captures++;
+      const gain = Math.max(0, this.counts()[faction] - before);
+      this.credit(faction, 'captures'); this.credit(faction, 'claimed', gain);
+      this.events.push({ type: 'capture', id: a.id, faction, gain, x: a.x, y: a.y });
+    }
+    move(a, direction) {
+      if (!a.alive || this.phase !== 'running' || !direction || Math.abs(direction[0]) + Math.abs(direction[1]) !== 1) return;
+      a.previousX = a.x; a.previousY = a.y; a.direction = direction;
+      const x = a.x + direction[0], y = a.y + direction[1]; a.blocked = !inside(x, y);
+      if (a.blocked) return;
+      let cell = index(x, y), owner = this.trails[cell];
+      // Rock ridges (highlands terrain) are walls for everyone.
+      if (this.rocks[cell]) { a.blocked = true; a.plan = []; return; }
+      if (owner === a.id) { this.eliminate(a, '碰到了自己的路徑'); return; }
+      // Allied trails are solid to teammates; they never overwrite one another's ownership.
+      if (owner && this.actors[owner - 1].faction === a.faction) { a.blocked = true; a.plan = []; return; }
+      a.x = x; a.y = y; this.contact(a); owner = this.trails[cell];
+      // Contact can change the mover's faction before the trail collision is resolved.
+      if (owner && this.actors[owner - 1].faction === a.faction) {
+        a.x = a.previousX; a.y = a.previousY; a.blocked = true; a.plan = []; return;
+      }
+      if (owner && this.actors[owner - 1].faction !== a.faction) {
+        this.stats.cuts++; this.credit(a.faction, 'cuts'); this.eliminate(this.actors[owner - 1], '路徑被敵方切斷');
+        this.events.push({ type: 'cut', faction: a.faction, x, y }); a.plan = [];
+      }
+      if (this.board[cell] === a.faction) {
+        if (a.trail.length) this.capture(a);
+        a.anchor = cell;
+      } else {
+        if (a.role === 'leader') this.factions[a.faction].shieldUntil = this.tick;
+        this.trails[cell] = a.id; a.trail.push(cell);
+      }
+    }
+    route(a, target, limit = AREA, homeOnly = false) {
+      const start = index(a.x, a.y), queue = [start], previous = new Int16Array(AREA).fill(-1), depths = new Uint16Array(AREA);
+      previous[start] = start;
+      for (let head = 0; head < queue.length; head++) {
+        const cell = queue[head];
+        if (cell !== start && target(cell)) {
+          const route = []; for (let at = cell; at !== start; at = previous[at]) route.push(at); return route.reverse();
+        }
+        if (depths[cell] >= limit) continue;
+        const [x, y] = point(cell);
+        for (const [dx, dy] of vectors) if (inside(x + dx, y + dy)) {
+          const next = index(x + dx, y + dy), owner = this.trails[next];
+          if (previous[next] !== -1 || this.rocks[next] || (owner && this.actors[owner - 1].faction === a.faction) || (homeOnly && this.board[next] !== a.faction)) continue;
+          previous[next] = cell; depths[next] = depths[cell] + 1; queue.push(next);
+        }
+      }
+      return [];
+    }
+    pathHome(a) { return this.route(a, cell => this.board[cell] === a.faction); }
+    expansionPlan(a) {
+      const faction = a.faction, ai = this.tierOf(a), start = index(a.x, a.y), frontier = [], queue = [start], previous = new Int16Array(AREA).fill(-1);
+      previous[start] = start;
+      for (let head = 0; head < queue.length; head++) {
+        const cell = queue[head], [x, y] = point(cell); let edge = false;
+        for (const [dx, dy] of vectors) if (inside(x + dx, y + dy)) {
+          const next = index(x + dx, y + dy);
+          if (this.board[next] !== faction) edge = true;
+          else if (previous[next] === -1 && !this.trails[next]) { previous[next] = cell; queue.push(next); }
+        }
+        if (edge) frontier.push(cell);
+      }
+      // Sample reachable fronts, including distant enemy-facing edges, instead of circling one location.
+      const fronts = frontier.sort((u, v) => distance(start, u) - distance(start, v)).slice(0, 5);
+      for (let n = 0; n < 6 && frontier.length; n++) { const cell = frontier[Math.floor(this.random() * frontier.length)]; if (!fronts.includes(cell)) fronts.push(cell); }
+      let best = [], bestScore = -Infinity, strategy = '擴張';
+      for (const base of fronts) {
+        const approach = []; for (let at = base; at !== start; at = previous[at]) approach.push(at); approach.reverse();
+        for (const [dx, dy] of vectors) for (const side of [-1, 1]) for (let attempt = 0; attempt < 2; attempt++) {
+          const width = 2 + Math.floor(this.random() * (a.role === 'helper' ? 4 : 7));
+          const height = 2 + Math.floor(this.random() * (a.role === 'helper' ? 4 : 7));
+          const sx = -dy * side, sy = dx * side, loop = [], used = new Set();
+          let [x, y] = point(base), left = false, closed = false, valid = true;
+          const corners = [[dx, dy, width], [sx, sy, height], [-dx, -dy, width], [-sx, -sy, height]];
+          for (const [vx, vy, steps] of corners) {
+            for (let n = 0; n < steps; n++) {
+              x += vx; y += vy;
+              if (!inside(x, y)) { valid = false; break; }
+              const cell = index(x, y), owner = this.trails[cell];
+              if (used.has(cell) || this.rocks[cell] || (owner && this.actors[owner - 1].faction === faction)) { valid = false; break; }
+              loop.push(cell); used.add(cell);
+              if (this.board[cell] !== faction) left = true;
+              else if (left) { closed = true; break; }
+            }
+            if (!valid || closed) break;
+          }
+          if (!valid || !closed) continue;
+          const xs = [base, ...loop].map(cell => cell % SIZE), ys = [base, ...loop].map(cell => Math.floor(cell / SIZE));
+          let gain = 0, stolen = 0, neck = 0, core = 0, danger = 0;
+          for (let yy = Math.min(...ys); yy <= Math.max(...ys); yy++) for (let xx = Math.min(...xs); xx <= Math.max(...xs); xx++) {
+            const cell = index(xx, yy), owner = this.board[cell];
+            if (this.rocks[cell] || owner === faction || (owner && this.factions[owner].shieldUntil > this.tick)) continue;
+            gain++;
+            if (this.beacons.length && this.beacons.includes(cell)) core += BEACON_VALUE;
+            if (owner) {
+              stolen++;
+              if (this.factions[owner].core === cell) core += ai.coreWeight;
+              const same = (dx, dy) => inside(xx + dx, yy + dy) && this.board[index(xx + dx, yy + dy)] === owner;
+              if ((same(-1, 0) && same(1, 0) && !same(0, -1) && !same(0, 1)) || (same(0, -1) && same(0, 1) && !same(-1, 0) && !same(1, 0))) neck += 5;
+            }
+          }
+          if (!gain) continue;
+          for (const b of this.actors) if (b.alive && b.faction !== faction) {
+            const cell = index(b.x, b.y);
+            for (const next of loop) if (this.board[next] !== faction && distance(next, cell) < 4) danger += .16;
+          }
+          const score = (gain + stolen * 1.8 + neck + core) / (loop.length + approach.length * .8) - danger + this.random() * ai.noise;
+          if (score > bestScore) { best = [...approach, ...loop]; bestScore = score; strategy = neck ? '截地' : stolen ? '侵入' : '擴張'; }
+        }
+      }
+      a.strategy = strategy; return best;
+    }
+    aiDirection(a) {
+      const ai = this.tierOf(a), here = index(a.x, a.y), atHome = this.board[here] === a.faction;
+      const next = a.plan[0];
+      if (next !== undefined && (distance(here, next) !== 1 || this.rocks[next] || (this.trails[next] && this.actors[this.trails[next] - 1].faction === a.faction))) a.plan = [];
+      if ((this.tick + a.id) % ai.think === 0 || !a.plan.length) {
+        const attack = this.route(a, cell => {
+          const owner = this.trails[cell]; return owner && this.actors[owner - 1].faction !== a.faction;
+        }, atHome ? ai.reach[0] : ai.reach[1]);
+        if (attack.length) { a.plan = attack; a.strategy = '斷線'; }
+        else {
+          const threatened = a.trail.length && this.actors.some(b => b.alive && b.faction !== a.faction && a.trail.some(cell => distance(cell, index(b.x, b.y)) <= ai.threat));
+          if (threatened || a.trail.length > ai.maxTrail) { const home = this.pathHome(a); if (home.length) { a.plan = home; a.strategy = '回防'; } }
+          else if (ai.recruit && atHome && a.protectedUntil <= this.tick) {
+            const recruits = new Set(this.actors.filter(b => b.alive && b.faction !== a.faction && b.role === 'helper' && b.protectedUntil <= this.tick).map(b => index(b.x, b.y)));
+            if (recruits.size) { const route = this.route(a, cell => recruits.has(cell), 4); if (route.length) { a.plan = route; a.strategy = '招降'; } }
+          }
+        }
+      }
+      if (!a.plan.length) { a.plan = atHome ? this.expansionPlan(a) : this.pathHome(a); if (!atHome) a.strategy = '回防'; }
+      if (!a.plan.length) {
+        a.stuck++;
+        // A completely enclosed actor cannot hold a path forever. Its faction gets another entry.
+        if (!atHome && a.stuck >= 8) this.eliminate(a, '退路被封鎖');
+        return null;
+      }
+      a.stuck = 0; const [x, y] = point(a.plan.shift()); return [x - a.x, y - a.y];
+    }
+    spawnSite() {
+      let best = -1, score = -Infinity;
+      const active = this.actors.filter(a => a.alive), cores = this.factions.slice(1).filter(f => f.alive);
+      for (let y = 2; y < SIZE - 2; y++) for (let x = 2; x < SIZE - 2; x++) {
+        const cell = index(x, y);
+        if (active.some(a => Math.max(Math.abs(x - a.x), Math.abs(y - a.y)) < 5) || cores.some(f => distance(cell, f.core) < 8)) continue;
+        let neutral = 0, safe = true;
+        for (let yy = y - 2; yy <= y + 2 && safe; yy++) for (let xx = x - 2; xx <= x + 2; xx++) {
+          const at = index(xx, yy), owner = this.board[at];
+          if (this.trails[at] || this.rocks[at] || (owner && this.factions[owner].shieldUntil > this.tick)) { safe = false; break; }
+          if (!owner) neutral++;
+        }
+        if (!safe) continue;
+        const nearest = active.length ? Math.min(...active.map(a => distance(cell, index(a.x, a.y)))) : 30;
+        const value = neutral * 2 + nearest + this.random() * 3;
+        if (value > score) { best = cell; score = value; }
+      }
+      return best;
+    }
+    thresholds() { return this.options.swarm ? SWARM_THRESHOLDS : HELPER_THRESHOLDS; }
+    maintain() {
+      for (const f of this.factions.slice(1)) if (!f.alive && this.tick >= f.respawnAt) {
+        const site = this.spawnSite();
+        if (site >= 0) { this.spawnFaction(f.id, site); this.reconcile(); }
+        else f.respawnAt = this.tick + 8; // Retry without spawning on a body or an exposed path.
+      }
+      const counts = this.counts(), thresholds = this.thresholds();
+      for (const f of this.factions.slice(1)) {
+        if (!f.alive || this.tick < f.nextChild) continue;
+        const wanted = thresholds.filter(n => counts[f.id] >= n).length;
+        if (this.helpers(f.id).length >= wanted) continue;
+        const slot = this.actors.slice(FACTIONS).find(a => !a.alive); if (!slot) continue;
+        let site = -1, closest = Infinity;
+        for (let cell = 0; cell < AREA; cell++) if (this.board[cell] === f.id && !this.trails[cell] && !this.actors.some(a => a.alive && index(a.x, a.y) === cell)) {
+          const d = distance(cell, f.core); if (d < closest) { site = cell; closest = d; }
+        }
+        if (site >= 0) {
+          this.activate(slot, f.id, site, 'helper'); f.nextChild = this.tick + 36;
+          this.stats.helpers++; this.events.push({ type: 'helper', faction: f.id });
+        }
+      }
+    }
+    // Peak land, beacon income and match end. Endless mode only records peaks.
+    score() {
+      const counts = this.counts();
+      for (let id = 1; id <= FACTIONS; id++) if (counts[id] > this.tally[id].peak) this.tally[id].peak = counts[id];
+      for (const cell of this.beacons) { const owner = this.board[cell]; if (owner && this.factions[owner].alive) this.scores[owner]++; }
+      const m = this.mode; if (!m.limit) return;
+      const leader = metric => { let top = 1; for (let id = 2; id <= FACTIONS; id++) if (metric[id] > metric[top]) top = id; return top; };
+      if (m.id === 'domination') {
+        // Domination needs the threshold held without a break, so rivals always get a window to cut it back.
+        for (let id = 1; id <= FACTIONS; id++) this.hold[id] = this.factions[id].alive && counts[id] >= m.target ? this.hold[id] + 1 : 0;
+        const top = leader(this.hold); if (this.hold[top] >= m.hold) return this.finish('target', top);
+      }
+      if (m.id === 'beacons') { const top = leader(this.scores); if (this.scores[top] >= m.target) return this.finish('target', top); }
+      if (this.tick >= m.limit) {
+        const ranked = this.standings();
+        const tie = ranked[0].score === ranked[1].score && ranked[0].land === ranked[1].land;
+        this.finish('time', tie ? 0 : ranked[0].id);
+      }
+    }
+    // Ranking: beacon points (beacons mode) first, then land, then the faction id.
+    standings() {
+      const counts = this.counts();
+      return this.factions.slice(1).map(f => ({ id: f.id, land: counts[f.id], score: this.scores[f.id], alive: f.alive, generation: f.generation, ...this.tally[f.id] }))
+        .sort((p, q) => (q.score - p.score) || (q.land - p.land) || (p.id - q.id));
+    }
+    finish(reason, winner = 0) {
+      if (this.phase === 'over') return false;
+      this.phase = 'over';
+      this.result = { reason, winner, mode: this.mode.id, tick: this.tick, standings: this.standings() };
+      this.events.push({ type: 'over', reason, winner }); return true;
+    }
+    // Leaving a match early (endless: bank the session; timed modes: surrender).
+    concede() { if (this.phase !== 'running' && this.phase !== 'paused') return false; return this.finish('retreat', 0); }
+    remaining() { return this.mode.limit ? Math.max(0, this.mode.limit - this.tick) : null; }
+    step() {
+      if (this.phase !== 'running') return;
+      this.events = []; this.tick++;
+      for (const a of this.actors) { a.previousX = a.x; a.previousY = a.y; }
+      // Rotate all actor slots for fair contact/cutting priority, independent of faction.
+      for (let n = 0; n < this.actors.length; n++) {
+        const a = this.actors[(n + this.tick) % this.actors.length]; if (!a.alive) continue;
+        if (a.id === 1) { const d = a.pending || a.direction; a.pending = null; this.move(a, d); }
+        else if ((this.tick + a.id) % this.tierOf(a).skip !== 0) { const d = this.aiDirection(a); if (d) this.move(a, d); }
+      }
+      if (this.tick % 4 === 0) this.maintain();
+      this.score();
+    }
+    // Headless observation for agents and tools: plain JSON, no references into live state.
+    observe(faction = 1) {
+      const counts = this.counts();
+      return {
+        tick: this.tick, phase: this.phase, mode: this.mode.id, tier: this.options.tier, size: SIZE, you: faction,
+        remaining: this.remaining(), target: this.mode.target, hold: this.hold.slice(1),
+        board: Array.from(this.board), trails: Array.from(this.trails).map(id => id ? this.actors[id - 1].faction : 0),
+        rocks: this.rocks.reduce((list, rock, cell) => (rock && list.push(cell), list), []), beacons: this.beacons.slice(),
+        land: counts.slice(1), scores: this.scores.slice(1),
+        factions: this.factions.slice(1).map(f => ({ id: f.id, alive: f.alive, core: f.core, generation: f.generation, shielded: f.shieldUntil > this.tick })),
+        actors: this.actors.filter(a => a.alive).map(a => ({ id: a.id, faction: a.faction, role: a.role, x: a.x, y: a.y, direction: a.direction.slice(), trail: a.trail.length, strategy: a.strategy, protected: a.protectedUntil > this.tick })),
+        result: this.result ? JSON.parse(JSON.stringify(this.result)) : null
+      };
+    }
+  }
+  return { Game, SIZE, STEP_MS, FACTIONS, MAX_HELPERS, HELPER_THRESHOLDS, SWARM_THRESHOLDS, RESPAWN_TICKS, CONVERT_TICKS, DIRECTIONS, TIERS, MODES, BEACONS, SPAWNS, normalize, index };
+})();
+</script>
+<script id="territory-career">
 'use strict';
-  // SVG controls share the same native geometry as the catalogue icons.
-  function setButton(button,label,icon) {
-    const signature=icon+'|'+label;if(button.dataset.visualLabel===signature)return;
-    button.dataset.visualLabel=signature;button.setAttribute('aria-label',label);
-    const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');svg.setAttribute('class','ui-icon');svg.setAttribute('viewBox','0 0 48 48');svg.setAttribute('aria-hidden','true');
-    const use=document.createElementNS(svg.namespaceURI,'use');use.setAttribute('href','icons.svg#'+icon);svg.append(use);
-    const text=document.createElement('span');text.textContent=label.replace(/\s*[→↗]\s*$/,'').replace(/\s*→\s*/g,' / ');button.replaceChildren(svg,text);
+// Career progression: pure functions over a small saved profile. XP comes from what your faction did
+// in a match, scaled by the opponents' tier; levels unlock harder AI, match modes and rule variants.
+const TerritoryCareer = (() => {
+  const MAX_LEVEL = 30, KEY = 'territory-loop-career', VERSION = 1, AREA = 900;
+  const need = level => 100 + level * 40;
+  function levelOf(xp) {
+    let level = 1, rest = Math.max(0, Math.floor(Number(xp) || 0));
+    while (level < MAX_LEVEL && rest >= need(level)) { rest -= need(level); level++; }
+    return { level, into: level < MAX_LEVEL ? rest : 0, need: level < MAX_LEVEL ? need(level) : 0, max: level >= MAX_LEVEL };
   }
-
-  'use strict';
-  const $ = id => document.getElementById(id);
-  const canvas = $('board'), ctx = canvas.getContext('2d');
-  const palette = [null,
-    { name: '你', color: '#5ebcbf', ink: '#267477', tint: '#cbeaea', shape: '●' },
-    { name: '珊瑚', color: '#d08770', ink: '#99553f', tint: '#efdad1', shape: '■' },
-    { name: '紫藤', color: '#b48ead', ink: '#785671', tint: '#e8dce5', shape: '◆' },
-    { name: '琥珀', color: '#c9aa69', ink: '#85662a', tint: '#eee4ca', shape: '▲' }
+  const RANKS = [{ from: 1, name: '拓荒者' }, { from: 4, name: '圈地客' }, { from: 8, name: '領主' }, { from: 13, name: '藩鎮' }, { from: 19, name: '諸侯' }, { from: 25, name: '天下霸主' }];
+  const rankOf = level => RANKS.filter(r => level >= r.from).pop().name;
+  const UNLOCKS = [
+    { level: 1, kind: 'mode', id: 'endless', name: '無盡版圖' }, { level: 1, kind: 'mode', id: 'conquest', name: '限時征服' },
+    { level: 1, kind: 'tier', id: 0, name: '新兵對手' }, { level: 1, kind: 'tier', id: 1, name: '老手對手' },
+    { level: 2, kind: 'mode', id: 'beacons', name: '烽火據點' }, { level: 3, kind: 'tier', id: 2, name: '精英對手' },
+    { level: 3, kind: 'terrain', id: 'highlands', name: '群峰地形' }, { level: 4, kind: 'mode', id: 'domination', name: '霸權模式' },
+    { level: 5, kind: 'swarm', id: true, name: '援軍潮' }, { level: 7, kind: 'tier', id: 3, name: '霸主對手' }
   ];
-  const game = new Territory.Game();
-  let accumulator = 0, lastTime = 0, frameId = 0, restartPrompt = false, noticeUntil = 0, noticePriority = 0, lastAnnouncement = '';
-  let touchOrigin = null;
-  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
-  const CELL = 24, SIZE = Territory.SIZE;
+  const unlockLevel = (kind, id) => { const u = UNLOCKS.find(u => u.kind === kind && u.id === id); return u ? u.level : 1; };
+  const unlocked = (level, kind, id) => level >= unlockLevel(kind, id);
+  const TIER_XP = [.6, 1, 1.3, 1.7], PLACE_XP = [0, 50, 25, 10, 0];
+  // s: { mode, tier, terrain, swarm, outcome: 'win'|'loss'|'draw'|'retreat', placement, minutes, captures, cuts, recruits, bases, peak }
+  function matchXP(s) {
+    const lines = [], minutes = Math.min(15, Math.max(0, Number(s.minutes) || 0));
+    if (s.mode === 'endless') { const held = Math.round(minutes * 8); if (held) lines.push(['堅守時間', held]); }
+    else if (s.outcome !== 'retreat') lines.push(['完成對局', 30]);
+    const captures = Math.min(40, s.captures || 0); if (captures) lines.push([`圈地 × ${s.captures}`, captures * 3]);
+    if (s.cuts) lines.push([`斷線 × ${s.cuts}`, 12 * s.cuts]);
+    if (s.recruits) lines.push([`招降 × ${s.recruits}`, 10 * s.recruits]);
+    if (s.bases) lines.push([`奪下基地 × ${s.bases}`, 40 * s.bases]);
+    const peak = Math.round(Math.min(AREA, s.peak || 0) / AREA * 100); if (peak) lines.push([`巔峰領地 ${peak}%`, peak * 2]);
+    const placed = s.mode === 'endless' || s.outcome !== 'retreat' ? PLACE_XP[s.placement] || 0 : 0;
+    if (placed) lines.push([`第 ${s.placement} 名`, placed]);
+    if (s.outcome === 'win') lines.push(['奪得天下', 150]); else if (s.outcome === 'draw') lines.push(['並列第一', 50]);
+    const base = lines.reduce((n, l) => n + l[1], 0);
+    const mult = (TIER_XP[s.tier] ?? 1) * (s.terrain === 'highlands' ? 1.1 : 1);
+    return { lines, base, mult, total: Math.round(base * mult) };
+  }
+  const blank = () => ({ v: VERSION, xp: 0, matches: 0, wins: 0, captures: 0, cuts: 0, recruits: 0, bases: 0, bestPeak: 0, bestTier: -1, minutes: 0 });
+  function sanitize(p) {
+    const b = blank(); if (!p || typeof p !== 'object') return b;
+    for (const k of Object.keys(b)) if (Number.isFinite(p[k]) && p[k] >= (k === 'bestTier' ? -1 : 0)) b[k] = Math.floor(p[k]);
+    b.v = VERSION; return b;
+  }
+  function record(profile, s) {
+    const p = sanitize(profile), gain = matchXP(s), before = levelOf(p.xp), win = s.outcome === 'win';
+    const next = { ...p, xp: p.xp + gain.total, matches: p.matches + 1, wins: p.wins + (win ? 1 : 0),
+      captures: p.captures + (s.captures || 0), cuts: p.cuts + (s.cuts || 0), recruits: p.recruits + (s.recruits || 0), bases: p.bases + (s.bases || 0),
+      bestPeak: Math.max(p.bestPeak, Math.floor(s.peak || 0)), bestTier: win ? Math.max(p.bestTier, s.tier) : p.bestTier,
+      minutes: p.minutes + Math.floor(Math.max(0, s.minutes || 0)) };
+    const after = levelOf(next.xp);
+    return { profile: next, gain, before, after, unlocked: UNLOCKS.filter(u => u.level > before.level && u.level <= after.level) };
+  }
+  function load(storage) { try { return sanitize(JSON.parse(storage.getItem(KEY) || 'null')); } catch (e) { return blank(); } }
+  function save(storage, p) { try { storage.setItem(KEY, JSON.stringify(sanitize(p))); return true; } catch (e) { return false; } }
+  return { MAX_LEVEL, KEY, need, levelOf, rankOf, RANKS, UNLOCKS, unlockLevel, unlocked, TIER_XP, matchXP, blank, sanitize, record, load, save };
+})();
+</script>
+<script id="game-ui">
+'use strict';
+// Shell: lobby / pause / result curtain, HUD, input and the fixed-step clock. Rendering lives in the module below.
+const $ = id => document.getElementById(id);
+const canvas = $('board');
+const PAL = window.FuPalette;
+const SIDES = [0, 1, 2, 3].map(i => PAL ? PAL.side(i) : ['#ff4b2b', '#4fa3ff', '#35d0a8', '#e9b949'][i]);
+const NAMES = [null, '你', '青嵐', '玉衡', '金烏'];
+const MODE_COPY = { endless: '沒有終局，隨時收兵結算。', conquest: '3 分鐘後領地最多者勝。', beacons: '搶占 5 座烽火台，先到 1500 分。', domination: '守住 40% 版圖 15 秒者勝。' };
+const MODE_GOAL = {
+  endless: '畫線回家就能圈地；切斷敵方補給，搶下基地擊退整個陣營。',
+  conquest: '時間到時領地最多的陣營勝出。守住版圖，也要搶。',
+  beacons: '每座烽火台每步 +1 分。圈下烽火台的格子，守住它。',
+  domination: '占下 40% 版圖（360 格）並連續守住 15 秒的陣營勝出。'
+};
+const TIER_COPY = ['慢、短視、不招降。', '原版 AI，攻守均衡。', '更快，更會奪基地。', '幾乎不停步，追線更遠。'];
+const storage = (() => { try { const s = window.localStorage; s.getItem('x'); return s; } catch (e) { return { getItem: () => null, setItem: () => {} }; } })();
+const prefs = window.Fu ? Fu.prefs('territory-loop', { mode: 'endless', tier: 1, terrain: 'plain', swarm: false, camera: 'auto', labels: true, fx: true })
+  : (() => { const d = { mode: 'endless', tier: 1, terrain: 'plain', swarm: false, camera: 'auto', labels: true, fx: true }; return { get: k => d[k], set: (k, v) => (d[k] = v) }; })();
+let profile = TerritoryCareer.load(storage);
+const levelNow = () => TerritoryCareer.levelOf(profile.xp).level;
+const allowed = (kind, id) => TerritoryCareer.unlocked(levelNow(), kind, id);
+function currentOptions() {
+  const mode = Territory.MODES[prefs.get('mode')] && allowed('mode', prefs.get('mode')) ? prefs.get('mode') : 'endless';
+  const tier = Number.isInteger(prefs.get('tier')) && Territory.TIERS[prefs.get('tier')] && allowed('tier', prefs.get('tier')) ? prefs.get('tier') : 1;
+  const terrain = prefs.get('terrain') === 'highlands' && allowed('terrain', 'highlands') ? 'highlands' : 'plain';
+  const swarm = prefs.get('swarm') === true && allowed('swarm', true);
+  return { mode, tier, terrain, swarm };
+}
+const game = new Territory.Game(Math.random, currentOptions());
+let accumulator = 0, lastTime = 0, frameId = 0, noticeUntil = 0, noticePriority = 0, lastAnnouncement = '', recorded = true, touchOrigin = null;
+const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+const fmt = ticks => { const s = Math.max(0, Math.ceil(ticks * Territory.STEP_MS / 1000)); return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); };
+const pct = cells => (cells / 9).toFixed(1);
 
-  function announce(message) {
-    if (message === lastAnnouncement) return;
-    $('status').textContent = message; lastAnnouncement = message;
+// ---------- HUD ----------
+const rows = [null];
+for (let id = 1; id <= Territory.FACTIONS; id++) {
+  const li = document.createElement('li'); li.className = 'tl-row' + (id === 1 ? ' me' : ''); li.style.setProperty('--c', SIDES[id - 1]);
+  li.innerHTML = '<span class="fu-side" aria-hidden="true"></span><b></b><span class="v fu-num"></span><span class="m"><i></i><em hidden></em></span>';
+  $('standings-hud').append(li); rows.push({ li, name: li.querySelector('b'), value: li.querySelector('.v'), bar: li.querySelector('.m i'), mark: li.querySelector('.m em') });
+}
+function updateHUD() {
+  const counts = game.counts(), mode = game.mode, beacons = mode.id === 'beacons';
+  $('mode-name').textContent = mode.name + ' · ' + game.ai.name;
+  for (let id = 1; id <= Territory.FACTIONS; id++) {
+    const r = rows[id], f = game.factions[id], leader = game.actors[id - 1];
+    const helpers = game.helpers(id).length;
+    const tag = !f.alive ? '撤退中' : id === 1 ? (helpers ? '助手 ' + helpers : '首領') : (game.phase === 'ready' ? 'AI' : leader.strategy);
+    const html = `${NAMES[id]}<small>${tag}</small>`; if (r.name._h !== html) { r.name._h = html; r.name.innerHTML = html; }
+    r.value.textContent = beacons ? game.scores[id] : pct(counts[id]) + '%';
+    const fill = beacons ? game.scores[id] / mode.target : mode.id === 'domination' ? counts[id] / mode.target : counts[id] / 450;
+    r.bar.style.width = Math.min(100, fill * 100).toFixed(1) + '%';
+    r.li.classList.toggle('out', !f.alive);
   }
-  function draw() {
-    const ratio = Math.min(window.devicePixelRatio || 1, 2);
-    if (canvas.width !== 720 * ratio) { canvas.width = 720 * ratio; canvas.height = 720 * ratio; }
-    ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
-    ctx.fillStyle = '#f8f9fb'; ctx.fillRect(0, 0, 720, 720);
-    for (let y = 0; y < SIZE; y++) for (let x = 0; x < SIZE; x++) {
-      const owner = game.board[Territory.index(x, y)];
-      if (owner) {
-        ctx.fillStyle = palette[owner].tint; ctx.fillRect(x * CELL, y * CELL, CELL, CELL);
-        // Sparse faction marks remain readable without relying on territory colour.
-        if(x%3===1&&y%3===1){ctx.save();ctx.translate((x+.5)*CELL,(y+.5)*CELL);ctx.globalAlpha=.2;ctx.strokeStyle=palette[owner].ink;ctx.lineWidth=1.5;ctx.beginPath();
-          if(owner===1)ctx.arc(0,0,3,0,Math.PI*2);else if(owner===2)ctx.rect(-3,-3,6,6);else if(owner===3){ctx.moveTo(0,-4);ctx.lineTo(4,0);ctx.lineTo(0,4);ctx.lineTo(-4,0);ctx.closePath();}else{ctx.moveTo(0,-4);ctx.lineTo(4,3);ctx.lineTo(-4,3);ctx.closePath();}ctx.stroke();ctx.restore();}
-      }
+  const remaining = game.remaining();
+  let holder = 0; if (mode.id === 'domination') for (let id = 1; id <= Territory.FACTIONS; id++) if (game.hold[id] > (game.hold[holder] || 0)) holder = id;
+  $('objective').textContent = holder ? `${NAMES[holder]} 霸權 ${fmt(mode.hold - game.hold[holder])}` : remaining === null ? fmt(game.tick) : '剩 ' + fmt(remaining);
+  $('objective').style.color = holder ? (holder === 1 ? 'var(--fu-jade)' : 'var(--fu-gold)') : '';
+  const a = game.actors[0];
+  const waiting = game.phase === 'running' && !a.alive;
+  $('phase-label').textContent = waiting ? `重生 ${Math.max(1, Math.ceil((game.factions[1].respawnAt - game.tick) * Territory.STEP_MS / 1000))} 秒` : { ready: '準備出發', running: '持續角逐', paused: '已暫停', over: '對局結束' }[game.phase];
+  $('pause').disabled = game.phase !== 'running' && game.phase !== 'paused';
+  $('pause').classList.toggle('is-paused', game.phase === 'paused');
+  $('pause').setAttribute('aria-label', game.phase === 'paused' ? '繼續' : '暫停');
+  for (const btn of document.querySelectorAll('[data-direction]')) btn.disabled = game.phase !== 'running' || !a.alive;
+}
+function announce(message) { if (message === lastAnnouncement) return; $('status').textContent = message; lastAnnouncement = message; }
+let quiet = false;
+const toast = (message, tone) => { if (window.Fu && !quiet) Fu.toast(message, { tone, ms: 2400 }); };
+
+// ---------- Career widgets ----------
+function careerHTML() {
+  const l = TerritoryCareer.levelOf(profile.xp), rank = TerritoryCareer.rankOf(l.level);
+  const bar = l.max ? 100 : l.into / l.need * 100;
+  return `<div class="lv"><small>LEVEL</small>${l.level}</div><div class="who">${rank}<span>${l.max ? '已達最高等級' : `${l.into} / ${l.need} XP`}</span></div><span class="tl-bar"><i style="width:${bar.toFixed(1)}%"></i></span>`;
+}
+function renderCareer() {
+  const l = TerritoryCareer.levelOf(profile.xp);
+  $('lv').textContent = l.level; $('rank').textContent = TerritoryCareer.rankOf(l.level);
+  $('lv-fill').style.width = (l.max ? 100 : l.into / l.need * 100).toFixed(1) + '%';
+  $('lobby-career').innerHTML = careerHTML(); $('drawer-career').innerHTML = careerHTML();
+  const stat = (n, label) => `<div><b>${n}</b><span>${label}</span></div>`;
+  $('career-stats').innerHTML = stat(profile.matches, '對局') + stat(profile.wins, '勝場') + stat(profile.captures, '圈地') + stat(profile.cuts, '斷線') +
+    stat(profile.recruits, '招降') + stat(profile.bases, '奪基地') + stat(Math.round(profile.bestPeak / 9) + '%', '最佳巔峰領地') + stat(profile.minutes, '征戰分鐘');
+  $('unlocks').innerHTML = TerritoryCareer.UNLOCKS.filter(u => u.level > 1).map(u => `<li class="${l.level >= u.level ? 'got' : ''}">${u.name}<span>${l.level >= u.level ? '已解鎖' : 'Lv ' + u.level}</span></li>`).join('');
+  renderLobby();
+}
+function chip(group, value, title, copy, kind, pressed) {
+  const b = document.createElement('button'); b.type = 'button'; b.className = 'tl-chip'; b.dataset.value = value;
+  const need = TerritoryCareer.unlockLevel(kind, kind === 'tier' ? Number(value) : value), locked = levelNow() < need;
+  b.disabled = locked; b.setAttribute('aria-pressed', String(pressed && !locked));
+  b.innerHTML = `<b>${title}</b><span>${copy}</span>${locked ? `<i class="lock">Lv ${need}</i>` : ''}`;
+  group.append(b); return b;
+}
+function renderLobby() {
+  const o = currentOptions();
+  $('mode-chips').replaceChildren(); $('tier-chips').replaceChildren();
+  for (const m of Object.values(Territory.MODES)) chip($('mode-chips'), m.id, m.name, MODE_COPY[m.id], 'mode', o.mode === m.id);
+  Territory.TIERS.forEach((t, i) => chip($('tier-chips'), String(i), t.name, `${TIER_COPY[i]} 經驗 ×${TerritoryCareer.TIER_XP[i]}`, 'tier', o.tier === i));
+  $('variants').innerHTML = `規則變體：<b>${o.terrain === 'highlands' ? '群峰地形' : '平原'}</b> · 援軍潮 <b>${o.swarm ? '開' : '關'}</b>　在「規則變體」調整。`;
+  for (const b of $('terrain-seg').querySelectorAll('button')) {
+    const locked = b.value === 'highlands' && !allowed('terrain', 'highlands');
+    b.disabled = locked; b.setAttribute('aria-pressed', String(b.value === o.terrain));
+  }
+  $('terrain-note').textContent = allowed('terrain', 'highlands') ? '群峰：數道山脊阻擋所有人，經驗 ×1.1。' : `群峰地形於 Lv ${TerritoryCareer.unlockLevel('terrain', 'highlands')} 解鎖。`;
+  $('set-swarm').disabled = !allowed('swarm', true); $('set-swarm').checked = o.swarm;
+}
+$('mode-chips').addEventListener('click', e => { const b = e.target.closest('button'); if (b && !b.disabled) { prefs.set('mode', b.dataset.value); renderLobby(); previewBoard(); } });
+$('tier-chips').addEventListener('click', e => { const b = e.target.closest('button'); if (b && !b.disabled) { prefs.set('tier', Number(b.dataset.value)); renderLobby(); } });
+
+// ---------- Curtain ----------
+const overlay = $('overlay');
+function showOverlay(mode) {
+  overlay.dataset.mode = mode; overlay.hidden = false; overlay.scrollTop = 0;
+  const focus = { lobby: 'play', pause: 'resume', result: 'again' }[mode];
+  setTimeout(() => $(focus).focus({ preventScroll: true }), 30);
+}
+function hideOverlay() { overlay.hidden = true; }
+function previewBoard() { if (game.phase === 'ready') { game.reset(currentOptions()); updateHUD(); $('goal').textContent = MODE_GOAL[game.mode.id]; } }
+
+// ---------- Clock ----------
+function stopFrames() { cancelAnimationFrame(frameId); frameId = 0; lastTime = 0; accumulator = 0; }
+function startFrames() { stopFrames(); frameId = requestAnimationFrame(frame); }
+function startMatch() {
+  if (window.Fu && Fu.isOpen('drawer')) Fu.close('drawer');
+  stopFrames(); game.reset(currentOptions()); recorded = false; noticeUntil = 0; noticePriority = 0; lastAnnouncement = '';
+  $('goal').textContent = MODE_GOAL[game.mode.id];
+  game.start(); hideOverlay(); TerritoryApp.fx.push({ type: 'start' });
+  announce('先繞小圈：往右 → 往下 → 往左 → 往上，回到朱色領地。'); updateHUD();
+  canvas.focus({ preventScroll: true }); startFrames();
+}
+function resume() {
+  if (game.phase !== 'paused') return;
+  game.start(); hideOverlay(); updateHUD(); canvas.focus({ preventScroll: true }); startFrames();
+}
+function pause() {
+  if (game.phase !== 'running') return;
+  game.pause(); stopFrames(); updateHUD(); announce('已暫停，時間與 AI 都停下了。');
+  $('concede').textContent = game.mode.id === 'endless' ? '收兵結算' : '投降結算';
+  $('pause-copy').textContent = game.mode.id === 'endless' ? `已征戰 ${fmt(game.tick)}。收兵會依目前戰果結算經驗；放棄本局則不計。` : `${game.mode.name}剩 ${fmt(game.remaining())}。投降會以敗局結算。`;
+  showOverlay('pause');
+}
+function toLobby() {
+  stopFrames(); if (window.Fu && Fu.isOpen('drawer')) Fu.close('drawer');
+  game.reset(currentOptions()); recorded = true; updateHUD(); renderLobby(); $('goal').textContent = MODE_GOAL[game.mode.id];
+  announce('選好模式與對手，開始圈地。'); showOverlay('lobby');
+}
+function finishMatch() {
+  stopFrames(); updateHUD();
+  const r = game.result, me = game.tally[1];
+  const placement = r.standings.findIndex(s => s.id === 1) + 1;
+  const outcome = r.reason === 'retreat' ? 'retreat' : r.winner === 1 ? 'win' : !r.winner && placement === 1 ? 'draw' : 'loss';
+  const summary = { mode: r.mode, tier: game.options.tier, terrain: game.options.terrain, swarm: game.options.swarm, outcome, placement,
+    minutes: game.tick * Territory.STEP_MS / 60000, captures: me.captures, cuts: me.cuts, recruits: me.recruits, bases: me.bases, peak: me.peak };
+  let outcomeRecord = null; $('levelup').hidden = true;
+  if (!recorded) { outcomeRecord = TerritoryCareer.record(profile, summary); profile = outcomeRecord.profile; TerritoryCareer.save(storage, profile); recorded = true; }
+  const winnerName = r.winner ? NAMES[r.winner] : '';
+  const titles = { win: '天下歸<em>朱</em>', loss: `${winnerName}<em style="color:${SIDES[(r.winner || 1) - 1]}">奪得天下</em>`, draw: '平分<em>秋色</em>', retreat: r.mode === 'endless' ? '收兵<em>結算</em>' : '鳴金<em>收兵</em>' };
+  $('result-kicker').textContent = `${game.mode.name} · ${game.ai.name} · ${fmt(game.tick)}`;
+  $('result-title').innerHTML = titles[outcome];
+  const why = { target: r.mode === 'beacons' ? '烽火積分率先達標。' : '版圖率先達到霸權門檻。', time: '時間到，依' + (r.mode === 'beacons' ? '烽火積分' : '領地') + '排名。', retreat: r.mode === 'endless' ? '你帶著目前的戰果收兵。' : '你中途投降，本局以敗局計。' }[r.reason];
+  $('result-copy').textContent = `${why} 你排第 ${placement} 名，巔峰領地 ${pct(me.peak)}%，圈地 ${me.captures} 次、斷線 ${me.cuts} 次、招降 ${me.recruits} 名、奪下基地 ${me.bases} 座。`;
+  $('result-standings').innerHTML = r.standings.map((s, i) => `<div style="--c:${SIDES[s.id - 1]}"><span class="place">#${i + 1}</span><b class="${s.id === r.winner ? 'win' : ''}">${NAMES[s.id]}</b>領地 ${pct(s.land)}%${r.mode === 'beacons' ? ` · ${s.score} 分` : ''}<br>巔峰 ${pct(s.peak)}% · 斷線 ${s.cuts}<br>招降 ${s.recruits} · 撤退 ${s.falls}</div>`).join('');
+  if (outcomeRecord) {
+    const g = outcomeRecord.gain;
+    $('xp-mult').textContent = `倍率 ×${g.mult.toFixed(2)}`;
+    $('xp-lines').innerHTML = g.lines.map(([k, v]) => `<dt>${k}</dt><dd>+${v}</dd>`).join('') + `<dt class="total">本局經驗</dt><dd class="total">+${g.total}</dd>`;
+    const up = outcomeRecord.after.level > outcomeRecord.before.level;
+    $('levelup').hidden = !up;
+    if (up) $('levelup').innerHTML = `升到 <b>Lv ${outcomeRecord.after.level} · ${TerritoryCareer.rankOf(outcomeRecord.after.level)}</b>` + (outcomeRecord.unlocked.length ? `。解鎖：${outcomeRecord.unlocked.map(u => `<b>${u.name}</b>`).join('、')}` : '');
+  }
+  renderCareer(); showOverlay('result');
+}
+function concede() { if (game.concede()) finishMatch(); }
+
+function handleEvents() {
+  let notice = null;
+  for (const event of game.events) {
+    let message = '';
+    if (event.type === 'capture' && event.faction === 1 && event.gain) message = `${event.id === 1 ? '圈地成功' : '助手圈地'}！新增 ${event.gain} 格。`;
+    if (event.type === 'sever') message = `${NAMES[event.faction]}的補給被截斷，${event.lost} 格回歸空白。`;
+    if (event.type === 'helper' && event.faction === 1) message = '新助手加入！小菱形會幫你圈地與攻擊。';
+    if (event.type === 'convert') message = `${NAMES[event.from]}的助手倒戈加入${NAMES[event.faction]}！白色光環期間受到招降保護。`;
+    if (event.type === 'eliminated') message = event.faction === 1 ? `${event.reason}。你的陣營正在尋找安全位置重生。` : `${NAMES[event.faction]}被擊退，新一代首領即將入場。`;
+    if (event.type === 'spawn') message = event.faction === 1 ? '你已重生！從新基地再出發，持續爭奪版圖。' : `${NAMES[event.faction]}第 ${event.generation} 代首領入場。`;
+    if (event.type === 'base' && event.faction === 1) message = `奪下${NAMES[event.lost]}的基地！整個陣營被擊退。`;
+    const personal = event.faction === 1 || event.from === 1 || event.lost === 1;
+    const priority = (personal ? 50 : 0) + ({ base: 45, eliminated: 40, spawn: 35, convert: 30, helper: 25, capture: 20, sever: 10 }[event.type] || 0);
+    if (message && (!notice || priority > notice.priority)) notice = { message, priority };
+    if (personal && ['eliminated', 'base', 'convert', 'helper'].includes(event.type)) toast(message, event.type === 'eliminated' && event.faction === 1 ? 'seal' : event.type === 'convert' && event.from === 1 ? 'warn' : 'ok');
+    TerritoryApp.fx.push(event);
+  }
+  if (TerritoryApp.fx.length > 64) TerritoryApp.fx.splice(0, TerritoryApp.fx.length - 64);
+  if (notice && (game.tick > noticeUntil || notice.priority >= noticePriority)) { announce(notice.message); noticeUntil = game.tick + 22; noticePriority = notice.priority; }
+  if (game.tick > noticeUntil) {
+    const a = game.actors[0];
+    announce(!a.alive ? '陣營暫時撤退，等待安全重生；其他陣營繼續角逐。' : a.blocked ? '邊界、山脊或友方路徑擋住了！轉向繼續。' : a.trail.length ? '正在畫線，快回到朱色領地。敵人會追著發光路徑切斷！' : '繞圈擴張，切斷敵方補給；碰到敵方小菱形可招降。');
+  }
+}
+function frame(time) {
+  if (game.phase !== 'running') return;
+  if (!lastTime) lastTime = time;
+  accumulator += Math.min(time - lastTime, Territory.STEP_MS * 3); lastTime = time;
+  while (accumulator >= Territory.STEP_MS && game.phase === 'running') {
+    accumulator -= Territory.STEP_MS; game.step(); handleEvents(); updateHUD();
+  }
+  if (game.phase === 'over') { finishMatch(); return; }
+  frameId = requestAnimationFrame(frame);
+}
+
+// ---------- Input ----------
+$('play').addEventListener('click', startMatch);
+$('again').addEventListener('click', startMatch);
+$('resume').addEventListener('click', resume);
+$('concede').addEventListener('click', concede);
+$('to-lobby').addEventListener('click', toLobby);
+$('result-lobby').addEventListener('click', toLobby);
+$('drawer-lobby').addEventListener('click', toLobby);
+$('restart').addEventListener('click', () => { recorded = true; startMatch(); });
+$('pause').addEventListener('click', () => { if (game.phase === 'running') pause(); else if (game.phase === 'paused') resume(); });
+function openTab(name) {
+  for (const t of ['rules', 'settings', 'career']) { $('tab-' + t).setAttribute('aria-selected', String(t === name)); $('panel-' + t).hidden = t !== name; }
+}
+for (const t of ['rules', 'settings', 'career']) $('tab-' + t).addEventListener('click', () => openTab(t));
+function openDrawer(tab) { if (tab) openTab(tab); if (game.phase === 'running') pause(); if (window.Fu) Fu.open('drawer'); }
+$('menu-btn').addEventListener('click', () => (window.Fu && Fu.isOpen('drawer') ? Fu.close('drawer') : openDrawer()));
+$('career-chip').addEventListener('click', () => openDrawer('career'));
+for (const b of document.querySelectorAll('[data-open-tab]')) b.addEventListener('click', () => openDrawer(b.dataset.openTab));
+$('terrain-seg').addEventListener('fu:select', e => { prefs.set('terrain', e.detail.value); renderLobby(); previewBoard(); });
+$('set-swarm').addEventListener('change', e => { prefs.set('swarm', e.target.checked); renderLobby(); });
+function setCamera(value) { prefs.set('camera', value); for (const b of $('camera-seg').querySelectorAll('button')) b.setAttribute('aria-pressed', String(b.value === value)); }
+$('camera-seg').addEventListener('fu:select', e => setCamera(e.detail.value));
+$('set-labels').checked = prefs.get('labels') !== false; $('set-fx').checked = prefs.get('fx') !== false; setCamera(prefs.get('camera') || 'auto');
+$('set-labels').addEventListener('change', e => prefs.set('labels', e.target.checked));
+$('set-fx').addEventListener('change', e => prefs.set('fx', e.target.checked));
+let resetArmed = false;
+$('reset-career').addEventListener('click', () => {
+  if (!resetArmed) { resetArmed = true; $('reset-career').textContent = '再按一次確認'; setTimeout(() => { resetArmed = false; $('reset-career').textContent = '重置生涯'; }, 3000); return; }
+  resetArmed = false; $('reset-career').textContent = '重置生涯'; profile = TerritoryCareer.blank(); TerritoryCareer.save(storage, profile); renderCareer(); toast('生涯紀錄已清除。', 'info');
+});
+const keyDirections = { ArrowUp: 'up', ArrowRight: 'right', ArrowDown: 'down', ArrowLeft: 'left', w: 'up', d: 'right', s: 'down', a: 'left' };
+function flashPad(name) { const b = document.querySelector(`[data-direction="${name}"]`); if (b) { b.classList.add('hit'); setTimeout(() => b.classList.remove('hit'), 120); } }
+function steer(name) { if (game.steer(name)) flashPad(name); }
+document.addEventListener('keydown', event => {
+  if (event.defaultPrevented || event.altKey || event.ctrlKey || event.metaKey || /^(INPUT|TEXTAREA|SELECT)$/.test(event.target.tagName)) return;
+  const key = event.key.length === 1 ? event.key.toLowerCase() : event.key, drawer = window.Fu && Fu.isOpen('drawer');
+  if (keyDirections[key] && game.phase === 'running' && !drawer) { event.preventDefault(); steer(keyDirections[key]); }
+  else if (key === 'Escape' && game.phase === 'running') { event.preventDefault(); pause(); }
+  else if ((key === 'p' || key === ' ') && !event.repeat && !drawer) {
+    if (key === ' ' && event.target.closest('button, a')) return;
+    if (game.phase === 'running') { event.preventDefault(); pause(); } else if (game.phase === 'paused') { event.preventDefault(); resume(); }
+  } else if (key === 'm' && !event.repeat) { event.preventDefault(); if (drawer) Fu.close('drawer'); else openDrawer(); }
+  else if (key === 'c' && !event.repeat) { const order = ['auto', 'overview', 'follow'], next = order[(order.indexOf(prefs.get('camera')) + 1) % 3]; setCamera(next); toast('鏡頭：' + { auto: '自動', overview: '全景', follow: '跟隨' }[next], 'info'); }
+  else if (key === 'Enter' && !overlay.hidden && overlay.dataset.mode === 'lobby' && !event.target.closest('button, a')) { event.preventDefault(); startMatch(); }
+});
+for (const btn of document.querySelectorAll('[data-direction]')) {
+  btn.addEventListener('pointerdown', event => { if (game.phase === 'running') { event.preventDefault(); steer(btn.dataset.direction); } });
+  btn.addEventListener('click', () => steer(btn.dataset.direction));
+}
+// Swipe anywhere on the board, or tap a spot: the leader turns toward it along the dominant axis.
+canvas.addEventListener('pointerdown', event => {
+  if (game.phase !== 'running') return;
+  touchOrigin = { x: event.clientX, y: event.clientY, id: event.pointerId, swiped: false }; canvas.setPointerCapture(event.pointerId);
+});
+canvas.addEventListener('pointermove', event => {
+  if (!touchOrigin || touchOrigin.id !== event.pointerId) return;
+  const dx = event.clientX - touchOrigin.x, dy = event.clientY - touchOrigin.y;
+  if (Math.max(Math.abs(dx), Math.abs(dy)) < 14) return;
+  steer(Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? 'right' : 'left') : (dy > 0 ? 'down' : 'up'));
+  touchOrigin = { x: event.clientX, y: event.clientY, id: event.pointerId, swiped: true };
+});
+canvas.addEventListener('pointerup', event => {
+  const origin = touchOrigin; touchOrigin = null;
+  if (!origin || origin.swiped || game.phase !== 'running' || !TerritoryApp.pick) return;
+  const cell = TerritoryApp.pick(event.clientX, event.clientY), a = game.actors[0]; if (!cell || !a.alive) return;
+  const dx = cell[0] - a.x, dy = cell[1] - a.y; if (!dx && !dy) return;
+  const horizontal = dx > 0 ? 'right' : 'left', vertical = dy > 0 ? 'down' : 'up';
+  const first = Math.abs(dx) >= Math.abs(dy) ? (dx ? horizontal : vertical) : vertical, second = first === horizontal ? (dy ? vertical : null) : (dx ? horizontal : null);
+  if (!game.steer(first) && second) game.steer(second); else flashPad(first);
+});
+for (const name of ['pointercancel', 'lostpointercapture']) canvas.addEventListener(name, () => { touchOrigin = null; });
+document.addEventListener('visibilitychange', () => { if (document.hidden) pause(); });
+window.addEventListener('blur', pause);
+
+// ---------- App surface for the 3D view and for local agents ----------
+window.TerritoryApp = {
+  get game() { return game; }, colors: SIDES, names: NAMES, prefs, fx: [], pick: null,
+  alpha: () => game.phase === 'running' && !reducedMotion.matches ? Math.min(1, accumulator / Territory.STEP_MS) : 1,
+  // Local agent hooks: read a JSON observation, steer, start a match, or advance the clock synchronously.
+  observe: (faction = 1) => game.observe(faction),
+  act: name => game.steer(name),
+  start: options => { if (options) for (const k of ['mode', 'tier', 'terrain', 'swarm']) if (k in options) prefs.set(k, options[k]); startMatch(); return game.options; },
+  advance(n = 1) { stopFrames(); quiet = true; for (let i = 0; i < n && game.phase === 'running'; i++) { game.step(); handleEvents(); } quiet = false; updateHUD(); if (game.phase === 'over') finishMatch(); else if (game.phase === 'running') startFrames(); return game.observe(1); }
+};
+renderCareer(); $('goal').textContent = MODE_GOAL[game.mode.id]; updateHUD(); showOverlay('lobby');
+</script>
+<script type="module" id="territory-view">
+// 3D presentation. It only reads the simulation (window.TerritoryApp.game) and its event feed;
+// every rule stays in the deterministic engine above.
+import { THREE, createStage, palette } from './shared/fu-three.js';
+const app = window.TerritoryApp, T = Territory, N = T.SIZE, HALF = N / 2;
+const canvas = document.getElementById('board'), labelLayer = document.getElementById('labels');
+function fail() { const d = document.createElement('div'); d.className = 'tl-webgl'; d.innerHTML = '<div><p>這台裝置或瀏覽器無法啟用 WebGL，立體版圖無法顯示。</p><p><a href="index.html">回到 FuGames</a></p></div>'; document.body.append(d); }
+let stage = null;
+try { stage = createStage(canvas, { fov: 34, near: .5, far: 500, fog: [70, 190], exposure: 1.08 }); } catch (e) { fail(); }
+if (stage) {
+const { scene, camera, renderer } = stage;
+const W = (x, y, h = 0) => new THREE.Vector3(x - HALF + .5, h, y - HALF + .5);
+const sideColor = id => new THREE.Color(app.colors[id - 1]);
+const INK1 = new THREE.Color(palette.ink1), INK2 = new THREE.Color(palette.ink2), INK3 = new THREE.Color(palette.ink3), PAPER = new THREE.Color(palette.paper), BONE = new THREE.Color(palette.bone);
+const prefersLess = () => app.prefs.get('fx') === false || window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+// ---------- Ground, slab and frame ----------
+const ground = new THREE.Mesh(new THREE.PlaneGeometry(600, 600), new THREE.MeshStandardMaterial({ color: 0x0a0d12, roughness: 1, metalness: 0 }));
+ground.rotation.x = -Math.PI / 2; ground.position.y = -.62; scene.add(ground);
+const slab = new THREE.Mesh(new THREE.BoxGeometry(N + 1.2, .6, N + 1.2), new THREE.MeshStandardMaterial({ color: palette.ink1, roughness: .9, metalness: .05, flatShading: true }));
+slab.position.y = -.3; scene.add(slab);
+const edge = new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.BoxGeometry(N + 1.2, .6, N + 1.2)), new THREE.LineBasicMaterial({ color: palette.ink3 }));
+edge.position.y = -.3; scene.add(edge);
+// Seal registration corners (top-left, bottom-right): the Vermilion Ink panel motif, on the board itself.
+const sealMat = new THREE.MeshBasicMaterial({ color: palette.seal, toneMapped: false });
+for (const [cx, cz, sx, sz] of [[-HALF - .6, -HALF - .6, 1, 1], [HALF + .6, HALF + .6, -1, -1]]) {
+  const a = new THREE.Mesh(new THREE.BoxGeometry(3.2, .08, .16), sealMat); a.position.set(cx + sx * 1.6, .02, cz); scene.add(a);
+  const b = new THREE.Mesh(new THREE.BoxGeometry(.16, .08, 3.2), sealMat); b.position.set(cx, .02, cz + sz * 1.6); scene.add(b);
+}
+// Faint survey ticks along the slab every 5 cells.
+const tickGeo = new THREE.BoxGeometry(.06, .04, .5), tickMat = new THREE.MeshBasicMaterial({ color: palette.paperDim, transparent: true, opacity: .35 });
+for (let n = 0; n <= N; n += 5) for (const z of [-HALF - .45, HALF + .45]) { const t = new THREE.Mesh(tickGeo, tickMat); t.position.set(n - HALF, .01, z); scene.add(t); }
+
+// ---------- Tiles ----------
+const tileGeo = new THREE.BoxGeometry(.92, 1, .92); tileGeo.translate(0, .5, 0);
+const tiles = new THREE.InstancedMesh(tileGeo, new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: .74, metalness: .06, flatShading: true }), N * N);
+tiles.instanceMatrix.setUsage(THREE.DynamicDrawUsage); scene.add(tiles);
+const heights = new Float32Array(N * N).fill(.16), pops = new Float32Array(N * N), owners = new Uint8Array(N * N);
+const mtx = new THREE.Matrix4(), col = new THREE.Color(), tmp = new THREE.Color();
+const neutral = Array.from({ length: N * N }, (_, c) => INK2.clone().lerp(INK3, ((c % N) + Math.floor(c / N)) % 2 ? .18 : 0));
+const ownTone = [null, 1, 2, 3, 4].map(id => id ? { body: sideColor(id).lerp(INK1, .5), coast: sideColor(id).lerp(INK1, .12) } : null);
+const NEUTRAL_H = .16, OWNED_H = .36;
+const heightAt = cell => heights[cell] || NEUTRAL_H;
+
+// ---------- Rocks (highlands) ----------
+const rockGeo = new THREE.DodecahedronGeometry(.56, 0);
+const rocks = new THREE.InstancedMesh(rockGeo, new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: .95, metalness: 0, flatShading: true }), N * N);
+rocks.count = 0; scene.add(rocks);
+let rockSource = null;
+function buildRocks(game) {
+  rockSource = game.rocks; let n = 0;
+  for (let cell = 0; cell < N * N; cell++) if (game.rocks[cell]) {
+    const h = ((cell * 2654435761) >>> 0) / 4294967296, p = W(cell % N, Math.floor(cell / N), .3);
+    mtx.compose(p, new THREE.Quaternion().setFromEuler(new THREE.Euler(h * 2, h * 7, h * 3)), new THREE.Vector3(1, 1.2 + h * .9, 1));
+    rocks.setMatrixAt(n, mtx); rocks.setColorAt(n, tmp.set(0x2b323c).lerp(BONE, .08 + h * .1)); n++;
+  }
+  rocks.count = n; rocks.instanceMatrix.needsUpdate = true; if (rocks.instanceColor) rocks.instanceColor.needsUpdate = true;
+}
+
+// ---------- Trails ----------
+const trailGeo = new THREE.BoxGeometry(.56, .12, .56);
+const trails = new THREE.InstancedMesh(trailGeo, new THREE.MeshBasicMaterial({ color: 0xffffff, toneMapped: false }), N * N);
+trails.count = 0; trails.instanceMatrix.setUsage(THREE.DynamicDrawUsage); scene.add(trails);
+
+// ---------- Bases ----------
+const bases = [null, 1, 2, 3, 4].map(id => {
+  if (!id) return null;
+  const g = new THREE.Group(), mat = new THREE.MeshStandardMaterial({ color: sideColor(id), roughness: .55, metalness: .15, flatShading: true, emissive: sideColor(id), emissiveIntensity: .12 });
+  const plinth = new THREE.Mesh(new THREE.BoxGeometry(.9, .18, .9), new THREE.MeshStandardMaterial({ color: palette.ink1, flatShading: true }));
+  plinth.position.y = .09;
+  const tower = new THREE.Mesh(new THREE.BoxGeometry(.46, .7, .46), mat); tower.position.y = .53;
+  const roof = new THREE.Mesh(new THREE.ConeGeometry(.46, .42, 4), mat); roof.position.y = 1.09; roof.rotation.y = Math.PI / 4;
+  const flag = new THREE.Mesh(new THREE.BoxGeometry(.04, .5, .04), new THREE.MeshBasicMaterial({ color: palette.paper })); flag.position.y = 1.5;
+  const shield = new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.BoxGeometry(1.5, 1.4, 1.5)), new THREE.LineBasicMaterial({ color: palette.paper, transparent: true, opacity: .7 }));
+  shield.position.y = .7;
+  g.add(plinth, tower, roof, flag, shield); scene.add(g);
+  return { g, shield };
+});
+
+// ---------- Beacons ----------
+const beaconGeo = new THREE.CylinderGeometry(.18, .28, 1.5, 6); beaconGeo.translate(0, .75, 0);
+const beacons = T.BEACONS.map(() => {
+  const g = new THREE.Group(), mat = new THREE.MeshStandardMaterial({ color: palette.bone, roughness: .6, flatShading: true, emissive: palette.bone, emissiveIntensity: .1 });
+  const pillar = new THREE.Mesh(beaconGeo, mat);
+  const fire = new THREE.Mesh(new THREE.OctahedronGeometry(.24, 0), new THREE.MeshBasicMaterial({ color: palette.bone, toneMapped: false })); fire.position.y = 1.8;
+  const ring = new THREE.Mesh(new THREE.RingGeometry(.62, .74, 6), new THREE.MeshBasicMaterial({ color: palette.bone, transparent: true, opacity: .8, side: THREE.DoubleSide, toneMapped: false }));
+  ring.rotation.x = -Math.PI / 2; ring.position.y = .02;
+  g.add(pillar, fire, ring); g.scale.setScalar(1.5); scene.add(g); return { g, mat, fire, ring };
+});
+
+// ---------- Actors ----------
+const leaderBody = new THREE.CylinderGeometry(.32, .4, .5, 6); leaderBody.translate(0, .25, 0);
+const leaderHead = new THREE.OctahedronGeometry(.17, 0);
+const noseGeo = new THREE.ConeGeometry(.13, .3, 4); noseGeo.rotateX(Math.PI / 2);
+const helperGeo = new THREE.OctahedronGeometry(.25, 0);
+const haloGeo = new THREE.TorusGeometry(.5, .035, 6, 24); haloGeo.rotateX(Math.PI / 2);
+const actors = app.game.actors.map((_, i) => {
+  const leader = i < T.FACTIONS, g = new THREE.Group();
+  const mat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: .45, metalness: .2, flatShading: true, emissive: 0x000000, emissiveIntensity: .35 });
+  const parts = [];
+  if (leader) {
+    const body = new THREE.Mesh(leaderBody, mat), head = new THREE.Mesh(leaderHead, new THREE.MeshBasicMaterial({ color: palette.paper })); head.position.y = .68;
+    const nose = new THREE.Mesh(noseGeo, mat); nose.position.set(0, .26, .42); parts.push(body, head, nose);
+  } else { const body = new THREE.Mesh(helperGeo, mat); body.position.y = .3; body.scale.y = 1.3; parts.push(body); }
+  const halo = new THREE.Mesh(haloGeo, new THREE.MeshBasicMaterial({ color: palette.paper, transparent: true, opacity: .85, toneMapped: false })); halo.position.y = .06; halo.visible = false;
+  g.add(...parts, halo);
+  if (i === 0) { const mark = new THREE.Mesh(new THREE.RingGeometry(.58, .72, 4), new THREE.MeshBasicMaterial({ color: palette.seal, side: THREE.DoubleSide, toneMapped: false })); mark.rotation.x = -Math.PI / 2; mark.rotation.z = Math.PI / 4; mark.position.y = .04; g.add(mark); }
+  g.scale.setScalar(leader ? 1.3 : 1.2); g.visible = false; scene.add(g);
+  return { g, mat, halo, leader, faction: 0, yaw: 0 };
+});
+
+// ---------- Ripples ----------
+const rippleGeo = new THREE.RingGeometry(.86, 1, 4); rippleGeo.rotateX(-Math.PI / 2); rippleGeo.rotateY(Math.PI / 4);
+const ripples = Array.from({ length: 18 }, () => { const m = new THREE.Mesh(rippleGeo, new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending, toneMapped: false, side: THREE.DoubleSide })); m.visible = false; scene.add(m); return { m, life: 0, span: 1, grow: 4 }; });
+let rippleAt = 0;
+function ripple(x, y, color, grow = 4, span = .8) {
+  if (prefersLess()) return;
+  const r = ripples[rippleAt++ % ripples.length]; r.m.position.copy(W(x, y, .5)); r.m.material.color.set(color); r.life = span; r.span = span; r.grow = grow; r.m.visible = true;
+}
+
+// ---------- Labels ----------
+const tags = app.game.actors.slice(0, T.FACTIONS).map((_, i) => { const el = document.createElement('div'); el.className = 'tl-tag' + (i === 0 ? ' me' : ''); el.style.setProperty('--tag', app.colors[i]); labelLayer.append(el); return el; });
+const proj = new THREE.Vector3();
+
+// ---------- Camera fit ----------
+let vw = 1, vh = 1, camDist = 60, camTarget = new THREE.Vector3(), az = 0, followBlend = 0;
+const ELEV = 1.02; // radians above the horizon
+const corners = Array.from({ length: 8 }, () => new THREE.Vector3());
+function rectOf(sel) { const el = document.querySelector(sel); if (!el) return null; const r = el.getBoundingClientRect(); return r.width && r.height && getComputedStyle(el).display !== 'none' ? r : null; }
+function reserve() {
+  const top = rectOf('.fu-topbar'), hud = rectOf('.tl-board-hud'), status = rectOf('.tl-status'), pad = rectOf('.tl-pad');
+  const narrow = vw <= 720, short = vh <= 560 && vw >= 600;
+  let r = { top: (top ? top.bottom : 56) + 8, bottom: 12, left: 8, right: 8 };
+  if (short) { r.left = hud ? hud.right + 10 : 8; r.right = pad ? vw - pad.left + 10 : 8; r.top = (top ? top.bottom : 52) + 2; r.bottom = 8; }
+  else if (narrow) { r.top = Math.max(r.top, hud ? hud.bottom + 8 : 0); r.bottom = Math.max(pad ? vh - pad.top : 0, status ? vh - status.top : 0) + 8; }
+  else {
+    const side = Math.max(hud ? hud.right : 0, 0) + 14; r.left = r.right = Math.min(side, vw * .26);
+    r.bottom = (status ? vh - status.top : 0) + 10; if (pad) r.right = Math.max(r.right, vw - pad.left + 10);
+  }
+  return r;
+}
+function fit(center, hx, hz, r) {
+  const fw = Math.max(.2, (vw - r.left - r.right) / vw), fh = Math.max(.2, (vh - r.top - r.bottom) / vh);
+  const dir = new THREE.Vector3(Math.sin(az) * Math.cos(ELEV), Math.sin(ELEV), Math.cos(az) * Math.cos(ELEV));
+  let d = 60, cx = 0, cy = 0;
+  camera.clearViewOffset();
+  for (let k = 0; k < 5; k++) {
+    camera.position.copy(center).addScaledVector(dir, d); camera.lookAt(center); camera.updateMatrixWorld(); camera.updateProjectionMatrix();
+    let x0 = Infinity, x1 = -Infinity, y0 = Infinity, y1 = -Infinity, n = 0;
+    for (const sx of [-1, 1]) for (const sz of [-1, 1]) for (const h of [-.3, 1.2]) {
+      const p = corners[n++].set(center.x + sx * hx, h, center.z + sz * hz).project(camera);
+      x0 = Math.min(x0, p.x); x1 = Math.max(x1, p.x); y0 = Math.min(y0, p.y); y1 = Math.max(y1, p.y);
     }
-    ctx.strokeStyle = '#2e34400a'; ctx.lineWidth = 1; ctx.beginPath();
-    for (let n = 1; n < SIZE; n++) { ctx.moveTo(n * CELL, 0); ctx.lineTo(n * CELL, 720); ctx.moveTo(0, n * CELL); ctx.lineTo(720, n * CELL); }
-    ctx.stroke();
-    // Thin coastlines keep each solid territory distinct from unfinished dashed trails.
-    for (let y = 0; y < SIZE; y++) for (let x = 0; x < SIZE; x++) {
-      const id = game.board[Territory.index(x, y)]; if (!id) continue;
-      ctx.strokeStyle = palette[id].color; ctx.lineWidth = 1.5; ctx.beginPath();
-      if (!y || game.board[Territory.index(x, y - 1)] !== id) { ctx.moveTo(x * CELL, y * CELL); ctx.lineTo((x + 1) * CELL, y * CELL); }
-      if (y === SIZE - 1 || game.board[Territory.index(x, y + 1)] !== id) { ctx.moveTo(x * CELL, (y + 1) * CELL); ctx.lineTo((x + 1) * CELL, (y + 1) * CELL); }
-      if (!x || game.board[Territory.index(x - 1, y)] !== id) { ctx.moveTo(x * CELL, y * CELL); ctx.lineTo(x * CELL, (y + 1) * CELL); }
-      if (x === SIZE - 1 || game.board[Territory.index(x + 1, y)] !== id) { ctx.moveTo((x + 1) * CELL, y * CELL); ctx.lineTo((x + 1) * CELL, (y + 1) * CELL); }
-      ctx.stroke();
-    }
-    for (const f of game.factions.slice(1)) if (f.alive) {
-      const x = (f.core % SIZE + .5) * CELL, y = (Math.floor(f.core / SIZE) + .5) * CELL;
-      ctx.save(); ctx.translate(x, y); ctx.strokeStyle = palette[f.id].ink; ctx.lineWidth = 2;
-      ctx.fillStyle = '#ffffffcc'; ctx.beginPath(); ctx.moveTo(-8, -1); ctx.lineTo(0, -8); ctx.lineTo(8, -1); ctx.lineTo(8, 8); ctx.lineTo(-8, 8); ctx.closePath(); ctx.fill(); ctx.stroke();
-      if (f.shieldUntil > game.tick) { ctx.setLineDash([3, 3]); ctx.strokeRect(-15, -15, 30, 30); }
-      ctx.restore();
-    }
-    for (const a of game.actors) {
-      if (!a.alive) continue;
-      const p = palette[a.faction];
-      if (a.trail.length) {
-        ctx.fillStyle = p.color + '55';
-        for (const cell of a.trail) ctx.fillRect((cell % SIZE) * CELL + 3, Math.floor(cell / SIZE) * CELL + 3, CELL - 6, CELL - 6);
-        ctx.beginPath(); ctx.moveTo((a.anchor % SIZE + .5) * CELL, (Math.floor(a.anchor / SIZE) + .5) * CELL);
-        for (const cell of a.trail) ctx.lineTo((cell % SIZE + .5) * CELL, (Math.floor(cell / SIZE) + .5) * CELL);
-        ctx.lineWidth = 3; ctx.lineCap = 'round'; ctx.strokeStyle = p.ink; ctx.setLineDash([5, 5]); ctx.stroke(); ctx.setLineDash([]);
-      }
-      const t = reducedMotion.matches || game.phase !== 'running' ? 1 : Math.min(1, accumulator / Territory.STEP_MS);
-      const x = (a.previousX + (a.x - a.previousX) * t + .5) * CELL;
-      const y = (a.previousY + (a.y - a.previousY) * t + .5) * CELL;
-      ctx.save(); ctx.translate(x, y);
-      if (a.id === 1 || a.protectedUntil > game.tick) { ctx.beginPath(); ctx.arc(0, 0, a.role === 'helper' ? 11 : 15, 0, Math.PI * 2); ctx.fillStyle = '#ffffffdd'; ctx.fill(); }
-      ctx.fillStyle = p.ink; ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.beginPath();
-      if (a.role === 'helper') ctx.arc(0, 0, 6, 0, Math.PI * 2);
-      else if (a.faction === 1) ctx.arc(0, 0, 10, 0, Math.PI * 2);
-      else if (a.faction === 2) ctx.roundRect(-10, -10, 20, 20, 5);
-      else if (a.faction === 4) { ctx.moveTo(0, -12); ctx.lineTo(12, 10); ctx.lineTo(-12, 10); ctx.closePath(); }
-      else { ctx.moveTo(0, -13); ctx.lineTo(13, 0); ctx.lineTo(0, 13); ctx.lineTo(-13, 0); ctx.closePath(); }
-      ctx.fill(); ctx.stroke();
-      ctx.rotate(Math.atan2(a.direction[1], a.direction[0])); if (a.role === 'helper') ctx.scale(.6, .6); ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.moveTo(5, 0); ctx.lineTo(-2, -4); ctx.lineTo(-2, 4); ctx.closePath(); ctx.fill(); ctx.restore();
-      if (a.role === 'leader') {
-        const label = a.id === 1 ? 'YOU' : game.phase === 'ready' ? p.name+' AI' : 'AI · '+a.strategy;
-        // Keep intentions readable when a 720-unit world is scaled down to a phone.
-        const fontSize = Math.max(15, Math.min(26, Math.round(10 * 720 / Math.max(canvas.clientWidth, 1))));
-        ctx.font = `bold ${fontSize}px monospace`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-        const width = ctx.measureText(label).width + 8, height = fontSize + 6;
-        const lx = Math.max(width / 2 + 2, Math.min(718 - width / 2, x));
-        const offset = 17 + height / 2, ly = y < height + 18 ? y + offset : y - offset;
-        ctx.fillStyle = '#ffffffdf'; ctx.fillRect(lx - width / 2, ly - height / 2, width, height);
-        ctx.fillStyle = p.ink; ctx.fillText(label, lx, ly);
-      }
-    }
+    const s = Math.max((x1 - x0) / 2 / fw, (y1 - y0) / 2 / fh); d *= .35 + .65 * s; cx = (x0 + x1) / 2; cy = (y0 + y1) / 2;
   }
-  function updateHUD() {
-    const counts = game.counts(), percent = counts[1] / (SIZE * SIZE) * 100;
-    $('score').textContent = percent.toFixed(1);
-    $('helpers').textContent = game.helpers(1).length;
-    const seconds = Math.floor(game.tick * Territory.STEP_MS / 1000);
-    $('clock').textContent = Math.floor(seconds / 60) + ':' + String(seconds % 60).padStart(2, '0');
-    const waiting = !game.actors[0].alive;
-    $('phase-label').textContent = game.phase === 'running' && waiting ? `重生 ${Math.max(1, Math.ceil((game.factions[1].respawnAt - game.tick) * Territory.STEP_MS / 1000))} 秒` : { ready: '準備出發', running: '持續角逐', paused: '已暫停' }[game.phase];
-    $('pause').disabled = game.phase === 'ready' || restartPrompt;
-    setButton($('pause'),game.phase === 'paused' ? '繼續' : '暫停',game.phase==='paused'?'play':'pause');
-    for (const btn of document.querySelectorAll('[data-direction]')) btn.disabled = game.phase !== 'running' || waiting;
+  return { d, cx, cy, r };
+}
+function resize() {
+  const w = canvas.clientWidth || innerWidth, h = canvas.clientHeight || innerHeight;
+  if (w !== vw || h !== vh) { vw = w; vh = h; renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix(); }
+}
+function updateCamera(dt, game, t, calm) {
+  resize();
+  const pref = app.prefs.get('camera') || 'auto', r = reserve();
+  const cellPx = Math.min(vw - r.left - r.right, (vh - r.top - r.bottom) * 1.25) / (N + 1.2);
+  const wantFollow = (pref === 'follow' || (pref === 'auto' && cellPx < 15)) && game.phase !== 'ready' && game.actors[0].alive;
+  followBlend += ((wantFollow ? 1 : 0) - followBlend) * Math.min(1, dt * 3);
+  // Follow keeps tiles at least ~15 px (auto) or frames a tight 17-cell window (follow).
+  const p = game.actors[0], span = pref === 'follow' ? 8.5 : Math.max(8.5, Math.min(HALF + .6, (vw - r.left - r.right) / 15 / 2));
+  const fx = Math.max(-HALF + span, Math.min(HALF - span, p.x - HALF + .5)), fz = Math.max(-HALF + span, Math.min(HALF - span, p.y - HALF + .5));
+  const target = new THREE.Vector3(fx * followBlend, 0, fz * followBlend);
+  camTarget.lerp(target, Math.min(1, dt * 4)); if (!camTarget.lengthSq() && !followBlend) camTarget.set(0, 0, 0);
+  const half = HALF + .6 + (span - HALF - .6) * followBlend;
+  az = game.phase === 'ready' && !calm ? Math.sin(t * .25) * .12 : az * Math.exp(-dt * 4);
+  const f = fit(camTarget, half, half, r);
+  camDist = f.d;
+  const px = (f.cx * .5 + .5) * vw, py = (-f.cy * .5 + .5) * vh;
+  camera.setViewOffset(vw, vh, px - (r.left + (vw - r.left - r.right) / 2), py - (r.top + (vh - r.top - r.bottom) / 2), vw, vh);
+  camera.updateProjectionMatrix();
+}
+const ray = new THREE.Raycaster(), plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), -.3), hit = new THREE.Vector3(), ndc = new THREE.Vector2();
+app.pick = (clientX, clientY) => {
+  const rect = canvas.getBoundingClientRect();
+  ndc.set((clientX - rect.left) / rect.width * 2 - 1, -((clientY - rect.top) / rect.height) * 2 + 1);
+  ray.setFromCamera(ndc, camera); if (!ray.ray.intersectPlane(plane, hit)) return null;
+  const x = Math.floor(hit.x + HALF), y = Math.floor(hit.z + HALF);
+  return x >= 0 && y >= 0 && x < N && y < N ? [x, y] : null;
+};
+
+// ---------- Frame ----------
+let lastGame = null;
+let wallClock = 0;
+stage.loop((frameDt, t, { reducedMotion }) => {
+  // Effects age by wall time so slow devices do not keep ripples and pops on screen longer.
+  const now = performance.now(), dt = wallClock ? Math.min(.5, (now - wallClock) / 1000) : frameDt; wallClock = now;
+  const game = app.game, calm = reducedMotion || app.prefs.get('fx') === false;
+  if (rockSource !== game.rocks) { buildRocks(game); owners.fill(255); }
+  // Events: ripples for captures, cuts, falls and arrivals.
+  for (const e of app.fx.splice(0)) {
+    if (e.type === 'capture' && e.gain) ripple(e.x, e.y, app.colors[e.faction - 1], 2 + Math.min(6, Math.sqrt(e.gain)), .9);
+    else if (e.type === 'cut') ripple(e.x, e.y, palette.paper, 3, .6);
+    else if (e.type === 'eliminated') ripple(e.x, e.y, app.colors[e.faction - 1], 7, 1.2);
+    else if (e.type === 'spawn') { const f = game.factions[e.faction]; ripple(f.core % N, Math.floor(f.core / N), app.colors[e.faction - 1], 4, 1); }
   }
-  function showDialog(kicker, title, copy, action, secondary = '') {
-    $('dialog-kicker').textContent = kicker; $('dialog-title').textContent = title; $('dialog-copy').textContent = copy;
-    setButton($('play'),action,game.phase==='over'?'restart':'play'); $('dialog-secondary').textContent = secondary; $('dialog-secondary').hidden = !secondary;
-    $('loop-demo').hidden = game.phase !== 'ready'; $('overlay').hidden = false;
-    $('play').focus({ preventScroll: true });
+  // Tiles: height and tone follow ownership; ownership changes pop.
+  const board = game.board, k = Math.min(1, dt * 10), decay = Math.exp(-dt * 3.2);
+  for (let cell = 0; cell < N * N; cell++) {
+    const owner = board[cell];
+    if (owner !== owners[cell]) { if (owners[cell] !== 255 && owner && !calm) pops[cell] = 1; owners[cell] = owner; }
+    const x = cell % N, y = (cell - x) / N;
+    const target = game.rocks[cell] ? NEUTRAL_H * .6 : owner ? OWNED_H : NEUTRAL_H;
+    heights[cell] += (target - heights[cell]) * k; pops[cell] *= decay; if (pops[cell] < .01) pops[cell] = 0;
+    const h = heights[cell] + pops[cell] * .45;
+    mtx.makeScale(1, h, 1); mtx.setPosition(x - HALF + .5, 0, y - HALF + .5); tiles.setMatrixAt(cell, mtx);
+    if (owner) {
+      const coast = (x === 0 || board[cell - 1] !== owner) || (x === N - 1 || board[cell + 1] !== owner) || (y === 0 || board[cell - N] !== owner) || (y === N - 1 || board[cell + N] !== owner);
+      col.copy(coast ? ownTone[owner].coast : ownTone[owner].body);
+    } else col.copy(neutral[cell]);
+    if (pops[cell]) col.lerp(PAPER, pops[cell] * .4);
+    tiles.setColorAt(cell, col);
   }
-  function stopFrames() { cancelAnimationFrame(frameId); frameId = 0; lastTime = 0; accumulator = 0; }
-  function startFrames() { stopFrames(); frameId = requestAnimationFrame(frame); }
-  function resume() {
-    restartPrompt = false; game.start(); $('overlay').hidden = true; updateHUD();
-    canvas.focus({ preventScroll: true }); startFrames();
+  tiles.instanceMatrix.needsUpdate = true; tiles.instanceColor.needsUpdate = true;
+  // Trails: bright segments that breathe, so open lines read as danger.
+  let n = 0;
+  for (const a of game.actors) if (a.alive && a.trail.length) {
+    tmp.set(app.colors[a.faction - 1]).lerp(PAPER, .18);
+    a.trail.forEach((cell, i) => {
+      const s = calm ? .9 : .78 + .22 * Math.sin(t * 7 - i * .8);
+      mtx.makeScale(s, 1, s); mtx.setPosition(cell % N - HALF + .5, heightAt(cell) + .08, Math.floor(cell / N) - HALF + .5);
+      trails.setMatrixAt(n, mtx); trails.setColorAt(n, tmp); n++;
+    });
   }
-  function pause() {
-    if (game.phase !== 'running') return;
-    game.pause(); stopFrames(); updateHUD(); draw(); announce('已暫停，時間與 AI 都停下了。');
-    showDialog('TAKE A BREATH', '休息一下', '時間與 AI 已暫停。準備好後，沿著原來的方向繼續。', '繼續圈地 →');
+  trails.count = n; trails.instanceMatrix.needsUpdate = true; if (trails.instanceColor) trails.instanceColor.needsUpdate = true;
+  // Bases and beacons.
+  for (let id = 1; id <= T.FACTIONS; id++) {
+    const f = game.factions[id], b = bases[id]; b.g.visible = f.alive;
+    if (f.alive) { b.g.position.copy(W(f.core % N, Math.floor(f.core / N), heightAt(f.core))); b.shield.visible = f.shieldUntil > game.tick; b.shield.rotation.y = calm ? 0 : t * .8; }
   }
-  function newRound() {
-    stopFrames(); restartPrompt = false; game.reset(); noticeUntil = 0; noticePriority = 0; lastAnnouncement = '';
-    announce('先繞小圈：往右 → 往下 → 往左 → 往上，回到青綠領地。'); resume(); draw();
-  }
-  function frame(time) {
-    if (game.phase !== 'running') return;
-    if (!lastTime) lastTime = time;
-    accumulator += Math.min(time - lastTime, Territory.STEP_MS * 3); lastTime = time;
-    while (accumulator >= Territory.STEP_MS && game.phase === 'running') {
-      accumulator -= Territory.STEP_MS; game.step(); updateHUD();
-      let notice = null;
-      for (const event of game.events) {
-        let message = '';
-        if (event.type === 'capture' && event.faction === 1 && event.gain) message = `${event.id === 1 ? '圈地成功' : '助手圈地'}！新增 ${event.gain} 格。`;
-        if (event.type === 'sever') message = `${palette[event.faction].name}的補給被截斷，${event.lost} 格回歸空白。`;
-        if (event.type === 'helper' && event.faction === 1) message = '新助手加入！小圓點會幫你圈地與攻擊。';
-        if (event.type === 'convert') message = `${palette[event.from].name}的助手倒戈加入${palette[event.faction].name}！白色光環期間受到招降保護。`;
-        if (event.type === 'eliminated') message = event.faction === 1 ? `${event.reason}。你的陣營正在尋找安全位置重生。` : `${palette[event.faction].name}被擊退，新一代首領即將入場。`;
-        if (event.type === 'spawn') message = event.faction === 1 ? '你已重生！從新基地再出發，持續爭奪版圖。' : `${palette[event.faction].name}第 ${event.generation} 代首領入場。`;
-        const personal = event.faction === 1 || event.from === 1;
-        const priority = (personal ? 50 : 0) + ({ eliminated: 40, spawn: 35, convert: 30, helper: 25, capture: 20, sever: 10 }[event.type] || 0);
-        if (message && (!notice || priority > notice.priority)) notice = { message, priority };
-      }
-      if (notice && (game.tick > noticeUntil || notice.priority >= noticePriority)) {
-        announce(notice.message); noticeUntil = game.tick + 22; noticePriority = notice.priority;
-      }
-      if (game.tick > noticeUntil) {
-        const a = game.actors[0];
-        announce(!a.alive ? '陣營暫時撤退，等待安全重生；其他陣營繼續角逐。' : a.blocked ? '邊界或友方路徑擋住了！轉向繼續。' : a.trail.length ? '正在畫線，快回到青綠色塊。敵人會追著虛線切斷！' : '繞圈擴張，切斷敵方補給；碰到敵方小圓點可招降。');
-      }
-    }
-    draw(); frameId = requestAnimationFrame(frame);
-  }
-  $('play').addEventListener('click', () => { if (restartPrompt) newRound(); else resume(); });
-  $('dialog-secondary').addEventListener('click', resume);
-  $('pause').addEventListener('click', () => { if (game.phase === 'running') pause(); else if (game.phase === 'paused') resume(); });
-  $('restart').addEventListener('click', () => {
-    if (game.phase === 'ready') { newRound(); return; }
-    pause(); restartPrompt = true; updateHUD();
-    showDialog('A FRESH START', '重新開始這一局？', '目前領地、助手與遊玩時間會重置。四個陣營重新出發。', '確定重開', '保留本局，繼續');
+  beacons.forEach((b, i) => {
+    const cell = T.BEACONS[i], on = game.beacons.includes(cell); b.g.visible = on; if (!on) return;
+    const owner = board[cell], c = owner ? app.colors[owner - 1] : palette.bone;
+    b.g.position.copy(W(cell % N, Math.floor(cell / N), heightAt(cell)));
+    b.mat.color.set(c); b.mat.emissive.set(c); b.fire.material.color.set(c); b.ring.material.color.set(c);
+    b.fire.rotation.y = calm ? 0 : t * 1.6; b.fire.position.y = 1.8 + (calm ? 0 : Math.sin(t * 2 + i) * .08);
   });
-  const keyDirections = { ArrowUp: 'up', ArrowRight: 'right', ArrowDown: 'down', ArrowLeft: 'left', w: 'up', d: 'right', s: 'down', a: 'left' };
-  document.addEventListener('keydown', event => {
-    if (event.altKey || event.ctrlKey || event.metaKey || /^(INPUT|TEXTAREA|SELECT)$/.test(event.target.tagName)) return;
-    const key = event.key.length === 1 ? event.key.toLowerCase() : event.key;
-    if (keyDirections[key] && game.phase === 'running') { event.preventDefault(); game.steer(keyDirections[key]); }
-    else if (key === 'Escape' && game.phase === 'running') { event.preventDefault(); pause(); }
-    else if ((key === 'p' || key === ' ') && !event.repeat && !restartPrompt) {
-      if (key === ' ' && event.target.closest('button, a, summary')) return;
-      if (game.phase === 'running' || game.phase === 'paused') { event.preventDefault(); if (game.phase === 'running') pause(); else resume(); }
-    }
+  // Actors, interpolated between fixed steps.
+  const alpha = app.alpha();
+  game.actors.forEach((a, i) => {
+    const v = actors[i]; v.g.visible = a.alive; if (!a.alive) return;
+    if (v.faction !== a.faction) { v.faction = a.faction; const c = sideColor(a.faction); v.mat.color.copy(c); v.mat.emissive.copy(c); }
+    const x = a.previousX + (a.x - a.previousX) * alpha, y = a.previousY + (a.y - a.previousY) * alpha;
+    const cell = T.index(a.x, a.y), bob = calm ? 0 : Math.sin(t * 5 + i) * .03;
+    v.g.position.set(x - HALF + .5, heightAt(cell) + bob, y - HALF + .5);
+    const yaw = Math.atan2(a.direction[0], a.direction[1]); let dy = yaw - v.yaw; dy = Math.atan2(Math.sin(dy), Math.cos(dy)); v.yaw += dy * Math.min(1, dt * 14);
+    v.g.rotation.y = v.leader ? v.yaw : (calm ? 0 : t * 2);
+    v.halo.visible = a.protectedUntil > game.tick; if (v.halo.visible) v.halo.scale.setScalar(1 + (calm ? 0 : Math.sin(t * 9) * .08));
   });
-  for (const btn of document.querySelectorAll('[data-direction]')) {
-    btn.addEventListener('pointerdown', event => { if (game.phase === 'running') { event.preventDefault(); game.steer(btn.dataset.direction); } });
-    btn.addEventListener('click', () => game.steer(btn.dataset.direction));
+  for (const r of ripples) if (r.life > 0) {
+    r.life -= dt; const u = 1 - Math.max(0, r.life) / r.span; r.m.scale.setScalar(.6 + u * r.grow); r.m.material.opacity = (1 - u) * .9; if (r.life <= 0) r.m.visible = false;
   }
-  canvas.addEventListener('pointerdown', event => {
-    if (game.phase !== 'running') return;
-    touchOrigin = { x: event.clientX, y: event.clientY, id: event.pointerId }; canvas.setPointerCapture(event.pointerId);
+  updateCamera(dt, game, t, calm);
+  // Leader labels: intent of each AI; yours is the seal tag.
+  const show = app.prefs.get('labels') !== false;
+  tags.forEach((el, i) => {
+    const a = game.actors[i];
+    if (!show || !a.alive) { el.hidden = true; return; }
+    const text = i === 0 ? '你' : `${app.names[i + 1]} · ${game.phase === 'ready' ? 'AI' : a.strategy}`;
+    if (el.textContent !== text) el.textContent = text;
+    const v = actors[i].g.position; proj.set(v.x, v.y + 1.15, v.z).project(camera);
+    const half = (el.offsetWidth || 60) / 2 + 4, sx = Math.max(half, Math.min(vw - half, (proj.x * .5 + .5) * vw)), sy = (-proj.y * .5 + .5) * vh;
+    el.hidden = proj.z > 1; el.style.transform = `translate(${sx.toFixed(1)}px,${sy.toFixed(1)}px) translate(-50%,-100%)`;
   });
-  canvas.addEventListener('pointermove', event => {
-    if (!touchOrigin || touchOrigin.id !== event.pointerId) return;
-    const dx = event.clientX - touchOrigin.x, dy = event.clientY - touchOrigin.y;
-    if (Math.max(Math.abs(dx), Math.abs(dy)) < 14) return;
-    game.steer(Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? 'right' : 'left') : (dy > 0 ? 'down' : 'up'));
-    touchOrigin = { x: event.clientX, y: event.clientY, id: event.pointerId };
-  });
-  for (const name of ['pointerup', 'pointercancel', 'lostpointercapture']) canvas.addEventListener(name, () => { touchOrigin = null; });
-  document.addEventListener('visibilitychange', () => { if (document.hidden) pause(); });
-  window.addEventListener('blur', pause);
-  window.addEventListener('resize', () => { if (game.phase !== 'running') draw(); });
-  updateHUD(); draw();
-  </script>
+  lastGame = game;
+});
+}
+</script>
 </body>
 </html>
