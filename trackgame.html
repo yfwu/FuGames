@@ -1,857 +1,1496 @@
 <!doctype html>
 <html lang="zh-Hant">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="description" content="四乘四的雙環軌道：每次落子，內外圈一起轉一格，轉完連成四子就贏。五級 AI、轉向變體、煞車與路障、三戰兩勝與生涯等級。">
+  <meta name="theme-color" content="#07090c">
   <title>軌道棋 - FuGames</title>
-  <link rel="icon" href="favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="fulab-theme.css">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="shared/fu.css">
   <style>
-
-    .boardFrame { width: min(100%, 380px); }
-    .board { width: 100%; aspect-ratio: 1; display: grid; grid-template-columns: repeat(4, 1fr); grid-template-rows: repeat(4, 1fr); gap: 8px; position: relative; }
-    .cell { appearance: none; border: 1px solid var(--fulab-silver); border-radius: 12px; background: white; cursor: pointer; min-width: 0; }
-    .cell.outerRing { border-color: var(--fulab-indigo); }
-    .cell.innerRing { border-color: var(--fulab-plum); border-style: dashed; background: var(--fulab-tint-plum); }
-    .cell.hint { background: var(--fulab-tint-teal); border-color: var(--fulab-ink-teal); }
-    .cell.hint::before { content: ''; position: absolute; width: 22%; height: 22%; left: 39%; top: 39%; border: 2px solid var(--fulab-ink-teal); transform: rotate(45deg); border-radius: 2px; }
-    .ring-key { display: inline-block; width: 18px; height: 12px; border: 1.5px solid var(--fulab-indigo); border-radius: 4px; }
-    .ring-key.inner { border-color: var(--fulab-plum); border-style: dashed; background: var(--fulab-tint-plum); }
-    .hint-key { display: inline-block; width: 9px; height: 9px; border: 1.5px solid var(--fulab-ink-teal); transform: rotate(45deg); margin-inline: 4px; }
-    .pieceLayer { position: absolute; inset: 0; pointer-events: none; z-index: 2; }
-    .pieceLayer.noTrans .piece { transition: none !important; }
-    .piece { width: 16%; height: 16%; border-radius: 50%; position: absolute; left: 0; top: 0; transform: translate(0px,0px) translate(-50%,-50%); transition: transform 260ms ease; border: 2px solid var(--fulab-graphite); box-shadow: 0 2px 3px #2e34400d; }
-    .piece.black { background: var(--fulab-graphite); border-color: var(--fulab-graphite); }
-    .piece.white { background: white; }
-    #aiRow { flex-wrap: wrap; gap: 14px; }
-
+    /* 軌道棋 on the shared Vermilion Ink shell. You = seal, opponent = azure (FuPalette side order); blockers = bone. */
+    :root { --gutter: max(16px, env(safe-area-inset-left)); --me: var(--fu-seal); --foe: var(--fu-azure); --cutp: polygon(0 0, calc(100% - var(--fu-cut)) 0, 100% var(--fu-cut), 100% 100%, var(--fu-cut) 100%, 0 calc(100% - var(--fu-cut))); }
+    html, body { height: 100%; overflow: hidden; overscroll-behavior: none; }
+    body.fu-app { min-height: 0; }
+    .fu-stage { background: radial-gradient(110% 80% at 50% 45%, #121920 0, #07090c 70%); }
+    #board3d { outline: none; cursor: default; }
+    #board3d.can-play { cursor: pointer; }
+    #board3d:focus-visible { box-shadow: inset 0 0 0 2px var(--fu-seal); }
+    .fu-topbar__title .fu-heading { font-family: var(--fu-font-display); font-size: 18px; font-weight: 900; letter-spacing: .06em; margin: 0; }
+    .tg-lv { display: flex; flex-direction: column; justify-content: center; gap: 5px; min-width: 120px; min-height: 40px; padding: 4px 11px; background: var(--fu-surface); border: 1px solid var(--fu-line); cursor: pointer; text-align: left; clip-path: var(--cutp); }
+    .tg-lv span { display: flex; align-items: baseline; gap: 7px; font-size: 12px; color: var(--fu-text-dim); }
+    .tg-lv b { font: 800 15px/1 var(--fu-font-mono); color: var(--fu-gold); }
+    .tg-lv em { font-style: normal; }
+    .bar { display: block; height: 3px; background: rgba(236, 228, 208, .1); overflow: hidden; }
+    .bar i { display: block; height: 100%; width: 0; background: var(--fu-seal); transition: width .6s var(--fu-ease); }
+    .fu-btn--icon svg { width: 18px; height: 18px; }
+    #pause .i-play { display: none; }
+    /* HUD */
+    .tg-info { width: 272px; }
+    .tg-info > .fu-label { display: flex; justify-content: space-between; gap: 10px; }
+    .tg-turn { display: flex; align-items: center; gap: 10px; margin: 8px 0 6px; }
+    .tg-turn .fu-side { width: 12px; height: 12px; --side: var(--tone, var(--me)); }
+    .tg-turn b { font: 900 22px/1.1 var(--fu-font-display); letter-spacing: .04em; }
+    .tg-turn span { font-size: 12px; color: var(--fu-text-dim); }
+    .tg-turn.thinking span::after { content: "…"; animation: fu-blink 1s steps(2, jump-none) infinite; }
+    .tg-rings { display: flex; flex-wrap: wrap; gap: 4px 14px; font: 600 11px/1.5 var(--fu-font-mono); color: var(--fu-text-dim); }
+    .tg-rings b { color: var(--fu-paper); font-size: 13px; }
+    .tg-rings .inner b { color: var(--fu-gold); }
+    .tg-rings .brk b { color: var(--fu-jade); }
+    .tg-status { margin: 8px 0 0; padding-top: 8px; border-top: 1px solid var(--fu-line); font-size: 12.5px; line-height: 1.5; color: var(--fu-text-dim); min-height: 2.9em; }
+    .tg-match { width: 248px; }
+    .tg-sides { list-style: none; margin: 0; padding: 0; }
+    .tg-sides li { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 8px; padding: 6px 0; border-bottom: 1px solid var(--fu-line); font-size: 13px; }
+    .tg-sides li:last-child { border-bottom: 0; }
+    .tg-sides li.on b { color: var(--fu-paper); }
+    .tg-sides li:not(.on) { color: var(--fu-text-dim); }
+    .tg-sides small { font: 600 10px/1 var(--fu-font-mono); letter-spacing: .1em; color: var(--fu-mute); margin-left: 6px; }
+    .tg-sides em { font: 800 16px/1 var(--fu-font-mono); font-style: normal; color: var(--fu-paper); }
+    .tg-chips { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 8px; }
+    .tg-chips span { padding: 2px 6px; border: 1px solid var(--fu-line); font: 600 10px/1.4 var(--fu-font-mono); letter-spacing: .08em; color: var(--fu-text-dim); }
+    .tg-chips span.hot { border-color: rgba(233, 185, 73, .5); color: var(--fu-gold); }
+    .tg-banner { position: fixed; z-index: 25; left: 50%; top: 42%; transform: translate(-50%, -50%); text-align: center; pointer-events: none; opacity: 0; transition: opacity .3s var(--fu-ease); white-space: nowrap; }
+    .tg-banner.on { opacity: 1; }
+    .tg-banner strong { display: block; font: 900 clamp(40px, 7vw, 84px)/1 var(--fu-font-display); letter-spacing: .06em; color: var(--tone, var(--fu-paper)); text-shadow: 0 4px 0 rgba(0, 0, 0, .6), 0 0 40px rgba(0, 0, 0, .8); }
+    .tg-banner span { display: block; margin-top: 10px; font: 700 14px/1.3 var(--fu-font-mono); letter-spacing: .12em; color: var(--fu-paper); text-shadow: 0 2px 8px #000; }
+    .fu-dock .fu-btn { min-height: 52px; }
+    .fu-dock #brake[aria-pressed="true"] { background: var(--fu-jade); color: var(--fu-ink-0); }
+    .fu-dock .fu-btn[hidden] { display: none; }
+    .fu-dock .fu-kbd { margin-left: 4px; }
+    /* Accessible board (screen readers; becomes the visible board when WebGL is unavailable) */
+    .tg-cells { position: fixed; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+    .tg-cells button { min-width: 0; min-height: 44px; background: var(--fu-ink-2); border: 1px solid var(--fu-line-strong); color: var(--fu-paper); font: 900 20px/1 var(--fu-font-display); cursor: pointer; }
+    .tg-cells button.inner { border-style: dashed; border-color: rgba(233, 185, 73, .5); }
+    .tg-cells button.p-me { color: var(--me); } .tg-cells button.p-foe { color: var(--foe); } .tg-cells button.p-block { color: var(--fu-bone); }
+    .tg-cells button.win { box-shadow: inset 0 0 0 2px var(--fu-gold); }
+    body.no-webgl .tg-cells { left: 50%; top: 50%; width: min(360px, calc(100vw - 32px)); height: auto; aspect-ratio: 1; clip: auto; overflow: visible; transform: translate(-50%, -42%); z-index: 20; }
+    .webgl-note { position: fixed; z-index: 21; left: 50%; bottom: 96px; transform: translateX(-50%); margin: 0; font-size: 12px; color: var(--fu-mute); text-align: center; width: calc(100vw - 32px); }
+    /* Curtain sheet (lobby / pause / result) */
+    /* Curtain sits under the top bar (menu and career stay reachable) and under the drawer. */
+    .fu-topbar { z-index: 55; }
+    .fu-curtain { z-index: 50; overflow: auto; align-items: start; padding-top: calc(var(--fu-topbar-h) + 6px); }
+    .tg-sheet { width: min(860px, 100%); margin: auto; text-align: left; padding: 26px 28px 0; background: linear-gradient(180deg, rgba(15, 20, 27, .96), rgba(9, 12, 16, .98)); border: 1px solid var(--fu-line-strong); clip-path: polygon(0 0, calc(100% - 18px) 0, 100% 18px, 100% 100%, 18px 100%, 0 calc(100% - 18px)); }
+    .tg-sheet .head { display: none; align-items: center; gap: 18px; }
+    .fu-curtain[data-mode="lobby"] .tg-sheet .head { display: flex; }
+    .tg-sheet h2 { margin: 0; font: 900 clamp(34px, 6vw, 60px)/1.04 var(--fu-font-display); letter-spacing: .04em; }
+    .tg-sheet h2 em { font-style: normal; color: var(--fu-seal); }
+    .tg-sheet .lede { margin: 12px 0 0; max-width: 64ch; font-size: 14px; line-height: 1.65; color: var(--fu-text-dim); }
+    .tg-sheet section { margin-top: 18px; }
+    .tg-sheet h3 { display: flex; justify-content: space-between; gap: 10px; margin: 0 0 10px; font: 700 11px/1.2 var(--fu-font-mono); letter-spacing: .18em; color: var(--fu-seal); }
+    .tg-sheet h3 span { font: 400 12px/1.2 var(--fu-font-body); letter-spacing: 0; color: var(--fu-mute); text-align: right; }
+    [data-view] { display: none; }
+    .fu-curtain[data-mode="lobby"] [data-view~="lobby"], .fu-curtain[data-mode="pause"] [data-view~="pause"], .fu-curtain[data-mode="result"] [data-view~="result"] { display: block; }
+    .fu-curtain[data-mode="lobby"] .tg-actions[data-view~="lobby"], .fu-curtain[data-mode="pause"] .tg-actions[data-view~="pause"], .fu-curtain[data-mode="result"] .tg-actions[data-view~="result"] { display: flex; }
+    .tg-career { display: grid; grid-template-columns: auto 1fr; gap: 6px 16px; align-items: center; padding: 12px 14px; border: 1px solid var(--fu-line); background: rgba(236, 228, 208, .03); }
+    .tg-career .lv { grid-row: span 2; font: 900 34px/1 var(--fu-font-mono); color: var(--fu-gold); }
+    .tg-career .lv small { display: block; margin-bottom: 4px; font: 700 10px/1 var(--fu-font-mono); letter-spacing: .14em; color: var(--fu-text-dim); }
+    .tg-career .who { display: flex; justify-content: space-between; gap: 10px; font-size: 13px; font-weight: 700; }
+    .tg-career .who span { font: 500 11px/1.4 var(--fu-font-mono); color: var(--fu-text-dim); text-align: right; }
+    .tg-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; }
+    .tg-grid.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .tg-pick { position: relative; display: flex; flex-direction: column; align-items: flex-start; gap: 5px; min-height: 44px; padding: 11px 12px; text-align: left; cursor: pointer; background: rgba(236, 228, 208, .03); border: 1px solid var(--fu-line); border-top: 3px solid var(--tone, var(--fu-line-strong)); }
+    .tg-pick b { font: 900 17px/1.1 var(--fu-font-display); letter-spacing: .03em; }
+    .tg-pick small { font: 600 10px/1.3 var(--fu-font-mono); letter-spacing: .12em; color: var(--fu-gold); }
+    .tg-pick span { font-size: 12px; line-height: 1.5; color: var(--fu-text-dim); }
+    .tg-pick:hover:not(:disabled) { border-color: var(--fu-line-strong); }
+    .tg-pick[aria-pressed="true"] { background: rgba(255, 75, 43, .08); box-shadow: inset 0 0 0 1px var(--fu-seal); }
+    .tg-pick:disabled { cursor: not-allowed; opacity: .45; }
+    .tg-pick .lock { position: absolute; top: 9px; right: 10px; font: 700 10px/1 var(--fu-font-mono); color: var(--fu-gold); }
+    .tg-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 18px; }
+    .tg-field > span { display: flex; justify-content: space-between; gap: 8px; margin-bottom: 6px; font: 600 10.5px/1.2 var(--fu-font-mono); letter-spacing: .16em; color: var(--fu-text-dim); }
+    .tg-field > span em { font-style: normal; letter-spacing: .04em; color: var(--fu-gold); }
+    .tg-field .fu-seg > button { flex: 1; min-height: 40px; }
+    .tg-field .fu-seg > button:disabled { opacity: .4; cursor: not-allowed; }
+    .tg-field small { display: block; margin-top: 5px; font-size: 11.5px; line-height: 1.45; color: var(--fu-mute); }
+    .tg-mult { margin: 14px 0 0; font: 600 12px/1.4 var(--fu-font-mono); letter-spacing: .08em; color: var(--fu-text-dim); }
+    .tg-mult b { color: var(--fu-gold); }
+    .tg-actions { position: sticky; bottom: 0; display: none; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: flex-end; margin: 22px -28px 0; padding: 14px 28px 20px; background: #090c10; border-top: 1px solid var(--fu-line); }
+    .tg-actions .note { margin-right: auto; font-size: 12px; color: var(--fu-mute); }
+    .tg-standings { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+    .tg-standings div { padding: 10px 12px; border: 1px solid var(--fu-line); border-top: 3px solid var(--side); font-size: 12px; color: var(--fu-text-dim); }
+    .tg-standings b { display: block; margin-bottom: 4px; font-size: 15px; color: var(--fu-paper); }
+    .tg-standings strong { display: block; font: 800 20px/1.2 var(--fu-font-mono); color: var(--fu-paper); }
+    .tg-xp { display: grid; grid-template-columns: 1fr auto; gap: 6px 16px; margin: 0; padding: 12px 14px; border: 1px solid var(--fu-line); font-size: 13px; }
+    .tg-xp dt { color: var(--fu-text-dim); } .tg-xp dd { margin: 0; text-align: right; font-family: var(--fu-font-mono); color: var(--fu-gold); }
+    .tg-xp .total { padding-top: 8px; border-top: 1px solid var(--fu-line); font-weight: 800; color: var(--fu-paper); }
+    .tg-levelup { padding: 12px 14px; border: 1px solid rgba(233, 185, 73, .45); background: rgba(233, 185, 73, .07); font-size: 13px; line-height: 1.6; }
+    .tg-levelup b { color: var(--fu-gold); }
+    /* Drawer */
+    .tg-tabs { display: flex; gap: 2px; padding: 0 var(--fu-space-5); border-bottom: 1px solid var(--fu-line); }
+    .tg-tabs button { min-height: 44px; padding: 10px 12px; background: none; border: 0; border-bottom: 2px solid transparent; cursor: pointer; color: var(--fu-text-dim); font-weight: 700; }
+    .tg-tabs button[aria-selected="true"] { color: var(--fu-paper); border-color: var(--fu-seal); }
+    .tg-tab ul { margin: 0; padding-left: 18px; font-size: 13px; line-height: 1.7; color: var(--fu-text-dim); }
+    .tg-tab li { margin-bottom: 7px; } .tg-tab li strong { color: var(--fu-paper); }
+    .tg-tab .fu-switch { font-size: 14px; }
+    .tg-tab .fu-switch small { display: block; font-size: 12px; color: var(--fu-mute); }
+    .tg-tab .tg-field { margin-bottom: var(--fu-space-4); }
+    .tg-stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-top: 12px; }
+    .tg-stats div { padding: 9px 11px; border: 1px solid var(--fu-line); }
+    .tg-stats b { display: block; font: 800 19px/1.15 var(--fu-font-mono); }
+    .tg-stats span { font-size: 11px; color: var(--fu-text-dim); }
+    .tg-ach { list-style: none; padding: 0 !important; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
+    .tg-ach li { margin: 0 !important; padding: 8px 10px; border: 1px solid var(--fu-line); font-size: 12px; line-height: 1.4; color: var(--fu-mute); }
+    .tg-ach li b { display: block; font-size: 13px; color: var(--fu-text-dim); }
+    .tg-ach li.got { border-color: rgba(233, 185, 73, .45); }
+    .tg-ach li.got b { color: var(--fu-gold); }
+    .tg-unlocks { list-style: none; padding: 0 !important; }
+    .tg-unlocks li { display: flex; justify-content: space-between; gap: 10px; margin: 0 !important; padding: 6px 0; border-bottom: 1px solid var(--fu-line); color: var(--fu-mute); }
+    .tg-unlocks li.got { color: var(--fu-paper); }
+    .tg-unlocks li span { font: 600 11px/1.6 var(--fu-font-mono); }
+    .tg-mini { display: inline-block; vertical-align: -2px; width: 14px; height: 14px; margin: 0 4px; border: 1.5px solid var(--fu-paper-dim); }
+    .tg-mini.inner { border-color: var(--fu-gold); border-style: dashed; }
+    @media (max-width: 860px) {
+      .tg-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .tg-row { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 720px) {
+      .fu-topbar__title .fu-heading { font-size: 16px; }
+      .tg-lv { min-width: 0; padding: 4px 9px; }
+      .tg-lv em { display: none; }
+      .fu-hud--tl { right: var(--gutter); }
+      .tg-info { width: auto; padding: 10px 12px; }
+      .tg-turn { margin: 6px 0 4px; }
+      .tg-turn b { font-size: 19px; }
+      .tg-status { min-height: 0; margin-top: 6px; padding-top: 6px; font-size: 12px; }
+      .fu-dock { left: var(--gutter); right: var(--gutter); transform: none; max-width: none; }
+      .fu-dock .fu-btn { flex: 1 1 0; padding: 0 6px; min-width: 0; }
+      .fu-dock .fu-kbd { display: none; }
+      .tg-sheet { padding: 20px 16px 0; }
+      .tg-sheet .head .fu-seal--lg { --s: 48px; --f: 18px; }
+      .tg-grid, .tg-grid.three { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .tg-actions { margin: 18px -16px 0; padding: 12px 16px 16px; }
+      .tg-actions .note { display: none; }
+      .tg-actions .fu-btn { flex: 1; }
+      .tg-ach { grid-template-columns: 1fr; }
+    }
+    @media (max-height: 560px) and (min-width: 721px) { .tg-status { display: none; } }
+    @media (prefers-reduced-motion: reduce) { .bar i, .tg-banner { transition: none; } }
   </style>
+  <script type="importmap">{"imports":{"three":"./vendor/three/three.module.min.js"}}</script>
 </head>
-<body>
-  <main class="game-page classic-page">
-    <nav class="site-nav" aria-label="遊戲導覽"><a class="site-brand" href="index.html"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>FuGames</a><a href="index.html" aria-label="所有遊戲 ↗">所有遊戲<svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#launch"></use></svg></a></nav>
-    <header class="page-header"><p class="eyebrow">棋盤 / 同機雙人・AI</p><h1><svg class="page-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#trackgame"></use></svg>軌道棋</h1><p class="lead">每次落子，內外圈一起轉一步。旋轉後連成四子就贏。</p></header>
-    <section class="card play-panel" aria-label="軌道棋棋盤">
-      <div class="game-toolbar"><p class="game-status" id="statusText" role="status" aria-live="polite"></p><div class="game-metrics"><span>回合 <strong id="turnKpi">0</strong></span><span>落子 <strong id="playerKpi">黑</strong></span><span id="ringKpi">內外同時</span></div></div>
-      <div class="boardWrap game-floor"><div class="boardFrame"><div id="board" class="board" role="grid" aria-label="四乘四軌道棋棋盤"></div></div></div>
-      <div class="classic-legend"><span class="stone-key"><span class="ring-key" aria-hidden="true"></span>外圈</span><span class="stone-key"><span class="ring-key inner" aria-hidden="true"></span>內圈</span><span class="stone-key"><span class="hint-key" aria-hidden="true"></span>建議落點</span></div>
-      <div class="game-actions"><div class="btnRow"><button class="btn" id="undo"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#undo"></use></svg>悔棋</button><button class="btn" id="hint"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#hint"></use></svg>提示</button></div><button class="btn primary" id="newGame"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#restart"></use></svg>重新開始</button></div>
+<body class="fu-app fu-vignette">
+<header class="fu-topbar">
+  <a class="fu-brand" href="index.html" aria-label="回到 FuGames 所有遊戲"><span class="fu-seal" aria-hidden="true">福遊</span><span class="fu-hide-sm">FuGames</span></a>
+  <div class="fu-topbar__title"><h1 class="fu-heading">軌道棋</h1><span class="fu-label fu-hide-sm" id="title-label">雙環四子 · Orbit Four</span></div>
+  <div class="fu-topbar__actions">
+    <button class="tg-lv" id="career-chip" type="button" aria-label="生涯等級"><span><b class="fu-num" id="lv">1</b><em id="rank">學徒</em></span><span class="bar"><i id="lv-fill"></i></span></button>
+    <button class="fu-btn fu-btn--icon" id="pause" type="button" disabled aria-label="暫停" data-fu-tip="暫停 P"><svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><g class="i-pause"><rect x="6" y="5" width="4" height="14"/><rect x="14" y="5" width="4" height="14"/></g><path class="i-play" d="M7 5l12 7-12 7z"/></svg></button>
+    <button class="fu-btn fu-btn--icon" id="menu-btn" type="button" aria-label="選單：玩法、設定與生涯" aria-controls="drawer" data-fu-tip="選單 M"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h16M4 17h10"/></svg></button>
+  </div>
+</header>
+<main class="fu-stage" id="stage"><canvas id="board3d" tabindex="0" aria-label="軌道棋 3D 棋盤：四乘四，外圈十二格、內圈四格。點格子落子；方向鍵移動游標，Enter 或空白鍵落子。" aria-describedby="status"></canvas></main>
+<div class="tg-cells" id="cells" role="grid" aria-label="四乘四軌道棋棋盤"></div>
+
+<div class="fu-hud fu-hud--tl">
+  <section class="fu-panel fu-panel--tight tg-info" id="info" aria-label="戰況">
+    <div class="fu-label"><span id="match-label">對戰 AI</span><span id="turn-label">第 0 手</span></div>
+    <div class="tg-turn" id="turn-row"><i class="fu-side" aria-hidden="true"></i><b id="turn-name">你</b><span id="turn-note">落子</span></div>
+    <div class="tg-rings"><span>外圈 <b id="outer-dir">↻</b></span><span class="inner">內圈 <b id="inner-dir">↻</b></span><span class="brk" id="brake-line" hidden>煞車 <b id="brake-count">0</b></span></div>
+    <p class="tg-status" id="status" role="status" aria-live="polite">選好對手與規則，開始對局。</p>
+  </section>
+</div>
+<div class="fu-hud fu-hud--tr fu-hide-sm">
+  <section class="fu-panel fu-panel--tight fu-panel--quiet tg-match" id="match" aria-label="對局">
+    <div class="fu-panel__head"><span class="fu-label">對局</span><span class="fu-label" id="series-label">單局</span></div>
+    <ol class="tg-sides" id="sides"></ol>
+    <div class="tg-chips" id="variant-chips"></div>
+  </section>
+</div>
+<div class="tg-banner" id="banner" aria-hidden="true"><strong></strong><span></span></div>
+<nav class="fu-dock" id="dock" aria-label="對局動作">
+  <button class="fu-btn" id="undo" type="button" disabled>悔棋<span class="fu-kbd">U</span></button>
+  <button class="fu-btn" id="hint" type="button" disabled>提示<span class="fu-kbd">H</span></button>
+  <button class="fu-btn" id="brake" type="button" aria-pressed="false" hidden>煞車<span class="fu-kbd">B</span></button>
+  <button class="fu-btn" id="restart" type="button" disabled>重開<span class="fu-kbd">R</span></button>
+</nav>
+
+<div class="fu-curtain" id="curtain" data-mode="lobby" role="dialog" aria-modal="true" aria-labelledby="curtain-title">
+  <div class="tg-sheet">
+    <div class="head" data-view="lobby"><span class="fu-seal fu-seal--lg fu-stamp" aria-hidden="true">軌道</span><div><p class="fu-label">FuGames · 雙環四子棋</p><h2 id="curtain-title">軌道<em>棋</em></h2></div></div>
+    <p class="lede" data-view="lobby">四乘四的棋盤上有兩條軌道：外圈十二格、內圈四格。每次落子之後，兩圈上的所有棋子一起沿軌道走一格，<strong>轉完才判定</strong>橫、直、斜四子連線。你下的每一手都會被轉走，也會把對手的棋送到新位置。</p>
+    <section data-view="lobby"><div class="tg-career" id="lobby-career"></div></section>
+    <section data-view="lobby"><h3>對手 <span>越強，經驗倍率越高</span></h3>
+      <div class="tg-field" style="margin-bottom:10px"><div class="fu-seg" id="mode-seg" role="group" aria-label="對戰模式"><button type="button" value="ai" aria-pressed="true">對戰 AI</button><button type="button" value="pvp" aria-pressed="false">雙人同機</button></div></div>
+      <div class="tg-grid" id="tier-picks" role="group" aria-label="AI 難度"></div>
     </section>
-    <details class="card rules"><summary>玩法與設定</summary><div class="rules-body">
-      <div class="settings-grid"><div class="field"><label for="mode">對戰模式</label><select id="mode"><option value="pvp">雙人（同機）</option><option value="ai">對戰 AI</option></select></div><div class="field"><label for="dir">旋轉方向</label><select id="dir"><option value="cw">順時針</option><option value="ccw">逆時針</option></select></div></div>
-      <div class="settings-grid" id="aiRow"><div class="field"><label for="aiPlayer">AI 顏色</label><select id="aiPlayer"><option value="2">白（後手）</option><option value="1">黑（先手）</option></select></div><div class="field"><label for="aiLevel">AI 難度</label><select id="aiLevel"><option value="easy">簡單</option><option value="medium">中等</option><option value="hard">困難</option><option value="expert" selected>專家</option></select></div></div>
-      <ul class="list"><li>棋盤 4×4，每次落子後內外圈同時沿軌道移動一格。</li><li>旋轉後判定橫、直、對角四子連線；雙方同時連線，由本回合落子方獲勝。</li><li>「提示」標示建議落點；AI 模式可設定先後手與難度。</li></ul>
-    </div></details>
-    <footer class="site-footer">FuGames · 隨時來一局</footer>
-  </main>
+    <section data-view="lobby"><div class="tg-row">
+      <div class="tg-field" id="first-field"><span>先手</span><div class="fu-seg" id="first-seg" role="group" aria-label="先手"><button type="button" value="me" aria-pressed="true">你先</button><button type="button" value="ai" aria-pressed="false">AI 先</button></div><small>系列賽中每盤輪流先手。</small></div>
+      <div class="tg-field"><span>賽制 <em id="series-lock"></em></span><div class="fu-seg" id="series-seg" role="group" aria-label="賽制"><button type="button" value="1" aria-pressed="true">單局</button><button type="button" value="3" aria-pressed="false">三戰兩勝</button></div><small>和局不計勝場，最多四盤。</small></div>
+    </div></section>
+    <section data-view="lobby"><h3>規則變體 <span>每開一種，經驗 +15%</span></h3>
+      <div class="tg-grid three" id="spin-picks" role="group" aria-label="轉動方式"></div>
+      <div class="tg-row" style="margin-top:12px">
+        <div class="tg-field"><span>轉向</span><div class="fu-seg" id="dir-seg" role="group" aria-label="轉向"><button type="button" value="1" aria-pressed="true">順時針</button><button type="button" value="-1" aria-pressed="false">逆時針</button></div><small>外圈的轉向；其他變體以此為基準。</small></div>
+        <div class="tg-field"><span>煞車 <em id="brakes-lock"></em></span><div class="fu-seg" id="brakes-seg" role="group" aria-label="煞車次數"><button type="button" value="0" aria-pressed="true">無</button><button type="button" value="1" aria-pressed="false">每人 1 次</button><button type="button" value="2" aria-pressed="false">每人 2 次</button></div><small>用煞車的那一手落子後不轉動，直接判定。</small></div>
+        <div class="tg-field"><span>路障 <em id="blockers-lock"></em></span><div class="fu-seg" id="blockers-seg" role="group" aria-label="路障數量"><button type="button" value="0" aria-pressed="true">無</button><button type="button" value="1" aria-pressed="false">1 顆</button><button type="button" value="2" aria-pressed="false">2 顆</button></div><small>中立石隨軌道移動，任何經過它的線都連不成。</small></div>
+      </div>
+      <p class="tg-mult" id="lobby-mult"></p>
+    </section>
+    <p class="fu-label" data-view="pause">已暫停</p>
+    <h2 data-view="pause">喘口氣</h2>
+    <p class="lede" data-view="pause">棋局保留在這一手。AI 不會在暫停時偷偷下棋。</p>
+    <p class="fu-label" data-view="result" id="result-kicker">結算</p>
+    <h2 data-view="result" id="result-title">對局結束</h2>
+    <p class="lede" data-view="result" id="result-copy"></p>
+    <section data-view="result"><div class="tg-standings" id="standings"></div></section>
+    <section data-view="result" id="xp-section"><h3>經驗 <span id="xp-mult"></span></h3><dl class="tg-xp" id="xp-lines"></dl></section>
+    <section data-view="result"><div class="tg-levelup" id="levelup" hidden></div></section>
+    <section data-view="result"><div class="tg-career" id="result-career"></div></section>
+    <div class="tg-actions" data-view="lobby"><span class="note">點格子或方向鍵 + Enter 落子 · U 悔棋 · H 提示 · B 煞車 · P 暫停 · M 選單</span><button class="fu-btn fu-btn--seal fu-btn--lg" id="play" type="button">開始對局</button></div>
+    <div class="tg-actions" data-view="pause"><button class="fu-btn" id="leave" type="button">回大廳</button><button class="fu-btn" id="pause-restart" type="button">重開這盤</button><button class="fu-btn fu-btn--seal fu-btn--lg" id="resume" type="button">繼續</button></div>
+    <div class="tg-actions" data-view="result"><button class="fu-btn" id="review" type="button">看棋盤</button><button class="fu-btn" id="to-lobby" type="button">回大廳</button><button class="fu-btn fu-btn--seal fu-btn--lg" id="again" type="button">再來一盤</button></div>
+  </div>
+</div>
 
-<script>
-  (() => {
-    "use strict";
+<aside class="fu-drawer" id="drawer" aria-label="選單" hidden>
+  <div class="fu-drawer__head"><span class="fu-heading">軌道棋</span><button class="fu-btn fu-btn--ghost fu-btn--icon" type="button" data-fu-close aria-label="關閉選單">✕</button></div>
+  <div class="tg-tabs" role="tablist"><button role="tab" id="tab-rules" aria-selected="true" aria-controls="panel-rules">玩法</button><button role="tab" id="tab-settings" aria-selected="false" aria-controls="panel-settings">設定</button><button role="tab" id="tab-career" aria-selected="false" aria-controls="panel-career">生涯</button></div>
+  <div class="fu-drawer__body">
+    <div class="tg-tab" id="panel-rules" role="tabpanel" aria-labelledby="tab-rules">
+      <section><h3>基本規則</h3><ul>
+        <li>棋盤 4×4。<span class="tg-mini" aria-hidden="true"></span><strong>外圈</strong>是邊上的 12 格，<span class="tg-mini inner" aria-hidden="true"></span><strong>內圈</strong>是中央 4 格。雙方輪流在空格落一子。</li>
+        <li>每次落子後，兩圈上的<strong>所有棋子</strong>（包含剛下的那顆）同時沿自己的軌道走一格。棋盤上的箭頭標出下一次的轉向。</li>
+        <li>轉完才判定橫、直、斜四子連線。雙方同時連線時，<strong>這一手的落子方獲勝</strong>。棋盤下滿仍無人連線為和局。</li>
+        <li>滑過格子會預覽：淡色棋子是你的子轉完後會停的位置。按「提示」標出建議落點（該盤不計「無提示」獎勵）。</li>
+      </ul></section>
+      <section><h3>變體</h3><ul>
+        <li><strong>同向</strong>（原版）：內外圈同一方向。<strong>逆轉內圈</strong>：內圈反向轉。<strong>交替轉向</strong>：每下一手，兩圈的轉向就反過來一次。</li>
+        <li><strong>煞車</strong>：開啟後每人有 1 或 2 次機會，按 B 或「煞車」再落子，這一手不轉動、立即判定。AI 也會保留並使用它的煞車。</li>
+        <li><strong>路障</strong>：開局放入 1–2 顆中立石（外圈一顆、內圈一顆），它們跟著軌道移動，經過的線都連不成。和局條件改為沒有空格。</li>
+        <li><strong>三戰兩勝</strong>：先拿兩勝者贏得系列賽，每盤輪流先手；和局不計勝場，最多四盤。</li>
+      </ul></section>
+      <section><h3>AI 與等級</h3><ul>
+        <li><strong>入門</strong>隨機落子；<strong>中等</strong>看 4 手；<strong>困難</strong>、<strong>專家</strong>用逐層加深的 α-β 搜尋（約 0.26／0.68 秒）；<strong>宗師</strong>（Lv 5）搜尋最深、最久。AI 只看棋盤與雙方剩餘煞車。</li>
+        <li>經驗 = 結果（勝 60、和 30、負 20）＋速勝＋後手勝＋無悔棋無提示＋系列賽勝，再乘以 AI 倍率（入門 0.6 至宗師 2）與每種變體 +15%。成就各 +40。雙人同機每盤 15。</li>
+        <li>等級解鎖逆轉內圈、三戰兩勝、煞車、交替轉向、宗師 AI 與路障。生涯只存在這台裝置。</li>
+        <li>按鍵：方向鍵移動游標、Enter／空白鍵落子、U 悔棋、H 提示、B 煞車、R 重開、P／Esc 暫停、M 選單、N 下一盤。</li>
+      </ul></section>
+    </div>
+    <div class="tg-tab" id="panel-settings" role="tabpanel" aria-labelledby="tab-settings" hidden>
+      <section><h3>畫面</h3>
+        <div class="tg-field"><span>轉動速度</span><div class="fu-seg" id="speed-seg"><button type="button" value="slow" aria-pressed="false">慢</button><button type="button" value="normal" aria-pressed="true">標準</button><button type="button" value="fast" aria-pressed="false">快</button></div></div>
+        <div class="tg-field"><span>鏡頭</span><div class="fu-seg" id="camera-seg"><button type="button" value="tilt" aria-pressed="true">斜視</button><button type="button" value="top" aria-pressed="false">俯視</button></div></div>
+        <label class="fu-switch"><span>落點預覽<small>滑過格子時，顯示這一子轉完後停在哪。</small></span><input type="checkbox" id="set-preview" checked></label>
+        <label class="fu-switch"><span>軌道流向<small>沿軌道流動的箭頭，標出下一次轉向。</small></span><input type="checkbox" id="set-flow" checked></label>
+        <label class="fu-switch"><span>音效<small>合成的落子與轉動聲，不載入音檔。</small></span><input type="checkbox" id="set-sound" checked></label>
+      </section>
+      <section><h3>對局</h3>
+        <div class="tg-field"><small>重開會清掉這一盤；系列賽的比分保留。回大廳會放棄目前的對局，不計經驗。</small></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="fu-btn" id="drawer-restart" type="button">重開這盤</button><button class="fu-btn" id="drawer-lobby" type="button">回大廳</button></div>
+      </section>
+    </div>
+    <div class="tg-tab" id="panel-career" role="tabpanel" aria-labelledby="tab-career" hidden>
+      <div class="tg-career" id="drawer-career"></div>
+      <div class="tg-stats" id="stats"></div>
+      <section><h3>成就</h3><ul class="tg-ach" id="achievements"></ul></section>
+      <section><h3>解鎖進度</h3><ul class="tg-unlocks" id="unlocks"></ul></section>
+      <section><label class="fu-switch"><span>重置生涯<small>清除這台裝置上的等級、紀錄與成就。</small></span><button class="fu-btn fu-btn--sm" id="reset-career" type="button">重置</button></label></section>
+    </div>
+  </div>
+</aside>
+<noscript><p class="webgl-note">請開啟 JavaScript，才能開始遊戲。</p></noscript>
+<script id="track-engine">
+'use strict';
+// Deterministic rules core for 軌道棋. No DOM, no storage: Node tests and headless agents drive it directly.
+// Every option defaults to the original game: both rings turn the same way (clockwise) after every
+// placement, no brakes, no blockers.
+const TrackEngine = (() => {
+  // Indices (row-major):
+  //  0  1  2  3
+  //  4  5  6  7
+  //  8  9 10 11
+  // 12 13 14 15
+  const OUTER_RING = Object.freeze([0, 1, 2, 3, 7, 11, 15, 14, 13, 12, 8, 4]);
+  const INNER_RING = Object.freeze([5, 6, 10, 9]);
+  const OUTER_SET = new Set(OUTER_RING), INNER_SET = new Set(INNER_RING);
+  const WIN_LINES = Object.freeze([
+    [0, 1, 2, 3], [4, 5, 6, 7], [8, 9, 10, 11], [12, 13, 14, 15],
+    [0, 4, 8, 12], [1, 5, 9, 13], [2, 6, 10, 14], [3, 7, 11, 15],
+    [0, 5, 10, 15], [3, 6, 9, 12]
+  ].map(l => Object.freeze(l)));
+  const BLOCK = 3; // neutral blocker stone: rides the rings, belongs to nobody, breaks lines
+  const SPINS = Object.freeze(['both', 'counter', 'alternate']);
+  const DEFAULTS = Object.freeze({ dir: 1, spin: 'both', brakes: 0, blockers: 0, seed: 1 });
 
-    // ===== Board model =====
-    // Indices (row-major):
-    //  0  1  2  3
-    //  4  5  6  7
-    //  8  9 10 11
-    // 12 13 14 15
+  // AI tiers. easy..expert are the original four levels, untouched; master is new.
+  const TIERS = Object.freeze({
+    easy: Object.freeze({ id: 'easy', name: '入門', kind: 'random' }),
+    medium: Object.freeze({ id: 'medium', name: '中等', kind: 'fixed', depth: 4 }),
+    hard: Object.freeze({ id: 'hard', name: '困難', kind: 'deepen', timeMs: 260, maxDepth: 8 }),
+    expert: Object.freeze({ id: 'expert', name: '專家', kind: 'deepen', timeMs: 680, maxDepth: 10 }),
+    master: Object.freeze({ id: 'master', name: '宗師', kind: 'deepen', timeMs: 1100, maxDepth: 14 })
+  });
+  const TIER_IDS = Object.freeze(Object.keys(TIERS));
 
-    const OUTER_RING = [0,1,2,3,7,11,15,14,13,12,8,4];
-    const INNER_RING = [5,6,10,9];
-    const OUTER_SET = new Set(OUTER_RING);
-    const INNER_SET = new Set(INNER_RING);
+  function normalizeOptions(options) {
+    const src = options && typeof options === 'object' ? options : {};
+    const o = { ...DEFAULTS };
+    if (src.dir === -1 || src.dir === 'ccw') o.dir = -1;
+    if (SPINS.includes(src.spin)) o.spin = src.spin;
+    if (Number.isInteger(src.brakes) && src.brakes >= 0 && src.brakes <= 2) o.brakes = src.brakes;
+    if (Number.isInteger(src.blockers) && src.blockers >= 0 && src.blockers <= 2) o.blockers = src.blockers;
+    if (Number.isInteger(src.seed)) o.seed = src.seed >>> 0;
+    return Object.freeze(o);
+  }
 
-    const WIN_LINES = [
-      [0,1,2,3], [4,5,6,7], [8,9,10,11], [12,13,14,15],
-      [0,4,8,12], [1,5,9,13], [2,6,10,14], [3,7,11,15],
-      [0,5,10,15], [3,6,9,12]
-    ];
+  /** Which way each ring turns after placement number `turn` (0-based). */
+  function ringDirs(options, turn) {
+    const o = options && options.spin ? options : normalizeOptions(options);
+    if (o.spin === 'counter') return { outer: o.dir, inner: -o.dir };
+    if (o.spin === 'alternate') { const d = turn % 2 === 0 ? o.dir : -o.dir; return { outer: d, inner: d }; }
+    return { outer: o.dir, inner: o.dir };
+  }
 
-    const pow3 = (() => {
-      const arr = new Array(16);
-      let v = 1;
-      for (let i=0;i<16;i++){ arr[i]=v; v*=3; }
-      return arr;
-    })();
+  const otherPlayer = p => (p === 1 ? 2 : 1);
 
-    function otherPlayer(p){ return p === 1 ? 2 : 1; }
+  function rotateRing(board, ring, dir) {
+    // dir: +1 clockwise (advance along ring list), -1 counterclockwise
+    const len = ring.length, next = board.slice();
+    for (let i = 0; i < len; i++) next[ring[(i + dir + len) % len]] = board[ring[i]];
+    return next;
+  }
+  function rotateBoth(board, dir, innerDir = dir) {
+    // Rings are disjoint, so sequential application is the same as simultaneous.
+    return rotateRing(rotateRing(board, OUTER_RING, dir), INNER_RING, innerDir);
+  }
+  function rotateIndex(idx, dir, innerDir = dir) {
+    let k = OUTER_RING.indexOf(idx);
+    if (k >= 0) return OUTER_RING[(k + dir + 12) % 12];
+    k = INNER_RING.indexOf(idx);
+    if (k >= 0) return INNER_RING[(k + innerDir + 4) % 4];
+    return idx;
+  }
 
-    function boardId(board){
-      let id = 0;
-      for (let i=0;i<16;i++) id += board[i] * pow3[i];
-      return id;
+  function checkWinnerRaw(board) {
+    // 0 none, 1 first player, 2 second player, 3 both
+    let a1 = false, a2 = false;
+    for (const line of WIN_LINES) {
+      const a = board[line[0]];
+      if (a !== 1 && a !== 2) continue;
+      if (a === board[line[1]] && a === board[line[2]] && a === board[line[3]]) { if (a === 1) a1 = true; else a2 = true; }
     }
+    return a1 && a2 ? 3 : a1 ? 1 : a2 ? 2 : 0;
+  }
+  /** Both sides in line after the same move: the player who just moved wins. */
+  function resolveWinner(board, justMoved) {
+    const raw = checkWinnerRaw(board);
+    return raw === 3 ? justMoved : raw;
+  }
+  function findWinCells(board, winner) {
+    const cells = new Set();
+    if (winner !== 1 && winner !== 2) return cells;
+    for (const line of WIN_LINES) if (line.every(i => board[i] === winner)) line.forEach(i => cells.add(i));
+    return cells;
+  }
+  function emptyCells(board) { const res = []; for (let i = 0; i < 16; i++) if (board[i] === 0) res.push(i); return res; }
 
-    function rotateRing(board, ring, dir){
-      // dir: +1 clockwise (advance along ring list), -1 counterclockwise
-      const len = ring.length;
-      const next = board.slice();
-      for (let i=0;i<len;i++){
-        const from = ring[i];
-        const to = ring[(i + dir + len) % len];
-        next[to] = board[from];
-      }
-      return next;
+  function mulberry32(seed) {
+    let a = seed >>> 0;
+    return () => { a = (a + 0x6D2B79F5) >>> 0; let t = a; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+  }
+  /** Seeded blocker cells: the first rides the outer ring, the second the inner ring. */
+  function blockerCells(seed, count) {
+    const rng = mulberry32(seed), cells = [];
+    if (count >= 1) cells.push(OUTER_RING[Math.floor(rng() * 12)]);
+    if (count >= 2) cells.push(INNER_RING[Math.floor(rng() * 4)]);
+    return cells;
+  }
+
+  // ===== Search =====
+  // A move is encoded as a number: 0..15 place and rotate, 16..31 place with a brake (no rotation).
+  const BRAKE = 16;
+  const WEIGHT = [0, 2, 14, 85, 100000];
+  const WIN_SCORE = 100000;
+  const BRAKE_VALUE = 9;
+  const CENTER = new Set([5, 6, 9, 10]);
+  const pow4 = (() => { const a = []; let v = 1; for (let i = 0; i < 16; i++) { a.push(v); v *= 4; } return a; })();
+  const boardId = board => { let id = 0; for (let i = 0; i < 16; i++) id += board[i] * pow4[i]; return id; };
+  const stonesOn = board => { let n = 0; for (let i = 0; i < 16; i++) if (board[i] === 1 || board[i] === 2) n++; return n; };
+
+  function heuristic(board, aiPlayer, brakes) {
+    const opp = otherPlayer(aiPlayer);
+    let score = 0;
+    for (const line of WIN_LINES) {
+      let ai = 0, op = 0, dead = false;
+      for (const idx of line) { const v = board[idx]; if (v === aiPlayer) ai++; else if (v === opp) op++; else if (v === BLOCK) dead = true; }
+      if (dead || (ai > 0 && op > 0)) continue;
+      if (ai > 0) score += WEIGHT[ai];
+      if (op > 0) score -= WEIGHT[op];
     }
+    if (brakes) score += (brakes[aiPlayer] - brakes[opp]) * BRAKE_VALUE;
+    return score;
+  }
 
-    function rotateBoth(board, dir){
-      // Outer + inner rotate simultaneously. Rings are disjoint, so sequential application is safe.
-      let next = rotateRing(board, OUTER_RING, dir);
-      next = rotateRing(next, INNER_RING, dir);
-      return next;
+  function simulate(board, player, code, o) {
+    const idx = code & 15, placed = board.slice();
+    placed[idx] = player;
+    let next = placed;
+    if (code < BRAKE) { const d = ringDirs(o, stonesOn(board)); next = rotateBoth(placed, d.outer, d.inner); }
+    return { board: next, winner: resolveWinner(next, player) };
+  }
+
+  function genMoves(board, player, brakes, preferFirst = null) {
+    // Centre squares first, then index order; brake moves after all ordinary moves. PV move first.
+    const empties = emptyCells(board);
+    const ordered = empties.slice().sort((a, b) => ((CENTER.has(a) ? 0 : 1) - (CENTER.has(b) ? 0 : 1)) || a - b);
+    const moves = ordered.slice();
+    if (brakes && brakes[player] > 0) for (const m of ordered) moves.push(m + BRAKE);
+    if (preferFirst != null) { const k = moves.indexOf(preferFirst); if (k > 0) { moves.splice(k, 1); moves.unshift(preferFirst); } }
+    return moves;
+  }
+  const spend = (brakes, player, code) => {
+    if (!brakes || code < BRAKE) return brakes;
+    const b = brakes.slice(); b[player]--; return b;
+  };
+
+  function minimax(board, toMove, brakes, depth, alpha, beta, ctx) {
+    const { aiPlayer, o, cache, rootDepth, deadline, now } = ctx;
+    if (deadline != null && now() > deadline) { ctx.timedOut = true; return heuristic(board, aiPlayer, brakes); }
+    const prev = otherPlayer(toMove);
+    const winnerNow = resolveWinner(board, prev);
+    if (winnerNow !== 0) { const fast = WIN_SCORE - (rootDepth - depth); return winnerNow === aiPlayer ? fast : -fast; }
+    const moves = genMoves(board, toMove, brakes);
+    if (moves.length === 0) return 0; // board full: draw
+    if (depth === 0) return heuristic(board, aiPlayer, brakes);
+    const bkey = brakes ? brakes[1] * 3 + brakes[2] : 0;
+    const key = ((boardId(board) * 2 + (toMove - 1)) * 9 + bkey) * 24 + depth;
+    const cached = cache.get(key);
+    if (cached !== undefined) return cached;
+    const maxing = toMove === aiPlayer;
+    let best = maxing ? -Infinity : Infinity;
+    for (const mv of moves) {
+      const sim = simulate(board, toMove, mv, o);
+      let val;
+      if (sim.winner !== 0) { const fast = WIN_SCORE - (rootDepth - depth); val = sim.winner === aiPlayer ? fast : -fast; }
+      else { val = minimax(sim.board, otherPlayer(toMove), spend(brakes, toMove, mv), depth - 1, alpha, beta, ctx); if (ctx.timedOut) break; }
+      if (maxing) { if (val > best) best = val; if (best > alpha) alpha = best; }
+      else { if (val < best) best = val; if (best < beta) beta = best; }
+      if (alpha >= beta) break;
     }
+    cache.set(key, best);
+    return best;
+  }
 
-    function buildRotMap(ring){
-      const len = ring.length;
-      const cw = new Map();
-      const ccw = new Map();
-      for (let i=0;i<len;i++){
-        cw.set(ring[i], ring[(i+1)%len]);
-        ccw.set(ring[i], ring[(i-1+len)%len]);
-      }
-      return { cw, ccw };
+  function searchDepth(board, toMove, brakes, depth, ctx, preferFirst) {
+    const aiPlayer = ctx.aiPlayer, all = genMoves(board, toMove, brakes);
+    if (all.length === 0) return { move: null, complete: true, score: 0 };
+    // 1) Immediate win (ordinary moves before brakes, so the default game is unchanged)
+    for (const mv of all.slice().sort((a, b) => a - b)) if (simulate(board, toMove, mv, ctx.o).winner === aiPlayer) return { move: mv, complete: true, score: WIN_SCORE };
+    // 2) Drop moves that lose on the spot, if anything else is left
+    const safe = all.filter(mv => simulate(board, toMove, mv, ctx.o).winner !== otherPlayer(aiPlayer));
+    const candidates = safe.length ? safe : all;
+    const ordered = genMoves(board, toMove, brakes, preferFirst).filter(m => candidates.includes(m));
+    ctx.rootDepth = depth; ctx.timedOut = false;
+    let best = null, bestScore = -Infinity, alpha = -Infinity;
+    for (const mv of ordered) {
+      const sim = simulate(board, toMove, mv, ctx.o);
+      const val = sim.winner !== 0 ? (sim.winner === aiPlayer ? WIN_SCORE : -WIN_SCORE)
+        : minimax(sim.board, otherPlayer(toMove), spend(brakes, toMove, mv), depth - 1, alpha, Infinity, ctx);
+      if (ctx.timedOut) return { move: null, complete: false };
+      if (val > bestScore) { bestScore = val; best = mv; }
+      if (bestScore > alpha) alpha = bestScore;
     }
+    return { move: best ?? candidates[0], complete: true, score: bestScore };
+  }
 
-    const ROT_OUTER = buildRotMap(OUTER_RING);
-    const ROT_INNER = buildRotMap(INNER_RING);
+  const defaultNow = () => (typeof performance !== 'undefined' && performance.now ? performance.now() : Date.now());
 
-    function rotateIndex(idx, dir){
-      if (OUTER_SET.has(idx)) return (dir === 1 ? ROT_OUTER.cw : ROT_OUTER.ccw).get(idx);
-      if (INNER_SET.has(idx)) return (dir === 1 ? ROT_INNER.cw : ROT_INNER.ccw).get(idx);
-      return idx;
-    }
-
-    function checkWinnerRaw(board){
-      // returns 0 none, 1 black, 2 white, 3 both
-      let black = false;
-      let white = false;
-      for (const line of WIN_LINES){
-        const a = board[line[0]];
-        if (a === 0) continue;
-        if (a === board[line[1]] && a === board[line[2]] && a === board[line[3]]){
-          if (a === 1) black = true;
-          if (a === 2) white = true;
+  /**
+   * Stepwise search so the page can yield to the renderer between depths.
+   * state: { board, player, brakes:[_, b1, b2] }  ->  { step() -> done?, result() -> move code | null }
+   */
+  function createSearch(state, options, tierId, env = {}) {
+    const o = normalizeOptions(options), tier = TIERS[tierId] || TIERS.expert;
+    const now = env.now || defaultNow, rng = env.rng || Math.random;
+    const board = state.board.slice(), toMove = state.player;
+    const brakes = o.brakes > 0 && state.brakes ? state.brakes.slice() : null;
+    const empties = emptyCells(board);
+    let done = false, move = null;
+    if (empties.length === 0) done = true;
+    else if (tier.kind === 'random') { move = empties[Math.floor(rng() * empties.length)]; done = true; }
+    const cache = new Map();
+    const ctx = { aiPlayer: toMove, o, cache, rootDepth: 0, deadline: null, now, timedOut: false };
+    let depth = tier.kind === 'fixed' ? tier.depth : 2;
+    if (tier.kind === 'deepen') ctx.deadline = now() + tier.timeMs;
+    return {
+      step() {
+        if (done) return true;
+        if (tier.kind === 'fixed') {
+          const r = searchDepth(board, toMove, brakes, depth, ctx, null);
+          move = r.move ?? empties[0]; done = true; return true;
         }
-      }
-      if (black && white) return 3;
-      if (black) return 1;
-      if (white) return 2;
-      return 0;
-    }
-
-    function resolveWinner(boardAfterRotation, justMovedPlayer){
-      // Determine winner after a move + required rotation.
-      // Rule (default):
-      //  - If only one side has 4-in-line -> that side wins.
-      //  - If both have 4-in-line -> justMovedPlayer wins.
-      const raw = checkWinnerRaw(boardAfterRotation);
-      if (raw === 0) return 0;
-      if (raw === 3) return justMovedPlayer;
-      return raw;
-    }
-
-    function findWinCells(board, winner){
-      const cells = new Set();
-      if (winner !== 1 && winner !== 2) return cells;
-      for (const line of WIN_LINES){
-        const a = board[line[0]];
-        if (a !== winner) continue;
-        if (a === board[line[1]] && a === board[line[2]] && a === board[line[3]]){
-          line.forEach(i => cells.add(i));
-        }
-      }
-      return cells;
-    }
-
-    function emptyCells(board){
-      const res = [];
-      for (let i=0;i<16;i++) if (board[i] === 0) res.push(i);
-      return res;
-    }
-
-    function boardFromPieces(pieces){
-      const b = new Array(16).fill(0);
-      for (const pc of pieces){
-        b[pc.idx] = pc.player;
-      }
-      return b;
-    }
-
-    // ===== Heuristic for AI =====
-
-    const WEIGHT = [0, 2, 14, 85, 100000];
-    const WIN_SCORE = 100000;
-
-    function heuristic(board, aiPlayer){
-      const opp = otherPlayer(aiPlayer);
-      let score = 0;
-      for (const line of WIN_LINES){
-        let aiCount = 0;
-        let oppCount = 0;
-        for (const idx of line){
-          if (board[idx] === aiPlayer) aiCount++;
-          else if (board[idx] === opp) oppCount++;
-        }
-        if (aiCount > 0 && oppCount > 0) continue; // blocked
-        if (aiCount > 0) score += WEIGHT[aiCount];
-        if (oppCount > 0) score -= WEIGHT[oppCount];
-      }
-      return score;
-    }
-
-    function moveOrdering(moves, preferFirst = null){
-      // Prefer center squares and optionally place a preferred move first (PV ordering).
-      const center = [5,6,9,10];
-      const centerSet = new Set(center);
-      const ordered = moves.slice().sort((a,b) => {
-        const aC = centerSet.has(a) ? 0 : 1;
-        const bC = centerSet.has(b) ? 0 : 1;
-        if (aC !== bC) return aC - bC;
-        return a - b;
-      });
-      if (preferFirst != null){
-        const k = ordered.indexOf(preferFirst);
-        if (k > 0){
-          ordered.splice(k, 1);
-          ordered.unshift(preferFirst);
-        }
-      }
-      return ordered;
-    }
-
-    function simulateMove(board, player, idx, dir){
-      const placed = board.slice();
-      placed[idx] = player;
-      const rotated = rotateBoth(placed, dir);
-      const winner = resolveWinner(rotated, player);
-      return { board: rotated, winner };
-    }
-
-    function minimax(board, playerToMove, depth, alpha, beta, ctx){
-      const { aiPlayer, dir, cache, rootDepth, deadline } = ctx;
-
-      if (deadline != null && performance.now() > deadline){
-        ctx.timedOut = true;
-        return heuristic(board, aiPlayer);
-      }
-
-      // Terminal: if board is already winning, it must have been decided on the previous move.
-      const prev = otherPlayer(playerToMove);
-      const winnerNow = resolveWinner(board, prev);
-      if (winnerNow !== 0){
-        const ply = rootDepth - depth;
-        const fastBonus = (WIN_SCORE - ply);
-        return (winnerNow === aiPlayer) ? fastBonus : -fastBonus;
-      }
-
-      const empties = emptyCells(board);
-      if (empties.length === 0) return 0; // draw
-      if (depth === 0) return heuristic(board, aiPlayer);
-
-      // Transposition table
-      // key packs boardId + player + depth
-      const key = ((boardId(board) * 2 + (playerToMove - 1)) * 20 + depth);
-      const cached = cache.get(key);
-      if (cached !== undefined) return cached;
-
-      const ordered = moveOrdering(empties);
-
-      let best;
-      if (playerToMove === aiPlayer){
-        best = -Infinity;
-        for (const mv of ordered){
-          const sim = simulateMove(board, playerToMove, mv, dir);
-          let val;
-          if (sim.winner !== 0){
-            const ply = rootDepth - depth;
-            const fastBonus = (WIN_SCORE - ply);
-            val = (sim.winner === aiPlayer) ? fastBonus : -fastBonus;
-          } else {
-            val = minimax(sim.board, otherPlayer(playerToMove), depth-1, alpha, beta, ctx);
-            if (ctx.timedOut) break;
-          }
-          if (val > best) best = val;
-          if (best > alpha) alpha = best;
-          if (alpha >= beta) break;
-        }
-      } else {
-        best = Infinity;
-        for (const mv of ordered){
-          const sim = simulateMove(board, playerToMove, mv, dir);
-          let val;
-          if (sim.winner !== 0){
-            const ply = rootDepth - depth;
-            const fastBonus = (WIN_SCORE - ply);
-            val = (sim.winner === aiPlayer) ? fastBonus : -fastBonus;
-          } else {
-            val = minimax(sim.board, otherPlayer(playerToMove), depth-1, alpha, beta, ctx);
-            if (ctx.timedOut) break;
-          }
-          if (val < best) best = val;
-          if (best < beta) beta = best;
-          if (alpha >= beta) break;
-        }
-      }
-
-      cache.set(key, best);
-      return best;
-    }
-
-    function bestMoveFixedDepth(board, playerToMove, opts){
-      const { aiPlayer, depth, dir, deadline, cache, preferFirst } = opts;
-      const empties = emptyCells(board);
-      if (empties.length === 0) return { move: null, complete: true };
-
-      // 1) Immediate win
-      for (const mv of empties){
-        const sim = simulateMove(board, playerToMove, mv, dir);
-        if (sim.winner === aiPlayer) return { move: mv, complete: true };
-      }
-
-      // 2) Candidate pruning: avoid moves that instantly lose (if possible)
-      const safe = [];
-      for (const mv of empties){
-        const sim = simulateMove(board, playerToMove, mv, dir);
-        if (sim.winner === otherPlayer(aiPlayer)) continue;
-        safe.push(mv);
-      }
-      const candidates = (safe.length > 0) ? safe : empties;
-
-      const ctx = {
-        aiPlayer,
-        dir,
-        cache,
-        rootDepth: depth,
-        deadline,
-        timedOut: false
-      };
-
-      let best = null;
-      let bestScore = -Infinity;
-      let alpha = -Infinity;
-      let beta = Infinity;
-
-      const ordered = moveOrdering(candidates, preferFirst);
-
-      for (const mv of ordered){
-        const sim = simulateMove(board, playerToMove, mv, dir);
-        let val;
-        if (sim.winner !== 0){
-          const fastBonus = WIN_SCORE;
-          val = (sim.winner === aiPlayer) ? fastBonus : -fastBonus;
-        } else {
-          val = minimax(sim.board, otherPlayer(playerToMove), depth-1, alpha, beta, ctx);
-        }
-        if (ctx.timedOut) return { move: null, complete: false };
-
-        if (val > bestScore){
-          bestScore = val;
-          best = mv;
-        }
-        if (bestScore > alpha) alpha = bestScore;
-      }
-
-      return { move: best ?? candidates[0], complete: true };
-    }
-
-    function bestMove(board, playerToMove, opts){
-      const { aiPlayer, level, dir } = opts;
-      const empties = emptyCells(board);
-      if (empties.length === 0) return null;
-
-      if (level === "easy"){
-        return empties[Math.floor(Math.random() * empties.length)];
-      }
-
-      if (level === "medium"){
-        const cache = new Map();
-        const r = bestMoveFixedDepth(board, playerToMove, {
-          aiPlayer,
-          depth: 4,
-          dir,
-          deadline: null,
-          cache,
-          preferFirst: null
-        });
-        return r.move ?? empties[0];
-      }
-
-      // Hard / Expert: iterative deepening with a time budget
-      const timeMs = (level === "hard") ? 260 : 680;
-      const maxDepth = (level === "hard") ? 8 : 10;
-      const deadline = performance.now() + timeMs;
-
-      const cache = new Map();
-      let lastBest = null;
-
-      for (let depth = 2; depth <= maxDepth; depth++){
-        const r = bestMoveFixedDepth(board, playerToMove, {
-          aiPlayer,
-          depth,
-          dir,
-          deadline,
-          cache,
-          preferFirst: lastBest
-        });
-
-        if (!r.complete) break;
-        if (r.move != null) lastBest = r.move;
-
-        // If we're very close to the deadline, stop after a completed depth.
-        if (performance.now() + 12 > deadline) break;
-      }
-
-      return lastBest ?? empties[0];
-    }
-
-    // ===== UI =====
-
-    const ANIM_MS = 260;
-
-    const elBoard = document.getElementById("board");
-    const elMode = document.getElementById("mode");
-    const elDir = document.getElementById("dir");
-    const elAiRow = document.getElementById("aiRow");
-    const elAiPlayer = document.getElementById("aiPlayer");
-    const elAiLevel = document.getElementById("aiLevel");
-    const elNew = document.getElementById("newGame");
-    const elUndo = document.getElementById("undo");
-    const elHint = document.getElementById("hint");
-
-    const elTurnKpi = document.getElementById("turnKpi");
-    const elPlayerKpi = document.getElementById("playerKpi");
-    const elRingKpi = document.getElementById("ringKpi");
-    const elStatus = document.getElementById("statusText");
-
-    const state = {
-      board: new Array(16).fill(0),
-      pieces: [],
-      nextPieceId: 1,
-      turn: 0,
-      player: 1,
-      winner: 0,
-      gameOver: false,
-      locked: false,
-      animating: false,
-      aiThinking: false,
-      history: [],
-      mode: "pvp",
-      aiPlayer: 2,
-      aiLevel: "expert",
-      dir: 1,
-      winCells: new Set(),
-      lastHint: null
+        const r = searchDepth(board, toMove, brakes, depth, ctx, move);
+        if (!r.complete) { done = true; return true; }
+        if (r.move != null) move = r.move;
+        depth++;
+        if (depth > tier.maxDepth || now() + 12 > ctx.deadline) done = true;
+        return done;
+      },
+      result() { return move ?? (empties.length ? empties[0] : null); },
+      get done() { return done; }
     };
+  }
+  function bestMove(state, options, tierId, env) {
+    const s = createSearch(state, options, tierId, env);
+    let guard = 64;
+    while (!s.step() && guard--) { /* deepen */ }
+    return s.result();
+  }
+  const decode = code => (code == null ? null : { idx: code & 15, brake: code >= BRAKE });
 
-    function uiPlayerName(p){ return p === 1 ? "黑" : "白"; }
-
-    // ===== Pieces animation layer =====
-
-    const cellEls = [];
-    const pieceEls = new Map();
-    let pieceLayer = null;
-    let cellCenters = new Array(16).fill(null);
-
-    function computeCellCenters(){
-      const boardRect = elBoard.getBoundingClientRect();
-      for (let i=0;i<16;i++){
-        const r = cellEls[i].getBoundingClientRect();
-        cellCenters[i] = {
-          x: (r.left - boardRect.left) + (r.width / 2),
-          y: (r.top  - boardRect.top)  + (r.height / 2)
-        };
+  // ===== Game (pieces with ids so the view can animate every stone along its track) =====
+  class Game {
+    constructor(options) { this.options = normalizeOptions(options); this.reset(); }
+    reset(firstPlayer = 1) {
+      const o = this.options;
+      this.board = new Array(16).fill(0);
+      this.pieces = [];
+      this.nextId = 1;
+      for (const idx of blockerCells(o.seed, o.blockers)) { this.board[idx] = BLOCK; this.pieces.push({ id: this.nextId++, idx, player: BLOCK }); }
+      this.turn = 0;
+      this.first = firstPlayer === 2 ? 2 : 1;
+      this.player = this.first;
+      this.brakes = [0, o.brakes, o.brakes];
+      this.winner = 0;
+      this.over = false;
+      this.draw = false;
+      this.winCells = [];
+      this.last = null;
+      this.history = [];
+      this.log = [];
+      return this;
+    }
+    nextDirs() { return ringDirs(this.options, this.turn); }
+    state() { return { board: this.board.slice(), player: this.player, brakes: this.brakes.slice() }; }
+    canPlay(idx, brake = false) {
+      return !this.over && Number.isInteger(idx) && idx >= 0 && idx < 16 && this.board[idx] === 0 && (!brake || this.brakes[this.player] > 0);
+    }
+    snapshot() {
+      return JSON.stringify({ board: this.board, pieces: this.pieces, nextId: this.nextId, turn: this.turn, player: this.player, brakes: this.brakes, winner: this.winner, over: this.over, draw: this.draw, winCells: this.winCells, last: this.last, log: this.log });
+    }
+    restore(snap) { Object.assign(this, JSON.parse(snap)); }
+    play(idx, opts = {}) {
+      const brake = !!opts.brake;
+      if (!this.canPlay(idx, brake)) return null;
+      this.history.push(this.snapshot());
+      const player = this.player, id = this.nextId++;
+      this.pieces.push({ id, idx, player });
+      let dirs = null;
+      const moves = [];
+      if (brake) this.brakes[player]--;
+      else {
+        dirs = this.nextDirs();
+        for (const pc of this.pieces) { const to = rotateIndex(pc.idx, dirs.outer, dirs.inner); if (to !== pc.idx) moves.push({ id: pc.id, from: pc.idx, to }); pc.idx = to; }
       }
+      const board = new Array(16).fill(0);
+      for (const pc of this.pieces) board[pc.idx] = pc.player;
+      this.board = board;
+      this.turn++;
+      const winner = resolveWinner(board, player);
+      const ev = { player, idx, id, brake, dirs, moves, landed: this.pieces.find(p => p.id === id).idx, winner: 0, draw: false, over: false, winCells: [] };
+      if (winner) { this.winner = winner; this.over = true; this.winCells = [...findWinCells(board, winner)]; }
+      else if (emptyCells(board).length === 0) { this.over = true; this.draw = true; }
+      else this.player = otherPlayer(player);
+      Object.assign(ev, { winner: this.winner, draw: this.draw, over: this.over, winCells: this.winCells.slice() });
+      this.last = { idx, landed: ev.landed, player, brake };
+      this.log.push({ player, idx, brake });
+      return ev;
     }
-
-    function pieceTransformForIdx(idx){
-      const p = cellCenters[idx];
-      if (!p) return "translate(0px, 0px) translate(-50%, -50%)";
-      return `translate(${p.x}px, ${p.y}px) translate(-50%, -50%)`;
+    undo() {
+      if (!this.history.length) return false;
+      this.restore(this.history.pop());
+      return true;
     }
+  }
 
-    function ensurePieceEl(piece){
-      let el = pieceEls.get(piece.id);
-      if (!el){
-        el = document.createElement("div");
-        el.className = `piece ${piece.player === 1 ? "black" : "white"}`;
-        el.dataset.pid = String(piece.id);
-        pieceLayer.appendChild(el);
-        pieceEls.set(piece.id, el);
-      }
-      return el;
+  // ===== Series (single game or best of three; draws do not count toward the two wins) =====
+  function createSeries(length = 1) { return { length: length === 3 ? 3 : 1, results: [], wins: { A: 0, B: 0 }, over: false, winner: null }; }
+  function seriesAdd(series, result) {
+    const s = { ...series, results: [...series.results, result], wins: { ...series.wins } };
+    if (result === 'A' || result === 'B') s.wins[result]++;
+    const need = s.length === 3 ? 2 : 1, cap = s.length === 3 ? 4 : 1;
+    if (s.wins.A >= need) { s.over = true; s.winner = 'A'; }
+    else if (s.wins.B >= need) { s.over = true; s.winner = 'B'; }
+    else if (s.results.length >= cap) { s.over = true; s.winner = s.wins.A > s.wins.B ? 'A' : s.wins.B > s.wins.A ? 'B' : null; }
+    return s;
+  }
+  /** Side that moves first in the next game: the chosen side opens, then the opener alternates. */
+  const seriesOpener = (series, firstSide) => (series.results.length % 2 === 0 ? firstSide : firstSide === 'A' ? 'B' : 'A');
+
+  return Object.freeze({
+    OUTER_RING, INNER_RING, WIN_LINES, BLOCK, BRAKE, SPINS, DEFAULTS, TIERS, TIER_IDS, WIN_SCORE,
+    normalizeOptions, ringDirs, otherPlayer, rotateRing, rotateBoth, rotateIndex, checkWinnerRaw, resolveWinner,
+    findWinCells, emptyCells, blockerCells, heuristic, simulate, genMoves, createSearch, bestMove, decode,
+    isOuter: i => OUTER_SET.has(i), isInner: i => INNER_SET.has(i),
+    Game, createSeries, seriesAdd, seriesOpener
+  });
+})();
+</script>
+<script id="track-career">
+'use strict';
+// Career: XP, levels, ranks, unlocks and achievements. Pure functions over a plain profile object;
+// the page passes window.localStorage to load/save, tests pass a Map-backed stub.
+const TrackCareer = (() => {
+  const KEY = 'fugames:trackgame:career', VERSION = 1, MAX_LEVEL = 30, ACH_XP = 40;
+  const RANKS = Object.freeze([[1, '學徒'], [3, '行棋者'], [5, '軌師'], [8, '轉輪手'], [12, '雙環名家'], [17, '軌道宗師'], [23, '天樞']]);
+  const TIER_MULT = Object.freeze({ easy: .6, medium: 1, hard: 1.3, expert: 1.6, master: 2 });
+  const TIER_ORDER = Object.freeze(['easy', 'medium', 'hard', 'expert', 'master']);
+  // Things that start locked. Anything not listed here is open from level 1 (all four original AI levels).
+  const UNLOCKS = Object.freeze([
+    { level: 2, kind: 'spin', id: 'counter', name: '逆轉內圈', desc: '內圈與外圈反向轉動' },
+    { level: 2, kind: 'series', id: '3', name: '三戰兩勝', desc: '先手輪流的系列賽，系列勝 +60' },
+    { level: 3, kind: 'brakes', id: '1', name: '煞車', desc: '每人一次：落子後不轉動' },
+    { level: 4, kind: 'spin', id: 'alternate', name: '交替轉向', desc: '每一手換一次轉向' },
+    { level: 5, kind: 'tier', id: 'master', name: '宗師 AI', desc: '最深的搜尋，經驗 ×2' },
+    { level: 6, kind: 'blockers', id: '1', name: '路障', desc: '中立石隨軌道移動、截斷連線' },
+    { level: 8, kind: 'brakes', id: '2', name: '雙煞車', desc: '每人兩次煞車' },
+    { level: 9, kind: 'blockers', id: '2', name: '雙路障', desc: '內外圈各一顆路障' }
+  ]);
+  const ACHIEVEMENTS = Object.freeze([
+    { id: 'first', name: '初次入軌', desc: '贏下第一盤 AI 對局', test: r => r.outcome === 'win' },
+    { id: 'quick', name: '快刀', desc: '在 9 手內獲勝（雙方合計）', test: r => r.outcome === 'win' && r.turns <= 9 },
+    { id: 'clean', name: '一氣呵成', desc: '不悔棋、不看提示戰勝困難以上 AI', test: r => r.outcome === 'win' && !r.undos && !r.hints && TIER_ORDER.indexOf(r.tier) >= 2 },
+    { id: 'expert', name: '破專家', desc: '戰勝專家 AI', test: r => r.outcome === 'win' && TIER_ORDER.indexOf(r.tier) >= 3 },
+    { id: 'master', name: '問鼎宗師', desc: '戰勝宗師 AI', test: r => r.outcome === 'win' && r.tier === 'master' },
+    { id: 'second', name: '後發先至', desc: '後手戰勝困難以上 AI', test: r => r.outcome === 'win' && r.second && TIER_ORDER.indexOf(r.tier) >= 2 },
+    { id: 'brake', name: '踩煞車', desc: '用煞車那一手直接獲勝', test: r => r.outcome === 'win' && r.brakeWin },
+    { id: 'twisted', name: '亂流', desc: '開啟三種變體並獲勝', test: r => r.outcome === 'win' && r.variants >= 3 },
+    { id: 'series', name: '系列賽冠軍', desc: '贏下三戰兩勝', test: r => !!r.seriesWon },
+    { id: 'streak', name: '連勝五場', desc: '對 AI 連勝 5 盤', test: (r, p) => p.streak >= 5 }
+  ]);
+
+  const need = level => 120 + (level - 1) * 45;
+  function levelOf(xp) {
+    let level = 1, left = Math.max(0, Math.floor(Number(xp) || 0));
+    while (level < MAX_LEVEL && left >= need(level)) { left -= need(level); level++; }
+    const max = level >= MAX_LEVEL;
+    return { level, into: max ? 0 : left, need: max ? 0 : need(level), max };
+  }
+  const rankOf = level => { let name = RANKS[0][1]; for (const [l, n] of RANKS) if (level >= l) name = n; return name; };
+  function unlocked(level, kind, id) {
+    const u = UNLOCKS.find(x => x.kind === kind && x.id === String(id));
+    return !u || level >= u.level;
+  }
+  const unlockFor = (kind, id) => UNLOCKS.find(x => x.kind === kind && x.id === String(id)) || null;
+
+  /**
+   * r: { mode:'ai'|'pvp', outcome:'win'|'draw'|'loss', tier, variants, turns, undos, hints, second, brakeWin, seriesWon }
+   * Returns { lines:[[label, xp]], mult, total }.
+   */
+  function matchXP(r) {
+    if (!r || r.mode === 'pvp') return { lines: [['雙人對局', 15]], mult: 1, total: 15 };
+    const lines = [];
+    const base = r.outcome === 'win' ? 60 : r.outcome === 'draw' ? 30 : 20;
+    lines.push([r.outcome === 'win' ? '勝利' : r.outcome === 'draw' ? '和局' : '完成對局', base]);
+    if (r.outcome === 'win') {
+      const fast = Math.max(0, 16 - (r.turns || 16)) * 3;
+      if (fast) lines.push(['速勝', fast]);
+      if (r.second) lines.push(['後手勝', 15]);
     }
+    if (r.outcome !== 'loss' && !r.undos && !r.hints) lines.push(['無悔棋、無提示', 20]);
+    if (r.seriesWon) lines.push(['系列賽勝', 60]);
+    const raw = lines.reduce((s, l) => s + l[1], 0);
+    const variants = Math.max(0, Math.min(3, r.variants | 0));
+    const mult = Math.round((TIER_MULT[r.tier] ?? 1) * (1 + .15 * variants) * 100) / 100;
+    return { lines, mult, total: Math.round(raw * mult) };
+  }
 
-    function syncPieceLayer({ animate } = { animate: true }){
-      if (!pieceLayer) return;
+  function blank() {
+    return { v: VERSION, xp: 0, games: 0, wins: 0, draws: 0, losses: 0, pvp: 0, streak: 0, bestStreak: 0, fastestWin: 0, bestTier: null, seriesWins: 0, achievements: [] };
+  }
+  const nat = v => (Number.isFinite(v) && v > 0 ? Math.floor(v) : 0);
+  function sanitize(p) {
+    const b = blank();
+    if (!p || typeof p !== 'object') return b;
+    for (const k of ['xp', 'games', 'wins', 'draws', 'losses', 'pvp', 'streak', 'bestStreak', 'fastestWin', 'seriesWins']) b[k] = nat(p[k]);
+    if (TIER_ORDER.includes(p.bestTier)) b.bestTier = p.bestTier;
+    if (Array.isArray(p.achievements)) b.achievements = [...new Set(p.achievements.filter(id => ACHIEVEMENTS.some(a => a.id === id)))];
+    return b;
+  }
 
-      if (!animate) pieceLayer.classList.add("noTrans");
-
-      const alive = new Set();
-      for (const pc of state.pieces){
-        alive.add(pc.id);
-        const el = ensurePieceEl(pc);
-        el.classList.toggle("black", pc.player === 1);
-        el.classList.toggle("white", pc.player === 2);
-        el.style.transform = pieceTransformForIdx(pc.idx);
-      }
-
-      for (const [id, el] of pieceEls){
-        if (!alive.has(id)){
-          el.remove();
-          pieceEls.delete(id);
-        }
-      }
-
-      if (!animate){
-        void pieceLayer.offsetWidth; // reflow
-        pieceLayer.classList.remove("noTrans");
-      }
+  function record(profile, r) {
+    const p = sanitize(profile), before = levelOf(p.xp);
+    const xp = matchXP(r);
+    if (r.mode === 'pvp') p.pvp++;
+    else {
+      p.games++;
+      if (r.outcome === 'win') {
+        p.wins++; p.streak++; p.bestStreak = Math.max(p.bestStreak, p.streak);
+        if (r.turns && (!p.fastestWin || r.turns < p.fastestWin)) p.fastestWin = r.turns;
+        if (TIER_ORDER.indexOf(r.tier) > TIER_ORDER.indexOf(p.bestTier)) p.bestTier = r.tier;
+      } else if (r.outcome === 'draw') { p.draws++; }
+      else { p.losses++; p.streak = 0; }
+      if (r.seriesWon) p.seriesWins++;
     }
-
-    function spawnPieceAt(idx, player, id){
-      const pc = { id, idx, player };
-      // Create DOM first at the placement position (no transition), so it can slide with the rotation.
-      state.pieces.push(pc);
-      pieceLayer.classList.add("noTrans");
-      const el = ensurePieceEl(pc);
-      el.className = `piece ${player === 1 ? "black" : "white"}`;
-      el.style.transform = pieceTransformForIdx(idx);
-      void pieceLayer.offsetWidth;
-      pieceLayer.classList.remove("noTrans");
-      return pc;
-    }
-
-    // ===== History =====
-
-    function snapshot(){
-      return {
-        board: state.board.slice(),
-        pieces: state.pieces.map(p => ({ id: p.id, idx: p.idx, player: p.player })),
-        nextPieceId: state.nextPieceId,
-        turn: state.turn,
-        player: state.player,
-        winner: state.winner,
-        gameOver: state.gameOver,
-        winCells: Array.from(state.winCells)
-      };
-    }
-
-    function restore(snap){
-      state.board = snap.board.slice();
-      state.pieces = snap.pieces.map(p => ({ id: p.id, idx: p.idx, player: p.player }));
-      state.nextPieceId = snap.nextPieceId;
-      state.turn = snap.turn;
-      state.player = snap.player;
-      state.winner = snap.winner;
-      state.gameOver = snap.gameOver;
-      state.winCells = new Set(snap.winCells);
-
-      state.locked = false;
-      state.animating = false;
-      state.aiThinking = false;
-
-      // Rebuild piece DOM in place (no animation)
-      pieceEls.clear();
-      if (pieceLayer) pieceLayer.innerHTML = "";
-      computeCellCenters();
-      syncPieceLayer({ animate: false });
-    }
-
-    function pushHistory(){
-      state.history.push(snapshot());
-      if (state.history.length > 200) state.history.shift();
-    }
-
-    // ===== Hint =====
-
-    function clearHint(){
-      if (state.lastHint == null) return;
-      const btn = cellEls[state.lastHint];
-      if (btn) { btn.classList.remove("hint"); btn.removeAttribute("aria-description"); }
-      state.lastHint = null;
-    }
-
-    // Invalidate delayed animation / AI work when a round is restarted.
-    let roundVersion = 0;
-
-    // ===== Game flow =====
-
-    function endIfOver(boardAfter, justMoved){
-      const winner = resolveWinner(boardAfter, justMoved);
-      if (winner !== 0){
-        state.gameOver = true;
-        state.winner = winner;
-        state.winCells = findWinCells(boardAfter, winner);
-        return true;
-      }
-      if (state.turn >= 16){
-        state.gameOver = true;
-        state.winner = 0;
-        state.winCells = new Set();
-        return true;
-      }
-      return false;
-    }
-
-    function applyMove(idx){
-      if (state.gameOver || state.locked) return;
-      if (state.board[idx] !== 0) return;
-
-      clearHint();
-      pushHistory();
-
-      const justMoved = state.player;
-
-      state.locked = true;
-      state.animating = true;
-      render();
-
-      // Place piece at chosen cell first (so the animation shows "place -> rotate")
-      const newId = state.nextPieceId++;
-      spawnPieceAt(idx, justMoved, newId);
-
-      // Compute simultaneous rotation targets
-      for (const pc of state.pieces){
-        pc.idx = rotateIndex(pc.idx, state.dir);
-      }
-
-      state.board = boardFromPieces(state.pieces);
-      state.turn += 1;
-
-      // Start smooth movement
-      computeCellCenters();
-      syncPieceLayer({ animate: true });
-
-      // Finalize after animation
-      const version = roundVersion;
-      setTimeout(() => {
-        if (version !== roundVersion) return;
-        state.animating = false;
-
-        if (!endIfOver(state.board, justMoved)){
-          state.player = otherPlayer(justMoved);
-        }
-
-        state.locked = false;
-        render();
-
-        if (state.mode === "ai" && !state.gameOver && state.player === state.aiPlayer){
-          aiTurn();
-        }
-      }, ANIM_MS + 20);
-    }
-
-    function aiTurn(){
-      if (state.aiThinking || state.animating) return;
-      const version = roundVersion;
-      state.aiThinking = true;
-      state.locked = true;
-      render();
-
-      setTimeout(() => {
-        if (version !== roundVersion) return;
-        const mv = bestMove(state.board, state.player, {
-          aiPlayer: state.aiPlayer,
-          level: state.aiLevel,
-          dir: state.dir
-        });
-
-        state.aiThinking = false;
-        state.locked = false;
-        render();
-
-        if (mv != null) applyMove(mv);
-      }, 10);
-    }
-
-    function newGame(){
-      roundVersion++;
-      state.board = new Array(16).fill(0);
-      state.pieces = [];
-      state.nextPieceId = 1;
-      state.turn = 0;
-      state.player = 1;
-      state.winner = 0;
-      state.gameOver = false;
-      state.locked = false;
-      state.animating = false;
-      state.aiThinking = false;
-      state.history = [];
-      state.winCells = new Set();
-      clearHint();
-
-      pieceEls.clear();
-      if (pieceLayer) pieceLayer.innerHTML = "";
-
-      computeCellCenters();
-      syncPieceLayer({ animate: false });
-
-      render();
-      if (state.mode === "ai" && state.player === state.aiPlayer){
-        aiTurn();
-      }
-    }
-
-    function undo(){
-      if (state.locked) return;
-      if (state.history.length === 0) return;
-      clearHint();
-      const snap = state.history.pop();
-      restore(snap);
-      render();
-    }
-
-    function hint(){
-      if (state.gameOver || state.locked) return;
-      clearHint();
-
-      const level = "medium";
-      const mv = bestMove(state.board, state.player, {
-        aiPlayer: state.player,
-        level,
-        dir: state.dir
-      });
-
-      if (mv == null) return;
-      const btn = cellEls[mv];
-      if (btn){
-        btn.classList.add("hint");
-        btn.setAttribute("aria-description", "建議落點");
-        state.lastHint = mv;
-        setTimeout(() => clearHint(), 900);
-      }
-    }
-
-    // ===== Rendering =====
-
-    function render(){
-      elAiRow.style.display = (state.mode === "ai") ? "flex" : "none";
-
-      elTurnKpi.textContent = String(state.turn);
-      elPlayerKpi.textContent = uiPlayerName(state.player);
-      elRingKpi.textContent = "內外同時";
-
-      // status text
-      let msg = "";
-      if (state.gameOver){
-        if (state.winner === 0) msg = "平手：棋盤已滿。";
-        else msg = `勝利：${uiPlayerName(state.winner)}。`;
-      } else if (state.aiThinking){
-        msg = `請 ${uiPlayerName(state.player)} 落子。（AI 思考中）`;
-      } else if (state.animating){
-        msg = `已落子：${uiPlayerName(state.player)}。旋轉中…`;
-      } else {
-        msg = `請 ${uiPlayerName(state.player)} 落子。`;
-      }
-      elStatus.textContent = msg;
-
-      // disable buttons
-      for (const field of [elMode, elDir, elAiPlayer, elAiLevel]) field.disabled = state.locked;
-      elUndo.disabled = state.history.length === 0 || state.locked;
-      elHint.disabled = state.gameOver || state.locked;
-
-      const isAiTurn = (state.mode === "ai" && state.player === state.aiPlayer);
-      const canClick = (!state.gameOver && !state.locked && !isAiTurn);
-
-      for (let i=0;i<16;i++){
-        const cell = cellEls[i];
-        const v = state.board[i];
-        cell.setAttribute("aria-label", `${Math.floor(i / 4) + 1} 行 ${i % 4 + 1} 列，${v ? uiPlayerName(v) : "空格"}${state.winCells.has(i) ? "，勝利連線" : ""}`);
-
-        cell.classList.toggle("outerRing", OUTER_SET.has(i));
-        cell.classList.toggle("innerRing", INNER_SET.has(i));
-
-        // both rings rotate every turn: show both outlines
-        cell.classList.toggle("nextRotateOuter", !state.gameOver && OUTER_SET.has(i));
-        cell.classList.toggle("nextRotateInner", !state.gameOver && INNER_SET.has(i));
-
-        cell.classList.toggle("win", state.winCells.has(i));
-
-        cell.disabled = !(canClick && v === 0);
-      }
-
-    }
-
-    // ===== Build board DOM =====
-
-    function buildBoard(){
-      elBoard.innerHTML = "";
-      cellEls.length = 0;
-
-      for (let i=0;i<16;i++){
-        const btn = document.createElement("button");
-        btn.className = "cell";
-        btn.type = "button";
-        btn.dataset.idx = String(i);
-        btn.setAttribute("role","gridcell");
-        btn.addEventListener("click", () => applyMove(i));
-        elBoard.appendChild(btn);
-        cellEls.push(btn);
-      }
-
-      pieceLayer = document.createElement("div");
-      pieceLayer.id = "pieceLayer";
-      pieceLayer.className = "pieceLayer";
-      pieceLayer.setAttribute("aria-hidden","true");
-      elBoard.appendChild(pieceLayer);
-
-      computeCellCenters();
-    }
-
-    // ===== Events =====
-
-    elMode.addEventListener("change", () => {
-      state.mode = elMode.value;
-      render();
-      if (state.mode === "ai" && !state.gameOver && state.player === state.aiPlayer){
-        aiTurn();
-      }
-    });
-
-    elDir.addEventListener("change", () => {
-      state.dir = (elDir.value === "cw") ? 1 : -1;
-      render();
-    });
-
-    elAiPlayer.addEventListener("change", () => {
-      state.aiPlayer = parseInt(elAiPlayer.value, 10);
-      render();
-      if (state.mode === "ai" && !state.gameOver && state.player === state.aiPlayer){
-        aiTurn();
-      }
-    });
-
-    elAiLevel.addEventListener("change", () => {
-      state.aiLevel = elAiLevel.value;
-      render();
-    });
-
-    elNew.addEventListener("click", () => newGame());
-    elUndo.addEventListener("click", () => undo());
-    elHint.addEventListener("click", () => hint());
-
-    window.addEventListener("resize", () => {
-      // Recompute centers and snap pieces into place without animation.
-      if (!pieceLayer) return;
-      computeCellCenters();
-      syncPieceLayer({ animate: false });
-    });
-
-    // ===== init =====
-
-    buildBoard();
-
-    // sync initial UI values into state
-    state.mode = elMode.value;
-    state.dir = (elDir.value === "cw") ? 1 : -1;
-    state.aiPlayer = parseInt(elAiPlayer.value, 10);
-    state.aiLevel = elAiLevel.value;
-
-    // initial render without animation
-    computeCellCenters();
-    syncPieceLayer({ animate: false });
-    render();
-
+    const earned = [];
+    if (r.mode !== 'pvp') for (const a of ACHIEVEMENTS) if (!p.achievements.includes(a.id) && a.test(r, p)) { p.achievements.push(a.id); earned.push(a); }
+    const total = xp.total + earned.length * ACH_XP;
+    p.xp += total;
+    const after = levelOf(p.xp);
+    const newly = UNLOCKS.filter(u => u.level > before.level && u.level <= after.level);
+    return { profile: p, xp, achievements: earned, total, before, after, unlocked: newly };
+  }
+
+  function load(storage) {
+    try { const raw = storage && storage.getItem(KEY); return raw ? sanitize(JSON.parse(raw)) : blank(); } catch (e) { return blank(); }
+  }
+  function save(storage, profile) {
+    try { storage.setItem(KEY, JSON.stringify(sanitize(profile))); return true; } catch (e) { return false; }
+  }
+
+  return Object.freeze({ KEY, VERSION, MAX_LEVEL, ACH_XP, RANKS, TIER_MULT, TIER_ORDER, UNLOCKS, ACHIEVEMENTS, need, levelOf, rankOf, unlocked, unlockFor, matchXP, blank, sanitize, record, load, save });
+})();
+</script>
+<script src="shared/fu-shell.js"></script>
+<script id="track-app">
+'use strict';
+// Page controller: lobby, turn flow, AI scheduling, HUD, career. Rules live in TrackEngine; the 3D view
+// (module below) only reads window.TrackApp and listens to its events.
+const TrackApp = (() => {
+  const E = TrackEngine, C = TrackCareer, $ = id => document.getElementById(id);
+  let storage = null; try { storage = window.localStorage; } catch (e) { storage = null; }
+  const prefs = Fu.prefs('trackgame', { mode: 'ai', tier: 'hard', first: 'me', series: 1, dir: 1, spin: 'both', brakes: 0, blockers: 0, speed: 'normal', camera: 'tilt', preview: true, flow: true, sound: true });
+  let profile = C.load(storage);
+  const setup = {
+    mode: prefs.get('mode') === 'pvp' ? 'pvp' : 'ai',
+    tier: E.TIERS[prefs.get('tier')] ? prefs.get('tier') : 'hard',
+    first: prefs.get('first') === 'ai' ? 'ai' : 'me',
+    series: Number(prefs.get('series')) === 3 ? 3 : 1,
+    dir: Number(prefs.get('dir')) === -1 ? -1 : 1,
+    spin: E.SPINS.includes(prefs.get('spin')) ? prefs.get('spin') : 'both',
+    brakes: [0, 1, 2].includes(Number(prefs.get('brakes'))) ? Number(prefs.get('brakes')) : 0,
+    blockers: [0, 1, 2].includes(Number(prefs.get('blockers'))) ? Number(prefs.get('blockers')) : 0
+  };
+  const SPIN_INFO = {
+    both: { name: '同向', en: 'CLASSIC', desc: '原版：內外圈同一方向轉一格。' },
+    counter: { name: '逆轉內圈', en: 'COUNTER', desc: '內圈反向轉，中央四格的走向和外圈相反。' },
+    alternate: { name: '交替轉向', en: 'SWING', desc: '每下一手，兩圈的轉向就反過來一次。' }
+  };
+  const TIER_INFO = {
+    easy: { tone: 'var(--fu-bone)', desc: '隨機落子，熟悉轉動用。' },
+    medium: { tone: 'var(--fu-jade)', desc: '看四手，會擋明顯的連線。' },
+    hard: { tone: 'var(--fu-azure)', desc: '逐層加深搜尋 0.26 秒。' },
+    expert: { tone: 'var(--fu-gold)', desc: '原版最強：搜尋 0.68 秒。' },
+    master: { tone: 'var(--fu-seal)', desc: '搜尋最深最久，幾乎不失誤。' }
+  };
+  const SPEED_MS = { slow: 900, normal: 560, fast: 300 };
+  const listeners = {};
+  const on = (type, fn) => { (listeners[type] = listeners[type] || []).push(fn); };
+  const emit = (type, data) => { for (const fn of listeners[type] || []) try { fn(data); } catch (e) { console.error(e); } };
+
+  let game = new E.Game({}), series = E.createSeries(1), opener = 'A', phase = 'lobby';
+  let busy = false, thinking = false, brakeArmed = false, cursor = 5, hover = null, hint = null, hintTimer = 0;
+  let undos = 0, hints = 0, seq = 0, matchMode = setup.mode, matchTier = setup.tier, lastRecord = null;
+
+  // ---------- sides ----------
+  // Series side A is you (or 朱方 in hot-seat), side B the AI (or 青方). Engine player 1 always moves first.
+  const sideOf = player => (player === 1 ? opener : opener === 'A' ? 'B' : 'A');
+  const playerOf = side => (opener === side ? 1 : 2);
+  const aiPlayer = () => (matchMode === 'ai' ? playerOf('B') : 0);
+  const isAiTurn = () => matchMode === 'ai' && !game.over && game.player === aiPlayer();
+  const colorOf = player => (player === E.BLOCK ? 'block' : sideOf(player) === 'A' ? 'me' : 'foe');
+  const sideName = side => (matchMode === 'ai' ? (side === 'A' ? '你' : 'AI · ' + E.TIERS[matchTier].name) : side === 'A' ? '朱方' : '青方');
+  const nameOf = player => sideName(sideOf(player));
+  const canHumanPlay = () => phase === 'play' && !busy && !game.over && !isAiTurn();
+  const variantsOf = o => (o.spin !== 'both' ? 1 : 0) + (o.brakes > 0 ? 1 : 0) + (o.blockers > 0 ? 1 : 0);
+
+  // ---------- sound (tiny WebAudio synth; nothing is downloaded) ----------
+  const sound = (() => {
+    let ctx = null;
+    const ok = () => prefs.get('sound') !== false;
+    const unlock = () => { if (!ctx && ok()) { try { ctx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { ctx = null; } } if (ctx && ctx.state === 'suspended') ctx.resume(); };
+    const tone = (freq, dur, type = 'sine', gain = .08, slide = 0, delay = 0) => {
+      if (!ok() || !ctx) return;
+      const t = ctx.currentTime + delay, o = ctx.createOscillator(), g = ctx.createGain();
+      o.type = type; o.frequency.setValueAtTime(freq, t); if (slide) o.frequency.exponentialRampToValueAtTime(freq * slide, t + dur);
+      g.gain.setValueAtTime(gain, t); g.gain.exponentialRampToValueAtTime(.0001, t + dur);
+      o.connect(g).connect(ctx.destination); o.start(t); o.stop(t + dur + .02);
+    };
+    return {
+      unlock,
+      place: () => { tone(520, .09, 'triangle', .09); tone(180, .12, 'sine', .07); },
+      spin: d => tone(d > 0 ? 300 : 420, .28, 'sawtooth', .025, d > 0 ? 1.4 : .7, .1),
+      brake: () => { tone(160, .22, 'square', .04, .6); },
+      win: () => [523, 659, 784].forEach((f, i) => tone(f, .5, 'triangle', .06, 1, i * .09)),
+      lose: () => [392, 330, 262].forEach((f, i) => tone(f, .45, 'triangle', .05, 1, i * .12))
+    };
   })();
-  </script>
+
+  // ---------- setup / locks ----------
+  const level = () => C.levelOf(profile.xp).level;
+  function clampSetup() {
+    const lv = level();
+    if (!C.unlocked(lv, 'tier', setup.tier)) setup.tier = 'expert';
+    if (!C.unlocked(lv, 'spin', setup.spin)) setup.spin = 'both';
+    if (!C.unlocked(lv, 'series', setup.series)) setup.series = 1;
+    while (setup.brakes > 0 && !C.unlocked(lv, 'brakes', setup.brakes)) setup.brakes--;
+    while (setup.blockers > 0 && !C.unlocked(lv, 'blockers', setup.blockers)) setup.blockers--;
+  }
+  function saveSetup() { for (const k of Object.keys(setup)) prefs.set(k, setup[k]); }
+  const lockText = (kind, id) => { const u = C.unlockFor(kind, id); return u && level() < u.level ? 'Lv ' + u.level : ''; };
+
+  // ---------- flow ----------
+  function startMatch() {
+    clampSetup(); saveSetup();
+    matchMode = setup.mode; matchTier = setup.tier;
+    series = E.createSeries(setup.series);
+    startGame();
+  }
+  function startGame() {
+    seq++;
+    opener = E.seriesOpener(series, matchMode === 'ai' && setup.first === 'ai' ? 'B' : 'A');
+    const seed = (Date.now() ^ Math.floor(Math.random() * 1e9)) >>> 0;
+    game = new E.Game({ dir: setup.dir, spin: setup.spin, brakes: setup.brakes, blockers: setup.blockers, seed });
+    busy = false; thinking = false; brakeArmed = false; undos = 0; hints = 0; clearHint(); cursor = 5;
+    phase = 'play'; showCurtain(null); hideBanner();
+    emit('reset'); render();
+    $('board3d').focus({ preventScroll: true });
+    maybeAI();
+  }
+  function restartGame() { if (phase === 'lobby') return; startGame(); }
+
+  function place(idx) {
+    sound.unlock();
+    if (!canHumanPlay() || !game.canPlay(idx, brakeArmed)) return false;
+    doMove(idx, brakeArmed);
+    return true;
+  }
+  function doMove(idx, brake) {
+    const ev = game.play(idx, { brake });
+    if (!ev) return;
+    brakeArmed = false; clearHint(); busy = true;
+    const ms = animMs(ev), token = seq;
+    emit('move', ev);
+    sound.place(); if (brake) sound.brake(); else setTimeout(() => sound.spin(ev.dirs.outer), ms * .3);
+    render();
+    setTimeout(() => {
+      if (token !== seq) return;
+      busy = false;
+      if (ev.over) finishGame(ev); else { render(); maybeAI(); }
+    }, ms + 30);
+  }
+  const animMs = ev => { const base = SPEED_MS[prefs.get('speed')] || SPEED_MS.normal; return ev && ev.brake ? Math.round(base * .5) : base; };
+
+  function maybeAI() {
+    if (phase !== 'play' || busy || !isAiTurn()) return;
+    const token = ++seq, started = performance.now();
+    busy = true; thinking = true; render();
+    const search = E.createSearch(game.state(), game.options, matchTier);
+    const step = () => {
+      if (token !== seq || phase !== 'play') return;
+      if (!search.step()) { setTimeout(step, 0); return; }
+      const wait = Math.max(0, 420 - (performance.now() - started));
+      setTimeout(() => {
+        if (token !== seq || phase !== 'play') return;
+        thinking = false; busy = false;
+        const mv = E.decode(search.result());
+        if (mv) doMove(mv.idx, mv.brake && game.brakes[game.player] > 0); else render();
+      }, wait);
+    };
+    setTimeout(step, 60); // let the "thinking" frame paint first
+  }
+
+  function undo() {
+    if (phase !== 'play' || busy) return;
+    if (!canUndo()) return;
+    seq++;
+    if (matchMode === 'ai') { const me = playerOf('A'); do { game.undo(); } while (game.history.length && game.player !== me); }
+    else game.undo();
+    undos++; brakeArmed = false; clearHint();
+    emit('reset'); render();
+    maybeAI();
+  }
+  const canUndo = () => phase === 'play' && !busy && !game.over && (matchMode === 'ai' ? game.log.some(m => m.player === playerOf('A')) : game.history.length > 0);
+
+  function showHint() {
+    if (!canHumanPlay()) return;
+    const mv = E.decode(E.bestMove(game.state(), game.options, 'medium'));
+    if (!mv) return;
+    hints++; hint = mv;
+    clearTimeout(hintTimer); hintTimer = setTimeout(() => { hint = null; emit('state'); }, 2600);
+    setStatus(`提示：${cellName(mv.idx)}${mv.brake ? '，並使用煞車' : ''}。`);
+    emit('state');
+  }
+  function clearHint() { hint = null; clearTimeout(hintTimer); }
+  function toggleBrake() {
+    if (!canHumanPlay() || !game.options.brakes || game.brakes[game.player] <= 0) return;
+    brakeArmed = !brakeArmed; sound.unlock();
+    render();
+  }
+
+  function finishGame(ev) {
+    const res = ev.draw ? 'draw' : sideOf(ev.winner);
+    series = E.seriesAdd(series, res);
+    phase = 'result-pending';
+    const meWon = res === 'A', tone = res === 'draw' ? 'var(--fu-bone)' : matchMode === 'pvp' ? (res === 'A' ? 'var(--fu-seal)' : 'var(--fu-azure)') : meWon ? 'var(--fu-seal)' : 'var(--fu-azure)';
+    const big = res === 'draw' ? '和局' : matchMode === 'pvp' ? sideName(res) + '勝' : meWon ? '勝利' : '落敗';
+    showBanner(big, res === 'draw' ? '棋盤已滿' : `${game.turn} 手${ev.brake ? ' · 煞車絕殺' : ''}`, tone);
+    if (res === 'draw' || matchMode === 'pvp' || meWon) sound.win(); else sound.lose();
+    // Career
+    const r = matchMode === 'ai'
+      ? { mode: 'ai', outcome: res === 'A' ? 'win' : res === 'B' ? 'loss' : 'draw', tier: matchTier, variants: variantsOf(game.options), turns: game.turn, undos, hints, second: opener === 'B', brakeWin: ev.brake && res === 'A', seriesWon: series.length === 3 && series.over && series.winner === 'A' }
+      : { mode: 'pvp' };
+    lastRecord = C.record(profile, r);
+    profile = lastRecord.profile; C.save(storage, profile);
+    for (const a of lastRecord.achievements) Fu.toast(`成就：${a.name} · +${C.ACH_XP} XP`, { tone: 'ok', ms: 3400 });
+    render();
+    const token = seq;
+    setTimeout(() => { if (token === seq && phase === 'result-pending') { phase = 'result'; hideBanner(); renderResult(); showCurtain('result'); } }, 1500);
+  }
+
+  // ---------- curtain / banner ----------
+  function showCurtain(mode) {
+    const c = $('curtain');
+    if (!mode) { c.hidden = true; $('pause').disabled = false; return; }
+    c.dataset.mode = mode; c.hidden = false; c.scrollTop = 0;
+    if (mode === 'lobby') renderLobby();
+    const focus = mode === 'lobby' ? $('play') : mode === 'pause' ? $('resume') : $('again');
+    setTimeout(() => focus.focus({ preventScroll: true }), 40);
+    render();
+  }
+  function pause() {
+    // A stone mid-rotation finishes first (its timer settles the result); AI thinking can be interrupted.
+    if (phase !== 'play' || (busy && !thinking)) return;
+    seq++; busy = false; thinking = false; phase = 'pause'; showCurtain('pause');
+  }
+  function resume() { if (phase !== 'pause') return; phase = 'play'; showCurtain(null); render(); maybeAI(); }
+  // Look at the final position without the result sheet; the pause button (or P / Esc) brings it back.
+  function review() { if (phase !== 'result') return; phase = 'review'; showCurtain(null); setStatus('檢視終局：按右上暫停鈕、P 或 Esc 回到結算。'); render(); $('pause').disabled = false; $('pause').setAttribute('aria-label', '回到結算'); }
+  function backToResult() { if (phase !== 'review') return; phase = 'result'; $('pause').setAttribute('aria-label', '暫停'); showCurtain('result'); }
+  function toLobby() { seq++; busy = false; thinking = false; phase = 'lobby'; hideBanner(); showCurtain('lobby'); }
+  function showBanner(big, small, tone) { const b = $('banner'); b.querySelector('strong').textContent = big; b.querySelector('span').textContent = small; b.style.setProperty('--tone', tone); b.classList.add('on'); }
+  function hideBanner() { $('banner').classList.remove('on'); }
+
+  // ---------- rendering ----------
+  const cellName = idx => `第 ${Math.floor(idx / 4) + 1} 行第 ${idx % 4 + 1} 列`;
+  const arrow = d => (d > 0 ? '↻ 順' : '↺ 逆');
+  let statusOverride = '';
+  const touchOnly = !!(window.matchMedia && matchMedia('(hover: none)').matches);
+  function setStatus(text) { statusOverride = text; $('status').textContent = text; }
+  function render() {
+    const lvInfo = C.levelOf(profile.xp);
+    $('lv').textContent = lvInfo.level; $('rank').textContent = C.rankOf(lvInfo.level);
+    $('lv-fill').style.width = (lvInfo.max ? 100 : lvInfo.into / lvInfo.need * 100) + '%';
+    $('career-chip').setAttribute('aria-label', `生涯 Lv ${lvInfo.level} ${C.rankOf(lvInfo.level)}，${lvInfo.into}/${lvInfo.need} XP`);
+    const o = game.options, cap = 16 - o.blockers;
+    $('match-label').textContent = matchMode === 'ai' ? `對戰 AI · ${E.TIERS[matchTier].name}` : '雙人同機';
+    $('turn-label').textContent = `第 ${game.turn} / ${cap} 手`;
+    const row = $('turn-row'), p = game.over ? game.winner : game.player, col = colorOf(p || 1);
+    row.style.setProperty('--tone', game.over && game.draw ? 'var(--fu-bone)' : col === 'me' ? 'var(--me)' : 'var(--foe)');
+    row.classList.toggle('thinking', thinking);
+    $('turn-name').textContent = game.over ? (game.draw ? '和局' : nameOf(game.winner)) : nameOf(game.player);
+    $('turn-note').textContent = game.over ? (game.draw ? '棋盤已滿' : '連成四子') : thinking ? '思考中' : busy ? '轉動中' : isAiTurn() ? '準備落子' : brakeArmed ? '煞車落子' : '落子';
+    const d = game.over ? null : game.nextDirs();
+    $('outer-dir').textContent = d ? (brakeArmed ? '— 停' : arrow(d.outer)) : '—';
+    $('inner-dir').textContent = d ? (brakeArmed ? '— 停' : arrow(d.inner)) : '—';
+    $('brake-line').hidden = !o.brakes;
+    if (o.brakes) $('brake-count').textContent = `${sideName('A').replace('AI · ', '')} ${game.brakes[playerOf('A')]} · ${matchMode === 'ai' ? 'AI' : '青方'} ${game.brakes[playerOf('B')]}`;
+    let msg = '';
+    if (phase === 'lobby') msg = '選好對手與規則，開始對局。';
+    else if (phase === 'review') msg = '檢視終局：按右上暫停鈕、P 或 Esc 回到結算。';
+    else if (game.over) msg = game.draw ? '和局：沒有空格了。' : `${nameOf(game.winner)}連成四子。`;
+    else if (thinking) msg = `${nameOf(game.player)} 正在計算轉動後的局面…`;
+    else if (busy) msg = brakeArmed ? '煞車：不轉動。' : '兩圈一起轉一格…';
+    else if (isAiTurn()) msg = '輪到 AI。';
+    else msg = brakeArmed ? '煞車已備好：這一手落子後不轉動。' : `請${matchMode === 'pvp' ? nameOf(game.player) : ''}落子。${touchOnly ? '點一下預覽轉動後的落點，再點一次落子。' : '滑過格子可預覽轉動後的落點。'}`;
+    if (!statusOverride || busy || thinking || game.over) $('status').textContent = msg;
+    statusOverride = '';
+    // dock
+    $('undo').disabled = !canUndo();
+    $('hint').disabled = !canHumanPlay();
+    $('restart').disabled = phase !== 'play' || game.turn === 0;
+    const bb = $('brake'); bb.hidden = !o.brakes; bb.disabled = !canHumanPlay() || game.brakes[game.player] <= 0; bb.setAttribute('aria-pressed', String(brakeArmed));
+    $('pause').disabled = phase !== 'play' && phase !== 'review';
+    // match panel
+    const sides = $('sides'); sides.innerHTML = '';
+    for (const s of ['A', 'B']) {
+      const li = document.createElement('li'), pl = playerOf(s);
+      li.className = !game.over && game.player === pl && phase !== 'lobby' ? 'on' : '';
+      li.innerHTML = `<i class="fu-side" style="--side:${s === 'A' ? 'var(--me)' : 'var(--foe)'}"></i><span><b></b><small>${pl === 1 ? '先手' : '後手'}</small></span><em class="fu-num">${series.wins[s]}</em>`;
+      li.querySelector('b').textContent = sideName(s);
+      sides.append(li);
+    }
+    $('series-label').textContent = series.length === 3 ? `三戰兩勝 · 第 ${Math.min(series.results.length + (phase === 'play' || phase === 'pause' ? 1 : 0), 4) || 1} 盤` : '單局';
+    const chips = [[SPIN_INFO[o.spin].name, o.spin !== 'both'], [o.dir > 0 ? '順時針' : '逆時針', false]];
+    if (o.brakes) chips.push([`煞車 ×${o.brakes}`, true]);
+    if (o.blockers) chips.push([`路障 ×${o.blockers}`, true]);
+    $('variant-chips').innerHTML = chips.map(([t, hot]) => `<span class="${hot ? 'hot' : ''}">${t}</span>`).join('');
+    renderCells();
+    document.getElementById('board3d').classList.toggle('can-play', canHumanPlay());
+    emit('state');
+  }
+  function renderCells() {
+    const wrap = $('cells');
+    if (!wrap.children.length) for (let i = 0; i < 16; i++) {
+      const b = document.createElement('button'); b.type = 'button'; b.setAttribute('role', 'gridcell'); b.tabIndex = -1;
+      if (E.isInner(i)) b.classList.add('inner');
+      b.addEventListener('click', () => place(i)); wrap.append(b);
+    }
+    const win = new Set(game.winCells);
+    [...wrap.children].forEach((b, i) => {
+      const v = game.board[i], who = v ? colorOf(v) : '';
+      b.className = (E.isInner(i) ? 'inner ' : '') + (who ? 'p-' + who : '') + (win.has(i) ? ' win' : '');
+      b.textContent = v === E.BLOCK ? '◆' : v ? (who === 'me' ? '朱' : '青') : '';
+      b.disabled = !(canHumanPlay() && v === 0);
+      b.setAttribute('aria-label', `${cellName(i)}，${E.isInner(i) ? '內圈' : '外圈'}，${v === E.BLOCK ? '路障' : v ? nameOf(v) : '空格'}${win.has(i) ? '，勝利連線' : ''}`);
+    });
+  }
+  function careerHTML() {
+    const l = C.levelOf(profile.xp), rate = profile.games ? Math.round(profile.wins / profile.games * 100) : 0;
+    return `<div class="lv"><small>LV</small>${l.level}</div><div class="who"><b>${C.rankOf(l.level)}</b><span>${l.max ? '滿級' : `${l.into} / ${l.need} XP`}</span></div><div class="who" style="font-weight:500"><span style="text-align:left">AI 戰績 ${profile.wins} 勝 ${profile.draws} 和 ${profile.losses} 負 · 勝率 ${rate}%</span><span>最佳連勝 ${profile.bestStreak}</span></div><span class="bar" style="grid-column:1 / -1"><i style="width:${l.max ? 100 : l.into / l.need * 100}%"></i></span>`;
+  }
+  function seg(id, value, lockKind) {
+    $(id).querySelectorAll('button').forEach(b => {
+      b.setAttribute('aria-pressed', String(String(b.value) === String(value)));
+      if (lockKind) { const lt = lockText(lockKind, b.value); b.disabled = !!lt; b.title = lt ? `${lt} 解鎖` : ''; }
+    });
+  }
+  function renderLobby() {
+    clampSetup();
+    $('lobby-career').innerHTML = careerHTML();
+    seg('mode-seg', setup.mode);
+    const tiers = $('tier-picks'); tiers.innerHTML = '';
+    for (const id of E.TIER_IDS) {
+      const t = E.TIERS[id], lt = lockText('tier', id), b = document.createElement('button');
+      b.type = 'button'; b.className = 'tg-pick'; b.dataset.value = id; b.style.setProperty('--tone', TIER_INFO[id].tone);
+      b.setAttribute('aria-pressed', String(setup.tier === id)); b.disabled = !!lt || setup.mode === 'pvp';
+      b.innerHTML = `<b>${t.name}</b><small>×${C.TIER_MULT[id]} XP</small><span>${TIER_INFO[id].desc}</span>${lt ? `<em class="lock">${lt}</em>` : ''}`;
+      tiers.append(b);
+    }
+    $('first-field').style.opacity = setup.mode === 'pvp' ? .45 : 1;
+    $('first-seg').querySelectorAll('button').forEach(b => { b.disabled = setup.mode === 'pvp'; });
+    seg('first-seg', setup.first);
+    seg('series-seg', setup.series, 'series'); $('series-lock').textContent = lockText('series', 3);
+    seg('dir-seg', setup.dir);
+    seg('brakes-seg', setup.brakes, 'brakes'); $('brakes-lock').textContent = lockText('brakes', 1);
+    seg('blockers-seg', setup.blockers, 'blockers'); $('blockers-lock').textContent = lockText('blockers', 1);
+    const spins = $('spin-picks'); spins.innerHTML = '';
+    for (const id of E.SPINS) {
+      const s = SPIN_INFO[id], lt = lockText('spin', id), b = document.createElement('button');
+      b.type = 'button'; b.className = 'tg-pick'; b.dataset.value = id; b.style.setProperty('--tone', id === 'both' ? 'var(--fu-paper-dim)' : 'var(--fu-gold)');
+      b.setAttribute('aria-pressed', String(setup.spin === id)); b.disabled = !!lt;
+      b.innerHTML = `<b>${s.name}</b><small>${s.en}</small><span>${s.desc}</span>${lt ? `<em class="lock">${lt}</em>` : ''}`;
+      spins.append(b);
+    }
+    const v = variantsOf(setup), mult = setup.mode === 'pvp' ? null : C.matchXP({ mode: 'ai', outcome: 'loss', tier: setup.tier, variants: v }).mult;
+    $('lobby-mult').innerHTML = mult == null ? '雙人同機：每盤 <b>15 XP</b>，不計 AI 戰績與成就。' : `經驗倍率 <b>×${mult}</b> · ${E.TIERS[setup.tier].name} AI${v ? ` · ${v} 種變體` : ''}`;
+    $('play').textContent = setup.series === 3 ? '開始系列賽' : '開始對局';
+  }
+  function renderResult() {
+    const last = series.results[series.results.length - 1], over = series.over;
+    const meWon = last === 'A';
+    $('result-kicker').textContent = series.length === 3 ? `三戰兩勝 · 第 ${series.results.length} 盤` : matchMode === 'ai' ? `對戰 ${E.TIERS[matchTier].name} AI` : '雙人同機';
+    let title, copy;
+    if (matchMode === 'pvp') { title = last === 'draw' ? '和局' : `${sideName(last)}獲勝`; copy = last === 'draw' ? '十六格下滿，誰也沒連成四子。' : `${sideName(last)}在第 ${game.turn} 手轉出四子連線。`; }
+    else { title = last === 'draw' ? '和局' : meWon ? '勝利' : '落敗'; copy = last === 'draw' ? '棋盤下滿仍無人連線。' : meWon ? `第 ${game.turn} 手，轉動把你的四子送進同一條線。` : `AI 在第 ${game.turn} 手完成連線。看看它是怎麼利用轉動的。`; }
+    if (series.length === 3) {
+      if (over) { title = series.winner === null ? '系列賽平手' : matchMode === 'ai' ? (series.winner === 'A' ? '系列賽勝利' : '系列賽落敗') : `${sideName(series.winner)}贏得系列賽`; copy = `比分 ${series.wins.A} : ${series.wins.B}。` + copy; }
+      else copy = `比分 ${series.wins.A} : ${series.wins.B}，下一盤由${sideName(E.seriesOpener(series, matchMode === 'ai' && setup.first === 'ai' ? 'B' : 'A'))}先手。` + copy;
+    }
+    $('result-title').textContent = title; $('result-copy').textContent = copy;
+    $('standings').innerHTML = ['A', 'B'].map(s => `<div style="--side:${s === 'A' ? 'var(--me)' : 'var(--foe)'}"><b>${sideName(s)}</b><strong>${series.wins[s]}</strong>${series.length === 3 ? '勝場' : last === s ? '本盤勝' : last === 'draw' ? '和' : '本盤負'}</div>`).join('');
+    const rec = lastRecord;
+    if (rec) {
+      $('xp-mult').textContent = rec.xp.mult !== 1 ? `倍率 ×${rec.xp.mult}` : '';
+      const lines = rec.xp.lines.map(([k, v]) => `<dt>${k}</dt><dd>+${v}</dd>`);
+      for (const a of rec.achievements) lines.push(`<dt>成就：${a.name}</dt><dd>+${C.ACH_XP}</dd>`);
+      lines.push(`<dt class="total">合計</dt><dd class="total">+${rec.total} XP</dd>`);
+      $('xp-lines').innerHTML = lines.join('');
+      const lu = $('levelup');
+      if (rec.after.level > rec.before.level) { lu.hidden = false; lu.innerHTML = `升到 <b>Lv ${rec.after.level} · ${C.rankOf(rec.after.level)}</b>${rec.unlocked.length ? '。解鎖：' + rec.unlocked.map(u => `<b>${u.name}</b>（${u.desc}）`).join('、') : ''}`; }
+      else lu.hidden = true;
+    }
+    $('result-career').innerHTML = careerHTML();
+    $('again').textContent = series.over ? (series.length === 3 ? '再打一輪系列賽' : '再來一盤') : '下一盤';
+  }
+  function renderCareer() {
+    $('drawer-career').innerHTML = careerHTML();
+    const p = profile, best = p.bestTier ? E.TIERS[p.bestTier].name : '—';
+    $('stats').innerHTML = [[p.games, 'AI 對局'], [p.wins, '勝場'], [p.fastestWin || '—', '最快勝（手）'], [best, '戰勝過最強'], [p.seriesWins, '系列賽勝'], [p.pvp, '雙人對局']].map(([v, k]) => `<div><b>${v}</b><span>${k}</span></div>`).join('');
+    $('achievements').innerHTML = C.ACHIEVEMENTS.map(a => `<li class="${p.achievements.includes(a.id) ? 'got' : ''}"><b>${a.name}</b>${a.desc}</li>`).join('');
+    const lv = level();
+    $('unlocks').innerHTML = C.UNLOCKS.map(u => `<li class="${lv >= u.level ? 'got' : ''}"><span>${u.name} · ${u.desc}</span><span>Lv ${u.level}</span></li>`).join('');
+  }
+
+  // ---------- wiring ----------
+  function selectTab(name) {
+    for (const t of ['rules', 'settings', 'career']) { $('tab-' + t).setAttribute('aria-selected', String(t === name)); $('panel-' + t).hidden = t !== name; }
+    if (name === 'career') renderCareer();
+  }
+  for (const t of ['rules', 'settings', 'career']) $('tab-' + t).addEventListener('click', () => selectTab(t));
+  $('career-chip').addEventListener('click', () => { selectTab('career'); Fu.open('drawer'); });
+  $('menu-btn').addEventListener('click', () => Fu.toggle('drawer'));
+  $('mode-seg').addEventListener('fu:select', e => { setup.mode = e.detail.value; renderLobby(); });
+  $('first-seg').addEventListener('fu:select', e => { setup.first = e.detail.value; renderLobby(); });
+  $('series-seg').addEventListener('fu:select', e => { setup.series = Number(e.detail.value); renderLobby(); });
+  $('dir-seg').addEventListener('fu:select', e => { setup.dir = Number(e.detail.value); renderLobby(); emit('preview-setup'); });
+  $('brakes-seg').addEventListener('fu:select', e => { setup.brakes = Number(e.detail.value); renderLobby(); });
+  $('blockers-seg').addEventListener('fu:select', e => { setup.blockers = Number(e.detail.value); renderLobby(); });
+  $('tier-picks').addEventListener('click', e => { const b = e.target.closest('button'); if (b && !b.disabled) { setup.tier = b.dataset.value; renderLobby(); } });
+  $('spin-picks').addEventListener('click', e => { const b = e.target.closest('button'); if (b && !b.disabled) { setup.spin = b.dataset.value; renderLobby(); } });
+  $('play').addEventListener('click', () => { sound.unlock(); startMatch(); });
+  $('resume').addEventListener('click', resume);
+  $('leave').addEventListener('click', toLobby);
+  $('pause-restart').addEventListener('click', () => { startGame(); });
+  $('to-lobby').addEventListener('click', toLobby);
+  $('again').addEventListener('click', () => { if (series.over) startMatch(); else startGame(); });
+  $('pause').addEventListener('click', () => (phase === 'review' ? backToResult() : pause()));
+  $('review').addEventListener('click', review);
+  $('undo').addEventListener('click', undo);
+  $('hint').addEventListener('click', showHint);
+  $('brake').addEventListener('click', toggleBrake);
+  $('restart').addEventListener('click', restartGame);
+  $('drawer-restart').addEventListener('click', () => { Fu.close('drawer'); if (phase === 'play' || phase === 'pause') startGame(); });
+  $('drawer-lobby').addEventListener('click', () => { Fu.close('drawer'); toLobby(); });
+  $('reset-career').addEventListener('click', () => { if (!confirm('確定清除這台裝置上的軌道棋生涯紀錄？')) return; profile = C.blank(); C.save(storage, profile); clampSetup(); renderCareer(); renderLobby(); render(); Fu.toast('生涯已重置'); });
+  // settings
+  const speedSeg = $('speed-seg'), camSeg = $('camera-seg');
+  const syncSettings = () => {
+    speedSeg.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', String(b.value === prefs.get('speed'))));
+    camSeg.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', String(b.value === prefs.get('camera'))));
+    $('set-preview').checked = prefs.get('preview') !== false; $('set-flow').checked = prefs.get('flow') !== false; $('set-sound').checked = prefs.get('sound') !== false;
+  };
+  speedSeg.addEventListener('fu:select', e => prefs.set('speed', e.detail.value));
+  camSeg.addEventListener('fu:select', e => { prefs.set('camera', e.detail.value); emit('settings'); });
+  for (const [id, key] of [['set-preview', 'preview'], ['set-flow', 'flow'], ['set-sound', 'sound']]) $(id).addEventListener('change', e => { prefs.set(key, e.target.checked); emit('settings'); });
+  syncSettings();
+  // keyboard
+  const moveCursor = (dr, dc) => { if (phase !== 'play') return; const r = Math.min(3, Math.max(0, Math.floor(cursor / 4) + dr)), c = Math.min(3, Math.max(0, cursor % 4 + dc)); cursor = r * 4 + c; hover = cursor; emit('state'); };
+  const inPlay = () => phase === 'play' && !Fu.isOpen('drawer');
+  Fu.hotkey('arrowup', '游標上移', () => moveCursor(-1, 0), { when: inPlay, hidden: true });
+  Fu.hotkey('arrowdown', '游標下移', () => moveCursor(1, 0), { when: inPlay, hidden: true });
+  Fu.hotkey('arrowleft', '游標左移', () => moveCursor(0, -1), { when: inPlay, hidden: true });
+  Fu.hotkey('arrowright', '游標右移', () => moveCursor(0, 1), { when: inPlay, hidden: true });
+  Fu.hotkey('enter', '落子', () => place(cursor), { when: () => inPlay() && document.activeElement && document.activeElement.tagName !== 'BUTTON' });
+  Fu.hotkey(' ', '落子', () => place(cursor), { when: () => inPlay() && document.activeElement && document.activeElement.tagName !== 'BUTTON', hidden: true });
+  Fu.hotkey('u', '悔棋', undo, { when: inPlay });
+  Fu.hotkey('h', '提示', showHint, { when: inPlay });
+  Fu.hotkey('b', '煞車', toggleBrake, { when: inPlay });
+  Fu.hotkey('r', '重開', restartGame, { when: inPlay });
+  Fu.hotkey('p', '暫停', () => (phase === 'pause' ? resume() : phase === 'review' ? backToResult() : pause()), { when: () => phase === 'play' || phase === 'pause' || phase === 'review' });
+  Fu.hotkey('m', '選單', () => Fu.toggle('drawer'));
+  Fu.hotkey('n', '下一盤', () => $('again').click(), { when: () => phase === 'result' });
+  document.addEventListener('keydown', e => {
+    // Esc pauses only when nothing else is open (fu-shell closes drawers / curtains first).
+    if (e.key === 'Escape' && phase === 'play' && !Fu.isOpen('drawer') && !e.defaultPrevented) { e.preventDefault(); pause(); }
+    else if (e.key === 'Escape' && phase === 'pause' && !e.defaultPrevented) { e.preventDefault(); resume(); }
+    else if (e.key === 'Escape' && phase === 'review' && !Fu.isOpen('drawer') && !e.defaultPrevented) { e.preventDefault(); backToResult(); }
+  });
+
+  clampSetup(); render(); showCurtain('lobby');
+
+  return {
+    get game() { return game; }, get phase() { return phase; }, get busy() { return busy; }, get thinking() { return thinking; },
+    get hint() { return hint; }, get brakeArmed() { return brakeArmed; }, get cursor() { return cursor; }, get hover() { return hover; },
+    get series() { return series; }, get mode() { return matchMode; }, get setup() { return { ...setup }; },
+    prefs, on, place, colorOf, canHumanPlay, animMs, isAiTurn,
+    setHover(idx) { hover = idx; if (idx != null) cursor = idx; emit('state'); },
+    /** Where a stone placed on idx will end up after this turn's rotation. */
+    landing(idx) { if (brakeArmed || game.over) return idx; const d = game.nextDirs(); return E.rotateIndex(idx, d.outer, d.inner); },
+    previewDirs() { return phase === 'lobby' ? E.ringDirs({ dir: setup.dir, spin: setup.spin }, 0) : game.nextDirs(); }
+  };
+})();
+window.TrackApp = TrackApp;
+</script>
+<script type="module" id="track-view">
+// 3D board. It only reads window.TrackApp (game state + prefs) and listens to its events; rules stay in TrackEngine.
+import { THREE, createStage, palette, fonts, loadFonts } from './shared/fu-three.js';
+const app = window.TrackApp, E = TrackEngine, canvas = document.getElementById('board3d');
+let stage = null;
+try { stage = createStage(canvas, { fov: 30, fog: [40, 110], exposure: 1.0, near: .1, far: 200 }); } catch (e) {
+  document.body.classList.add('no-webgl');
+  [...document.getElementById('cells').children].forEach(b => { b.tabIndex = 0; });
+  const p = document.createElement('p'); p.className = 'webgl-note'; p.textContent = '這台裝置無法啟用 WebGL，改用平面棋盤。'; document.body.append(p);
+}
+if (stage) {
+  const { scene, camera, lights } = stage;
+  lights.hemi.intensity = .55; lights.key.intensity = 1.6; lights.rim.intensity = 1.1;
+  lights.key.position.set(-10, 22, 12);
+  const S = 1.6, HALF = 2 * S + .55, BOARD = HALF * 2;
+  const cellPos = idx => new THREE.Vector3(((idx % 4) - 1.5) * S, 0, (Math.floor(idx / 4) - 1.5) * S);
+  const root = new THREE.Group(); scene.add(root);
+
+  // ---------- board body + printed top ----------
+  const plinth = new THREE.Mesh(new THREE.BoxGeometry(BOARD + .5, .7, BOARD + .5), new THREE.MeshStandardMaterial({ color: 0x0b0e12, roughness: .7, metalness: .1, flatShading: true }));
+  plinth.position.y = -.36; root.add(plinth);
+  const lip = new THREE.Mesh(new THREE.BoxGeometry(BOARD + .56, .04, BOARD + .56), new THREE.MeshBasicMaterial({ color: palette.seal, toneMapped: false }));
+  lip.position.y = -.72; root.add(lip);
+  const TEX = 1024, topCanvas = document.createElement('canvas'); topCanvas.width = topCanvas.height = TEX;
+  const g = topCanvas.getContext('2d');
+  const topTex = new THREE.CanvasTexture(topCanvas); topTex.colorSpace = THREE.SRGBColorSpace; topTex.anisotropy = 8;
+  const top = new THREE.Mesh(new THREE.PlaneGeometry(BOARD, BOARD).rotateX(-Math.PI / 2), new THREE.MeshStandardMaterial({ map: topTex, roughness: .9, metalness: 0 }));
+  top.position.y = .001; root.add(top);
+  const px = v => (v + HALF) / BOARD * TEX;
+  const css = name => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+  function cutSquare(x, y, w, k) { g.beginPath(); g.moveTo(x, y); g.lineTo(x + w - k, y); g.lineTo(x + w, y + k); g.lineTo(x + w, y + w); g.lineTo(x + k, y + w); g.lineTo(x, y + w - k); g.closePath(); }
+  function ringPath(ring) { g.beginPath(); ring.forEach((idx, i) => { const p = cellPos(idx); (i ? g.lineTo : g.moveTo).call(g, px(p.x), px(p.z)); }); g.closePath(); }
+  function paintBoard() {
+    const grad = g.createRadialGradient(TEX / 2, TEX / 2, TEX * .1, TEX / 2, TEX / 2, TEX * .75);
+    grad.addColorStop(0, '#18202a'); grad.addColorStop(1, '#0f141b');
+    g.fillStyle = grad; g.fillRect(0, 0, TEX, TEX);
+    // fine engraved grid
+    g.strokeStyle = 'rgba(236,228,208,.05)'; g.lineWidth = 1;
+    for (let i = 0; i <= 32; i++) { const v = i / 32 * TEX; g.beginPath(); g.moveTo(v, 0); g.lineTo(v, TEX); g.moveTo(0, v); g.lineTo(TEX, v); g.stroke(); }
+    // cells
+    const w = S * .88 / BOARD * TEX, k = w * .12;
+    for (let i = 0; i < 16; i++) {
+      const p = cellPos(i), x = px(p.x) - w / 2, y = px(p.z) - w / 2, inner = E.isInner(i);
+      cutSquare(x, y, w, k); g.fillStyle = inner ? '#1f2630' : '#1b222c'; g.fill();
+      g.lineWidth = 2; g.strokeStyle = inner ? 'rgba(233,185,73,.32)' : 'rgba(236,228,208,.14)'; if (inner) g.setLineDash([10, 7]); g.stroke(); g.setLineDash([]);
+      // seal corner marks (top-left, bottom-right)
+      g.fillStyle = inner ? 'rgba(233,185,73,.55)' : 'rgba(255,75,43,.45)';
+      g.fillRect(x + 6, y + 6, 14, 3); g.fillRect(x + 6, y + 6, 3, 14);
+      g.fillRect(x + w - 20, y + w - 9, 14, 3); g.fillRect(x + w - 9, y + w - 20, 3, 14);
+    }
+    // tracks through every cell centre
+    g.lineJoin = 'miter';
+    ringPath(E.OUTER_RING); g.strokeStyle = 'rgba(217,210,192,.22)'; g.lineWidth = 5; g.stroke();
+    ringPath(E.INNER_RING); g.strokeStyle = 'rgba(233,185,73,.4)'; g.lineWidth = 4; g.setLineDash([14, 9]); g.stroke(); g.setLineDash([]);
+    for (const idx of [...E.OUTER_RING, ...E.INNER_RING]) { const p = cellPos(idx); g.beginPath(); g.arc(px(p.x), px(p.z), 6, 0, Math.PI * 2); g.fillStyle = E.isInner(idx) ? 'rgba(233,185,73,.6)' : 'rgba(217,210,192,.35)'; g.fill(); }
+    // rim labels
+    g.fillStyle = 'rgba(236,228,208,.34)'; g.textBaseline = 'middle';
+    g.font = `600 18px ${fonts.mono}`; g.textAlign = 'left'; g.fillText('OUTER · 12', 30, TEX - 26); g.textAlign = 'right'; g.fillText('INNER · 4', TEX - 30, TEX - 26);
+    g.font = `900 30px ${fonts.display}`; g.textAlign = 'center'; g.fillStyle = 'rgba(236,228,208,.42)'; g.fillText('軌　道　棋', TEX / 2, TEX - 28);
+    g.fillStyle = 'rgba(255,75,43,.7)'; g.fillRect(TEX / 2 - 150, TEX - 30, 20, 4); g.fillRect(TEX / 2 + 130, TEX - 30, 20, 4);
+    g.font = `600 16px ${fonts.mono}`; g.fillStyle = 'rgba(236,228,208,.22)'; g.fillText('FUGAMES · ORBIT FOUR', TEX / 2, 26);
+    topTex.needsUpdate = true;
+  }
+  paintBoard();
+  // The display serif is sliced by unicode-range and canvas never triggers the download: load, then repaint.
+  loadFonts('軌道棋').then(paintBoard);
+
+  // ---------- flow chevrons (one per track segment, sliding in the direction of the next turn) ----------
+  const chevShape = new THREE.Shape(); chevShape.moveTo(.16, 0); chevShape.lineTo(-.1, .15); chevShape.lineTo(-.04, 0); chevShape.lineTo(-.1, -.15); chevShape.closePath();
+  const chevGeo = new THREE.ShapeGeometry(chevShape).rotateX(-Math.PI / 2);
+  const chevrons = [];
+  for (const [ring, tone] of [[E.OUTER_RING, palette.bone], [E.INNER_RING, palette.gold]]) {
+    ring.forEach((idx, i) => {
+      const a = cellPos(idx), b = cellPos(ring[(i + 1) % ring.length]);
+      const m = new THREE.Mesh(chevGeo, new THREE.MeshBasicMaterial({ color: tone, transparent: true, opacity: 0, depthWrite: false, toneMapped: false }));
+      m.position.y = .02; root.add(m);
+      chevrons.push({ m, a, b, inner: ring === E.INNER_RING });
+    });
+  }
+
+  // ---------- stones ----------
+  const R = .58, H = .34;
+  const prof = [[0, 0], [R * .92, 0], [R, H * .25], [R, H * .62], [R * .86, H], [0, H]].map(([x, y]) => new THREE.Vector2(x, y));
+  const stoneGeo = new THREE.LatheGeometry(prof, 40);
+  const blockGeo = new THREE.CylinderGeometry(.56, .62, .52, 4, 1).rotateY(Math.PI / 4).translate(0, .26, 0);
+  const MAT = {
+    me: new THREE.MeshStandardMaterial({ color: palette.seal, roughness: .42, metalness: .08, emissive: palette.sealDeep, emissiveIntensity: .12 }),
+    foe: new THREE.MeshStandardMaterial({ color: palette.azure, roughness: .42, metalness: .08, emissive: 0x1d4f8a, emissiveIntensity: .12 }),
+    block: new THREE.MeshStandardMaterial({ color: palette.bone, roughness: .8, metalness: .02, flatShading: true })
+  };
+  const capGeo = new THREE.RingGeometry(.2, .3, 32).rotateX(-Math.PI / 2);
+  const pieces = new Map(); // id -> { mesh, anim }
+  function makeStone(pc) {
+    const kind = app.colorOf(pc.player), mesh = new THREE.Mesh(kind === 'block' ? blockGeo : stoneGeo, MAT[kind].clone());
+    if (kind !== 'block') { const cap = new THREE.Mesh(capGeo, new THREE.MeshBasicMaterial({ color: 0x07090c, transparent: true, opacity: .28, depthWrite: false })); cap.position.y = H + .002; mesh.add(cap); }
+    mesh.userData.kind = kind;
+    const p = cellPos(pc.idx); mesh.position.set(p.x, 0, p.z);
+    root.add(mesh);
+    return mesh;
+  }
+  function rebuild() {
+    for (const { mesh } of pieces.values()) { root.remove(mesh); mesh.material.dispose(); }
+    pieces.clear();
+    for (const pc of app.game.pieces) pieces.set(pc.id, { mesh: makeStone(pc), anim: null });
+    lastMarker.visible = false;
+    const last = app.game.last && app.game.pieces.find(p => p.idx === app.game.last.landed && p.player === app.game.last.player);
+    if (last) attachLast(pieces.get(last.id).mesh);
+    syncWin();
+  }
+  const lastMarker = new THREE.Mesh(new THREE.RingGeometry(.09, .15, 24).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({ color: palette.gold, toneMapped: false }));
+  lastMarker.position.y = H + .01; lastMarker.visible = false;
+  function attachLast(mesh) { mesh.add(lastMarker); lastMarker.position.y = (mesh.userData.kind === 'block' ? .53 : H) + .01; lastMarker.visible = true; }
+
+  // ---------- overlays: hover square, ghost landing stone, hint diamond, win lines ----------
+  const sq = S * .9 / 2, k = .14;
+  const outline = new THREE.BufferGeometry().setFromPoints([[-sq, -sq], [sq - k, -sq], [sq, -sq + k], [sq, sq], [-sq + k, sq], [-sq, sq - k], [-sq, -sq]].map(([x, z]) => new THREE.Vector3(x, 0, z)));
+  const hoverMesh = new THREE.Line(outline, new THREE.LineBasicMaterial({ color: palette.seal, toneMapped: false, transparent: true }));
+  hoverMesh.position.y = .03; hoverMesh.visible = false; root.add(hoverMesh);
+  const hoverFill = new THREE.Mesh(new THREE.PlaneGeometry(S * .9, S * .9).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({ color: palette.seal, transparent: true, opacity: .1, depthWrite: false, toneMapped: false }));
+  hoverFill.position.y = .012; hoverMesh.add(hoverFill); hoverFill.position.y = -.018;
+  const ghost = new THREE.Mesh(stoneGeo, new THREE.MeshBasicMaterial({ color: palette.seal, transparent: true, opacity: .32, depthWrite: false, toneMapped: false }));
+  ghost.visible = false; root.add(ghost);
+  const ghostLine = new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(), new THREE.Vector3()]), new THREE.LineDashedMaterial({ color: palette.seal, dashSize: .12, gapSize: .08, transparent: true, opacity: .8, toneMapped: false }));
+  ghostLine.visible = false; root.add(ghostLine);
+  const hintMesh = new THREE.Mesh(new THREE.RingGeometry(.48, .6, 4).rotateZ(Math.PI / 4).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({ color: palette.gold, transparent: true, depthWrite: false, toneMapped: false }));
+  hintMesh.position.y = .04; hintMesh.visible = false; root.add(hintMesh);
+  const winGroup = new THREE.Group(); root.add(winGroup);
+  const winMat = new THREE.MeshBasicMaterial({ color: palette.gold, toneMapped: false, transparent: true, opacity: .9 });
+  function syncWin() {
+    winGroup.clear();
+    const cells = new Set(app.game.winCells);
+    if (!cells.size) return;
+    for (const line of E.WIN_LINES) {
+      if (!line.every(i => cells.has(i))) continue;
+      const a = cellPos(line[0]), b = cellPos(line[3]), len = a.distanceTo(b) + .9;
+      const bar = new THREE.Mesh(new THREE.BoxGeometry(len, .07, .07), winMat);
+      bar.position.set((a.x + b.x) / 2, H + .12, (a.z + b.z) / 2); bar.rotation.y = -Math.atan2(b.z - a.z, b.x - a.x);
+      winGroup.add(bar);
+    }
+  }
+
+  // ---------- animation ----------
+  const ease = t => (t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2);
+  const bounce = t => { const c = 1 - t; return 1 - c * c * c; };
+  app.on('reset', rebuild);
+  app.on('move', ev => {
+    const now = performance.now(), dur = app.animMs(ev);
+    const placed = { id: ev.id, idx: ev.idx, player: ev.player };
+    const mesh = makeStone(placed);
+    pieces.set(ev.id, { mesh, anim: null });
+    const dropEnd = ev.brake ? 1 : .34;
+    pieces.get(ev.id).anim = { start: now, dur, drop: dropEnd, from: cellPos(ev.idx), to: cellPos(ev.idx) };
+    for (const m of ev.moves) {
+      const p = pieces.get(m.id); if (!p) continue;
+      const anim = p.anim || { start: now, dur, drop: 0 };
+      anim.from = cellPos(m.from); anim.to = cellPos(m.to); anim.slideFrom = ev.brake ? 1 : .38;
+      p.anim = anim;
+    }
+    attachLast(mesh);
+    winGroup.clear();
+    setTimeout(syncWin, dur);
+  });
+  function stepAnims(now) {
+    for (const p of pieces.values()) {
+      const a = p.anim; if (!a) continue;
+      const t = Math.min(1, (now - a.start) / a.dur), m = p.mesh;
+      let y = 0;
+      if (a.drop && t < a.drop) y = (1 - bounce(t / a.drop)) * 2.6;
+      const s0 = a.slideFrom ?? 1, st = t <= s0 ? 0 : ease((t - s0) / (1 - s0));
+      m.position.x = a.from.x + (a.to.x - a.from.x) * st;
+      m.position.z = a.from.z + (a.to.z - a.from.z) * st;
+      m.position.y = y + (st > 0 && st < 1 ? Math.sin(st * Math.PI) * .14 : 0);
+      if (t >= 1) { m.position.set(a.to.x, 0, a.to.z); p.anim = null; }
+    }
+  }
+
+  // ---------- camera fit: the board fills whatever the HUD leaves free ----------
+  const $ = id => document.getElementById(id);
+  function safeRect(W, Hh) {
+    const r = { l: 16, t: 64, r: W - 16, b: Hh - 16 };
+    const dock = $('dock').getBoundingClientRect(); if (dock.height) r.b = Math.min(r.b, dock.top - 12);
+    const info = $('info').getBoundingClientRect(), match = $('match').getBoundingClientRect();
+    if (W <= 720) { r.t = Math.max(r.t, info.bottom + 10); }
+    else {
+      const left = info.right + 16, right = match.width ? match.left - 16 : W - 16;
+      // Keep the board centred: reserve the same margin on both sides when there is room.
+      const m = Math.max(left, W - right);
+      if (W - 2 * m >= (r.b - r.t) * .8) { r.l = m; r.r = W - m; } else { r.t = Math.max(r.t, Math.min(info.bottom, match.bottom || 0) + 10); }
+    }
+    return r;
+  }
+  const corners = [];
+  for (const x of [-HALF - .25, HALF + .25]) for (const z of [-HALF - .25, HALF + .25]) for (const y of [-.7, .6]) corners.push(new THREE.Vector3(x, y, z));
+  let fitKey = '';
+  function fit(force) {
+    const W = stage.size.width, Hh = stage.size.height, rect = safeRect(W, Hh);
+    const key = [W, Hh, rect.l, rect.t, rect.r, rect.b, app.prefs.get('camera')].map(v => typeof v === 'number' ? Math.round(v) : v).join(',');
+    if (key === fitKey && !force) return;
+    fitKey = key;
+    camera.clearViewOffset();
+    const elev = app.prefs.get('camera') === 'top' ? 1.48 : 1.0, dir = new THREE.Vector3(0, Math.sin(elev), Math.cos(elev));
+    const rw = Math.max(80, rect.r - rect.l), rh = Math.max(80, rect.b - rect.t);
+    let dist = 22, box = null;
+    const measure = () => {
+      camera.position.copy(dir).multiplyScalar(dist); camera.lookAt(0, 0, 0); camera.updateMatrixWorld(); camera.updateProjectionMatrix();
+      let x0 = Infinity, x1 = -Infinity, y0 = Infinity, y1 = -Infinity;
+      for (const c of corners) { const p = c.clone().project(camera); const sx = (p.x + 1) / 2 * W, sy = (1 - p.y) / 2 * Hh; x0 = Math.min(x0, sx); x1 = Math.max(x1, sx); y0 = Math.min(y0, sy); y1 = Math.max(y1, sy); }
+      return { x0, x1, y0, y1 };
+    };
+    for (let i = 0; i < 4; i++) { box = measure(); dist *= Math.max((box.x1 - box.x0) / rw, (box.y1 - box.y0) / rh); }
+    box = measure();
+    const dx = (rect.l + rect.r) / 2 - (box.x0 + box.x1) / 2, dy = (rect.t + rect.b) / 2 - (box.y0 + box.y1) / 2;
+    camera.setViewOffset(W, Hh, -dx, -dy, W, Hh);
+    camera.updateProjectionMatrix();
+  }
+  app.on('settings', () => fit(true));
+
+  // ---------- picking ----------
+  const ray = new THREE.Raycaster(), ndc = new THREE.Vector2(), plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0), hit = new THREE.Vector3();
+  function cellAt(ev) {
+    const r = canvas.getBoundingClientRect();
+    ndc.set((ev.clientX - r.left) / r.width * 2 - 1, -((ev.clientY - r.top) / r.height) * 2 + 1);
+    ray.setFromCamera(ndc, camera);
+    if (!ray.ray.intersectPlane(plane, hit)) return null;
+    const c = Math.round(hit.x / S + 1.5), rr = Math.round(hit.z / S + 1.5);
+    if (c < 0 || c > 3 || rr < 0 || rr > 3) return null;
+    const p = cellPos(rr * 4 + c);
+    if (Math.abs(hit.x - p.x) > S * .5 || Math.abs(hit.z - p.z) > S * .5) return null;
+    return rr * 4 + c;
+  }
+  canvas.addEventListener('pointermove', ev => { if (ev.pointerType === 'touch') return; const idx = cellAt(ev); if (idx !== app.hover) app.setHover(idx); });
+  canvas.addEventListener('pointerleave', ev => { if (ev.pointerType !== 'touch') app.setHover(null); });
+  canvas.addEventListener('click', ev => {
+    const idx = cellAt(ev); if (idx == null) return;
+    // Touch: first tap previews where the stone will land, the second tap on the same cell places it.
+    const confirmTap = ev.pointerType === 'touch' || (ev.sourceCapabilities && ev.sourceCapabilities.firesTouchEvents);
+    if (confirmTap && app.prefs.get('preview') !== false && app.hover !== idx && app.canHumanPlay() && app.game.board[idx] === 0) { app.setHover(idx); return; }
+    app.place(idx);
+  });
+
+  // ---------- per-frame ----------
+  const tmp = new THREE.Vector3();
+  stage.loop((dt, t, { reducedMotion }) => {
+    const now = performance.now();
+    fit(false);
+    stepAnims(now);
+    const game = app.game, phase = app.phase;
+    root.rotation.y = phase === 'lobby' && !reducedMotion ? Math.sin(t * .25) * .05 : 0;
+    // chevrons
+    const flow = app.prefs.get('flow') !== false && !game.over && !app.brakeArmed && (phase === 'lobby' || phase === 'play' || phase === 'pause');
+    const dirs = app.previewDirs(), cyc = reducedMotion ? .5 : (t * .7) % 1;
+    for (const c of chevrons) {
+      const d = c.inner ? dirs.inner : dirs.outer, from = d > 0 ? c.a : c.b, to = d > 0 ? c.b : c.a;
+      const u = .3 + cyc * .4;
+      c.m.position.set(from.x + (to.x - from.x) * u, .02, from.z + (to.z - from.z) * u);
+      c.m.rotation.y = -Math.atan2(to.z - from.z, to.x - from.x);
+      c.m.material.opacity = flow ? Math.sin(cyc * Math.PI) * (c.inner ? .85 : .65) : 0;
+    }
+    // hover + ghost landing
+    const h = app.hover, canPlay = app.canHumanPlay();
+    const showHover = h != null && (phase === 'play') && (canPlay || document.activeElement === canvas);
+    hoverMesh.visible = showHover;
+    if (showHover) {
+      hoverMesh.position.copy(cellPos(h)).setY(.03);
+      const free = game.board[h] === 0 && canPlay;
+      hoverMesh.material.color.setHex(free ? palette.seal : palette.mute); hoverFill.material.color.setHex(free ? palette.seal : palette.mute);
+      const kind = app.colorOf(game.player);
+      const showGhost = free && app.prefs.get('preview') !== false;
+      ghost.visible = ghostLine.visible = showGhost;
+      if (showGhost) {
+        const land = app.landing(h), lp = cellPos(land), color = kind === 'me' ? palette.seal : palette.azure;
+        ghost.position.copy(lp); ghost.material.color.setHex(color); ghost.material.opacity = .26 + Math.sin(t * 4) * .06;
+        const pos = ghostLine.geometry.attributes.position; tmp.copy(cellPos(h)); pos.setXYZ(0, tmp.x, .05, tmp.z); pos.setXYZ(1, lp.x, .05, lp.z); pos.needsUpdate = true;
+        ghostLine.computeLineDistances(); ghostLine.material.color.setHex(color); ghostLine.visible = land !== h;
+      }
+    } else { ghost.visible = ghostLine.visible = false; }
+    // hint
+    const hint = app.hint;
+    hintMesh.visible = !!hint && phase === 'play';
+    if (hint) { hintMesh.position.copy(cellPos(hint.idx)).setY(.04); hintMesh.material.color.setHex(hint.brake ? palette.jade : palette.gold); hintMesh.material.opacity = .55 + Math.sin(t * 6) * .35; hintMesh.rotation.y = reducedMotion ? 0 : t * .8; }
+    // win pulse
+    if (winGroup.children.length) winMat.opacity = .65 + Math.sin(t * 5) * .3;
+    const winCells = game.over && !game.draw ? new Set(game.winCells) : null;
+    for (const p of pieces.values()) {
+      const kind = p.mesh.userData.kind; if (kind === 'block') continue;
+      const lit = winCells && !p.anim && winCells.has(cellIdx(p.mesh.position));
+      p.mesh.material.emissiveIntensity = lit ? .55 + Math.sin(t * 5) * .25 : .12;
+    }
+  });
+  const cellIdx = v => Math.round(v.z / S + 1.5) * 4 + Math.round(v.x / S + 1.5);
+
+  rebuild();
+  fit(true);
+  // Test / automation hook: where a cell centre sits on screen (CSS pixels).
+  window.TrackView = {
+    cellToScreen(idx) { const p = cellPos(idx).applyMatrix4(root.matrixWorld).project(camera), r = canvas.getBoundingClientRect(); return { x: r.left + (p.x + 1) / 2 * r.width, y: r.top + (1 - p.y) / 2 * r.height }; },
+    get pieceCount() { return pieces.size; }
+  };
+}
+</script>
 </body>
 </html>
