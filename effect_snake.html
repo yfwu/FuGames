@@ -1,375 +1,1138 @@
 <!doctype html>
 <html lang="zh-Hant">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="搶星果、閃毒菇，和三種策略的本機 AI 貪食蛇競逐。免費單頁遊戲。">
-  <title>效果貪食蛇 - FuGames</title>
-  <link rel="icon" href="favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="fulab-theme.css">
-  <style>
-    .io-key { display:inline-flex; align-items:center; gap:6px; }
-    .io-key .ui-icon { width:20px; height:20px; }
-    .io-hint-row { display:flex; flex-wrap:wrap; gap:8px 14px; align-items:center; }
-    .ring-key { display:inline-block; width:16px; height:16px; flex:none; border:2px solid currentColor; border-radius:50%; }
-    .ring-key.dashed { border-style:dashed; }
-    .game-dialog .dialog-art { flex:none; }
-    @media(max-width:600px) { .io-hint-row { gap:8px 12px; } }
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="90 秒質量競速：吃果長大、花質量加速、截路反制大蛇。四級 AI、對決道具、縮圈與毒尾規則、等級與每局挑戰，FuGames 3D 貪食蛇競技場。">
+<meta name="theme-color" content="#07090c">
+<title>效果貪食蛇 - FuGames</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="shared/fu.css">
+<style>
+/* Effect Snake on the shared Vermilion Ink system (shared/fu.css). Player = seal; AI follow FuPalette side order. */
+:root{--gutter:max(16px,env(safe-area-inset-left));--seat:var(--fu-seal)}
+html,body{height:100%;overflow:hidden;overscroll-behavior:none}
+body.fu-app{min-height:0}
+#board{outline:none;touch-action:none;background:radial-gradient(120% 90% at 50% 45%,#121820 0,#07090c 70%)}
+#board:focus-visible{box-shadow:inset 0 0 0 2px var(--fu-seal)}
+.layer{position:fixed;inset:0;pointer-events:none;z-index:5;overflow:hidden}
+.tag{position:absolute;left:0;top:0;white-space:nowrap;font:700 11px/1 var(--fu-font-mono);letter-spacing:.08em;padding:3px 6px 3px 5px;background:#07090cd9;border-left:2px solid currentColor;will-change:transform}
+.tag b{color:var(--fu-paper);font-weight:700;margin-left:5px}
+.tag.me{font-size:12px}
+.tag.warn{border-left-style:dashed;opacity:.9}
+.floater{position:absolute;left:0;top:0;font:800 16px/1 var(--fu-font-mono);letter-spacing:.04em;white-space:nowrap;text-shadow:0 2px 0 #000a,0 0 14px currentColor;will-change:transform,opacity}
+.floater.big{font:900 22px/1 var(--fu-font-display)}
+#flash{position:fixed;inset:0;pointer-events:none;opacity:0;z-index:6;background:var(--fu-seal);mix-blend-mode:screen}
 
-    .snake-roster { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:6px; margin:12px 0 0; font-size:11px; }
-    .snake-player { min-width:0; border:1px solid var(--fulab-silver); border-left:3px solid var(--snake-color); padding:8px 10px; color:var(--fulab-muted); background:var(--fulab-bg-secondary); border-radius:9px; }
-    .snake-player strong { display:block; color:var(--fulab-graphite); font-size:12px; }
-    .food-legend { display:flex; flex-wrap:wrap; gap:6px 12px; margin:12px 0 0; font-size:11px; color:var(--fulab-muted); }
-    .food-legend b { display:inline-flex; flex:none; width:28px; height:28px; align-items:center; justify-content:center; border-radius:5px; margin-right:3px; }
-    .snake-effects { font-size:11px; color:var(--fulab-muted); margin:4px 0 0; min-height:18px; }
-    .snake-instructions { font-size:11px; color:var(--fulab-muted); margin:10px 0 0; }
-    @media(max-width:600px) { .play-panel { display:flex; flex-direction:column; } .game-toolbar { order:0; } .io-stage { order:1; } .io-controls { order:2; } .game-actions { order:3; } .io-status { order:4; } .snake-effects { order:5; } .snake-roster { order:6; } .food-legend { order:7; } .snake-roster { grid-template-columns:repeat(2,minmax(0,1fr)); } }
-    @media(max-width:380px) { .snake-roster { grid-template-columns:repeat(2,minmax(0,1fr)); } }
-    @media(max-height:600px) and (min-width:600px) { .snake-roster,.food-legend,.snake-effects,.snake-instructions { grid-column:2; margin:0; } .snake-roster { grid-template-columns:repeat(2,minmax(0,1fr)); } .food-legend { font-size:9px; gap:2px; } }
-  .food-legend { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; } .food-legend > span { display:flex; align-items:center; padding:6px; border:1px solid var(--fulab-silver); border-radius:9px; } .food-legend .ui-icon { width:24px; height:24px; } @media(max-width:600px){.food-legend{grid-template-columns:repeat(2,minmax(0,1fr));font-size:10px;}} @media(max-height:600px) and (min-width:600px){.food-legend{grid-template-columns:1fr;gap:3px;}.food-legend>span{padding:2px;}.food-legend b{width:22px;height:22px;}}
+/* --- top bar --- */
+.fu-topbar{z-index:40}
+.fu-topbar__title .fu-label{white-space:nowrap}
+.icon-btn{display:grid;place-items:center;width:44px;height:44px;padding:0;cursor:pointer;color:var(--fu-paper);background:var(--fu-surface);border:1px solid var(--fu-line-strong);border-radius:var(--fu-radius)}
+.icon-btn:hover:not(:disabled){border-color:var(--fu-paper)}
+.icon-btn:disabled{opacity:.38;cursor:default}
+.icon-btn svg{width:18px;height:18px}
+#sound[aria-pressed="false"] .wave{display:none}#sound[aria-pressed="true"] .mute{display:none}
+#pause .i-play{display:none}#pause.paused .i-play{display:block}#pause.paused .i-pause{display:none}
+.lv-chip{display:flex;flex-direction:column;justify-content:center;gap:5px;min-width:112px;height:44px;padding:0 12px;cursor:pointer;text-align:left;color:var(--fu-paper);background:var(--fu-surface);border:1px solid var(--fu-line-strong);border-radius:var(--fu-radius)}
+.lv-chip .row{display:flex;align-items:baseline;gap:7px;font:600 10px/1 var(--fu-font-mono);letter-spacing:.14em;color:var(--fu-paper-dim)}
+.lv-chip .row b{font:800 15px/1 var(--fu-font-mono);color:var(--fu-gold);letter-spacing:0}
+.xpbar{display:block;height:3px;background:var(--fu-ink-3);overflow:hidden}
+.xpbar i{display:block;height:100%;width:0;background:var(--fu-gold);transition:width .6s var(--fu-ease)}
 
-    .site-nav > a:last-child { display:inline-flex;align-items:center;gap:5px; }
-    .site-nav > a:last-child .ui-icon { width:16px;height:16px; }
-    .io-support { display:contents; }
-    @media(max-height:600px) and (min-width:600px) {
-      .io-page .play-panel { grid-template-columns:minmax(0,1fr) 220px; }
-      .io-page .play-panel > .io-stage { grid-column:1;grid-row:2; }
-      .io-support { display:flex;flex-direction:column;grid-column:2;grid-row:2;gap:10px;max-height:calc(100svh - 106px);overflow:auto;scrollbar-width:thin;padding:2px; }
-      .io-support .io-controls,.io-support .growth-controls,.io-support .upgrade-row { order:0; }
-      .io-support .game-actions { order:1; }
-      .io-support .io-status { order:2; }
-      .io-support .snake-effects,.io-support .charge-track { order:3; }
-      .io-support .snake-roster,.io-support .arena-roster,.io-support .pulse-roster { order:4; }
-      .io-support .food-legend,.io-support .arena-hint,.io-support .pulse-hint { order:5; }
-      .io-support > * { flex-shrink:0; }
-      .io-support .btnRow { flex-wrap:nowrap; }
-      .io-support .game-actions { justify-content:center; }
-      .io-support .upgrade-row .btn { flex-direction:column;gap:2px; }
-    }
+/* --- HUD --- */
+.clock{min-width:300px;padding:10px 16px 10px;text-align:center}
+.clock .row{display:flex;align-items:flex-end;justify-content:center;gap:18px}
+.clock .big{font:700 30px/1 var(--fu-font-mono);letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.clock .big.low{color:var(--fu-seal)}
+.clock .fu-stat__value{font-size:20px}
+.clock .fu-label{font-size:9.5px}
+.clock .effects{display:flex;flex-wrap:wrap;justify-content:center;gap:5px;margin-top:8px;min-height:24px}
+.clock .effects .fu-chip{min-height:22px;font-size:10px}
+.clock .goal{margin-top:6px;font-size:11.5px;color:var(--fu-paper-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.clock .goal.done{color:var(--fu-jade)}
+.roster{width:230px;padding:12px 12px 6px}
+.seat{position:relative;display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:4px 9px;padding:7px 0 8px;border-bottom:1px solid var(--fu-line)}
+.seat:last-child{border-bottom:0}
+.seat .fu-side{background:var(--seat)}
+.seat strong{font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.seat .pts{font:700 14px/1 var(--fu-font-mono);font-variant-numeric:tabular-nums}
+.seat .fu-meter{grid-column:1 / -1;--tone:var(--seat);height:4px}
+.seat .mode{grid-column:1 / -1;font-size:11px;color:var(--fu-paper-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.seat.out{opacity:.4}
+.seat.lead strong::after{content:" 領先";font:700 9.5px/1 var(--fu-font-mono);letter-spacing:.12em;color:var(--fu-gold)}
+.legend{width:236px;padding:12px 14px}
+.legend ul{list-style:none;margin:0;padding:0;display:grid;gap:7px}
+.legend li{display:grid;grid-template-columns:18px 1fr;gap:8px;align-items:start;font-size:11.5px;line-height:1.4;color:var(--fu-paper-dim)}
+.legend li b{color:var(--fu-paper);font-weight:700;margin-right:4px}
+.legend li[hidden]{display:none}
+.glyph{display:grid;place-items:center;width:18px;height:18px;font:800 12px/1 var(--fu-font-mono);color:var(--fu-ink-0);background:var(--tone)}
+
+/* --- controls dock --- */
+.controls{position:fixed;z-index:35;left:0;right:0;bottom:max(14px,env(safe-area-inset-bottom));display:flex;align-items:flex-end;justify-content:center;gap:14px;padding:0 var(--gutter);pointer-events:none}
+.controls>*{pointer-events:auto}
+.dpad{display:none;grid-template-columns:repeat(3,50px);grid-template-rows:repeat(3,46px);gap:3px}
+.dpad button{display:grid;place-items:center;padding:0;cursor:pointer;color:var(--fu-paper);background:var(--fu-surface);border:1px solid var(--fu-line-strong);border-radius:var(--fu-radius);touch-action:none;-webkit-user-select:none;user-select:none}
+.dpad button:active{background:var(--fu-raised);border-color:var(--fu-paper)}
+.dpad svg{width:18px;height:18px}
+.dpad [data-direction="up"]{grid-column:2;grid-row:1}.dpad [data-direction="left"]{grid-column:1;grid-row:2}.dpad [data-direction="right"]{grid-column:3;grid-row:2}.dpad [data-direction="down"]{grid-column:2;grid-row:3}
+.dock-hint{align-self:center;max-width:360px;padding:9px 12px;font-size:12px;line-height:1.5;color:var(--fu-paper-dim)}
+.dock-hint .fu-kbd{margin:0 2px}
+#boost{position:relative;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:6px;width:200px;min-height:64px;padding:10px 14px;cursor:pointer;text-align:left;color:var(--fu-paper);background:var(--fu-surface);border:1px solid var(--fu-line-strong);border-radius:var(--fu-radius);touch-action:none;-webkit-user-select:none;user-select:none;clip-path:polygon(0 0,calc(100% - var(--fu-cut)) 0,100% var(--fu-cut),100% 100%,var(--fu-cut) 100%,0 calc(100% - var(--fu-cut)))}
+#boost b{font:800 13px/1 var(--fu-font-mono);letter-spacing:.16em}
+#boost small{font-size:11px;color:var(--fu-paper-dim)}
+#boost .fu-meter{width:100%;height:5px}
+#boost:not(:disabled){border-color:var(--fu-seal)}
+#boost.on{background:var(--fu-seal);color:var(--fu-ink-0)}
+#boost.on small{color:var(--fu-ink-0)}
+#boost.on .fu-meter{--tone:var(--fu-ink-0)}
+#boost:disabled{opacity:.55;cursor:default}
+
+/* --- curtain: lobby / pause / result --- */
+.curtain{position:fixed;inset:0;z-index:80;display:grid;place-items:center;padding:max(16px,env(safe-area-inset-top)) var(--gutter) max(16px,env(safe-area-inset-bottom));background:radial-gradient(80% 70% at 50% 45%,rgba(7,9,12,.62),rgba(7,9,12,.95));overflow:auto}
+.curtain[hidden]{display:none}
+.sheet{width:min(860px,100%);max-height:100%;overflow:auto;padding:28px 30px 0;--fu-cut:16px}
+.sheet .kicker{align-items:center;gap:12px}
+.sheet h1,.sheet h2{font-family:var(--fu-font-display);font-weight:900;letter-spacing:-.01em;line-height:1;margin:10px 0 10px;font-size:clamp(34px,5.6vw,64px)}
+.sheet h1 em,.sheet h2 em{font-style:normal;color:var(--fu-seal)}
+.sheet .lede{margin:0 0 6px;max-width:64ch;color:var(--fu-paper-dim);font-size:14px;line-height:1.65}
+.sheet section{margin-top:20px}
+.sheet h3{display:flex;justify-content:space-between;gap:12px;margin:0 0 10px;font:700 10.5px/1.2 var(--fu-font-mono);letter-spacing:.2em;text-transform:uppercase;color:var(--fu-seal)}
+.sheet h3 span{font-family:var(--fu-font-body);letter-spacing:0;text-transform:none;color:var(--fu-mute)}
+.career{display:grid;grid-template-columns:auto 1fr;gap:6px 16px;align-items:center;padding:12px 14px;border:1px solid var(--fu-line)}
+.career .lv{grid-row:span 2;font:800 34px/1 var(--fu-font-mono);color:var(--fu-gold)}
+.career .lv small{display:block;margin-bottom:4px;font:700 9.5px/1 var(--fu-font-mono);letter-spacing:.18em;color:var(--fu-paper-dim)}
+.career .who{display:flex;justify-content:space-between;gap:10px;font-family:var(--fu-font-display);font-size:16px;font-weight:700}
+.career .who span{font:600 11px/1.4 var(--fu-font-mono);color:var(--fu-paper-dim)}
+.picks{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;padding:1px;background:var(--fu-line)}
+.pick{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:5px;min-height:44px;padding:11px 12px;text-align:left;cursor:pointer;color:var(--fu-paper);background:var(--fu-ink-1);border:0;border-radius:0}
+.pick b{font-size:14px}
+.pick span{font-size:11.5px;line-height:1.45;color:var(--fu-paper-dim)}
+.pick .num{font:600 10px/1 var(--fu-font-mono);letter-spacing:.1em;color:var(--fu-gold)}
+.pick:hover:not(:disabled){background:var(--fu-ink-2)}
+.pick[aria-pressed="true"]{background:#2a120d;box-shadow:inset 0 0 0 1px var(--fu-seal)}
+.pick[aria-pressed="true"]::before{content:"";position:absolute;top:0;left:0;width:12px;height:12px;border-top:2px solid var(--fu-seal);border-left:2px solid var(--fu-seal)}
+.pick:disabled{cursor:not-allowed;opacity:.45}
+.pick .lock{position:absolute;top:10px;right:10px;font:700 10px/1 var(--fu-font-mono);color:var(--fu-gold)}
+.challenge{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:12px 14px;border:1px solid var(--fu-line);border-left:3px solid var(--fu-gold)}
+.challenge b{display:block;font-size:14px}
+.challenge span{font-size:12px;color:var(--fu-paper-dim)}
+.challenge .num{font:700 13px/1 var(--fu-font-mono);color:var(--fu-gold);white-space:nowrap}
+.challenge.done{border-left-color:var(--fu-jade)}.challenge.done .num{color:var(--fu-jade)}
+.challenge.miss{border-left-color:var(--fu-mute)}.challenge.miss .num{color:var(--fu-mute)}
+.sheet-actions{position:sticky;bottom:0;display:flex;flex-wrap:wrap;align-items:center;justify-content:flex-end;gap:10px;margin:24px -30px 0;padding:22px 30px 22px;background:linear-gradient(180deg,rgba(13,17,22,0),var(--fu-ink-1) 18px)}
+.sheet-actions .note{margin-right:auto;font-size:12px;color:var(--fu-paper-dim)}
+.standings{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;padding:1px;background:var(--fu-line)}
+.standings div{padding:10px 12px;background:var(--fu-ink-1);border-top:3px solid var(--seat);font-size:12px;color:var(--fu-paper-dim)}
+.standings b{display:flex;justify-content:space-between;font-size:14px;color:var(--fu-paper);margin-bottom:4px}
+.standings b i{font:700 12px/1.2 var(--fu-font-mono);font-style:normal;color:var(--fu-gold)}
+.xp-lines{display:grid;grid-template-columns:1fr auto;gap:6px 16px;margin:0;padding:12px 14px;border:1px solid var(--fu-line);font-size:13px}
+.xp-lines dt{color:var(--fu-paper-dim)}.xp-lines dd{margin:0;text-align:right;font-family:var(--fu-font-mono);color:var(--fu-gold)}
+.xp-lines .total{border-top:1px solid var(--fu-line);padding-top:8px;font-weight:800;color:var(--fu-paper)}
+.levelup{padding:12px 14px;border:1px solid rgba(233,185,73,.5);background:rgba(233,185,73,.07);font-size:13px;line-height:1.6}
+.levelup b{color:var(--fu-gold)}
+[data-view]{display:none}
+.curtain[data-mode="lobby"] [data-view~="lobby"],.curtain[data-mode="pause"] [data-view~="pause"],.curtain[data-mode="result"] [data-view~="result"]{display:block}
+.curtain[data-mode="lobby"] .sheet-actions[data-view~="lobby"],.curtain[data-mode="pause"] .sheet-actions[data-view~="pause"],.curtain[data-mode="result"] .sheet-actions[data-view~="result"],.curtain[data-mode="lobby"] .kicker[data-view~="lobby"],.curtain[data-mode="pause"] .kicker[data-view~="pause"],.curtain[data-mode="result"] .kicker[data-view~="result"]{display:flex}
+
+/* --- drawer (above the curtain: opening it from the lobby or mid-run must not be covered) --- */
+.fu-scrim{z-index:86}.fu-drawer{z-index:88}
+.tabs{display:flex;gap:2px;padding:0 var(--fu-space-5);border-bottom:1px solid var(--fu-line)}
+.tabs button{min-height:44px;padding:0 12px;cursor:pointer;color:var(--fu-paper-dim);background:none;border:0;border-bottom:2px solid transparent;font:700 11px/1 var(--fu-font-mono);letter-spacing:.16em}
+.tabs button[aria-selected="true"]{color:var(--fu-paper);border-color:var(--fu-seal)}
+.fu-drawer__body[hidden]{display:none}
+.fu-drawer__body ul.rules{margin:0;padding-left:18px;font-size:13px;line-height:1.7;color:var(--fu-paper-dim)}
+.fu-drawer__body ul.rules li{margin-bottom:8px}
+.fu-drawer__body ul.rules strong{color:var(--fu-paper)}
+.set-row{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:12px 0;border-bottom:1px solid var(--fu-line)}
+.set-row b{display:block;font-size:14px}
+.set-row p{margin:2px 0 0;font-size:12px;color:var(--fu-paper-dim);line-height:1.5}
+.stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1px;padding:1px;margin-top:14px;background:var(--fu-line)}
+.stats div{padding:10px 12px;background:var(--fu-ink-1)}
+.stats b{display:block;font:700 20px/1.1 var(--fu-font-mono)}
+.stats span{font-size:11px;color:var(--fu-paper-dim)}
+.unlocks{list-style:none;margin:0;padding:0}
+.unlocks li{display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid var(--fu-line);font-size:13px;color:var(--fu-mute)}
+.unlocks li.got{color:var(--fu-paper)}
+.unlocks li span{font:600 11px/1.4 var(--fu-font-mono)}
+.webgl-fail{position:fixed;inset:0;z-index:3;display:grid;place-items:center;padding:24px;text-align:center;color:var(--fu-paper-dim)}
+
+/* --- phone / narrow --- */
+@media (max-width:860px){
+ .fu-topbar__title{display:none}
+ .fu-brand .brand-word{display:none}
+ .fu-topbar{justify-content:space-between}
+ .lv-chip{min-width:0;padding:0 10px}.lv-chip .row span{display:none}
+ .clock{min-width:0;width:calc(100vw - 32px);padding:7px 12px 8px}
+ .clock .row{gap:14px}
+ .clock .big{font-size:24px}
+ .clock .fu-stat__value{font-size:16px}
+ .clock .effects{margin-top:5px;min-height:0}
+ .clock .goal{margin-top:4px;font-size:11px}
+ .fu-hud--top{max-width:none}
+ .roster-hud{top:auto!important;left:16px!important;right:16px;bottom:calc(max(14px,env(safe-area-inset-bottom)) + 156px);max-width:none!important}
+ .roster{width:auto;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;padding:1px;background:var(--fu-line)}
+ .roster .fu-panel__head{display:none}
+ .seat{grid-template-columns:auto 1fr;gap:3px 6px;padding:6px 7px 7px;border:0;background:var(--fu-ink-1)}
+ .seat strong{font-size:11.5px}
+ .seat .pts{grid-column:1 / -1;font-size:12px}
+ .seat .mode{display:none}
+ .seat.lead strong::after{content:""}
+ .legend-hud{display:none!important}
+ .dpad{display:grid}
+ .dock-hint{display:none}
+ .controls{justify-content:space-between}
+ #boost{width:auto;flex:1;max-width:220px;min-height:142px;align-self:stretch;justify-content:flex-end}
+ .picks{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .standings{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .sheet{padding:20px 16px 0}
+ .sheet-actions{margin:18px -16px 0;padding:12px 16px 16px}
+ .sheet-actions .note{display:none}
+ .sheet-actions .fu-btn{flex:1}
+}
+@media (pointer:coarse) and (min-width:861px){.dpad{display:grid}}
+@media (max-height:560px) and (min-width:600px){
+ .roster-hud{top:60px!important;bottom:auto;left:16px!important;right:auto;width:190px}
+ .roster{display:block;padding:8px 10px 2px;background:var(--fu-surface)}
+ .roster .fu-panel__head{display:none}
+ .seat{display:grid;grid-template-columns:auto 1fr auto;padding:4px 0;background:none}
+ .seat .pts{grid-column:auto}
+ .clock{width:auto;min-width:260px}
+ .clock .goal{display:none}
+ .controls{justify-content:flex-end}
+ .dpad{grid-template-columns:repeat(3,42px);grid-template-rows:repeat(3,38px)}
+ #boost{flex:none;width:130px;min-height:122px}
+}
+@media (max-width:360px){.clock .row{gap:9px}.clock .big{font-size:21px}.dpad{grid-template-columns:repeat(3,44px)}}
+@media (prefers-reduced-motion:reduce){.xpbar i{transition:none}}
 </style>
 </head>
-<body>
-  <main class="game-page io-page">
-    <nav class="site-nav" aria-label="遊戲導覽"><a class="site-brand" href="index.html"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span>FuGames</a><a href="index.html" aria-label="所有遊戲 ↗"><span>所有遊戲</span><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#launch"></use></svg></a></nav>
-    <header class="page-header"><p class="eyebrow">IO / 單人 3 AI</p><h1><svg class="page-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#effect_snake"></use></svg>效果貪食蛇</h1><p class="lead">吃果長大，花質量加速。小蛇截路、大蛇搶食，90 秒爭高分。</p></header>
-    <section class="card play-panel" aria-label="效果貪食蛇競技場">
-      <div class="game-toolbar"><p class="game-status" id="phase-label">準備出發</p><div class="game-metrics"><span>得分 <strong id="score">0</strong></span><span>長度 <strong id="length">4</strong></span><span>剩餘 <strong id="clock">1:30</strong></span></div></div>
-      <div class="io-stage"><canvas id="board" width="672" height="672" tabindex="0" aria-label="效果貪食蛇。你是青綠色蛇，方向鍵、WASD 或滑動轉向。" aria-describedby="status">需要支援 Canvas 的瀏覽器。</canvas>
-        <div class="board-overlay" id="overlay"><div class="game-dialog" role="dialog" aria-labelledby="dialog-title" aria-describedby="dialog-copy">
-          <svg class="dialog-art" viewBox="0 0 96 72" aria-hidden="true"><path d="M19 53h25V24h17" fill="none" stroke="#5ebcbf" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/><circle cx="62" cy="22" r="2" fill="#267477"/><path d="M74 40l2.4 5 5.6.8-4 3.9 1 5.4-5-2.6-5 2.6 1-5.4-4-3.9 5.6-.8z" fill="#ebcb8b" stroke="#85662a" stroke-width="1.5"/></svg>
-          <p class="eyebrow" id="dialog-kicker">青綠是你 · 其餘皆為本機 AI</p><h2 id="dialog-title">吃之前，先看一眼</h2><p id="dialog-copy">方向鍵／WASD 或手機方向鈕轉彎。吃果增質量，質量 6 起可按住空白鍵／加速鈕兩倍速，每 0.32 秒掉 1 質量。大蛇也怕撞蛇身！90 秒比較食物分＋存活質量×10。</p><button class="btn primary" id="play" aria-label="開始蛇行 →"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#play"></use></svg><span>開始蛇行</span></button>
-        </div></div>
-      </div>
-      <div class="io-support">
-<p class="game-status io-status" id="status" role="status" aria-live="polite">90 秒質量競賽：吃果長大，按住空白鍵／加速鈕換速度；截路能反制大蛇。</p>
-      <p class="snake-effects" id="effects">目前無效果 · 常速每格 0.16 秒 · 空白鍵加速</p>
-      <div class="snake-roster" id="roster" aria-label="本局各蛇分數"></div>
-      <div class="food-legend" aria-label="吃下前可查看的食物效果">
-        <span><b style="background:#e1e9d9;color:#4a6540"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#fruit"></use></svg></b>果實 +10／長 1 格</span><span><b style="background:#f6edda;color:#856522"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#star"></use></svg></b>星果 +25／長 2 格</span><span><b style="background:#dce5ef;color:#486580"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#shield"></use></svg></b>護盾 +5／抵撞 1 次・6 秒</span><span><b style="background:#efdad1;color:#99553f"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#poison"></use></svg></b>毒菇 −15／短 3 格</span><span><b style="background:#e8dce5;color:#775771"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#slow"></use></svg></b>泥團 半速 4 秒</span>
-      </div>
-      <div class="game-actions"><p class="action-note">90 秒比：食物分＋存活質量×10 · P / Esc 暫停</p><div class="btnRow"><button class="btn" id="pause" disabled aria-label="暫停"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#pause"></use></svg><span>暫停</span></button><button class="btn primary" id="restart" aria-label="重新開始"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#restart"></use></svg><span>重新開始</span></button></div></div>
-      <button class="btn primary" id="boost" disabled style="touch-action:none;min-height:48px">按住加速 · 需質量 6</button><div class="io-controls touch-controls"><p class="action-note">滑一下即可轉向<br>放手後仍會前進</p><div class="dpad" aria-label="觸控方向鍵"><button class="btn" data-direction="up" aria-label="向上"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#arrow-up"></use></svg></button><button class="btn" data-direction="left" aria-label="向左"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#arrow-left"></use></svg></button><button class="btn" data-direction="down" aria-label="向下"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#arrow-down"></use></svg></button><button class="btn" data-direction="right" aria-label="向右"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#arrow-right"></use></svg></button></div></div>
-    </div>
-</section>
-    <details class="card rules"><summary>玩法、食物與 AI</summary><div class="rules-body"><ul class="list">
-      <li>你與三位明確標示的本機 AI 在同一個 28 28 場地前進。沒有網路玩家；90 秒內競逐食物分＋存活質量×10，最高者獲勝（同分並列）；吃果實累積本局得分，撞牆、石塊或任何蛇身就結束，可立刻重開。</li>
-      <li>質量就是目標身長，上限 30。質量至少 6 時，按住空白鍵或加速鈕可每步多走一格（兩倍速）；每 0.32 秒掉 1 質量，在尾端留下對手可吃的果實。低於 6、吃泥團或放手便停止；AI 使用相同條件與代價。</li><li>方向鍵／WASD、棋盤滑動或方向鈕轉向，不能直接 180 度回頭。同一步只接收一個最終合法方向；每 0.16 秒前進一格。</li>
-      <li>果實加 10 分、長 1 格；星果加 25 分、分兩步長 2 格。長度最多 30 格，額外果實仍得分。毒菇扣 15 分、短 3 格並取消待成長格數；最低 0 分、3 格。食物約 30 秒沒人吃就淡出換新，避免毒物塞滿場地。</li>
-      <li>護盾加 5 分，接下來約 6 秒可抵擋一次碰撞：停在原位、護盾消失，下步請轉向。泥團讓接下來 4 秒只在隔一步移動；重複同種效果刷新時間、不疊加。暫停時效果也停止。</li>
-      <li>所有蛇同時移動。同體型搶同一空格時都受撞；交換頭部或進入任何本步開始時的蛇身（含即將移開的尾巴）也受撞。只有同時搶進同一空格，質量至少是所有對手 1.5 倍且對手無盾時，大蛇獨存並加 30 分、長 2 格；否則雙方受撞。長蛇撞任何蛇身仍受撞，小蛇可用截路或盾反制；死亡蛇身在該步結束才消失。</li>
-      <li>果果 AI 搜尋最近的高價值食物；守守 AI 優先保留寬闊逃生空間；切切 AI 會預測對手去向並搶佔前路。三者都查看可見場地、避開毒物並評估可能的迎頭相撞。</li>
-      <li>AI 出局後約 4 秒尋找安全空地。虛線區預告約 1.3 秒再加入；若有人接近，重生延後，絕不直接生成在你身上。重新加入的 AI 分數歸零。食物慢慢補至 14 顆。</li>
-      <li>P／Esc 或暫停鈕可暫停。切換分頁、視窗失焦或手機切到背景會自動暫停，返回後由你手動繼續。</li>
-    </ul></div></details>
-    <footer class="site-footer">FuGames · 隨時來一局</footer><noscript><p class="notice">請開啟 JavaScript，才能開始遊戲。</p></noscript>
-  </main>
-  <script id="snake-engine">
-  'use strict';
-  const EffectSnake = (() => {
-    const SIZE = 28, DT = .16, MAX_LENGTH = 30, FOOD_LIMIT = 14, SHIELD_TICKS = 38, SLOW_TICKS = 25, RESPAWN_TICKS = 25, WARNING_TICKS = 8;
-    const DIRS = [{x:0,y:-1},{x:1,y:0},{x:0,y:1},{x:-1,y:0}];
-    const FOODS = {
-      fruit:{icon:'●',name:'果實',score:10,grow:1,value:12,color:'#4a6540',tint:'#e1e9d9'},
-      star:{icon:'✦',name:'星果',score:25,grow:2,value:25,color:'#856522',tint:'#f6edda'},
-      shield:{icon:'◇',name:'護盾',score:5,grow:0,value:18,color:'#486580',tint:'#dce5ef'},
-      poison:{icon:'×',name:'毒菇',score:-15,grow:-3,value:-40,color:'#99553f',tint:'#efdad1'},
-      slow:{icon:'≈',name:'泥團',score:0,grow:0,value:-20,color:'#775771',tint:'#e8dce5'}
-    };
-    const PROFILES = [
-      {name:'你',role:'人類',food:8,space:.25,risk:100,hunt:0},
-      {name:'果果 AI',role:'搶食',food:13,space:.12,risk:95,hunt:0},
-      {name:'守守 AI',role:'保命',food:5,space:1.4,risk:180,hunt:0},
-      {name:'切切 AI',role:'截擊',food:7,space:.4,risk:120,hunt:15}
-    ];
-    const key = p => p.y * SIZE + p.x;
-    const inside = p => p.x >= 0 && p.y >= 0 && p.x < SIZE && p.y < SIZE;
-    const distance = (a,b) => Math.abs(a.x-b.x)+Math.abs(a.y-b.y);
-    const advance = (p,d) => ({x:p.x+DIRS[d].x,y:p.y+DIRS[d].y});
-    class Game {
-      constructor(random = Math.random) { this.random=random; this.reset(); }
-      reset() {
-        this.phase='ready'; this.tick=0; this.events=[]; this.result=null; this.food=[]; this.foodSerial=0; this.respawns=0;
-        this.obstacles = [[8,8],[9,8],[8,9],[18,8],[19,8],[19,9],[8,18],[8,19],[9,19],[19,18],[18,19],[19,19]].map(([x,y])=>({x,y}));
-        this.actors = [[7,4,1],[23,7,2],[20,23,3],[4,20,0]].map(([x,y,dir],id)=>({id,dir,nextDir:dir,body:Array.from({length:4},(_,i)=>({x:x-DIRS[dir].x*i,y:y-DIRS[dir].y*i})),targetLength:4,alive:true,score:0,shield:0,slow:0,slowSkip:false,respawn:0,warning:null,deaths:0,reason:PROFILES[id].role}));
-        this.food.push({x:11,y:4,type:'fruit',expires:190},{x:16,y:4,type:'star',expires:190},{x:17,y:5,type:'poison',expires:190});
-        while(this.food.length < FOOD_LIMIT && this.addFood()) {}
-      }
-      start() { if(this.phase==='ready'||this.phase==='paused')this.phase='running'; }
-      pause() { if(this.phase==='running')this.phase='paused'; }
-      setDirection(dir) {
-        const a=this.actors[0];
-        if(this.phase!=='running'||!Number.isInteger(dir)||dir<0||dir>3||dir===(a.dir+2)%4)return false;
-        a.nextDir=dir; return true;
-      }
-      occupied() {
-        const cells=new Set(this.obstacles.map(key));
-        for(const a of this.actors)if(a.alive)for(const p of a.body)cells.add(key(p));
-        return cells;
-      }
-      warningCells(w) { return w.body.concat(Array.from({length:4},(_,i)=>({x:w.body[0].x+DIRS[w.dir].x*(i+1),y:w.body[0].y+DIRS[w.dir].y*(i+1)}))); }
-      addFood() {
-        if(this.food.length>=FOOD_LIMIT)return false;
-        const blocked=this.occupied(); this.food.forEach(p=>blocked.add(key(p)));
-        for(const a of this.actors)if(a.warning)for(const p of this.warningCells(a.warning))blocked.add(key(p));
-        const offset=Math.floor(this.random()*SIZE*SIZE);
-        for(let i=0;i<SIZE*SIZE;i++) {
-          const n=(offset+i)% (SIZE*SIZE); if(blocked.has(n))continue;
-          const types=['fruit','shield','fruit','poison','star','fruit','slow','fruit'];
-          this.food.push({x:n%SIZE,y:Math.floor(n/SIZE),type:types[this.foodSerial++%types.length],expires:this.tick+190}); return true;
-        }
-        return false;
-      }
-      safeSpawn(w, margin=6) {
-        const cells=this.warningCells(w), blocked=this.occupied();
-        if(cells.some(p=>!inside(p)||blocked.has(key(p))||this.food.some(f=>key(f)===key(p))))return false;
-        if(this.actors.some(a=>a.alive&&cells.some(p=>distance(p,a.body[0])<margin)))return false;
-        return !this.actors.some(a=>a.warning&&a.warning!==w&&this.warningCells(a.warning).some(p=>cells.some(q=>key(p)===key(q))));
-      }
-      findSpawn() {
-        const offset=Math.floor(this.random()*SIZE*SIZE), first=Math.floor(this.random()*4);
-        for(let n=0;n<SIZE*SIZE;n++)for(let i=0;i<4;i++) {
-          const cell=(offset+n)%(SIZE*SIZE), dir=(first+i)%4, head={x:cell%SIZE,y:Math.floor(cell/SIZE)};
-          const w={dir,left:WARNING_TICKS,body:Array.from({length:4},(_,j)=>({x:head.x-DIRS[dir].x*j,y:head.y-DIRS[dir].y*j}))};
-          if(this.safeSpawn(w))return w;
-        }
-        return null;
-      }
-      replenishAI() {
-        for(const a of this.actors.slice(1))if(!a.alive) {
-          if(a.warning) {
-            if(--a.warning.left>0)continue;
-            if(this.safeSpawn(a.warning,4)) {
-              a.body=a.warning.body; a.targetLength=4; a.dir=a.nextDir=a.warning.dir; a.alive=true; a.score=0; a.shield=0; a.slow=0; a.slowSkip=false; a.warning=null; this.respawns++;
-              this.events.push({type:'spawn',actor:a.id});
-            } else { a.warning=null; a.respawn=6; }
-          } else if(a.respawn>0) a.respawn--;
-          else { a.warning=this.findSpawn(); if(!a.warning)a.respawn=6; }
-        }
-      }
-      explore(start, blocked) {
-        const dist=new Int16Array(SIZE*SIZE); dist.fill(-1); dist[key(start)]=0;
-        const queue=[start]; let index=0;
-        while(index<queue.length&&index<200) {
-          const p=queue[index++];
-          for(let d=0;d<4;d++) { const q=advance(p,d), k=key(q); if(!inside(q)||blocked.has(k)||dist[k]>=0)continue; dist[k]=dist[key(p)]+1; queue.push(q); }
-        }
-        return {dist,space:queue.length};
-      }
-      aiDirection(a) {
-        const profile=PROFILES[a.id], blocked=this.occupied(), head=a.body[0], others=this.actors.filter(b=>b!==a&&b.alive);
-        let best=null;
-        for(let d=0;d<4;d++) {
-          if(d===(a.dir+2)%4)continue;
-          const next=advance(head,d);
-          if(!inside(next)||blocked.has(key(next)))continue;
-          const area=this.explore(next,blocked);
-          let score=Math.min(area.space,90)*profile.space;
-          const exits=DIRS.map((_,i)=>advance(next,i)).filter(q=>inside(q)&&!blocked.has(key(q))).length;
-          if(exits===0)score-=600;else if(exits===1)score-=18*profile.space;
-          if(area.space<a.body.length+5)score-=220+(a.body.length+5-area.space)*10;
-          let foodValue=0, target=null;
-          for(const f of this.food) {
-            const steps=area.dist[key(f)]; if(steps<0)continue;
-            if(steps===0&&FOODS[f.type].value<0)score+=FOODS[f.type].value*5;
-            if(FOODS[f.type].value<=0)continue;
-            const race=others.some(b=>distance(b.body[0],f)<steps+1)? .6:1;
-            const value=FOODS[f.type].value*profile.food*race/(steps+2);
-            if(value>foodValue) {foodValue=value;target=f;}
-          }
-          score+=foodValue;
-          let threat=false, hunting=false;
-          for(const b of others) {
-            const h=b.body[0];
-            const possible=DIRS.map((_,i)=>i).filter(i=>i!==(b.dir+2)%4).map(i=>advance(h,i));
-            if(possible.some(p=>key(p)===key(next))) { score-=profile.risk; threat=true; }
-            if(profile.hunt&&distance(head,h)>=3&&distance(head,h)<10) {
-              const ahead=advance(advance(h,b.dir),b.dir);
-              if(inside(ahead)) {score+=Math.max(0,7-distance(next,ahead))*profile.hunt;hunting=true;}
-            }
-          }
-          if(d===a.dir)score+=.2;
-          const reason=threat?'迴避迎面風險':area.space<40?'尋找逃生空間':hunting?'預判前路截擊':target?'搜尋'+FOODS[target.type].name:'保留開闊空間';
-          if(!best||score>best.score)best={dir:d,score,reason};
-        }
-        a.reason=best?best.reason:'無路可走'; return best?best.dir:a.dir;
-      }
-      eat(a,food,moved=false) {
-        const type=FOODS[food.type]; a.score=Math.max(0,a.score+type.score);
-        const base=type.grow<0?a.body.length-(moved?1:0):a.targetLength;
-        a.targetLength=Math.max(3,Math.min(MAX_LENGTH,base+type.grow));
-        if(a.body.length>a.targetLength)a.body.length=a.targetLength;
-        if(food.type==='shield')a.shield=SHIELD_TICKS;
-        if(food.type==='slow') {a.slow=SLOW_TICKS;a.slowSkip=true;}
-        this.events.push({type:'food',actor:a.id,food:food.type});
-      }
-      step(input={}) {
-        if(this.phase!=='running')return;
-        this.tick++; this.events=[];
-        const boosts=new Set(this.actors.filter(a=>a.alive&&a.targetLength>=6&&!a.slow&&(a.id?this.aiBoost(a):input.boost)).map(a=>a.id));
-        this.moveRound();
-        if(this.phase==='running'&&boosts.size){
-          for(const a of this.actors)if(a.alive&&boosts.has(a.id)){a.boosting=true;if(this.tick%2===0){a.targetLength--;const tail=a.body.length>a.targetLength?a.body.pop():null;if(tail&&!this.occupied().has(key(tail))){if(this.food.length>=FOOD_LIMIT)this.food.shift();this.food.push({...tail,type:'fruit',expires:this.tick+60});}this.events.push({type:'boost',actor:a.id});}}
-          this.moveRound(boosts);
-        }
-        if(this.phase!=='running')return;
-        this.replenishAI();
-        this.food=this.food.filter(f=>f.expires===undefined||f.expires>this.tick);
-        if(this.tick%6===0)this.addFood();
-        if(this.tick>=563){const ranks=this.actors.map(a=>({id:a.id,total:a.score+(a.alive?a.targetLength*10:0)})).sort((a,b)=>b.total-a.total);this.phase='over';this.result={score:this.actors[0].score,ticks:this.tick,respawns:this.respawns,outcome:ranks[0].total===ranks.find(a=>a.id===0).total?'win':'loss',ranks};}
-      }
-      aiBoost(a){
-        const head=a.body[0],next=advance(head,a.dir),ahead=advance(next,a.dir),blocked=this.occupied();
-        if(!inside(ahead)||blocked.has(key(next))||blocked.has(key(ahead)))return false;
-        const danger=this.actors.some(b=>b!==a&&b.alive&&distance(head,b.body[0])<5&&b.targetLength>=a.targetLength);
-        return danger||this.food.some(f=>FOODS[f.type].value>0&&distance(head,f)<=4&&distance(ahead,f)<distance(head,f));
-      }
-      moveRound(only=null){
-        const blocked=this.occupied(), plans=[];
-        for(const a of this.actors)if(a.alive) {
-          // Decisions use the same unmodified public board for every snake.
-          const dir=a.id?this.aiDirection(a):a.nextDir;
-          const moving=(!only||only.has(a.id))&&!(a.slow>0&&a.slowSkip);
-          if(!only)a.boosting=false;
-          plans.push({a,dir,moving,next:moving?advance(a.body[0],dir):a.body[0],hit:false});
-        }
-        for(const p of plans)if(p.moving) {
-          p.hit=!inside(p.next)||blocked.has(key(p.next));
-          const rivals=plans.filter(q=>q!==p&&q.moving&&key(q.next)===key(p.next));
-          if(rivals.length){const dominates=rivals.every(q=>p.a.targetLength>=q.a.targetLength*1.5&&!q.a.shield);p.hit=p.hit||!dominates;if(dominates&&!p.hit){p.a.score+=30;p.a.targetLength=Math.min(MAX_LENGTH,p.a.targetLength+2);this.events.push({type:'capture',actor:p.a.id});}}
-        }
-        for(const p of plans) {
-          const a=p.a; a.dir=p.dir; a.nextDir=p.dir;
-          const hadShield=a.shield>0;
-          if(!only&&a.shield>0)a.shield--; if(!only&&a.slow>0) {a.slow--;a.slowSkip=!a.slowSkip;}
-          if(p.hit) {
-            if(hadShield) {a.shield=0;this.events.push({type:'shield',actor:a.id});}
-            else {a.alive=false;a.deaths++;a.respawn=RESPAWN_TICKS;this.events.push({type:'death',actor:a.id});}
-          } else if(p.moving) {
-            a.body.unshift(p.next);
-            const index=this.food.findIndex(f=>key(f)===key(p.next));
-            if(index>=0)this.eat(a,this.food.splice(index,1)[0],true);
-            while(a.body.length>a.targetLength)a.body.pop();
-          }
-        }
-        for(const a of this.actors)if(!a.alive)a.body=[];
-        if(!this.actors[0].alive) {
-          this.phase='over'; this.result={score:this.actors[0].score,ticks:this.tick,respawns:this.respawns}; return;
-        }
-      }
-    }
-    return {Game,SIZE,DT,MAX_LENGTH,FOOD_LIMIT,SHIELD_TICKS,SLOW_TICKS,RESPAWN_TICKS,WARNING_TICKS,DIRS,FOODS,PROFILES,key,inside,distance,advance};
-  })();
-  </script>
-  <script id="snake-ui">
+<body class="fu-app">
+<main class="fu-stage" id="stage"><canvas id="board" tabindex="0" aria-label="效果貪食蛇 3D 場地。你是朱色蛇。方向鍵、WASD、滑動或方向鈕轉向，按住空白鍵或加速鈕加速。" aria-describedby="status"></canvas></main>
+<div class="layer" id="labels" aria-hidden="true"></div>
+<div id="flash" aria-hidden="true"></div>
+<header class="fu-topbar">
+ <a class="fu-brand" href="index.html" aria-label="回到 FuGames 所有遊戲"><span class="fu-seal" aria-hidden="true">福遊</span><span class="brand-word">FuGames</span></a>
+ <div class="fu-topbar__title"><h1 class="fu-heading">效果貪食蛇</h1><span class="fu-label">Mass Race · 90s · 3 AI</span></div>
+ <div class="fu-topbar__actions">
+  <button class="lv-chip" id="career-chip" type="button" aria-label="生涯等級"><span class="row"><b id="lv">1</b><span id="rank">幼蛇</span></span><span class="xpbar"><i id="lv-fill"></i></span></button>
+  <button class="icon-btn" id="sound" type="button" aria-pressed="true" aria-label="音效開啟，按下靜音"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor" stroke="none"/><path class="wave" d="M16 9a4 4 0 010 6M18.5 6.5a7.5 7.5 0 010 11"/><path class="mute" d="M16.5 9.5l5 5m0-5l-5 5"/></svg></button>
+  <button class="icon-btn" id="pause" type="button" disabled aria-label="暫停"><svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><g class="i-pause"><rect x="6" y="5" width="4" height="14"/><rect x="14" y="5" width="4" height="14"/></g><path class="i-play" d="M7 5l12 7-12 7z"/></svg></button>
+  <button class="icon-btn" id="menu-btn" type="button" aria-label="選單：玩法、設定與生涯" aria-expanded="false" aria-controls="drawer"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square"><path d="M4 7h16M4 12h16M4 17h10"/></svg></button>
+ </div>
+</header>
+
+<div class="fu-hud fu-hud--top" id="clock-hud">
+ <section class="fu-panel fu-panel--tight clock" aria-label="本局狀態">
+  <div class="row">
+   <div class="fu-stat"><span class="fu-label">剩餘</span><span class="big" id="clock">1:30</span></div>
+   <div class="fu-stat"><span class="fu-label">得分</span><span class="fu-stat__value" id="score">0</span></div>
+   <div class="fu-stat"><span class="fu-label">質量</span><span class="fu-stat__value" id="length">4</span></div>
+   <div class="fu-stat"><span class="fu-label">名次</span><span class="fu-stat__value" id="place">—</span></div>
+  </div>
+  <div class="effects" id="effects"></div>
+  <div class="goal" id="goal"></div>
+ </section>
+</div>
+<div class="fu-hud fu-hud--tl roster-hud"><section class="fu-panel fu-panel--tight roster" id="roster" aria-label="各蛇得分"><div class="fu-panel__head"><span class="fu-label">賽況</span><span class="fu-label" id="mods-label"></span></div></section></div>
+<div class="fu-hud fu-hud--tr legend-hud"><section class="fu-panel fu-panel--tight fu-panel--quiet legend" aria-label="食物效果"><div class="fu-panel__head"><span class="fu-label">食物與道具</span></div><ul id="legend"></ul></section></div>
+
+<div class="controls" id="controls">
+ <div class="dpad" aria-label="觸控方向鍵">
+  <button type="button" data-direction="up" aria-label="向上"><svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><path d="M12 5l7 10H5z"/></svg></button>
+  <button type="button" data-direction="left" aria-label="向左"><svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><path d="M5 12l10-7v14z"/></svg></button>
+  <button type="button" data-direction="right" aria-label="向右"><svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><path d="M19 12L9 19V5z"/></svg></button>
+  <button type="button" data-direction="down" aria-label="向下"><svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><path d="M12 19L5 9h14z"/></svg></button>
+ </div>
+ <p class="fu-panel fu-panel--tight fu-panel--quiet dock-hint" id="status" role="status" aria-live="polite">選好難度與場地規則，開始 90 秒質量競速。</p>
+ <button id="boost" type="button" disabled aria-label="按住加速"><b>加速</b><small id="boost-label">需質量 6</small><span class="fu-meter"><i id="boost-meter"></i></span></button>
+</div>
+
+<div class="curtain" id="overlay" data-mode="lobby">
+ <div class="sheet fu-panel" role="dialog" aria-modal="true" aria-labelledby="dialog-title">
+  <p class="kicker fu-label" data-view="lobby"><span class="fu-seal fu-stamp" aria-hidden="true">福遊</span>FuGames · 3D 質量競速</p>
+  <h1 id="dialog-title" data-view="lobby">效果<em>貪食蛇</em></h1>
+  <p class="lede" data-view="lobby">你是朱色蛇，與三條本機 AI 同場 90 秒。吃果長大、花質量加速搶食；質量 1.5 倍才能在搶格時壓過對手，但任何蛇身都能截住大蛇。比的是食物分＋存活質量×10。</p>
+  <section data-view="lobby"><div class="career" id="lobby-career"></div></section>
+  <section data-view="lobby"><h3>對手難度 <span>越難，經驗越多</span></h3><div class="picks" id="tier-picks" role="group" aria-label="對手難度"></div></section>
+  <section data-view="lobby"><h3>場地規則 <span>可複選，每項經驗 +10%</span></h3><div class="picks" id="mod-picks" role="group" aria-label="場地規則"></div></section>
+  <section data-view="lobby"><h3>本局挑戰 <span>每局輪替</span></h3><div class="challenge" id="lobby-challenge"></div></section>
+
+  <p class="kicker fu-label" data-view="pause">已暫停</p>
+  <h2 data-view="pause">歇一口<em>氣</em></h2>
+  <p class="lede" data-view="pause">蛇、食物、效果與倒數全部停下了。準備好再繼續。</p>
+
+  <p class="kicker fu-label" data-view="result" id="result-kicker">本局結束</p>
+  <h2 data-view="result" id="result-title">質量競速領先！</h2>
+  <p class="lede" data-view="result" id="dialog-copy"></p>
+  <section data-view="result"><div class="standings" id="standings"></div></section>
+  <section data-view="result"><div class="challenge" id="result-challenge"></div></section>
+  <section data-view="result"><h3>經驗 <span id="xp-mult"></span></h3><dl class="xp-lines" id="xp-lines"></dl></section>
+  <section data-view="result" id="levelup-wrap"><div class="levelup" id="levelup"></div></section>
+  <section data-view="result"><div class="career" id="result-career"></div></section>
+
+  <div class="sheet-actions" data-view="lobby"><span class="note">方向鍵／WASD 轉向 · 空白鍵加速 · P 暫停 · M 音效</span><button class="fu-btn" type="button" data-open-tab="rules">玩法</button><button class="fu-btn fu-btn--seal fu-btn--lg" id="play" type="button">開始蛇行</button></div>
+  <div class="sheet-actions" data-view="pause"><button class="fu-btn" id="to-lobby" type="button">放棄本局</button><button class="fu-btn fu-btn--seal fu-btn--lg" id="resume" type="button">繼續蛇行</button></div>
+  <div class="sheet-actions" data-view="result"><button class="fu-btn" id="result-lobby" type="button">調整難度與規則</button><button class="fu-btn fu-btn--seal fu-btn--lg" id="again" type="button">再玩一局</button></div>
+ </div>
+</div>
+
+<div class="fu-scrim" id="scrim"></div>
+<aside class="fu-drawer" id="drawer" aria-label="選單" aria-hidden="true">
+ <div class="fu-drawer__head"><h2 class="fu-heading">效果貪食蛇</h2><button class="icon-btn" id="drawer-close" type="button" aria-label="關閉選單"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+ <div class="tabs" role="tablist"><button role="tab" id="tab-rules" aria-selected="true" aria-controls="panel-rules">玩法</button><button role="tab" id="tab-settings" aria-selected="false" aria-controls="panel-settings">設定</button><button role="tab" id="tab-career" aria-selected="false" aria-controls="panel-career">生涯</button></div>
+ <div class="fu-drawer__body" id="panel-rules" role="tabpanel" aria-labelledby="tab-rules"><ul class="rules">
+  <li>你（<strong>朱色</strong>）與三位明確標示的本機 AI 在 28×28 場地同時前進，每 0.16 秒一格。沒有網路玩家。<strong>90 秒</strong>結束時比「食物分＋存活質量×10」，最高者獲勝（同分並列）；撞牆、石塊或任何蛇身就出局，本局立即結束。</li>
+  <li>方向鍵／WASD、在場地上滑動或方向鈕轉向，不能直接回頭；同一步只接受一個最終方向。</li>
+  <li><strong>質量</strong>就是目標身長（上限 30）。質量至少 6 時按住空白鍵或加速鈕，每步多走一格；每 0.32 秒掉 1 質量，在尾端留下對手可撿的果實。低於 6、吃了泥團或放手就停止。AI 用相同條件與代價。</li>
+  <li><strong>食物：</strong>果實 +10、長 1；星果 +25、分兩步長 2；護盾 +5，約 6 秒內抵擋一次碰撞（停在原位，下步快轉向）；毒菇 −15、短 3 格並取消待成長；泥團讓你 4 秒半速。食物約 30 秒沒人吃就淡出換新。</li>
+  <li><strong>碰撞：</strong>所有蛇同時移動。交換頭部、或進入任何本步開始時的蛇身（含即將移開的尾巴）都會受撞。只有同時搶進同一空格、質量至少是所有對手 1.5 倍且對手無盾時，大蛇獨存並 +30 分、長 2 格。長蛇撞蛇身照樣出局，小蛇可截路或用盾反制。</li>
+  <li><strong>AI 性格：</strong>果果搶高價食物；守守保留寬闊空間；切切預測對手去向搶佔前路。出局的 AI 約 4 秒後在虛線區預告 1.3 秒再入場，分數歸零。</li>
+  <li><strong>難度：</strong>新手判斷有雜訊、不加速；標準為原版 AI；老練會把對手下一步可能的格子視為封路、搶食更積極；宗師的大蛇會主動壓迫小蛇並加速截路。</li>
+  <li><strong>對決道具：</strong>斷尾刃讓你 8 秒內用頭撞對手身體（非頭）時斬斷它：斷點以後變成果實、你 +20 分，對手剩不到 3 格就出局。墨爆讓 5 格內的每位對手縮 3 格（護盾可擋），斷段變果實、每命中一位 +5 分。</li>
+  <li><strong>縮圈：</strong>50 秒起每 8 秒封閉最外一圈，封閉前 3 秒地面閃朱色警示；頭在那圈就被壓碎，身體在那圈則從該處斷開。<strong>毒尾：</strong>加速掉落的是毒菇。<strong>盛宴：</strong>食物上限 20、星果更多。</li>
+  <li><strong>等級：</strong>每局依名次、食物分、存活質量、壓勝、斷尾、墨爆與挑戰累積經驗，乘上難度與規則倍率。升級解鎖更難的 AI 與場地規則；生涯只存在這台裝置。</li>
+  <li>P／Esc 或暫停鈕暫停；切換分頁或視窗失焦會自動暫停，返回後由你手動繼續。</li>
+ </ul></div>
+ <div class="fu-drawer__body" id="panel-settings" role="tabpanel" aria-labelledby="tab-settings" hidden>
+  <label class="set-row fu-switch"><span><b>音效</b><p>合成音效，不載入音檔。快捷鍵 M。</p></span><input type="checkbox" id="set-sound" checked></label>
+  <label class="set-row fu-switch"><span><b>俯視鏡頭</b><p>接近正上方，判斷距離更直覺。</p></span><input type="checkbox" id="set-top"></label>
+  <label class="set-row fu-switch"><span><b>蛇名標籤</b><p>在每條蛇頭上顯示名字與質量。</p></span><input type="checkbox" id="set-labels" checked></label>
+  <label class="set-row fu-switch"><span><b>震動與閃光</b><p>出局、壓勝時的鏡頭震動與閃光。</p></span><input type="checkbox" id="set-shake" checked></label>
+  <div class="set-row"><span><b>重新開始本局</b><p>以目前設定立刻重開，本局不計經驗。</p></span><button class="fu-btn fu-btn--sm" id="restart" type="button">重開</button></div>
+ </div>
+ <div class="fu-drawer__body" id="panel-career" role="tabpanel" aria-labelledby="tab-career" hidden>
+  <div class="career" id="drawer-career"></div>
+  <div class="stats" id="stats"></div>
+  <h3 style="margin:22px 0 6px">解鎖進度</h3>
+  <ul class="unlocks" id="unlocks"></ul>
+  <div class="set-row" style="margin-top:12px"><span><b>重置生涯</b><p>清除這台裝置上的等級與紀錄。</p></span><button class="fu-btn fu-btn--sm" id="reset-career" type="button">重置</button></div>
+ </div>
+</aside>
+<noscript><div class="webgl-fail"><p>請開啟 JavaScript，才能開始遊戲。</p></div></noscript>
+<script id="snake-engine">
 'use strict';
-  // SVG controls share the same native geometry as the catalogue icons.
-  function setButton(button,label,icon) {
-    const signature=icon+'|'+label;if(button.dataset.visualLabel===signature)return;
-    button.dataset.visualLabel=signature;button.setAttribute('aria-label',label);
-    const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');svg.setAttribute('class','ui-icon');svg.setAttribute('viewBox','0 0 48 48');svg.setAttribute('aria-hidden','true');
-    const use=document.createElementNS(svg.namespaceURI,'use');use.setAttribute('href','icons.svg#'+icon);svg.append(use);
-    const text=document.createElement('span');text.textContent=label.replace(/\s*[→↗]\s*$/,'').replace(/\s*→\s*/g,' / ');button.replaceChildren(svg,text);
+// Deterministic rules. Every option defaults to the original 90-second mass race:
+// tier 1 ('標準') is the original AI and no arena modifier is on.
+const EffectSnake = (() => {
+  const SIZE = 28, DT = .16, MAX_LENGTH = 30, FOOD_LIMIT = 14, SHIELD_TICKS = 38, SLOW_TICKS = 25, RESPAWN_TICKS = 25, WARNING_TICKS = 8;
+  const MATCH_TICKS = 563, FEAST_LIMIT = 20, BLADE_TICKS = 50, INK_RADIUS = 5, INK_SHRINK = 3, CUT_SCORE = 20, INK_SCORE = 5;
+  const SHRINK_START = 313, SHRINK_EVERY = 50, SHRINK_WARN = 19, SHRINK_LAYERS = 5;
+  const DIRS = [{x:0,y:-1},{x:1,y:0},{x:0,y:1},{x:-1,y:0}];
+  const FOODS = {
+    fruit:{icon:'●',name:'果實',score:10,grow:1,value:12,tone:'jade',text:'+10 分、長 1 格'},
+    star:{icon:'✦',name:'星果',score:25,grow:2,value:25,tone:'gold',text:'+25 分、分兩步長 2 格'},
+    shield:{icon:'◇',name:'護盾',score:5,grow:0,value:18,tone:'azure',text:'+5 分、6 秒內抵擋一次碰撞'},
+    poison:{icon:'×',name:'毒菇',score:-15,grow:-3,value:-40,tone:'orchid',text:'−15 分、短 3 格'},
+    slow:{icon:'≈',name:'泥團',score:0,grow:0,value:-20,tone:'mute',text:'接下來 4 秒半速'},
+    blade:{icon:'刃',name:'斷尾刃',score:5,grow:0,value:30,tone:'paper',power:true,text:'8 秒內頭撞對手身體即斬斷'},
+    ink:{icon:'墨',name:'墨爆',score:5,grow:0,value:26,tone:'bone',power:true,text:'5 格內對手各縮 3 格'}
+  };
+  const PROFILES = [
+    {name:'你',role:'人類',food:8,space:.25,risk:100,hunt:0},
+    {name:'果果 AI',role:'搶食',food:13,space:.12,risk:95,hunt:0},
+    {name:'守守 AI',role:'保命',food:5,space:1.4,risk:180,hunt:0},
+    {name:'切切 AI',role:'截擊',food:7,space:.4,risk:120,hunt:15}
+  ];
+  // AI tiers. Tier 1 reproduces the original AI exactly (multipliers of 1, no noise, no lookahead).
+  const TIERS = [
+    {id:'rookie',name:'新手',desc:'判斷帶雜訊，不會加速。',xp:.6,noise:40,boost:false,threat:1,lookahead:false,food:1,bully:false},
+    {id:'standard',name:'標準',desc:'原版 AI：三種性格，會加速搶食。',xp:1,noise:0,boost:true,threat:1,lookahead:false,food:1,bully:false},
+    {id:'veteran',name:'老練',desc:'預判對手下一步封路，搶食更狠。',xp:1.3,noise:0,boost:true,threat:1.4,lookahead:true,food:1.15,bully:false},
+    {id:'master',name:'宗師',desc:'大蛇主動壓迫小蛇、加速截路。',xp:1.7,noise:0,boost:true,threat:1.6,lookahead:true,food:1.25,bully:true}
+  ];
+  const MODIFIER_IDS = ['powerups','feast','venom','shrink'];
+  const MODIFIERS = {
+    powerups:{name:'對決道具',desc:'出現斷尾刃與墨爆，直接削減對手。'},
+    feast:{name:'盛宴',desc:'食物上限 20，星果更多。'},
+    venom:{name:'毒尾',desc:'加速掉落毒菇而非果實。'},
+    shrink:{name:'縮圈',desc:'50 秒起每 8 秒封閉外圈。'}
+  };
+  const key = p => p.y * SIZE + p.x;
+  const inside = p => p.x >= 0 && p.y >= 0 && p.x < SIZE && p.y < SIZE;
+  const distance = (a,b) => Math.abs(a.x-b.x)+Math.abs(a.y-b.y);
+  const advance = (p,d) => ({x:p.x+DIRS[d].x,y:p.y+DIRS[d].y});
+  const layerOf = p => Math.min(p.x, p.y, SIZE-1-p.x, SIZE-1-p.y);
+  const freshStats = () => ({eaten:0,stars:0,boosts:0,captures:0,cuts:0,inks:0,peak:4});
+  function normalizeOptions(o = {}) {
+    const tier = Number.isInteger(o.tier) && o.tier >= 0 && o.tier < TIERS.length ? o.tier : 1;
+    const modifiers = {};
+    for (const id of MODIFIER_IDS) modifiers[id] = Array.isArray(o.modifiers) ? o.modifiers.includes(id) : !!(o.modifiers && o.modifiers[id] === true);
+    return {tier, modifiers};
   }
-
-  'use strict';
-  const $=id=>document.getElementById(id), canvas=$('board'), ctx=canvas.getContext('2d'), game=new EffectSnake.Game();
-  const colors=['#267477','#b46d55','#647eac','#916b88'], tints=['#5ebcbf','#dca28d','#a3b9d9','#c5a7bf'];
-  let boostHeld=false;
-  let frameID=0, previous=null, elapsed=0, swipe=null, lastNotice=0;
-  const seconds=ticks=>{const n=Math.floor(ticks*EffectSnake.DT);return `${Math.floor(n/60)}:${String(n%60).padStart(2,'0')}`;};
-  function announce(text) { if($('status').textContent!==text)$('status').textContent=text; }
-
-  // Same 48-unit paths as icons.svg; scaled Canvas geometry avoids platform font glyphs.
-  const foodGeometry = {"shield":[{"path":"M24 8 38 13V23C38 32 31 38 24 41C17 38 10 32 10 23V13ZM24 15V32"}],"fruit":[{"path":"M24 16C16 9 8 16 9 26C10 36 16 42 24 38C32 42 38 36 39 26C40 16 32 9 24 16ZM24 16V11M25 12C25 7 34 7 35 8C34 12 29 14 25 12Z"}],"star":[{"path":"M24 7 29 18 41 20 32 28 35 40 24 34 13 40 16 28 7 20 19 18Z"}],"poison":[{"path":"M16 34H12V22C12 13 17 8 24 8C31 8 36 13 36 22V34H32V40H16ZM21 34V40M27 34V40"},{"circle":[19.0,23.0,3.0]},{"circle":[29.0,23.0,3.0]},{"path":"M24 28 22 31H26Z"}],"slow":[{"path":"M12 8H36M12 40H36M15 8V15C15 19 20 21 24 24C28 27 33 29 33 33V40M33 8V15C33 19 28 21 24 24C20 27 15 29 15 33V40M19 35 24 30 29 35Z"}]};
-  for(const shapes of Object.values(foodGeometry))for(const shape of shapes)if(shape.path)shape.nativePath=new Path2D(shape.path);
-  function drawFoodIcon(type,x,y,size,ink) {
-    ctx.save();ctx.translate(x-size/2,y-size/2);ctx.scale(size/48,size/48);ctx.strokeStyle=ink;ctx.lineWidth=3.5;ctx.lineCap='round';ctx.lineJoin='round';
-    for(const shape of foodGeometry[type]){if(shape.nativePath)ctx.stroke(shape.nativePath);else{ctx.beginPath();ctx.arc(...shape.circle,0,Math.PI*2);ctx.stroke();}}
-    ctx.restore();
+  function foodCycle(m) {
+    const base = m.feast ? ['fruit','star','fruit','shield','star','poison','fruit','slow','star','fruit'] : ['fruit','shield','fruit','poison','star','fruit','slow','fruit'];
+    return m.powerups ? base.concat(['blade','fruit','ink']) : base;
   }
-  function draw() {
-    const ratio=Math.min(window.devicePixelRatio||1,2), size=672, cell=size/EffectSnake.SIZE;
-    if(canvas.width!==size*ratio)canvas.width=canvas.height=size*ratio;
-    ctx.setTransform(ratio,0,0,ratio,0,0);ctx.fillStyle='#f8f9fb';ctx.fillRect(0,0,size,size);
-    ctx.strokeStyle='#e8ecf2';ctx.lineWidth=1;
-    for(let i=0;i<=EffectSnake.SIZE;i++){ctx.beginPath();ctx.moveTo(i*cell,0);ctx.lineTo(i*cell,size);ctx.stroke();ctx.beginPath();ctx.moveTo(0,i*cell);ctx.lineTo(size,i*cell);ctx.stroke();}
-    function square(p,fill,inset=2) {ctx.fillStyle=fill;ctx.beginPath();ctx.roundRect(p.x*cell+inset,p.y*cell+inset,cell-inset*2,cell-inset*2,4);ctx.fill();}
-    for(const p of game.obstacles){square(p,'#d8dee9');ctx.fillStyle='#8b98aa';ctx.fillRect(p.x*cell+7,p.y*cell+10,10,3);}
-    for(const a of game.actors)if(a.warning){ctx.setLineDash([4,3]);ctx.strokeStyle=colors[a.id];for(const p of game.warningCells(a.warning))ctx.strokeRect(p.x*cell+2,p.y*cell+2,cell-4,cell-4);ctx.setLineDash([]);ctx.font='bold 16px monospace';ctx.fillStyle=colors[a.id];ctx.textAlign='left';ctx.textBaseline='alphabetic';ctx.fillText('AI '+a.id,Math.max(3,Math.min(615,a.warning.body[0].x*cell)),Math.max(18,a.warning.body[0].y*cell-5));}
-    for(const f of game.food){const spec=EffectSnake.FOODS[f.type];ctx.globalAlpha=f.expires-game.tick<32?.45:1;square(f,spec.tint,2);drawFoodIcon(f.type,(f.x+.5)*cell,(f.y+.5)*cell,cell+2,spec.color);}ctx.globalAlpha=1;
-    for(const a of game.actors)if(a.alive){
-      for(let i=a.body.length-1;i>=0;i--)square(a.body[i],i===0?colors[a.id]:tints[a.id],i===0?1.5:3);
-      const h=a.body[0],d=EffectSnake.DIRS[a.dir],cx=(h.x+.5)*cell,cy=(h.y+.5)*cell;
-      ctx.fillStyle='#fff';for(const side of [-1,1]){ctx.beginPath();ctx.arc(cx+d.x*5+d.y*side*4,cy+d.y*5+d.x*side*4,2,0,Math.PI*2);ctx.fill();}
-      if(a.boosting){ctx.strokeStyle='#d08770';ctx.lineWidth=4;ctx.strokeRect(h.x*cell-4,h.y*cell-4,cell+8,cell+8);}
-      if(a.shield>0){ctx.strokeStyle='#81a1c1';ctx.lineWidth=3;ctx.strokeRect(h.x*cell-2,h.y*cell-2,cell+4,cell+4);}
-      if(a.slow>0)drawFoodIcon('slow',cx-d.x*5,cy-d.y*5,14,'#fff');
-      const font=Math.min(22,Math.max(14,Math.round(10*672/Math.max(canvas.clientWidth,1))));ctx.font='bold '+font+'px monospace';ctx.textAlign='center';ctx.textBaseline='alphabetic';
-      const label=(a.id?'AI '+a.id:'YOU')+' · '+a.targetLength,width=ctx.measureText(label).width+6,lx=Math.max(width/2+2,Math.min(670-width/2,cx)),ly=h.y>0?Math.max(font+1,h.y*cell-6):(h.y+1)*cell+font;
-      ctx.fillStyle='#ffffffeb';ctx.fillRect(lx-width/2,ly-font,width,font+3);ctx.fillStyle=colors[a.id];ctx.fillText(label,lx,ly);
+  class Game {
+    constructor(random = Math.random, options = {}) { this.random=random; this.options=normalizeOptions(options); this.reset(); }
+    reset() {
+      const m=this.options.modifiers;
+      this.phase='ready'; this.tick=0; this.events=[]; this.result=null; this.food=[]; this.foodSerial=0; this.respawns=0;
+      this.foodLimit=m.feast?FEAST_LIMIT:FOOD_LIMIT; this.cycle=foodCycle(m); this.closed=0; this.shrinkAt=m.shrink?SHRINK_START:0; this.drops=[];
+      this.obstacles = [[8,8],[9,8],[8,9],[18,8],[19,8],[19,9],[8,18],[8,19],[9,19],[19,18],[18,19],[19,19]].map(([x,y])=>({x,y}));
+      this.actors = [[7,4,1],[23,7,2],[20,23,3],[4,20,0]].map(([x,y,dir],id)=>({id,dir,nextDir:dir,body:Array.from({length:4},(_,i)=>({x:x-DIRS[dir].x*i,y:y-DIRS[dir].y*i})),targetLength:4,alive:true,score:0,shield:0,slow:0,slowSkip:false,blade:0,respawn:0,warning:null,deaths:0,reason:PROFILES[id].role,stats:freshStats()}));
+      this.food.push({x:11,y:4,type:'fruit',expires:190},{x:16,y:4,type:'star',expires:190},{x:17,y:5,type:'poison',expires:190});
+      while(this.food.length < this.foodLimit && this.addFood()) {}
+    }
+    start() { if(this.phase==='ready'||this.phase==='paused')this.phase='running'; }
+    pause() { if(this.phase==='running')this.phase='paused'; }
+    setDirection(dir) {
+      const a=this.actors[0];
+      if(this.phase!=='running'||!Number.isInteger(dir)||dir<0||dir>3||dir===(a.dir+2)%4)return false;
+      a.nextDir=dir; return true;
+    }
+    occupied() {
+      const cells=new Set(this.obstacles.map(key));
+      for(const a of this.actors)if(a.alive)for(const p of a.body)cells.add(key(p));
+      return cells;
+    }
+    /** Layer index about to close (within SHRINK_WARN ticks), or -1. */
+    shrinkWarning() {
+      if(!this.options.modifiers.shrink||this.closed>=SHRINK_LAYERS)return -1;
+      return this.shrinkAt-this.tick<=SHRINK_WARN?this.closed:-1;
+    }
+    standings() { return this.actors.map(a=>({id:a.id,total:a.score+(a.alive?a.targetLength*10:0)})).sort((a,b)=>b.total-a.total); }
+    warningCells(w) { return w.body.concat(Array.from({length:4},(_,i)=>({x:w.body[0].x+DIRS[w.dir].x*(i+1),y:w.body[0].y+DIRS[w.dir].y*(i+1)}))); }
+    addFood() {
+      if(this.food.length>=this.foodLimit)return false;
+      const blocked=this.occupied(); this.food.forEach(p=>blocked.add(key(p)));
+      for(const a of this.actors)if(a.warning)for(const p of this.warningCells(a.warning))blocked.add(key(p));
+      const offset=Math.floor(this.random()*SIZE*SIZE);
+      for(let i=0;i<SIZE*SIZE;i++) {
+        const n=(offset+i)% (SIZE*SIZE); if(blocked.has(n))continue;
+        const types=this.cycle;
+        this.food.push({x:n%SIZE,y:Math.floor(n/SIZE),type:types[this.foodSerial++%types.length],expires:this.tick+190}); return true;
+      }
+      return false;
+    }
+    /** Food dropped by bodies (boost tails, cut segments, ink); keeps the board capacity by retiring the oldest food. */
+    dropFood(p,type,life) {
+      if(!inside(p)||this.occupied().has(key(p))||this.food.some(f=>key(f)===key(p)))return false;
+      if(this.food.length>=this.foodLimit)this.food.shift();
+      this.food.push({x:p.x,y:p.y,type,expires:this.tick+life}); return true;
+    }
+    safeSpawn(w, margin=6) {
+      const cells=this.warningCells(w), blocked=this.occupied();
+      if(cells.some(p=>!inside(p)||blocked.has(key(p))||this.food.some(f=>key(f)===key(p))))return false;
+      if(this.options.modifiers.shrink&&cells.some(p=>layerOf(p)<=this.closed))return false;
+      if(this.actors.some(a=>a.alive&&cells.some(p=>distance(p,a.body[0])<margin)))return false;
+      return !this.actors.some(a=>a.warning&&a.warning!==w&&this.warningCells(a.warning).some(p=>cells.some(q=>key(p)===key(q))));
+    }
+    findSpawn() {
+      const offset=Math.floor(this.random()*SIZE*SIZE), first=Math.floor(this.random()*4);
+      for(let n=0;n<SIZE*SIZE;n++)for(let i=0;i<4;i++) {
+        const cell=(offset+n)%(SIZE*SIZE), dir=(first+i)%4, head={x:cell%SIZE,y:Math.floor(cell/SIZE)};
+        const w={dir,left:WARNING_TICKS,body:Array.from({length:4},(_,j)=>({x:head.x-DIRS[dir].x*j,y:head.y-DIRS[dir].y*j}))};
+        if(this.safeSpawn(w))return w;
+      }
+      return null;
+    }
+    replenishAI() {
+      for(const a of this.actors.slice(1))if(!a.alive) {
+        if(a.warning) {
+          if(--a.warning.left>0)continue;
+          if(this.safeSpawn(a.warning,4)) {
+            a.body=a.warning.body; a.targetLength=4; a.dir=a.nextDir=a.warning.dir; a.alive=true; a.score=0; a.shield=0; a.slow=0; a.slowSkip=false; a.blade=0; a.warning=null; this.respawns++;
+            this.events.push({type:'spawn',actor:a.id});
+          } else { a.warning=null; a.respawn=6; }
+        } else if(a.respawn>0) a.respawn--;
+        else { a.warning=this.findSpawn(); if(!a.warning)a.respawn=6; }
+      }
+    }
+    explore(start, blocked) {
+      const dist=new Int16Array(SIZE*SIZE); dist.fill(-1); dist[key(start)]=0;
+      const queue=[start]; let index=0;
+      while(index<queue.length&&index<200) {
+        const p=queue[index++];
+        for(let d=0;d<4;d++) { const q=advance(p,d), k=key(q); if(!inside(q)||blocked.has(k)||dist[k]>=0)continue; dist[k]=dist[key(p)]+1; queue.push(q); }
+      }
+      return {dist,space:queue.length};
+    }
+    aiDirection(a) {
+      const profile=PROFILES[a.id], tier=TIERS[this.options.tier], blocked=this.occupied(), head=a.body[0], others=this.actors.filter(b=>b!==a&&b.alive);
+      // Lookahead tiers flood-fill as if every rival head had already taken one of its next cells.
+      let flood=blocked;
+      if(tier.lookahead){flood=new Set(blocked);for(const b of others)for(let i=0;i<4;i++)if(i!==(b.dir+2)%4){const q=advance(b.body[0],i);if(inside(q))flood.add(key(q));}}
+      let bodies=null;
+      if(a.blade>0){bodies=new Map();for(const b of others)b.body.forEach((p,i)=>{if(i>=1)bodies.set(key(p),b);});}
+      const warn=this.shrinkWarning(), hunt=tier.lookahead?Math.max(profile.hunt,6):profile.hunt;
+      let best=null;
+      for(let d=0;d<4;d++) {
+        if(d===(a.dir+2)%4)continue;
+        const next=advance(head,d);
+        let cut=null;
+        if(!inside(next))continue;
+        if(blocked.has(key(next))){if(bodies&&bodies.has(key(next)))cut=bodies.get(key(next));else continue;}
+        const area=this.explore(next,flood);
+        let score=Math.min(area.space,90)*profile.space;
+        const exits=DIRS.map((_,i)=>advance(next,i)).filter(q=>inside(q)&&!blocked.has(key(q))).length;
+        if(exits===0)score-=600;else if(exits===1)score-=18*profile.space;
+        if(area.space<a.body.length+5)score-=220+(a.body.length+5-area.space)*10;
+        let foodValue=0, target=null;
+        for(const f of this.food) {
+          const steps=area.dist[key(f)]; if(steps<0)continue;
+          if(steps===0&&FOODS[f.type].value<0)score+=FOODS[f.type].value*5;
+          if(FOODS[f.type].value<=0)continue;
+          const race=others.some(b=>distance(b.body[0],f)<steps+1)? .6:1;
+          const value=FOODS[f.type].value*profile.food*race/(steps+2)*tier.food;
+          if(value>foodValue) {foodValue=value;target=f;}
+        }
+        score+=foodValue;
+        let threat=false, hunting=false;
+        for(const b of others) {
+          const h=b.body[0];
+          const possible=DIRS.map((_,i)=>i).filter(i=>i!==(b.dir+2)%4).map(i=>advance(h,i));
+          if(possible.some(p=>key(p)===key(next))) {
+            if(tier.bully&&a.targetLength>=b.targetLength*1.5&&!b.shield){score+=25;hunting=true;}
+            else {score-=profile.risk*tier.threat; threat=true;}
+          }
+          if(hunt&&distance(head,h)>=3&&distance(head,h)<10) {
+            const ahead=advance(advance(h,b.dir),b.dir);
+            if(inside(ahead)) {score+=Math.max(0,7-distance(next,ahead))*hunt;hunting=true;}
+          }
+        }
+        if(cut)score+=40+cut.body.length*3;
+        if(warn>=0&&layerOf(next)<=warn)score-=150;
+        if(tier.noise)score+=this.random()*tier.noise;
+        if(d===a.dir)score+=.2;
+        const reason=cut?'斷尾刃斬擊':threat?'迴避迎面風險':area.space<40?'尋找逃生空間':hunting?'預判前路截擊':target?'搜尋'+FOODS[target.type].name:'保留開闊空間';
+        if(!best||score>best.score)best={dir:d,score,reason};
+      }
+      a.reason=best?best.reason:'無路可走'; return best?best.dir:a.dir;
+    }
+    eat(a,food,moved=false) {
+      const type=FOODS[food.type]; a.score=Math.max(0,a.score+type.score);
+      const base=type.grow<0?a.body.length-(moved?1:0):a.targetLength;
+      a.targetLength=Math.max(3,Math.min(MAX_LENGTH,base+type.grow));
+      if(a.body.length>a.targetLength)a.body.length=a.targetLength;
+      if(food.type==='shield')a.shield=SHIELD_TICKS;
+      if(food.type==='slow') {a.slow=SLOW_TICKS;a.slowSkip=true;}
+      if(food.type==='blade')a.blade=BLADE_TICKS;
+      if(a.stats){a.stats.eaten++;if(food.type==='star')a.stats.stars++;}
+      this.events.push({type:'food',actor:a.id,food:food.type});
+      if(food.type==='ink')this.inkBurst(a);
+    }
+    /** 墨爆: every rival head within INK_RADIUS loses INK_SHRINK mass (a shield absorbs it); lost segments become fruit. */
+    inkBurst(a) {
+      const head=a.body[0], hits=[];
+      if(!head)return hits;
+      for(const b of this.actors) {
+        if(b===a||!b.alive||!b.body.length||distance(b.body[0],head)>INK_RADIUS)continue;
+        if(b.shield>0){b.shield=0;this.events.push({type:'shield',actor:b.id,by:'ink'});continue;}
+        b.targetLength=Math.max(3,b.targetLength-INK_SHRINK);
+        if(b.body.length>b.targetLength)this.drops.push(...b.body.splice(b.targetLength));
+        hits.push(b.id);
+      }
+      a.score+=INK_SCORE*hits.length; if(a.stats)a.stats.inks+=hits.length;
+      this.events.push({type:'ink',actor:a.id,hits,x:head.x,y:head.y});
+      return hits;
+    }
+    kill(a,cause) { a.alive=false;a.deaths++;a.respawn=RESPAWN_TICKS;a.blade=0;this.events.push({type:'death',actor:a.id,cause}); }
+    endMatch(kind) {
+      const ranks=this.standings(), me=ranks.find(r=>r.id===0), place=1+ranks.filter(r=>r.total>me.total).length;
+      this.phase='over';
+      this.result={score:this.actors[0].score,ticks:this.tick,respawns:this.respawns,outcome:kind==='out'?'out':place===1?'win':'loss',ranks,place};
+    }
+    step(input={}) {
+      if(this.phase!=='running')return;
+      this.tick++; this.events=[];
+      const boosts=new Set(this.actors.filter(a=>a.alive&&a.targetLength>=6&&!a.slow&&(a.id?this.aiBoost(a):input.boost)).map(a=>a.id));
+      this.moveRound();
+      if(this.phase==='running'&&boosts.size){
+        const drop=this.options.modifiers.venom?'poison':'fruit';
+        for(const a of this.actors)if(a.alive&&boosts.has(a.id)){a.boosting=true;if(this.tick%2===0){a.targetLength--;a.stats.boosts++;const tail=a.body.length>a.targetLength?a.body.pop():null;if(tail&&!this.occupied().has(key(tail)))this.dropFood(tail,drop,60);this.events.push({type:'boost',actor:a.id});}}
+        this.moveRound(boosts);
+      }
+      if(this.phase!=='running')return;
+      if(this.options.modifiers.shrink&&this.closed<SHRINK_LAYERS&&this.tick>=this.shrinkAt){this.closeLayer();if(this.phase!=='running')return;}
+      this.replenishAI();
+      this.food=this.food.filter(f=>f.expires===undefined||f.expires>this.tick);
+      if(this.tick%6===0)this.addFood();
+      for(const a of this.actors)if(a.alive)a.stats.peak=Math.max(a.stats.peak,a.targetLength);
+      if(this.tick>=MATCH_TICKS)this.endMatch('time');
+    }
+    /** 縮圈: the outermost open ring becomes wall. Heads there are crushed; bodies there break off. */
+    closeLayer() {
+      const layer=this.closed, cells=[];
+      for(let y=0;y<SIZE;y++)for(let x=0;x<SIZE;x++)if(layerOf({x,y})===layer)cells.push({x,y});
+      const set=new Set(cells.map(key));
+      this.obstacles.push(...cells); this.closed++; this.shrinkAt+=SHRINK_EVERY;
+      this.food=this.food.filter(f=>!set.has(key(f)));
+      this.events.push({type:'shrink',layer});
+      for(const a of this.actors) {
+        if(a.warning&&this.warningCells(a.warning).some(p=>set.has(key(p)))){a.warning=null;a.respawn=6;}
+        if(!a.alive)continue;
+        const i=a.body.findIndex(p=>set.has(key(p)));
+        if(i<0)continue;
+        if(i<3){this.kill(a,'crush');a.body=[];}
+        else{const lost=a.body.length-i;a.body.length=i;a.targetLength=Math.min(a.targetLength,i);this.events.push({type:'crumble',actor:a.id,lost});}
+      }
+      if(!this.actors[0].alive)this.endMatch('out');
+    }
+    aiBoost(a){
+      const tier=TIERS[this.options.tier];
+      if(!tier.boost)return false;
+      const head=a.body[0],next=advance(head,a.dir),ahead=advance(next,a.dir),blocked=this.occupied();
+      if(!inside(ahead)||blocked.has(key(next))||blocked.has(key(ahead)))return false;
+      const danger=this.actors.some(b=>b!==a&&b.alive&&distance(head,b.body[0])<5&&b.targetLength>=a.targetLength);
+      if(tier.bully&&this.actors.some(b=>b!==a&&b.alive&&!b.shield&&a.targetLength>=b.targetLength*1.5&&distance(ahead,b.body[0])<distance(head,b.body[0])&&distance(head,b.body[0])<7))return true;
+      return danger||this.food.some(f=>FOODS[f.type].value>0&&distance(head,f)<=4&&distance(ahead,f)<distance(head,f));
+    }
+    moveRound(only=null){
+      const blocked=this.occupied(), plans=[], bodyAt=new Map();
+      for(const a of this.actors)if(a.alive) {
+        a.body.forEach((p,i)=>bodyAt.set(key(p),{a,i}));
+        // Decisions use the same unmodified public board for every snake.
+        const dir=a.id?this.aiDirection(a):a.nextDir;
+        const moving=(!only||only.has(a.id))&&!(a.slow>0&&a.slowSkip);
+        if(!only)a.boosting=false;
+        plans.push({a,dir,moving,next:moving?advance(a.body[0],dir):a.body[0],hit:false,cut:null});
+      }
+      for(const p of plans)if(p.moving) {
+        p.hit=!inside(p.next)||blocked.has(key(p.next));
+        // 斷尾刃: a blade head may enter a rival's body (not its head) and sever it there.
+        if(p.hit&&p.a.blade>0&&inside(p.next)){const o=bodyAt.get(key(p.next));if(o&&o.a!==p.a&&o.i>=1){p.hit=false;p.cut=o;}}
+        const rivals=plans.filter(q=>q!==p&&q.moving&&key(q.next)===key(p.next));
+        if(rivals.length){const dominates=rivals.every(q=>p.a.targetLength>=q.a.targetLength*1.5&&!q.a.shield);p.hit=p.hit||!dominates;if(dominates&&!p.hit){p.a.score+=30;p.a.targetLength=Math.min(MAX_LENGTH,p.a.targetLength+2);p.a.stats.captures++;this.events.push({type:'capture',actor:p.a.id});}}
+        if(p.hit)p.cut=null;
+      }
+      for(const p of plans)if(p.cut) {
+        const v=p.cut.a, idx=p.cut.i;
+        p.a.blade=0;
+        if(v.body.length<=idx)continue;
+        const lost=v.body.splice(idx);
+        this.drops.push(...lost.filter(c=>key(c)!==key(p.next)));
+        p.a.score+=CUT_SCORE; p.a.stats.cuts++;
+        this.events.push({type:'cut',actor:p.a.id,victim:v.id,lost:lost.length,x:p.next.x,y:p.next.y});
+        if(idx<3)this.kill(v,'cut');else v.targetLength=Math.min(v.targetLength,idx);
+      }
+      for(const p of plans) {
+        const a=p.a;
+        if(!a.alive)continue;
+        a.dir=p.dir; a.nextDir=p.dir;
+        const hadShield=a.shield>0;
+        if(!only&&a.shield>0)a.shield--; if(!only&&a.slow>0) {a.slow--;a.slowSkip=!a.slowSkip;} if(!only&&a.blade>0)a.blade--;
+        if(p.hit) {
+          if(hadShield) {a.shield=0;this.events.push({type:'shield',actor:a.id});}
+          else this.kill(a,'crash');
+        } else if(p.moving) {
+          a.body.unshift(p.next);
+          const index=this.food.findIndex(f=>key(f)===key(p.next));
+          if(index>=0)this.eat(a,this.food.splice(index,1)[0],true);
+          while(a.body.length>a.targetLength)a.body.pop();
+        }
+      }
+      for(const a of this.actors)if(!a.alive)a.body=[];
+      if(this.drops.length){const drops=this.drops;this.drops=[];for(const c of drops)this.dropFood(c,'fruit',90);}
+      if(!this.actors[0].alive) { this.endMatch('out'); return; }
     }
   }
-  function hud() {
-    const a=game.actors[0];$('score').textContent=a.score;$('length').textContent=a.alive?a.body.length:'—';$('clock').textContent=seconds(Math.max(0,563-game.tick));
-    $('phase-label').textContent={ready:'準備出發',running:'90 秒質量競賽',paused:'已暫停',over:'本局結束'}[game.phase];
-    $('pause').disabled=game.phase==='ready'||game.phase==='over';setButton($('pause'),game.phase==='paused'?'繼續':'暫停',game.phase==='paused'?'play':'pause');
-    $('boost').disabled=game.phase!=='running'||a.targetLength<6||a.slow>0;$('boost').textContent=a.boosting?'加速中 · 消耗質量':a.targetLength<6?'需質量 6 才能加速':'按住加速 · 每 0.32 秒 −1 質量';
-    const effects=[];if(a.shield)effects.push(['shield',`護盾 ${Math.ceil(a.shield*EffectSnake.DT)} 秒`]);if(a.slow)effects.push(['slow',`緩速 ${Math.ceil(a.slow*EffectSnake.DT)} 秒`]);
-    if(effects.length)$('effects').innerHTML=effects.map(([icon,label])=>`<span class="io-key"><svg class="ui-icon" viewBox="0 0 48 48" aria-hidden="true"><use href="icons.svg#${icon}"></use></svg>${label}</span>`).join(' · ');else $('effects').textContent='目前無效果 · 常速每格 0.16 秒 · 空白鍵加速';
-    $('roster').replaceChildren(...game.actors.map(actor=>{const item=document.createElement('div');item.className='snake-player';item.style.setProperty('--snake-color',colors[actor.id]);const name=document.createElement('strong');name.textContent=EffectSnake.PROFILES[actor.id].name+' · '+actor.score;item.append(name);const detail=document.createElement('span');detail.textContent=actor.alive?'質量 '+actor.targetLength+' · '+(actor.boosting?'加速':EffectSnake.PROFILES[actor.id].role):actor.id?(actor.warning?'預告入場':'等待重生'):'本局結束';item.append(detail);item.title=actor.reason;return item;}));
+  return {Game,SIZE,DT,MAX_LENGTH,FOOD_LIMIT,FEAST_LIMIT,SHIELD_TICKS,SLOW_TICKS,BLADE_TICKS,RESPAWN_TICKS,WARNING_TICKS,MATCH_TICKS,INK_RADIUS,INK_SHRINK,CUT_SCORE,INK_SCORE,SHRINK_START,SHRINK_EVERY,SHRINK_WARN,SHRINK_LAYERS,DIRS,FOODS,PROFILES,TIERS,MODIFIERS,MODIFIER_IDS,key,inside,distance,advance,layerOf,normalizeOptions};
+})();
+</script>
+<script id="snake-career">
+'use strict';
+// Career progression: pure functions over a small saved profile. XP comes from what you did in a match,
+// scaled by AI tier and arena modifiers; levels unlock harder AI and arena rules. One challenge per match, rotating.
+const SnakeCareer = (() => {
+  const MAX_LEVEL = 30, KEY = 'effect-snake-career', VERSION = 1, MATCH_TICKS = 563;
+  const need = level => 100 + level * 35;
+  function levelOf(xp){let level=1,rest=Math.max(0,Math.floor(Number(xp)||0));while(level<MAX_LEVEL&&rest>=need(level)){rest-=need(level);level++;}return{level,into:level<MAX_LEVEL?rest:0,need:level<MAX_LEVEL?need(level):0,max:level>=MAX_LEVEL};}
+  const RANKS = [{from:1,name:'幼蛇'},{from:4,name:'游蛇'},{from:8,name:'獵蛇'},{from:13,name:'巨蟒'},{from:19,name:'蛟'},{from:25,name:'墨龍'}];
+  const rankOf = level => RANKS.filter(r=>level>=r.from).pop().name;
+  const UNLOCKS = [
+    {level:1,kind:'tier',id:0},{level:1,kind:'tier',id:1},{level:2,kind:'mod',id:'powerups'},{level:3,kind:'mod',id:'feast'},
+    {level:4,kind:'tier',id:2},{level:5,kind:'mod',id:'venom'},{level:7,kind:'mod',id:'shrink'},{level:9,kind:'tier',id:3}
+  ];
+  const unlockLevel = (kind,id) => { const u=UNLOCKS.find(u=>u.kind===kind&&u.id===id); return u?u.level:Infinity; };
+  const unlocked = (level,kind,id) => level >= unlockLevel(kind,id);
+  const TIER_XP = [.6,1,1.3,1.7], MOD_XP = .1, CHALLENGE_XP = 40, PLACE_XP = [0,120,50,20,0];
+  const CHALLENGES = [
+    {id:'stars',text:'吃下 3 顆星果',check:s=>s.stars>=3},
+    {id:'peak',text:'質量達到 16',check:s=>s.peak>=16},
+    {id:'capture',text:'以 1.5 倍質量迎頭壓勝 1 次',check:s=>s.captures>=1},
+    {id:'survive',text:'撐滿 90 秒不出局',check:s=>s.outcome!=='out'},
+    {id:'boost',text:'加速花掉 8 質量',check:s=>s.boosts>=8},
+    {id:'top2',text:'跑完並拿下前兩名',check:s=>s.outcome!=='out'&&s.place<=2}
+  ];
+  const challengeFor = matches => CHALLENGES[((Math.floor(Number(matches)||0)%CHALLENGES.length)+CHALLENGES.length)%CHALLENGES.length];
+  function matchXP(s){
+    const lines=[], out=s.outcome==='out';
+    if(out)lines.push(['存活時間',Math.round(20*Math.min(1,Math.max(0,(s.ticks||0)/MATCH_TICKS)))]);else lines.push(['跑完 90 秒',30]);
+    const food=Math.min(60,Math.floor(Math.max(0,s.score||0)/10));if(food)lines.push(['食物分',food]);
+    if(!out&&s.mass)lines.push([`存活質量 ${s.mass}`,2*s.mass]);
+    if(s.captures)lines.push([`迎頭壓勝 × ${s.captures}`,25*s.captures]);
+    if(s.cuts)lines.push([`斷尾 × ${s.cuts}`,20*s.cuts]);
+    if(s.inks)lines.push([`墨爆命中 × ${s.inks}`,8*s.inks]);
+    if(!out&&PLACE_XP[s.place])lines.push([s.place===1?'第一名':`第 ${s.place} 名`,PLACE_XP[s.place]]);
+    if(s.challenge)lines.push(['本局挑戰',CHALLENGE_XP]);
+    const base=lines.reduce((n,l)=>n+l[1],0), mult=(TIER_XP[s.tier]??1)*(1+MOD_XP*(s.mods||0)), total=Math.round(base*mult);
+    return{lines,base,mult,total};
   }
-  function dialog(title,copy,button,kicker) {$('dialog-title').textContent=title;$('dialog-copy').textContent=copy;setButton($('play'),button,game.phase==='over'?'restart':'play');$('dialog-kicker').textContent=kicker;$('overlay').hidden=false;$('play').focus({preventScroll:true});}
-  function stop() {boostHeld=false;cancelAnimationFrame(frameID);frameID=0;previous=null;elapsed=0;swipe=null;}
-  function resume() {stop();game.start();$('overlay').hidden=true;announce('持續前進，吃好果、避毒菇；留意下一個轉彎。');hud();canvas.focus({preventScroll:true});frameID=requestAnimationFrame(frame);}
-  function pause() {if(game.phase!=='running')return;game.pause();stop();hud();draw();announce('已暫停，蛇、食物與效果計時全部停止。');dialog('歇一口氣','場地與計時都停下了，準備好再繼續。','繼續蛇行 →','手動繼續');}
-  function restart() {stop();game.reset();lastNotice=0;announce('你是青綠色蛇。吃好果、避毒菇，先看下一步。');resume();draw();}
-  function finish() {stop();hud();draw();announce(`本局 ${game.result.score} 分，存活 ${seconds(game.result.ticks)}。`);dialog(game.result.ranks?(game.result.outcome==='win'?'質量競賽領先！':'競賽結束'):'再留一條退路',`${game.result.ranks?'90 秒到；總分＝食物分＋存活質量×10。 ':''}本局 ${game.result.score} 分，存活 ${seconds(game.result.ticks)}。撞牆或蛇身會結束；下一局試試先保留轉彎空間。`,'再玩一局 →','本局結束');}
-  function frame(now) {
-    if(game.phase!=='running')return;
-    if(previous===null)previous=now;elapsed+=Math.min((now-previous)/1000,.32);previous=now;
-    while(elapsed>=EffectSnake.DT&&game.phase==='running') {
-      game.step({boost:boostHeld});elapsed-=EffectSnake.DT;
-      for(const event of game.events)if(event.actor===0){if(event.type==='capture'){announce('質量至少 1.5 倍，迎頭搶勝！+30 分、成長 2 格。');lastNotice=game.tick;}if(event.type==='boost'){announce('加速掉落 1 質量成為果實，對手也能撿；放手即可節省。');lastNotice=game.tick;}if(event.type==='shield'){announce('護盾擋下一次碰撞！現在停在原位，快轉向。');lastNotice=game.tick;}if(event.type==='food'){const f=EffectSnake.FOODS[event.food];announce(`${f.name}：${{fruit:'加 10 分、長 1 格',star:'加 25 分、長 2 格',shield:'加 5 分、護盾保護 6 秒',poison:'扣 15 分、短 3 格',slow:'接下來 4 秒半速'}[event.food]}。`);lastNotice=game.tick;}}
-      if(game.tick-lastNotice>32){const waiting=game.actors.find(a=>a.warning);announce(waiting?`${EffectSnake.PROFILES[waiting.id].name} 即將由虛線區入場；靠近時會延後。`:'同格搶食需 1.5 倍質量才壓勝；撞蛇身仍出局。加速會掉質量。');lastNotice=game.tick;}
-    }
-    hud();draw();if(game.phase==='over'){finish();return;}frameID=requestAnimationFrame(frame);
+  const blank = () => ({v:VERSION,xp:0,matches:0,wins:0,best:0,bestMass:0,captures:0,cuts:0,challenges:0,bestTier:-1});
+  function sanitize(p){const b=blank();if(!p||typeof p!=='object')return b;for(const k of Object.keys(b))if(Number.isFinite(p[k])&&p[k]>=(k==='bestTier'?-1:0))b[k]=Math.floor(p[k]);b.v=VERSION;return b;}
+  function record(profile,s){
+    const p=sanitize(profile), gain=matchXP(s), before=levelOf(p.xp), win=s.outcome==='win';
+    const next={...p,xp:p.xp+gain.total,matches:p.matches+1,wins:p.wins+(win?1:0),best:Math.max(p.best,s.score||0),bestMass:Math.max(p.bestMass,s.peak||0),captures:p.captures+(s.captures||0),cuts:p.cuts+(s.cuts||0),challenges:p.challenges+(s.challenge?1:0),bestTier:win?Math.max(p.bestTier,s.tier):p.bestTier};
+    const after=levelOf(next.xp);
+    return{profile:next,gain,before,after,unlocked:UNLOCKS.filter(u=>u.level>before.level&&u.level<=after.level)};
   }
-  $('boost').addEventListener('pointerdown',e=>{e.preventDefault();boostHeld=true;$('boost').setPointerCapture(e.pointerId);});
-  for(const type of ['pointerup','pointercancel','lostpointercapture','blur'])$('boost').addEventListener(type,()=>boostHeld=false);
-  document.addEventListener('keydown',e=>{if(e.key===' '&&game.phase==='running'&&!e.target.closest('a,summary')){e.preventDefault();boostHeld=true;}});
-  document.addEventListener('keyup',e=>{if(e.key===' ')boostHeld=false;});
-  $('play').addEventListener('click',()=>game.phase==='over'?restart():resume());$('restart').addEventListener('click',restart);$('pause').addEventListener('click',()=>game.phase==='paused'?resume():pause());
-  const directions={ArrowUp:0,w:0,W:0,ArrowRight:1,d:1,D:1,ArrowDown:2,s:2,S:2,ArrowLeft:3,a:3,A:3};
-  document.addEventListener('keydown',event=>{if(event.altKey||event.ctrlKey||event.metaKey)return;if(Object.hasOwn(directions,event.key)){event.preventDefault();game.setDirection(directions[event.key]);}else if(['p','P','Escape'].includes(event.key)){event.preventDefault();if(game.phase==='paused')resume();else pause();}});
-  for(const button of document.querySelectorAll('[data-direction]')){
-    const steer=()=>{game.setDirection({up:0,right:1,down:2,left:3}[button.dataset.direction]);canvas.focus({preventScroll:true});};
-    button.addEventListener('pointerdown',event=>{event.preventDefault();steer();});
-    button.addEventListener('click',steer);
+  function load(storage){try{return sanitize(JSON.parse(storage.getItem(KEY)||'null'));}catch(e){return blank();}}
+  function save(storage,p){try{storage.setItem(KEY,JSON.stringify(sanitize(p)));return true;}catch(e){return false;}}
+  return{MAX_LEVEL,KEY,need,levelOf,rankOf,RANKS,UNLOCKS,unlockLevel,unlocked,TIER_XP,MOD_XP,CHALLENGE_XP,CHALLENGES,challengeFor,matchXP,blank,sanitize,record,load,save};
+})();
+</script>
+<script id="snake-ui">
+'use strict';
+const $=id=>document.getElementById(id), S=EffectSnake, C=SnakeCareer, canvas=$('board');
+// FuPalette side order: seal (you), azure, jade, gold.
+const SIDE=['#ff4b2b','#4fa3ff','#35d0a8','#e9b949'], NAMES=['你','果果','守守','切切'];
+const TONE={jade:'#35d0a8',gold:'#e9b949',azure:'#4fa3ff',orchid:'#b98cff',mute:'#8a8f99',paper:'#ece4d0',bone:'#d9d2c0',seal:'#ff4b2b'};
+const foodColor=type=>TONE[S.FOODS[type].tone];
+const store=(()=>{try{const k='__es';localStorage.setItem(k,'1');localStorage.removeItem(k);return localStorage;}catch(e){const m=new Map();return{getItem:k=>m.has(k)?m.get(k):null,setItem:(k,v)=>m.set(k,String(v)),removeItem:k=>m.delete(k)};}})();
+const SETUP_KEY='effect-snake-setup',PREF_KEY='effect-snake-prefs';
+function readJSON(key,fallback){try{const v=JSON.parse(store.getItem(key)||'null');return v&&typeof v==='object'?{...fallback,...v}:{...fallback};}catch(e){return{...fallback};}}
+function writeJSON(key,v){try{store.setItem(key,JSON.stringify(v));}catch(e){}}
+let profile=C.load(store);
+const setup=readJSON(SETUP_KEY,{tier:1,mods:{}});
+if(!setup.mods||typeof setup.mods!=='object')setup.mods={};
+const prefs=readJSON(PREF_KEY,{sound:true,top:false,labels:true,shake:!matchMedia('(prefers-reduced-motion: reduce)').matches});
+const level=()=>C.levelOf(profile.xp).level;
+function clampSetup(){const lv=level();if(!C.unlocked(lv,'tier',setup.tier))setup.tier=1;for(const id of S.MODIFIER_IDS)if(setup.mods[id]&&!C.unlocked(lv,'mod',id))setup.mods[id]=false;}
+function matchOptions(){clampSetup();return{tier:setup.tier,modifiers:S.MODIFIER_IDS.filter(id=>setup.mods[id])};}
+let game=new S.Game(Math.random,matchOptions());
+let challenge=C.challengeFor(profile.matches), recorded=false, boostHeld=false, swipe=null, previous=null, elapsed=0, lastNotice=0, lastMode='', prev=null;
+const FX={queue:[],shake:0,flash:0,time:0};
+
+// ---------- Sound: tiny WebAudio synth, no assets ----------
+const Sound=(()=>{
+ let ac=null,out=null;
+ function ensure(){if(!prefs.sound)return null;if(!ac){const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return null;try{ac=new AC();}catch(e){return null;}out=ac.createGain();out.gain.value=.5;out.connect(ac.destination);}if(ac.state==='suspended')ac.resume().catch(()=>{});return ac;}
+ function tone(f,to,dur,o={}){const c=ensure();if(!c)return;const t=c.currentTime+(o.delay||0),osc=c.createOscillator(),g=c.createGain();osc.type=o.type||'triangle';osc.frequency.setValueAtTime(f,t);if(to&&to!==f)osc.frequency.exponentialRampToValueAtTime(Math.max(20,to),t+dur);g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(o.vol||.12,t+.008);g.gain.exponentialRampToValueAtTime(.0001,t+dur);osc.connect(g);g.connect(out);osc.start(t);osc.stop(t+dur+.05);}
+ return{ensure,
+  eat(type){if(type==='poison')tone(300,120,.2,{type:'sawtooth',vol:.06});else if(type==='slow')tone(180,90,.25,{vol:.08});else if(type==='star'){tone(880,1320,.12,{vol:.08});tone(1320,1760,.14,{vol:.06,delay:.06});}else if(type==='blade'||type==='ink')tone(440,1760,.22,{type:'square',vol:.04});else tone(620,880,.08,{vol:.07});},
+  boost(){tone(160,90,.09,{type:'sawtooth',vol:.025});},
+  death(mine){tone(mine?520:300,50,.6,{type:'sawtooth',vol:mine?.14:.06});},
+  capture(){[523,659,784].forEach((f,i)=>tone(f,f,.14,{type:'square',vol:.05,delay:i*.05}));},
+  cut(){tone(1800,200,.18,{type:'sawtooth',vol:.07});},
+  ink(){tone(90,40,.5,{type:'sine',vol:.28});},
+  shield(){tone(700,1400,.2,{vol:.1});},
+  shrink(){tone(70,40,.7,{type:'sawtooth',vol:.12});},
+  warn(){tone(880,880,.08,{type:'square',vol:.04});},
+  start(){[392,523,784].forEach((f,i)=>tone(f,f,.16,{type:'square',vol:.05,delay:i*.09}));},
+  end(win){(win?[523,659,784,1047]:[440,392,330]).forEach((f,i)=>tone(f,f,.22,{vol:.1,delay:i*.1}));},
+  levelUp(){[523,659,784,1047,1319].forEach((f,i)=>tone(f,f,.24,{vol:.08,delay:i*.08}));}
+ };
+})();
+
+// ---------- Career & lobby ----------
+function careerHTML(p){const l=C.levelOf(p.xp);return `<div class="lv"><small>LEVEL</small>${l.level}</div><div class="who">${C.rankOf(l.level)}<span>${l.max?'已達最高等級':`${l.into} / ${l.need} XP`}</span></div><span class="xpbar"><i style="width:${l.max?100:Math.round(l.into/l.need*100)}%"></i></span>`;}
+function unlockLabel(u){return u.kind==='tier'?`難度「${S.TIERS[u.id].name}」`:`場地規則「${S.MODIFIERS[u.id].name}」`;}
+function renderCareer(){
+ const l=C.levelOf(profile.xp);$('lv').textContent=l.level;$('rank').textContent=C.rankOf(l.level);$('lv-fill').style.width=(l.max?100:Math.round(l.into/l.need*100))+'%';
+ $('career-chip').setAttribute('aria-label',`生涯等級 ${l.level}，${C.rankOf(l.level)}。開啟生涯紀錄`);
+ for(const id of ['lobby-career','drawer-career'])$(id).innerHTML=careerHTML(profile);
+ $('stats').innerHTML=[['對局',profile.matches],['奪冠',profile.wins],['最高食物分',profile.best],['最大質量',profile.bestMass],['迎頭壓勝',profile.captures],['斷尾',profile.cuts],['完成挑戰',profile.challenges],['最高勝場難度',profile.bestTier>=0?S.TIERS[profile.bestTier].name:'—']].map(([k,v])=>`<div><b>${v}</b><span>${k}</span></div>`).join('');
+ $('unlocks').innerHTML=C.UNLOCKS.filter(u=>u.level>1).map(u=>`<li class="${l.level>=u.level?'got':''}">${unlockLabel(u)}<span>${l.level>=u.level?'已解鎖':'Lv '+u.level}</span></li>`).join('');
+}
+function challengeHTML(ch,state){return `<div><b>${ch.text}</b><span>${state==='done'?'已完成！':state==='miss'?'這局沒達成，下局換新挑戰。':'達成可得額外經驗（再乘難度倍率）。'}</span></div><span class="num">${state==='done'?'✓ ':''}+${C.CHALLENGE_XP} XP</span>`;}
+function renderSetup(){
+ clampSetup();const lv=level();
+ $('tier-picks').innerHTML=S.TIERS.map((t,i)=>{const ok=C.unlocked(lv,'tier',i);return `<button class="pick" type="button" data-tier="${i}" aria-pressed="${setup.tier===i}" ${ok?'':'disabled'}><b>${t.name}</b><span>${t.desc}</span><span class="num">經驗 ×${t.xp}</span>${ok?'':`<i class="lock">Lv ${C.unlockLevel('tier',i)}</i>`}</button>`;}).join('');
+ $('mod-picks').innerHTML=S.MODIFIER_IDS.map(id=>{const m=S.MODIFIERS[id],ok=C.unlocked(lv,'mod',id);return `<button class="pick" type="button" data-mod="${id}" aria-pressed="${!!setup.mods[id]}" ${ok?'':'disabled'}><b>${m.name}</b><span>${m.desc}</span>${ok?'':`<i class="lock">Lv ${C.unlockLevel('mod',id)}</i>`}</button>`;}).join('');
+ challenge=C.challengeFor(profile.matches);$('lobby-challenge').className='challenge';$('lobby-challenge').innerHTML=challengeHTML(challenge,'');
+}
+$('tier-picks').addEventListener('click',e=>{const b=e.target.closest('[data-tier]');if(!b||b.disabled)return;setup.tier=Number(b.dataset.tier);writeJSON(SETUP_KEY,setup);renderSetup();newMatch();});
+$('mod-picks').addEventListener('click',e=>{const b=e.target.closest('[data-mod]');if(!b||b.disabled)return;setup.mods[b.dataset.mod]=!setup.mods[b.dataset.mod];writeJSON(SETUP_KEY,setup);renderSetup();newMatch();});
+function renderLegend(){
+ const types=['fruit','star','shield','poison','slow','blade','ink'];
+ $('legend').innerHTML=types.map(t=>{const f=S.FOODS[t];return `<li data-food="${t}" ${f.power&&!game.options.modifiers.powerups?'hidden':''}><span class="glyph" style="--tone:${foodColor(t)}">${f.icon}</span><span><b>${f.name}</b>${f.text}</span></li>`;}).join('');
+ const mods=S.MODIFIER_IDS.filter(id=>game.options.modifiers[id]).map(id=>S.MODIFIERS[id].name);
+ $('mods-label').textContent=S.TIERS[game.options.tier].name+(mods.length?' · '+mods.join('・'):'');
+}
+
+// ---------- Roster ----------
+$('roster').insertAdjacentHTML('beforeend',game.actors.map(a=>`<div class="seat" id="seat${a.id}" style="--seat:${SIDE[a.id]}"><span class="fu-side"></span><strong>${NAMES[a.id]}</strong><span class="pts" id="pts${a.id}">0</span><span class="fu-meter" aria-hidden="true"><i id="mass${a.id}"></i></span><span class="mode" id="mode${a.id}">準備</span></div>`).join(''));
+const seconds=ticks=>{const n=Math.floor(ticks*S.DT);return `${Math.floor(n/60)}:${String(n%60).padStart(2,'0')}`;};
+function setText(id,text){const el=$(id);if(el.textContent!==text)el.textContent=text;}
+function announce(text){setText('status',text);}
+function placeOf(id){const r=game.standings(),me=r.find(x=>x.id===id);return 1+r.filter(x=>x.total>me.total).length;}
+function challengeProgress(){const a=game.actors[0],s=a.stats;return{stars:s.stars,peak:s.peak,captures:s.captures,boosts:s.boosts,outcome:game.phase==='over'?game.result.outcome:'running',place:placeOf(0)};}
+function challengeDone(st){if(challenge.id==='survive'||challenge.id==='top2')return game.phase==='over'&&challenge.check(st);return challenge.check(st);}
+function hud(){
+ const a=game.actors[0];
+ setText('score',String(a.score));setText('length',a.alive?String(a.targetLength):'—');setText('clock',seconds(Math.max(0,S.MATCH_TICKS-game.tick)));
+ $('clock').classList.toggle('low',game.phase==='running'&&S.MATCH_TICKS-game.tick<=63);
+ setText('place',game.phase==='ready'?'—':a.alive?placeOf(0)+' / 4':'出局');
+ const fx=[];
+ if(a.boosting)fx.push(['seal','加速中']);
+ if(a.shield)fx.push(['azure',`護盾 ${Math.ceil(a.shield*S.DT)} 秒`]);
+ if(a.slow)fx.push(['','泥團 '+Math.ceil(a.slow*S.DT)+' 秒']);
+ if(a.blade)fx.push(['gold',`斷尾刃 ${Math.ceil(a.blade*S.DT)} 秒`]);
+ const warn=game.shrinkWarning();if(warn>=0)fx.push(['seal','外圈封閉 '+Math.max(0,Math.ceil((game.shrinkAt-game.tick)*S.DT))+' 秒']);
+ else if(game.options.modifiers.shrink&&game.closed<S.SHRINK_LAYERS&&game.phase!=='ready')fx.push(['',`縮圈 ${Math.ceil((game.shrinkAt-game.tick)*S.DT)} 秒`]);
+ const html=fx.map(([t,l])=>`<span class="fu-chip${t?' fu-chip--'+t:''}">${l}</span>`).join('');
+ if($('effects').dataset.h!==html){$('effects').dataset.h=html;$('effects').innerHTML=html;}
+ const st=challengeProgress(),done=challengeDone(st);
+ setText('goal',(done?'✓ 挑戰完成：':'挑戰：')+challenge.text);$('goal').classList.toggle('done',done);
+ const ranks=game.standings();
+ for(const b of game.actors){
+  $('seat'+b.id).classList.toggle('out',!b.alive);$('seat'+b.id).classList.toggle('lead',game.phase!=='ready'&&ranks[0].id===b.id&&ranks[0].total>(ranks[1]?ranks[1].total:0));
+  setText('pts'+b.id,String(b.score+(b.alive?b.targetLength*10:0)));
+  $('mass'+b.id).style.width=(b.alive?b.targetLength/S.MAX_LENGTH*100:0).toFixed(1)+'%';
+  setText('mode'+b.id,b.alive?`質量 ${b.targetLength} · ${b.id?(b.boosting?'加速':b.reason):b.boosting?'加速':'食物 '+b.score}`:b.id?(b.warning?'虛線區預告入場':'等待重生'):'出局');
+ }
+ const canBoost=game.phase==='running'&&a.alive&&a.targetLength>=6&&!a.slow;
+ $('boost').disabled=!canBoost&&!a.boosting;$('boost').classList.toggle('on',!!a.boosting&&game.phase==='running');
+ setText('boost-label',a.boosting?'每 0.32 秒 −1 質量':a.slow?'泥團中無法加速':a.targetLength<6?'需質量 6':'按住 · 空白鍵');
+ $('boost-meter').style.width=Math.min(100,a.targetLength/S.MAX_LENGTH*100).toFixed(1)+'%';
+ $('pause').disabled=game.phase!=='running'&&game.phase!=='paused';$('pause').classList.toggle('paused',game.phase==='paused');$('pause').setAttribute('aria-label',game.phase==='paused'?'繼續':'暫停');
+ const mode=game.phase==='running'?'':game.phase==='paused'?'pause':game.phase==='over'?'result':'lobby';
+ if(mode===lastMode)return;lastMode=mode;
+ $('overlay').hidden=!mode;if(mode)$('overlay').dataset.mode=mode;
+ if(mode==='result')showResult();
+ if(mode==='lobby'){renderSetup();renderCareer();}
+ if(mode){const target={lobby:'play',pause:'resume',result:'again'}[mode];requestAnimationFrame(()=>{if(!$('drawer').classList.contains('is-open'))$(target).focus({preventScroll:true});});}
+}
+function showResult(){
+ const a=game.actors[0],r=game.result,out=r.outcome==='out';
+ setText('result-title',out?'再留一條退路':r.outcome==='win'?'質量競速領先！':`第 ${r.place} 名`);
+ const mods=S.MODIFIER_IDS.filter(id=>game.options.modifiers[id]).map(id=>S.MODIFIERS[id].name);
+ setText('result-kicker',`本局結束 · ${S.TIERS[game.options.tier].name}${mods.length?' · '+mods.join('・'):''}`);
+ setText('dialog-copy',out?`你撐了 ${seconds(r.ticks)} 後出局，本局 ${r.score} 分。下一局試試先保留轉彎空間，或用截路反制大蛇。`:`90 秒到；總分＝食物分＋存活質量×10。本局 ${r.score} 分、質量 ${a.targetLength}，存活 ${seconds(r.ticks)}。`);
+ $('standings').innerHTML=r.ranks.map((x,i)=>{const b=game.actors[x.id];return `<div style="--seat:${SIDE[x.id]}"><b>${NAMES[x.id]}<i>#${1+r.ranks.filter(y=>y.total>x.total).length}</i></b>總分 ${x.total}<br>食物 ${b.score}${b.alive?' · 質量 '+b.targetLength:' · 出局'}</div>`;}).join('');
+ const st={...challengeProgress(),outcome:r.outcome,place:r.place},done=challenge.check(st);
+ $('result-challenge').className='challenge '+(done?'done':'miss');$('result-challenge').innerHTML=challengeHTML(challenge,done?'done':'miss');
+ if(!recorded){
+  recorded=true;
+  const res=C.record(profile,{outcome:r.outcome,place:r.place,score:r.score,mass:a.alive?a.targetLength:0,peak:a.stats.peak,captures:a.stats.captures,cuts:a.stats.cuts,inks:a.stats.inks,ticks:r.ticks,tier:game.options.tier,mods:mods.length,challenge:done});
+  profile=res.profile;C.save(store,profile);
+  $('xp-lines').innerHTML=res.gain.lines.map(([k,v])=>`<dt>${k}</dt><dd>+${v}</dd>`).join('')+`<dt class="total">合計${res.gain.mult!==1?`（×${res.gain.mult.toFixed(2)}）`:''}</dt><dd class="total">+${res.gain.total} XP</dd>`;
+  setText('xp-mult',`難度 ×${S.TIERS[game.options.tier].xp}${mods.length?` · 規則 ×${(1+C.MOD_XP*mods.length).toFixed(1)}`:''}`);
+  const up=res.after.level>res.before.level;$('levelup-wrap').style.display=up?'':'none';
+  if(up){$('levelup').innerHTML=`<b>升到 Lv ${res.after.level} · ${C.rankOf(res.after.level)}</b>${res.unlocked.length?'<br>解鎖：'+res.unlocked.map(unlockLabel).join('、'):''}`;Sound.levelUp();}
+  $('result-career').innerHTML=careerHTML(profile);renderCareer();
+  Sound.end(r.outcome==='win');
+ }
+ announce(`${$('result-title').textContent} ${$('dialog-copy').textContent}`);
+}
+
+// ---------- Events → feedback ----------
+function push(kind,data){FX.queue.push({kind,...data});}
+function onEvents(events,before){
+ for(const e of events){
+  const a=game.actors[e.actor],mine=e.actor===0,head=a&&a.body[0];
+  if(e.type==='food'){Sound.eat(e.food);if(head)push('burst',{x:head.x,y:head.y,color:foodColor(e.food),n:mine?16:8});if(mine){const f=S.FOODS[e.food];push('float',{x:head.x,y:head.y,text:f.score>0?`+${f.score}`:f.score<0?`${f.score}`:f.name,color:foodColor(e.food)});announce(`${f.name}：${f.text}。`);lastNotice=game.tick;}}
+  else if(e.type==='death'){const body=before[e.actor]||[];push('death',{body,color:SIDE[e.actor],mine});Sound.death(mine);if(mine){FX.shake=Math.max(FX.shake,prefs.shake?1:0);FX.flash=prefs.shake?.5:.15;}else if(head||body[0]){const p=body[0];push('float',{x:p.x,y:p.y,text:'出局',color:SIDE[e.actor],big:true});}
+   if(!mine)announce(`${NAMES[e.actor]} ${e.cause==='crush'?'被封閉的外圈壓碎':e.cause==='cut'?'被斬斷到剩不到 3 格':'撞上了'}，約 4 秒後重新入場。`);}
+  else if(e.type==='capture'){Sound.capture();if(head)push('float',{x:head.x,y:head.y,text:'壓勝 +30',color:SIDE[e.actor],big:true});if(mine){announce('質量至少 1.5 倍，迎頭搶勝！+30 分、成長 2 格。');lastNotice=game.tick;FX.shake=Math.max(FX.shake,prefs.shake?.5:0);}}
+  else if(e.type==='cut'){Sound.cut();push('burst',{x:e.x,y:e.y,color:'#ece4d0',n:26});push('float',{x:e.x,y:e.y,text:`斷尾 −${e.lost}`,color:SIDE[e.victim],big:true});
+   if(mine)announce(`斷尾刃斬斷 ${NAMES[e.victim]} ${e.lost} 格！+20 分，斷段變成果實。`);else if(e.victim===0)announce(`${NAMES[e.actor]} 用斷尾刃斬掉你 ${e.lost} 格！`);lastNotice=game.tick;}
+  else if(e.type==='ink'){Sound.ink();push('ink',{x:e.x,y:e.y,color:SIDE[e.actor]});if(mine)announce(e.hits.length?`墨爆命中 ${e.hits.length} 位對手，各縮 3 格！`:'墨爆沒有波及任何對手（5 格內）。');else if(e.hits.includes(0))announce(`${NAMES[e.actor]} 的墨爆讓你縮了 3 格！`);lastNotice=game.tick;if(mine||e.hits.includes(0))FX.shake=Math.max(FX.shake,prefs.shake?.45:0);}
+  else if(e.type==='shield'){Sound.shield();if(head)push('ring',{x:head.x,y:head.y,color:'#4fa3ff'});if(mine){announce(e.by==='ink'?'護盾擋下了墨爆！':'護盾擋下一次碰撞！現在停在原位，快轉向。');lastNotice=game.tick;}}
+  else if(e.type==='boost'){if(mine){Sound.boost();if(game.tick-lastNotice>40){announce('加速每 0.32 秒掉 1 質量，在尾端留給對手撿；放手即可節省。');lastNotice=game.tick;}}}
+  else if(e.type==='spawn'){push('ring',{x:a.body[0].x,y:a.body[0].y,color:SIDE[e.actor]});}
+  else if(e.type==='shrink'){Sound.shrink();FX.shake=Math.max(FX.shake,prefs.shake?.4:0);announce('外圈封閉！場地又縮小一圈。');lastNotice=game.tick;}
+  else if(e.type==='crumble'){if(a&&a.body[0])push('float',{x:a.body[0].x,y:a.body[0].y,text:`斷 −${e.lost}`,color:SIDE[e.actor]});}
+ }
+ const warn=game.shrinkWarning();if(warn>=0&&(game.shrinkAt-game.tick)%6===0)Sound.warn();
+}
+
+// ---------- Flow ----------
+function snapshot(){return game.actors.map(a=>a.body.map(p=>({x:p.x,y:p.y})));}
+function stopInput(){boostHeld=false;swipe=null;previous=null;elapsed=0;}
+function newMatch(){game=new S.Game(Math.random,matchOptions());recorded=false;prev=snapshot();FX.queue.length=0;lastMode='?';renderLegend();}
+function start(){
+ const fresh=game.phase==='ready'||game.phase==='over';
+ if(game.phase==='over')newMatch();
+ if(fresh){challenge=C.challengeFor(profile.matches);Sound.start();announce('你是朱色蛇。吃好果、避毒菇；質量 6 以上按住空白鍵加速。');}
+ else announce('繼續蛇行。');
+ stopInput();game.start();Sound.ensure();closeDrawer();lastNotice=game.tick;hud();canvas.focus({preventScroll:true});
+}
+function pause(){if(game.phase!=='running')return;game.pause();stopInput();hud();announce('已暫停，蛇、食物與效果計時全部停止。');}
+function toLobby(){newMatch();hud();}
+$('play').onclick=start;$('resume').onclick=start;$('again').onclick=()=>{newMatch();start();};
+$('to-lobby').onclick=toLobby;$('result-lobby').onclick=toLobby;
+$('restart').onclick=()=>{newMatch();start();};
+$('pause').onclick=()=>game.phase==='paused'?start():pause();
+
+// ---------- Drawer & settings ----------
+function openDrawer(tab){if(tab)selectTab(tab);if(game.phase==='running')pause();$('drawer').classList.add('is-open');$('drawer').setAttribute('aria-hidden','false');$('scrim').classList.add('is-on');$('menu-btn').setAttribute('aria-expanded','true');renderCareer();requestAnimationFrame(()=>$('drawer-close').focus({preventScroll:true}));}
+function closeDrawer(){if(!$('drawer').classList.contains('is-open'))return;$('drawer').classList.remove('is-open');$('drawer').setAttribute('aria-hidden','true');$('scrim').classList.remove('is-on');$('menu-btn').setAttribute('aria-expanded','false');}
+function selectTab(name){for(const t of ['rules','settings','career']){$('tab-'+t).setAttribute('aria-selected',String(t===name));$('panel-'+t).hidden=t!==name;}}
+for(const t of ['rules','settings','career'])$('tab-'+t).onclick=()=>selectTab(t);
+for(const b of document.querySelectorAll('[data-open-tab]'))b.onclick=()=>openDrawer(b.dataset.openTab);
+$('menu-btn').onclick=()=>$('drawer').classList.contains('is-open')?closeDrawer():openDrawer();
+$('career-chip').onclick=()=>openDrawer('career');
+$('drawer-close').onclick=closeDrawer;$('scrim').onclick=closeDrawer;
+function syncSound(){$('sound').setAttribute('aria-pressed',String(prefs.sound));$('sound').setAttribute('aria-label',prefs.sound?'音效開啟，按下靜音':'音效關閉，按下開啟');$('set-sound').checked=prefs.sound;}
+function toggleSound(){prefs.sound=!prefs.sound;writeJSON(PREF_KEY,prefs);syncSound();if(prefs.sound)Sound.ensure();}
+$('sound').onclick=toggleSound;$('set-sound').onchange=toggleSound;syncSound();
+for(const [id,k] of [['set-top','top'],['set-labels','labels'],['set-shake','shake']]){const el=$(id);el.checked=!!prefs[k];el.onchange=()=>{prefs[k]=el.checked;writeJSON(PREF_KEY,prefs);};}
+$('reset-career').onclick=()=>{if(!confirm('確定要清除這台裝置上的效果貪食蛇等級與紀錄？'))return;profile=C.blank();C.save(store,profile);renderCareer();renderSetup();};
+
+// ---------- Input ----------
+const directions={ArrowUp:0,w:0,W:0,ArrowRight:1,d:1,D:1,ArrowDown:2,s:2,S:2,ArrowLeft:3,a:3,A:3};
+document.addEventListener('keydown',e=>{
+ if(e.altKey||e.ctrlKey||e.metaKey)return;
+ if(e.key==='Escape'&&$('drawer').classList.contains('is-open')){e.preventDefault();closeDrawer();return;}
+ if(Object.hasOwn(directions,e.key)&&game.phase==='running'){e.preventDefault();game.setDirection(directions[e.key]);return;}
+ if(e.key===' '&&game.phase==='running'&&!e.target.closest('a,input')){e.preventDefault();boostHeld=true;return;}
+ if((e.key==='m'||e.key==='M')&&!e.repeat){toggleSound();return;}
+ if(['p','P','Escape'].includes(e.key)&&!e.repeat&&(game.phase==='running'||game.phase==='paused')){e.preventDefault();if(game.phase==='paused')start();else pause();}
+});
+document.addEventListener('keyup',e=>{if(e.key===' ')boostHeld=false;});
+$('boost').addEventListener('pointerdown',e=>{if(game.phase!=='running')return;e.preventDefault();boostHeld=true;try{$('boost').setPointerCapture(e.pointerId);}catch(err){}});
+for(const type of ['pointerup','pointercancel','lostpointercapture','blur'])$('boost').addEventListener(type,()=>{boostHeld=false;});
+$('boost').addEventListener('contextmenu',e=>e.preventDefault());
+for(const button of document.querySelectorAll('[data-direction]')){
+ const steer=()=>{game.setDirection({up:0,right:1,down:2,left:3}[button.dataset.direction]);};
+ button.addEventListener('pointerdown',event=>{event.preventDefault();steer();});
+ button.addEventListener('click',e=>{if(e.detail===0)steer();});
+}
+canvas.addEventListener('pointerdown',event=>{if(game.phase!=='running')return;swipe={id:event.pointerId,x:event.clientX,y:event.clientY};try{canvas.setPointerCapture(event.pointerId);}catch(err){}});
+canvas.addEventListener('pointermove',event=>{if(!swipe||swipe.id!==event.pointerId)return;const dx=event.clientX-swipe.x,dy=event.clientY-swipe.y;if(Math.max(Math.abs(dx),Math.abs(dy))<14)return;game.setDirection(Math.abs(dx)>Math.abs(dy)?(dx>0?1:3):(dy>0?2:0));swipe.x=event.clientX;swipe.y=event.clientY;});
+for(const type of ['pointerup','pointercancel','lostpointercapture'])canvas.addEventListener(type,()=>{swipe=null;});
+window.addEventListener('blur',pause);document.addEventListener('visibilitychange',()=>{if(document.hidden)pause();});window.addEventListener('pagehide',pause);
+
+// ---------- Frame loop: fixed-step simulation, free-running renderer ----------
+let lastTime=null;
+function frame(now){
+ const dt=lastTime===null?0:Math.min(.1,(now-lastTime)/1000);lastTime=now;
+ if(game.phase==='running'){
+  if(previous===null)previous=now;elapsed+=Math.min((now-previous)/1000,.32);previous=now;
+  while(elapsed>=S.DT&&game.phase==='running'){
+   const before=snapshot();game.step({boost:boostHeld});prev=before;elapsed-=S.DT;onEvents(game.events,before);
+   if(game.tick-lastNotice>40&&game.phase==='running'){const waiting=game.actors.find(a=>a.warning);announce(waiting?`${NAMES[waiting.id]} 即將由虛線區入場；有人靠近時會延後。`:'同格搶食需 1.5 倍質量才壓勝；撞上任何蛇身仍出局。');lastNotice=game.tick;}
   }
-  canvas.addEventListener('pointerdown',event=>{if(game.phase!=='running')return;swipe={id:event.pointerId,x:event.clientX,y:event.clientY};canvas.setPointerCapture(event.pointerId);});
-  canvas.addEventListener('pointermove',event=>{if(!swipe||swipe.id!==event.pointerId)return;const dx=event.clientX-swipe.x,dy=event.clientY-swipe.y;if(Math.max(Math.abs(dx),Math.abs(dy))<14)return;game.setDirection(Math.abs(dx)>Math.abs(dy)?(dx>0?1:3):(dy>0?2:0));swipe.x=event.clientX;swipe.y=event.clientY;});
-  for(const type of ['pointerup','pointercancel','lostpointercapture'])canvas.addEventListener(type,()=>{swipe=null;});
-  window.addEventListener('blur',pause);document.addEventListener('visibilitychange',()=>{if(document.hidden)pause();});window.addEventListener('pagehide',pause);
-  hud();draw();
-  </script>
+ }
+ FX.time+=dt;FX.shake=Math.max(0,FX.shake-dt*2.2);FX.flash=Math.max(0,FX.flash-dt*1.4);
+ $('flash').style.opacity=String(FX.flash*.5);
+ hud();
+ const alpha=game.phase==='running'?Math.min(1,elapsed/S.DT):1;
+ if(window.SnakeView)SnakeView.render(dt,alpha);
+ requestAnimationFrame(frame);
+}
+window.SnakeApp={get game(){return game;},get prev(){return prev;},FX,SIDE,NAMES,TONE,foodColor,prefs};
+prev=snapshot();renderLegend();renderCareer();renderSetup();hud();requestAnimationFrame(frame);
+</script>
+<script type="module" id="snake-view">
+// 3D presentation layer. It only reads the simulation (window.SnakeApp.game) and queued effects;
+// every rule stays in the deterministic engine above.
+import { THREE, createStage, palette } from './shared/fu-three.js';
+const app=window.SnakeApp, S=EffectSnake, N=S.SIZE, canvas=document.getElementById('board'), labelLayer=document.getElementById('labels');
+let stage=null;
+try{stage=createStage(canvas,{fov:34,near:.5,far:600,fog:[70,220],exposure:1.1});}catch(e){
+ const d=document.createElement('div');d.className='webgl-fail';d.innerHTML='<div><p>這台裝置或瀏覽器無法啟用 WebGL，3D 場地無法顯示。</p><p><a href="index.html">回到 FuGames</a></p></div>';document.body.append(d);
+}
+if(stage){
+const {scene,camera,renderer}=stage;
+stage.lights.key.intensity=2.1;stage.lights.rim.intensity=1.2;
+const TAU=Math.PI*2, W=(x,y,h=0)=>new THREE.Vector3(x-N/2+.5,h,y-N/2+.5);
+const col=c=>new THREE.Color(c);
+
+// ---------- Floor: one shader draws grid, 7-cell majors, the warned ring and the sealed outside ----------
+const floorU={uTime:{value:0},uWarn:{value:-1},uClosed:{value:0},uHeat:{value:0}};
+const floor=new THREE.Mesh(new THREE.PlaneGeometry(N+.6,N+.6),new THREE.ShaderMaterial({uniforms:floorU,
+ vertexShader:`varying vec2 vP;void main(){vec4 w=modelMatrix*vec4(position,1.);vP=w.xz;gl_Position=projectionMatrix*viewMatrix*w;}`,
+ fragmentShader:`uniform float uTime,uWarn,uClosed,uHeat;varying vec2 vP;
+ void main(){
+  vec2 c=vP+${(N/2).toFixed(1)};
+  float lw=fwidth(c.x);
+  vec2 f=min(fract(c),1.-fract(c));float grid=1.-smoothstep(0.,lw*1.1,min(f.x,f.y));
+  vec2 f7=min(fract(c/7.),1.-fract(c/7.))*7.;float major=1.-smoothstep(0.,lw*1.6,min(f7.x,f7.y));
+  float L=floor(min(min(c.x,c.y),min(${N.toFixed(1)}-c.x,${N.toFixed(1)}-c.y)));
+  float ck=mod(floor(c.x)+floor(c.y),2.);
+  float r=length(vP)/${(N*.72).toFixed(1)};
+  vec3 base=mix(vec3(.078,.094,.118),vec3(.045,.054,.068),smoothstep(.0,1.,r))+ck*.012;
+  vec3 paper=vec3(.93,.89,.82);
+  vec3 colr=base+paper*(grid*.075+major*.11);
+  if(uWarn>=0.&&L==uWarn){float stripe=step(.5,fract((c.x+c.y)*.5-uTime*1.6));colr+=vec3(1.,.29,.17)*(.18+.22*stripe)*(.6+.4*sin(uTime*14.));}
+  if(L<uClosed)colr=vec3(.05,.035,.035);
+  float edge=min(min(c.x,c.y),min(${N.toFixed(1)}-c.x,${N.toFixed(1)}-c.y));
+  colr+=vec3(1.,.29,.17)*exp(-abs(edge-uClosed)*5.)*.25*(1.+uHeat);
+  gl_FragColor=vec4(colr,1.);
+ }`}));
+floor.rotation.x=-Math.PI/2;scene.add(floor);
+// Plinth and rim: the board floats over an ink abyss.
+const plinth=new THREE.Mesh(new THREE.BoxGeometry(N+1.4,1.2,N+1.4),new THREE.MeshStandardMaterial({color:palette.ink1,roughness:.7,metalness:.2,flatShading:true}));plinth.position.y=-.61;scene.add(plinth);
+const rimMat=new THREE.MeshBasicMaterial({color:palette.seal,toneMapped:false});
+for(const [w,d,x,z] of [[N+1.4,.06,0,(N+1.4)/2],[N+1.4,.06,0,-(N+1.4)/2],[.06,N+1.4,(N+1.4)/2,0],[.06,N+1.4,-(N+1.4)/2,0]]){const m=new THREE.Mesh(new THREE.BoxGeometry(w,.06,d),rimMat);m.position.set(x,0,z);scene.add(m);}
+const cornerMat=new THREE.MeshBasicMaterial({color:palette.paper,toneMapped:false});
+for(const [x,z] of [[-1,-1],[1,1]]){const s=(N+1.4)/2;for(const [w,d,ox,oz] of [[2.4,.12,-x*1.2,0],[.12,2.4,0,-z*1.2]]){const m=new THREE.Mesh(new THREE.BoxGeometry(w,.12,d),cornerMat);m.position.set(x*s+ox,.03,z*s+oz);scene.add(m);}}
+const abyss=new THREE.Mesh(new THREE.PlaneGeometry(900,900),new THREE.ShaderMaterial({vertexShader:`varying vec2 vP;void main(){vec4 w=modelMatrix*vec4(position,1.);vP=w.xz;gl_Position=projectionMatrix*viewMatrix*w;}`,fragmentShader:`varying vec2 vP;void main(){vec2 g=abs(fract(vP/4.+.5)-.5)*4.;float l=1.-smoothstep(0.,fwidth(vP.x)*1.5+.02,min(g.x,g.y));float fade=exp(-length(vP)/60.);gl_FragColor=vec4(vec3(.028,.035,.045)+vec3(.93,.89,.82)*l*.06*fade,1.);}`}));
+abyss.rotation.x=-Math.PI/2;abyss.position.y=-14;scene.add(abyss);
+const dust=(()=>{const n=320,pos=new Float32Array(n*3);for(let i=0;i<n;i++){const a=Math.random()*TAU,r=18+Math.random()*70;pos[i*3]=Math.cos(a)*r;pos[i*3+1]=-12+Math.random()*30;pos[i*3+2]=Math.sin(a)*r;}const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.BufferAttribute(pos,3));const p=new THREE.Points(g,new THREE.PointsMaterial({color:0xa8a08c,size:.12,transparent:true,opacity:.4,depthWrite:false}));scene.add(p);return p;})();
+
+// ---------- Soft glow decals (one instanced quad batch, additive) ----------
+function radialTexture(stops){const c=document.createElement('canvas');c.width=c.height=64;const g=c.getContext('2d'),gr=g.createRadialGradient(32,32,0,32,32,32);for(const [o,v] of stops)gr.addColorStop(o,v);g.fillStyle=gr;g.fillRect(0,0,64,64);const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;return t;}
+const glowTex=radialTexture([[0,'rgba(255,255,255,1)'],[.3,'rgba(255,255,255,.4)'],[1,'rgba(255,255,255,0)']]);
+const quad=new THREE.PlaneGeometry(1,1);quad.rotateX(-Math.PI/2);
+const GLOW_MAX=260;
+const glows=new THREE.InstancedMesh(quad,new THREE.MeshBasicMaterial({map:glowTex,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,toneMapped:false,color:0xffffff}),GLOW_MAX);
+glows.frustumCulled=false;glows.renderOrder=1;scene.add(glows);
+const m4=new THREE.Matrix4(),q=new THREE.Quaternion(),v3=new THREE.Vector3(),sc=new THREE.Vector3(),tmpC=new THREE.Color(),up=new THREE.Vector3(0,1,0);
+let glowN=0;
+function glow(x,z,h,size,color,alpha){if(glowN>=GLOW_MAX)return;v3.set(x,h,z);q.identity();sc.set(size,1,size);m4.compose(v3,q,sc);glows.setMatrixAt(glowN,m4);tmpC.set(color).multiplyScalar(alpha);glows.setColorAt(glowN,tmpC);glowN++;}
+
+// ---------- Obstacles: stones and sealed walls ----------
+const OB_MAX=600,blockGeo=new THREE.BoxGeometry(.96,1,.96);blockGeo.translate(0,.5,0);
+const blocks=new THREE.InstancedMesh(blockGeo,new THREE.MeshStandardMaterial({color:0xffffff,roughness:.8,metalness:.1,flatShading:true}),OB_MAX);
+blocks.frustumCulled=false;scene.add(blocks);
+const born=new Map();
+const STONE=col(0x2b3542),WALL=col(0x3a1a14);
+
+// ---------- Snakes ----------
+const SEG_MAX=S.MAX_LENGTH+4;
+const segGeo=new THREE.BoxGeometry(.84,.5,.84);segGeo.translate(0,.25,0);
+const headGeo=new THREE.BoxGeometry(.94,.66,.94);headGeo.translate(0,.33,0);
+const eyeGeo=new THREE.BoxGeometry(.16,.12,.16);
+const snakes=app.SIDE.map((c,i)=>{
+ const tint=col(c).multiplyScalar(.32);
+ const body=new THREE.InstancedMesh(segGeo,new THREE.MeshStandardMaterial({color:tint,emissive:col(c),emissiveIntensity:.42,roughness:.55,metalness:.15,flatShading:true}),SEG_MAX);body.frustumCulled=false;
+ const head=new THREE.Group();
+ const hm=new THREE.Mesh(headGeo,new THREE.MeshStandardMaterial({color:col(c).multiplyScalar(.55),emissive:col(c),emissiveIntensity:.85,roughness:.45,flatShading:true}));
+ const eyes=[-1,1].map(s=>{const e=new THREE.Mesh(eyeGeo,new THREE.MeshBasicMaterial({color:palette.paper,toneMapped:false}));e.position.set(s*.22,.7,.3);return e;});
+ const shield=new THREE.Mesh(new THREE.TorusGeometry(.72,.05,6,4),new THREE.MeshBasicMaterial({color:palette.azure,toneMapped:false,transparent:true,opacity:.9}));shield.rotation.x=Math.PI/2;shield.position.y=.34;
+ const blade=new THREE.Group();for(let k=0;k<3;k++){const b=new THREE.Mesh(new THREE.BoxGeometry(.06,.06,.5),new THREE.MeshBasicMaterial({color:palette.paper,toneMapped:false}));b.position.set(Math.sin(k*TAU/3)*.68,.4,Math.cos(k*TAU/3)*.68);b.rotation.y=k*TAU/3+Math.PI/2;blade.add(b);}
+ const slow=new THREE.Mesh(new THREE.TorusGeometry(.6,.04,4,12),new THREE.MeshBasicMaterial({color:0x8a8f99,toneMapped:false}));slow.rotation.x=Math.PI/2;slow.position.y=.05;
+ head.add(hm,...eyes,shield,blade,slow);
+ scene.add(body,head);
+ return{body,head,hm,shield,blade,slow,color:c};
+});
+
+// ---------- Food ----------
+const foodGeo={fruit:new THREE.IcosahedronGeometry(.26,0),star:new THREE.OctahedronGeometry(.36,0),shield:new THREE.TorusGeometry(.24,.08,5,4),poison:new THREE.ConeGeometry(.28,.5,4),slow:new THREE.CylinderGeometry(.32,.36,.12,6),blade:new THREE.TetrahedronGeometry(.36,0),ink:new THREE.DodecahedronGeometry(.3,0)};
+const foods={};
+for(const t of Object.keys(S.FOODS)){const c=col(app.foodColor(t));const m=new THREE.InstancedMesh(foodGeo[t],new THREE.MeshStandardMaterial({color:t==='ink'?col(0x1b2029):c.clone().multiplyScalar(.6),emissive:c,emissiveIntensity:t==='ink'?.25:.7,roughness:.4,flatShading:true}),40);m.frustumCulled=false;scene.add(m);foods[t]=m;}
+
+// ---------- Spawn warnings (dashed tiles) ----------
+const warnGeo=new THREE.PlaneGeometry(.86,.86);warnGeo.rotateX(-Math.PI/2);
+const warnTiles=new THREE.InstancedMesh(warnGeo,new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:.45,depthWrite:false,toneMapped:false}),40);warnTiles.frustumCulled=false;scene.add(warnTiles);
+
+// ---------- Particles ----------
+const MAXP=900,pPos=new Float32Array(MAXP*3),pCol=new Float32Array(MAXP*3),pSize=new Float32Array(MAXP),pAlpha=new Float32Array(MAXP);
+const pGeo=new THREE.BufferGeometry();pGeo.setAttribute('position',new THREE.BufferAttribute(pPos,3));pGeo.setAttribute('pcolor',new THREE.BufferAttribute(pCol,3));pGeo.setAttribute('psize',new THREE.BufferAttribute(pSize,1));pGeo.setAttribute('palpha',new THREE.BufferAttribute(pAlpha,1));
+const pMat=new THREE.ShaderMaterial({uniforms:{uScale:{value:600}},transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,
+ vertexShader:`attribute vec3 pcolor;attribute float psize,palpha;uniform float uScale;varying vec3 vC;varying float vA;void main(){vec4 mv=modelViewMatrix*vec4(position,1.);gl_PointSize=max(1.,psize*uScale/-mv.z);gl_Position=projectionMatrix*mv;vC=pcolor;vA=palpha;}`,
+ fragmentShader:`varying vec3 vC;varying float vA;void main(){vec2 d=abs(gl_PointCoord-.5);if(max(d.x,d.y)>.5)discard;gl_FragColor=vec4(vC*1.3,vA*(1.-max(d.x,d.y)*1.4));}`});
+const points=new THREE.Points(pGeo,pMat);points.frustumCulled=false;points.renderOrder=3;scene.add(points);
+const parts=[],rings=[];
+const rand=(a,b)=>a+Math.random()*(b-a);
+function burst(x,y,color,n,speed=4,life=.6,size=.16,up=3){const p0=W(x,y,.4);for(let i=0;i<n&&parts.length<MAXP;i++){const a=rand(0,TAU),s=speed*rand(.3,1);parts.push({x:p0.x,y:p0.y,z:p0.z,vx:Math.cos(a)*s,vy:rand(.5,1)*up,vz:Math.sin(a)*s,life:life*rand(.6,1.1),max:life,size:size*rand(.7,1.3),color:col(color)});}}
+
+// ---------- DOM labels ----------
+const labels=new Map();
+function label(k,cls){let el=labels.get(k);if(!el){el=document.createElement('div');el.className=cls;labelLayer.append(el);labels.set(k,el);}el._used=true;return el;}
+const proj=new THREE.Vector3();
+function place(el,pos,dy=0,center=false){proj.copy(pos).project(camera);const sx=(proj.x*.5+.5)*vw,sy=(-proj.y*.5+.5)*vh+dy;el.style.transform=`translate(${sx.toFixed(1)}px,${sy.toFixed(1)}px) translate(-50%,${center?'-50%':'-100%'})`;el.style.display=proj.z>1?'none':'';}
+const floats=[];
+
+// ---------- Camera: fit the board into the space the HUD leaves free ----------
+let vw=1,vh=1,tilt=.6,reserved={top:120,bottom:120,left:0,right:0},reserveAt=-1;
+function measure(){
+ const r=el=>{const n=document.querySelector(el);if(!n)return null;const b=n.getBoundingClientRect();return b.width&&b.height&&getComputedStyle(n).display!=='none'?b:null;};
+ const top=Math.max(r('.fu-topbar')?.bottom||0,r('#clock-hud')?.bottom||0)+8;
+ const ctrl=[r('#boost'),r('.dpad'),r('#status'),vw<=860?r('.roster-hud'):null].filter(Boolean);
+ const bottom=vh-Math.min(vh,...ctrl.map(b=>b.top))+8;
+ let side=0;const ro=r('.roster-hud'),lg=r('.legend-hud');
+ if(vw>860){if(ro)side=Math.max(side,ro.right+12);if(lg)side=Math.max(side,vw-lg.left+12);}
+ reserved={top,bottom:Math.max(8,bottom),left:side,right:side};
+}
+function resize(){const w=canvas.clientWidth||innerWidth,h=canvas.clientHeight||innerHeight;if(w!==vw||h!==vh){vw=w;vh=h;reserveAt=-1;}pMat.uniforms.uScale.value=vh*renderer.getPixelRatio()/(2*Math.tan(camera.fov*Math.PI/360));}
+let az=0;
+function updateCamera(dt,game){
+ if(reserveAt<0||(FXt-reserveAt)>1){measure();reserveAt=FXt;}
+ const portrait=vw/vh<.8, aim=app.prefs.top?.12:portrait?.5:.62;tilt+=(aim-tilt)*Math.min(1,dt*4);
+ const idle=game.phase==='ready';az=idle?Math.sin(FXt*.12)*.22:az*Math.exp(-dt*3);
+ const r=reserved;
+ camera.setViewOffset(vw,vh,-(r.left-r.right)/2,-(r.top-r.bottom)/2,vw,vh);camera.updateProjectionMatrix();
+ // Bisect the camera distance until every board corner projects inside the free rectangle.
+ const place=d=>{camera.position.set(Math.sin(az)*Math.sin(tilt)*d,Math.cos(tilt)*d,Math.cos(az)*Math.sin(tilt)*d);camera.lookAt(0,0,0);camera.updateMatrixWorld();};
+ const fits=()=>{for(const p of fitPts){proj.copy(p).project(camera);const x=(proj.x*.5+.5)*vw,y=(-proj.y*.5+.5)*vh;if(x<r.left+6||x>vw-r.right-6||y<r.top||y>vh-r.bottom||proj.z>1)return false;}return true;};
+ let lo=10,hi=400;for(let i=0;i<18;i++){const mid=(lo+hi)/2;place(mid);if(fits())hi=mid;else lo=mid;}
+ const dist=hi,s=app.FX.shake*.35,sx=s?(Math.random()*2-1)*s:0,sz=s?(Math.random()*2-1)*s:0;
+ camera.position.set(Math.sin(az)*Math.sin(tilt)*dist+sx,Math.cos(tilt)*dist,Math.cos(az)*Math.sin(tilt)*dist+sz);
+ camera.lookAt(sx,0,sz);camera.updateMatrixWorld();
+ scene.fog.near=dist+10;scene.fog.far=dist+140;
+}
+const fitPts=[];{const h=(N+1.5)/2;for(const x of [-h,h])for(const z of [-h,h])for(const y of [0,.8])fitPts.push(new THREE.Vector3(x,y,z));}
+
+// ---------- Per-frame sync ----------
+let FXt=0;
+function lerpCell(a,b,t){if(!a||Math.abs(a.x-b.x)+Math.abs(a.y-b.y)>2.5)return{x:b.x,y:b.y};return{x:a.x+(b.x-a.x)*t,y:a.y+(b.y-a.y)*t};}
+function consume(game){
+ const q=app.FX.queue;
+ while(q.length){const e=q.shift();
+  if(e.kind==='burst')burst(e.x,e.y,e.color,e.n||10,3.5,.55,.14,3);
+  else if(e.kind==='death'){for(const [i,p] of e.body.entries())if(i%1===0)burst(p.x,p.y,e.color,i===0?26:6,i===0?6:3,.9,.2,5);if(e.body[0])rings.push({x:e.body[0].x,y:e.body[0].y,color:e.color,life:.7,max:.7,size:7});}
+  else if(e.kind==='ring')rings.push({x:e.x,y:e.y,color:e.color,life:.6,max:.6,size:3});
+  else if(e.kind==='ink'){rings.push({x:e.x,y:e.y,color:'#d9d2c0',life:.8,max:.8,size:S.INK_RADIUS*2.4});burst(e.x,e.y,'#d9d2c0',40,7,.8,.18,2);}
+  else if(e.kind==='float')floats.push({x:e.x,y:e.y,text:e.text,color:e.color,big:!!e.big,life:1.1,max:1.1,id:Math.random()});
+ }
+}
+function render(dt,alpha){
+ resize();FXt+=dt;const game=app.game,prev=app.prev||[],t=FXt;
+ for(const el of labels.values())el._used=false;
+ consume(game);
+ // Floor
+ floorU.uTime.value=t;floorU.uWarn.value=game.shrinkWarning();floorU.uClosed.value=game.closed;floorU.uHeat.value=game.shrinkWarning()>=0?1:0;
+ // Obstacles (closed rings rise from the floor)
+ let n=0;
+ for(const o of game.obstacles){if(n>=OB_MAX)break;const k=o.y*N+o.x;let b=born.get(k);if(b===undefined){b=game.tick<2?-9:t;born.set(k,b);}const rise=Math.min(1,(t-b)/.45),wall=S.layerOf(o)<game.closed;const h=wall?.7*rise:.9;
+  v3.copy(W(o.x,o.y,0));q.identity();sc.set(1,Math.max(.01,h),1);m4.compose(v3,q,sc);blocks.setMatrixAt(n,m4);blocks.setColorAt(n,wall?WALL:STONE);n++;}
+ if(game.obstacles.length<born.size)born.clear();
+ blocks.count=n;blocks.instanceMatrix.needsUpdate=true;if(blocks.instanceColor)blocks.instanceColor.needsUpdate=true;
+ glowN=0;
+ // Food
+ const counts={};for(const k in foods)counts[k]=0;
+ for(const f of game.food){const m=foods[f.type],i=counts[f.type]++;if(i>=40)continue;const fading=f.expires-game.tick<32,bob=.42+Math.sin(t*3+f.x*.7+f.y)*.07,s=fading?.55+.45*Math.abs(Math.sin(t*8)):1;
+  v3.copy(W(f.x,f.y,bob));q.setFromAxisAngle(up,t*1.6+f.x);if(f.type==='shield'||f.type==='slow')q.setFromAxisAngle(up,t*.8);sc.setScalar(s*1.4);m4.compose(v3,q,sc);m.setMatrixAt(i,m4);
+  const p=W(f.x,f.y,.03);glow(p.x,p.z,.03,S.FOODS[f.type].power?2.4:1.5,app.foodColor(f.type),S.FOODS[f.type].power?.55:.32);
+  if(S.FOODS[f.type].power){const el=label('pw'+f.x+'_'+f.y,'tag');el.style.color=app.foodColor(f.type);el.textContent=S.FOODS[f.type].name;place(el,W(f.x,f.y,1.1));}}
+ for(const k in foods){foods[k].count=Math.min(40,counts[k]);foods[k].instanceMatrix.needsUpdate=true;}
+ // Spawn warnings
+ let wn=0;
+ for(const a of game.actors)if(a.warning){const blink=.35+.35*Math.abs(Math.sin(t*6));for(const p of game.warningCells(a.warning)){if(wn>=40)break;v3.copy(W(p.x,p.y,.02));q.identity();sc.setScalar(1);m4.compose(v3,q,sc);warnTiles.setMatrixAt(wn,m4);tmpC.set(app.SIDE[a.id]).multiplyScalar(blink);warnTiles.setColorAt(wn,tmpC);wn++;}
+  if(app.prefs.labels){const el=label('warn'+a.id,'tag warn');el.style.color=app.SIDE[a.id];el.textContent=app.NAMES[a.id]+' 入場';place(el,W(a.warning.body[0].x,a.warning.body[0].y,.6));}}
+ warnTiles.count=wn;warnTiles.instanceMatrix.needsUpdate=true;if(warnTiles.instanceColor)warnTiles.instanceColor.needsUpdate=true;
+ // Snakes
+ for(const a of game.actors){
+  const s=snakes[a.id];
+  if(!a.alive||!a.body.length){s.body.count=0;s.head.visible=false;continue;}
+  const pb=prev[a.id]||[],len=a.body.length,heat=a.boosting?1:0;
+  let count=0;
+  for(let i=len-1;i>=1;i--){const p=lerpCell(pb[i]||pb[pb.length-1],a.body[i],alpha),taper=1-(i/Math.max(len,8))*.38,h=.85+.2*Math.sin(t*6-i*.6)*heat;
+   v3.copy(W(p.x,p.y,0));q.identity();sc.set(taper,h*taper,taper);m4.compose(v3,q,sc);s.body.setMatrixAt(count++,m4);
+   glow(v3.x,v3.z,.025,1.8*taper,s.color,(a.id===0?.3:.2)+.15*heat);}
+  s.body.count=count;s.body.instanceMatrix.needsUpdate=true;
+  const hp=lerpCell(pb[0],a.body[0],alpha);s.head.visible=true;s.head.position.copy(W(hp.x,hp.y,0));
+  const target=Math.atan2(S.DIRS[a.dir].x,S.DIRS[a.dir].y);let dr=target-s.head.rotation.y;dr=Math.atan2(Math.sin(dr),Math.cos(dr));s.head.rotation.y+=dr*Math.min(1,dt*16);
+  s.hm.material.emissiveIntensity=.85+heat*.6+(a.shield?.2:0);
+  s.shield.visible=a.shield>0;s.shield.rotation.z=t*2;s.blade.visible=a.blade>0;s.blade.rotation.y=t*9;s.slow.visible=a.slow>0;
+  glow(s.head.position.x,s.head.position.z,.03,a.id===0?4.2:3,s.color,a.id===0?.6:.42);
+  if(heat&&Math.random()<dt*40){const tail=a.body[len-1];burst(tail.x,tail.y,s.color,1,1.2,.5,.12,1.2);}
+  if(app.prefs.labels){const el=label('tag'+a.id,a.id?'tag':'tag me');el.style.color=s.color;const txt=(a.id?app.NAMES[a.id]:'YOU')+'<b>'+a.targetLength+'</b>';if(el._h!==txt){el._h=txt;el.innerHTML=txt;}place(el,W(hp.x,hp.y,1.25),-4);}
+ }
+ // Particles
+ for(const p of parts){p.life-=dt;p.vy-=9*dt;p.x+=p.vx*dt;p.y+=p.vy*dt;p.z+=p.vz*dt;p.vx*=Math.exp(-2.4*dt);p.vz*=Math.exp(-2.4*dt);if(p.y<.05){p.y=.05;p.vy=Math.abs(p.vy)*.3;}}
+ for(let i=parts.length-1;i>=0;i--)if(parts[i].life<=0)parts.splice(i,1);
+ let pn=0;for(const p of parts){if(pn>=MAXP)break;pPos[pn*3]=p.x;pPos[pn*3+1]=p.y;pPos[pn*3+2]=p.z;pCol[pn*3]=p.color.r;pCol[pn*3+1]=p.color.g;pCol[pn*3+2]=p.color.b;pSize[pn]=p.size;pAlpha[pn]=Math.max(0,p.life/p.max);pn++;}
+ pGeo.setDrawRange(0,pn);for(const k of ['position','pcolor','psize','palpha'])pGeo.attributes[k].needsUpdate=true;
+ // Expanding rings as glow decals
+ for(const r of rings){r.life-=dt;const k=1-r.life/r.max,p=W(r.x,r.y,.04);glow(p.x,p.z,.04,r.size*(.4+k),r.color,Math.max(0,1-k)*.8);}
+ for(let i=rings.length-1;i>=0;i--)if(rings[i].life<=0)rings.splice(i,1);
+ glows.count=glowN;glows.instanceMatrix.needsUpdate=true;if(glows.instanceColor)glows.instanceColor.needsUpdate=true;
+ // Floating text
+ for(const f of floats){f.life-=dt;const el=label('fl'+f.id,f.big?'floater big':'floater');el.textContent=f.text;el.style.color=f.color;el.style.opacity=String(Math.min(1,f.life/f.max*2));place(el,W(f.x,f.y,1.4+(1-f.life/f.max)*1.4),0,true);}
+ for(let i=floats.length-1;i>=0;i--)if(floats[i].life<=0)floats.splice(i,1);
+ for(const [k,el] of labels)if(!el._used){el.remove();labels.delete(k);}
+ dust.rotation.y+=dt*.01;
+ updateCamera(dt,game);
+ renderer.render(scene,camera);
+}
+window.SnakeView={render,renderer,scene,camera};
+}
+</script>
 </body>
 </html>

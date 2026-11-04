@@ -51,9 +51,9 @@ test('active and archive catalogues together have nineteen valid game links and 
   assert.equal(new Set(linked).size,GAMES.length);
 });
 
-// Full-screen 3D pages (pulse_arena) replace the card shell with their own HUD; tests/pulse-arena.test.cjs covers them.
-const FULLSCREEN=new Set(['pulse_arena']);
-for(const name of GAMES.filter(n=>!FULLSCREEN.has(n)))test(`${name}: shared shell, accessible native header icon and local symbol references`,()=>{
+// Pages migrated to the full-screen Vermilion Ink shell (shared/fu.css) bring their own HUD; their own tests cover them.
+const fullscreen=name=>/href=["']shared\/fu\.css["']/.test(read(name+'.html'));
+for(const name of GAMES.filter(n=>!fullscreen(n)))test(`${name}: shared shell, accessible native header icon and local symbol references`,()=>{
   const source=read(name+'.html');
   if(/<body\b[^>]*class=["'][^"']*\bfu-app\b/.test(source)){
     // pages rebuilt on the shared 朱墨 shell (shared/fu.css) instead of fulab-theme
