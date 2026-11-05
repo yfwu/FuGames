@@ -264,7 +264,7 @@ test('catalog links are valid and the removed game remains absent', () => {
   assert.match(index, /href="territory_loop.html"/); assert.doesNotMatch(index, /西瓜棋|watermelon_chess/);
   assert.equal(fs.existsSync(path.join(root, 'watermelon_chess.html')), false);
   for (const [, href] of index.matchAll(/href="([^"]+)"/g)) {
-    const [file, fragment] = href.split('#');
+    const [path_, fragment] = href.split('#'), file = path_.split('?')[0]; // hexbattle.html?mode=stream is still a local file
     if (!file) continue;
     const target = path.join(root, file);
     assert.ok(fs.existsSync(target), href);

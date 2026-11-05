@@ -21,6 +21,18 @@ test('HexBattle is the catalogue name; the old AutoHex 3D address forwards to it
   assert.match(read('archive.html'), /href="autohex_3d_classic\.html"/, 'the AutoHex-rules 3D page stays in the archive');
 });
 
+test('the homepage offers HexBattle stream mode as a second entry', () => {
+  const home = read('index.html');
+  const card = home.match(/<article class="game-card"><a class="game-link" data-game="hexbattle"[\s\S]*?<\/article>/)[0];
+  assert.match(card, /^<article class="game-card"><a class="game-link"[^>]*href="hexbattle\.html"/, 'the whole row still opens the game');
+  assert.match(card, /<\/a><a class="game-alt" href="hexbattle\.html\?mode=stream"[^>]*>[\s\S]*直播<\/a><\/article>$/, 'the stream link is a sibling, not nested');
+  assert.match(home, /id="detailAlt" href="hexbattle\.html\?mode=stream"/);
+  const data = JSON.parse(home.match(/id="portalGames">([\s\S]*?)<\/script>/)[1]);
+  assert.deepEqual(data.hexbattle.alt, { label: '直播模式 · AI 自動連播', href: 'hexbattle.html?mode=stream' });
+  assert.equal(Object.values(data).filter(g => g.alt).length, 1);
+  assert.match(read('portal.js'), /alt\.hidden = !g\.alt;/);
+});
+
 test('every element id the controller uses exists in the page', () => {
   const html = read('hexbattle.html'), app = read('hexbattle/app.js');
   const ids = new Set([...html.matchAll(/\bid="([^"]+)"/g)].map(m => m[1]));
