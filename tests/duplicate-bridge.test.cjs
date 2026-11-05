@@ -88,3 +88,19 @@ const contract = (level,strain,multiplier=1) => ({level,strain:'CDHSN'.indexOf(s
  test('random legal auctions and play support contracts beyond AI bidding conventions',()=>{
   const random=B.rng(87654);for(let i=1;i<=80;i++){const g=game(i*23,i);let count=0;while(g.phase==='auction'){const legal=B.legalCalls(g),call=random()<.48?'P':legal[Math.floor(random()*legal.length)];assert.ok(B.applyCall(g,call));assert.ok(++count<400);}while(g.phase==='play'){const legal=B.legalCards(g);assert.ok(B.playCard(g,legal[Math.floor(random()*legal.length)]));}if(g.contract){assert.equal(g.history.length,13);assert.equal(g.hands.flat().length,0);assert.ok(Number.isFinite(g.score));}}
  });
+ test('page is a full-screen Vermilion Ink table: shared shell, portal link, drawers, curtain and every control the UI and browser test use',()=>{
+  const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm');const html=fs.readFileSync(path.join(__dirname,'..','duplicate_bridge.html'),'utf8');
+  assert.match(html,/<link rel="stylesheet" href="shared\/fu\.css">/);assert.match(html,/<body class="fu-app[^"]*">/);
+  assert.doesNotMatch(html,/fulab-theme\.css|class="card play-panel|<details class="card rules|site-nav|page-header/);
+  assert.match(html,/<header class="fu-topbar">[\s\S]*?href="index\.html"[\s\S]*?class="fu-seal"[^>]*>福遊</);assert.equal((html.match(/<h1\b/g)||[]).length,1);
+  assert.match(html,/<main class="fu-stage">/);assert.match(html,/class="fu-drawer" id="settings"/);assert.match(html,/class="fu-drawer fu-drawer--left" id="rules"/);assert.match(html,/class="fu-curtain" id="intro"/);
+  for(const id of ['start','pause','hint','restart','next','status','hand','result','call-controls','bid-level','bid-strain','bid','pass','double','redouble','bid-meaning','auction-wrap','auction-body','explain','trick','compass','verdict','veil','phase-label','board-number','dealer-label','vulnerability','contract-label','trick-count','hand-title','hand-detail','session-imps','reset-life',0,1,2,3].flatMap(x=>typeof x==='number'?['seat-'+x,'tab-'+x]:[x]))assert.match(html,new RegExp(`id="${id}"`),id);
+  for(const [,src] of html.matchAll(/<script src="([^"]+)"/g))assert.ok(fs.existsSync(path.join(__dirname,'..',src)),src);
+  assert.doesNotMatch(html,/https?:\/\/|fetch\(|WebSocket|XMLHttpRequest/);
+  const ui=html.match(/<script id="game-ui">([\s\S]*?)<\/script>/)[1];assert.doesNotThrow(()=>new vm.Script(ui));
+ });
+ test('board result converts the NS score difference with the standard IMP scale',()=>{
+  const fs=require('node:fs'),path=require('node:path');const ui=fs.readFileSync(path.join(__dirname,'..','duplicate_bridge.html'),'utf8').match(/<script id="game-ui">([\s\S]*?)<\/script>/)[1];
+  const steps=JSON.parse(ui.match(/IMP_STEPS=(\[[^\]]+\])/)[1]);const toImps=d=>Math.sign(d)*steps.filter(t=>Math.abs(d)>=t).length;
+  assert.equal(steps.length,24);for(const [diff,imps] of [[0,0],[10,0],[20,1],[-50,-2],[420,9],[430,10],[-580,-11],[1100,15],[4000,24],[7600,24]])assert.equal(toImps(diff),imps,String(diff));
+ });
