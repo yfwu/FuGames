@@ -1,21 +1,21 @@
-# AutoHex 3D：Agent 介面
+# HexBattle：Agent 介面
 
-AutoHex 3D 的規則全部在 `autohex3d/engine.js`。它是純函式、可 JSON 序列化的引擎，在瀏覽器和 Node 都能直接跑。同一個種子加同一串動作，一定重播出同一局。網頁、CLI、對戰場和內建 AI 都只透過下面這組 API 操作遊戲，所以 agent 拿到的資訊和人類玩家完全一樣，不多也不少。
+HexBattle 的規則全部在 `hexbattle/engine.js`。它是純函式、可 JSON 序列化的引擎，在瀏覽器和 Node 都能直接跑。同一個種子加同一串動作，一定重播出同一局。網頁、CLI、對戰場和內建 AI 都只透過下面這組 API 操作遊戲，所以 agent 拿到的資訊和人類玩家完全一樣，不多也不少。
 
 有三種接法：
 
 | 方式 | 適合 | 入口 |
 | --- | --- | --- |
-| 直接 `require` 引擎 | 自己寫搜尋、強化學習、批次模擬 | `autohex3d/engine.js` |
-| 存檔式 CLI | 任何能執行 shell 指令的 agent（包含 LLM agent） | `tools/autohex3d.cjs` |
-| JSON Lines 對戰場 | 長駐程式對戰內建 AI 或其他 agent、計戰績 | `tools/autohex3d-arena.cjs` |
+| 直接 `require` 引擎 | 自己寫搜尋、強化學習、批次模擬 | `hexbattle/engine.js` |
+| 存檔式 CLI | 任何能執行 shell 指令的 agent（包含 LLM agent） | `tools/hexbattle.cjs` |
+| JSON Lines 對戰場 | 長駐程式對戰內建 AI 或其他 agent、計戰績 | `tools/hexbattle-arena.cjs` |
 
-瀏覽器頁面另外提供 `window.AutoHex3D`，讓瀏覽器內的 agent 代替你操作席位 1（見最後一節）。
+瀏覽器頁面另外提供 `window.HexBattle`（舊名 `window.AutoHex3D` 仍可用），讓瀏覽器內的 agent 代替你操作席位 1（見最後一節）。
 
 ## 1. 引擎 API
 
 ```js
-const E = require('./autohex3d/engine.js');
+const E = require('./hexbattle/engine.js');
 const st = E.createGame({ seed: 'abc', players: 4, maxRounds: 30, neutrals: true });
 E.currentPlayer(st);            // 輪到誰（0 = 已結束）
 E.observe(st, id);              // 該席位在迷霧下看得到的一切
@@ -28,7 +28,7 @@ E.previewBuild(st, id, type, cell); // 假設在某格蓋某建築，收入與�
 
 `state` 是一般 JSON 物件，`JSON.parse(JSON.stringify(st))` 後可以繼續玩。亂數產生器的狀態也存在 `st.rng` 裡，所以存檔續玩後的抽牌順序不變。
 
-內建 AI 在 `autohex3d/ai.js`：`AI.decide(st, id, profile)` 回傳一個動作，`AI.playTurn(st, id, profile)` 打完一整個回合。打法有 `balanced`（均衡）、`builder`（經營）、`warlord`（征伐）、`warden`（堅守）、`raider`（劫掠）。
+內建 AI 在 `hexbattle/ai.js`：`AI.decide(st, id, profile)` 回傳一個動作，`AI.playTurn(st, id, profile)` 打完一整個回合。打法有 `balanced`（均衡）、`builder`（經營）、`warlord`（征伐）、`warden`（堅守）、`raider`（劫掠）。
 
 ## 2. 一輪的流程
 
@@ -89,7 +89,7 @@ E.previewBuild(st, id, type, cell); // 假設在某格蓋某建築，收入與�
 | `traps[]`, `buffs`, `reveal[]`, `recruited[]` | 你的伏兵、本輪增益、偵察揭露、本回合已徵召的建築 |
 | `map` | `R`、`cells[{i, q, r, t, f}]`（地形 t，特徵 f：fertile / gold / relic）、`relics[]`、`center` |
 
-卡牌、建築、兵種的完整數值請用 `E.catalog()` 或 `node tools/autohex3d.cjs catalog` 查。規則重點：
+卡牌、建築、兵種的完整數值請用 `E.catalog()` 或 `node tools/hexbattle.cjs catalog` 查。規則重點：
 
 - **領土**：建築向周圍投射影響力（都城與前哨半徑 2），影響力最高的一方擁有該格，平手就是爭奪地。只能在己方領土建築。領土要連回都城，斷聯的建築不生產、不能升級。
 - **產量看布局**：
@@ -110,23 +110,23 @@ E.previewBuild(st, id, type, cell); // 假設在某格蓋某建築，收入與�
 每一步都是一條指令，狀態存在 JSON 檔裡。沒有列在 `--seat` 的席位由內建 AI 自動打完，指令會在輪到你時才返回。
 
 ```sh
-node tools/autohex3d.cjs new --players 4 --seed demo --seat 1 --bots warlord,builder,warden --file g.json
-node tools/autohex3d.cjs show  --file g.json          # 中文戰況簡報 + ASCII 地圖
-node tools/autohex3d.cjs legal --file g.json          # 合法動作列表
-node tools/autohex3d.cjs act '{"type":"play","card":2,"target":212}' --file g.json
-node tools/autohex3d.cjs act '{"type":"end"}' --file g.json
-node tools/autohex3d.cjs verify --file g.json         # 從種子重播動作紀錄，確認存檔沒被竄改
-node tools/autohex3d.cjs catalog
+node tools/hexbattle.cjs new --players 4 --seed demo --seat 1 --bots warlord,builder,warden --file g.json
+node tools/hexbattle.cjs show  --file g.json          # 中文戰況簡報 + ASCII 地圖
+node tools/hexbattle.cjs legal --file g.json          # 合法動作列表
+node tools/hexbattle.cjs act '{"type":"play","card":2,"target":212}' --file g.json
+node tools/hexbattle.cjs act '{"type":"end"}' --file g.json
+node tools/hexbattle.cjs verify --file g.json         # 從種子重播動作紀錄，確認存檔沒被竄改
+node tools/hexbattle.cjs catalog
 ```
 
 - 加 `--json` 會輸出機器可讀的 `{ok, observation, ...}`（`act` 另附 `events` 與 AI 的行動摘要）；`legal --json` 輸出 `{ok, player, actions}`。加 `--no-map` 可在 JSON 中省略地圖。
 - `--seat 1,3` 可以列多個席位，讓多個 agent 共用一個存檔輪流下。
-- 存檔格式是 `{format:"autohex3d-save", version, config, actions, state}`。`actions` 是完整動作紀錄，`verify` 會用它重播比對。
+- 存檔格式是 `{format:"hexbattle-save", version, config, actions, state}`（舊的 `autohex3d-save` 存檔仍可讀）。`actions` 是完整動作紀錄，`verify` 會用它重播比對。
 
 ## 6. JSON Lines 對戰場
 
 ```sh
-node tools/autohex3d-arena.cjs \
+node tools/hexbattle-arena.cjs \
   --seat "cmd:node my-agent.js" --seat bot:warlord --seat bot:builder --seat bot:warden \
   --games 8 --seed league --timeout 10000 --log out.jsonl [--rotate]
 ```
@@ -147,22 +147,80 @@ arena → agent  {"type":"over","game":0,"player":2,"result":{...}}
 - 結束時印出每個參賽者的勝場、平均分數、無效與逾時次數。
 - `--log` 會把每個動作寫成 JSONL，方便事後重播。
 
-`tools/autohex3d-example-agent.cjs` 是一個約 50 行、只看觀察與合法動作的範例 agent，可以直接複製來改。它打不贏內建 AI，這是預期中的結果。
+`tools/hexbattle-example-agent.cjs` 是一個約 50 行、只看觀察與合法動作的範例 agent，可以直接複製來改。它打不贏內建 AI，這是預期中的結果。
 
 ## 7. 瀏覽器內的 agent
 
-`autohex_3d.html` 載入後提供：
+`hexbattle.html` 載入後提供：
 
 ```js
-AutoHex3D.observe()   // 席位 1 的觀察
-AutoHex3D.legal()     // 合法動作
-AutoHex3D.act(action) // 以席位 1 執行；畫面同步更新
-AutoHex3D.describe()  // 中文戰況簡報
-AutoHex3D.myTurn()    // 是否輪到席位 1，且沒有在播放動畫
-AutoHex3D.newGame({ seed, players, mode })
-AutoHex3D.replay()    // 種子 + 本局完整動作紀錄
+HexBattle.observe()   // 席位 1 的觀察
+HexBattle.legal()     // 合法動作
+HexBattle.act(action) // 以席位 1 執行；畫面同步更新
+HexBattle.describe()  // 中文戰況簡報
+HexBattle.myTurn()    // 是否輪到席位 1，且沒有在播放動畫
+HexBattle.newGame({ seed, players, mode })   // mode: 'play' | 'watch' | 'stream'
+HexBattle.replay()    // 種子 + 本局完整動作紀錄
+HexBattle.pause()  /  HexBattle.resume()  /  HexBattle.next()   // 觀戰／直播控制
+HexBattle.standings() // 目前各方分數、打法
+HexBattle.series()    // 觀戰系列戰績：{ matches, doctrines: { balanced: { g, w, vp } … }, recent: [...] }
+const off = HexBattle.on(e => console.log(e.type, e))   // 訂閱事件，回傳取消函式
 ```
 
-## 8. 平衡驗證
+舊名 `window.AutoHex3D` 指向同一個物件。
 
-`node tools/autohex3d-sim.cjs --games 40 --players 4` 會跑內建 AI 互打。結果記錄在 [design.md](design.md)。
+## 8. 直播／自動戰鬥平台
+
+`hexbattle.html` 有三種模式：
+
+| 模式 | 說明 |
+| --- | --- |
+| 親征 `play` | 你坐席位 1。手牌下方的提示列說明下一步；「提示」（I）顯示內建 AI 建議的一步，按「照做」（Enter）執行；「代打」讓 AI 打完這回合。 |
+| 觀戰 `watch` | 全部由 AI 操作。底部控制列：暫停（空白鍵）、速度、導播鏡頭（C）、自動連播、下一場（N）、純畫面（O）、全螢幕。 |
+| 直播 `stream` | 觀戰加上轉播版面：收起頂列、放大計分板、精彩快報、滑鼠靜止後控制列與游標自動隱藏；一局結束顯示結果與系列戰績，休息幾秒後自動開下一局。 |
+
+連播時打法每場輪換座位，戰績依打法累計（存在瀏覽器的 localStorage，可在設定裡清除）。固定種子時，第 2 場以後依序用「種子·2」「種子·3」…，整個系列可以重現。
+
+### 網址參數（OBS 瀏覽器來源）
+
+在 OBS 等直播軟體新增「瀏覽器來源」，寬高設 1920×1080，網址例如：
+
+```text
+https://<你的網站>/hexbattle.html?mode=stream&players=6&speed=normal&rounds=30&intermission=12&hud=0
+```
+
+| 參數 | 值 | 預設 |
+| --- | --- | --- |
+| `mode` | `play`、`watch`、`stream`；有這個參數就跳過開場直接開始 | 開場選單 |
+| `players` | 2–6 | 4 |
+| `seed` | 戰場種子（最多 40 字） | 隨機 |
+| `rounds` | 20、30、40 | 30 |
+| `speed` | `slow`、`normal`、`fast`、`skip`（極速） | `normal` |
+| `doctrine` | `mixed` 或 `balanced`、`builder`、`warlord`、`warden`、`raider` | `mixed` |
+| `intermission` | 場間休息秒數 | 12 |
+| `loop` | `0` 關閉自動連播 | 開 |
+| `director` | `0` 關閉導播鏡頭 | 開 |
+| `hud` | `0` 隱藏控制列（純畫面，O 鍵可切回） | 顯示 |
+
+網址參數只影響那一次載入，不會覆寫瀏覽器裡存的設定。設定抽屜的「觀戰與直播」區會依目前設定組出網址，可以直接複製。舊網址 `autohex_3d.html?…` 會帶著參數轉到新頁。
+
+### 事件
+
+每個開局、行動、每輪結算、精彩時刻與終局都會在 `window` 上發出 `hexbattle` 事件；頁面被嵌在 iframe 裡時，同一份資料也會用 `postMessage({ source: 'hexbattle', ... })` 送給上層頁面。可以拿來做自訂疊加層、聊天室預測或機器人播報。
+
+| `type` | 內容（另外都有 `match`、`round`） |
+| --- | --- |
+| `match-start` | `seed`、`target`、`maxRounds`、`players[{id, name, doctrine, human}]` |
+| `turn` | `player`、`name`、`doctrine` |
+| `round` | `standings[{id, name, doctrine, vp, alive}]`、`scoring[{player, gain}]` |
+| `highlight` | `text`（中文一句話，例如「青嵐奪下中央遺跡」）、`side`（勢力 id）；滅亡另有 `kind: 'eliminated'` |
+| `match-end` | `winner`、`name`、`doctrine`、`reason`、`rounds`、`standings`、`series` |
+
+```js
+// 例：在上層頁面接收
+window.addEventListener('message', e => { if (e.data && e.data.source === 'hexbattle') console.log(e.data.type, e.data); });
+```
+
+## 9. 平衡驗證
+
+`node tools/hexbattle-sim.cjs --games 40 --players 4` 會跑內建 AI 互打。結果記錄在 [design.md](design.md)。

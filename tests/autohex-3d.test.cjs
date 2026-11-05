@@ -146,7 +146,7 @@ test('renderer and UI scripts parse; the page keeps the shared shell, rules and 
   for (const file of ['autohex3d-render.js', 'autohex3d-scene.js', 'autohex3d-ui.js', 'autohex3d-logic.js']) assert.doesNotThrow(() => new vm.Script(read(file), { filename: file }));
   const html = read('autohex_3d_classic.html');
   assert.match(html, /<details class="card rules ah3-rules">/); assert.match(html, /class="card play-panel ah3-stage"/);
-  assert.match(html, /<use href="icons\.svg#autohex_3d">/);
+  assert.match(html, /<use href="icons\.svg#autohex">/);
   assert.doesNotMatch(html + read('autohex3d-ui.js') + read('autohex3d-render.js'), /https?:\/\/(?!www\.w3\.org)/, 'no remote runtime dependency');
   assert.match(read('archive.html'), /href="autohex_3d_classic.html"/, 'the classic 3D page stays reachable from the archive');
 });

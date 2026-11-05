@@ -1,10 +1,10 @@
-/* AutoHex 3D engine: a deterministic, headless deck-building and layout war
+/* HexBattle engine: a deterministic, headless deck-building and layout war
    game on a hex map. Pure data in, pure data out: the whole game state is a
    JSON-serialisable object, every random draw comes from a seeded generator
    stored in that state, and the same seed plus the same action log always
    replays to the same game. Runs unchanged in the browser and in Node.
 
-   Public API (see docs/autohex3d/agent-api.md):
+   Public API (see docs/hexbattle/agent-api.md):
      createGame(options)            -> state
      act(state, player, action)     -> { ok, error?, events }
      legalActions(state, player)    -> action[]
@@ -17,7 +17,7 @@
 (function (root, factory) {
   const api = factory();
   if (typeof module === 'object' && module.exports) module.exports = api;
-  if (root) root.AutoHexEngine = api;
+  if (root) root.HexBattleEngine = api;
 })(typeof window !== 'undefined' ? window : globalThis, function () {
   'use strict';
 

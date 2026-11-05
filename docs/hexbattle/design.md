@@ -1,4 +1,4 @@
-# AutoHex 3D：設計與驗證
+# HexBattle：設計與驗證
 
 ![桌面版：第 10 輪](desktop.png)
 
@@ -38,7 +38,7 @@
 - 行動順序是蛇形輪替，每兩輪換一次，偶數輪反向。
 - 所有平手判定都用雜湊決定，而不是用格子編號，所以不會偏向某個方向。
 
-測試 `tests/autohex3d-engine.test.cjs` 會檢查：
+測試 `tests/hexbattle-engine.test.cjs` 會檢查：
 - 2 到 6 方的地圖都對稱。
 - 每個都城都走得到中央和所有遺跡。
 - 重播結果確定（包含中途存成 JSON 再續玩）。
@@ -46,7 +46,7 @@
 - 迷霧不會洩漏資訊。
 - CLI 與對戰場可以正常運作。
 
-## 內建 AI 互打（`node tools/autohex3d-sim.cjs --games 40 --players 4 --seed doc`）
+## 內建 AI 互打（`node tools/hexbattle-sim.cjs --games 40 --players 4 --seed doc`）
 
 | 指標 | 結果 |
 | --- | --- |

@@ -1,13 +1,13 @@
-/* AutoHex 3D built-in bots. Each call returns ONE action for the player whose
+/* HexBattle built-in bots. Each call returns ONE action for the player whose
    turn it is; call repeatedly until it returns { type: 'end' }. Deterministic:
    no randomness, only the public engine API plus what the player may know
    (own state, visible cells, remembered buildings). Five doctrines share one
    evaluator with different weights, so they play visibly differently. */
 (function (root, factory) {
-  const engine = typeof module === 'object' && module.exports ? require('./engine.js') : root.AutoHexEngine;
+  const engine = typeof module === 'object' && module.exports ? require('./engine.js') : root.HexBattleEngine;
   const api = factory(engine);
   if (typeof module === 'object' && module.exports) module.exports = api;
-  if (root) root.AutoHexAI = api;
+  if (root) root.HexBattleAI = api;
 })(typeof window !== 'undefined' ? window : globalThis, function (E) {
   'use strict';
   const { CARDS, BUILDINGS, UNITS, TERRAIN } = E;

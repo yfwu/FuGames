@@ -16,6 +16,8 @@ python -m http.server 8000 --bind 0.0.0.0
 
 本次雲端 Chromium 的管理政策禁止 `file://`（`ERR_BLOCKED_BY_ADMINISTRATOR`），因此驗證與預覽使用本機 HTTP。遊戲不會向伺服器傳送遊戲狀態；頁面載入後已驗證可在離線模式繼續遊玩。
 
+2026-11-05（四）：AutoHex-3D 改名為 **HexBattle**（`hexbattle.html`，舊網址自動轉址），和同樣叫 Hex 但玩法完全不同的 AutoHex／MiniHex 區隔；程式、工具與文件目錄一併改為 `hexbattle/`、`tools/hexbattle*.cjs`、`docs/hexbattle/`（舊 `autohex3d-save` 存檔與 `window.AutoHex3D` 仍可用）。同時讓操作更直觀，並加入可當網路直播的自動戰鬥模式，見 [docs/hexbattle/agent-api.md](docs/hexbattle/agent-api.md) 第 8 節。
+
 2026-11-04（三）：入口網站改用「朱墨」設計語言重做：滿版 three.js 六角地景（`portal.js`），選到哪款遊戲地景就變成那款遊戲的母題；左側遊戲索引支援 ↑↓／Enter，右下是說明面板，手機改為捲動版面。封存頁同步換新，遊戲清單與舊網址不變。入口網站樣式在 `portal.css`，頁面由同一份遊戲資料產生。
 
 2026-11-02（二）：首頁精簡為 7 款，新增[立體三子循環棋](docs/cyclic-3d-2026-11-02/notes.md)；AutoHex、MiniHex、重力大亂鬥、四人拉密、鋼芯競技場、星點吞噬、環面直落四子、軌道棋、三路前線與平面版三子循環棋移入[封存遊戲](archive.html)（共 12 款，舊網址不變）。2026-11-02：首頁 16 款（新增 AutoHex-3D）。2026-10-14：首頁 15 款；[封存遊戲](archive.html)保留 2 款及舊網址。[分批驗證](docs/refresh-2026-10-14/verification.md)與[三子立體提案](docs/refresh-2026-10-14/cyclic-3d-proposal.md)。三子原遊戲未更動。
@@ -24,7 +26,7 @@ python -m http.server 8000 --bind 0.0.0.0
 
 首頁（7 款）：
 
-- AutoHex-3D：`autohex_3d.html`（六角地圖上的牌組構築戰爭：抽牌布局建築、經營糧材金與糧食維護、共用市場、遺跡計分，每輪結束全場自動交戰；2–6 方、五種 AI 打法、迷霧。引擎 `autohex3d/engine.js` 可在 Node 無頭執行，提供存檔式 CLI `tools/autohex3d.cjs`、JSON Lines 對戰場 `tools/autohex3d-arena.cjs` 給本機 agent，說明見 `docs/autohex3d/agent-api.md`。舊版即時指揮版保留在 `autohex_3d_classic.html`）
+- HexBattle（原 AutoHex-3D）：`hexbattle.html`（六角地圖上的自動戰鬥牌組構築戰爭：抽牌布局建築、經營糧材金與糧食維護、共用市場、遺跡計分，每輪結束全場自動交戰；2–6 方、五種 AI 打法、迷霧。三種模式：親征（提示列、AI 提示與代打）、觀戰、直播（AI 自動連播、導播鏡頭、精彩快報、系列戰績，可用網址參數直接當 OBS 瀏覽器來源）。引擎 `hexbattle/engine.js` 可在 Node 無頭執行，提供存檔式 CLI `tools/hexbattle.cjs`、JSON Lines 對戰場 `tools/hexbattle-arena.cjs` 給本機 agent，說明見 `docs/hexbattle/agent-api.md`。舊網址 `autohex_3d.html` 會轉到新頁；與 AutoHex 同規則的即時指揮版保留在 `autohex_3d_classic.html`）
 - 立體三子循環棋：`cyclic_tictactoe_3d.html`（3×3×3、49 條連線、每人三顆 FIFO；交換規則、三次重複與 120 手和局；可旋轉立體圖加三層平面輸入；規則核心 `cyclic3d-engine.js`，AI 在 `cyclic3d-ai-worker.js` 執行）
 - 效果貪食蛇：`effect_snake.html`（90 秒質量競賽；花質量加速、同格爭食、蛇身反制）
 - 複式橋牌：`duplicate_bridge.html`（朱墨滿版牌桌：中央方位盤標出身價與發牌人，叫牌盒、叫品解說面板，每副與 AI 參考桌比分並折算 IMP，本場與生涯累計；2/1 成局迫叫自然制 AI：Stayman、轉換、Jacoby 2NT、Splinter、RKCB、負加倍、Michaels 等，每個叫品可點看說明與各家推論；出牌用依叫牌推論抽樣暗手的蒙地卡羅雙明手求解。核心 `bridge-engine.js`、求解器 `bridge-dds.js`、叫牌 `bridge-bidding.js`、出牌 `bridge-play.js`，AI 在 `bridge-ai-worker.js` 執行；agent 可用 `node tools/bridge-agent.cjs` 以 JSON 逐行接入南家）
@@ -151,6 +153,7 @@ FUGAMES_BASE_URL=http://127.0.0.1:8000 python tests/tux2d_browser.py
 FUGAMES_BASE_URL=http://127.0.0.1:8000 python tests/tux2d_keyboard_browser.py
 python tests/front_line_browser.py
 node tests/autohex-3d-browser.cjs
+node tests/hexbattle-browser.cjs
 node tests/front-line-study.cjs 20
 ```
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/* Minimal AutoHex 3D arena agent: a template to copy. It reads JSON Lines
+/* Minimal HexBattle arena agent: a template to copy. It reads JSON Lines
    from stdin and answers every "turn" message with one action, using only the
    observation and the list of legal actions it was given (no engine access).
    Strategy: play free economy cards, then the best-scoring build or recruit,

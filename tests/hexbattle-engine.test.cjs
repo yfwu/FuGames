@@ -5,9 +5,9 @@ const path = require('path');
 const { spawnSync } = require('child_process');
 const fs = require('fs');
 const os = require('os');
-const E = require('../autohex3d/engine.js');
-const AI = require('../autohex3d/ai.js');
-const T = require('../autohex3d/text.js');
+const E = require('../hexbattle/engine.js');
+const AI = require('../hexbattle/ai.js');
+const T = require('../hexbattle/text.js');
 
 const root = path.join(__dirname, '..');
 function playOut(st, profiles = AI.PROFILE_ORDER, limit = 4000) {
@@ -141,13 +141,13 @@ test('text briefing renders for every seat', () => {
   playOut(st, undefined, 30);
   for (const p of st.players) {
     const s = T.describe(E.observe(st, p.id));
-    assert.match(s, /AutoHex 3D/);
+    assert.match(s, /HexBattle/);
     assert.match(s, /地圖/);
   }
 });
 
 test('CLI: new, act and verify through a save file', () => {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'ah3-')), file = path.join(dir, 'g.json'), cli = path.join(root, 'tools/autohex3d.cjs');
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'hb-')), file = path.join(dir, 'g.json'), cli = path.join(root, 'tools/hexbattle.cjs');
   const run = (...args) => spawnSync(process.execPath, [cli, ...args, '--file', file, '--json'], { encoding: 'utf8' });
   let r = run('new', '--seed', 'cli', '--seat', '2');
   assert.equal(r.status, 0, r.stderr);
@@ -164,7 +164,7 @@ test('CLI: new, act and verify through a save file', () => {
 });
 
 test('arena runs an external JSON-lines agent against bots', () => {
-  const r = spawnSync(process.execPath, [path.join(root, 'tools/autohex3d-arena.cjs'), '--seat', 'cmd:' + JSON.stringify(process.execPath) + ' ' + JSON.stringify(path.join(root, 'tools/autohex3d-example-agent.cjs')), '--seat', 'bot:warlord', '--games', '1', '--seed', 'arena-test'], { encoding: 'utf8', timeout: 60000 });
+  const r = spawnSync(process.execPath, [path.join(root, 'tools/hexbattle-arena.cjs'), '--seat', 'cmd:' + JSON.stringify(process.execPath) + ' ' + JSON.stringify(path.join(root, 'tools/hexbattle-example-agent.cjs')), '--seat', 'bot:warlord', '--games', '1', '--seed', 'arena-test'], { encoding: 'utf8', timeout: 60000 });
   assert.equal(r.status, 0, r.stderr);
   assert.match(r.stdout, /戰績/);
   assert.match(r.stdout, /無效 0/);

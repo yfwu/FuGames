@@ -1,36 +1,36 @@
 #!/usr/bin/env node
-/* AutoHex 3D command-line play for agents and people. Every step is one shell
+/* HexBattle command-line play for agents and people. Every step is one shell
    command against a save file, so any agent that can run commands can play.
 
-     node tools/autohex3d.cjs new [--players 4] [--seed S] [--seat 1] [--bots warlord,builder,...] [--file game.json]
-     node tools/autohex3d.cjs show    [--file game.json] [--json] [--no-map]
-     node tools/autohex3d.cjs legal   [--file game.json] [--json]
-     node tools/autohex3d.cjs act '<action JSON>' [--file game.json] [--json]
-     node tools/autohex3d.cjs catalog
-     node tools/autohex3d.cjs verify  [--file game.json]      replays the log from the seed and compares
+     node tools/hexbattle.cjs new [--players 4] [--seed S] [--seat 1] [--bots warlord,builder,...] [--file game.json]
+     node tools/hexbattle.cjs show    [--file game.json] [--json] [--no-map]
+     node tools/hexbattle.cjs legal   [--file game.json] [--json]
+     node tools/hexbattle.cjs act '<action JSON>' [--file game.json] [--json]
+     node tools/hexbattle.cjs catalog
+     node tools/hexbattle.cjs verify  [--file game.json]      replays the log from the seed and compares
 
    Seats not listed with --seat are played by the built-in bots. After each of
    your actions the bots take their turns until it is yours again (or the game
-   ends), and the command prints what happened. See docs/autohex3d/agent-api.md. */
+   ends), and the command prints what happened. See docs/hexbattle/agent-api.md. */
 'use strict';
 const fs = require('fs');
 const path = require('path');
-const E = require('../autohex3d/engine.js');
-const AI = require('../autohex3d/ai.js');
-const T = require('../autohex3d/text.js');
+const E = require('../hexbattle/engine.js');
+const AI = require('../hexbattle/ai.js');
+const T = require('../hexbattle/text.js');
 
 const argv = process.argv.slice(2);
 const cmd = argv[0];
 const flag = name => argv.includes('--' + name);
 const opt = (name, def) => { const i = argv.indexOf('--' + name); return i >= 0 && i + 1 < argv.length ? argv[i + 1] : def; };
-const file = path.resolve(opt('file', 'autohex3d-game.json'));
+const file = path.resolve(opt('file', 'hexbattle-game.json'));
 const asJson = flag('json');
 
 function save(game) { fs.writeFileSync(file, JSON.stringify(game)); }
 function load() {
   if (!fs.existsSync(file)) fail(`找不到存檔 ${file}；先執行 new。`);
   const game = JSON.parse(fs.readFileSync(file, 'utf8'));
-  if (game.format !== 'autohex3d-save') fail('不是 AutoHex 3D 存檔');
+  if (game.format !== 'hexbattle-save' && game.format !== 'autohex3d-save') fail('不是 HexBattle 存檔');
   return game;
 }
 function fail(msg) { if (asJson) console.log(JSON.stringify({ ok: false, error: msg })); else console.error(msg); process.exit(1); }
@@ -55,7 +55,7 @@ function brief(game, extra = {}) {
   if (asJson) { console.log(JSON.stringify({ ok: true, ...extra, observation: obs })); return; }
   if (extra.events && extra.events.length) console.log('事件：' + extra.events.map(e => e.e + (e.card ? ':' + e.card : '') + (e.cell !== undefined && e.cell >= 0 ? '@' + e.cell : '')).join(' '));
   console.log(T.describe(obs, { map: !flag('no-map') }));
-  if (st.phase !== 'over') console.log(`\n動作：node tools/autohex3d.cjs act '{"type":"end"}' ；查合法動作：legal`);
+  if (st.phase !== 'over') console.log(`\n動作：node tools/hexbattle.cjs act '{"type":"end"}' ；查合法動作：legal`);
 }
 
 switch (cmd) {
@@ -68,7 +68,7 @@ switch (cmd) {
     let k = 0;
     for (let id = 1; id <= players; id++) if (!agents.includes(id)) bots[id] = botList[k++ % Math.max(1, botList.length)] || AI.PROFILE_ORDER[(id - 1) % AI.PROFILE_ORDER.length];
     const state = E.createGame({ seed, players, maxRounds: opt('rounds') ? +opt('rounds') : undefined });
-    const game = { format: 'autohex3d-save', version: E.VERSION, config: { seed, players, agents, bots, maxRounds: state.rules.maxRounds }, actions: [], state };
+    const game = { format: 'hexbattle-save', version: E.VERSION, config: { seed, players, agents, bots, maxRounds: state.rules.maxRounds }, actions: [], state };
     const log = runBots(game);
     save(game);
     brief(game, { created: file, bots, botTurns: log });

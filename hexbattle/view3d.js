@@ -1,4 +1,4 @@
-/* AutoHex 3D battlefield view (ES module, three.js via shared/fu-three.js).
+/* HexBattle battlefield view (ES module, three.js via shared/fu-three.js).
    Draws what an observation says and nothing else: terrain, territory tint
    and borders, fog, buildings, units, and battle playback. Knows no rules. */
 import { THREE, createStage, inkMaterial, glowMaterial, palette } from '../shared/fu-three.js';
@@ -174,7 +174,7 @@ export function createView(canvas, handlers = {}) {
   const hoverMark = part(geo.ring, glow(palette.paper, .55)); hoverMark.visible = false;
   const selectMark = part(geo.ring, glow(palette.seal, .95), 0, 0, 0, 1.04, 1, 1.04); selectMark.visible = false;
   groups.marks.add(hoverMark, selectMark);
-  let targetMesh = null, goalMesh = null;
+  let targetMesh = null, goalMesh = null, bestMesh = null;
   function placeMark(m, i) { if (i === null || i === undefined || i < 0 || !cells[i]) { m.visible = false; return; } m.visible = true; m.position.set(cells[i].x, topY(i) + .035, cells[i].z); }
   function setTargets(list, tone = palette.azure) {
     if (targetMesh) { groups.marks.remove(targetMesh); targetMesh.dispose(); targetMesh = null; }
@@ -182,6 +182,21 @@ export function createView(canvas, handlers = {}) {
     targetMesh = new THREE.InstancedMesh(geo.ring, glow(tone, .8), list.length);
     list.forEach((i, k) => { tmpM.compose(tmpV.set(cells[i].x, topY(i) + .03, cells[i].z), tmpQ.identity(), tmpS.set(.9, 1, .9)); targetMesh.setMatrixAt(k, tmpM); });
     targetMesh.instanceMatrix.needsUpdate = true; groups.marks.add(targetMesh);
+  }
+  function setBest(list) { // recommended cells: thicker gold rings that breathe
+    if (bestMesh) { groups.marks.remove(bestMesh); bestMesh.material.dispose(); bestMesh.dispose(); bestMesh = null; }
+    if (!list || !list.length) return;
+    bestMesh = new THREE.InstancedMesh(geo.ring, glowMaterial(palette.gold, .95), list.length);
+    list.forEach((i, k) => { tmpM.compose(tmpV.set(cells[i].x, topY(i) + .05, cells[i].z), tmpQ.identity(), tmpS.set(1.08, 1, 1.08)); bestMesh.setMatrixAt(k, tmpM); });
+    bestMesh.instanceMatrix.needsUpdate = true; groups.marks.add(bestMesh);
+  }
+  /** A short expanding ring on a cell: draws the eye to where something happened. */
+  function ping(i, owner = 0) {
+    if (!cells[i] || reduced()) return;
+    const mt = glowMaterial(owner > 0 ? sideColor(owner) : palette.paper, .95);
+    const m = part(geo.ring, mt, cells[i].x, topY(i) + .06, cells[i].z);
+    groups.fx.add(m);
+    tween(.9, t => { const s = 1 + t * 1.6; m.scale.set(s, 1, s); mt.opacity = .95 * (1 - t); }, () => { groups.fx.remove(m); mt.dispose(); });
   }
   function setGoals(list) { // own unit goals: small seal diamonds
     if (goalMesh) { groups.marks.remove(goalMesh); goalMesh.dispose(); goalMesh = null; }
@@ -380,10 +395,13 @@ export function createView(canvas, handlers = {}) {
     if (!frames || !frames.length || step <= 0) return Promise.resolve();
     return new Promise(resolve => {
       let k = 0;
-      const run = () => {
+      const run = async () => {
+        if (opts.gate) { try { await opts.gate(); } catch (err) { resolve(); return; } }
+        if (opts.alive && !opts.alive()) { resolve(); return; }
         if (k >= frames.length) { resolve(); return; }
         const fe = frames[k++];
         for (const e of fe) handleEvent(e, step, opts);
+        if (opts.onFrame) opts.onFrame(fe, k - 1);
         setTimeout(run, step * 1000);
       };
       run();
@@ -440,7 +458,11 @@ export function createView(canvas, handlers = {}) {
   function panWorld(dx, dz) { const rx = Math.cos(cam.tyaw), rz = -Math.sin(cam.tyaw), fx = -Math.sin(cam.tyaw), fz = -Math.cos(cam.tyaw); cam.tx += rx * dx + fx * dz; cam.tz += rz * dx + fz * dz; clampT(); }
   function rotate(dyaw, dpitch = 0) { cam.tyaw += dyaw; cam.tpitch += dpitch; clampT(); }
   function zoom(f) { cam.tdist *= f; clampT(); }
-  function focusCell(i, dist) { if (!cells[i]) return; cam.tx = cells[i].x; cam.tz = cells[i].z; if (dist) cam.tdist = dist; clampT(); }
+  function focusCell(i, dist, pitch) { if (!cells[i]) return; cam.tx = cells[i].x; cam.tz = cells[i].z; if (dist) cam.tdist = dist; if (pitch) cam.tpitch = pitch; clampT(); }
+  function focusPoint(x, z, dist, pitch) { cam.tx = x; cam.tz = z; if (dist) cam.tdist = dist; if (pitch) cam.tpitch = pitch; clampT(); }
+  let orbit = 0;
+  /** Slow automatic turntable (radians per second; 0 stops). Any drag stops it. */
+  function setOrbit(speed) { orbit = speed || 0; }
   function fit() { cam.tx = 0; cam.tz = 0; cam.tdist = bounds * 2.25; cam.tpitch = 1.0; clampT(); }
   function faceSeat(i) { if (!cells[i]) return; cam.tyaw = Math.atan2(cells[i].x, cells[i].z); }
 
@@ -465,6 +487,7 @@ export function createView(canvas, handlers = {}) {
     canvas.setPointerCapture(e.pointerId); pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
     if (pointers.size === 2) { const [a, b] = [...pointers.values()]; pinch = { d: Math.hypot(a.x - b.x, a.y - b.y), ang: Math.atan2(b.y - a.y, b.x - a.x) }; drag = null; return; }
     drag = { x: e.clientX, y: e.clientY, sx: e.clientX, sy: e.clientY, mode: e.button === 2 || e.shiftKey || e.altKey ? 'rotate' : 'pan', moved: false, button: e.button };
+    if (handlers.grab) handlers.grab();
   });
   canvas.addEventListener('pointermove', e => {
     if (pointers.has(e.pointerId)) pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
@@ -496,7 +519,9 @@ export function createView(canvas, handlers = {}) {
   const reduced = () => reducedQuery.matches;
   stage.loop((dt, t) => {
     now = t;
+    if (orbit && !reduced()) cam.tyaw += orbit * dt;
     applyCamera(dt);
+    if (bestMesh && !reduced()) bestMesh.material.opacity = .6 + .35 * Math.sin(t * 4);
     for (let k = tweens.length - 1; k >= 0; k--) { const tw = tweens[k], p = Math.min(1, (now - tw.t0) / tw.dur); tw.fn(p); if (p >= 1) { tweens.splice(k, 1); if (tw.done) tw.done(); } }
     for (let k = grow.length - 1; k >= 0; k--) { const e = grow[k], p = Math.min(1, (now - (e.g0 ??= now)) / .35); e.group.scale.setScalar(.01 + .99 * (1 - Math.pow(1 - p, 3))); if (p >= 1) grow.splice(k, 1); }
     for (let k = shrink.length - 1; k >= 0; k--) {
@@ -519,7 +544,8 @@ export function createView(canvas, handlers = {}) {
   });
 
   return {
-    stage, setMap, update, playFrames, setTargets, setGoals, pan, panWorld, rotate, zoom, focusCell, fit, faceSeat,
+    stage, setMap, update, playFrames, setTargets, setBest, setGoals, ping, pan, panWorld, rotate, zoom, focusCell, focusPoint, fit, faceSeat, setOrbit,
+    cellXZ: i => cells[i] ? [cells[i].x, cells[i].z] : null,
     setHover: i => placeMark(hoverMark, i), setSelected: i => placeMark(selectMark, i),
     project: i => cells[i] ? project(worldOf(i)) : null,
     floater, pick, reset() { for (const m of [buildings, units]) for (const id of [...m.keys()]) removeEntity(m, id, 'none'); ghosts.forEach(g => groups.entities.remove(g)); ghosts.length = 0; map = null; },
