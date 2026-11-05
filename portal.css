@@ -147,6 +147,21 @@
 .portal-detail .detail-tags .fu-chip { --chip: var(--accent); }
 .portal-detail .fu-btn--seal { background: var(--accent); border-color: var(--accent); }
 .portal-detail .fu-btn--seal:hover { background: var(--fu-text); border-color: var(--fu-text); }
+.portal-detail .detail-alt { margin-top: 8px; gap: 10px; }
+.portal-detail .detail-alt[hidden] { display: none; }
+/* 第二入口（HexBattle 直播）：索引列右側的小標籤，與整列連結並列而非巢狀 */
+.game-card:has(.game-alt) .game-link { padding-right: 132px; }
+.game-alt {
+  position: absolute; z-index: 1; right: 44px; top: 50%; transform: translateY(-50%);
+  display: inline-flex; align-items: center; gap: 7px; height: 28px; padding: 0 10px;
+  font: 600 11px/1 var(--fu-font-mono); letter-spacing: .14em; color: var(--fu-text);
+  text-decoration: none; border: 1px solid var(--fu-line-strong); background: var(--fu-ink-1);
+  transition: border-color var(--fu-dur-1), color var(--fu-dur-1);
+}
+.game-alt:hover, .game-alt:focus-visible { border-color: var(--fu-seal); color: var(--fu-seal); outline: none; }
+.game-alt__dot { width: 7px; height: 7px; border-radius: 50%; background: var(--fu-seal); box-shadow: 0 0 0 0 var(--fu-seal); animation: game-live 1.8s var(--fu-ease) infinite; }
+@keyframes game-live { 0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--fu-seal) 60%, transparent); } 70%, 100% { box-shadow: 0 0 0 7px transparent; } }
+@media (prefers-reduced-motion: reduce) { .game-alt__dot { animation: none; } }
 .portal-detail.is-swapping .detail-swap { animation: fu-rise var(--fu-dur-2) var(--fu-ease) both; }
 
 /* 右上：大號序號（裝飾） */
@@ -192,6 +207,9 @@
   .game-no { padding-top: 12px; }
   .game-go { display: none; }
   .game-card.is-active .game-name { transform: none; }
+  .game-card:has(.game-alt) .game-link { padding-right: 0; }
+  .game-card:has(.game-alt) .game-name { padding-right: 76px; }
+  .game-alt { right: 0; top: 14px; transform: none; }
 }
 
 /* ============ 封存頁 ============ */

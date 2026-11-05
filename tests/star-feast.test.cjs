@@ -33,7 +33,7 @@ test('all pages parse and share the shell; no missing catalogue links or remote 
     for (const [, tag, href] of source.matchAll(/<([a-z]+)\b[^>]*\bhref="([^"]+)"/g)) {
       // A credit is an optional navigation link, not a fetched game asset.
       if (/^https:\/\//.test(href)) { assert.equal(tag, 'a', name + ' -> remote asset ' + href); continue; }
-      const [file, fragment] = href.split('#');
+      const [path_, fragment] = href.split('#'), file = path_.split('?')[0]; // a query string (hexbattle.html?mode=stream) still names a local file
       if (!file) continue;
       const target = path.join(root, file);
       assert.ok(fs.existsSync(target), name + ' -> ' + href);

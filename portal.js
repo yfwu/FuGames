@@ -32,6 +32,10 @@ function select(i, { focus = false, auto = false } = {}) {
   const play = $('detailPlay');
   play.href = id + '.html';
   play.setAttribute('aria-label', '開始遊玩 ' + g.name);
+  // 有第二入口的遊戲（HexBattle 直播模式）多一顆按鈕
+  const alt = $('detailAlt');
+  alt.hidden = !g.alt;
+  if (g.alt) { alt.href = g.alt.href; alt.lastChild.textContent = g.alt.label; }
   detail.classList.remove('is-swapping'); void detail.offsetWidth; detail.classList.add('is-swapping');
   scene && scene.setMotif(id);
   if (focus) cards[i].querySelector('a').focus();
