@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="HexBattle：六角地圖上的自動戰鬥牌組構築戰爭。抽牌布局、經營糧材金、爭奪遺跡，每輪結束全場自動交戰。可親征、觀戰，或開直播模式讓 AI 自動連播；支援 2–6 方與本機 agent 接入。">
+<title>HexBattle - FuGames</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="shared/fu.css">
+<link rel="stylesheet" href="hexbattle/app.css">
+<script src="shared/fu-palette.js"></script>
+<script src="shared/fu-shell.js" defer></script>
+<script src="hexbattle/engine.js"></script>
+<script src="hexbattle/ai.js"></script>
+<script src="hexbattle/text.js"></script>
+</head>
+<body class="fu-app fu-vignette ah-app" data-phase="intro">
+<header class="fu-topbar">
+  <a class="fu-brand" href="index.html"><span class="fu-seal" aria-hidden="true">福遊</span><span class="fu-hide-sm">FuGames</span></a>
+  <div class="fu-topbar__title"><h1 class="fu-heading">HexBattle</h1><span class="fu-label" id="phase-label">自動戰鬥 · 牌組構築 · 布局</span></div>
+  <div class="fu-topbar__actions">
+    <span class="fu-chip fu-chip--seal fu-chip--live fu-hide-sm" id="turn-chip" hidden>你的回合</span>
+    <button class="fu-btn fu-btn--ghost fu-btn--icon" data-fu-open="rules" aria-label="規則" data-fu-tip="規則 ?">?</button>
+    <button class="fu-btn fu-btn--ghost fu-btn--icon" data-fu-open="log" aria-label="戰報" data-fu-tip="戰報 L">≡</button>
+    <button class="fu-btn" data-fu-open="settings" aria-controls="settings">設定 <span class="fu-kbd fu-hide-sm">S</span></button>
+  </div>
+</header>
+
+<main class="fu-stage"><canvas id="stage" tabindex="0" aria-label="HexBattle 戰場。左鍵拖曳平移、右鍵拖曳旋轉、滾輪縮放；點格子查看或下令。" aria-describedby="cell-panel"></canvas><div class="ah-floaters" id="floaters" aria-hidden="true"></div><div class="ah-tip" id="tip" hidden></div></main>
+
+<!-- HUD 1: 資源 -->
+<div class="fu-hud fu-hud--tl">
+  <section class="fu-panel fu-panel--tight ah-res" aria-label="資源">
+    <div class="fu-panel__head"><p class="fu-label"><b>01</b> / 國庫</p><span class="fu-label fu-num" id="round-label">第 0 輪</span></div>
+    <div class="ah-res__grid">
+      <div class="ah-res__item" data-res="food"><span class="fu-label">糧</span><span class="fu-stat__value fu-num"><span data-v>0</span><small data-cap>/20</small></span><span class="ah-res__net fu-num" data-net>+0</span></div>
+      <div class="ah-res__item" data-res="mat"><span class="fu-label">材</span><span class="fu-stat__value fu-num"><span data-v>0</span><small data-cap>/20</small></span><span class="ah-res__net fu-num" data-net>+0</span></div>
+      <div class="ah-res__item" data-res="gold"><span class="fu-label">金</span><span class="fu-stat__value fu-num"><span data-v>0</span><small data-cap>/20</small></span><span class="ah-res__net fu-num" data-net>+0</span></div>
+    </div>
+    <div class="ah-res__row">
+      <span class="fu-label">指令點</span><span class="ah-pips" id="ap-pips"></span><span class="fu-num fu-small" id="ap-text"></span>
+      <button class="fu-btn fu-btn--sm ah-res__trade" id="trade-open" aria-expanded="false">交易 <span class="fu-num" id="trade-rate">3:1</span></button>
+    </div>
+    <div class="ah-trade" id="trade" hidden>
+      <span class="fu-label">付</span><div class="fu-seg" id="trade-give"><button value="food" aria-pressed="true">糧</button><button value="mat" aria-pressed="false">材</button><button value="gold" aria-pressed="false">金</button></div>
+      <span class="fu-label">換</span><div class="fu-seg" id="trade-get"><button value="food" aria-pressed="false">糧</button><button value="mat" aria-pressed="false">材</button><button value="gold" aria-pressed="true">金</button></div>
+      <button class="fu-btn fu-btn--sm" id="trade-do">換 1</button>
+    </div>
+    <p class="ah-res__warn fu-small" id="res-warn" hidden></p>
+  </section>
+</div>
+
+<!-- HUD 2: 勢力 -->
+<div class="fu-hud fu-hud--tr">
+  <section class="fu-panel fu-panel--tight fu-panel--quiet ah-factions" aria-label="各方勢力">
+    <div class="fu-panel__head"><p class="fu-label"><b>02</b> / 勢力</p><span class="fu-label fu-num" id="target-label">目標 40</span></div>
+    <ol class="fu-list fu-small" id="factions"></ol>
+  </section>
+</div>
+
+<!-- HUD 3: 選取格 -->
+<div class="fu-hud fu-hud--bl ah-cell-hud">
+  <section class="fu-panel fu-panel--tight ah-cell" id="cell-panel" aria-live="polite" hidden></section>
+</div>
+
+<!-- 手牌與指令列 -->
+<div class="ah-handbar" id="handbar">
+  <div class="hb-guide" id="guide" role="status" aria-live="polite" hidden><span class="hb-guide__dot" aria-hidden="true"></span><span id="guide-text"></span><button class="fu-btn fu-btn--sm fu-btn--seal" id="guide-do" hidden>照做 <span class="fu-kbd fu-hide-sm">Enter</span></button></div>
+  <div class="ah-hand" id="hand" role="group" aria-label="手牌"></div>
+</div>
+<nav class="fu-dock ah-dock" aria-label="指令">
+  <button class="fu-btn" id="btn-market" data-fu-open="market">市場 <span class="fu-kbd fu-hide-sm">M</span></button>
+  <button class="fu-btn" id="btn-army" aria-pressed="false">全軍出擊 <span class="fu-kbd fu-hide-sm">A</span></button>
+  <button class="fu-btn" id="btn-guard">全軍回防</button>
+  <button class="fu-btn" id="btn-deck" data-fu-open="deck">牌組 <span class="fu-num" id="deck-count">10</span></button>
+  <button class="fu-btn" id="btn-hint" data-fu-tip="AI 建議下一步">提示 <span class="fu-kbd fu-hide-sm">I</span></button>
+  <button class="fu-btn" id="btn-auto" data-fu-tip="交給 AI 打完這回合">代打</button>
+  <button class="fu-btn fu-btn--seal" id="btn-end">結束回合 <span class="fu-kbd fu-hide-sm">E</span></button>
+</nav>
+
+<!-- 觀戰／直播：控制列與轉播畫面 -->
+<nav class="fu-dock hb-specdock" id="specdock" aria-label="觀戰控制">
+  <button class="fu-btn" id="sp-pause" aria-pressed="false">暫停 <span class="fu-kbd fu-hide-sm">空白</span></button>
+  <div class="fu-seg hb-specdock__speed" data-name="speed" aria-label="播放速度"><button value="slow" aria-pressed="false">慢</button><button value="normal" aria-pressed="true">中</button><button value="fast" aria-pressed="false">快</button><button value="skip" aria-pressed="false">極速</button></div>
+  <button class="fu-btn" id="sp-director" aria-pressed="true" data-fu-tip="鏡頭自動跟著行動與戰鬥">導播 <span class="fu-kbd fu-hide-sm">C</span></button>
+  <button class="fu-btn" id="sp-loop" aria-pressed="true" data-fu-tip="一局結束自動開下一局">連播</button>
+  <button class="fu-btn" id="sp-next">下一場 <span class="fu-kbd fu-hide-sm">N</span></button>
+  <button class="fu-btn fu-hide-sm" id="sp-clean" data-fu-tip="隱藏控制列，乾淨畫面（O）">純畫面</button>
+  <button class="fu-btn fu-hide-sm" id="sp-full">全螢幕</button>
+  <button class="fu-btn" id="sp-play" data-fu-tip="換成你親自下場">親征</button>
+</nav>
+<div class="hb-onair" id="onair" aria-label="轉播資訊">
+  <div class="hb-onair__brand"><span class="fu-seal" aria-hidden="true">六境</span><span><b>HexBattle</b><span class="fu-label" id="oa-match">第 1 場</span></span></div>
+  <div class="hb-onair__round"><span class="fu-label fu-num" id="oa-round">第 0 / 30 輪</span><span class="hb-progress"><i id="oa-prog"></i></span><span class="fu-label" id="oa-target">先到 40 分</span></div>
+  <span class="hb-onair__lead fu-label" id="oa-lead"></span>
+  <span class="fu-chip fu-chip--live hb-onair__phase" id="oa-phase"></span>
+  <span class="fu-chip fu-chip--gold" id="oa-paused" hidden>暫停</span>
+</div>
+<ol class="hb-ticker" id="ticker" aria-live="polite" aria-label="戰況快報"></ol>
+<div class="hb-banner" id="banner" hidden aria-hidden="true"><span class="fu-label" id="banner-kicker"></span><strong id="banner-text"></strong></div>
+
+<!-- 市場 -->
+<aside class="fu-drawer" id="market" aria-label="市場">
+  <div class="fu-drawer__head"><span class="fu-label"><b>■</b> 市場 · 共用</span><button class="fu-btn fu-btn--ghost fu-btn--icon" data-fu-close aria-label="關閉">✕</button></div>
+  <div class="fu-drawer__body">
+    <p class="fu-small fu-dim">買下的牌進入你的棄牌堆，洗回牌組後才會抽到。每輪最左邊的牌會被移除並補上新牌。功勳牌在牌組裡就算分，但抽到時是廢牌。</p>
+    <div class="ah-market" id="market-row"></div>
+  </div>
+  <div class="fu-drawer__foot"><span class="fu-label">金 <span class="fu-num" id="market-gold">0</span></span><span class="fu-label" style="margin-left:auto">牌堆 <span class="fu-num" id="market-deck">0</span></span></div>
+</aside>
+
+<!-- 牌組 -->
+<aside class="fu-drawer" id="deck" aria-label="牌組">
+  <div class="fu-drawer__head"><span class="fu-label"><b>■</b> 你的牌組</span><button class="fu-btn fu-btn--ghost fu-btn--icon" data-fu-close aria-label="關閉">✕</button></div>
+  <div class="fu-drawer__body" id="deck-body"></div>
+</aside>
+
+<!-- 戰報 -->
+<aside class="fu-drawer" id="log" aria-label="戰報">
+  <div class="fu-drawer__head"><span class="fu-label"><b>■</b> 戰報 · 你看得到的</span><button class="fu-btn fu-btn--ghost fu-btn--icon" data-fu-close aria-label="關閉">✕</button></div>
+  <div class="fu-drawer__body"><ol class="fu-list fu-small ah-log" id="log-list"></ol></div>
+</aside>
+
+<!-- 設定 -->
+<aside class="fu-drawer" id="settings" aria-label="設定">
+  <div class="fu-drawer__head"><span class="fu-label"><b>■</b> 設定</span><button class="fu-btn fu-btn--ghost fu-btn--icon" data-fu-close aria-label="關閉">✕</button></div>
+  <div class="fu-drawer__body" id="settings-form">
+    <section>
+      <h3>新戰局</h3>
+      <div class="fu-field"><span>模式</span><div class="fu-seg" data-name="mode"><button value="play" aria-pressed="true">親征</button><button value="watch" aria-pressed="false">觀戰</button><button value="stream" aria-pressed="false">直播</button></div></div>
+      <div class="fu-field"><span>勢力數</span><div class="fu-seg" data-name="players"><button value="2" aria-pressed="false">2</button><button value="3" aria-pressed="false">3</button><button value="4" aria-pressed="true">4</button><button value="5" aria-pressed="false">5</button><button value="6" aria-pressed="false">6</button></div></div>
+      <label class="fu-field"><span>戰場種子</span><input class="fu-input" name="seed" maxlength="40" autocomplete="off" spellcheck="false" placeholder="留空＝隨機"></label>
+      <label class="fu-field"><span>回合上限</span><select class="fu-select" name="rounds"><option value="20">20 輪</option><option value="30" selected>30 輪</option><option value="40">40 輪</option></select></label>
+      <label class="fu-field"><span>AI 打法</span><select class="fu-select" name="doctrine"><option value="mixed" selected>各有不同（均衡、經營、征伐、堅守、劫掠）</option><option value="balanced">全部均衡</option><option value="warlord">全部征伐</option><option value="builder">全部經營</option><option value="warden">全部堅守</option><option value="raider">全部劫掠</option></select></label>
+      <label class="fu-switch"><span>中立守軍</span><input type="checkbox" name="neutrals" checked></label>
+      <button class="fu-btn fu-btn--seal fu-btn--block" id="new-game">以此設定開新局</button>
+    </section>
+    <section>
+      <h3>畫面</h3>
+      <div class="fu-field"><span>播放速度</span><div class="fu-seg" data-name="speed"><button value="slow" aria-pressed="false">慢</button><button value="normal" aria-pressed="true">中</button><button value="fast" aria-pressed="false">快</button><button value="skip" aria-pressed="false">極速</button></div></div>
+      <label class="fu-switch"><span>領土邊界</span><input type="checkbox" name="borders" checked></label>
+      <label class="fu-switch"><span>血條</span><input type="checkbox" name="bars" checked></label>
+      <label class="fu-switch"><span>觀戰時看見全圖</span><input type="checkbox" name="omniscient" checked></label>
+    </section>
+    <section>
+      <h3>觀戰與直播</h3>
+      <label class="fu-switch"><span>自動連播下一場</span><input type="checkbox" name="loop" checked></label>
+      <label class="fu-switch"><span>導播鏡頭（自動跟拍行動與戰鬥）</span><input type="checkbox" name="director" checked></label>
+      <label class="fu-field"><span>場間休息</span><select class="fu-select" name="intermission"><option value="6">6 秒</option><option value="12" selected>12 秒</option><option value="20">20 秒</option><option value="40">40 秒</option></select></label>
+      <p class="fu-small fu-dim">直播軟體（OBS 等）新增「瀏覽器來源」，貼上下面的網址、寬高設 1920×1080，就會直接進入直播模式並一局接一局自動播放；網址參數只影響那個畫面，不會改你的設定。</p>
+      <p class="hb-url"><code id="stream-url"></code></p>
+      <button class="fu-btn fu-btn--sm" id="copy-url">複製直播網址</button>
+      <h3>觀戰戰績</h3>
+      <div id="series-body"></div>
+      <button class="fu-btn fu-btn--sm fu-btn--ghost" id="series-reset">清除戰績</button>
+    </section>
+    <section>
+      <h3>本機 Agent</h3>
+      <p class="fu-small fu-dim">同一個引擎可在 Node 無頭執行。存檔式 CLI：<code>node tools/hexbattle.cjs new --seat 1</code>；對戰場：<code>node tools/hexbattle-arena.cjs --seat "cmd:你的程式" --seat bot:warlord</code>。此頁也提供 <code>window.HexBattle</code>（observe／legal／act／describe）給瀏覽器內的 agent 操作你的席位，以及 <code>hexbattle</code> 事件（開局、每輪、精彩時刻、終局）給直播疊加層或聊天機器人。完整說明見 docs/hexbattle/agent-api.md。</p>
+    </section>
+  </div>
+</aside>
+
+<!-- 規則 -->
+<aside class="fu-drawer fu-drawer--left" id="rules" aria-label="規則">
+  <div class="fu-drawer__head"><span class="fu-label"><b>■</b> 規則與操作</span><button class="fu-btn fu-btn--ghost fu-btn--icon" data-fu-close aria-label="關閉">✕</button></div>
+  <div class="fu-drawer__body ah-rules">
+    <section><h3>勝利</h3><p>先在輪結束時達到目標分數（2 方 30、其餘 40），或回合上限時分數最高，或摧毀所有敵方都城。分數來自：控制遺跡（外圈每輪 1、中央 2）、遺跡上的神殿（再 1／2，升級再 1）、摧毀建築 1、摧毀都城 5，以及牌組裡的功勳牌。遺跡上或旁邊有敵軍（含中立守軍）就不計分。</p></section>
+    <section><h3>一輪</h3><p>每方輪流行動，順序蛇形輪替。輪到你時抽到 5 張手牌、3 點指令。打出建築、兵種、戰術牌要付資源與指令點；經濟牌免費。買市場的牌、升級建築、設定訓練、下令部隊、與銀行交易都不花指令點。結束時可留 1 張手牌，其餘進棄牌堆。所有人結束後全場同時自動交戰，然後計分、收入、訓練。</p></section>
+    <section><h3>領土與布局</h3><p>建築投射影響力到周圍（都城、前哨半徑 2），影響力最高者擁有該格，平手就是爭奪地。只能在己方領土建築；領土必須連回都城，斷聯的建築不生產、不能升級。每類建築每多兩座，造價多 1 材。產量看鄰居：農田靠水、沃土與成片農田；伐木場靠森林；礦場靠丘陵、山與金脈；市集靠周圍己方建築。</p></section>
+    <section><h3>糧食</h3><p>每輪先餵部隊（騎兵吃 2、其他 1），再餵建築工人（除農田、倉庫、城牆、都城外每座 1）。餵不飽的建築那一輪不生產、不射擊、不訓練；餵不飽的部隊受 3 傷害。資源有上限，倉庫可加。銀行交易 3 換 1，有連通的市集時 2 換 1。</p></section>
+    <section><h3>戰鬥</h3><p>部隊有三種姿態：進攻（前往目標格，沿路與遇到的敵軍交戰）、駐守（攔截據點 3 格內的敵軍）、原地。戰鬥分 6 拍：射程內有敵人就攻擊，否則移動。槍兵剋騎兵、騎兵剋弓兵與投石車、弓兵剋步兵；投石車對建築 6 傷害。森林與丘陵掩護 +1，站在己方建築上 +1，丘陵上的遠程射程 +1。伏兵埋在你的領土，敵軍踏入受 5 傷害。</p></section>
+    <section><h3>迷霧</h3><p>你只看得到建築、部隊與領土周圍。曾經看過的敵方建築會留在記憶裡，直到再次看見。他人的手牌、牌組、資源與伏兵都不公開。</p></section>
+    <section><h3>操作</h3><div class="fu-hotkeys" id="hotkeys"></div><p class="fu-small fu-dim">手牌下方的提示列永遠告訴你下一步。亮框的牌現在打得出；暗掉的牌會寫出原因（例如「缺2材」）。滑過手牌會先標出可放的位置；點牌後藍框是合法位置、金框是收益最好的位置。不知道怎麼打就按「提示」（I）看 AI 的建議並按「照做」，或按「代打」讓 AI 打完這回合。</p><p class="fu-small fu-dim">滑鼠：左鍵拖曳平移、右鍵拖曳旋轉、滾輪縮放、點格子查看。觸控：單指平移、雙指縮放與旋轉。點己方部隊再點目標格可單獨下令。</p></section>
+    <section><h3>觀戰與直播</h3><p>觀戰時所有勢力都由 AI 操作：空白鍵暫停、N 下一場、C 開關導播鏡頭、O 隱藏控制列。直播模式另外把頂列收起、放大計分板，滑鼠靜止幾秒後控制列與游標自動隱藏，一局結束後休息幾秒自動開下一局，並累計各打法的戰績。連播時各打法會輪換座位。</p></section>
+  </div>
+</aside>
+
+<!-- 開場幕 -->
+<div class="fu-curtain" id="intro">
+  <div class="fu-curtain__inner">
+    <span class="fu-seal fu-seal--lg fu-stamp" aria-hidden="true">六境</span>
+    <p class="fu-label">FuGames / 六境戰場</p>
+    <h2 class="fu-display">HexBattle</h2>
+    <p class="fu-dim ah-intro-lead">抽牌、布局、經營糧材金。<br>每一輪結束，全場同時自動交戰。</p>
+    <div class="fu-curtain__actions">
+      <button class="fu-btn fu-btn--seal fu-btn--lg" id="intro-play">親征 · 你 + 3 AI</button>
+      <button class="fu-btn fu-btn--lg" id="intro-watch">觀戰 · 4 AI</button>
+      <button class="fu-btn fu-btn--lg" id="intro-stream">直播 · AI 自動連播</button>
+      <button class="fu-btn fu-btn--lg fu-btn--ghost" data-fu-open="settings">更多設定</button>
+    </div>
+    <p class="fu-label fu-dim" id="intro-note">第一次玩：跟著手牌下方的提示列走；卡住就按「提示」。</p>
+  </div>
+</div>
+
+<!-- 結算幕 -->
+<div class="fu-curtain" id="result" hidden>
+  <div class="fu-curtain__inner">
+    <span class="fu-seal fu-seal--lg fu-stamp" aria-hidden="true" id="result-seal">終局</span>
+    <p class="fu-label" id="result-reason">戰局結束</p>
+    <h2 class="fu-display" id="result-title">勝</h2>
+    <ol class="fu-list ah-standings" id="result-standings"></ol>
+    <section class="hb-series" id="result-series" hidden><p class="fu-label">系列戰績 · <span id="result-series-count"></span></p><div id="result-series-body"></div></section>
+    <p class="fu-label hb-next" id="result-next" hidden></p>
+    <div class="fu-curtain__actions"><button class="fu-btn fu-btn--seal fu-btn--lg" id="result-again">再來一局</button><button class="fu-btn fu-btn--lg" id="result-stop" hidden>停止連播</button><button class="fu-btn fu-btn--lg" data-fu-close>看戰場</button></div>
+  </div>
+</div>
+
+<div class="ah-busy" id="busy" hidden><span class="fu-chip fu-chip--live" id="busy-text">其他勢力行動中</span></div>
+<p class="ah-fallback" id="fallback" hidden>此瀏覽器無法啟用 WebGL。可以改用 <code>node tools/hexbattle.cjs</code> 在終端機遊玩。</p>
+
+<script type="module" src="hexbattle/app.js"></script>
+</body>
+</html>

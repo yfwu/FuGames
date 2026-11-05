@@ -6,7 +6,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const ROOT = path.join(__dirname, '..');
-const GAMES = ['tux2d','autohex','autohex_3d','cyclic_tictactoe','cyclic_tictactoe_3d','cyclic_connect4_torus','trackgame','card_hex',
+const GAMES = ['tux2d','autohex','hexbattle','cyclic_tictactoe','cyclic_tictactoe_3d','cyclic_connect4_torus','trackgame','card_hex',
   'gravity_brawl','flip_five','effect_snake','duplicate_bridge','rummikub','blackjack',
   'tank_arena','pulse_arena','territory_loop','star_feast','front_line'];
 const CONTROLS = ['arrow-up','arrow-down','arrow-left','arrow-right','launch','play',

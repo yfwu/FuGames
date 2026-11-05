@@ -75,7 +75,7 @@ const MOTIFS = {
     const h = .22 + .2 * Math.sin(c.x * .22 + t * .5) * Math.cos(c.z * .2 - t * .35);
     return [h, BASE[c.k % 3]];
   },
-  autohex_3d(c, t) {
+  hexbattle(c, t) {
     const n = Math.sin(c.x * .21 + 1.3) * Math.cos(c.z * .18) + .55 * Math.sin(c.x * .47 - c.z * .39 + 2) + .3 * Math.sin(c.z * .9 + c.x * .2);
     const river = Math.abs(c.z - 5 * Math.sin(c.x * .16) - 2) < 1.1 && c.d < 17;
     if (river) return [.08, col('azure', .35)];

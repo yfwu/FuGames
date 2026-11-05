@@ -1,10 +1,10 @@
-/* AutoHex 3D page styles on top of shared/fu.css (朱墨). Only game-specific
+/* HexBattle page styles on top of shared/fu.css (朱墨). Only game-specific
    pieces live here: resources HUD, faction list, cell panel, hand of cards,
    market cards, floating combat numbers. Colours come from --fu-* tokens. */
 
-.ah-app { --ah-hand-h: 148px; --ah-dock-h: 46px; }
+.ah-app { --ah-hand-h: 184px; --ah-dock-h: 46px; }
 .ah-app [hidden] { display: none !important; }
-.ah-app[data-phase="intro"] .fu-hud, .ah-app[data-phase="intro"] .ah-handbar, .ah-app[data-phase="intro"] .ah-dock { visibility: hidden; }
+.ah-app[data-phase="intro"] .fu-hud, .ah-app[data-phase="intro"] .ah-handbar, .ah-app[data-phase="intro"] .ah-dock, .ah-app[data-phase="intro"] .hb-banner { visibility: hidden; }
 
 /* ---------- resources ---------- */
 .ah-res { width: 280px; }
@@ -64,7 +64,14 @@
 .ah-card::before { content: ""; position: absolute; inset: 0 0 auto; height: 3px; background: var(--kind); }
 .ah-card:hover { transform: translateY(-6px); border-color: var(--fu-text-dim); }
 .ah-card[aria-pressed="true"] { transform: translateY(-12px); border-color: var(--fu-seal); box-shadow: inset 0 0 0 1px var(--fu-seal); }
-.ah-card.is-dead { opacity: .55; }
+.ah-card.is-dead { opacity: .5; }
+.ah-card.is-ready { border-color: var(--fu-text-dim); }
+.ah-card.is-ready::after { content: ""; position: absolute; inset: 0; pointer-events: none; box-shadow: inset 0 3px 12px -8px var(--kind); }
+.ah-card__why { position: absolute; left: 0; right: 0; bottom: 0; padding: 4px 6px; font: 700 10px/1.1 var(--fu-font-mono); color: var(--fu-paper); background: color-mix(in srgb, var(--fu-ink-0) 82%, transparent); text-align: center; letter-spacing: .04em; }
+.ah-card__mark { position: absolute; bottom: 30px; left: 8px; font: 600 9.5px/1 var(--fu-font-mono); letter-spacing: .16em; color: var(--fu-seal); }
+.ah-card.is-marked { border-color: var(--fu-seal); opacity: .6; }
+.ah-card.is-hint { border-color: var(--fu-gold); box-shadow: inset 0 0 0 1px var(--fu-gold); animation: hb-glow 1.2s var(--fu-ease) infinite alternate; }
+@keyframes hb-glow { from { box-shadow: inset 0 0 0 1px var(--fu-gold); } to { box-shadow: inset 0 0 0 2px var(--fu-gold), inset 0 0 18px -6px var(--fu-gold); } }
 .ah-card.is-new { animation: ah-deal var(--fu-dur-3) var(--fu-ease) both; animation-delay: calc(var(--i, 0) * 70ms); }
 .ah-card__kind { font: 600 9.5px/1 var(--fu-font-mono); letter-spacing: .16em; color: var(--kind); text-transform: uppercase; }
 .ah-card__name { font-family: var(--fu-font-display); font-weight: 900; font-size: 19px; line-height: 1.05; }
@@ -73,8 +80,9 @@
 .ah-card__cost .is-short { color: var(--fu-seal); }
 .ah-card__ap { margin-left: auto; display: inline-flex; gap: 3px; }
 .ah-card__ap i { width: 7px; height: 7px; background: var(--fu-seal); transform: rotate(45deg); }
-.ah-card__acts { position: absolute; top: 6px; right: 6px; display: flex; gap: 2px; opacity: 0; transition: opacity var(--fu-dur-1); }
-.ah-card:hover .ah-card__acts, .ah-card:focus-within .ah-card__acts, .ah-card.is-kept .ah-card__acts { opacity: 1; }
+.ah-card__acts { position: absolute; top: 6px; right: 6px; display: flex; gap: 2px; visibility: hidden; }
+/* hidden actions must not catch taps: they appear on hover, focus (first tap on touch) or selection */
+.ah-card:hover .ah-card__acts, .ah-card:focus-within .ah-card__acts, .ah-card[aria-pressed="true"] .ah-card__acts, .ah-card.is-kept .ah-card__acts { visibility: visible; }
 .ah-card__acts span { font: 700 9.5px/1 var(--fu-font-mono); padding: 3px 4px; background: var(--fu-ink-0); border: 1px solid var(--fu-line-strong); color: var(--fu-text-dim); }
 .ah-card__acts span:hover { color: var(--fu-text); border-color: var(--fu-text); }
 .ah-card.is-kept .ah-card__acts [data-keep] { color: var(--fu-ink-0); background: var(--fu-gold); border-color: var(--fu-gold); }
@@ -119,11 +127,15 @@
 .ah-busy { position: fixed; z-index: 36; top: calc(var(--fu-topbar-h) + 8px); left: 50%; transform: translateX(-50%); }
 .ah-busy .fu-chip { background: var(--fu-ink-1); }
 .ah-fallback { position: fixed; inset: 40% 10% auto; z-index: 50; text-align: center; color: var(--fu-text); }
-body[data-phase="watch"] .ah-handbar, body[data-phase="watch"] #btn-end, body[data-phase="watch"] #btn-army, body[data-phase="watch"] #btn-guard, body[data-phase="watch"] #btn-deck, body[data-phase="watch"] .ah-res { display: none; }
+/* modes: the play dock and hand belong to 親征; the spectator dock, broadcast strip and ticker to 觀戰／直播 */
+body:not([data-phase="play"]) .ah-handbar, body:not([data-phase="play"]) .ah-dock, body:not([data-phase="play"]) .ah-res { display: none; }
+body:not([data-phase="watch"]):not([data-phase="stream"]) .hb-specdock,
+body:not([data-phase="watch"]):not([data-phase="stream"]) .hb-onair,
+body:not([data-phase="watch"]):not([data-phase="stream"]) .hb-ticker { display: none; }
 body[data-busy="1"] .ah-hand { opacity: .55; }
 
 @media (max-width: 720px) {
-  .ah-app { --ah-hand-h: 118px; }
+  .ah-app { --ah-hand-h: 150px; }
   .ah-card { width: 86px; height: 112px; padding: 7px 6px 6px; }
   .ah-card__name { font-size: 16px; }
   .ah-card__text { -webkit-line-clamp: 2; font-size: 10px; }
@@ -146,3 +158,104 @@ body[data-busy="1"] .ah-hand { opacity: .55; }
 .ah-dock #btn-end { background: var(--fu-seal); color: var(--fu-ink-0); }
 .ah-dock #btn-end:hover:not(:disabled) { background: var(--fu-text); }
 .ah-dock #btn-end:disabled { background: var(--fu-surface-solid); color: var(--fu-text-dim); }
+.ah-dock #btn-end.is-ready { animation: hb-pulse 1.4s var(--fu-ease) infinite; }
+@keyframes hb-pulse { 50% { box-shadow: 0 0 0 4px color-mix(in srgb, var(--fu-seal) 35%, transparent); } }
+.ah-dock .is-afford { color: var(--fu-gold); }
+.ah-dock #btn-market.is-hint { box-shadow: inset 0 0 0 2px var(--fu-gold); }
+
+/* ---------- guide strip (親征) ---------- */
+.hb-guide {
+  display: flex; align-items: center; gap: 10px; width: max-content; max-width: min(760px, calc(100vw - 2 * var(--fu-gutter)));
+  margin: 0 auto 2px; padding: 6px 10px 6px 12px; pointer-events: auto;
+  background: var(--fu-surface-solid); border: 1px solid var(--fu-line-strong); border-left: 3px solid var(--fu-seal);
+  font-size: 13px; line-height: 1.4; color: var(--fu-text);
+}
+.hb-guide__dot { width: 7px; height: 7px; flex: none; background: var(--fu-seal); transform: rotate(45deg); }
+.hb-guide.is-wait { border-left-color: var(--fu-line-strong); color: var(--fu-text-dim); }
+.hb-guide.is-wait .hb-guide__dot { background: var(--fu-text-dim); animation: hb-blink 1s steps(2) infinite; }
+.hb-guide.is-done { border-left-color: var(--fu-jade); }
+.hb-guide.is-done .hb-guide__dot { background: var(--fu-jade); }
+.hb-guide.is-hint { border-left-color: var(--fu-gold); }
+.hb-guide.is-hint .hb-guide__dot { background: var(--fu-gold); }
+.hb-guide .fu-btn { flex: none; }
+@keyframes hb-blink { 50% { opacity: .2; } }
+.ah-ap-text, #ap-text { color: var(--fu-text-dim); }
+
+/* ---------- spectator: dock, broadcast strip, ticker, banner ---------- */
+.hb-specdock { transition: opacity var(--fu-dur-2) var(--fu-ease); }
+.hb-specdock .fu-seg { display: flex; }
+.hb-specdock .fu-seg > button { min-height: 100%; border: 0; padding: 0 12px; }
+.hb-specdock .fu-btn, .hb-specdock .fu-seg > button { white-space: nowrap; }
+.hb-specdock #sp-play { color: var(--fu-seal); }
+.hb-onair {
+  position: fixed; z-index: 30; top: calc(var(--fu-topbar-h) + 8px); left: var(--fu-gutter);
+  display: flex; flex-direction: column; gap: 6px; width: 290px; padding: 10px 12px;
+  background: var(--fu-surface); border: 1px solid var(--fu-line-strong); backdrop-filter: blur(6px);
+}
+.hb-onair__brand { display: flex; align-items: center; gap: 10px; }
+.hb-onair__brand b { display: block; font-family: var(--fu-font-display); font-size: 20px; line-height: 1; letter-spacing: .02em; }
+.hb-onair__round { display: grid; grid-template-columns: auto 1fr auto; gap: 8px; align-items: center; }
+.hb-progress { height: 3px; background: var(--fu-ink-3); }
+.hb-progress > i { display: block; height: 100%; width: calc(var(--v, 0) * 100%); background: var(--fu-seal); transition: width var(--fu-dur-3) var(--fu-ease); }
+.hb-onair__lead { display: flex; align-items: center; gap: 6px; color: var(--fu-text); }
+.hb-onair__phase { align-self: flex-start; border-color: var(--side, var(--fu-line-strong)); color: var(--fu-text); max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hb-onair__phase:empty { display: none; }
+.hb-ticker {
+  position: fixed; z-index: 30; left: var(--fu-gutter); bottom: calc(max(var(--fu-gutter), env(safe-area-inset-bottom)) + var(--ah-dock-h) + 14px);
+  width: min(440px, calc(100vw - 2 * var(--fu-gutter))); margin: 0; padding: 0; list-style: none;
+  display: flex; flex-direction: column-reverse; gap: 4px; pointer-events: none;
+}
+.hb-ticker li { display: flex; gap: 8px; align-items: baseline; padding: 6px 10px; font-size: 13.5px; line-height: 1.4; color: var(--fu-text); background: var(--fu-surface-solid); border-left: 3px solid var(--side); animation: hb-in var(--fu-dur-3) var(--fu-ease) both; transition: opacity 1.2s; }
+.hb-ticker li .fu-side { transform: rotate(45deg); flex: none; }
+.hb-ticker li.is-big { font-size: 15px; }
+.hb-ticker li.is-quiet { color: var(--fu-text-dim); font-size: 12.5px; }
+.hb-ticker li.is-old { opacity: .45; }
+@keyframes hb-in { from { opacity: 0; transform: translateX(-16px); } to { opacity: 1; transform: none; } }
+.hb-banner {
+  position: fixed; z-index: 45; left: 50%; top: 26%; transform: translate(-50%, -50%); pointer-events: none;
+  display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center;
+}
+.hb-banner strong { font-family: var(--fu-font-display); font-weight: 900; font-size: clamp(34px, 6vw, 72px); line-height: 1; color: var(--fu-paper); text-shadow: 0 2px 0 var(--fu-ink-0), 0 0 24px var(--fu-ink-0); }
+.hb-banner .fu-label { color: var(--fu-gold); text-shadow: 0 0 8px var(--fu-ink-0); }
+.hb-banner.is-on { animation: hb-banner 1.8s var(--fu-ease) both; }
+@keyframes hb-banner { from { opacity: 0; transform: translate(-50%, -40%) scale(.96); } 12% { opacity: 1; transform: translate(-50%, -50%); } 82% { opacity: 1; } to { opacity: 0; } }
+.hb-series { width: min(420px, 100%); }
+.hb-series__table { width: 100%; font-size: 12.5px; }
+.hb-series__table td, .hb-series__table th { padding: 3px 6px; text-align: right; }
+.hb-series__table td:first-child, .hb-series__table th:first-child { text-align: left; }
+.hb-next { color: var(--fu-gold); }
+.hb-url code { display: block; word-break: break-all; white-space: normal; padding: 6px 8px; }
+.ah-factions .ah-f__rank { width: 14px; font-family: var(--fu-font-mono); font-size: 11px; color: var(--fu-text-dim); text-align: right; }
+.ah-factions .ah-f__now { margin-left: 6px; color: var(--side); font-family: var(--fu-font-mono); font-size: 10px; letter-spacing: .08em; }
+.ah-factions .ah-f__wins { margin-left: 6px; color: var(--fu-gold); font-family: var(--fu-font-mono); font-size: 10px; }
+body[data-phase="watch"] .ah-cell-hud, body[data-phase="stream"] .ah-cell-hud { left: auto; right: var(--fu-gutter); bottom: calc(var(--fu-gutter) + var(--ah-dock-h) + 12px); }
+
+/* 直播：no top bar, bigger scoreboard, idle controls fade out */
+body.is-stream .fu-topbar { display: none; }
+body.is-stream .hb-onair { top: var(--fu-gutter); width: 330px; }
+body.is-stream .fu-hud--tr { top: var(--fu-gutter); }
+body.is-stream .ah-factions { width: 340px; }
+body.is-stream .ah-factions li { padding: 9px 0; font-size: 15px; }
+body.is-stream .ah-factions .ah-f__vp { font-size: 22px; }
+body.is-stream .ah-vpbar { height: 4px; }
+body.is-stream .fu-toasts { display: none; }
+body.is-stream[data-idle="1"] .hb-specdock { opacity: 0; pointer-events: none; }
+body.is-stream[data-idle="1"], body.is-stream[data-idle="1"] canvas { cursor: none; }
+body.is-clean .hb-specdock { display: none !important; }
+body.is-clean .hb-ticker { bottom: var(--fu-gutter); }
+
+@media (max-width: 720px) {
+  .hb-guide { font-size: 12px; padding: 5px 8px; }
+  .ah-dock #btn-auto { display: none; }
+  .hb-onair { width: auto; max-width: 44vw; padding: 6px 8px; gap: 4px; }
+  body.is-stream .hb-onair { width: auto; }
+  .hb-onair__brand, .hb-onair__lead, #oa-target, .hb-progress { display: none; }
+  .hb-onair__round { grid-template-columns: auto; }
+  .hb-onair__phase { font-size: 10.5px; }
+  .hb-ticker { width: calc(100vw - 2 * var(--fu-gutter)); }
+  .hb-ticker li { font-size: 12px; padding: 4px 8px; }
+  .hb-specdock .fu-btn { padding: 0 8px; font-size: 12px; letter-spacing: 0; white-space: nowrap; }
+  .hb-specdock .fu-seg > button { padding: 0 7px; font-size: 12px; white-space: nowrap; }
+  .hb-specdock #sp-play { display: none; }
+  body.is-stream .ah-factions { width: auto; }
+}

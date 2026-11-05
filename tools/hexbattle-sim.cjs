@@ -1,8 +1,8 @@
 #!/usr/bin/env node
-/* Bot-vs-bot balance simulation for AutoHex 3D.
-   node tools/autohex3d-sim.cjs --games 20 --players 4 [--profiles balanced,builder,...] [--seed prefix] [--json] */
-const E = require('../autohex3d/engine.js');
-const AI = require('../autohex3d/ai.js');
+/* Bot-vs-bot balance simulation for HexBattle.
+   node tools/hexbattle-sim.cjs --games 20 --players 4 [--profiles balanced,builder,...] [--seed prefix] [--json] */
+const E = require('../hexbattle/engine.js');
+const AI = require('../hexbattle/ai.js');
 const args = process.argv.slice(2), opt = k => { const i = args.indexOf('--' + k); return i >= 0 ? args[i + 1] : undefined; };
 const games = +(opt('games') || 10), players = +(opt('players') || 4), prefix = opt('seed') || 'sim';
 const pool = (opt('profiles') || AI.PROFILE_ORDER.join(',')).split(',');

@@ -1,11 +1,11 @@
-/* AutoHex 3D text view: turns an observation into a compact plain-text
+/* HexBattle text view: turns an observation into a compact plain-text
    briefing (status, hand, market, ASCII hex map, forces) for language-model
    agents and terminal play. Pure function of the observation. */
 (function (root, factory) {
-  const engine = typeof module === 'object' && module.exports ? require('./engine.js') : root.AutoHexEngine;
+  const engine = typeof module === 'object' && module.exports ? require('./engine.js') : root.HexBattleEngine;
   const api = factory(engine);
   if (typeof module === 'object' && module.exports) module.exports = api;
-  if (root) root.AutoHexText = api;
+  if (root) root.HexBattleText = api;
 })(typeof window !== 'undefined' ? window : globalThis, function (E) {
   'use strict';
   const { CARDS, BUILDINGS, UNITS, TERRAIN } = E;
@@ -50,7 +50,7 @@
   function describe(obs, opts = {}) {
     const out = [];
     const me = obs.players.find(p => p.id === obs.you);
-    out.push(`== AutoHex 3D · 第 ${obs.round}/${obs.maxRounds} 輪 · 目標 ${obs.vpTarget} 分 · ${obs.phase === 'over' ? '已結束' : obs.turn === obs.you ? '輪到你' : '輪到 ' + obs.turn} ==`);
+    out.push(`== HexBattle · 第 ${obs.round}/${obs.maxRounds} 輪 · 目標 ${obs.vpTarget} 分 · ${obs.phase === 'over' ? '已結束' : obs.turn === obs.you ? '輪到你' : '輪到 ' + obs.turn} ==`);
     out.push('各方：' + obs.players.map(p => `${p.id}${p.id === obs.you ? '(你)' : ''} ${p.name} ${p.alive ? p.vp + '分' : '出局'} 領土${p.territory} 建築${p.buildings} 部隊${p.units}`).join(' | '));
     if (me && obs.res) {
       const inc = obs.income;

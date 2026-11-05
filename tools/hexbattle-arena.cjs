@@ -1,8 +1,8 @@
 #!/usr/bin/env node
-/* AutoHex 3D arena: runs matches between external agent programs and the
+/* HexBattle arena: runs matches between external agent programs and the
    built-in bots, and reports standings.
 
-     node tools/autohex3d-arena.cjs --seat "cmd:node tools/autohex3d-example-agent.cjs" \
+     node tools/hexbattle-arena.cjs --seat "cmd:node tools/hexbattle-example-agent.cjs" \
        --seat bot:warlord --seat bot:builder --seat bot:warden [--games 4] [--seed arena] [--timeout 10000] [--log out.jsonl]
 
    A seat is either bot:<doctrine> (balanced, builder, warlord, warden, raider)
@@ -21,8 +21,8 @@
 const { spawn } = require('child_process');
 const fs = require('fs');
 const readline = require('readline');
-const E = require('../autohex3d/engine.js');
-const AI = require('../autohex3d/ai.js');
+const E = require('../hexbattle/engine.js');
+const AI = require('../hexbattle/ai.js');
 
 const argv = process.argv.slice(2);
 const seats = [];
